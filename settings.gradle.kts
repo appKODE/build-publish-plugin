@@ -2,10 +2,11 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
+        google()
     }
 }
 
-rootProject.name = ("kotlin-gradle-plugin-template")
+rootProject.name = ("firebase-publish-plugin")
 
 include(":example")
 includeBuild("plugin-build")

@@ -6,6 +6,8 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version BuildPluginsVersion.DETEKT
     id("org.jlleitschuh.gradle.ktlint") version BuildPluginsVersion.KTLINT
     id("com.github.ben-manes.versions") version BuildPluginsVersion.VERSIONS_PLUGIN
+    id("com.android.application") version BuildPluginsVersion.ANDROID_PLUGIN apply false
+    id("com.google.firebase.appdistribution") version BuildPluginsVersion.APP_DISTRIBUTION_PLUGIN apply false
 }
 
 allprojects {

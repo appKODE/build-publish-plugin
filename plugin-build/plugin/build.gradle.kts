@@ -7,6 +7,8 @@ plugins {
 dependencies {
     implementation(kotlin("stdlib-jdk7"))
     implementation(gradleApi())
+    implementation("com.android.tools.build:gradle:${BuildPluginsVersion.ANDROID_PLUGIN}")
+    implementation("com.google.firebase:firebase-appdistribution-gradle:${BuildPluginsVersion.APP_DISTRIBUTION_PLUGIN}")
 
     testImplementation(TestingLib.JUNIT)
 }

@@ -8,6 +8,8 @@ object BuildPluginsVersion {
     const val KTLINT = "10.0.0"
     const val PLUGIN_PUBLISH = "0.14.0"
     const val VERSIONS_PLUGIN = "0.38.0"
+    const val APP_DISTRIBUTION_PLUGIN = "3.0.0"
+    const val ANDROID_PLUGIN = "7.0.4"
 }
 
 object TestingLib {
