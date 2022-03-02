@@ -96,22 +96,42 @@ abstract class SendChangelogTask : DefaultTask() {
     abstract val slackUserMentions: SetProperty<String>
 
     @TaskAction
-    fun prepareChangelog() {
+    fun prepareTgChangelog() {
         val buildVariants = buildVariants.get()
+        val buildTag = getBuildTag(buildVariants)
+
+        sendTelegramChangelog(buildVariants, buildTag)
+        sendSlackMessage(buildVariants, buildTag)
+        sendLocalChangelog(buildVariants)
+    }
+
+    private fun sendLocalChangelog(buildVariants: Set<String>) {
+        if (tgConfig.orNull.isNullOrEmpty() && slackConfig.orNull.isNullOrEmpty()) {
+            val messageKey = commitMessageKey.get()
+            val changelog = Changelog(commandExecutor, project.logger, messageKey, buildVariants)
+                .buildForRecentBuildTag(
+                    defaultValueSupplier = { tagRange ->
+                        val previousBuildName = tagRange.previousBuildTag?.name?.let { "(**$it**)" }
+                        "No changes in comparison with a previous build $previousBuildName"
+                    }
+                )
+            project.logger.debug("changelog:")
+            project.logger.debug(changelog)
+        }
+    }
+
+    private fun sendTelegramChangelog(buildVariants: Set<String>, buildTag: Tag.Build) {
         val escapedCharacters =
             "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]".toRegex()
-        val escapedChangelogMessage = prepareChangelog(buildVariants, escapedCharacters)
-        if (escapedChangelogMessage.isNullOrBlank()) {
-            project.logger.error("[sendChangelog] changelog not sent, is empty or error occurred")
+        val tgChangelogMessage = prepareTgChangelog(buildVariants, escapedCharacters)
+        if (tgChangelogMessage.isNullOrBlank()) {
+            project.logger.error(
+                "[sendChangelog] changelog not sent to telegram, is empty or error occurred"
+            )
         }
-        val buildTag = getBuildTag(buildVariants)
         if (!tgConfig.orNull.isNullOrEmpty()) {
+            project.logger.debug("telegram config: ${tgConfig.get()}, mentions $tgUserMentions")
             val tgConfig = TelegramSendConfig(tgConfig.get())
-            val botId = tgConfig.botId
-                .takeIf { it.isNotBlank() }
-                .also { if (it == null) logger.warn("Bot ID is not set. Skipping changelog task") }
-                ?: return
-
             val baseOutputFileName = baseOutputFileName.get()
             val tgUserMentions = tgUserMentions.orNull.orEmpty().joinToString(", ")
             val text = (
@@ -122,16 +142,28 @@ abstract class SendChangelogTask : DefaultTask() {
                 .replace("[-]".toRegex()) { result -> "\\${result.value}" }
 
             val url = tgConfig.webhookUrl.format(
-                botId,
+                tgConfig.botId,
                 tgConfig.chatId,
-                URLEncoder.encode("$text$escapedChangelogMessage", "utf-8")
+                URLEncoder.encode("$text$tgChangelogMessage", "utf-8")
             )
             commandExecutor.sendToWebHook(url)
             project.logger.debug("changelog sent to Telegram")
         }
+    }
+
+    private fun sendSlackMessage(buildVariants: Set<String>, buildTag: Tag.Build) {
+        val slackChangelogMessage = prepareSlackChangelog(buildVariants)
+        if (slackChangelogMessage.isNullOrBlank()) {
+            project.logger.error(
+                "[sendChangelog] changelog not sent to Slack, is empty or error occurred"
+            )
+        }
         if (!slackConfig.orNull.isNullOrEmpty()) {
+            project.logger.debug("slack config: ${slackConfig.get()}, mentions $slackUserMentions")
+
             val slackConfig = SlackSendConfig(slackConfig.get())
             val slackUserMentions = slackUserMentions.orNull.orEmpty().joinToString(", ")
+            val baseOutputFileName = baseOutputFileName.get()
             val json = "\"{" +
                 "\\\"icon_url\\\": \\\"${slackConfig.iconUrl}\\\"," +
                 "\\\"username\\\": \\\"buildBot\\\", " +
@@ -139,20 +171,17 @@ abstract class SendChangelogTask : DefaultTask() {
                 "{ \\\"type\\\": \\\"section\\\", \\\"text\\\": { " +
                 "\\\"type\\\": \\\"mrkdwn\\\", " +
                 "\\\"text\\\": \\\"*$baseOutputFileName ${buildTag.name}*" +
-                " $slackUserMentions\\n\\n$escapedChangelogMessage\\\" " +
+                " $slackUserMentions\\n\\n$slackChangelogMessage\\\" " +
                 "}" +
                 "} ]" +
                 "}\""
+
             commandExecutor.sendToWebHook(slackConfig.webhookUrl, json)
             project.logger.debug("changelog sent to Slack")
         }
-        if (tgConfig.orNull.isNullOrEmpty() && slackConfig.orNull.isNullOrEmpty()) {
-            project.logger.debug("changelog:")
-            project.logger.debug(escapedChangelogMessage)
-        }
     }
 
-    private fun prepareChangelog(
+    private fun prepareTgChangelog(
         buildVariants: Set<String>,
         escapedCharacters: Regex,
     ): String? {
@@ -173,6 +202,27 @@ abstract class SendChangelogTask : DefaultTask() {
             ?.replace(issueRegexp) { result -> "[${result.value}](${issueUrlPrefix}${result.value})" }
             ?.replace(Regex("(\r\n|\n)"), "\n")
             ?.replace("[-]".toRegex()) { result -> "\\${result.value}" }
+    }
+
+    private fun prepareSlackChangelog(
+        buildVariants: Set<String>,
+    ): String? {
+        val messageKey = commitMessageKey.get()
+        val issueUrlPrefix = issueUrlPrefix.get()
+        val issueNumberPattern = issueNumberPattern.get()
+
+        val changelog = Changelog(commandExecutor, project.logger, messageKey, buildVariants)
+            .buildForRecentBuildTag(
+                defaultValueSupplier = { tagRange ->
+                    val previousBuildName = tagRange.previousBuildTag?.name?.let { "(**$it**)" }
+                    "No changes in comparison with a previous build $previousBuildName"
+                }
+            )
+        return changelog
+            ?.replace(Regex(issueNumberPattern), "<$issueUrlPrefix\$0|\$0>")
+            ?.replace(Regex("(\r\n|\n)"), "\\\\n")
+            // only this insane amount of quotes works! they are needed to produce \\\" in json
+            ?.replace(Regex("\""), "\\\\\\\\\\\\\"")
     }
 
     private fun getBuildTag(buildVariants: Set<String>): Tag.Build {
