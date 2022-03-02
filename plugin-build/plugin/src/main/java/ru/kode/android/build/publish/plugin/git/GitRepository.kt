@@ -1,8 +1,8 @@
-package ru.kode.android.firebase.publish.plugin.git
+package ru.kode.android.build.publish.plugin.git
 
-import ru.kode.android.firebase.publish.plugin.command.ShellCommandExecutor
-import ru.kode.android.firebase.publish.plugin.git.entity.Tag
-import ru.kode.android.firebase.publish.plugin.git.entity.TagRange
+import ru.kode.android.build.publish.plugin.command.ShellCommandExecutor
+import ru.kode.android.build.publish.plugin.git.entity.Tag
+import ru.kode.android.build.publish.plugin.git.entity.TagRange
 
 internal class GitRepository(
     private val commandExecutor: ShellCommandExecutor,

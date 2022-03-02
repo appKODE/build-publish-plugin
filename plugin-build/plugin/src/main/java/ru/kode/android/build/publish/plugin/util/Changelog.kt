@@ -1,9 +1,9 @@
-package ru.kode.android.firebase.publish.plugin.util
+package ru.kode.android.build.publish.plugin.util
 
 import org.gradle.api.logging.Logger
-import ru.kode.android.firebase.publish.plugin.command.ShellCommandExecutor
-import ru.kode.android.firebase.publish.plugin.git.GitRepository
-import ru.kode.android.firebase.publish.plugin.git.entity.TagRange
+import ru.kode.android.build.publish.plugin.command.ShellCommandExecutor
+import ru.kode.android.build.publish.plugin.git.GitRepository
+import ru.kode.android.build.publish.plugin.git.entity.TagRange
 
 internal class Changelog(
     private val commandExecutor: ShellCommandExecutor,

@@ -1,4 +1,4 @@
-package ru.kode.android.firebase.publish.plugin.git.entity
+package ru.kode.android.build.publish.plugin.git.entity
 
 sealed class Tag {
     abstract val name: String

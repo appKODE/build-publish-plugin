@@ -6,7 +6,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = ("firebase-publish-plugin")
+rootProject.name = ("build-publish-plugin")
 
 include(":example")
 includeBuild("plugin-build")

@@ -1,4 +1,4 @@
-package ru.kode.android.firebase.publish.plugin
+package ru.kode.android.build.publish.plugin
 
 import org.gradle.api.Project
 import org.gradle.api.provider.MapProperty
@@ -6,10 +6,10 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import javax.inject.Inject
 
-const val EXTENSION_NAME = "firebasePublishConfig"
+const val EXTENSION_NAME = "buildPublish"
 
 @Suppress("UnnecessaryAbstractClass")
-abstract class FirebasePublishExtension @Inject constructor(project: Project) {
+abstract class BuildPublishExtension @Inject constructor(project: Project) {
 
     private val objects = project.objects
 

@@ -1,23 +1,23 @@
-# firebase-publish-plugin
+# build-publish-plugin
 
 A configurable plugin to generate changelog from tags and publish results into Firebase App Distribution 
 and send changelog to Telegram or/and Slack (on your choice)
 
 ## How use
 1. Apply required plugins (com.android.application, com.google.firebase.appdistribution) 
-   and this plugin (ru.kode.android.firebase-publish-plugin)
+   and this plugin (ru.kode.android.build-publish-plugin)
 ```kotlin
 
 plugins {
     id("com.android.application")
     id("com.google.firebase.appdistribution")
-    id("ru.kode.android.firebase-publish-plugin")
+    id("ru.kode.android.build-publish-plugin")
 }
 ```
 1. Add configuration for the plugin
 ```kotlin
 
-firebasePublishConfig {
+buildPublish {
     // Message key to collect interested commits
     commitMessageKey.set("CHANGELOG")
     // Name of CI env variable, holding Firebase service key

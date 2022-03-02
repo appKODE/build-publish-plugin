@@ -3,6 +3,7 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="11">
       <module name="com.ncorti.kotlin.gradle.template.plugin" target="1.8" />
+      <module name="ru.kode.android.build.publish.plugin.plugin" target="1.8" />
       <module name="ru.kode.android.firebase.publish.plugin.plugin" target="1.8" />
       <module name="ru.kode.android.plugin" target="1.8" />
     </bytecodeTargetLevel>

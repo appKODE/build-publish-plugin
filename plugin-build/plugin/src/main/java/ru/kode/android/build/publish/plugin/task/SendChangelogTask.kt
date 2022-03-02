@@ -1,4 +1,4 @@
-package ru.kode.android.firebase.publish.plugin.task
+package ru.kode.android.build.publish.plugin.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -9,11 +9,11 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
-import ru.kode.android.firebase.publish.plugin.command.LinuxShellCommandExecutor
-import ru.kode.android.firebase.publish.plugin.error.ValueNotFoundException
-import ru.kode.android.firebase.publish.plugin.git.GitRepository
-import ru.kode.android.firebase.publish.plugin.git.entity.Tag
-import ru.kode.android.firebase.publish.plugin.util.Changelog
+import ru.kode.android.build.publish.plugin.command.LinuxShellCommandExecutor
+import ru.kode.android.build.publish.plugin.error.ValueNotFoundException
+import ru.kode.android.build.publish.plugin.git.GitRepository
+import ru.kode.android.build.publish.plugin.git.entity.Tag
+import ru.kode.android.build.publish.plugin.util.Changelog
 import java.net.URLEncoder
 
 data class TelegramSendConfig(

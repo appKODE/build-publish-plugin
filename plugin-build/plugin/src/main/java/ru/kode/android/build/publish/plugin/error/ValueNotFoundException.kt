@@ -1,4 +1,4 @@
-package ru.kode.android.firebase.publish.plugin.error
+package ru.kode.android.build.publish.plugin.error
 
 import org.gradle.api.GradleException
 

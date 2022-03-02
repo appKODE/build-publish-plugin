@@ -5,6 +5,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = ("ru.kode.android.firebase.publish.plugin")
+rootProject.name = ("ru.kode.android.build.publish.plugin")
 
 include(":plugin")

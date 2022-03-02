@@ -1,4 +1,4 @@
-package ru.kode.android.firebase.publish.plugin
+package ru.kode.android.build.publish.plugin
 
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
@@ -12,11 +12,11 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.util.internal.VersionNumber
-import ru.kode.android.firebase.publish.plugin.command.LinuxShellCommandExecutor
-import ru.kode.android.firebase.publish.plugin.command.ShellCommandExecutor
-import ru.kode.android.firebase.publish.plugin.git.GitRepository
-import ru.kode.android.firebase.publish.plugin.task.SendChangelogTask
-import ru.kode.android.firebase.publish.plugin.util.Changelog
+import ru.kode.android.build.publish.plugin.command.LinuxShellCommandExecutor
+import ru.kode.android.build.publish.plugin.command.ShellCommandExecutor
+import ru.kode.android.build.publish.plugin.git.GitRepository
+import ru.kode.android.build.publish.plugin.task.SendChangelogTask
+import ru.kode.android.build.publish.plugin.util.Changelog
 
 internal const val SEND_CHANGELOG_TASK_PREFIX = "sendChangelog"
 internal const val BUILD_PUBLISH_TASK_PREFIX = "processBuildPublish"
@@ -27,12 +27,12 @@ internal object AgpVersions {
     val VERSION_7_0_4: VersionNumber = VersionNumber.parse("7.0.4")
 }
 
-abstract class FirebasePublishPlugin : Plugin<Project> {
+abstract class BuildPublishPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.stopExecutionIfNotSupported()
 
         val firebasePublishExtension = project.extensions
-            .create(EXTENSION_NAME, FirebasePublishExtension::class.java, project)
+            .create(EXTENSION_NAME, BuildPublishExtension::class.java, project)
         val androidExtension = project.extensions
             .getByType(ApplicationAndroidComponentsExtension::class.java)
 
@@ -51,7 +51,7 @@ abstract class FirebasePublishPlugin : Plugin<Project> {
     }
 
     private fun Project.registerTasks(
-        firebasePublishExtension: FirebasePublishExtension,
+        buildPublishExtension: BuildPublishExtension,
         buildVariants: Set<String>,
     ) {
         buildVariants.forEach { buildVariant ->
@@ -60,7 +60,7 @@ abstract class FirebasePublishPlugin : Plugin<Project> {
                 registerSendChangelogTask(
                     capitalizedBuildVariant,
                     buildVariants,
-                    firebasePublishExtension
+                    buildPublishExtension
                 )
                 registerAppDistributionPublishTask(capitalizedBuildVariant)
             }
@@ -68,20 +68,20 @@ abstract class FirebasePublishPlugin : Plugin<Project> {
     }
 
     private fun Project.configurePlugins(
-        firebasePublishExtension: FirebasePublishExtension,
+        buildPublishExtension: BuildPublishExtension,
         buildVariants: Set<String>,
     ) {
         plugins.all { plugin ->
             when (plugin) {
                 is AppPlugin -> {
                     val appExtension = extensions.getByType(AppExtension::class.java)
-                    appExtension.configure(firebasePublishExtension, this, buildVariants)
+                    appExtension.configure(buildPublishExtension, this, buildVariants)
                 }
                 is AppDistributionPlugin -> {
                     val appDistributionExtension = extensions
                         .getByType(AppDistributionExtension::class.java)
                     appDistributionExtension.configure(
-                        firebasePublishExtension = firebasePublishExtension,
+                        buildPublishExtension = buildPublishExtension,
                         project = this,
                         buildVariants = buildVariants
                     )
@@ -102,21 +102,21 @@ abstract class FirebasePublishPlugin : Plugin<Project> {
     private fun TaskContainer.registerSendChangelogTask(
         capitalizedBuildVariant: String,
         buildVariants: Set<String>,
-        firebasePublishExtension: FirebasePublishExtension
+        buildPublishExtension: BuildPublishExtension
     ) {
         register(
             "$SEND_CHANGELOG_TASK_PREFIX$capitalizedBuildVariant",
             SendChangelogTask::class.java
         ) {
             it.buildVariants.set(buildVariants)
-            it.baseOutputFileName.set(firebasePublishExtension.baseOutputFileName)
-            it.commitMessageKey.set(firebasePublishExtension.commitMessageKey)
-            it.tgUserMentions.set(firebasePublishExtension.tgUserMentions)
-            it.slackUserMentions.set(firebasePublishExtension.slackUserMentions)
-            it.slackConfig.set(firebasePublishExtension.slackConfig)
-            it.issueUrlPrefix.set(firebasePublishExtension.issueUrlPrefix)
-            it.issueNumberPattern.set(firebasePublishExtension.issueNumberPattern)
-            it.tgConfig.set(firebasePublishExtension.tgConfig)
+            it.baseOutputFileName.set(buildPublishExtension.baseOutputFileName)
+            it.commitMessageKey.set(buildPublishExtension.commitMessageKey)
+            it.tgUserMentions.set(buildPublishExtension.tgUserMentions)
+            it.slackUserMentions.set(buildPublishExtension.slackUserMentions)
+            it.slackConfig.set(buildPublishExtension.slackConfig)
+            it.issueUrlPrefix.set(buildPublishExtension.issueUrlPrefix)
+            it.issueNumberPattern.set(buildPublishExtension.issueNumberPattern)
+            it.tgConfig.set(buildPublishExtension.tgConfig)
         }
     }
 }
@@ -154,7 +154,7 @@ private fun Project.stopExecutionIfNotSupported() {
 }
 
 private fun AppExtension.configure(
-    firebasePublishExtension: FirebasePublishExtension,
+    buildPublishExtension: BuildPublishExtension,
     project: Project,
     buildVariants: Set<String>
 ) {
@@ -162,7 +162,7 @@ private fun AppExtension.configure(
         val commandExecutor = LinuxShellCommandExecutor(project)
         val repository = GitRepository(commandExecutor, buildVariants)
         val mostRecentTag = repository.findMostRecentBuildTag()
-        val initialBuildNumber = firebasePublishExtension.initialBuildNumber.orNull ?: 0
+        val initialBuildNumber = buildPublishExtension.initialBuildNumber.orNull ?: 0
         val versionCode = initialBuildNumber + (mostRecentTag?.buildNumber ?: 1)
         project.logger.debug("versionCode = $versionCode")
 
@@ -172,14 +172,14 @@ private fun AppExtension.configure(
 }
 
 private fun AppDistributionExtension.configure(
-    firebasePublishExtension: FirebasePublishExtension,
+    buildPublishExtension: BuildPublishExtension,
     project: Project,
     buildVariants: Set<String>
 ) {
     val distributionServiceKey =
-        firebasePublishExtension.distributionServiceKey.get()
-    val commitMessageKey = firebasePublishExtension.commitMessageKey.get()
-    val testerGroups = firebasePublishExtension.distributionTesterGroups.get()
+        buildPublishExtension.distributionServiceKey.get()
+    val commitMessageKey = buildPublishExtension.commitMessageKey.get()
+    val testerGroups = buildPublishExtension.distributionTesterGroups.get()
     project.logger.debug("testerGroups = $testerGroups")
 
     val commandExecutor = LinuxShellCommandExecutor(project)

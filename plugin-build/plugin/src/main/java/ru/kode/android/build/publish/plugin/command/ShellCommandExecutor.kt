@@ -1,8 +1,8 @@
-package ru.kode.android.firebase.publish.plugin.command
+package ru.kode.android.build.publish.plugin.command
 
 import org.gradle.api.Project
-import ru.kode.android.firebase.publish.plugin.git.entity.CommitRange
-import ru.kode.android.firebase.publish.plugin.git.entity.Tag
+import ru.kode.android.build.publish.plugin.git.entity.CommitRange
+import ru.kode.android.build.publish.plugin.git.entity.Tag
 import java.io.ByteArrayOutputStream
 
 interface ShellCommandExecutor {
