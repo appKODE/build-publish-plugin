@@ -14,6 +14,15 @@ abstract class FirebasePublishExtension @Inject constructor(project: Project) {
     private val objects = project.objects
 
     /**
+     * For some cases can be useful to pass initial build number
+     * For exmaple: 71261
+     */
+    val initialBuildNumber: Property<Int> = objects.property(Int::class.java).apply {
+        // TODO Add logic to set from configs
+        set(0)
+    }
+
+    /**
      * Message key to collect interested commits
      * For exmaple: CHANGELOG
      */
