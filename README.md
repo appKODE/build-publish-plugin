@@ -1,10 +1,20 @@
 # build-publish-plugin
 
-A configurable plugin to generate changelog from tags and publish results into Firebase App Distribution 
-and send changelog to Telegram or/and Slack (on your choice)
+A configurable plugin to generate changelog from tags and publish results into Firebase App
+Distribution and send changelog to Telegram or/and Slack (on your choice)
 
 ## How use
-1. Apply required plugins (com.android.application, com.google.firebase.appdistribution) 
+
+1. Download jar and put somewhere, for example $PROJECT_ROOT/plugin. Skip if added remote repository
+1. Add plugin to classpath in the root gradle project. If jar downloaded:
+```groovy
+  dependencies {
+    //...
+    classpath files('plugin/build-publish-plugin-1.0.0.jar')
+    //...
+}
+```
+1. Apply required plugins (com.android.application, com.google.firebase.appdistribution)
    and this plugin (ru.kode.android.build-publish-plugin)
 ```kotlin
 
@@ -16,7 +26,6 @@ plugins {
 ```
 1. Add configuration for the plugin
 ```kotlin
-
 buildPublish {
     // Message key to collect interested commits
     commitMessageKey.set("CHANGELOG")
