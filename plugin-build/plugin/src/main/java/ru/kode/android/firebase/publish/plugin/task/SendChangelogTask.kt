@@ -115,9 +115,9 @@ abstract class SendChangelogTask : DefaultTask() {
             val baseOutputFileName = baseOutputFileName.get()
             val tgUserMentions = tgUserMentions.orNull.orEmpty().joinToString(", ")
             val text = (
-                    "$baseOutputFileName ${buildTag.name}\n" +
-                            "${tgUserMentions}\n\n"
-                    )
+                "$baseOutputFileName ${buildTag.name}\n" +
+                    "${tgUserMentions}\n\n"
+                )
                 .replace(escapedCharacters) { result -> "\\${result.value}" }
                 .replace("[-]".toRegex()) { result -> "\\${result.value}" }
 
@@ -133,16 +133,16 @@ abstract class SendChangelogTask : DefaultTask() {
             val slackConfig = SlackSendConfig(slackConfig.get())
             val slackUserMentions = slackUserMentions.orNull.orEmpty().joinToString(", ")
             val json = "\"{" +
-                    "\\\"icon_url\\\": \\\"${slackConfig.iconUrl}\\\"," +
-                    "\\\"username\\\": \\\"buildBot\\\", " +
-                    "\\\"blocks\\\": [ " +
-                    "{ \\\"type\\\": \\\"section\\\", \\\"text\\\": { " +
-                    "\\\"type\\\": \\\"mrkdwn\\\", " +
-                    "\\\"text\\\": \\\"*${baseOutputFileName} ${buildTag.name}*" +
-                    " $slackUserMentions\\n\\n$escapedChangelogMessage\\\" " +
-                    "}" +
-                    "} ]" +
-                    "}\""
+                "\\\"icon_url\\\": \\\"${slackConfig.iconUrl}\\\"," +
+                "\\\"username\\\": \\\"buildBot\\\", " +
+                "\\\"blocks\\\": [ " +
+                "{ \\\"type\\\": \\\"section\\\", \\\"text\\\": { " +
+                "\\\"type\\\": \\\"mrkdwn\\\", " +
+                "\\\"text\\\": \\\"*$baseOutputFileName ${buildTag.name}*" +
+                " $slackUserMentions\\n\\n$escapedChangelogMessage\\\" " +
+                "}" +
+                "} ]" +
+                "}\""
             commandExecutor.sendToWebHook(slackConfig.webhookUrl, json)
             project.logger.debug("changelog sent to Slack")
         }

@@ -18,7 +18,7 @@ abstract class FirebasePublishExtension @Inject constructor(project: Project) {
      * For exmaple: CHANGELOG
      */
     val commitMessageKey: Property<String> = objects.property(String::class.java).apply {
-        // TODO: Add logic to set from configs
+        // TODO Add logic to set from configs
         set("CHANGELOG")
     }
 
@@ -33,7 +33,7 @@ abstract class FirebasePublishExtension @Inject constructor(project: Project) {
      * For example: FIREBASE_DISTRIBUTION_SERVICE_KEY
      */
     val distributionServiceKey: Property<String> = objects.property(String::class.java).apply {
-        // TODO: Add logic to set from configs
+        // TODO Add logic to set from configs
         set("FIREBASE_DISTRIBUTION_SERVICE_KEY")
     }
 
@@ -42,10 +42,11 @@ abstract class FirebasePublishExtension @Inject constructor(project: Project) {
      *
      * For example: [android-testers]
      */
-    val distributionTesterGroups: SetProperty<String> = objects.setProperty(String::class.java).apply {
-        // TODO: Add logic to set from configs
-        set(setOf("android-testers"))
-    }
+    val distributionTesterGroups: SetProperty<String> =
+        objects.setProperty(String::class.java).apply {
+            // TODO Add logic to set from configs
+            set(setOf("android-testers"))
+        }
 
     /**
      * Address of task tracker

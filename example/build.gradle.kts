@@ -5,14 +5,14 @@ plugins {
 }
 
 android {
-    buildTypes {
-        debug {
+    compileSdk = 31
 
-        }
-
-        release {
-
-        }
+    defaultConfig {
+        applicationId = "com.example.android"
+        minSdk = 31
+        targetSdk = 31
+        versionCode = 1
+        versionName = "1.0"
     }
 
     flavorDimensions.add("default")
