@@ -39,23 +39,9 @@ buildPublish {
     commitMessageKey.set("CHANGELOG")
 
     /**
-     * File holding Firebase App Distribution credentials
-     * For example:
-     * ```
-     * {
-     *      "type": "service_account",
-     *      "project_id": "example",
-     *      "private_key_id": "0000",
-     *      "private_key": "-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----\n",
-     *      "client_email": "0000",
-     *      "client_id": "0000",
-     *      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-     *      "token_uri": "https://oauth2.googleapis.com/token",
-     *      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-     *      "client_x509_cert_url": "https://www.googleapis.com/..."
-     * }
+     * The path to your service account private key JSON file for Firebase App Distribution
      */
-    distributionServiceCredentialsFile.set("test-test")
+    distributionServiceCredentialsFilePath.set("test-test")
     /**
      * Test groups for app distribution
      *
@@ -122,7 +108,7 @@ buildPublish {
             "icon_url" to "https://i.imgur.com/HQTF5FK.png",
         )
     )
-   
+
     /**
      * List of mentioning users for Slack, can be empty or null
      * For example: ["@aa", "@bb", "@ccc"]
