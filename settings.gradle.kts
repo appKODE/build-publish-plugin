@@ -6,7 +6,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = ("build-publish-plugin")
+rootProject.name = ("build-publish")
 
 include(":example")
 includeBuild("plugin-build")
