@@ -14,15 +14,6 @@ abstract class BuildPublishExtension @Inject constructor(project: Project) {
     private val objects = project.objects
 
     /**
-     * For some cases can be useful to pass initial build number
-     * For exmaple: 71261
-     */
-    val initialBuildNumber: Property<Int> = objects.property(Int::class.java).apply {
-        // TODO Add logic to set from configs
-        set(0)
-    }
-
-    /**
      * Message key to collect interested commits
      * For exmaple: CHANGELOG
      */
@@ -38,16 +29,26 @@ abstract class BuildPublishExtension @Inject constructor(project: Project) {
     val baseOutputFileName: Property<String> = objects.property(String::class.java)
 
     /**
-     * Name of CI env variable, holding Firebase service key
-     * For example: FIREBASE_DISTRIBUTION_SERVICE_KEY
+     * File holding Firebase App Distribution credentials
+     * For example:
+     * ```
+     * {
+     *      "type": "service_account",
+     *      "project_id": "example",
+     *      "private_key_id": "0000",
+     *      "private_key": "-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----\n",
+     *      "client_email": "0000",
+     *      "client_id": "0000",
+     *      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+     *      "token_uri": "https://oauth2.googleapis.com/token",
+     *      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+     *      "client_x509_cert_url": "https://www.googleapis.com/..."
+     * }
      */
-    val distributionServiceKey: Property<String> = objects.property(String::class.java).apply {
-        // TODO Add logic to set from configs
-        set("FIREBASE_DISTRIBUTION_SERVICE_KEY")
-    }
+    val distributionServiceCredentialsFile: Property<String> = objects.property(String::class.java)
 
     /**
-     * Internal test groups for app distribution
+     * Test groups for app distribution
      *
      * For example: [android-testers]
      */

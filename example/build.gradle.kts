@@ -1,7 +1,7 @@
 plugins {
     id("com.android.application")
     id("com.google.firebase.appdistribution")
-    id("ru.kode.android.build-publish-plugin")
+    id("ru.kode.android.build-publish")
 }
 
 android {
@@ -28,7 +28,7 @@ android {
 
 buildPublish {
     commitMessageKey.set("CHANGELOG")
-    distributionServiceKey.set("FIREBASE_DISTRIBUTION_SERVICE_KEY")
+    distributionServiceCredentialsFile.set("test-test")
     distributionTesterGroups.set(setOf("android-testers"))
 
     baseOutputFileName.set("example-base-project-android")

@@ -1,5 +1,5 @@
 object PluginCoordinates {
-    const val ID = "ru.kode.android.build-publish-plugin"
+    const val ID = "ru.kode.android.build-publish"
     const val GROUP = "ru.kode.android"
     const val VERSION = "1.0.0"
     const val IMPLEMENTATION_CLASS = "ru.kode.android.build.publish.plugin.BuildPublishPlugin"

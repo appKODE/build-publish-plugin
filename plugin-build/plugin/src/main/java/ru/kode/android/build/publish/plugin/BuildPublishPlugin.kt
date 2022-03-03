@@ -75,7 +75,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             when (plugin) {
                 is AppPlugin -> {
                     val appExtension = extensions.getByType(AppExtension::class.java)
-                    appExtension.configure(buildPublishExtension, this, buildVariants)
+                    appExtension.configure(this, buildVariants)
                 }
                 is AppDistributionPlugin -> {
                     val appDistributionExtension = extensions
@@ -154,7 +154,6 @@ private fun Project.stopExecutionIfNotSupported() {
 }
 
 private fun AppExtension.configure(
-    buildPublishExtension: BuildPublishExtension,
     project: Project,
     buildVariants: Set<String>
 ) {
@@ -162,8 +161,7 @@ private fun AppExtension.configure(
         val commandExecutor = LinuxShellCommandExecutor(project)
         val repository = GitRepository(commandExecutor, buildVariants)
         val mostRecentTag = repository.findMostRecentBuildTag()
-        val initialBuildNumber = buildPublishExtension.initialBuildNumber.orNull ?: 0
-        val versionCode = initialBuildNumber + (mostRecentTag?.buildNumber ?: 1)
+        val versionCode = mostRecentTag?.buildNumber ?: 1
         project.logger.debug("versionCode = $versionCode")
 
         it.versionCode = versionCode
@@ -177,13 +175,13 @@ private fun AppDistributionExtension.configure(
     buildVariants: Set<String>
 ) {
     val distributionServiceKey =
-        buildPublishExtension.distributionServiceKey.get()
+        buildPublishExtension.distributionServiceCredentialsFile.orNull
     val commitMessageKey = buildPublishExtension.commitMessageKey.get()
     val testerGroups = buildPublishExtension.distributionTesterGroups.get()
     project.logger.debug("testerGroups = $testerGroups")
 
     val commandExecutor = LinuxShellCommandExecutor(project)
-    serviceCredentialsFile = System.getenv(distributionServiceKey).orEmpty()
+    serviceCredentialsFile = distributionServiceKey.orEmpty()
     releaseNotes = buildChangelog(project, commandExecutor, commitMessageKey, buildVariants)
     this.groups = testerGroups.joinToString(",")
 }
