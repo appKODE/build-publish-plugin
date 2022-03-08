@@ -13,32 +13,46 @@ There will be some different tasks for all build types and flavors. But the main
 2. sendChangelog<build_type> (for example, sendChangelogDebug) - just prepare changelog between 2 last tags 
    and send it into Slack and/or Telegram (if configured)
 
-## How use
+## How apply
 
-1. Download jar and put somewhere, for example $PROJECT_ROOT/plugin. Skip if added remote repository
-2. Add plugin to classpath in the root gradle project. If jar downloaded:
-
+Using the plugins DSL:
 ```groovy
-  dependencies {
+   plugins {
+        id "ru.kode.android.build-publish" version "1.0.0"
+   }
+```
+Using legacy plugin application:
+```groovy
+   buildscript {
+      repositories {
+         maven {
+            url "https://plugins.gradle.org/m2/"
+         }
+      }
+      dependencies {
+        classpath "ru.kode.android:build-publish:1.0.0"
+      }
+   }
+   apply plugin: "ru.kode.android.build-publish"
+```
+Using jar:
+```groovy
+   // Add plugin to classpath in the root gradle project
+   dependencies {
     //...
     classpath files('plugin/build-publish-plugin-1.0.0.jar')
     //...
-}
+   }
+    
+   // Apply required plugins (com.android.application, com.google.firebase.appdistribution)
+   // and this plugin (ru.kode.android.build-publish)
+   plugins {
+      id("com.android.application")
+      id("com.google.firebase.appdistribution")
+      id("ru.kode.android.build-publish")
+   }
 ```
-
-3. Apply required plugins (com.android.application, com.google.firebase.appdistribution)
-   and this plugin (ru.kode.android.build-publish)
-
-```kotlin
-
-plugins {
-    id("com.android.application")
-    id("com.google.firebase.appdistribution")
-    id("ru.kode.android.build-publish")
-}
-```
-
-4. Add configuration for the plugin
+## How configure
 
 ```kotlin
 buildPublish {
@@ -132,4 +146,4 @@ buildPublish {
     )
 }
 ```
-5. In output plugin will set `versionName and versionCode` and create tasks to publish and send changelogs
+In the output plugin will set `versionName and versionCode` and create tasks to publish and send changelogs
