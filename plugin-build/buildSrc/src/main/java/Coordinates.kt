@@ -6,8 +6,8 @@ object PluginCoordinates {
 }
 
 object PluginBundle {
-    const val WEBSITE = "https://github.com/kode-android/firebase-publish-plugin"
-    const val VCS = "https://github.com/kode-android/firebase-publish-plugin"
+    const val WEBSITE = "https://github.com/appKODE/build-publish-plugin"
+    const val VCS = "https://github.com/appKODE/build-publish-plugin"
     const val DESCRIPTION = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
     const val DISPLAY_NAME = "Configure project with Firebase App Distribution and changelogs"
     val TAGS = listOf(
