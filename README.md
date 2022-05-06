@@ -72,6 +72,11 @@ buildPublish {
      * For example: [android-testers]
      */
     distributionTesterGroups.set(setOf("android-testers"))
+    /**
+     * Artifact type for app distribution
+     * Values: APK, AAB
+     */
+    distributionArtifactType.set("APK")
 
     /**
      * Application bundle name for changelog

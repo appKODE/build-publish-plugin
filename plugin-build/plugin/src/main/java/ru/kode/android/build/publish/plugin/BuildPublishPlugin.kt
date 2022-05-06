@@ -172,17 +172,20 @@ private fun AppExtension.configure(
 private fun AppDistributionExtension.configure(
     buildPublishExtension: BuildPublishExtension,
     project: Project,
-    buildVariants: Set<String>
+    buildVariants: Set<String>,
 ) {
     val serviceCredentialsFilePath =
         buildPublishExtension.distributionServiceCredentialsFilePath.orNull
     val commitMessageKey = buildPublishExtension.commitMessageKey.get()
     val testerGroups = buildPublishExtension.distributionTesterGroups.get()
+    val artifactType = buildPublishExtension.distributionArtifactType.get()
     project.logger.debug("testerGroups = $testerGroups")
+    project.logger.debug("artifactType = $artifactType")
 
     val commandExecutor = LinuxShellCommandExecutor(project)
     serviceCredentialsFile = serviceCredentialsFilePath.orEmpty()
     releaseNotes = buildChangelog(project, commandExecutor, commitMessageKey, buildVariants)
+    this.artifactType = artifactType
     this.groups = testerGroups.joinToString(",")
 }
 

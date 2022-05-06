@@ -45,6 +45,14 @@ abstract class BuildPublishExtension @Inject constructor(project: Project) {
         }
 
     /**
+     * Artifact type for app distribution
+     * For example: APK or AAB
+     */
+    val distributionArtifactType: Property<String> = objects.property(String::class.java).apply {
+        set("APK")
+    }
+
+    /**
      * Address of task tracker
      * For example: "https://jira.example.ru/browse/"
      */
