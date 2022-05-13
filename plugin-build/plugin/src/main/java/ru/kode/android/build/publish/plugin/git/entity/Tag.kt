@@ -1,5 +1,7 @@
 package ru.kode.android.build.publish.plugin.git.entity
 
+import org.gradle.api.GradleException
+
 sealed class Tag {
     abstract val name: String
     abstract val commitSha: String
@@ -26,7 +28,10 @@ sealed class Tag {
             tag.name,
             tag.commitSha,
             tag.message,
-            buildVariant = buildVariants.first { tag.name.contains(it) },
+            buildVariant = buildVariants.firstOrNull { tag.name.contains(it) }
+                ?: throw GradleException(
+                    "No buildVariants for ${tag.name}. Available variants: $buildVariants",
+                ),
             buildNumber = Regex("\\d+").findAll(tag.name).last().value.toInt()
         )
     }

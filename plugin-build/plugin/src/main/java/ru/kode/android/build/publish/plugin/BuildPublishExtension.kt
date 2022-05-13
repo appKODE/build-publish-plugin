@@ -99,4 +99,23 @@ abstract class BuildPublishExtension @Inject constructor(project: Project) {
      * For example: ["@aa", "@bb", "@ccc"]
      */
     val slackUserMentions: SetProperty<String> = objects.setProperty(String::class.java)
+
+    /**
+     * AppCenter config: owner_name, app_name and api_token_file_path
+     * For example:
+     *
+     * owner_name = android-team.com
+     *
+     * app_name = YetAnotherTaskApp
+     *
+     * apiTokenFilePath = /app_center/tokens
+     */
+    val appCenterConfig: MapProperty<String, String> =
+        objects.mapProperty(String::class.java, String::class.java)
+
+    /**
+     * Distribution group names
+     * For example: [internal-testers, client-testers]
+     */
+    val appCenterDistributionGroups: SetProperty<String> = objects.setProperty(String::class.java)
 }
