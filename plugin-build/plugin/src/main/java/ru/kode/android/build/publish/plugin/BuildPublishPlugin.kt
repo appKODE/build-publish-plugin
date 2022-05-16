@@ -15,10 +15,12 @@ import org.gradle.util.internal.VersionNumber
 import ru.kode.android.build.publish.plugin.command.LinuxShellCommandExecutor
 import ru.kode.android.build.publish.plugin.command.ShellCommandExecutor
 import ru.kode.android.build.publish.plugin.git.GitRepository
+import ru.kode.android.build.publish.plugin.task.PrintLastIncreasedTag
 import ru.kode.android.build.publish.plugin.task.SendChangelogTask
 import ru.kode.android.build.publish.plugin.util.Changelog
 
 internal const val SEND_CHANGELOG_TASK_PREFIX = "sendChangelog"
+internal const val PRINT_LAST_INCREASED_TAG_TASK_PREFIX = "printLastIncreasedTag"
 internal const val BUILD_PUBLISH_TASK_PREFIX = "processBuildPublish"
 internal const val DISTRIBUTION_UPLOAD_TASK_PREFIX = "appDistributionUpload"
 
@@ -54,6 +56,14 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         buildPublishExtension: BuildPublishExtension,
         buildVariants: Set<String>,
     ) {
+        tasks.register(
+            PRINT_LAST_INCREASED_TAG_TASK_PREFIX,
+            PrintLastIncreasedTag::class.java
+        ) { task ->
+            task.buildVariants.set(buildVariants)
+            val variantProperty = project.findProperty("variant") as? String
+            task.variant.set(variantProperty.takeIf { it?.isNotBlank() == true }?.trim())
+        }
         buildVariants.forEach { buildVariant ->
             val capitalizedBuildVariant = buildVariant.capitalize()
             tasks.apply {
