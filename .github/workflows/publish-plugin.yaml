@@ -27,8 +27,14 @@ jobs:
           path: ~/.gradle/wrapper/
           key: cache-gradle-wrapper
       - name: Run Gradle tasks
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
         run: ./gradlew preMerge --continue
       - name: Publish on Plugin Portal
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
         run: ./gradlew --project-dir plugin-build setupPluginUploadFromEnvironment publishPlugins
         if: success()
       - name: Stop Gradle
