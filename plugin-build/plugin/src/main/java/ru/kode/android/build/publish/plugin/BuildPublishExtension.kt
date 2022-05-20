@@ -33,9 +33,9 @@ abstract class BuildPublishExtension @Inject constructor(project: Project) {
     val distributionServiceCredentialsFilePath: Property<String> = objects.property(String::class.java)
 
     /**
-     * Custom application id for Firebase App Distribution
+     * Custom app id for Firebase App Distribution to override google-services.json
      */
-    val distributionApplicationId: Property<String> = objects.property(String::class.java)
+    val distributionAppId: Property<String> = objects.property(String::class.java)
 
     /**
      * Test groups for app distribution

@@ -78,9 +78,9 @@ buildPublish {
      */
     distributionArtifactType.set("APK")
     /**
-     * Custom application id for Firebase App Distribution (optional)
+     * Custom app id for Firebase App Distribution to override google-services.json
      */
-    distributionApplicationId.set("ru.kode.test.app")
+    distributionAppId.set("ru.kode.test.app")
 
     /**
      * Application bundle name for changelog

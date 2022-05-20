@@ -188,7 +188,7 @@ private fun AppDistributionExtension.configure(
         .distributionServiceCredentialsFilePath.orNull
         ?.takeIf { it.isNotBlank() }
     val applicationId = buildPublishExtension
-        .distributionApplicationId.orNull
+        .distributionAppId.orNull
         ?.takeIf { it.isNotBlank() }
     val commitMessageKey = buildPublishExtension.commitMessageKey.get()
     val testerGroups = buildPublishExtension.distributionTesterGroups.get()
