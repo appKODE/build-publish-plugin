@@ -18,7 +18,6 @@ abstract class BuildPublishExtension @Inject constructor(project: Project) {
      * For exmaple: CHANGELOG
      */
     val commitMessageKey: Property<String> = objects.property(String::class.java).apply {
-        // TODO Add logic to set from configs
         set("CHANGELOG")
     }
 
@@ -34,13 +33,17 @@ abstract class BuildPublishExtension @Inject constructor(project: Project) {
     val distributionServiceCredentialsFilePath: Property<String> = objects.property(String::class.java)
 
     /**
+     * Custom app id for Firebase App Distribution to override google-services.json
+     */
+    val distributionAppId: Property<String> = objects.property(String::class.java)
+
+    /**
      * Test groups for app distribution
      *
      * For example: [android-testers]
      */
     val distributionTesterGroups: SetProperty<String> =
         objects.setProperty(String::class.java).apply {
-            // TODO Add logic to set from configs
             set(setOf("android-testers"))
         }
 

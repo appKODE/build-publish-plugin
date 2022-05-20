@@ -12,8 +12,8 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.util.internal.VersionNumber
-import ru.kode.android.build.publish.plugin.command.LinuxShellCommandExecutor
 import ru.kode.android.build.publish.plugin.command.ShellCommandExecutor
+import ru.kode.android.build.publish.plugin.command.getCommandExecutor
 import ru.kode.android.build.publish.plugin.git.GitRepository
 import ru.kode.android.build.publish.plugin.task.PrintLastIncreasedTag
 import ru.kode.android.build.publish.plugin.task.SendChangelogTask
@@ -168,7 +168,7 @@ private fun AppExtension.configure(
     buildVariants: Set<String>
 ) {
     defaultConfig {
-        val commandExecutor = LinuxShellCommandExecutor(project)
+        val commandExecutor = getCommandExecutor(project)
         val repository = GitRepository(commandExecutor, buildVariants)
         val mostRecentTag = repository.findMostRecentBuildTag()
         val versionCode = mostRecentTag?.buildNumber ?: 1
@@ -184,15 +184,22 @@ private fun AppDistributionExtension.configure(
     project: Project,
     buildVariants: Set<String>,
 ) {
-    val serviceCredentialsFilePath =
-        buildPublishExtension.distributionServiceCredentialsFilePath.orNull
+    val serviceCredentialsFilePath = buildPublishExtension
+        .distributionServiceCredentialsFilePath.orNull
+        ?.takeIf { it.isNotBlank() }
+    val applicationId = buildPublishExtension
+        .distributionAppId.orNull
+        ?.takeIf { it.isNotBlank() }
     val commitMessageKey = buildPublishExtension.commitMessageKey.get()
     val testerGroups = buildPublishExtension.distributionTesterGroups.get()
     val artifactType = buildPublishExtension.distributionArtifactType.get()
     project.logger.debug("testerGroups = $testerGroups")
     project.logger.debug("artifactType = $artifactType")
 
-    val commandExecutor = LinuxShellCommandExecutor(project)
+    val commandExecutor = getCommandExecutor(project)
+    if (applicationId != null) {
+        appId = applicationId
+    }
     serviceCredentialsFile = serviceCredentialsFilePath.orEmpty()
     releaseNotes = buildChangelog(project, commandExecutor, commitMessageKey, buildVariants)
     this.artifactType = artifactType
