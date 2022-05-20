@@ -29,6 +29,7 @@ android {
 buildPublish {
     commitMessageKey.set("CHANGELOG")
     distributionServiceCredentialsFilePath.set("test-test")
+    distributionApplicationId.set("ru.kode.test.app")
     distributionTesterGroups.set(setOf("android-testers"))
 
     baseOutputFileName.set("example-base-project-android")

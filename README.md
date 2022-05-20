@@ -73,10 +73,14 @@ buildPublish {
      */
     distributionTesterGroups.set(setOf("android-testers"))
     /**
-     * Artifact type for app distribution
+     * Artifact type for app distribution (optional)
      * Values: APK, AAB
      */
     distributionArtifactType.set("APK")
+    /**
+     * Custom application id for Firebase App Distribution (optional)
+     */
+    distributionApplicationId.set("ru.kode.test.app")
 
     /**
      * Application bundle name for changelog

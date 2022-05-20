@@ -184,8 +184,12 @@ private fun AppDistributionExtension.configure(
     project: Project,
     buildVariants: Set<String>,
 ) {
-    val serviceCredentialsFilePath =
-        buildPublishExtension.distributionServiceCredentialsFilePath.orNull
+    val serviceCredentialsFilePath = buildPublishExtension
+        .distributionServiceCredentialsFilePath.orNull
+        ?.takeIf { it.isNotBlank() }
+    val applicationId = buildPublishExtension
+        .distributionApplicationId.orNull
+        ?.takeIf { it.isNotBlank() }
     val commitMessageKey = buildPublishExtension.commitMessageKey.get()
     val testerGroups = buildPublishExtension.distributionTesterGroups.get()
     val artifactType = buildPublishExtension.distributionArtifactType.get()
@@ -193,6 +197,9 @@ private fun AppDistributionExtension.configure(
     project.logger.debug("artifactType = $artifactType")
 
     val commandExecutor = LinuxShellCommandExecutor(project)
+    if (applicationId != null) {
+        appId = applicationId
+    }
     serviceCredentialsFile = serviceCredentialsFilePath.orEmpty()
     releaseNotes = buildChangelog(project, commandExecutor, commitMessageKey, buildVariants)
     this.artifactType = artifactType
