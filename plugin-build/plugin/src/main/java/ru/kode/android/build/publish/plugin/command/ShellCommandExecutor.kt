@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.command
 
 import org.gradle.api.Project
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import ru.kode.android.build.publish.plugin.git.entity.CommitRange
 import ru.kode.android.build.publish.plugin.git.entity.Tag
 import java.io.ByteArrayOutputStream
@@ -38,7 +39,18 @@ interface ShellCommandExecutor {
     fun sendToWebHook(webHookUrl: String)
 }
 
-class LinuxShellCommandExecutor(
+private class WindowsShellCommandExecutor : ShellCommandExecutor {
+    override fun extractTagFromCommitMessages(tag: String, range: CommitRange?): List<String> {
+        return emptyList()
+    }
+    override fun findBuildTags(buildVariants: Set<String>, limitResultCount: Int): List<Tag>? {
+        return null
+    }
+    override fun sendToWebHook(webHookUrl: String, jsonBody: String) = Unit
+    override fun sendToWebHook(webHookUrl: String) = Unit
+}
+
+private class LinuxShellCommandExecutor(
     private val project: Project
 ) : ShellCommandExecutor {
 
@@ -134,5 +146,13 @@ class LinuxShellCommandExecutor(
         project.logger.debug("command: $command")
         project.logger.debug("shell output: $commandResult")
         return if (commandResult.isEmpty()) emptyList() else commandResult.lineSequence().map { it.trim() }.toList()
+    }
+}
+
+fun getCommandExecutor(project: Project): ShellCommandExecutor {
+    return if (DefaultNativePlatform.getCurrentOperatingSystem().isWindows) {
+        WindowsShellCommandExecutor()
+    } else {
+        LinuxShellCommandExecutor(project)
     }
 }

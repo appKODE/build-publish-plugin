@@ -9,7 +9,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
-import ru.kode.android.build.publish.plugin.command.LinuxShellCommandExecutor
+import ru.kode.android.build.publish.plugin.command.getCommandExecutor
 import ru.kode.android.build.publish.plugin.git.GitRepository
 import ru.kode.android.build.publish.plugin.git.entity.Tag
 
@@ -20,7 +20,7 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
         group = BasePlugin.BUILD_GROUP
     }
 
-    private val commandExecutor = LinuxShellCommandExecutor(project)
+    private val commandExecutor = getCommandExecutor(project)
 
     @get:Input
     @get:Option(option = "buildVariants", description = "List of all available build variants")
