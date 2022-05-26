@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package ru.kode.android.build.publish.plugin
 
 import com.android.build.api.dsl.ApplicationExtension
@@ -14,10 +16,13 @@ import org.gradle.api.tasks.TaskContainer
 import org.gradle.util.internal.VersionNumber
 import ru.kode.android.build.publish.plugin.command.ShellCommandExecutor
 import ru.kode.android.build.publish.plugin.command.getCommandExecutor
+import ru.kode.android.build.publish.plugin.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.git.GitRepository
 import ru.kode.android.build.publish.plugin.task.PrintLastIncreasedTag
 import ru.kode.android.build.publish.plugin.task.SendChangelogTask
 import ru.kode.android.build.publish.plugin.util.Changelog
+import ru.kode.android.build.publish.plugin.util.capitalized
+import ru.kode.android.build.publish.plugin.util.concatenated
 
 internal const val SEND_CHANGELOG_TASK_PREFIX = "sendChangelog"
 internal const val PRINT_LAST_INCREASED_TAG_TASK_PREFIX = "printLastIncreasedTag"
@@ -39,15 +44,17 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             .getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl { ext ->
-            val buildVariants = prepareBuildVariants(ext)
-            if (buildVariants.isEmpty()) {
+            val buildVariantNames: Set<String> = ext
+                .extractBuildVariants()
+                .mapTo(mutableSetOf()) { it.concatenated() }
+            if (buildVariantNames.isEmpty()) {
                 throw StopExecutionException(
                     "Build types or(and) flavors not configured for android project. " +
                         "Please add something of this"
                 )
             }
-            project.configurePlugins(firebasePublishExtension, buildVariants)
-            project.registerTasks(firebasePublishExtension, buildVariants)
+            project.configurePlugins(firebasePublishExtension, buildVariantNames)
+            project.registerTasks(firebasePublishExtension, buildVariantNames)
             project.logger.debug("result tasks ${project.tasks.map { it.name }}")
         }
     }
@@ -65,7 +72,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             task.variant.set(variantProperty.takeIf { it?.isNotBlank() == true }?.trim())
         }
         buildVariants.forEach { buildVariant ->
-            val capitalizedBuildVariant = buildVariant.capitalize()
+            val capitalizedBuildVariant = buildVariant.capitalized()
             tasks.apply {
                 registerSendChangelogTask(
                     capitalizedBuildVariant,
@@ -131,14 +138,39 @@ abstract class BuildPublishPlugin : Plugin<Project> {
     }
 }
 
-private fun prepareBuildVariants(ext: ApplicationExtension): Set<String> {
-    return if (ext.productFlavors.isEmpty()) {
-        ext.buildTypes.map { it.name }.toSet()
-    } else {
-        ext.productFlavors.flatMap { flavor ->
-            ext.buildTypes.map { "${flavor.name}${it.name.capitalize()}" }
-        }.toSet()
-    }
+private fun ApplicationExtension.extractBuildVariantFlavors(): Set<List<String>> {
+    if (flavorDimensions.size <= 1) return productFlavors.mapTo(mutableSetOf()) { listOf(it.name) }
+
+    val dimensionToFlavorName = productFlavors.groupBy(
+        keySelector = { it.dimension },
+        valueTransform = { it.name }
+    )
+    return flavorDimensions
+        .mapNotNull { dimensionToFlavorName[it] }
+        .fold(setOf(listOf())) { flavorCombinations, flavors ->
+            if (flavorCombinations.isEmpty()) {
+                return@fold flavorCombinations + setOf(flavors)
+            }
+            flavorCombinations.flatMapTo(mutableSetOf()) { flavorCombination ->
+                flavors.map { flavor ->
+                    flavorCombination + flavor
+                }
+            }
+        }
+}
+
+private fun ApplicationExtension.extractBuildVariants(): Set<BuildVariant> {
+    return extractBuildVariantFlavors()
+        .ifEmpty { setOf(emptyList()) }
+        .flatMapTo(mutableSetOf()) { flavors ->
+            buildTypes
+                .map { buildType ->
+                    BuildVariant(
+                        flavorNames = flavors,
+                        buildTypeName = buildType.name
+                    )
+                }
+        }
 }
 
 @Suppress("ThrowsCount") // block to throws exceptions on apply
