@@ -15,13 +15,28 @@ android {
         versionName = "1.0"
     }
 
-    flavorDimensions.add("default")
     productFlavors {
+        flavorDimensions += listOf("abi", "api", "version")
+
+        create("x86") {
+            dimension = "abi"
+        }
+        create("armv8") {
+            dimension = "abi"
+        }
+
+        create("minApi21") {
+            dimension = "api"
+        }
+        create("minApi24") {
+            dimension = "api"
+        }
+
         create("google") {
-            dimension = "default"
+            dimension = "version"
         }
         create("beta") {
-            dimension = "default"
+            dimension = "version"
         }
     }
 }
