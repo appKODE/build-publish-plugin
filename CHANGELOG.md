@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.5 - 2022-05-30
+
+* Fix logic to get last tag: now it takes without sorting by build number
+
 ## 1.0.4 - 2022-05-26
 
 * Added dimensions support to generate complex tasks 
