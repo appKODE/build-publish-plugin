@@ -97,12 +97,12 @@ abstract class SendChangelogTask : DefaultTask() {
 
     @TaskAction
     fun prepareTgChangelog() {
-        val buildVariants = buildVariants.get()
-        val buildTag = getBuildTag(buildVariants)
+        val allBuildVariants = buildVariants.get()
+        val buildTag = getBuildTag(allBuildVariants)
 
-        sendTelegramChangelog(buildVariants, buildTag)
-        sendSlackMessage(buildVariants, buildTag)
-        sendLocalChangelog(buildVariants)
+        sendTelegramChangelog(allBuildVariants, buildTag)
+        sendSlackMessage(allBuildVariants, buildTag)
+        sendLocalChangelog(allBuildVariants)
     }
 
     private fun sendLocalChangelog(buildVariants: Set<String>) {
