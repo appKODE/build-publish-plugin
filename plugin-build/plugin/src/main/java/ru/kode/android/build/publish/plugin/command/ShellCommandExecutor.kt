@@ -15,6 +15,11 @@ interface ShellCommandExecutor {
     fun extractTagFromCommitMessages(tag: String, range: CommitRange?): List<String>
 
     /**
+     * Runs git to find information about last tag of a set of [buildVariants].
+     */
+    fun findLastBuildTag(buildVariants: Set<String>): Tag?
+
+    /**
      * Runs git to find information about tags of a set of [buildVariants].
      * Resulting set will be limited to [limitResultCount] tags or `null` if no tags found
      */
@@ -24,8 +29,8 @@ interface ShellCommandExecutor {
      * Runs git to find information about tags of a particular build type.
      * Resulting set will be limited to [limitResultCount] tags or `null` if no tags found
      */
-    fun findBuildTags(buildType: String, limitResultCount: Int): List<Tag>? {
-        return findBuildTags(setOf(buildType), limitResultCount)
+    fun findBuildTags(buildVariant: String, limitResultCount: Int): List<Tag>? {
+        return findBuildTags(setOf(buildVariant), limitResultCount)
     }
 
     /**
@@ -43,9 +48,15 @@ private class WindowsShellCommandExecutor : ShellCommandExecutor {
     override fun extractTagFromCommitMessages(tag: String, range: CommitRange?): List<String> {
         return emptyList()
     }
+
+    override fun findLastBuildTag(buildVariants: Set<String>): Tag? {
+        return null
+    }
+
     override fun findBuildTags(buildVariants: Set<String>, limitResultCount: Int): List<Tag>? {
         return null
     }
+
     override fun sendToWebHook(webHookUrl: String, jsonBody: String) = Unit
     override fun sendToWebHook(webHookUrl: String) = Unit
 }
@@ -64,6 +75,29 @@ private class LinuxShellCommandExecutor(
             "git log $gitLogArgument " +
                 "| grep '$tag' || true"
         )
+    }
+
+    override fun findLastBuildTag(buildVariants: Set<String>): Tag? {
+        // Doing tag list filtering in shell to avoid reading all tags every time, need only last
+
+        // Format is:
+        //  * refname-stuff - prints tag name
+        //  * objectname - prints tag sha (for annotated tags) or commit sha (for lightweight tags)
+        //  * '*objectname' - prints commit sha to which annotated tag points or empty string for lightweight tags
+        val format = "\'%(refname:strip=2) %(objectname) %(*objectname)\'"
+        val pattern = buildVariants.joinToString(" ") { "\'*-${it}\'" }
+        val commandOutput = executeInShell(
+            "git tag --list $pattern --format $format" +
+                "| awk -F'[.-]' '{print $(NF-1),$0}' " +
+                "| cut -d\\  -f2- " +
+                "| head -n 1"
+        )
+        val tag = commandOutput.firstOrNull()?.let { line ->
+            tagOutputLineToTag(line).also {
+                if (it == null) project.logger.warn("line doesn't contain a valid tag info, ignoring it. Line: $line")
+            }
+        }
+        return tag
     }
 
     override fun findBuildTags(buildVariants: Set<String>, limitResultCount: Int): List<Tag>? {
@@ -85,11 +119,12 @@ private class LinuxShellCommandExecutor(
                 "| cut -d\\  -f2- " +
                 "| head -n $limitResultCount"
         )
-        return commandOutput.mapNotNull { line ->
+        val tags = commandOutput.mapNotNull { line ->
             tagOutputLineToTag(line).also {
                 if (it == null) project.logger.warn("line doesn't contain a valid tag info, ignoring it. Line: $line")
             }
-        }.let { if (it.isEmpty()) null else it }
+        }.ifEmpty { null }
+        return tags
     }
 
     @Suppress("MagicNumber")
