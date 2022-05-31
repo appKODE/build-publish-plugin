@@ -87,7 +87,7 @@ private class LinuxShellCommandExecutor(
         val format = "\'%(refname:strip=2) %(objectname) %(*objectname)\'"
         val pattern = buildVariants.joinToString(" ") { "\'*-${it}\'" }
         val commandOutput = executeInShell(
-            "git tag --list $pattern --format $format" +
+            "git tag --list $pattern --format $format --sort=-creatordate" +
                 "| awk -F'[.-]' '{print $(NF-1),$0}' " +
                 "| cut -d\\  -f2- " +
                 "| head -n 1"
