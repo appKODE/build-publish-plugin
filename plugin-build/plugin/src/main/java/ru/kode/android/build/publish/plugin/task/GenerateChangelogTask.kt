@@ -9,7 +9,8 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import ru.kode.android.build.publish.plugin.command.getCommandExecutor
-import ru.kode.android.build.publish.plugin.util.Changelog
+import ru.kode.android.build.publish.plugin.git.GitRepository
+import ru.kode.android.build.publish.plugin.util.ChangelogBuilder
 
 abstract class GenerateChangelogTask : DefaultTask() {
 
@@ -41,16 +42,20 @@ abstract class GenerateChangelogTask : DefaultTask() {
     @TaskAction
     fun generateChangelog() {
         val messageKey = commitMessageKey.get()
-        val changelog = Changelog(commandExecutor, project.logger, messageKey, setOf(buildVariant.get()))
+        val gitRepository = GitRepository(commandExecutor, setOf(buildVariant.get()))
+        val changelogBuilder = ChangelogBuilder(gitRepository, commandExecutor, logger, messageKey)
             .buildForRecentBuildTag(
                 defaultValueSupplier = { tagRange ->
                     val previousBuildName = tagRange.previousBuildTag?.name?.let { "(**$it**)" }
                     "No changes in comparison with a previous build $previousBuildName"
                 }
             )
-        project.logger.debug("generated changelog:")
-        project.logger.debug(changelog)
+        if (changelogBuilder?.isNotBlank() == true) {
+            logger.debug("changelog generated")
+        } else {
+            logger.error("changelog not generated")
+        }
         val output = changelogFile.get().asFile
-        output.writeText(changelog.orEmpty())
+        output.writeText(changelogBuilder.orEmpty())
     }
 }

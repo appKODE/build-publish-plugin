@@ -11,20 +11,19 @@ internal class GitRepository(
     /**
      * Finds a range of build tags, returning `null` if no build tags are present (happens on a new projects)
      */
-    fun findBuildTags(buildVariant: String): TagRange? {
+    fun findTagRange(buildVariant: String): TagRange? {
         val tags = commandExecutor.findBuildTags(buildVariant, limitResultCount = 2)
         return if (tags != null) {
             val currentBuildTag = tags.first()
             val previousBuildTag = tags.getOrNull(1)
             TagRange(
-                // todo add Build types
                 currentBuildTag = Tag.Build(currentBuildTag, buildVariants),
                 previousBuildTag = previousBuildTag?.let { Tag.Build(it, buildVariants) }
             )
         } else null
     }
 
-    fun findMostRecentBuildTag(): Tag.Build? {
+    fun findRecentBuildTag(): Tag.Build? {
         val tags = commandExecutor.findBuildTags(buildVariants, limitResultCount = 1)
         return tags?.first()?.let { Tag.Build(it, buildVariants) }
     }

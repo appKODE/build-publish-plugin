@@ -1,7 +1,6 @@
 package ru.kode.android.build.publish.plugin.task
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.MapProperty
@@ -13,8 +12,6 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import ru.kode.android.build.publish.plugin.command.getCommandExecutor
 import ru.kode.android.build.publish.plugin.error.ValueNotFoundException
-import ru.kode.android.build.publish.plugin.git.GitRepository
-import ru.kode.android.build.publish.plugin.git.entity.Tag
 import java.net.URLEncoder
 
 data class TelegramSendConfig(
@@ -50,7 +47,7 @@ abstract class SendChangelogTask : DefaultTask() {
 
     @get:InputFile
     @get:Option(option = "changelogFIle", description = "File with saved changelog")
-    abstract val changelogFIle: RegularFileProperty
+    abstract val changelogFile: RegularFileProperty
 
     @get:Input
     @get:Option(option = "buildVariant", description = "Current build variant")
@@ -97,9 +94,10 @@ abstract class SendChangelogTask : DefaultTask() {
     fun sendChangelog() {
         val buildVariant = buildVariant.get()
         val baseOutputFileName = baseOutputFileName.get()
+
         val escapedCharacters =
             "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]".toRegex()
-        val changelog = changelogFIle.orNull?.asFile?.readText()
+        val changelog = changelogFile.orNull?.asFile?.readText()
         if (changelog.isNullOrEmpty()) {
             project.logger.error(
                 "[sendChangelog] changelog file not found, is empty or error occurred"
@@ -175,11 +173,5 @@ abstract class SendChangelogTask : DefaultTask() {
             .replace(Regex("(\r\n|\n)"), "\\\\n")
             // only this insane amount of quotes works! they are needed to produce \\\" in json
             .replace(Regex("\""), "\\\\\\\\\\\\\"")
-    }
-
-    private fun getBuildTag(buildVariants: Set<String>): Tag.Build {
-        return GitRepository(commandExecutor, buildVariants)
-            .findMostRecentBuildTag()
-            ?: throw GradleException("unable to send changelog: failed to find most recent build tag")
     }
 }

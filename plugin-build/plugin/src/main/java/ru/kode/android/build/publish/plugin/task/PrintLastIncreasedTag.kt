@@ -43,7 +43,7 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
 
     private fun getBuildTag(buildVariants: Set<String>): Tag.Build {
         return GitRepository(commandExecutor, buildVariants)
-            .findMostRecentBuildTag()
+            .findRecentBuildTag()
             ?: throw GradleException("unable to send changelog: failed to find most recent build tag")
     }
 }

@@ -3,9 +3,11 @@
 package ru.kode.android.build.publish.plugin
 
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
+import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import com.google.firebase.appdistribution.gradle.AppDistributionExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionPlugin
@@ -43,8 +45,24 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             .create(EXTENSION_NAME, BuildPublishExtension::class.java, project)
         val androidExtension = project.extensions
             .getByType(ApplicationAndroidComponentsExtension::class.java)
+        androidExtension.onVariants(
+            callback = { variant ->
+                val commandExecutor = getCommandExecutor(project)
+                val repository = GitRepository(commandExecutor, setOf(variant.name))
+                val recentBuildTag = repository.findRecentBuildTag()
+                val versionCode = recentBuildTag?.buildNumber ?: 1
+                val versionName = recentBuildTag?.name ?: "v0.0-dev"
 
+                variant.outputs.forEach { output ->
+                    if (output is ApkVariantOutputImpl) {
+                        output.versionCodeOverride = versionCode
+                        output.versionNameOverride = versionName
+                    }
+                }
+            }
+        )
         androidExtension.finalizeDsl { ext ->
+
             val buildVariantNames: Set<String> = ext
                 .extractBuildVariants()
                 .mapTo(mutableSetOf()) { it.concatenated() }
@@ -55,7 +73,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 )
             }
             val changelogFile = File(project.buildDir, "release-notes.txt")
-            project.configurePlugins(firebasePublishExtension, buildVariantNames, changelogFile)
+            project.configurePlugins(firebasePublishExtension, changelogFile)
             project.registerTasks(firebasePublishExtension, buildVariantNames, changelogFile)
             project.logger.debug("result tasks ${project.tasks.map { it.name }}")
         }
@@ -93,14 +111,13 @@ abstract class BuildPublishPlugin : Plugin<Project> {
 
     private fun Project.configurePlugins(
         buildPublishExtension: BuildPublishExtension,
-        buildVariants: Set<String>,
         changelogFile: File,
     ) {
         plugins.all { plugin ->
             when (plugin) {
                 is AppPlugin -> {
                     val appExtension = extensions.getByType(AppExtension::class.java)
-                    appExtension.configure(this, buildVariants)
+                    appExtension.configure()
                 }
                 is AppDistributionPlugin -> {
                     val appDistributionExtension = extensions
@@ -151,7 +168,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             SendChangelogTask::class.java
         ) {
             it.buildVariant.set(buildVariant)
-            it.changelogFIle.set(changelogFile)
+            it.changelogFile.set(changelogFile)
             it.issueUrlPrefix.set(buildPublishExtension.issueUrlPrefix)
             it.issueNumberPattern.set(buildPublishExtension.issueNumberPattern)
             it.baseOutputFileName.set(buildPublishExtension.baseOutputFileName)
@@ -220,19 +237,10 @@ private fun Project.stopExecutionIfNotSupported() {
     }
 }
 
-private fun AppExtension.configure(
-    project: Project,
-    buildVariants: Set<String>
-) {
+private fun AppExtension.configure() {
     defaultConfig {
-        val commandExecutor = getCommandExecutor(project)
-        val repository = GitRepository(commandExecutor, buildVariants)
-        val mostRecentTag = repository.findMostRecentBuildTag()
-        val versionCode = mostRecentTag?.buildNumber ?: 1
-        project.logger.debug("versionCode = $versionCode")
-
-        it.versionCode = versionCode
-        it.versionName = mostRecentTag?.name ?: "v0.0-dev"
+        it.versionCode = 1
+        it.versionName = "v0.0-dev"
     }
 }
 
