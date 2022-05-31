@@ -2,18 +2,19 @@ package ru.kode.android.build.publish.plugin.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import ru.kode.android.build.publish.plugin.command.getCommandExecutor
 import ru.kode.android.build.publish.plugin.error.ValueNotFoundException
 import ru.kode.android.build.publish.plugin.git.GitRepository
 import ru.kode.android.build.publish.plugin.git.entity.Tag
-import ru.kode.android.build.publish.plugin.util.Changelog
 import java.net.URLEncoder
 
 data class TelegramSendConfig(
@@ -47,16 +48,13 @@ abstract class SendChangelogTask : DefaultTask() {
 
     private val commandExecutor = getCommandExecutor(project)
 
-    @get:Input
-    @get:Option(option = "buildVariants", description = "List of all available build variants")
-    abstract val buildVariants: SetProperty<String>
+    @get:InputFile
+    @get:Option(option = "changelogFIle", description = "File with saved changelog")
+    abstract val changelogFIle: RegularFileProperty
 
     @get:Input
-    @get:Option(
-        option = "commitMessageKey",
-        description = "Message key to collect interested commits"
-    )
-    abstract val commitMessageKey: Property<String>
+    @get:Option(option = "buildVariant", description = "Current build variant")
+    abstract val buildVariant: Property<String>
 
     @get:Input
     @get:Option(
@@ -96,133 +94,87 @@ abstract class SendChangelogTask : DefaultTask() {
     abstract val slackUserMentions: SetProperty<String>
 
     @TaskAction
-    fun prepareTgChangelog() {
-        val allBuildVariants = buildVariants.get()
-        val buildTag = getBuildTag(allBuildVariants)
-
-        sendTelegramChangelog(allBuildVariants, buildTag)
-        sendSlackMessage(allBuildVariants, buildTag)
-        sendLocalChangelog(allBuildVariants)
-    }
-
-    private fun sendLocalChangelog(buildVariants: Set<String>) {
-        if (tgConfig.orNull.isNullOrEmpty() && slackConfig.orNull.isNullOrEmpty()) {
-            val messageKey = commitMessageKey.get()
-            val changelog = Changelog(commandExecutor, project.logger, messageKey, buildVariants)
-                .buildForRecentBuildTag(
-                    defaultValueSupplier = { tagRange ->
-                        val previousBuildName = tagRange.previousBuildTag?.name?.let { "(**$it**)" }
-                        "No changes in comparison with a previous build $previousBuildName"
-                    }
-                )
-            project.logger.debug("changelog:")
-            project.logger.debug(changelog)
-        }
-    }
-
-    private fun sendTelegramChangelog(buildVariants: Set<String>, buildTag: Tag.Build) {
+    fun sendChangelog() {
+        val buildVariant = buildVariant.get()
+        val baseOutputFileName = baseOutputFileName.get()
         val escapedCharacters =
             "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]".toRegex()
-        val tgChangelogMessage = prepareTgChangelog(buildVariants, escapedCharacters)
-        if (tgChangelogMessage.isNullOrBlank()) {
+        val changelog = changelogFIle.orNull?.asFile?.readText()
+        if (changelog.isNullOrEmpty()) {
             project.logger.error(
-                "[sendChangelog] changelog not sent to telegram, is empty or error occurred"
+                "[sendChangelog] changelog file not found, is empty or error occurred"
             )
-        }
-        if (!tgConfig.orNull.isNullOrEmpty()) {
-            project.logger.debug("telegram config: ${tgConfig.get()}, mentions $tgUserMentions")
-            val tgConfig = TelegramSendConfig(tgConfig.get())
-            val baseOutputFileName = baseOutputFileName.get()
-            val tgUserMentions = tgUserMentions.orNull.orEmpty().joinToString(", ")
-            val text = (
-                "$baseOutputFileName ${buildTag.name}\n" +
-                    "${tgUserMentions}\n\n"
+        } else {
+            val telegramFormattedChangelog = changelog.formatChangelogToTelegram(escapedCharacters)
+            if (telegramFormattedChangelog.isBlank()) {
+                project.logger.error(
+                    "[sendChangelog] changelog not sent to telegram, is empty or error occurred"
                 )
-                .replace(escapedCharacters) { result -> "\\${result.value}" }
-                .replace("[-]".toRegex()) { result -> "\\${result.value}" }
+            } else if (!tgConfig.orNull.isNullOrEmpty()) {
+                project.logger.debug("telegram config: ${tgConfig.get()}, mentions $tgUserMentions")
+                val tgConfig = TelegramSendConfig(tgConfig.get())
+                val tgUserMentions = tgUserMentions.orNull.orEmpty().joinToString(", ")
+                val title = (
+                    // TODO: Instead BuildVariant should be tag version
+                    "$baseOutputFileName ${buildVariant}\n" +
+                        "${tgUserMentions}\n\n"
+                    )
+                    .replace(escapedCharacters) { result -> "\\${result.value}" }
+                    .replace("[-]".toRegex()) { result -> "\\${result.value}" }
 
-            val url = tgConfig.webhookUrl.format(
-                tgConfig.botId,
-                tgConfig.chatId,
-                URLEncoder.encode("$text$tgChangelogMessage", "utf-8")
-            )
-            commandExecutor.sendToWebHook(url)
-            project.logger.debug("changelog sent to Telegram")
+                val url = tgConfig.webhookUrl.format(
+                    tgConfig.botId,
+                    tgConfig.chatId,
+                    URLEncoder.encode("$title$telegramFormattedChangelog", "utf-8")
+                )
+                commandExecutor.sendToWebHook(url)
+                project.logger.debug("changelog sent to Telegram")
+            }
+            val slackFormattedChangelog = changelog.formatChangelogToSlack()
+            if (slackFormattedChangelog.isBlank()) {
+                project.logger.error(
+                    "[sendChangelog] changelog not sent to Slack, is empty or error occurred"
+                )
+            } else if (!slackConfig.orNull.isNullOrEmpty()) {
+                val slackConfig = SlackSendConfig(slackConfig.get())
+                val slackUserMentions = slackUserMentions.orNull.orEmpty().joinToString(", ")
+                val json = "\"{" +
+                    "\\\"icon_url\\\": \\\"${slackConfig.iconUrl}\\\"," +
+                    "\\\"username\\\": \\\"buildBot\\\", " +
+                    "\\\"blocks\\\": [ " +
+                    "{ \\\"type\\\": \\\"section\\\", \\\"text\\\": { " +
+                    "\\\"type\\\": \\\"mrkdwn\\\", " +
+                    // TODO: Instead BuildVariant should be tag version
+                    "\\\"text\\\": \\\"*$baseOutputFileName ${buildVariant}*" +
+                    " $slackUserMentions\\n\\n$slackFormattedChangelog\\\" " +
+                    "}" +
+                    "} ]" +
+                    "}\""
+                commandExecutor.sendToWebHook(slackConfig.webhookUrl, json)
+                project.logger.debug("changelog sent to Slack")
+            }
         }
     }
 
-    private fun sendSlackMessage(buildVariants: Set<String>, buildTag: Tag.Build) {
-        val slackChangelogMessage = prepareSlackChangelog(buildVariants)
-        if (slackChangelogMessage.isNullOrBlank()) {
-            project.logger.error(
-                "[sendChangelog] changelog not sent to Slack, is empty or error occurred"
-            )
-        }
-        if (!slackConfig.orNull.isNullOrEmpty()) {
-            project.logger.debug("slack config: ${slackConfig.get()}, mentions $slackUserMentions")
-
-            val slackConfig = SlackSendConfig(slackConfig.get())
-            val slackUserMentions = slackUserMentions.orNull.orEmpty().joinToString(", ")
-            val baseOutputFileName = baseOutputFileName.get()
-            val json = "\"{" +
-                "\\\"icon_url\\\": \\\"${slackConfig.iconUrl}\\\"," +
-                "\\\"username\\\": \\\"buildBot\\\", " +
-                "\\\"blocks\\\": [ " +
-                "{ \\\"type\\\": \\\"section\\\", \\\"text\\\": { " +
-                "\\\"type\\\": \\\"mrkdwn\\\", " +
-                "\\\"text\\\": \\\"*$baseOutputFileName ${buildTag.name}*" +
-                " $slackUserMentions\\n\\n$slackChangelogMessage\\\" " +
-                "}" +
-                "} ]" +
-                "}\""
-
-            commandExecutor.sendToWebHook(slackConfig.webhookUrl, json)
-            project.logger.debug("changelog sent to Slack")
-        }
-    }
-
-    private fun prepareTgChangelog(
-        buildVariants: Set<String>,
-        escapedCharacters: Regex,
-    ): String? {
-        val messageKey = commitMessageKey.get()
+    private fun String.formatChangelogToTelegram(escapedCharacters: Regex): String {
         val issueUrlPrefix = issueUrlPrefix.get()
         val issueNumberPattern = issueNumberPattern.get()
-
-        val changelog = Changelog(commandExecutor, project.logger, messageKey, buildVariants)
-            .buildForRecentBuildTag(
-                defaultValueSupplier = { tagRange ->
-                    val previousBuildName = tagRange.previousBuildTag?.name?.let { "(**$it**)" }
-                    "No changes in comparison with a previous build $previousBuildName"
-                }
-            )
         val issueRegexp = Regex(issueNumberPattern)
-        return changelog
-            ?.replace(escapedCharacters) { result -> "\\${result.value}" }
-            ?.replace(issueRegexp) { result -> "[${result.value}](${issueUrlPrefix}${result.value})" }
-            ?.replace(Regex("(\r\n|\n)"), "\n")
-            ?.replace("[-]".toRegex()) { result -> "\\${result.value}" }
+        return this
+            .replace(escapedCharacters) { result -> "\\${result.value}" }
+            .replace(issueRegexp) { result -> "[${result.value}](${issueUrlPrefix}${result.value})" }
+            .replace(Regex("(\r\n|\n)"), "\n")
+            .replace("[-]".toRegex()) { result -> "\\${result.value}" }
     }
 
-    private fun prepareSlackChangelog(
-        buildVariants: Set<String>,
-    ): String? {
-        val messageKey = commitMessageKey.get()
+    private fun String.formatChangelogToSlack(): String {
         val issueUrlPrefix = issueUrlPrefix.get()
         val issueNumberPattern = issueNumberPattern.get()
-
-        val changelog = Changelog(commandExecutor, project.logger, messageKey, buildVariants)
-            .buildForRecentBuildTag(
-                defaultValueSupplier = { tagRange ->
-                    val previousBuildName = tagRange.previousBuildTag?.name?.let { "(**$it**)" }
-                    "No changes in comparison with a previous build $previousBuildName"
-                }
-            )
-        return changelog
-            ?.replace(Regex(issueNumberPattern), "<$issueUrlPrefix\$0|\$0>")
-            ?.replace(Regex("(\r\n|\n)"), "\\\\n")
+        return this
+            .replace(Regex(issueNumberPattern), "<$issueUrlPrefix\$0|\$0>")
+            .replace(Regex("(\r\n|\n)"), "\\\\n")
             // only this insane amount of quotes works! they are needed to produce \\\" in json
-            ?.replace(Regex("\""), "\\\\\\\\\\\\\"")
+            .replace(Regex("\""), "\\\\\\\\\\\\\"")
     }
 
     private fun getBuildTag(buildVariants: Set<String>): Tag.Build {

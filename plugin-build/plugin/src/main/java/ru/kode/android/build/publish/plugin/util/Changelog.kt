@@ -16,10 +16,10 @@ internal class Changelog(
     fun buildForRecentBuildTag(defaultValueSupplier: ((TagRange) -> String?)? = null): String? {
         val gitRepository = GitRepository(commandExecutor, buildVariants)
         val buildVariant = gitRepository.findMostRecentBuildTag()?.buildVariant
-            .also { if (it == null) logger.warn("failed to build a changelog: no recent variant tag") }
+            .also { if (it == null) logger.warn("failed to build a changelog: no recent build tag") }
             ?: return null
         val tagRange = gitRepository.findBuildTags(buildVariant)
-            .also { if (it == null) logger.warn("failed to build a changelog: no variant tags") }
+            .also { if (it == null) logger.warn("failed to build a changelog: no build tags") }
             ?: return null
         return build(tagRange) ?: defaultValueSupplier?.invoke(tagRange)
     }
