@@ -19,14 +19,14 @@ sealed class Tag {
         override val name: String,
         override val commitSha: String,
         override val message: String?,
-        val buildVariant: String,
+        val buildType: String,
         val buildNumber: Int
     ) : Tag() {
         constructor(tag: Tag, buildVariants: Set<String>) : this(
             tag.name,
             tag.commitSha,
             tag.message,
-            buildVariant = buildVariants.first { tag.name.contains(it) },
+            buildType = buildVariants.first { tag.name.contains(it) },
             buildNumber = Regex("\\d+").findAll(tag.name).last().value.toInt()
         )
     }
