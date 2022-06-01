@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.5-hotfix01 - 2022-06-01
+
+* Revert fix from 1.0.5 version
+
 ## 1.0.5 - 2022-05-30
 
 * Fix logic to get last tag: now it takes without sorting by build number
