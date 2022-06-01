@@ -8,5 +8,7 @@ pluginManagement {
 
 rootProject.name = ("build-publish")
 
-include(":example")
+include(":example-build-types")
+include(":example-dimensions")
+include(":example-flavors")
 includeBuild("plugin-build")

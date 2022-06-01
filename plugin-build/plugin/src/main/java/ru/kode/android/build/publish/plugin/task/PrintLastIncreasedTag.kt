@@ -23,27 +23,18 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
     private val commandExecutor = getCommandExecutor(project)
 
     @get:Input
-    @get:Option(option = "buildVariants", description = "List of all available build variants")
-    abstract val buildVariants: SetProperty<String>
-
-    @get:Input
     @get:Optional
     @get:Option(option = "variant", description = "Priority variant")
     abstract val variant: Property<String>
 
     @TaskAction
     fun printTag() {
-        val buildVariants = variant.orNull?.let { setOf(it) } ?: buildVariants.get()
-        val buildTag = getBuildTag(buildVariants)
+        val buildTag = GitRepository(commandExecutor, setOf(variant.get()))
+            .findRecentBuildTag()
+            ?: throw GradleException("unable to send changelog: failed to find most recent build tag")
         val currentBuildNumber = buildTag.buildNumber.toString()
         val increasedBuildNumber = buildTag.buildNumber.inc().toString()
         val nextTag = buildTag.name.replaceFirst(currentBuildNumber, increasedBuildNumber)
         print(nextTag)
-    }
-
-    private fun getBuildTag(buildVariants: Set<String>): Tag.Build {
-        return GitRepository(commandExecutor, buildVariants)
-            .findRecentBuildTag()
-            ?: throw GradleException("unable to send changelog: failed to find most recent build tag")
     }
 }
