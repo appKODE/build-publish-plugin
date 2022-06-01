@@ -22,17 +22,7 @@ internal class ChangelogBuilder(
         return buildForBuildVariant(buildVariant, defaultValueSupplier)
     }
 
-    @Suppress("ReturnCount")
-    fun buildForRecentBuildTag(
-        defaultValueSupplier: ((TagRange) -> String?)? = null
-    ): String? {
-        val buildVariant = gitRepository.findRecentBuildTag()?.buildVariant
-            .also { if (it == null) logger.warn("failed to build a changelog: no recent build tag") }
-            ?: return null
-        return buildForBuildVariant(buildVariant, defaultValueSupplier)
-    }
-
-    fun buildForBuildVariant(
+    private fun buildForBuildVariant(
         buildVariant: String,
         defaultValueSupplier: ((TagRange) -> String?)? = null
     ): String? {

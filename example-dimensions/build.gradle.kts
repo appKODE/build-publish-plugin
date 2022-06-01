@@ -8,22 +8,35 @@ android {
     compileSdk = 31
 
     defaultConfig {
-        applicationId = "com.example.android"
+        applicationId = "com.example.dimensions.android"
         minSdk = 31
         targetSdk = 31
         versionCode = 1
         versionName = "1.0"
     }
 
-    flavorDimensions.add("default")
-
     productFlavors {
+        flavorDimensions += listOf("abi", "api", "version")
 
-        create("google") {
-            dimension = "default"
+        create("x86") {
+            dimension = "abi"
         }
-        create("kode") {
-            dimension = "default"
+        create("armv8") {
+            dimension = "abi"
+        }
+
+        create("minApi21") {
+            dimension = "api"
+        }
+        create("minApi24") {
+            dimension = "api"
+        }
+
+        create("alpha") {
+            dimension = "version"
+        }
+        create("beta") {
+            dimension = "version"
         }
     }
 }

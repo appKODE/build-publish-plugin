@@ -1,17 +1,14 @@
 package ru.kode.android.build.publish.plugin.task
 
+import org.gradle.api.Action
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
+import org.gradle.api.Task
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
-import ru.kode.android.build.publish.plugin.command.getCommandExecutor
-import ru.kode.android.build.publish.plugin.git.GitRepository
-import ru.kode.android.build.publish.plugin.git.entity.Tag
+import ru.kode.android.build.publish.plugin.git.mapper.fromJson
 
 abstract class PrintLastIncreasedTag : DefaultTask() {
 
@@ -20,30 +17,21 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
         group = BasePlugin.BUILD_GROUP
     }
 
-    private val commandExecutor = getCommandExecutor(project)
-
-    @get:Input
-    @get:Option(option = "buildVariants", description = "List of all available build variants")
-    abstract val buildVariants: SetProperty<String>
-
-    @get:Input
-    @get:Optional
-    @get:Option(option = "variant", description = "Priority variant")
-    abstract val variant: Property<String>
+    @get:InputFile
+    @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
+    abstract val tagBuildFile: RegularFileProperty
 
     @TaskAction
     fun printTag() {
-        val buildVariants = variant.orNull?.let { setOf(it) } ?: buildVariants.get()
-        val buildTag = getBuildTag(buildVariants)
-        val currentBuildNumber = buildTag.buildNumber.toString()
-        val increasedBuildNumber = buildTag.buildNumber.inc().toString()
-        val nextTag = buildTag.name.replaceFirst(currentBuildNumber, increasedBuildNumber)
-        print(nextTag)
+        val tagBuildFile = tagBuildFile.asFile.get()
+        val currentBuildTag = fromJson(tagBuildFile)
+        val currentBuildNumber = currentBuildTag.buildNumber.toString()
+        val increasedBuildNumber = currentBuildTag.buildNumber.inc().toString()
+        val nextTag = currentBuildTag.name.replaceFirst(currentBuildNumber, increasedBuildNumber)
+        println(nextTag)
     }
 
-    private fun getBuildTag(buildVariants: Set<String>): Tag.Build {
-        return GitRepository(commandExecutor, buildVariants)
-            .findRecentBuildTag()
-            ?: throw GradleException("unable to send changelog: failed to find most recent build tag")
+    override fun doLast(action: Action<in Task>): Task {
+        return super.doLast(action)
     }
 }
