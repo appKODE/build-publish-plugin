@@ -8,7 +8,7 @@ android {
     compileSdk = 31
 
     defaultConfig {
-        applicationId = "com.example.android"
+        applicationId = "com.example.dimensions.android"
         minSdk = 31
         targetSdk = 31
         versionCode = 1
@@ -32,7 +32,7 @@ android {
             dimension = "api"
         }
 
-        create("google") {
+        create("alpha") {
             dimension = "version"
         }
         create("beta") {

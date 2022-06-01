@@ -4,6 +4,8 @@ package ru.kode.android.build.publish.plugin
 
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.impl.VariantOutputImpl
+import com.android.build.api.variant.impl.dirName
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
@@ -14,17 +16,17 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.util.internal.VersionNumber
-import ru.kode.android.build.publish.plugin.command.ShellCommandExecutor
 import ru.kode.android.build.publish.plugin.command.getCommandExecutor
 import ru.kode.android.build.publish.plugin.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.git.GitRepository
+import ru.kode.android.build.publish.plugin.task.GenerateChangelogTask
 import ru.kode.android.build.publish.plugin.task.PrintLastIncreasedTag
 import ru.kode.android.build.publish.plugin.task.SendChangelogTask
-import ru.kode.android.build.publish.plugin.util.Changelog
 import ru.kode.android.build.publish.plugin.util.capitalized
-import ru.kode.android.build.publish.plugin.util.concatenated
+import java.io.File
 
 internal const val SEND_CHANGELOG_TASK_PREFIX = "sendChangelog"
+internal const val GENERATE_CHANGELOG_TASK_PREFIX = "generateChangelog"
 internal const val PRINT_LAST_INCREASED_TAG_TASK_PREFIX = "printLastIncreasedTag"
 internal const val BUILD_PUBLISH_TASK_PREFIX = "processBuildPublish"
 internal const val DISTRIBUTION_UPLOAD_TASK_PREFIX = "appDistributionUpload"
@@ -38,69 +40,82 @@ abstract class BuildPublishPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.stopExecutionIfNotSupported()
 
-        val firebasePublishExtension = project.extensions
+        val buildPublishExtension = project.extensions
             .create(EXTENSION_NAME, BuildPublishExtension::class.java, project)
         val androidExtension = project.extensions
             .getByType(ApplicationAndroidComponentsExtension::class.java)
+        val changelogFile = File(project.buildDir, "release-notes.txt")
 
-        androidExtension.finalizeDsl { ext ->
-            val buildVariantNames: Set<String> = ext
-                .extractBuildVariants()
-                .mapTo(mutableSetOf()) { it.concatenated() }
-            if (buildVariantNames.isEmpty()) {
-                throw StopExecutionException(
-                    "Build types or(and) flavors not configured for android project. " +
-                        "Please add something of this"
-                )
+        androidExtension.onVariants(
+            callback = { variant ->
+                val output = variant.outputs
+                    .find { it is VariantOutputImpl && it.fullName == variant.name }
+                if (output != null) {
+                    val buildVariant = BuildVariant(variant.name, File(output.dirName()))
+                    project.registerTasks(buildPublishExtension, buildVariant, changelogFile)
+                    println("override output for variant $${variant.name}")
+                    val commandExecutor = getCommandExecutor(project)
+                    val repository = GitRepository(commandExecutor, setOf(variant.name))
+                    val recentBuildTag = repository.findRecentBuildTag()
+                    val versionCode = recentBuildTag?.buildNumber ?: 1
+                    val versionName = recentBuildTag?.name ?: "v0.0-dev"
+                    output.versionCode.set(versionCode)
+                    output.versionName.set(versionName)
+                }
             }
-            project.configurePlugins(firebasePublishExtension, buildVariantNames)
-            project.registerTasks(firebasePublishExtension, buildVariantNames)
-            project.logger.debug("result tasks ${project.tasks.map { it.name }}")
+        )
+        androidExtension.finalizeDsl {
+            project.configurePlugins(buildPublishExtension, changelogFile)
         }
     }
 
     private fun Project.registerTasks(
         buildPublishExtension: BuildPublishExtension,
-        buildVariants: Set<String>,
+        buildVariant: BuildVariant,
+        changelogFile: File,
     ) {
+        tasks.apply {
+            registerPrintLastTagTask(buildVariant)
+            registerGenerateChangelogTask(
+                buildPublishExtension,
+                buildVariant,
+                changelogFile
+            )
+            registerSendChangelogTask(
+                buildPublishExtension,
+                buildVariant,
+                changelogFile
+            )
+            registerAppDistributionPublishTask(buildVariant)
+        }
+    }
+
+    private fun Project.registerPrintLastTagTask(buildVariant: BuildVariant) {
+        val capitalizedBuildVariant = buildVariant.capitalized()
         tasks.register(
-            PRINT_LAST_INCREASED_TAG_TASK_PREFIX,
+            "$PRINT_LAST_INCREASED_TAG_TASK_PREFIX$capitalizedBuildVariant",
             PrintLastIncreasedTag::class.java
         ) { task ->
-            task.buildVariants.set(buildVariants)
-            val variantProperty = project.findProperty("variant") as? String
-            task.variant.set(variantProperty.takeIf { it?.isNotBlank() == true }?.trim())
-        }
-        buildVariants.forEach { buildVariant ->
-            val capitalizedBuildVariant = buildVariant.capitalized()
-            tasks.apply {
-                registerSendChangelogTask(
-                    capitalizedBuildVariant,
-                    buildVariants,
-                    buildPublishExtension
-                )
-                registerAppDistributionPublishTask(capitalizedBuildVariant)
-            }
+            task.variant.set(buildVariant.name)
         }
     }
 
     private fun Project.configurePlugins(
         buildPublishExtension: BuildPublishExtension,
-        buildVariants: Set<String>,
+        changelogFile: File,
     ) {
         plugins.all { plugin ->
             when (plugin) {
                 is AppPlugin -> {
                     val appExtension = extensions.getByType(AppExtension::class.java)
-                    appExtension.configure(this, buildVariants)
+                    appExtension.configure()
                 }
                 is AppDistributionPlugin -> {
                     val appDistributionExtension = extensions
                         .getByType(AppDistributionExtension::class.java)
                     appDistributionExtension.configure(
                         buildPublishExtension = buildPublishExtension,
-                        project = this,
-                        buildVariants = buildVariants
+                        changelogFile = changelogFile,
                     )
                 }
             }
@@ -108,31 +123,49 @@ abstract class BuildPublishPlugin : Plugin<Project> {
     }
 
     private fun TaskContainer.registerAppDistributionPublishTask(
-        capitalizedBuildVariant: String
+        buildVariant: BuildVariant
     ) {
+        val capitalizedBuildVariant = buildVariant.capitalized()
         register("$BUILD_PUBLISH_TASK_PREFIX$capitalizedBuildVariant") {
             it.dependsOn("$DISTRIBUTION_UPLOAD_TASK_PREFIX$capitalizedBuildVariant")
             it.finalizedBy("$SEND_CHANGELOG_TASK_PREFIX$capitalizedBuildVariant")
         }
     }
 
-    private fun TaskContainer.registerSendChangelogTask(
-        capitalizedBuildVariant: String,
-        buildVariants: Set<String>,
-        buildPublishExtension: BuildPublishExtension
+    private fun TaskContainer.registerGenerateChangelogTask(
+        buildPublishExtension: BuildPublishExtension,
+        buildVariant: BuildVariant,
+        changelogFile: File,
     ) {
+        val capitalizedBuildVariant = buildVariant.capitalized()
+        register(
+            "$GENERATE_CHANGELOG_TASK_PREFIX$capitalizedBuildVariant",
+            GenerateChangelogTask::class.java
+        ) {
+            it.commitMessageKey.set(buildPublishExtension.commitMessageKey)
+            it.buildVariant.set(buildVariant.name)
+            it.changelogFile.set(changelogFile)
+        }
+    }
+
+    private fun TaskContainer.registerSendChangelogTask(
+        buildPublishExtension: BuildPublishExtension,
+        buildVariant: BuildVariant,
+        changelogFile: File,
+    ) {
+        val capitalizedBuildVariant = buildVariant.capitalized()
         register(
             "$SEND_CHANGELOG_TASK_PREFIX$capitalizedBuildVariant",
             SendChangelogTask::class.java
         ) {
-            it.buildVariants.set(buildVariants)
-            it.baseOutputFileName.set(buildPublishExtension.baseOutputFileName)
-            it.commitMessageKey.set(buildPublishExtension.commitMessageKey)
-            it.tgUserMentions.set(buildPublishExtension.tgUserMentions)
-            it.slackUserMentions.set(buildPublishExtension.slackUserMentions)
-            it.slackConfig.set(buildPublishExtension.slackConfig)
+            it.buildVariant.set(buildVariant.name)
+            it.changelogFile.set(changelogFile)
             it.issueUrlPrefix.set(buildPublishExtension.issueUrlPrefix)
             it.issueNumberPattern.set(buildPublishExtension.issueNumberPattern)
+            it.baseOutputFileName.set(buildPublishExtension.baseOutputFileName)
+            it.slackUserMentions.set(buildPublishExtension.slackUserMentions)
+            it.slackConfig.set(buildPublishExtension.slackConfig)
+            it.tgUserMentions.set(buildPublishExtension.tgUserMentions)
             it.tgConfig.set(buildPublishExtension.tgConfig)
         }
     }
@@ -159,20 +192,6 @@ private fun ApplicationExtension.extractBuildVariantFlavors(): Set<List<String>>
         }
 }
 
-private fun ApplicationExtension.extractBuildVariants(): Set<BuildVariant> {
-    return extractBuildVariantFlavors()
-        .ifEmpty { setOf(emptyList()) }
-        .flatMapTo(mutableSetOf()) { flavors ->
-            buildTypes
-                .map { buildType ->
-                    BuildVariant(
-                        flavorNames = flavors,
-                        buildTypeName = buildType.name
-                    )
-                }
-        }
-}
-
 @Suppress("ThrowsCount") // block to throws exceptions on apply
 private fun Project.stopExecutionIfNotSupported() {
     if (AgpVersions.CURRENT < AgpVersions.VERSION_7_0_4) {
@@ -195,26 +214,16 @@ private fun Project.stopExecutionIfNotSupported() {
     }
 }
 
-private fun AppExtension.configure(
-    project: Project,
-    buildVariants: Set<String>
-) {
+private fun AppExtension.configure() {
     defaultConfig {
-        val commandExecutor = getCommandExecutor(project)
-        val repository = GitRepository(commandExecutor, buildVariants)
-        val mostRecentTag = repository.findMostRecentBuildTag()
-        val versionCode = mostRecentTag?.buildNumber ?: 1
-        project.logger.debug("versionCode = $versionCode")
-
-        it.versionCode = versionCode
-        it.versionName = mostRecentTag?.name ?: "v0.0-dev"
+        it.versionCode = 1
+        it.versionName = "v0.0-dev"
     }
 }
 
 private fun AppDistributionExtension.configure(
     buildPublishExtension: BuildPublishExtension,
-    project: Project,
-    buildVariants: Set<String>,
+    changelogFile: File,
 ) {
     val serviceCredentialsFilePath = buildPublishExtension
         .distributionServiceCredentialsFilePath.orNull
@@ -222,34 +231,14 @@ private fun AppDistributionExtension.configure(
     val applicationId = buildPublishExtension
         .distributionAppId.orNull
         ?.takeIf { it.isNotBlank() }
-    val commitMessageKey = buildPublishExtension.commitMessageKey.get()
     val testerGroups = buildPublishExtension.distributionTesterGroups.get()
     val artifactType = buildPublishExtension.distributionArtifactType.get()
-    project.logger.debug("testerGroups = $testerGroups")
-    project.logger.debug("artifactType = $artifactType")
 
-    val commandExecutor = getCommandExecutor(project)
     if (applicationId != null) {
         appId = applicationId
     }
     serviceCredentialsFile = serviceCredentialsFilePath.orEmpty()
-    releaseNotes = buildChangelog(project, commandExecutor, commitMessageKey, buildVariants)
+    releaseNotesFile = changelogFile.path
     this.artifactType = artifactType
     this.groups = testerGroups.joinToString(",")
-}
-
-private fun buildChangelog(
-    project: Project,
-    commandExecutor: ShellCommandExecutor,
-    messageKey: String,
-    buildVariants: Set<String>,
-): String {
-    return Changelog(commandExecutor, project.logger, messageKey, buildVariants)
-        .buildForRecentBuildTag()
-        .also {
-            if (it.isNullOrBlank()) {
-                project.logger.warn("App Distribution changelog is empty")
-            }
-        }
-        .orEmpty()
 }
