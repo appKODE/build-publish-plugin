@@ -8,6 +8,7 @@ pluginManagement {
 
 rootProject.name = ("build-publish")
 
+include(":app")
 include(":example-build-types")
 include(":example-dimensions")
 include(":example-flavors")
