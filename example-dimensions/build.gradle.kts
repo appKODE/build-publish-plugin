@@ -42,49 +42,26 @@ android {
 }
 
 buildPublish {
-    commitMessageKey.set("CHANGELOG")
-    distributionServiceCredentialsFilePath.set("test-test")
-    distributionAppId.set("ru.kode.test.app")
-    distributionTesterGroups.set(setOf("android-testers"))
-
-    baseOutputFileName.set("example-base-project-android")
-    issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
-    issueNumberPattern.set("BASE-\\d+")
-    tgConfig.set(
-        mapOf(
-            "webhook_url" to "https://api.telegram.org/%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2",
-            "bot_id" to "TELEGRAM_BUILD_BOT_ID",
-            "chat_id" to "CHAT_ID"
-        )
-    )
-    tgUserMentions.set(
-        setOf(
-            "@ivan",
-            "@roman",
-            "@serega",
-        )
-    )
-    slackConfig.set(
-        mapOf(
-            "webhook_url" to "https://hooks.slack.com/services/111111111/AAAAAAA/DDDDDDD",
-            "icon_url" to "https://i.imgur.com/HQTF5FK.png",
-        )
-    )
-    slackUserMentions.set(
-        setOf(
-            "@aa",
-            "@bb",
-            "@cc"
-        )
-    )
-
-    appCenterConfig.set(
-        mapOf(
-            "owner_name" to "example-owner-name",
-            "app_name" to "Android",
-            "api_token_file_path" to "path-to-token",
-        )
-    )
-
-    appCenterDistributionGroups.set(setOf("Collaborators"))
+    changelog {
+        register("default") {
+            issueNumberPattern.set("BASE-\\d+")
+            issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
+            baseOutputFileName.set("example-base-project-android")
+            commitMessageKey.set("CHANGELOG")
+        }
+    }
+    slack {
+        register("default") {
+            webhookUrl.set("https://hooks.slack.com/services/111111111/AAAAAAA/DDDDDDD")
+            iconUrl.set("https://i.imgur.com/HQTF5FK.png")
+            userMentions.set(setOf("@aa", "@bb", "@cc"))
+        }
+    }
+    firebaseDistribution {
+        register("default") {
+            serviceCredentialsFilePath.set("test-test")
+            appId.set("ru.kode.test.app")
+            testerGroups.set(setOf("android-testers"))
+        }
+    }
 }

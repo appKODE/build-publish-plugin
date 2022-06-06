@@ -3,7 +3,6 @@ package ru.kode.android.build.publish.plugin.task
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
-import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
@@ -11,36 +10,13 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import ru.kode.android.build.publish.plugin.command.getCommandExecutor
-import ru.kode.android.build.publish.plugin.error.ValueNotFoundException
 import ru.kode.android.build.publish.plugin.git.mapper.fromJson
 import java.net.URLEncoder
 
-private data class TelegramSendConfig(
-    val webhookUrl: String,
-    val botId: String,
-    val chatId: String
-) {
-    constructor(values: Map<String, String>) : this(
-        webhookUrl = values["webhook_url"] ?: throw ValueNotFoundException("webhook_url"),
-        botId = values["bot_id"] ?: throw ValueNotFoundException("bot_id"),
-        chatId = values["chat_id"] ?: throw ValueNotFoundException("chat_id")
-    )
-}
-
-private data class SlackSendConfig(
-    val webhookUrl: String,
-    val iconUrl: String,
-) {
-    constructor(values: Map<String, String>) : this(
-        webhookUrl = values["webhook_url"] ?: throw ValueNotFoundException("webhook_url"),
-        iconUrl = values["icon_url"] ?: throw ValueNotFoundException("icon_url"),
-    )
-}
-
-abstract class SendChangelogTask : DefaultTask() {
+abstract class SendTelegramChangelogTask : DefaultTask() {
 
     init {
-        description = "Task to send changelog"
+        description = "Task to send changelog for Telegram"
         group = BasePlugin.BUILD_GROUP
     }
 
@@ -76,20 +52,20 @@ abstract class SendChangelogTask : DefaultTask() {
     abstract val issueNumberPattern: Property<String>
 
     @get:Input
-    @get:Option(option = "tgConfig", description = "Config for Telegram changelog sender")
-    abstract val tgConfig: MapProperty<String, String>
+    @get:Option(option = "webhookUrl", description = "Webhook url to send changelog")
+    abstract val webhookUrl: Property<String>
 
     @get:Input
-    @get:Option(option = "tgUserMentions", description = "List of mentioning users for tg")
-    abstract val tgUserMentions: SetProperty<String>
+    @get:Option(option = "botId", description = "Bot id where webhook posted")
+    abstract val botId: Property<String>
 
     @get:Input
-    @get:Option(option = "slackConfig", description = "Config for Slack changelog sender")
-    abstract val slackConfig: MapProperty<String, String>
+    @get:Option(option = "chatId", description = "Chat id where webhook posted")
+    abstract val chatId: Property<String>
 
     @get:Input
-    @get:Option(option = "slackUserMentions", description = "List of mentioning users for Slack")
-    abstract val slackUserMentions: SetProperty<String>
+    @get:Option(option = "userMentions", description = "User tags to mention in chat")
+    abstract val userMentions: SetProperty<String>
 
     @TaskAction
     fun sendChangelog() {
@@ -104,44 +80,14 @@ abstract class SendChangelogTask : DefaultTask() {
             )
         } else {
             val telegramFormattedChangelog = changelog.formatChangelogToTelegram(escapedCharacters)
-            if (!tgConfig.orNull.isNullOrEmpty() && telegramFormattedChangelog.isNotBlank()) {
+            if (telegramFormattedChangelog.isNotBlank()) {
                 sendTelegramChangelog(telegramFormattedChangelog, currentBuildTagName, escapedCharacters)
             } else {
                 project.logger.error(
                     "[sendChangelog] changelog not sent to telegram, is empty or error occurred"
                 )
             }
-            val slackFormattedChangelog = changelog.formatChangelogToSlack()
-            if (!slackConfig.orNull.isNullOrEmpty() && slackFormattedChangelog.isNotBlank()) {
-                sendSlackChangelog(currentBuildTagName, slackFormattedChangelog)
-            } else {
-                project.logger.error(
-                    "[sendChangelog] changelog not sent to Slack, is empty or error occurred"
-                )
-            }
         }
-    }
-
-    private fun sendSlackChangelog(
-        currentBuildTagName: String,
-        changelog: String
-    ) {
-        val baseOutputFileName = baseOutputFileName.get()
-        val slackConfig = SlackSendConfig(slackConfig.get())
-        val slackUserMentions = slackUserMentions.orNull.orEmpty().joinToString(", ")
-        val json = "\"{" +
-            "\\\"icon_url\\\": \\\"${slackConfig.iconUrl}\\\"," +
-            "\\\"username\\\": \\\"buildBot\\\", " +
-            "\\\"blocks\\\": [ " +
-            "{ \\\"type\\\": \\\"section\\\", \\\"text\\\": { " +
-            "\\\"type\\\": \\\"mrkdwn\\\", " +
-            "\\\"text\\\": \\\"*$baseOutputFileName $currentBuildTagName*" +
-            " $slackUserMentions\\n\\n$changelog\\\" " +
-            "}" +
-            "} ]" +
-            "}\""
-        commandExecutor.sendToWebHook(slackConfig.webhookUrl, json)
-        project.logger.debug("changelog sent to Slack")
     }
 
     private fun sendTelegramChangelog(
@@ -150,8 +96,7 @@ abstract class SendChangelogTask : DefaultTask() {
         escapedCharacters: Regex
     ) {
         val baseOutputFileName = baseOutputFileName.get()
-        val tgConfig = TelegramSendConfig(tgConfig.get())
-        val tgUserMentions = tgUserMentions.orNull.orEmpty().joinToString(", ")
+        val tgUserMentions = userMentions.orNull.orEmpty().joinToString(", ")
         val title = (
             "$baseOutputFileName $currentBuildTagName\n" +
                 "${tgUserMentions}\n\n"
@@ -159,9 +104,9 @@ abstract class SendChangelogTask : DefaultTask() {
             .replace(escapedCharacters) { result -> "\\${result.value}" }
             .replace("[-]".toRegex()) { result -> "\\${result.value}" }
 
-        val url = tgConfig.webhookUrl.format(
-            tgConfig.botId,
-            tgConfig.chatId,
+        val url = webhookUrl.get().format(
+            botId.get(),
+            chatId.get(),
             URLEncoder.encode("$title$changelog", "utf-8")
         )
         commandExecutor.sendToWebHook(url)
@@ -177,15 +122,5 @@ abstract class SendChangelogTask : DefaultTask() {
             .replace(issueRegexp) { result -> "[${result.value}](${issueUrlPrefix}${result.value})" }
             .replace(Regex("(\r\n|\n)"), "\n")
             .replace("[-]".toRegex()) { result -> "\\${result.value}" }
-    }
-
-    private fun String.formatChangelogToSlack(): String {
-        val issueUrlPrefix = issueUrlPrefix.get()
-        val issueNumberPattern = issueNumberPattern.get()
-        return this
-            .replace(Regex(issueNumberPattern), "<$issueUrlPrefix\$0|\$0>")
-            .replace(Regex("(\r\n|\n)"), "\\\\n")
-            // only this insane amount of quotes works! they are needed to produce \\\" in json
-            .replace(Regex("\""), "\\\\\\\\\\\\\"")
     }
 }
