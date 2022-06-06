@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.dimensions.android"
-        minSdk = 31
+        minSdk = 21
         targetSdk = 31
         versionCode = 1
         versionName = "1.0"
@@ -41,13 +41,17 @@ android {
     }
 }
 
+dependencies {
+    implementation("androidx.core:core-ktx:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.3.0")
+    implementation("com.google.android.material:material:1.4.0")
+}
+
 buildPublish {
     commitMessageKey.set("CHANGELOG")
-    distributionServiceCredentialsFilePath.set("test-test")
     distributionAppId.set("ru.kode.test.app")
-    distributionTesterGroups.set(setOf("android-testers"))
 
-    baseOutputFileName.set("example-base-project-android")
+    baseOutputFileName.set("example-beta-debug")
     issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
     issueNumberPattern.set("BASE-\\d+")
     tgConfig.set(
@@ -80,9 +84,9 @@ buildPublish {
 
     appCenterConfig.set(
         mapOf(
-            "owner_name" to "example-owner-name",
+            "owner_name" to "android-team-kode.ru",
             "app_name" to "Android",
-            "api_token_file_path" to "path-to-token",
+            "api_token_file_path" to "token"
         )
     )
 
