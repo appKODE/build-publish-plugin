@@ -23,7 +23,7 @@ abstract class SendTelegramChangelogTask : DefaultTask() {
     private val commandExecutor = getCommandExecutor(project)
 
     @get:InputFile
-    @get:Option(option = "changelogFIle", description = "File with saved changelog")
+    @get:Option(option = "changelogFile", description = "File with saved changelog")
     abstract val changelogFile: RegularFileProperty
 
     @get:InputFile
@@ -69,8 +69,7 @@ abstract class SendTelegramChangelogTask : DefaultTask() {
 
     @TaskAction
     fun sendChangelog() {
-        val tagBuildFile = tagBuildFile.asFile.get()
-        val currentBuildTagName = fromJson(tagBuildFile).name
+        val currentBuildTagName = fromJson(tagBuildFile.asFile.get()).name
         val escapedCharacters =
             "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]".toRegex()
         val changelog = changelogFile.orNull?.asFile?.readText()

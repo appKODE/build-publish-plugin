@@ -22,7 +22,7 @@ abstract class SendSlackChangelogTask : DefaultTask() {
     private val commandExecutor = getCommandExecutor(project)
 
     @get:InputFile
-    @get:Option(option = "changelogFIle", description = "File with saved changelog")
+    @get:Option(option = "changelogFile", description = "File with saved changelog")
     abstract val changelogFile: RegularFileProperty
 
     @get:InputFile
@@ -64,8 +64,7 @@ abstract class SendSlackChangelogTask : DefaultTask() {
 
     @TaskAction
     fun sendChangelog() {
-        val tagBuildFile = tagBuildFile.asFile.get()
-        val currentBuildTagName = fromJson(tagBuildFile).name
+        val currentBuildTagName = fromJson(tagBuildFile.asFile.get()).name
         val changelog = changelogFile.orNull?.asFile?.readText()
         if (changelog.isNullOrEmpty()) {
             project.logger.error(

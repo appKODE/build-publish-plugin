@@ -9,10 +9,8 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
-import ru.kode.android.build.publish.plugin.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.ChunkRequestBody
 import ru.kode.android.build.publish.plugin.task.appcenter.uploader.AppCenterUploader
-import java.io.File
 import java.io.IOException
 
 abstract class AppCenterDistributionTask : DefaultTask() {
@@ -23,7 +21,7 @@ abstract class AppCenterDistributionTask : DefaultTask() {
 
     @get:Input
     @get:Option(
-        option = "outputFile",
+        option = "buildVariantOutputFile",
         description = "Artifact output file (absolute path is expected)"
     )
     abstract val buildVariantOutputFile: RegularFileProperty
@@ -31,38 +29,43 @@ abstract class AppCenterDistributionTask : DefaultTask() {
     @get:Input
     @get:Option(
         option = "ownerName",
-        description = "Project current build variant"
+        description = "Owner name of target project in AppCenter"
     )
     abstract val ownerName: Property<String>
 
     @get:Input
     @get:Option(
         option = "appName",
-        description = "Project current build variant"
+        description = "Application prefix for application name in AppCenter"
     )
     abstract val appName: Property<String>
 
     @get:Input
     @get:Option(
-        option = "apiTokenFilePath",
-        description = "Project current build variant"
+        option = "apiToken",
+        description = "API token for target project in AppCenter"
     )
-    abstract val apiTokenFilePath: Property<String>
+    abstract val apiToken: Property<String>
 
     @get:Input
-    @get:Option(option = "distributionGroups", description = "distribution group names")
+    @get:Option(option = "testerGroups", description = "Distribution group names")
     abstract val testerGroups: SetProperty<String>
 
     @get:InputFile
     @get:Option(
-        option = "releaseNotes",
-        description = "Release notes"
+        option = "changelogFile",
+        description = "File with saved changelog"
     )
     abstract val changelogFile: RegularFileProperty
 
     @TaskAction
     fun upload() {
-        val uploader = AppCenterUploader(ownerName.get(), appName.get(), project.logger, File(apiTokenFilePath.get()).readText())
+        val uploader = AppCenterUploader(
+            ownerName.get(),
+            appName.get(),
+            project.logger,
+            apiToken.get()
+        )
         project.logger.debug("Step 1/7: Prepare upload")
         val prepareResponse = uploader.prepareRelease()
         uploader.iniUploadApi(prepareResponse.upload_domain ?: "https://file.appcenter.ms")

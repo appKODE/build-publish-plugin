@@ -28,6 +28,7 @@ subprojects {
         verbose.set(true)
         android.set(false)
         outputToConsole.set(true)
+        disabledRules.set(setOf("import-ordering"))
         ignoreFailures.set(false)
         enableExperimentalRules.set(true)
         filter {
