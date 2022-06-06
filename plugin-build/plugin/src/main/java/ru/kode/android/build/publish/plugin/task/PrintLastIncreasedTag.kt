@@ -1,8 +1,6 @@
 package ru.kode.android.build.publish.plugin.task
 
-import org.gradle.api.Action
 import org.gradle.api.DefaultTask
-import org.gradle.api.Task
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.tasks.InputFile
@@ -23,15 +21,10 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
 
     @TaskAction
     fun printTag() {
-        val tagBuildFile = tagBuildFile.asFile.get()
-        val currentBuildTag = fromJson(tagBuildFile)
-        val currentBuildNumber = currentBuildTag.buildNumber.toString()
-        val increasedBuildNumber = currentBuildTag.buildNumber.inc().toString()
-        val nextTag = currentBuildTag.name.replaceFirst(currentBuildNumber, increasedBuildNumber)
-        println(nextTag)
-    }
-
-    override fun doLast(action: Action<in Task>): Task {
-        return super.doLast(action)
+        val lastBuildTag = fromJson(tagBuildFile.asFile.get())
+        val currentBuildNumber = lastBuildTag.buildNumber.toString()
+        val increasedBuildNumber = lastBuildTag.buildNumber.inc().toString()
+        val nextBuildTag = lastBuildTag.name.replaceFirst(currentBuildNumber, increasedBuildNumber)
+        print(nextBuildTag)
     }
 }

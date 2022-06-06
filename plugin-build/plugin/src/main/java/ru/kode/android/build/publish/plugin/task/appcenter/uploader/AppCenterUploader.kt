@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.appcenter
+package ru.kode.android.build.publish.plugin.task.appcenter.uploader
 
 import com.squareup.moshi.Moshi
 import okhttp3.Interceptor

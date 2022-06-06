@@ -8,7 +8,6 @@ import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
@@ -25,14 +24,13 @@ import ru.kode.android.build.publish.plugin.util.ChangelogBuilder
 abstract class GenerateChangelogTask : DefaultTask() {
 
     init {
-        description = "Generate changelog task"
+        description = "Task to generate changelog"
         group = BasePlugin.BUILD_GROUP
     }
 
     private val commandExecutor = getCommandExecutor(project)
 
     @get:InputFile
-    @get:Optional
     @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
     abstract val tagBuildFile: RegularFileProperty
 
@@ -50,15 +48,14 @@ abstract class GenerateChangelogTask : DefaultTask() {
     @get:OutputFile
     @get:Option(
         option = "changelogFile",
-        description = "File to store changelog"
+        description = "File with saved changelog"
     )
     abstract val changelogFile: RegularFileProperty
 
     @TaskAction
     fun generateChangelog() {
         val messageKey = commitMessageKey.get()
-        val tagBuildFile = tagBuildFile.asFile.get()
-        val currentBuildTag = fromJson(tagBuildFile)
+        val currentBuildTag = fromJson(tagBuildFile.asFile.get())
         val gitRepository = GitRepository(commandExecutor, setOf(buildVariant.get()))
         val changelog = ChangelogBuilder(gitRepository, commandExecutor, logger, messageKey)
             .buildForBuildTag(

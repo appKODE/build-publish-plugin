@@ -28,6 +28,7 @@ subprojects {
         verbose.set(true)
         android.set(false)
         outputToConsole.set(true)
+        disabledRules.set(setOf("import-ordering"))
         ignoreFailures.set(false)
         enableExperimentalRules.set(true)
         filter {
@@ -70,9 +71,10 @@ tasks.register("reformatAll") {
 tasks.register("preMerge") {
     description = "Runs all the tests/verification tasks on both top level and included build."
 
-    dependsOn(":example-build-types:check")
-    dependsOn(":example-dimensions:check")
-    dependsOn(":example-flavors:check")
+    dependsOn(":example:app:check")
+    dependsOn(":example:build-types:check")
+    dependsOn(":example:dimensions:check")
+    dependsOn(":example:flavors:check")
     dependsOn(gradle.includedBuild("plugin-build").task(":plugin:check"))
     dependsOn(gradle.includedBuild("plugin-build").task(":plugin:validatePlugins"))
 }

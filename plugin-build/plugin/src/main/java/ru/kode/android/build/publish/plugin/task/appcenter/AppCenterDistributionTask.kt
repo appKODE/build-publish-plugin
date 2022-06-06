@@ -3,18 +3,14 @@ package ru.kode.android.build.publish.plugin.task.appcenter
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
-import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
-import ru.kode.android.build.publish.plugin.enity.BuildVariant
-import ru.kode.android.build.publish.plugin.error.ValueNotFoundException
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.ChunkRequestBody
-import ru.kode.android.build.publish.plugin.util.capitalizedName
-import java.io.File
+import ru.kode.android.build.publish.plugin.task.appcenter.uploader.AppCenterUploader
 import java.io.IOException
 
 abstract class AppCenterDistributionTask : DefaultTask() {
@@ -25,60 +21,51 @@ abstract class AppCenterDistributionTask : DefaultTask() {
 
     @get:Input
     @get:Option(
-        option = "config",
-        description = "AppCenter config: owner_name, app_name and api_token_file_path"
-    )
-    abstract val config: MapProperty<String, String>
-
-    @get:Input
-    @get:Option(
-        option = "currentBuildVariant",
-        description = "Project current build variant"
-    )
-    abstract val buildVariant: Property<BuildVariant>
-
-    @get:Input
-    @get:Option(
-        option = "outputFile",
+        option = "buildVariantOutputFile",
         description = "Artifact output file (absolute path is expected)"
     )
     abstract val buildVariantOutputFile: RegularFileProperty
 
     @get:Input
-    @get:Option(option = "distributionGroups", description = "distribution group names")
-    abstract val distributionGroups: SetProperty<String>
+    @get:Option(
+        option = "ownerName",
+        description = "Owner name of target project in AppCenter"
+    )
+    abstract val ownerName: Property<String>
+
+    @get:Input
+    @get:Option(
+        option = "appName",
+        description = "Application prefix for application name in AppCenter"
+    )
+    abstract val appName: Property<String>
+
+    @get:Input
+    @get:Option(
+        option = "apiToken",
+        description = "API token for target project in AppCenter"
+    )
+    abstract val apiToken: Property<String>
+
+    @get:Input
+    @get:Option(option = "testerGroups", description = "Distribution group names")
+    abstract val testerGroups: SetProperty<String>
 
     @get:InputFile
     @get:Option(
-        option = "releaseNotes",
-        description = "Release notes"
+        option = "changelogFile",
+        description = "File with saved changelog"
     )
     abstract val changelogFile: RegularFileProperty
 
-    private val _config: Map<String, String>
-        get() {
-            return config.get()
-        }
-
-    private val ownerName by lazy {
-        _config["owner_name"] ?: throw ValueNotFoundException("owner_name")
-    }
-
-    private val appName by lazy {
-        (_config["app_name"] ?: throw ValueNotFoundException("app_name")) +
-            "-${buildVariant.get().capitalizedName()}"
-    }
-
-    private val uploader by lazy {
-        val apiTokenFilePath = _config["api_token_file_path"]
-            ?: throw ValueNotFoundException("api_token_file_path")
-
-        val token = File(apiTokenFilePath).readText()
-        AppCenterUploader(ownerName, appName, project.logger, token)
-    }
-
     @TaskAction
     fun upload() {
+        val uploader = AppCenterUploader(
+            ownerName.get(),
+            appName.get(),
+            project.logger,
+            apiToken.get()
+        )
         project.logger.debug("Step 1/7: Prepare upload")
         val prepareResponse = uploader.prepareRelease()
         uploader.iniUploadApi(prepareResponse.upload_domain ?: "https://file.appcenter.ms")
@@ -113,7 +100,7 @@ abstract class AppCenterDistributionTask : DefaultTask() {
 
         project.logger.debug("Step 6/7: Fetching for release to be ready to publish")
         val publishResponse = uploader.waitingReadyToBePublished(prepareResponse.id)
-        project.logger.debug("Step 7/7: Distribute to the app testers: $distributionGroups")
+        project.logger.debug("Step 7/7: Distribute to the app testers: $testerGroups")
         val releaseId = publishResponse.release_distinct_id
         val releaseNotes = try {
             changelogFile.get().asFile.readText()
@@ -121,7 +108,7 @@ abstract class AppCenterDistributionTask : DefaultTask() {
             project.logger.error("failed to read changelog $e"); null
         }
         if (releaseId != null) {
-            uploader.distribute(releaseId, distributionGroups.get(), releaseNotes.orEmpty())
+            uploader.distribute(releaseId, testerGroups.get(), releaseNotes.orEmpty())
         } else {
             project.logger.error(
                 "Apk was uploaded, " +
