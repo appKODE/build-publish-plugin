@@ -34,7 +34,6 @@ internal interface AppCenterApi {
         @Path("preparedUploadId") preparedUploadId: String
     ): Call<GetUploadResponse>
 
-
     @PATCH("apps/{ownerName}/{appName}/releases/{releaseId}")
     fun distribute(
         @Path("ownerName") ownerName: String,

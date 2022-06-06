@@ -7,7 +7,6 @@ import okio.BufferedSink
 import okio.buffer
 import okio.source
 import java.io.File
-import java.io.IOException
 
 // NOTE_CHUNKS_UPLOAD_LOOP
 // range - is represented byte chunk

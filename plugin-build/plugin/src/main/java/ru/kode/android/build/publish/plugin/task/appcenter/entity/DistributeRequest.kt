@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.task.appcenter.entity
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
+@Suppress("ConstructorParameterNaming") // network model
 data class DistributeRequest(
     val destinations: List<Destination>,
     val release_notes: String,

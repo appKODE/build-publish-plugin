@@ -123,11 +123,12 @@ abstract class AppCenterDistributionTask : DefaultTask() {
         if (releaseId != null) {
             uploader.distribute(releaseId, distributionGroups.get(), releaseNotes.orEmpty())
         } else {
-            project.logger.error("Apk was uploaded, " +
-                "but distributors will not be notified: " +
-                "field 'release_distinct_id' is null, cannot execute 'distribute' request")
+            project.logger.error(
+                "Apk was uploaded, " +
+                    "but distributors will not be notified: " +
+                    "field 'release_distinct_id' is null, cannot execute 'distribute' request"
+            )
         }
         project.logger.debug("Done")
     }
 }
-
