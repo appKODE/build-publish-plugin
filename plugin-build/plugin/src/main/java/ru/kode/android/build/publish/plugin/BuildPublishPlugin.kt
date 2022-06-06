@@ -110,7 +110,8 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 buildVariant,
                 getLastTagTaskProvider.flatMap { it.tagBuildFile }
             )
-            val changelogConfig = buildPublishExtension.changelog.findByName("default") ?: return
+            val changelogConfig = buildPublishExtension.changelog.getByName("default") ?: return
+            println("changelogConfig ${changelogConfig.commitMessageKey.get()}")
             val generateChangelogTaskProvider = registerGenerateChangelogTask(
                 changelogConfig,
                 buildVariant,

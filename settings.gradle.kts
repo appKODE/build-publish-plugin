@@ -8,8 +8,9 @@ pluginManagement {
 
 rootProject.name = ("build-publish")
 
-include(":app")
-include(":example-build-types")
-include(":example-dimensions")
-include(":example-flavors")
+include(":example:app")
+include(":example:build-types")
+include(":example:build-types-gradle")
+include(":example:dimensions")
+include(":example:flavors")
 includeBuild("plugin-build")
