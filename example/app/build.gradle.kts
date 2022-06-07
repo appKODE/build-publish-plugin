@@ -64,7 +64,7 @@ buildPublish {
         register("default") {
             appName.set("Android")
             ownerName.set("android-team-kode.ru")
-            apiTokenFile.set(File("api_token_file_path.txt"))
+            apiTokenFile.set(File("appcenter-token.txt"))
             testerGroups.set(setOf("Collaborators"))
         }
     }

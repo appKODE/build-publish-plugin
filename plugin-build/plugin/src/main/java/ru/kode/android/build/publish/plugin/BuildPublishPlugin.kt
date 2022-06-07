@@ -29,13 +29,13 @@ import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
 import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
 import ru.kode.android.build.publish.plugin.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.task.appcenter.AppCenterDistributionTask
-import ru.kode.android.build.publish.plugin.util.capitalizedName
 import ru.kode.android.build.publish.plugin.task.GenerateChangelogTask
 import ru.kode.android.build.publish.plugin.task.GetLastTagTask
 import ru.kode.android.build.publish.plugin.task.PrintLastIncreasedTag
 import ru.kode.android.build.publish.plugin.task.SendSlackChangelogTask
 import ru.kode.android.build.publish.plugin.task.SendTelegramChangelogTask
+import ru.kode.android.build.publish.plugin.task.appcenter.AppCenterDistributionTask
+import ru.kode.android.build.publish.plugin.util.capitalizedName
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -94,14 +94,12 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                         .findByName("${GET_LAST_TAG_TASK_PREFIX}${buildVariant.capitalizedName()}")
                         as GetLastTagTask
                     output.versionCode.set(
-                        getLastTagTask.tagBuildFile.flatMap { tagBuildFile ->
-                            outputConfig.startVersionCode.map { startVersionCode ->
-                                val file = tagBuildFile.asFile
-                                if (file.exists()) {
-                                    fromJson(file).buildNumber + startVersionCode
-                                } else {
-                                    startVersionCode.inc()
-                                }
+                        getLastTagTask.tagBuildFile.map { tagBuildFile ->
+                            val file = tagBuildFile.asFile
+                            if (file.exists()) {
+                                fromJson(file).buildNumber
+                            } else {
+                                1
                             }
                         }
                     )

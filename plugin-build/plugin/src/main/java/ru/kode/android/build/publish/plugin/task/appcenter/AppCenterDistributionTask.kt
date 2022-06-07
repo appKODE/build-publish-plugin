@@ -8,6 +8,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.ChunkRequestBody
@@ -20,7 +21,7 @@ abstract class AppCenterDistributionTask : DefaultTask() {
         group = BasePlugin.BUILD_GROUP
     }
 
-    @get:Input
+    @get:InputFile
     @get:Option(
         option = "buildVariantOutputFile",
         description = "Artifact output file (absolute path is expected)"
@@ -43,7 +44,7 @@ abstract class AppCenterDistributionTask : DefaultTask() {
 
     @get:InputFile
     @get:Option(
-        option = "apiTokenFilePath",
+        option = "apiTokenFile",
         description = "API token for target project in AppCenter"
     )
     abstract val apiTokenFile: RegularFileProperty
@@ -53,6 +54,7 @@ abstract class AppCenterDistributionTask : DefaultTask() {
     abstract val testerGroups: SetProperty<String>
 
     @get:InputFile
+    @get:Optional
     @get:Option(
         option = "changelogFile",
         description = "File with saved changelog"
@@ -74,13 +76,14 @@ abstract class AppCenterDistributionTask : DefaultTask() {
         uploader.iniUploadApi(prepareResponse.upload_domain ?: "https://file.appcenter.ms")
 
         project.logger.debug("Step 2/7: Send metadata")
-        val apkFile = buildVariantOutputFile.get().asFile
-        require(apkFile.isFile && apkFile.extension == "apk") {
-            "File ${apkFile.path} is not apk"
+        val outputFile = buildVariantOutputFile.get().asFile
+        if (!outputFile.exists()) throw GradleException("build variant output file not exists: $outputFile")
+        require(outputFile.isFile && outputFile.extension == "apk") {
+            "File ${outputFile.path} is not apk"
         }
         val packageAssetId = prepareResponse.package_asset_id
         val encodedToken = prepareResponse.url_encoded_token
-        val metaResponse = uploader.sendMetaData(apkFile, packageAssetId, encodedToken)
+        val metaResponse = uploader.sendMetaData(outputFile, packageAssetId, encodedToken)
 
         // See NOTE_CHUNKS_UPLOAD_LOOP
         project.logger.debug("Step 3/7: Upload apk file chunks")
@@ -91,7 +94,7 @@ abstract class AppCenterDistributionTask : DefaultTask() {
                 packageAssetId = packageAssetId,
                 encodedToken = encodedToken,
                 chunkNumber = chunkNumber,
-                request = ChunkRequestBody(apkFile, range, "application/octet-stream")
+                request = ChunkRequestBody(outputFile, range, "application/octet-stream")
             )
         }
 
@@ -106,7 +109,7 @@ abstract class AppCenterDistributionTask : DefaultTask() {
         project.logger.debug("Step 7/7: Distribute to the app testers: $testerGroups")
         val releaseId = publishResponse.release_distinct_id
         val releaseNotes = try {
-            changelogFile.get().asFile.readText()
+            changelogFile.orNull?.asFile?.readText()
         } catch (e: IOException) {
             project.logger.error("failed to read changelog $e"); null
         }
