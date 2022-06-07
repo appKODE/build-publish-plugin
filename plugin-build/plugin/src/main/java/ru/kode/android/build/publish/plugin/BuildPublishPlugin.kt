@@ -298,7 +298,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             "$APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
             AppCenterDistributionTask::class.java,
         ) {
-            it.apiToken.set(config.apiTokenFilePath.map { filePath -> File(filePath).readText() })
+            it.apiTokenFile.set(config.apiTokenFile)
             it.ownerName.set(config.ownerName)
             it.appName.set(config.appName)
             it.testerGroups.set(config.testerGroups)

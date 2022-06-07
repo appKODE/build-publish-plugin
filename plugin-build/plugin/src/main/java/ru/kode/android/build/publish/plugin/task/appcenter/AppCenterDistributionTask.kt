@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.task.appcenter
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
@@ -40,12 +41,12 @@ abstract class AppCenterDistributionTask : DefaultTask() {
     )
     abstract val appName: Property<String>
 
-    @get:Input
+    @get:InputFile
     @get:Option(
-        option = "apiToken",
+        option = "apiTokenFilePath",
         description = "API token for target project in AppCenter"
     )
-    abstract val apiToken: Property<String>
+    abstract val apiTokenFile: RegularFileProperty
 
     @get:Input
     @get:Option(option = "testerGroups", description = "Distribution group names")
@@ -60,11 +61,13 @@ abstract class AppCenterDistributionTask : DefaultTask() {
 
     @TaskAction
     fun upload() {
+        val apiTokenFile = apiTokenFile.get().asFile
+        if (!apiTokenFile.exists()) throw GradleException("api token file not exists: $apiTokenFile")
         val uploader = AppCenterUploader(
             ownerName.get(),
             appName.get(),
             project.logger,
-            apiToken.get()
+            apiTokenFile.readText()
         )
         project.logger.debug("Step 1/7: Prepare upload")
         val prepareResponse = uploader.prepareRelease()
