@@ -249,7 +249,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         tagBuildProvider: Provider<RegularFile>
     ) {
         register(
-            "$SEND_SLACK_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
+            "$SEND_TELEGRAM_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
             SendTelegramChangelogTask::class.java
         ) {
             it.changelogFile.set(changelogFileProvider)
@@ -274,7 +274,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         tagBuildProvider: Provider<RegularFile>
     ) {
         register(
-            "$SEND_TELEGRAM_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
+            "$SEND_SLACK_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
             SendSlackChangelogTask::class.java
         ) {
             it.changelogFile.set(changelogFileProvider)
