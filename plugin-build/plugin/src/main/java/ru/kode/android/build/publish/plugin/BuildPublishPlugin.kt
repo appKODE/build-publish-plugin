@@ -23,8 +23,9 @@ import ru.kode.android.build.publish.plugin.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.extension.BuildPublishExtension
 import ru.kode.android.build.publish.plugin.extension.EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.extension.config.AppCenterDistributionConfig
-import ru.kode.android.build.publish.plugin.extension.config.ChangelogSettingsConfig
+import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
+import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
 import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
 import ru.kode.android.build.publish.plugin.git.mapper.fromJson
@@ -36,6 +37,8 @@ import ru.kode.android.build.publish.plugin.task.PrintLastIncreasedTag
 import ru.kode.android.build.publish.plugin.task.SendSlackChangelogTask
 import ru.kode.android.build.publish.plugin.task.SendTelegramChangelogTask
 import java.io.File
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 internal const val SEND_SLACK_CHANGELOG_TASK_PREFIX = "sendSlackChangelog"
 internal const val SEND_TELEGRAM_CHANGELOG_TASK_PREFIX = "sendTelegramChangelog"
@@ -51,6 +54,7 @@ internal object AgpVersions {
     val VERSION_7_0_4: VersionNumber = VersionNumber.parse("7.0.4")
 }
 
+@Suppress("LongMethod") // TODO Split into small methods
 abstract class BuildPublishPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.stopExecutionIfNotSupported()
@@ -60,7 +64,6 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         val androidExtension = project.extensions
             .getByType(ApplicationAndroidComponentsExtension::class.java)
         val changelogFile = File(project.buildDir, CHANGELOG_FILENAME)
-
         androidExtension.onVariants(
             callback = { variant ->
                 val output = variant.outputs
@@ -78,21 +81,56 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                             }
                             ?: throw GradleException("no output for variant ${variant.name}")
                     }
+                    val outputConfig = buildPublishExtension.output.getByName("default")
                     val buildVariant = BuildVariant(variant.name, variant.flavorName, variant.buildType)
-                    project.registerVariantTasks(buildPublishExtension, buildVariant, changelogFile, outputFile)
+                    project.registerVariantTasks(
+                        buildPublishExtension,
+                        outputConfig,
+                        buildVariant,
+                        changelogFile,
+                        outputFile
+                    )
                     val getLastTagTask = project.tasks
                         .findByName("${GET_LAST_TAG_TASK_PREFIX}${buildVariant.capitalizedName()}")
                         as GetLastTagTask
                     output.versionCode.set(
-                        getLastTagTask.tagBuildFile.map {
-                            val file = it.asFile
-                            if (file.exists()) fromJson(file).buildNumber else 1
+                        getLastTagTask.tagBuildFile.flatMap { tagBuildFile ->
+                            outputConfig.startVersionCode.map { startVersionCode ->
+                                val file = tagBuildFile.asFile
+                                if (file.exists()) {
+                                    fromJson(file).buildNumber + startVersionCode
+                                } else {
+                                    startVersionCode.inc()
+                                }
+                            }
                         }
                     )
+                    val outputBaseName = outputConfig.baseFileName.get()
+                    val outputFileName = output.outputFileName.orNull
+                    if (outputFileName != null) {
+                        output.outputFileName.set(
+                            getLastTagTask.tagBuildFile.map { tagBuildFile ->
+                                val file = tagBuildFile.asFile
+                                val formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy"))
+                                if (file.exists() && outputFileName.endsWith(".apk")) {
+                                    val tagBuild = fromJson(file)
+                                    val versionName = tagBuild.buildVariant
+                                    val versionCode = tagBuild.buildNumber
+                                    "$outputBaseName-$versionName-vc$versionCode-$formattedDate.apk"
+                                } else if (!file.exists() && outputFileName.endsWith(".apk")) {
+                                    "$outputBaseName-$formattedDate.apk"
+                                } else outputBaseName
+                            }
+                        )
+                    }
                     output.versionName.set(
-                        getLastTagTask.tagBuildFile.map {
-                            val file = it.asFile
-                            if (file.exists()) fromJson(file).name else "$DEFAULT_BUILD_VERSION-${buildVariant.name}"
+                        getLastTagTask.tagBuildFile.map { tagBuildFile ->
+                            val file = tagBuildFile.asFile
+                            if (file.exists()) {
+                                fromJson(tagBuildFile.asFile).name
+                            } else {
+                                "$DEFAULT_BUILD_VERSION-${buildVariant.name}"
+                            }
                         }
                     )
                 }
@@ -105,6 +143,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
 
     private fun Project.registerVariantTasks(
         buildPublishExtension: BuildPublishExtension,
+        outputConfig: OutputConfig,
         buildVariant: BuildVariant,
         changelogFile: File,
         outputFile: Provider<RegularFile>,
@@ -126,6 +165,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             val telegramConfig = buildPublishExtension.telegram.findByName("default")
             if (telegramConfig != null) {
                 registerSendTelegramChangelogTask(
+                    outputConfig,
                     changelogConfig,
                     telegramConfig,
                     buildVariant,
@@ -136,6 +176,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             val slackConfig = buildPublishExtension.slack.findByName("default")
             if (slackConfig != null) {
                 registerSendSlackChangelogTask(
+                    outputConfig,
                     changelogConfig,
                     slackConfig,
                     buildVariant,
@@ -182,7 +223,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
     }
 
     private fun TaskContainer.registerGenerateChangelogTask(
-        changelogConfig: ChangelogSettingsConfig,
+        changelogConfig: ChangelogConfig,
         buildVariant: BuildVariant,
         changelogFile: File,
         tagBuildProvider: Provider<RegularFile>
@@ -198,8 +239,10 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         }
     }
 
+    @Suppress("LongParameterList") // TODO Get parameters inside
     private fun TaskContainer.registerSendTelegramChangelogTask(
-        changelogConfig: ChangelogSettingsConfig,
+        outputConfig: OutputConfig,
+        changelogConfig: ChangelogConfig,
         telegramConfig: TelegramConfig,
         buildVariant: BuildVariant,
         changelogFileProvider: Provider<RegularFile>,
@@ -213,7 +256,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.tagBuildFile.set(tagBuildProvider)
             it.issueUrlPrefix.set(changelogConfig.issueUrlPrefix)
             it.issueNumberPattern.set(changelogConfig.issueNumberPattern)
-            it.baseOutputFileName.set(changelogConfig.baseOutputFileName)
+            it.baseOutputFileName.set(outputConfig.baseFileName)
             it.webhookUrl.set(telegramConfig.webhookUrl)
             it.botId.set(telegramConfig.botId)
             it.chatId.set(telegramConfig.chatId)
@@ -221,8 +264,10 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         }
     }
 
+    @Suppress("LongParameterList") // TODO Get parameters inside
     private fun TaskContainer.registerSendSlackChangelogTask(
-        changelogConfig: ChangelogSettingsConfig,
+        outputConfig: OutputConfig,
+        changelogConfig: ChangelogConfig,
         slackConfig: SlackConfig,
         buildVariant: BuildVariant,
         changelogFileProvider: Provider<RegularFile>,
@@ -236,7 +281,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.tagBuildFile.set(tagBuildProvider)
             it.issueUrlPrefix.set(changelogConfig.issueUrlPrefix)
             it.issueNumberPattern.set(changelogConfig.issueNumberPattern)
-            it.baseOutputFileName.set(changelogConfig.baseOutputFileName)
+            it.baseOutputFileName.set(outputConfig.baseFileName)
             it.webhookUrl.set(slackConfig.webhookUrl)
             it.iconUrl.set(slackConfig.iconUrl)
             it.userMentions.set(slackConfig.userMentions)

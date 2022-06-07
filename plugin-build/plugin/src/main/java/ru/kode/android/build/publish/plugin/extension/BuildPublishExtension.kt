@@ -3,8 +3,9 @@ package ru.kode.android.build.publish.plugin.extension
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.extension.config.AppCenterDistributionConfig
-import ru.kode.android.build.publish.plugin.extension.config.ChangelogSettingsConfig
+import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
+import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
 import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
 import javax.inject.Inject
@@ -13,8 +14,10 @@ const val EXTENSION_NAME = "buildPublish"
 
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishExtension @Inject constructor(objectFactory: ObjectFactory) {
-    val changelog: NamedDomainObjectContainer<ChangelogSettingsConfig> =
-        objectFactory.domainObjectContainer(ChangelogSettingsConfig::class.java)
+    val output: NamedDomainObjectContainer<OutputConfig> =
+        objectFactory.domainObjectContainer(OutputConfig::class.java)
+    val changelog: NamedDomainObjectContainer<ChangelogConfig> =
+        objectFactory.domainObjectContainer(ChangelogConfig::class.java)
     val telegram: NamedDomainObjectContainer<TelegramConfig> =
         objectFactory.domainObjectContainer(TelegramConfig::class.java)
     val slack: NamedDomainObjectContainer<SlackConfig> =

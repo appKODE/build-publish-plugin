@@ -3,7 +3,7 @@ package ru.kode.android.build.publish.plugin.extension.config
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 
-interface ChangelogSettingsConfig {
+interface ChangelogConfig {
     val name: String
 
     /**
@@ -19,13 +19,6 @@ interface ChangelogSettingsConfig {
      */
     @get:Input
     val issueUrlPrefix: Property<String>
-
-    /**
-     * Application bundle name for changelog
-     * For example: example-base-project-android
-     */
-    @get:Input
-    val baseOutputFileName: Property<String>
 
     /**
      * Message key to collect interested commits

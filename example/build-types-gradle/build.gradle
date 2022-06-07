@@ -22,11 +22,15 @@ android {
 }
 
 buildPublish {
+    output {
+        register("default") {
+            baseFileName = "base-project-android"
+        }
+    }
     changelog {
         register("default") {
             issueNumberPattern = "BASE-\\d+"
             issueUrlPrefix = "https://jira.exmaple.ru/browse/"
-            baseOutputFileName = "example-base-project-android"
             commitMessageKey = "CHANGELOG"
         }
     }

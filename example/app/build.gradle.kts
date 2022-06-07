@@ -48,11 +48,15 @@ dependencies {
 }
 
 buildPublish {
+    output {
+        register("default") {
+            baseFileName.set("example-base-project-android")
+        }
+    }
     changelog {
         register("default") {
             issueNumberPattern.set("BASE-\\d+")
             issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
-            baseOutputFileName.set("example-base-project-android")
             commitMessageKey.set("CHANGELOG")
         }
     }
