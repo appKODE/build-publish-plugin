@@ -9,7 +9,7 @@ import ru.kode.android.build.publish.plugin.git.entity.TagRange
 internal class ChangelogBuilder(
     private val gitRepository: GitRepository,
     private val commandExecutor: ShellCommandExecutor,
-    private val logger: Logger,
+    private val logger: Logger?,
     private val messageKey: String,
 ) {
 
@@ -27,7 +27,7 @@ internal class ChangelogBuilder(
         defaultValueSupplier: ((TagRange) -> String?)? = null
     ): String? {
         val tagRange = gitRepository.findTagRange(buildVariant)
-            .also { if (it == null) logger.warn("failed to build a changelog: no build tags") }
+            .also { if (it == null) logger?.warn("failed to build a changelog: no build tags") }
             ?: return null
         return tagRange.buildChangelog() ?: defaultValueSupplier?.invoke(tagRange)
     }

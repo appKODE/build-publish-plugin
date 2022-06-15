@@ -25,7 +25,7 @@ interface AppCenterDistributionConfig {
      * Short app name to be used as first part of app name in the AppCenter
      */
     @get:Input
-    val appName: Property<String>
+    val appNamePrefix: Property<String>
 
     /**
      * Test groups for app distribution

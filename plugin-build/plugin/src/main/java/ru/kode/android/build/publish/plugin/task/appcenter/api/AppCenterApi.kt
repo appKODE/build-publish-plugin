@@ -9,6 +9,7 @@ import retrofit2.http.POST
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.CommitRequest
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.DistributeRequest
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.GetUploadResponse
+import ru.kode.android.build.publish.plugin.task.appcenter.entity.PrepareReleaseRequest
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.PrepareResponse
 
 internal interface AppCenterApi {
@@ -17,6 +18,7 @@ internal interface AppCenterApi {
     fun prepareRelease(
         @Path("ownerName") ownerName: String,
         @Path("appName") appName: String,
+        @Body request: PrepareReleaseRequest,
     ): Call<PrepareResponse>
 
     @PATCH("apps/{ownerName}/{appName}/uploads/releases/{preparedUploadId}")
@@ -24,7 +26,7 @@ internal interface AppCenterApi {
         @Path("ownerName") ownerName: String,
         @Path("appName") appName: String,
         @Path("preparedUploadId") preparedUploadId: String,
-        @Body status: CommitRequest
+        @Body request: CommitRequest
     ): Call<Unit>
 
     @GET("apps/{ownerName}/{appName}/uploads/releases/{preparedUploadId}")

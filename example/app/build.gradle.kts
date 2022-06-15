@@ -60,9 +60,17 @@ buildPublish {
             commitMessageKey.set("CHANGELOG")
         }
     }
+    telegram {
+        register("default") {
+            webhookUrl.set("https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2")
+            botId.set("0000")
+            chatId.set("0000")
+            userMentions.set(setOf("@ivan", "@roman", "@serega"))
+        }
+    }
     appCenterDistribution {
         register("default") {
-            appName.set("Android")
+            appNamePrefix.set("Android")
             ownerName.set("android-team-kode.ru")
             apiTokenFile.set(File("appcenter-token.txt"))
             testerGroups.set(setOf("Collaborators"))

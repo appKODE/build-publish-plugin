@@ -32,7 +32,7 @@ sealed class Tag {
                 ?: throw GradleException(
                     "No buildVariants for ${tag.name}. Available variants: $buildVariants",
                 ),
-            buildNumber = Regex("\\d+").findAll(tag.name).last().value.toInt()
+            buildNumber = Regex("\\d+").findAll(tag.name.split("-").first()).last().value.toInt()
         )
     }
 }

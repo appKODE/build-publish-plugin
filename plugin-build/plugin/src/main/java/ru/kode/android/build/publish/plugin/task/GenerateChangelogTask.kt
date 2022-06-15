@@ -1,8 +1,6 @@
 package ru.kode.android.build.publish.plugin.task
 
-import org.gradle.api.Action
 import org.gradle.api.DefaultTask
-import org.gradle.api.Task
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
@@ -11,24 +9,24 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
-import ru.kode.android.build.publish.plugin.command.getCommandExecutor
-import ru.kode.android.build.publish.plugin.git.GitRepository
-import ru.kode.android.build.publish.plugin.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.util.ChangelogBuilder
+import org.gradle.workers.WorkQueue
+import org.gradle.workers.WorkerExecutor
+import ru.kode.android.build.publish.plugin.task.work.GenerateChangelogWork
+import javax.inject.Inject
 
 /**
  * Generate changelog task should write to file,
  * then result can be used in Firebase App Distribution without rebuilding configs
  * and it can be used in all other tasks without duplicates in different places
  */
-abstract class GenerateChangelogTask : DefaultTask() {
+abstract class GenerateChangelogTask @Inject constructor(
+    private val workerExecutor: WorkerExecutor,
+) : DefaultTask() {
 
     init {
         description = "Task to generate changelog"
         group = BasePlugin.BUILD_GROUP
     }
-
-    private val commandExecutor = getCommandExecutor(project)
 
     @get:InputFile
     @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
@@ -54,24 +52,12 @@ abstract class GenerateChangelogTask : DefaultTask() {
 
     @TaskAction
     fun generateChangelog() {
-        val messageKey = commitMessageKey.get()
-        val currentBuildTag = fromJson(tagBuildFile.asFile.get())
-        val gitRepository = GitRepository(commandExecutor, setOf(buildVariant.get()))
-        val changelog = ChangelogBuilder(gitRepository, commandExecutor, logger, messageKey)
-            .buildForBuildTag(
-                currentBuildTag,
-                defaultValueSupplier = { tagRange ->
-                    val previousBuildName = tagRange.previousBuildTag?.name?.let { "(**$it**)" }
-                    "No changes in comparison with a previous build $previousBuildName"
-                }
-            )
-        val changelogOutput = changelogFile.get().asFile
-        if (!changelog.isNullOrBlank()) {
-            changelogOutput.writeText(changelog)
+        val workQueue: WorkQueue = workerExecutor.noIsolation()
+        workQueue.submit(GenerateChangelogWork::class.java) { parameters ->
+            parameters.commitMessageKey.set(commitMessageKey)
+            parameters.buildVariant.set(buildVariant)
+            parameters.tagBuildFile.set(tagBuildFile)
+            parameters.changelogFile.set(changelogFile)
         }
-    }
-
-    override fun doLast(action: Action<in Task>): Task {
-        return super.doLast(action)
     }
 }
