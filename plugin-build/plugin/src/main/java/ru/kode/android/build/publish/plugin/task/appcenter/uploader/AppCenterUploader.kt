@@ -15,6 +15,7 @@ import ru.kode.android.build.publish.plugin.task.appcenter.entity.ChunkRequestBo
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.CommitRequest
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.DistributeRequest
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.GetUploadResponse
+import ru.kode.android.build.publish.plugin.task.appcenter.entity.PrepareReleaseRequest
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.PrepareResponse
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.SendMetaDataResponse
 import java.io.File
@@ -59,12 +60,13 @@ internal class AppCenterUploader(
             return _uploadApi ?: error("upload api is not initialized")
         }
 
-    fun iniUploadApi(uploadDomain: String) {
+    fun initUploadApi(uploadDomain: String) {
         _uploadApi = createApi<AppCenterUploadApi>(uploadDomain)
     }
 
-    fun prepareRelease(): PrepareResponse {
-        return api.prepareRelease(ownerName, appName).executeOrThrow()
+    fun prepareRelease(buildVersion: String, buildNumber: String): PrepareResponse {
+        val request = PrepareReleaseRequest(buildVersion, buildNumber)
+        return api.prepareRelease(ownerName, appName, request).executeOrThrow()
     }
 
     fun sendMetaData(
@@ -92,7 +94,8 @@ internal class AppCenterUploader(
         chunkNumber: Int,
         request: ChunkRequestBody,
     ) {
-        return uploadApi.uploadChunk(packageAssetId, encodedToken, chunkNumber, request)
+        return uploadApi
+            .uploadChunk(packageAssetId, encodedToken, chunkNumber, request)
             .executeOrThrow()
     }
 
@@ -100,7 +103,9 @@ internal class AppCenterUploader(
         packageAssetId: String,
         encodedToken: String,
     ) {
-        uploadApi.sendUploadIsFinished(packageAssetId, encodedToken).executeOrThrow()
+        uploadApi
+            .sendUploadIsFinished(packageAssetId, encodedToken)
+            .executeOrThrow()
     }
 
     fun commit(preparedUploadId: String) {
@@ -116,7 +121,7 @@ internal class AppCenterUploader(
             Thread.sleep(DELAY_CHECK_MS)
             requestCount++
             require(requestCount <= MAX_CHECK) { "Cannot fetch upload status" }
-        } while (response.upload_status == "readyToBePublished")
+        } while (response.release_distinct_id == null)
         return response
     }
 

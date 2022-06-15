@@ -9,18 +9,20 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
-import ru.kode.android.build.publish.plugin.command.getCommandExecutor
+import org.gradle.workers.WorkQueue
+import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.git.mapper.fromJson
-import java.net.URLEncoder
+import ru.kode.android.build.publish.plugin.task.work.SendTelegramChangelogWork
+import javax.inject.Inject
 
-abstract class SendTelegramChangelogTask : DefaultTask() {
+abstract class SendTelegramChangelogTask @Inject constructor(
+    private val workerExecutor: WorkerExecutor,
+) : DefaultTask() {
 
     init {
         description = "Task to send changelog for Telegram"
         group = BasePlugin.BUILD_GROUP
     }
-
-    private val commandExecutor = getCommandExecutor(project)
 
     @get:InputFile
     @get:Option(option = "changelogFile", description = "File with saved changelog")
@@ -69,55 +71,43 @@ abstract class SendTelegramChangelogTask : DefaultTask() {
 
     @TaskAction
     fun sendChangelog() {
-        val currentBuildTagName = fromJson(tagBuildFile.asFile.get()).name
+        val currentBuildTag = fromJson(tagBuildFile.asFile.get())
         val escapedCharacters =
-            "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]".toRegex()
+            "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]"
         val changelog = changelogFile.orNull?.asFile?.readText()
         if (changelog.isNullOrEmpty()) {
-            project.logger.error(
+            logger.error(
                 "[sendChangelog] changelog file not found, is empty or error occurred"
             )
         } else {
             val telegramFormattedChangelog = changelog.formatChangelogToTelegram(escapedCharacters)
             if (telegramFormattedChangelog.isNotBlank()) {
-                sendTelegramChangelog(telegramFormattedChangelog, currentBuildTagName, escapedCharacters)
+                val slackUserMentions = userMentions.orNull.orEmpty().joinToString(", ")
+                val workQueue: WorkQueue = workerExecutor.noIsolation()
+                workQueue.submit(SendTelegramChangelogWork::class.java) { parameters ->
+                    parameters.baseOutputFileName.set(baseOutputFileName)
+                    parameters.buildName.set(currentBuildTag.name)
+                    parameters.changelog.set(changelog)
+                    parameters.webhookUrl.set(webhookUrl)
+                    parameters.userMentions.set(slackUserMentions)
+                    parameters.escapedCharacters.set(escapedCharacters)
+                    parameters.botId.set(botId)
+                    parameters.chatId.set(chatId)
+                }
             } else {
-                project.logger.error(
+                logger.error(
                     "[sendChangelog] changelog not sent to telegram, is empty or error occurred"
                 )
             }
         }
     }
 
-    private fun sendTelegramChangelog(
-        changelog: String,
-        currentBuildTagName: String,
-        escapedCharacters: Regex
-    ) {
-        val baseOutputFileName = baseOutputFileName.get()
-        val tgUserMentions = userMentions.orNull.orEmpty().joinToString(", ")
-        val title = (
-            "$baseOutputFileName $currentBuildTagName\n" +
-                "${tgUserMentions}\n\n"
-            )
-            .replace(escapedCharacters) { result -> "\\${result.value}" }
-            .replace("[-]".toRegex()) { result -> "\\${result.value}" }
-
-        val url = webhookUrl.get().format(
-            botId.get(),
-            chatId.get(),
-            URLEncoder.encode("$title$changelog", "utf-8")
-        )
-        commandExecutor.sendToWebHook(url)
-        project.logger.debug("changelog sent to Telegram")
-    }
-
-    private fun String.formatChangelogToTelegram(escapedCharacters: Regex): String {
+    private fun String.formatChangelogToTelegram(escapedCharacters: String): String {
         val issueUrlPrefix = issueUrlPrefix.get()
         val issueNumberPattern = issueNumberPattern.get()
         val issueRegexp = Regex(issueNumberPattern)
         return this
-            .replace(escapedCharacters) { result -> "\\${result.value}" }
+            .replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
             .replace(issueRegexp) { result -> "[${result.value}](${issueUrlPrefix}${result.value})" }
             .replace(Regex("(\r\n|\n)"), "\n")
             .replace("[-]".toRegex()) { result -> "\\${result.value}" }

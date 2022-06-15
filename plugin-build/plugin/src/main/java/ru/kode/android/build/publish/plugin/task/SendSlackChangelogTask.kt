@@ -9,17 +9,20 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
-import ru.kode.android.build.publish.plugin.command.getCommandExecutor
+import org.gradle.workers.WorkQueue
+import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.task.work.SendSlackChangelogWork
+import javax.inject.Inject
 
-abstract class SendSlackChangelogTask : DefaultTask() {
+abstract class SendSlackChangelogTask @Inject constructor(
+    private val workerExecutor: WorkerExecutor,
+) : DefaultTask() {
 
     init {
         description = "Task to send changelog for Slack"
         group = BasePlugin.BUILD_GROUP
     }
-
-    private val commandExecutor = getCommandExecutor(project)
 
     @get:InputFile
     @get:Option(option = "changelogFile", description = "File with saved changelog")
@@ -64,43 +67,31 @@ abstract class SendSlackChangelogTask : DefaultTask() {
 
     @TaskAction
     fun sendChangelog() {
-        val currentBuildTagName = fromJson(tagBuildFile.asFile.get()).name
+        val currentBuildTag = fromJson(tagBuildFile.asFile.get())
         val changelog = changelogFile.orNull?.asFile?.readText()
         if (changelog.isNullOrEmpty()) {
-            project.logger.error(
-                "[sendChangelog] changelog file not found, is empty or error occurred"
+            logger.error(
+                "changelog file not found, is empty or error occurred"
             )
         } else {
             val slackFormattedChangelog = changelog.formatChangelogToSlack()
             if (slackFormattedChangelog.isNotBlank()) {
-                sendSlackChangelog(currentBuildTagName, slackFormattedChangelog)
+                val slackUserMentions = userMentions.orNull.orEmpty().joinToString(", ")
+                val workQueue: WorkQueue = workerExecutor.noIsolation()
+                workQueue.submit(SendSlackChangelogWork::class.java) { parameters ->
+                    parameters.baseOutputFileName.set(baseOutputFileName)
+                    parameters.webhookUrl.set(webhookUrl)
+                    parameters.iconUrl.set(iconUrl)
+                    parameters.buildName.set(currentBuildTag.name)
+                    parameters.changelog.set(changelog)
+                    parameters.userMentions.set(slackUserMentions)
+                }
             } else {
-                project.logger.error(
-                    "[sendChangelog] changelog not sent to Slack, is empty or error occurred"
+                logger.error(
+                    "changelog not sent to Slack, is empty or error occurred"
                 )
             }
         }
-    }
-
-    private fun sendSlackChangelog(
-        currentBuildTagName: String,
-        changelog: String
-    ) {
-        val baseOutputFileName = baseOutputFileName.get()
-        val slackUserMentions = userMentions.orNull.orEmpty().joinToString(", ")
-        val json = "\"{" +
-            "\\\"icon_url\\\": \\\"${iconUrl}\\\"," +
-            "\\\"username\\\": \\\"buildBot\\\", " +
-            "\\\"blocks\\\": [ " +
-            "{ \\\"type\\\": \\\"section\\\", \\\"text\\\": { " +
-            "\\\"type\\\": \\\"mrkdwn\\\", " +
-            "\\\"text\\\": \\\"*$baseOutputFileName $currentBuildTagName*" +
-            " $slackUserMentions\\n\\n$changelog\\\" " +
-            "}" +
-            "} ]" +
-            "}\""
-        commandExecutor.sendToWebHook(webhookUrl.get(), json)
-        project.logger.debug("changelog sent to Slack")
     }
 
     private fun String.formatChangelogToSlack(): String {

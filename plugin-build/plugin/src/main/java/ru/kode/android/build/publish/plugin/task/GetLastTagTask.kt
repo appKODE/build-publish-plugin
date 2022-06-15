@@ -8,18 +8,19 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
-import ru.kode.android.build.publish.plugin.command.getCommandExecutor
-import ru.kode.android.build.publish.plugin.git.GitRepository
-import ru.kode.android.build.publish.plugin.git.mapper.toJson
+import org.gradle.workers.WorkQueue
+import org.gradle.workers.WorkerExecutor
+import ru.kode.android.build.publish.plugin.task.work.GenerateTagWork
+import javax.inject.Inject
 
-abstract class GetLastTagTask : DefaultTask() {
+abstract class GetLastTagTask @Inject constructor(
+    private val workerExecutor: WorkerExecutor,
+) : DefaultTask() {
 
     init {
         description = "Get last tag task"
         group = BasePlugin.BUILD_GROUP
     }
-
-    private val commandExecutor = getCommandExecutor(project)
 
     @get:Input
     @get:Option(option = "buildVariant", description = "Current build variant")
@@ -31,11 +32,10 @@ abstract class GetLastTagTask : DefaultTask() {
 
     @TaskAction
     fun getLastTag() {
-        val variant = buildVariant.get()
-        val buildTag = GitRepository(commandExecutor, setOf(variant)).findRecentBuildTag()
-        val tagBuildOutput = tagBuildFile.get().asFile
-        if (buildTag != null) {
-            tagBuildOutput.writeText(buildTag.toJson())
+        val workQueue: WorkQueue = workerExecutor.noIsolation()
+        workQueue.submit(GenerateTagWork::class.java) { parameters ->
+            parameters.tagBuildFile.set(tagBuildFile)
+            parameters.buildVariant.set(buildVariant)
         }
     }
 }
