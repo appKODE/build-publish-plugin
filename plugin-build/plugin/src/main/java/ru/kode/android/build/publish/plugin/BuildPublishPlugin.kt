@@ -129,7 +129,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             buildVariant,
             tagBuildProvider
         )
-        val changelogConfig = buildPublishExtension.changelog.findByName("default")
+        val changelogConfig = with(buildPublishExtension.changelog) {
+            findByName(buildVariant.name) ?: findByName("default")
+        }
         if (changelogConfig != null) {
             val generateChangelogFileProvider = tasks.registerGenerateChangelogTask(
                 changelogConfig,
@@ -137,7 +139,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 changelogFile,
                 tagBuildProvider
             )
-            val telegramConfig = buildPublishExtension.telegram.findByName("default")
+            val telegramConfig = with(buildPublishExtension.telegram) {
+                findByName(buildVariant.name) ?: findByName("default")
+            }
             if (telegramConfig != null) {
                 tasks.registerSendTelegramChangelogTask(
                     outputConfig,
@@ -148,7 +152,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     tagBuildProvider
                 )
             }
-            val slackConfig = buildPublishExtension.slack.findByName("default")
+            val slackConfig = with(buildPublishExtension.slack) {
+                findByName(buildVariant.name) ?: findByName("default")
+            }
             if (slackConfig != null) {
                 tasks.registerSendSlackChangelogTask(
                     outputConfig,
@@ -159,7 +165,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     tagBuildProvider
                 )
             }
-            val appCenterDistributionConfig = buildPublishExtension.appCenterDistribution.findByName("default")
+            val appCenterDistributionConfig = with(buildPublishExtension.appCenterDistribution) {
+                findByName(buildVariant.name) ?: findByName("default")
+            }
             if (appCenterDistributionConfig != null) {
                 val outputFileProvider = fileNameProvider.flatMap { fileName ->
                     project.tasks.withType(PackageAndroidArtifact::class.java)
