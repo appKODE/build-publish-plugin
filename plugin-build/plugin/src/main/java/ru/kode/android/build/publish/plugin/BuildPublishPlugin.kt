@@ -97,33 +97,12 @@ abstract class BuildPublishPlugin : Plugin<Project> {
     ): OutputProviders {
         val outputConfig = buildPublishExtension.output.getByName("default")
         val tagBuildProvider = registerGetLastTagTask(buildVariant)
-        val versionCodeProvider = tagBuildProvider.map { tagBuildFile ->
-            val file = tagBuildFile.asFile
-            if (file.exists()) {
-                fromJson(file).buildNumber
-            } else {
-                1
-            }
-        }
-        val fileNameProvider = outputConfig.baseFileName.zip(tagBuildProvider) { baseFileName, tagBuildFile ->
-            val file = tagBuildFile.asFile
-            val formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy"))
-            if (file.exists() && outputFileName.endsWith(".apk")) {
-                val tagBuild = fromJson(file)
-                val versionName = tagBuild.buildVariant
-                val versionCode = tagBuild.buildNumber
-                "$baseFileName-$versionName-vc$versionCode-$formattedDate.apk"
-            } else if (!file.exists() && outputFileName.endsWith(".apk")) {
-                "$baseFileName-$formattedDate.apk"
-            } else "$baseFileName.${outputFileName.split(".").last()}"
+        val versionCodeProvider = tagBuildProvider.map(::mapToVersionCode)
+        val outputFileNameProvider = outputConfig.baseFileName.zip(tagBuildProvider) { baseFileName, tagBuildFile ->
+            mapToFileName(tagBuildFile, outputFileName, baseFileName)
         }
         val versionNameProvider = tagBuildProvider.map { tagBuildFile ->
-            val file = tagBuildFile.asFile
-            if (file.exists()) {
-                fromJson(tagBuildFile.asFile).name
-            } else {
-                "$DEFAULT_BUILD_VERSION-${buildVariant.name}"
-            }
+            mapToVersionName(tagBuildFile, buildVariant)
         }
         tasks.registerPrintLastIncreasedTagTask(
             buildVariant,
@@ -169,7 +148,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 findByName(buildVariant.name) ?: findByName("default")
             }
             if (appCenterDistributionConfig != null) {
-                val outputFileProvider = fileNameProvider.flatMap { fileName ->
+                val outputFileProvider = outputFileNameProvider.flatMap { fileName ->
                     project.tasks.withType(PackageAndroidArtifact::class.java)
                         .firstOrNull { it.variantName == buildVariant.name }
                         ?.outputDirectory
@@ -188,7 +167,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         return OutputProviders(
             versionName = versionNameProvider,
             versionCode = versionCodeProvider,
-            outputFileName = fileNameProvider
+            outputFileName = outputFileNameProvider
         )
     }
 
@@ -387,3 +366,34 @@ private data class OutputProviders(
     val versionCode: Provider<Int>,
     val outputFileName: Provider<String>,
 )
+
+private fun mapToVersionCode(tagBuildFile: RegularFile): Int {
+    val file = tagBuildFile.asFile
+    return if (file.exists()) {
+        fromJson(file).buildNumber
+    } else {
+        1
+    }
+}
+
+private fun mapToFileName(tagBuildFile: RegularFile, outputFileName: String, baseFileName: String?): String {
+    val file = tagBuildFile.asFile
+    val formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy"))
+    return if (file.exists() && outputFileName.endsWith(".apk")) {
+        val tagBuild = fromJson(file)
+        val versionName = tagBuild.buildVariant
+        val versionCode = tagBuild.buildNumber
+        "$baseFileName-$versionName-vc$versionCode-$formattedDate.apk"
+    } else if (!file.exists() && outputFileName.endsWith(".apk")) {
+        "$baseFileName-$formattedDate.apk"
+    } else "$baseFileName.${outputFileName.split(".").last()}"
+}
+
+private fun mapToVersionName(tagBuildFile: RegularFile, buildVariant: BuildVariant): String {
+    val file = tagBuildFile.asFile
+    return if (file.exists()) {
+        fromJson(tagBuildFile.asFile).name
+    } else {
+        "$DEFAULT_BUILD_VERSION-${buildVariant.name}"
+    }
+}
