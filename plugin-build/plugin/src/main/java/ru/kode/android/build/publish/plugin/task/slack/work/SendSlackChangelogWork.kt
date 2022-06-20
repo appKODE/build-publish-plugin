@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.work
+package ru.kode.android.build.publish.plugin.task.slack.work
 
 import groovy.json.JsonOutput
 import org.gradle.api.logging.Logging

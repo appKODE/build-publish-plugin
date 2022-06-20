@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.work
+package ru.kode.android.build.publish.plugin.task.tag.work
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logging
@@ -7,8 +7,8 @@ import org.gradle.process.ExecOperations
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.command.getCommandExecutor
-import ru.kode.android.build.publish.plugin.git.GitRepository
-import ru.kode.android.build.publish.plugin.git.mapper.toJson
+import ru.kode.android.build.publish.plugin.task.changelog.git.GitRepository
+import ru.kode.android.build.publish.plugin.enity.mapper.toJson
 import javax.inject.Inject
 
 interface GenerateTagParameters : WorkParameters {

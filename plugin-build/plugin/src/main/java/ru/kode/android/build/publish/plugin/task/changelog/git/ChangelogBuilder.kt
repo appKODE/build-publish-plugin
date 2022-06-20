@@ -1,10 +1,9 @@
-package ru.kode.android.build.publish.plugin.util
+package ru.kode.android.build.publish.plugin.task.changelog.git
 
 import org.gradle.api.logging.Logger
 import ru.kode.android.build.publish.plugin.command.ShellCommandExecutor
-import ru.kode.android.build.publish.plugin.git.GitRepository
-import ru.kode.android.build.publish.plugin.git.entity.Tag
-import ru.kode.android.build.publish.plugin.git.entity.TagRange
+import ru.kode.android.build.publish.plugin.enity.Tag
+import ru.kode.android.build.publish.plugin.enity.TagRange
 
 internal class ChangelogBuilder(
     private val gitRepository: GitRepository,

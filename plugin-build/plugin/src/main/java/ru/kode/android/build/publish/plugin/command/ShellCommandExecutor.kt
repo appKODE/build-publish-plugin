@@ -3,8 +3,8 @@ package ru.kode.android.build.publish.plugin.command
 import org.gradle.api.logging.Logging
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.gradle.process.ExecOperations
-import ru.kode.android.build.publish.plugin.git.entity.CommitRange
-import ru.kode.android.build.publish.plugin.git.entity.Tag
+import ru.kode.android.build.publish.plugin.enity.CommitRange
+import ru.kode.android.build.publish.plugin.enity.Tag
 import java.io.ByteArrayOutputStream
 
 interface ShellCommandExecutor {

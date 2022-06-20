@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.work
+package ru.kode.android.build.publish.plugin.task.telegram.work
 
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property

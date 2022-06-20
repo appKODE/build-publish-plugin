@@ -1,9 +1,9 @@
-package ru.kode.android.build.publish.plugin.git.mapper
+package ru.kode.android.build.publish.plugin.enity.mapper
 
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.gradle.api.GradleException
-import ru.kode.android.build.publish.plugin.git.entity.Tag
+import ru.kode.android.build.publish.plugin.enity.Tag
 import java.io.File
 
 fun Tag.Build.toJson(): String {

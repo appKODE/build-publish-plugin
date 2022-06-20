@@ -13,7 +13,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
 import ru.kode.android.build.publish.plugin.task.appcenter.work.AppCenterUploadWork
 import javax.inject.Inject
 
