@@ -18,6 +18,8 @@ interface AppCenterUploadParameters : WorkParameters {
     val outputFile: RegularFileProperty
     val testerGroups: SetProperty<String>
     val changelogFile: RegularFileProperty
+    val maxRequestCount: Property<Int>
+    val requestDelayMs: Property<Long>
 }
 
 abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
@@ -68,7 +70,12 @@ abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
         uploader.commit(prepareResponse.id)
 
         logger.debug("Step 6/7: Fetching for release to be ready to publish")
-        val publishResponse = uploader.waitingReadyToBePublished(prepareResponse.id)
+        val publishResponse = uploader
+            .waitingReadyToBePublished(
+                preparedUploadId = prepareResponse.id,
+                maxRequestCount = parameters.maxRequestCount.orNull ?: MAX_REQUEST_COUNT,
+                requestDelayMs = parameters.requestDelayMs.orNull ?: MAX_REQUEST_DELAY_MS
+            )
         logger.debug("Step 7/7: Distribute to the app testers: $testerGroups")
         val releaseId = publishResponse.release_distinct_id
         if (releaseId != null) {
@@ -83,3 +90,6 @@ abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
         logger.debug("upload done")
     }
 }
+
+private const val MAX_REQUEST_COUNT = 20
+private const val MAX_REQUEST_DELAY_MS = 2000L

@@ -8,6 +8,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
@@ -68,6 +69,16 @@ abstract class AppCenterDistributionTask @Inject constructor(
     @get:Option(option = "testerGroups", description = "Distribution group names")
     abstract val testerGroups: SetProperty<String>
 
+    @get:Input
+    @get:Optional
+    @get:Option(option = "maxRequestCount", description = "Max request count to distribute")
+    abstract val maxRequestCount: Property<Int>
+
+    @get:Input
+    @get:Optional
+    @get:Option(option = "requestDelayMs", description = "Request delay in ms")
+    abstract val requestDelayMs: Property<Long>
+
     @TaskAction
     fun upload() {
         val outputFile = buildVariantOutputFile.asFile.get()
@@ -85,6 +96,8 @@ abstract class AppCenterDistributionTask @Inject constructor(
             parameters.outputFile.set(outputFile)
             parameters.testerGroups.set(testerGroups)
             parameters.changelogFile.set(changelogFile)
+            parameters.maxRequestCount.set(maxRequestCount)
+            parameters.requestDelayMs.set(requestDelayMs)
         }
     }
 }

@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 
 interface AppCenterDistributionConfig {
     val name: String
@@ -34,4 +35,12 @@ interface AppCenterDistributionConfig {
      */
     @get:Input
     val testerGroups: SetProperty<String>
+
+    @get:Input
+    @get:Optional
+    val maxRequestCount: Property<Int>
+
+    @get:Input
+    @get:Optional
+    val requestDelayMs: Property<Long>
 }

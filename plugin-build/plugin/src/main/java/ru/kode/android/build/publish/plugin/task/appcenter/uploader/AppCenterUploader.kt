@@ -113,14 +113,18 @@ internal class AppCenterUploader(
             .executeOrThrow()
     }
 
-    fun waitingReadyToBePublished(preparedUploadId: String): GetUploadResponse {
+    fun waitingReadyToBePublished(
+        preparedUploadId: String,
+        maxRequestCount: Int,
+        requestDelayMs: Long
+    ): GetUploadResponse {
         var requestCount = 0
         var response: GetUploadResponse
         do {
             response = getUpload(preparedUploadId)
-            Thread.sleep(DELAY_CHECK_MS)
+            Thread.sleep(requestDelayMs)
             requestCount++
-            require(requestCount <= MAX_CHECK) { "Cannot fetch upload status" }
+            require(requestCount <= maxRequestCount) { "Cannot fetch upload status" }
         } while (response.release_distinct_id == null)
         return response
     }
@@ -172,5 +176,3 @@ private fun <T> Response<T>.successOrThrow() =
 internal class AppCenterException(override val message: String) : Throwable(message)
 
 private const val HTTP_CONNECT_TIMEOUT_SEC = 60L
-private const val DELAY_CHECK_MS = 1000L
-private const val MAX_CHECK = 20

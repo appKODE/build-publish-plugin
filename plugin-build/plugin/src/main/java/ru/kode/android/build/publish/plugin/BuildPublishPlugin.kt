@@ -294,6 +294,8 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.ownerName.set(config.ownerName)
             it.appNamePrefix.set(config.appNamePrefix)
             it.testerGroups.set(config.testerGroups)
+            it.maxRequestCount.set(config.maxRequestCount)
+            it.requestDelayMs.set(config.requestDelayMs)
         }
     }
 
