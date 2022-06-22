@@ -14,12 +14,15 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.util.internal.VersionNumber
 import ru.kode.android.build.publish.plugin.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
 import ru.kode.android.build.publish.plugin.extension.BuildPublishExtension
 import ru.kode.android.build.publish.plugin.extension.EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.extension.config.AppCenterDistributionConfig
@@ -28,13 +31,13 @@ import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistribu
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
 import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
-import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
+import ru.kode.android.build.publish.plugin.task.appcenter.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
+import ru.kode.android.build.publish.plugin.task.slack.SendSlackChangelogTask
+import ru.kode.android.build.publish.plugin.task.slack.SlackDistributionTask
 import ru.kode.android.build.publish.plugin.task.tag.GetLastTagTask
 import ru.kode.android.build.publish.plugin.task.tag.PrintLastIncreasedTag
-import ru.kode.android.build.publish.plugin.task.slack.SendSlackChangelogTask
 import ru.kode.android.build.publish.plugin.task.telegram.SendTelegramChangelogTask
-import ru.kode.android.build.publish.plugin.task.appcenter.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.util.capitalizedName
 import java.io.File
 import java.time.LocalDate
@@ -48,6 +51,7 @@ internal const val GET_LAST_TAG_TASK_PREFIX = "getLastTag"
 internal const val DEFAULT_BUILD_VERSION = "v0.0.1"
 internal const val CHANGELOG_FILENAME = "changelog.txt"
 internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistributionUpload"
+internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
 
 internal object AgpVersions {
     val CURRENT: VersionNumber = VersionNumber.parse(ANDROID_GRADLE_PLUGIN_VERSION).baseVersion
@@ -99,10 +103,13 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         val tagBuildProvider = registerGetLastTagTask(buildVariant)
         val versionCodeProvider = tagBuildProvider.map(::mapToVersionCode)
         val outputFileNameProvider = outputConfig.baseFileName.zip(tagBuildProvider) { baseFileName, tagBuildFile ->
-            mapToFileName(tagBuildFile, outputFileName, baseFileName)
+            mapToOutputFileName(tagBuildFile, outputFileName, baseFileName)
         }
         val versionNameProvider = tagBuildProvider.map { tagBuildFile ->
             mapToVersionName(tagBuildFile, buildVariant)
+        }
+        val outputFileProvider = outputFileNameProvider.flatMap { fileName ->
+            mapToOutputFile(buildVariant, fileName)
         }
         tasks.registerPrintLastIncreasedTagTask(
             buildVariant,
@@ -113,7 +120,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         }
         if (changelogConfig != null) {
             val generateChangelogFileProvider = tasks.registerGenerateChangelogTask(
-                changelogConfig,
+                changelogConfig.commitMessageKey,
                 buildVariant,
                 changelogFile,
                 tagBuildProvider
@@ -135,26 +142,20 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 findByName(buildVariant.name) ?: findByName("default")
             }
             if (slackConfig != null) {
-                tasks.registerSendSlackChangelogTask(
+                tasks.registerSlackTasks(
                     outputConfig,
                     changelogConfig,
                     slackConfig,
                     buildVariant,
                     generateChangelogFileProvider,
-                    tagBuildProvider
+                    tagBuildProvider,
+                    outputFileProvider
                 )
             }
             val appCenterDistributionConfig = with(buildPublishExtension.appCenterDistribution) {
                 findByName(buildVariant.name) ?: findByName("default")
             }
             if (appCenterDistributionConfig != null) {
-                val outputFileProvider = outputFileNameProvider.flatMap { fileName ->
-                    project.tasks.withType(PackageAndroidArtifact::class.java)
-                        .firstOrNull { it.variantName == buildVariant.name }
-                        ?.outputDirectory
-                        ?.map { directory -> directory.file(fileName) }
-                        ?: throw GradleException("no output for variant ${buildVariant.name}")
-                }
                 tasks.registerAppCenterDistributionTask(
                     appCenterDistributionConfig,
                     buildVariant,
@@ -169,6 +170,53 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             versionCode = versionCodeProvider,
             outputFileName = outputFileNameProvider
         )
+    }
+
+    @Suppress("LongParameterList") // TODO Get parameters inside
+    private fun TaskContainer.registerSlackTasks(
+        outputConfig: OutputConfig,
+        changelogConfig: ChangelogConfig,
+        slackConfig: SlackConfig,
+        buildVariant: BuildVariant,
+        generateChangelogFileProvider: Provider<RegularFile>,
+        tagBuildProvider: Provider<RegularFile>,
+        outputFileProvider: Provider<RegularFile>
+    ) {
+        registerSendSlackChangelogTask(
+            outputConfig,
+            changelogConfig,
+            slackConfig,
+            buildVariant,
+            generateChangelogFileProvider,
+            tagBuildProvider
+        )
+        if (
+            slackConfig.uploadApiTokenFile.isPresent &&
+            slackConfig.uploadChannels.isPresent
+        ) {
+            registerSlackUploadTask(
+                slackConfig.uploadApiTokenFile,
+                slackConfig.uploadChannels,
+                buildVariant,
+                outputFileProvider
+            )
+        }
+    }
+
+    private fun TaskContainer.registerSlackUploadTask(
+        apiTokenFile: RegularFileProperty,
+        channels: SetProperty<String>,
+        buildVariant: BuildVariant,
+        outputFileProvider: Provider<RegularFile>
+    ) {
+        register(
+            "$SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
+            SlackDistributionTask::class.java
+        ) {
+            it.buildVariantOutputFile.set(outputFileProvider)
+            it.apiTokenFile.set(apiTokenFile)
+            it.channels.set(channels)
+        }
     }
 
     private fun Project.registerGetLastTagTask(
@@ -198,7 +246,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
     }
 
     private fun TaskContainer.registerGenerateChangelogTask(
-        changelogConfig: ChangelogConfig,
+        commitMessageKey: Provider<String>,
         buildVariant: BuildVariant,
         changelogFile: Provider<RegularFile>,
         tagBuildProvider: Provider<RegularFile>
@@ -207,7 +255,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             "$GENERATE_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
             GenerateChangelogTask::class.java
         ) {
-            it.commitMessageKey.set(changelogConfig.commitMessageKey)
+            it.commitMessageKey.set(commitMessageKey)
             it.buildVariant.set(buildVariant.name)
             it.changelogFile.set(changelogFile)
             it.tagBuildFile.set(tagBuildProvider)
@@ -285,26 +333,26 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.requestDelayMs.set(config.requestDelayMs)
         }
     }
+}
 
-    private fun Project.configurePlugins(
-        buildPublishExtension: BuildPublishExtension,
-        changelogFile: File,
-    ) {
-        val firebaseAppDistributionConfig = buildPublishExtension.firebaseDistribution.findByName("default")
-        plugins.all { plugin ->
-            when (plugin) {
-                is AppPlugin -> {
-                    val appExtension = extensions.getByType(AppExtension::class.java)
-                    appExtension.configure()
-                }
-                is AppDistributionPlugin -> if (firebaseAppDistributionConfig != null) {
-                    val appDistributionExtension = extensions
-                        .getByType(AppDistributionExtension::class.java)
-                    appDistributionExtension.configure(
-                        config = firebaseAppDistributionConfig,
-                        changelogFile = changelogFile,
-                    )
-                }
+private fun Project.configurePlugins(
+    buildPublishExtension: BuildPublishExtension,
+    changelogFile: File,
+) {
+    val firebaseAppDistributionConfig = buildPublishExtension.firebaseDistribution.findByName("default")
+    plugins.all { plugin ->
+        when (plugin) {
+            is AppPlugin -> {
+                val appExtension = extensions.getByType(AppExtension::class.java)
+                appExtension.configure()
+            }
+            is AppDistributionPlugin -> if (firebaseAppDistributionConfig != null) {
+                val appDistributionExtension = extensions
+                    .getByType(AppDistributionExtension::class.java)
+                appDistributionExtension.configure(
+                    config = firebaseAppDistributionConfig,
+                    changelogFile = changelogFile,
+                )
             }
         }
     }
@@ -376,7 +424,7 @@ private fun mapToVersionCode(tagBuildFile: RegularFile): Int {
     }
 }
 
-private fun mapToFileName(tagBuildFile: RegularFile, outputFileName: String, baseFileName: String?): String {
+private fun mapToOutputFileName(tagBuildFile: RegularFile, outputFileName: String, baseFileName: String?): String {
     val file = tagBuildFile.asFile
     val formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy"))
     return if (file.exists() && outputFileName.endsWith(".apk")) {
@@ -396,4 +444,15 @@ private fun mapToVersionName(tagBuildFile: RegularFile, buildVariant: BuildVaria
     } else {
         "$DEFAULT_BUILD_VERSION-${buildVariant.name}"
     }
+}
+
+private fun Project.mapToOutputFile(
+    buildVariant: BuildVariant,
+    fileName: String
+): Provider<RegularFile> {
+    return project.tasks.withType(PackageAndroidArtifact::class.java)
+        .firstOrNull { it.variantName == buildVariant.name }
+        ?.outputDirectory
+        ?.map { directory -> directory.file(fileName) }
+        ?: throw GradleException("no output for variant ${buildVariant.name}")
 }

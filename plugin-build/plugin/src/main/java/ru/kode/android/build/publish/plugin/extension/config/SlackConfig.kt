@@ -1,8 +1,11 @@
 package ru.kode.android.build.publish.plugin.extension.config
 
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 
 interface SlackConfig {
     val name: String
@@ -27,4 +30,18 @@ interface SlackConfig {
      */
     @get:Input
     val userMentions: SetProperty<String>
+
+    /**
+     * Api token file to upload files in slack
+     */
+    @get:Optional
+    @get:InputFile
+    val uploadApiTokenFile: RegularFileProperty
+
+    /**
+     * Public channels where file will be uploaded
+     */
+    @get:Optional
+    @get:Input
+    val uploadChannels: SetProperty<String>
 }

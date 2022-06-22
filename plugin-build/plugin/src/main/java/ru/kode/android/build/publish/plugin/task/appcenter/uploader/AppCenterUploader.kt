@@ -5,8 +5,6 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.logging.Logger
-import retrofit2.Call
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.kode.android.build.publish.plugin.task.appcenter.api.AppCenterApi
@@ -18,6 +16,8 @@ import ru.kode.android.build.publish.plugin.task.appcenter.entity.GetUploadRespo
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.PrepareReleaseRequest
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.PrepareResponse
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.SendMetaDataResponse
+import ru.kode.android.build.publish.plugin.util.UploadException
+import ru.kode.android.build.publish.plugin.util.executeOrThrow
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -83,7 +83,7 @@ internal class AppCenterUploader(
             contentType = contentType,
         ).executeOrThrow()
         if (response.status_code != "Success") {
-            throw AppCenterException("send meta data terminated with ${response.status_code}")
+            throw UploadException("send meta data terminated with ${response.status_code}")
         }
         return response
     }
@@ -159,20 +159,5 @@ private class AttachTokenInterceptor(
         return chain.proceed(newRequest)
     }
 }
-
-private fun <T> Call<T>.executeOrThrow() = execute().bodyOrThrow()
-
-private fun <T> Response<T>.bodyOrThrow() = successOrThrow()!!
-
-private fun <T> Response<T>.successOrThrow() =
-    if (isSuccessful) {
-        body()
-    } else {
-        throw AppCenterException(
-            "App center upload error, code=${code()}, reason=${errorBody()?.string()}",
-        )
-    }
-
-internal class AppCenterException(override val message: String) : Throwable(message)
 
 private const val HTTP_CONNECT_TIMEOUT_SEC = 60L

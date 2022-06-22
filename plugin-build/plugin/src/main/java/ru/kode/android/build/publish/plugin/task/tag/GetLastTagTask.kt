@@ -37,5 +37,6 @@ abstract class GetLastTagTask @Inject constructor(
             parameters.tagBuildFile.set(tagBuildFile)
             parameters.buildVariant.set(buildVariant)
         }
+        workQueue.await()
     }
 }
