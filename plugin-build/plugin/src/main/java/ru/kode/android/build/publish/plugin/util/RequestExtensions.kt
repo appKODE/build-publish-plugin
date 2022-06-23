@@ -3,9 +3,11 @@ package ru.kode.android.build.publish.plugin.util
 import retrofit2.Call
 import retrofit2.Response
 
-fun <T> Call<T>.executeOrThrow() = execute().bodyOrThrow()
+fun <T> Call<T>.executeOrThrow() = execute().bodyOrThrow()!!
 
-fun <T> Response<T>.bodyOrThrow() = successOrThrow()!!
+fun <T> Call<T>.executeOptionalOrThrow() = execute().bodyOrThrow()
+
+fun <T> Response<T>.bodyOrThrow() = successOrThrow()
 
 fun <T> Response<T>.successOrThrow() =
     if (isSuccessful) {

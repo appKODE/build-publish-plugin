@@ -55,9 +55,17 @@ buildPublish {
     }
     changelog {
         register("default") {
-            issueNumberPattern.set("BASE-\\d+")
+            issueNumberPattern.set("AT-\\d+")
             issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
             commitMessageKey.set("CHANGELOG")
+        }
+    }
+    jira {
+        register("default") {
+            baseUrl.set("https://jira.exmaple.ru")
+            authUsername.set("test_user")
+            authPassword.set("test_password")
+            labelPattern.set("fix_%2\$s_%1\$s")
         }
     }
     telegram {

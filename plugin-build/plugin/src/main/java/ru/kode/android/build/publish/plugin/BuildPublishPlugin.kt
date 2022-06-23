@@ -28,11 +28,13 @@ import ru.kode.android.build.publish.plugin.extension.EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.extension.config.AppCenterDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
+import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
 import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
 import ru.kode.android.build.publish.plugin.task.appcenter.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
+import ru.kode.android.build.publish.plugin.task.jira.JiraAutomationTask
 import ru.kode.android.build.publish.plugin.task.slack.SendSlackChangelogTask
 import ru.kode.android.build.publish.plugin.task.slack.SlackDistributionTask
 import ru.kode.android.build.publish.plugin.task.tag.GetLastTagTask
@@ -52,13 +54,14 @@ internal const val DEFAULT_BUILD_VERSION = "v0.0.1"
 internal const val CHANGELOG_FILENAME = "changelog.txt"
 internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistributionUpload"
 internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
+internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
 
 internal object AgpVersions {
     val CURRENT: VersionNumber = VersionNumber.parse(ANDROID_GRADLE_PLUGIN_VERSION).baseVersion
     val VERSION_7_0_4: VersionNumber = VersionNumber.parse("7.0.4")
 }
 
-@Suppress("LongMethod") // TODO Split into small methods
+@Suppress("LongMethod", "TooManyFunctions") // TODO Split into small methods
 abstract class BuildPublishPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.stopExecutionIfNotSupported()
@@ -93,6 +96,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         }
     }
 
+    @Suppress("ComplexMethod", "LongMethod") // split to multiple methods
     private fun Project.registerVariantTasks(
         buildPublishExtension: BuildPublishExtension,
         buildVariant: BuildVariant,
@@ -164,12 +168,45 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     tagBuildProvider,
                 )
             }
+            val jiraConfig = with(buildPublishExtension.jira) {
+                findByName(buildVariant.name) ?: findByName("default")
+            }
+            if (jiraConfig != null) {
+                tasks.registerJiraTasks(
+                    jiraConfig,
+                    buildVariant,
+                    changelogConfig.issueNumberPattern,
+                    changelogFile,
+                    tagBuildProvider,
+                )
+            }
         }
         return OutputProviders(
             versionName = versionNameProvider,
             versionCode = versionCodeProvider,
             outputFileName = outputFileNameProvider
         )
+    }
+
+    private fun TaskContainer.registerJiraTasks(
+        config: JiraConfig,
+        buildVariant: BuildVariant,
+        issueNumberPattern: Provider<String>,
+        changelogFileProvider: Provider<RegularFile>,
+        tagBuildProvider: Provider<RegularFile>,
+    ) {
+        register(
+            "$JIRA_AUTOMATION_TASK${buildVariant.capitalizedName()}",
+            JiraAutomationTask::class.java,
+        ) {
+            it.tagBuildFile.set(tagBuildProvider)
+            it.changelogFile.set(changelogFileProvider)
+            it.issueNumberPattern.set(issueNumberPattern)
+            it.baseUrl.set(config.baseUrl)
+            it.username.set(config.authUsername)
+            it.password.set(config.authPassword)
+            it.labelPattern.set(config.labelPattern)
+        }
     }
 
     @Suppress("LongParameterList") // TODO Get parameters inside
