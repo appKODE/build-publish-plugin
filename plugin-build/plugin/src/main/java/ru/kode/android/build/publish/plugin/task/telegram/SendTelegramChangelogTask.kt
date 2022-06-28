@@ -80,36 +80,28 @@ abstract class SendTelegramChangelogTask @Inject constructor(
                 "[sendChangelog] changelog file not found, is empty or error occurred"
             )
         } else {
-            val telegramFormattedChangelog = changelog.formatChangelogToTelegram(escapedCharacters)
-            if (telegramFormattedChangelog.isNotBlank()) {
-                val slackUserMentions = userMentions.orNull.orEmpty().joinToString(", ")
-                val workQueue: WorkQueue = workerExecutor.noIsolation()
-                workQueue.submit(SendTelegramChangelogWork::class.java) { parameters ->
-                    parameters.baseOutputFileName.set(baseOutputFileName)
-                    parameters.buildName.set(currentBuildTag.name)
-                    parameters.changelog.set(changelog)
-                    parameters.webhookUrl.set(webhookUrl)
-                    parameters.userMentions.set(slackUserMentions)
-                    parameters.escapedCharacters.set(escapedCharacters)
-                    parameters.botId.set(botId)
-                    parameters.chatId.set(chatId)
-                }
-            } else {
-                logger.error(
-                    "[sendChangelog] changelog not sent to telegram, is empty or error occurred"
-                )
+            val changelogWithIssues = changelog.formatIssues()
+            val userMentions = userMentions.orNull.orEmpty().joinToString(", ")
+            val workQueue: WorkQueue = workerExecutor.noIsolation()
+            workQueue.submit(SendTelegramChangelogWork::class.java) { parameters ->
+                parameters.baseOutputFileName.set(baseOutputFileName)
+                parameters.buildName.set(currentBuildTag.name)
+                parameters.changelog.set(changelogWithIssues)
+                parameters.webhookUrl.set(webhookUrl)
+                parameters.userMentions.set(userMentions)
+                parameters.escapedCharacters.set(escapedCharacters)
+                parameters.botId.set(botId)
+                parameters.chatId.set(chatId)
             }
         }
     }
 
-    private fun String.formatChangelogToTelegram(escapedCharacters: String): String {
+    private fun String.formatIssues(): String {
         val issueUrlPrefix = issueUrlPrefix.get()
         val issueNumberPattern = issueNumberPattern.get()
         val issueRegexp = Regex(issueNumberPattern)
-        return this
-            .replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
-            .replace(issueRegexp) { result -> "[${result.value}](${issueUrlPrefix}${result.value})" }
-            .replace(Regex("(\r\n|\n)"), "\n")
-            .replace("[-]".toRegex()) { result -> "\\${result.value}" }
+        return this.replace(issueRegexp) { result ->
+            "[${result.value}](${issueUrlPrefix}${result.value})"
+        }
     }
 }

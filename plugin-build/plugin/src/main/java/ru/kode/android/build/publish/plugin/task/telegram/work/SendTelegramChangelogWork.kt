@@ -32,17 +32,13 @@ abstract class SendTelegramChangelogWork @Inject constructor(
         val buildName = parameters.buildName.get()
         val tgUserMentions = parameters.userMentions.get()
         val message = buildString {
-            append(baseOutputFileName)
-            append(" ")
-            append(buildName)
+            append("*$baseOutputFileName $buildName*")
             appendLine()
             append(tgUserMentions)
             appendLine()
             appendLine()
             append(parameters.changelog.get())
-        }
-            .replace(parameters.escapedCharacters.get().toRegex()) { result -> "\\${result.value}" }
-            .replace("[-]".toRegex()) { result -> "\\${result.value}" }
+        }.formatChangelog(parameters.escapedCharacters.get())
         val url = parameters.webhookUrl.get().format(
             parameters.botId.get(),
             parameters.chatId.get(),
@@ -51,4 +47,11 @@ abstract class SendTelegramChangelogWork @Inject constructor(
         commandExecutor.sendToWebHook(url)
         logger.debug("changelog sent to Telegram")
     }
+}
+
+private fun String.formatChangelog(escapedCharacters: String): String {
+    return this
+        .replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
+        .replace(Regex("(\r\n|\n)"), "\n")
+        .replace("[-]".toRegex()) { result -> "\\${result.value}" }
 }

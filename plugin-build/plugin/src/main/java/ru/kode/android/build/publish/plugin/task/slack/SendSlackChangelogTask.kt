@@ -74,33 +74,24 @@ abstract class SendSlackChangelogTask @Inject constructor(
                 "changelog file not found, is empty or error occurred"
             )
         } else {
-            val slackFormattedChangelog = changelog.formatChangelogToSlack()
-            if (slackFormattedChangelog.isNotBlank()) {
-                val slackUserMentions = userMentions.orNull.orEmpty().joinToString(", ")
-                val workQueue: WorkQueue = workerExecutor.noIsolation()
-                workQueue.submit(SendSlackChangelogWork::class.java) { parameters ->
-                    parameters.baseOutputFileName.set(baseOutputFileName)
-                    parameters.webhookUrl.set(webhookUrl)
-                    parameters.iconUrl.set(iconUrl)
-                    parameters.buildName.set(currentBuildTag.name)
-                    parameters.changelog.set(changelog)
-                    parameters.userMentions.set(slackUserMentions)
-                }
-            } else {
-                logger.error(
-                    "changelog not sent to Slack, is empty or error occurred"
-                )
+            val changelogWithIssues = changelog.formatIssues()
+            val userMentions = userMentions.orNull.orEmpty().joinToString(", ")
+            val workQueue: WorkQueue = workerExecutor.noIsolation()
+            workQueue.submit(SendSlackChangelogWork::class.java) { parameters ->
+                parameters.baseOutputFileName.set(baseOutputFileName)
+                parameters.webhookUrl.set(webhookUrl)
+                parameters.iconUrl.set(iconUrl)
+                parameters.buildName.set(currentBuildTag.name)
+                parameters.changelog.set(changelogWithIssues)
+                parameters.userMentions.set(userMentions)
             }
         }
     }
 
-    private fun String.formatChangelogToSlack(): String {
+    private fun String.formatIssues(): String {
         val issueUrlPrefix = issueUrlPrefix.get()
         val issueNumberPattern = issueNumberPattern.get()
         return this
             .replace(Regex(issueNumberPattern), "<$issueUrlPrefix\$0|\$0>")
-            .replace(Regex("(\r\n|\n)"), "\\\\n")
-            // only this insane amount of quotes works! they are needed to produce \\\" in json
-            .replace(Regex("\""), "\\\\\\\\\\\\\"")
     }
 }
