@@ -195,17 +195,21 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         changelogFileProvider: Provider<RegularFile>,
         tagBuildProvider: Provider<RegularFile>,
     ) {
-        register(
-            "$JIRA_AUTOMATION_TASK${buildVariant.capitalizedName()}",
-            JiraAutomationTask::class.java,
-        ) {
-            it.tagBuildFile.set(tagBuildProvider)
-            it.changelogFile.set(changelogFileProvider)
-            it.issueNumberPattern.set(issueNumberPattern)
-            it.baseUrl.set(config.baseUrl)
-            it.username.set(config.authUsername)
-            it.password.set(config.authPassword)
-            it.labelPattern.set(config.labelPattern)
+        if (config.labelPattern.isPresent || config.fixVersionPattern.isPresent) {
+            register(
+                "$JIRA_AUTOMATION_TASK${buildVariant.capitalizedName()}",
+                JiraAutomationTask::class.java,
+            ) {
+                it.tagBuildFile.set(tagBuildProvider)
+                it.changelogFile.set(changelogFileProvider)
+                it.issueNumberPattern.set(issueNumberPattern)
+                it.baseUrl.set(config.baseUrl)
+                it.username.set(config.authUsername)
+                it.projectId.set(config.projectId)
+                it.password.set(config.authPassword)
+                it.labelPattern.set(config.labelPattern)
+                it.fixVersionPattern.set(config.fixVersionPattern)
+            }
         }
     }
 

@@ -9,7 +9,9 @@ import org.gradle.api.logging.Logger
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.kode.android.build.publish.plugin.task.jira.api.JiraApi
+import ru.kode.android.build.publish.plugin.task.jira.entity.AddFixVersionRequest
 import ru.kode.android.build.publish.plugin.task.jira.entity.AddLabelRequest
+import ru.kode.android.build.publish.plugin.task.jira.entity.CreateVersionRequest
 import ru.kode.android.build.publish.plugin.util.executeOptionalOrThrow
 import java.util.concurrent.TimeUnit
 
@@ -52,6 +54,29 @@ internal class JiraService(
             )
         )
         api.addLabel(issue, request).executeOptionalOrThrow()
+    }
+
+    fun createVersion(projectId: Long, version: String) {
+        val request = CreateVersionRequest(
+            name = version,
+            projectId = projectId,
+        )
+        api.createVersion(request).executeOptionalOrThrow()
+    }
+
+    fun addFixVersion(issue: String, version: String) {
+        val request = AddFixVersionRequest(
+            update = AddFixVersionRequest.Update(
+                fixVersions = listOf(
+                    AddFixVersionRequest.FixVersion(
+                        AddFixVersionRequest.FixVersion.Description(
+                            name = version
+                        )
+                    )
+                )
+            )
+        )
+        api.addFixVersion(issue, request).executeOptionalOrThrow()
     }
 }
 

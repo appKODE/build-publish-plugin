@@ -6,12 +6,15 @@ import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
+import ru.kode.android.build.publish.plugin.enity.Tag
 import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
-import ru.kode.android.build.publish.plugin.task.jira.work.JiraAutomationWork
+import ru.kode.android.build.publish.plugin.task.jira.work.AddLabelWork
+import ru.kode.android.build.publish.plugin.task.jira.work.AddFixVersionWork
 import javax.inject.Inject
 
 abstract class JiraAutomationTask @Inject constructor(
@@ -19,7 +22,7 @@ abstract class JiraAutomationTask @Inject constructor(
 ) : DefaultTask() {
 
     init {
-        description = "Task to send apk to Slack"
+        description = "Task to automate jira statuses"
         group = BasePlugin.BUILD_GROUP
     }
 
@@ -41,49 +44,99 @@ abstract class JiraAutomationTask @Inject constructor(
     @get:Input
     @get:Option(
         option = "baseUrl",
-        description = " Api token file to upload files in slack"
+        description = "Base url of used jira task tracker"
     )
     abstract val baseUrl: Property<String>
 
     @get:Input
     @get:Option(
+        option = "projectId",
+        description = "Project id in jira task tracker"
+    )
+    abstract val projectId: Property<Long>
+
+    @get:Input
+    @get:Option(
         option = "username",
-        description = " Api token file to upload files in slack"
+        description = "Username of admin account"
     )
     abstract val username: Property<String>
 
     @get:Input
     @get:Option(
         option = "password",
-        description = " Api token file to upload files in slack"
+        description = "Password or token of admin account"
     )
     abstract val password: Property<String>
 
     @get:Input
     @get:Option(
         option = "labelPattern",
-        description = " Api token file to upload files in slack"
+        description = "How label is should be formatted"
     )
+    @get:Optional
     abstract val labelPattern: Property<String>
+
+    @get:Input
+    @get:Option(
+        option = "fixVersionPattern",
+        description = "How fix version should be formatted"
+    )
+    @get:Optional
+    abstract val fixVersionPattern: Property<String>
 
     @TaskAction
     fun upload() {
         val currentBuildTag = fromJson(tagBuildFile.asFile.get())
-        val label = labelPattern.get()
-            .format(
-                currentBuildTag.buildNumber,
-                currentBuildTag.buildVariant,
-                currentBuildTag.name
-            )
         val changelog = changelogFile.asFile.get().readText()
         val issues = Regex(issueNumberPattern.get())
             .findAll(changelog)
             .mapTo(mutableSetOf()) { it.groupValues[0] }
-        val workQueue: WorkQueue = workerExecutor.noIsolation()
+
         if (issues.isEmpty()) {
             logger.warn("issues not found in the changelog, nothing will change")
         } else {
-            workQueue.submit(JiraAutomationWork::class.java) { parameters ->
+            updateLabelsIfPresent(currentBuildTag, issues)
+            updateVersionsIfPresent(currentBuildTag, issues)
+        }
+    }
+
+    private fun updateVersionsIfPresent(
+        currentBuildTag: Tag.Build,
+        issues: MutableSet<String>
+    ) {
+        if (fixVersionPattern.isPresent) {
+            val version = fixVersionPattern.get()
+                .format(
+                    currentBuildTag.buildNumber,
+                    currentBuildTag.buildVariant,
+                    currentBuildTag.name
+                )
+            val workQueue: WorkQueue = workerExecutor.noIsolation()
+            workQueue.submit(AddFixVersionWork::class.java) { parameters ->
+                parameters.baseUrl.set(baseUrl)
+                parameters.username.set(username)
+                parameters.password.set(password)
+                parameters.issues.set(issues)
+                parameters.version.set(version)
+                parameters.projectId.set(projectId)
+            }
+        }
+    }
+
+    private fun updateLabelsIfPresent(
+        currentBuildTag: Tag.Build,
+        issues: MutableSet<String>
+    ) {
+        if (labelPattern.isPresent) {
+            val label = labelPattern.get()
+                .format(
+                    currentBuildTag.buildNumber,
+                    currentBuildTag.buildVariant,
+                    currentBuildTag.name
+                )
+            val workQueue: WorkQueue = workerExecutor.noIsolation()
+            workQueue.submit(AddLabelWork::class.java) { parameters ->
                 parameters.baseUrl.set(baseUrl)
                 parameters.username.set(username)
                 parameters.password.set(password)
