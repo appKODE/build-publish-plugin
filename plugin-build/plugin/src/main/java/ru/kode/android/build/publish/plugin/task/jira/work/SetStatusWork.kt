@@ -6,6 +6,7 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.task.jira.service.JiraService
+import ru.kode.android.build.publish.plugin.util.UploadException
 
 interface SetStatusParameters : WorkParameters {
     val baseUrl: Property<String>
@@ -28,6 +29,12 @@ abstract class SetStatusWork : WorkAction<SetStatusParameters> {
             parameters.password.get()
         )
         val issues = parameters.issues.get()
-        issues.forEach { issue -> service.setStatus(issue, parameters.statusTransitionId.get()) }
+        issues.forEach { issue ->
+            try {
+                service.setStatus(issue, parameters.statusTransitionId.get())
+            } catch (ex: UploadException) {
+                logger.warn("set status failed for issue $issue, error is ignored", ex)
+            }
+        }
     }
 }
