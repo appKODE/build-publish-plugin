@@ -108,9 +108,9 @@ abstract class JiraAutomationTask @Inject constructor(
         if (fixVersionPattern.isPresent) {
             val version = fixVersionPattern.get()
                 .format(
+                    currentBuildTag.buildVersion,
                     currentBuildTag.buildNumber,
-                    currentBuildTag.buildVariant,
-                    currentBuildTag.name
+                    currentBuildTag.buildVariant
                 )
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(AddFixVersionWork::class.java) { parameters ->
@@ -131,9 +131,9 @@ abstract class JiraAutomationTask @Inject constructor(
         if (labelPattern.isPresent) {
             val label = labelPattern.get()
                 .format(
+                    currentBuildTag.buildVersion,
                     currentBuildTag.buildNumber,
-                    currentBuildTag.buildVariant,
-                    currentBuildTag.name
+                    currentBuildTag.buildVariant
                 )
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(AddLabelWork::class.java) { parameters ->

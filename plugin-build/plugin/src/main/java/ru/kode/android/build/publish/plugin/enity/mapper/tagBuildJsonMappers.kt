@@ -20,6 +20,8 @@ fun fromJson(file: File): Tag.Build {
             commitSha = parsedBuildTag["commitSha"] as? String
                 ?: throw GradleException("commitSha not found"),
             message = parsedBuildTag["message"] as? String,
+            buildVersion = parsedBuildTag["buildVersion"] as? String
+                ?: throw GradleException("buildVersion not found"),
             buildVariant = parsedBuildTag["buildVariant"] as? String
                 ?: throw GradleException("buildVariant not found"),
             buildNumber = parsedBuildTag["buildNumber"] as? Int
