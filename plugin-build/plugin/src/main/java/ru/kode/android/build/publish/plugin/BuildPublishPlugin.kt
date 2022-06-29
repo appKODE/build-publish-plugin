@@ -195,7 +195,11 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         changelogFileProvider: Provider<RegularFile>,
         tagBuildProvider: Provider<RegularFile>,
     ) {
-        if (config.labelPattern.isPresent || config.fixVersionPattern.isPresent) {
+        if (
+            config.labelPattern.isPresent ||
+            config.fixVersionPattern.isPresent ||
+            config.resolvedStatusTransitionId.isPresent
+        ) {
             register(
                 "$JIRA_AUTOMATION_TASK${buildVariant.capitalizedName()}",
                 JiraAutomationTask::class.java,
@@ -209,6 +213,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 it.password.set(config.authPassword)
                 it.labelPattern.set(config.labelPattern)
                 it.fixVersionPattern.set(config.fixVersionPattern)
+                it.resolvedStatusTransitionId.set(config.resolvedStatusTransitionId)
             }
         }
     }

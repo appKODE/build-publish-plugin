@@ -15,6 +15,7 @@ import ru.kode.android.build.publish.plugin.enity.Tag
 import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
 import ru.kode.android.build.publish.plugin.task.jira.work.AddLabelWork
 import ru.kode.android.build.publish.plugin.task.jira.work.AddFixVersionWork
+import ru.kode.android.build.publish.plugin.task.jira.work.SetStatusWork
 import javax.inject.Inject
 
 abstract class JiraAutomationTask @Inject constructor(
@@ -85,6 +86,14 @@ abstract class JiraAutomationTask @Inject constructor(
     @get:Optional
     abstract val fixVersionPattern: Property<String>
 
+    @get:Input
+    @get:Option(
+        option = "resolvedStatusId",
+        description = "Id of resolved task status"
+    )
+    @get:Optional
+    abstract val resolvedStatusTransitionId: Property<String>
+
     @TaskAction
     fun upload() {
         val currentBuildTag = fromJson(tagBuildFile.asFile.get())
@@ -96,12 +105,26 @@ abstract class JiraAutomationTask @Inject constructor(
         if (issues.isEmpty()) {
             logger.warn("issues not found in the changelog, nothing will change")
         } else {
-            updateLabelsIfPresent(currentBuildTag, issues)
-            updateVersionsIfPresent(currentBuildTag, issues)
+            val workQueue: WorkQueue = workerExecutor.noIsolation()
+            workQueue.submitUpdateLabelIfPresent(currentBuildTag, issues)
+            workQueue.submitUpdateVersionIfPresent(currentBuildTag, issues)
+            workQueue.submitUpdateStatusIfPresent(issues)
         }
     }
 
-    private fun updateVersionsIfPresent(
+    private fun WorkQueue.submitUpdateStatusIfPresent(issues: MutableSet<String>) {
+        if (resolvedStatusTransitionId.isPresent) {
+            submit(SetStatusWork::class.java) { parameters ->
+                parameters.baseUrl.set(baseUrl)
+                parameters.username.set(username)
+                parameters.password.set(password)
+                parameters.issues.set(issues)
+                parameters.statusTransitionId.set(resolvedStatusTransitionId)
+            }
+        }
+    }
+
+    private fun WorkQueue.submitUpdateVersionIfPresent(
         currentBuildTag: Tag.Build,
         issues: MutableSet<String>
     ) {
@@ -112,8 +135,7 @@ abstract class JiraAutomationTask @Inject constructor(
                     currentBuildTag.buildNumber,
                     currentBuildTag.buildVariant
                 )
-            val workQueue: WorkQueue = workerExecutor.noIsolation()
-            workQueue.submit(AddFixVersionWork::class.java) { parameters ->
+            submit(AddFixVersionWork::class.java) { parameters ->
                 parameters.baseUrl.set(baseUrl)
                 parameters.username.set(username)
                 parameters.password.set(password)
@@ -124,7 +146,7 @@ abstract class JiraAutomationTask @Inject constructor(
         }
     }
 
-    private fun updateLabelsIfPresent(
+    private fun WorkQueue.submitUpdateLabelIfPresent(
         currentBuildTag: Tag.Build,
         issues: MutableSet<String>
     ) {
@@ -135,8 +157,7 @@ abstract class JiraAutomationTask @Inject constructor(
                     currentBuildTag.buildNumber,
                     currentBuildTag.buildVariant
                 )
-            val workQueue: WorkQueue = workerExecutor.noIsolation()
-            workQueue.submit(AddLabelWork::class.java) { parameters ->
+            submit(AddLabelWork::class.java) { parameters ->
                 parameters.baseUrl.set(baseUrl)
                 parameters.username.set(username)
                 parameters.password.set(password)

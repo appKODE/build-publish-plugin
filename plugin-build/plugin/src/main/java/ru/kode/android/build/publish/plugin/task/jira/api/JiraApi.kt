@@ -8,6 +8,7 @@ import retrofit2.http.Path
 import ru.kode.android.build.publish.plugin.task.jira.entity.AddFixVersionRequest
 import ru.kode.android.build.publish.plugin.task.jira.entity.AddLabelRequest
 import ru.kode.android.build.publish.plugin.task.jira.entity.CreateVersionRequest
+import ru.kode.android.build.publish.plugin.task.jira.entity.SetStatusRequest
 
 internal interface JiraApi {
 
@@ -20,6 +21,12 @@ internal interface JiraApi {
     fun addLabel(
         @Path("issueNumber") issueNumber: String,
         @Body request: AddLabelRequest,
+    ): Call<Unit>
+
+    @POST("issue/{issueNumber}/transitions")
+    fun setStatus(
+        @Path("issueNumber") issueNumber: String,
+        @Body request: SetStatusRequest,
     ): Call<Unit>
 
     @PUT("issue/{issueNumber}")

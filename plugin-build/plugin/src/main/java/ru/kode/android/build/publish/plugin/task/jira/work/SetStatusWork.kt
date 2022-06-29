@@ -7,16 +7,15 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.task.jira.service.JiraService
 
-interface AddFixVersionParameters : WorkParameters {
+interface SetStatusParameters : WorkParameters {
     val baseUrl: Property<String>
-    val projectId: Property<Long>
     val username: Property<String>
     val password: Property<String>
     val issues: SetProperty<String>
-    val version: Property<String>
+    val statusTransitionId: Property<String>
 }
 
-abstract class AddFixVersionWork : WorkAction<AddFixVersionParameters> {
+abstract class SetStatusWork : WorkAction<SetStatusParameters> {
 
     private val logger = Logging.getLogger(this::class.java)
 
@@ -29,9 +28,6 @@ abstract class AddFixVersionWork : WorkAction<AddFixVersionParameters> {
             parameters.password.get()
         )
         val issues = parameters.issues.get()
-        val version = parameters.version.get()
-        val projectId = parameters.projectId.get()
-        service.createVersion(projectId, version)
-        issues.forEach { issue -> service.addFixVersion(issue, version) }
+        issues.forEach { issue -> service.setStatus(issue, parameters.statusTransitionId.get()) }
     }
 }

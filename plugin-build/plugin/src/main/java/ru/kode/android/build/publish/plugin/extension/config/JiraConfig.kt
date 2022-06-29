@@ -26,4 +26,8 @@ interface JiraConfig {
     @get:Input
     @get:Optional
     val fixVersionPattern: Property<String>
+
+    @get:Input
+    @get:Optional
+    val resolvedStatusTransitionId: Property<String>
 }

@@ -7,7 +7,7 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.task.jira.service.JiraService
 
-interface UpdateJiraLabelsParameters : WorkParameters {
+interface AddLabelParameters : WorkParameters {
     val baseUrl: Property<String>
     val username: Property<String>
     val password: Property<String>
@@ -15,7 +15,7 @@ interface UpdateJiraLabelsParameters : WorkParameters {
     val label: Property<String>
 }
 
-abstract class AddLabelWork : WorkAction<UpdateJiraLabelsParameters> {
+abstract class AddLabelWork : WorkAction<AddLabelParameters> {
 
     private val logger = Logging.getLogger(this::class.java)
 

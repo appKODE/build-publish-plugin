@@ -12,6 +12,7 @@ import ru.kode.android.build.publish.plugin.task.jira.api.JiraApi
 import ru.kode.android.build.publish.plugin.task.jira.entity.AddFixVersionRequest
 import ru.kode.android.build.publish.plugin.task.jira.entity.AddLabelRequest
 import ru.kode.android.build.publish.plugin.task.jira.entity.CreateVersionRequest
+import ru.kode.android.build.publish.plugin.task.jira.entity.SetStatusRequest
 import ru.kode.android.build.publish.plugin.util.executeOptionalOrThrow
 import java.util.concurrent.TimeUnit
 
@@ -46,6 +47,15 @@ internal class JiraService(
     }
 
     private val api = createApi<JiraApi>("$baseUrl/rest/api/latest/")
+
+    fun setStatus(issue: String, statusTransitionId: String) {
+        val request = SetStatusRequest(
+            transition = SetStatusRequest.Transition(
+                id = statusTransitionId
+            )
+        )
+        api.setStatus(issue, request).executeOptionalOrThrow()
+    }
 
     fun addLabel(issue: String, label: String) {
         val request = AddLabelRequest(
