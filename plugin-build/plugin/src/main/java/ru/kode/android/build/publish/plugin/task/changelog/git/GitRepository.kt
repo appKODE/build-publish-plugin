@@ -17,6 +17,7 @@ internal class GitRepository(
             val currentBuildTag = tags.first()
             val previousBuildTag = tags.getOrNull(1)
             TagRange(
+                // todo add Build types
                 currentBuildTag = Tag.Build(currentBuildTag, buildVariants),
                 previousBuildTag = previousBuildTag?.let { Tag.Build(it, buildVariants) }
             )

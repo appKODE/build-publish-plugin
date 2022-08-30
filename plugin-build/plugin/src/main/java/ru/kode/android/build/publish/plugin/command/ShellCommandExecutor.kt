@@ -25,8 +25,8 @@ interface ShellCommandExecutor {
      * Runs git to find information about tags of a particular build type.
      * Resulting set will be limited to [limitResultCount] tags or `null` if no tags found
      */
-    fun findBuildTags(buildVariant: String, limitResultCount: Int): List<Tag>? {
-        return findBuildTags(setOf(buildVariant), limitResultCount)
+    fun findBuildTags(buildType: String, limitResultCount: Int): List<Tag>? {
+        return findBuildTags(setOf(buildType), limitResultCount)
     }
 
     /**
@@ -48,7 +48,6 @@ private class WindowsShellCommandExecutor : ShellCommandExecutor {
     override fun findBuildTags(buildVariants: Set<String>, limitResultCount: Int): List<Tag>? {
         return null
     }
-
     override fun sendToWebHook(webHookUrl: String, jsonBody: String) = Unit
     override fun sendToWebHook(webHookUrl: String) = Unit
 }
