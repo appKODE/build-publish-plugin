@@ -29,6 +29,7 @@ allprojects {
         android.set(false)
         outputToConsole.set(true)
         ignoreFailures.set(false)
+        disabledRules.set(setOf("import-ordering"))
         enableExperimentalRules.set(true)
         filter {
             exclude("**/generated/**")

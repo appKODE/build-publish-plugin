@@ -1,9 +1,10 @@
 package ru.kode.android.build.publish.plugin.command
 
-import org.gradle.api.Project
+import org.gradle.api.logging.Logging
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
-import ru.kode.android.build.publish.plugin.git.entity.CommitRange
-import ru.kode.android.build.publish.plugin.git.entity.Tag
+import org.gradle.process.ExecOperations
+import ru.kode.android.build.publish.plugin.enity.CommitRange
+import ru.kode.android.build.publish.plugin.enity.Tag
 import java.io.ByteArrayOutputStream
 
 interface ShellCommandExecutor {
@@ -34,7 +35,7 @@ interface ShellCommandExecutor {
     fun sendToWebHook(webHookUrl: String, jsonBody: String)
 
     /**
-     * Sends JSON in [jsonBody] to a web-hook at [webHookUrl]
+     * Sends url formatted data to web-hook at [webHookUrl]
      */
     fun sendToWebHook(webHookUrl: String)
 }
@@ -43,6 +44,7 @@ private class WindowsShellCommandExecutor : ShellCommandExecutor {
     override fun extractTagFromCommitMessages(tag: String, range: CommitRange?): List<String> {
         return emptyList()
     }
+
     override fun findBuildTags(buildVariants: Set<String>, limitResultCount: Int): List<Tag>? {
         return null
     }
@@ -51,8 +53,10 @@ private class WindowsShellCommandExecutor : ShellCommandExecutor {
 }
 
 private class LinuxShellCommandExecutor(
-    private val project: Project
+    private val execOperations: ExecOperations,
 ) : ShellCommandExecutor {
+
+    private val logger = Logging.getLogger(this::class.java)
 
     override fun extractTagFromCommitMessages(tag: String, range: CommitRange?): List<String> {
         val gitLogArgument = when {
@@ -87,9 +91,9 @@ private class LinuxShellCommandExecutor(
         )
         return commandOutput.mapNotNull { line ->
             tagOutputLineToTag(line).also {
-                if (it == null) project.logger.warn("line doesn't contain a valid tag info, ignoring it. Line: $line")
+                if (it == null) logger.debug("line doesn't contain a valid tag info, ignoring it. Line: $line")
             }
-        }.let { if (it.isEmpty()) null else it }
+        }.ifEmpty { null }
     }
 
     @Suppress("MagicNumber")
@@ -129,13 +133,13 @@ private class LinuxShellCommandExecutor(
     }
 
     override fun sendToWebHook(webHookUrl: String) {
-        project.logger.debug("sending changelog to $webHookUrl")
+        logger.debug("sending changelog to $webHookUrl")
         executeInShell("curl -sS '$webHookUrl'")
     }
 
     private fun executeInShell(command: String): List<String> {
         val stdout = ByteArrayOutputStream()
-        project.exec {
+        execOperations.exec {
             it.commandLine("bash", "-c", command)
             it.standardOutput = stdout
         }
@@ -143,16 +147,16 @@ private class LinuxShellCommandExecutor(
         val commandResult = stdout.toString("utf-8").trim()
         stdout.close()
 
-        project.logger.debug("command: $command")
-        project.logger.debug("shell output: $commandResult")
+        logger.debug("command: $command")
+        logger.debug("shell output: $commandResult")
         return if (commandResult.isEmpty()) emptyList() else commandResult.lineSequence().map { it.trim() }.toList()
     }
 }
 
-fun getCommandExecutor(project: Project): ShellCommandExecutor {
+fun getCommandExecutor(execOperations: ExecOperations): ShellCommandExecutor {
     return if (DefaultNativePlatform.getCurrentOperatingSystem().isWindows) {
         WindowsShellCommandExecutor()
     } else {
-        LinuxShellCommandExecutor(project)
+        LinuxShellCommandExecutor(execOperations)
     }
 }

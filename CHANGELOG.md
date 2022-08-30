@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0-alpha14
+* Add logic to publish into AppCenter via AppCenterDistributionTask
+* Add logic to automate Jira: change task status, add label and fix version
+* Refactor configuration logic: split one big config to small configs for different areas
+* Add optimization to get version from tag and generate changelog
+
 ## 1.0.5-hotfix01 - 2022-06-01
 
 * Revert fix from 1.0.5 version
