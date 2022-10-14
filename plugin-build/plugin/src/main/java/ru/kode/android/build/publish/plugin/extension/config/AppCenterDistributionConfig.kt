@@ -23,10 +23,11 @@ interface AppCenterDistributionConfig {
     val ownerName: Property<String>
 
     /**
-     * Short app name to be used as first part of app name in the AppCenter
+     * "Application name in AppCenter. If appName isn't set plugin uses <baseFileName>-<variantName>,
+     * for example example-base-project-android-debug, example-base-project-android-internal"
      */
     @get:Input
-    val appNamePrefix: Property<String>
+    val appName: Property<String>
 
     /**
      * Test groups for app distribution

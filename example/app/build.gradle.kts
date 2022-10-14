@@ -79,7 +79,21 @@ buildPublish {
     }
     appCenterDistribution {
         register("default") {
-            appNamePrefix.set("Android")
+            appName.set("Android")
+            ownerName.set("android-team-kode.ru")
+            apiTokenFile.set(File("appcenter-token.txt"))
+            testerGroups.set(setOf("Collaborators"))
+        }
+
+        register("debug") {
+            appName.set("AndroidDebug")
+            ownerName.set("android-team-kode.ru")
+            apiTokenFile.set(File("appcenter-token.txt"))
+            testerGroups.set(setOf("Collaborators"))
+        }
+
+        register("release") {
+            appName.set("AndroidRelease")
             ownerName.set("android-team-kode.ru")
             apiTokenFile.set(File("appcenter-token.txt"))
             testerGroups.set(setOf("Collaborators"))
