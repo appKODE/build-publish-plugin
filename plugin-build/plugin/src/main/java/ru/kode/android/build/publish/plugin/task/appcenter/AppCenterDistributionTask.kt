@@ -14,6 +14,8 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
+import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_COUNT
+import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_DELAY_MS
 import ru.kode.android.build.publish.plugin.task.appcenter.work.AppCenterUploadWork
 import javax.inject.Inject
 
@@ -71,13 +73,30 @@ abstract class AppCenterDistributionTask @Inject constructor(
 
     @get:Input
     @get:Optional
-    @get:Option(option = "maxRequestCount", description = "Max request count to distribute")
-    abstract val maxRequestCount: Property<Int>
+    @get:Option(
+        option = "maxUploadStatusRequestCount",
+        description = "Max request count to check upload status. Default = $MAX_REQUEST_COUNT",
+    )
+    abstract val maxUploadStatusRequestCount: Property<Int>
 
     @get:Input
     @get:Optional
-    @get:Option(option = "requestDelayMs", description = "Request delay in ms")
-    abstract val requestDelayMs: Property<Long>
+    @get:Option(
+        option = "uploadStatusRequestDelayMs",
+        description = "Request delay in ms for each request. Default = $MAX_REQUEST_DELAY_MS ms",
+    )
+    abstract val uploadStatusRequestDelayMs: Property<Long>
+
+    @get:Input
+    @get:Optional
+    @get:Option(
+        option = "uploadStatusRequestDelayCoefficient",
+        description = "Coefficient K for dynamic upload status request delay calculation:" +
+            "delaySecs = apkSizeMb / K" +
+            "If this isn't specified or 0, uploadStatusRequestDelayMs will be used." +
+            "Default value is null."
+    )
+    abstract val uploadStatusRequestDelayCoefficient: Property<Long>
 
     @TaskAction
     fun upload() {
@@ -96,8 +115,9 @@ abstract class AppCenterDistributionTask @Inject constructor(
             parameters.outputFile.set(outputFile)
             parameters.testerGroups.set(testerGroups)
             parameters.changelogFile.set(changelogFile)
-            parameters.maxRequestCount.set(maxRequestCount)
-            parameters.requestDelayMs.set(requestDelayMs)
+            parameters.maxUploadStatusRequestCount.set(maxUploadStatusRequestCount)
+            parameters.uploadStatusRequestDelayMs.set(uploadStatusRequestDelayMs)
+            parameters.uploadStatusRequestDelayCoefficient.set(uploadStatusRequestDelayCoefficient)
         }
     }
 }

@@ -6,8 +6,11 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_COUNT
+import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_DELAY_MS
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.ChunkRequestBody
 import ru.kode.android.build.publish.plugin.task.appcenter.uploader.AppCenterUploader
+import kotlin.math.round
 
 interface AppCenterUploadParameters : WorkParameters {
     val ownerName: Property<String>
@@ -18,8 +21,9 @@ interface AppCenterUploadParameters : WorkParameters {
     val outputFile: RegularFileProperty
     val testerGroups: SetProperty<String>
     val changelogFile: RegularFileProperty
-    val maxRequestCount: Property<Int>
-    val requestDelayMs: Property<Long>
+    val maxUploadStatusRequestCount: Property<Int>
+    val uploadStatusRequestDelayMs: Property<Long>
+    val uploadStatusRequestDelayCoefficient: Property<Long>
 }
 
 abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
@@ -73,8 +77,9 @@ abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
         val publishResponse = uploader
             .waitingReadyToBePublished(
                 preparedUploadId = prepareResponse.id,
-                maxRequestCount = parameters.maxRequestCount.orNull ?: MAX_REQUEST_COUNT,
-                requestDelayMs = parameters.requestDelayMs.orNull ?: MAX_REQUEST_DELAY_MS
+                maxRequestCount = parameters.maxUploadStatusRequestCount.orNull
+                    ?: MAX_REQUEST_COUNT,
+                requestDelayMs = requestDelayMs(parameters, outputFile.length()),
             )
         logger.debug("Step 7/7: Distribute to the app testers: $testerGroups")
         val releaseId = publishResponse.release_distinct_id
@@ -89,7 +94,21 @@ abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
         }
         logger.debug("upload done")
     }
+
+    private fun requestDelayMs(params: AppCenterUploadParameters, fileSizeBytes: Long): Long {
+        val coefficient = params.uploadStatusRequestDelayCoefficient.orNull
+        return if (coefficient != null) {
+            round((fileSizeBytes.bytesToMegabytes() / coefficient) * MILLIS_IN_SEC).toLong()
+        } else {
+            parameters.uploadStatusRequestDelayMs.orNull ?: MAX_REQUEST_DELAY_MS
+        }
+    }
 }
 
-private const val MAX_REQUEST_COUNT = 20
-private const val MAX_REQUEST_DELAY_MS = 2000L
+@Suppress("MagicNumber") // well known formula
+private fun Long.bytesToMegabytes(): Double {
+    return this / BYTES_PER_MEGABYTE
+}
+
+private const val BYTES_PER_MEGABYTE = 1024.0 * 1024.0
+private const val MILLIS_IN_SEC = 1000
