@@ -5,7 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.process.ExecOperations
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.command.getCommandExecutor
+import ru.kode.android.build.publish.plugin.command.getShellCommandExecutor
 import java.net.URLEncoder
 import javax.inject.Inject
 
@@ -25,7 +25,7 @@ abstract class SendTelegramChangelogWork @Inject constructor(
 ) : WorkAction<SendTelegramChangelogParameters> {
 
     private val logger = Logging.getLogger(this::class.java)
-    private val commandExecutor = getCommandExecutor(execOperations)
+    private val commandExecutor = getShellCommandExecutor(execOperations)
 
     override fun execute() {
         val baseOutputFileName = parameters.baseOutputFileName.get()

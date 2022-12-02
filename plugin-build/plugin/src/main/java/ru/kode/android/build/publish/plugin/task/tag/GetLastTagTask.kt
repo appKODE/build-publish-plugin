@@ -1,10 +1,13 @@
 package ru.kode.android.build.publish.plugin.task.tag
 
+import org.ajoberstar.grgit.gradle.GrgitService
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
@@ -15,12 +18,19 @@ import javax.inject.Inject
 
 abstract class GetLastTagTask @Inject constructor(
     private val workerExecutor: WorkerExecutor,
+    objectFactory: ObjectFactory,
 ) : DefaultTask() {
+
+    private var grgitService: Property<GrgitService>
 
     init {
         description = "Get last tag task"
         group = BasePlugin.BUILD_GROUP
+        grgitService = objectFactory.property(GrgitService::class.java)
     }
+
+    @Internal
+    fun getGrgitService(): Property<GrgitService> = grgitService
 
     @get:Input
     @get:Option(option = "buildVariant", description = "Current build variant")
@@ -36,6 +46,7 @@ abstract class GetLastTagTask @Inject constructor(
         workQueue.submit(GenerateTagWork::class.java) { parameters ->
             parameters.tagBuildFile.set(tagBuildFile)
             parameters.buildVariant.set(buildVariant)
+            parameters.grgitService.set(grgitService)
         }
         workQueue.await()
     }

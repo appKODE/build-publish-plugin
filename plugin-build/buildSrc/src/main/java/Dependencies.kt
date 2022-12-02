@@ -13,6 +13,7 @@ object BuildPluginsVersion {
     const val OK_HTTP = "4.9.3"
     const val MOSHI = "1.13.0"
     const val RETROFIT = "2.9.0"
+    const val GRGIT_PLUGIN = "5.0.0"
 }
 
 object TestingLib {

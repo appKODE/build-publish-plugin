@@ -10,6 +10,9 @@ import com.android.build.gradle.tasks.PackageAndroidArtifact
 import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import com.google.firebase.appdistribution.gradle.AppDistributionExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionPlugin
+import org.ajoberstar.grgit.gradle.GrgitService
+import org.ajoberstar.grgit.gradle.GrgitServiceExtension
+import org.ajoberstar.grgit.gradle.GrgitServicePlugin
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -65,12 +68,16 @@ internal object AgpVersions {
 abstract class BuildPublishPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.stopExecutionIfNotSupported()
+        project.pluginManager.apply(GrgitServicePlugin::class.java)
 
         val buildPublishExtension = project.extensions
             .create(EXTENSION_NAME, BuildPublishExtension::class.java)
         val androidExtension = project.extensions
             .getByType(ApplicationAndroidComponentsExtension::class.java)
         val changelogFile = project.layout.buildDirectory.file(CHANGELOG_FILENAME)
+        val grgitService = project.extensions
+            .getByType(GrgitServiceExtension::class.java)
+            .service
         androidExtension.onVariants(
             callback = { variant ->
                 val output = variant.outputs
@@ -83,7 +90,8 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                         buildPublishExtension,
                         buildVariant,
                         changelogFile,
-                        outputFileName
+                        outputFileName,
+                        grgitService,
                     )
                     output.versionCode.set(outputProviders.versionCode)
                     output.outputFileName.set(outputProviders.outputFileName)
@@ -102,9 +110,10 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         buildVariant: BuildVariant,
         changelogFile: Provider<RegularFile>,
         outputFileName: String,
+        grgitService: Provider<GrgitService>,
     ): OutputProviders {
         val outputConfig = buildPublishExtension.output.getByName("default")
-        val tagBuildProvider = registerGetLastTagTask(buildVariant)
+        val tagBuildProvider = registerGetLastTagTask(buildVariant, grgitService)
         val versionCodeProvider = tagBuildProvider.map(::mapToVersionCode)
         val outputFileNameProvider = outputConfig.baseFileName.zip(tagBuildProvider) { baseFileName, tagBuildFile ->
             mapToOutputFileName(tagBuildFile, outputFileName, baseFileName)
@@ -127,7 +136,8 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 changelogConfig.commitMessageKey,
                 buildVariant,
                 changelogFile,
-                tagBuildProvider
+                tagBuildProvider,
+                grgitService,
             )
             val telegramConfig = with(buildPublishExtension.telegram) {
                 findByName(buildVariant.name) ?: findByName("default")
@@ -267,6 +277,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
 
     private fun Project.registerGetLastTagTask(
         buildVariant: BuildVariant,
+        grgitService: Provider<GrgitService>,
     ): Provider<RegularFile> {
         val tagBuildFile = project.layout.buildDirectory
             .file("tag-build-${buildVariant.name}.json")
@@ -276,6 +287,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         ) { task ->
             task.tagBuildFile.set(tagBuildFile)
             task.buildVariant.set(buildVariant.name)
+            task.getGrgitService().set(grgitService)
         }.flatMap { it.tagBuildFile }
     }
 
@@ -295,7 +307,8 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         commitMessageKey: Provider<String>,
         buildVariant: BuildVariant,
         changelogFile: Provider<RegularFile>,
-        tagBuildProvider: Provider<RegularFile>
+        tagBuildProvider: Provider<RegularFile>,
+        grgitService: Provider<GrgitService>,
     ): Provider<RegularFile> {
         return register(
             "$GENERATE_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
@@ -305,6 +318,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.buildVariant.set(buildVariant.name)
             it.changelogFile.set(changelogFile)
             it.tagBuildFile.set(tagBuildProvider)
+            it.getGrgitService().set(grgitService)
         }.flatMap { it.changelogFile }
     }
 
