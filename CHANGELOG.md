@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0-alpha15
+* Port git commands execution to [grgit](https://github.com/ajoberstar/grgit) plugin
+* Add ability to configure application name for AppCenter
+* Refactor AppCenter upload status checking
+
 ## 1.1.0-alpha14
 * Add logic to publish into AppCenter via AppCenterDistributionTask
 * Add logic to automate Jira: change task status, add label and fix version
