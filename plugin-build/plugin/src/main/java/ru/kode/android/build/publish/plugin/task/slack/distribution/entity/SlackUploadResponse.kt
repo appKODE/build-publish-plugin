@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.slack.entity
+package ru.kode.android.build.publish.plugin.task.slack.distribution.entity
 
 import com.squareup.moshi.JsonClass
 
