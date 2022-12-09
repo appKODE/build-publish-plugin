@@ -17,6 +17,7 @@ import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
 import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_COUNT
 import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_DELAY_MS
 import ru.kode.android.build.publish.plugin.task.appcenter.work.AppCenterUploadWork
+import ru.kode.android.build.publish.plugin.util.capitalized
 import javax.inject.Inject
 
 abstract class AppCenterDistributionTask @Inject constructor(
@@ -61,11 +62,12 @@ abstract class AppCenterDistributionTask @Inject constructor(
     abstract val ownerName: Property<String>
 
     @get:Input
+    @get:Optional
     @get:Option(
         option = "appName",
-        description = "Application prefix for application name in AppCenter"
+        description = "Application name in AppCenter"
     )
-    abstract val appNamePrefix: Property<String>
+    abstract val appName: Property<String>
 
     @get:Input
     @get:Option(option = "testerGroups", description = "Distribution group names")
@@ -98,6 +100,10 @@ abstract class AppCenterDistributionTask @Inject constructor(
     )
     abstract val uploadStatusRequestDelayCoefficient: Property<Long>
 
+    @get:Input
+    @get:Option(option = "baseFileName", description = "Application bundle name prefix")
+    abstract val baseFileName: Property<String>
+
     @TaskAction
     fun upload() {
         val outputFile = buildVariantOutputFile.asFile.get()
@@ -108,7 +114,15 @@ abstract class AppCenterDistributionTask @Inject constructor(
         val workQueue: WorkQueue = workerExecutor.noIsolation()
         workQueue.submit(AppCenterUploadWork::class.java) { parameters ->
             parameters.ownerName.set(ownerName)
-            parameters.appName.set(appNamePrefix.map { "$it-${currentBuildTag.buildVariant}" })
+            parameters.appName.set(
+                if (appName.isPresent) {
+                    appName
+                } else {
+                    baseFileName.map { baseFileNameValue ->
+                        "${baseFileNameValue.capitalized()}-${currentBuildTag.buildVariant}"
+                    }
+                }
+            )
             parameters.buildName.set(currentBuildTag.name)
             parameters.buildNumber.set(currentBuildTag.buildNumber.toString())
             parameters.apiToken.set(apiTokenFile.readText())

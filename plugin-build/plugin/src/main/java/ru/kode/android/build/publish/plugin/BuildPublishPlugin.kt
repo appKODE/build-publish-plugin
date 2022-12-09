@@ -160,13 +160,15 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 findByName(buildVariant.name) ?: findByName("default")
             }
             if (appCenterDistributionConfig != null) {
-                tasks.registerAppCenterDistributionTask(
-                    appCenterDistributionConfig,
-                    buildVariant,
-                    generateChangelogFileProvider,
-                    outputFileProvider,
-                    tagBuildProvider,
+                val params = AppCenterDistributionTaskParams(
+                    config = appCenterDistributionConfig,
+                    buildVariant = buildVariant,
+                    changelogFileProvider = generateChangelogFileProvider,
+                    buildVariantOutputFileProvider = outputFileProvider,
+                    tagBuildProvider = tagBuildProvider,
+                    outputConfig = outputConfig,
                 )
+                tasks.registerAppCenterDistributionTask(params)
             }
             val jiraConfig = with(buildPublishExtension.jira) {
                 findByName(buildVariant.name) ?: findByName("default")
@@ -358,22 +360,22 @@ abstract class BuildPublishPlugin : Plugin<Project> {
     }
 
     private fun TaskContainer.registerAppCenterDistributionTask(
-        config: AppCenterDistributionConfig,
-        buildVariant: BuildVariant,
-        changelogFileProvider: Provider<RegularFile>,
-        buildVariantOutputFileProvider: Provider<RegularFile>,
-        tagBuildProvider: Provider<RegularFile>,
+        params: AppCenterDistributionTaskParams,
     ): TaskProvider<AppCenterDistributionTask> {
+        val buildVariant = params.buildVariant
+        val config = params.config
+
         return register(
             "$APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
             AppCenterDistributionTask::class.java,
         ) {
-            it.tagBuildFile.set(tagBuildProvider)
-            it.buildVariantOutputFile.set(buildVariantOutputFileProvider)
-            it.changelogFile.set(changelogFileProvider)
+            it.tagBuildFile.set(params.tagBuildProvider)
+            it.buildVariantOutputFile.set(params.buildVariantOutputFileProvider)
+            it.changelogFile.set(params.changelogFileProvider)
             it.apiTokenFile.set(config.apiTokenFile)
             it.ownerName.set(config.ownerName)
-            it.appNamePrefix.set(config.appNamePrefix)
+            it.appName.set(config.appName)
+            it.baseFileName.set(params.outputConfig.baseFileName)
             it.testerGroups.set(config.testerGroups)
             it.maxUploadStatusRequestCount.set(config.maxUploadStatusRequestCount)
             it.uploadStatusRequestDelayMs.set(config.uploadStatusRequestDelayMs)
@@ -460,6 +462,15 @@ private data class OutputProviders(
     val versionName: Provider<String>,
     val versionCode: Provider<Int>,
     val outputFileName: Provider<String>,
+)
+
+private data class AppCenterDistributionTaskParams(
+    val config: AppCenterDistributionConfig,
+    val buildVariant: BuildVariant,
+    val changelogFileProvider: Provider<RegularFile>,
+    val buildVariantOutputFileProvider: Provider<RegularFile>,
+    val tagBuildProvider: Provider<RegularFile>,
+    val outputConfig: OutputConfig,
 )
 
 private fun mapToVersionCode(tagBuildFile: RegularFile): Int {
