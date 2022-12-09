@@ -9,6 +9,7 @@ object BuildPluginsVersion {
     const val VERSIONS_PLUGIN = "0.38.0"
     const val APP_DISTRIBUTION_PLUGIN = "3.0.0"
     const val ANDROID_PLUGIN = "7.0.4"
+    const val GRGIT_PLUGIN = "5.0.0"
 }
 
 object TestingLib {

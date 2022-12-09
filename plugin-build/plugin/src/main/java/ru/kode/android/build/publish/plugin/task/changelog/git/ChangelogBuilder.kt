@@ -1,13 +1,13 @@
 package ru.kode.android.build.publish.plugin.task.changelog.git
 
 import org.gradle.api.logging.Logger
-import ru.kode.android.build.publish.plugin.command.ShellCommandExecutor
+import ru.kode.android.build.publish.plugin.command.GitCommandExecutor
 import ru.kode.android.build.publish.plugin.enity.Tag
 import ru.kode.android.build.publish.plugin.enity.TagRange
 
 internal class ChangelogBuilder(
     private val gitRepository: GitRepository,
-    private val commandExecutor: ShellCommandExecutor,
+    private val gitCommandExecutor: GitCommandExecutor,
     private val logger: Logger?,
     private val messageKey: String,
 ) {
@@ -43,7 +43,7 @@ internal class ChangelogBuilder(
         // it can happen that 2 tags point to the same commit, so no extraction of changelog is necessary
         // (but remember, tags can be annotated - which is taken care of above)
         if (this.currentBuildTag.commitSha != this.previousBuildTag?.commitSha) {
-            commandExecutor
+            gitCommandExecutor
                 .extractTagFromCommitMessages(messageKey, this.asCommitRange())
                 .map { it.replace(Regex("\\s*$messageKey:?\\s*"), "• ") }
                 .forEach {

@@ -15,6 +15,8 @@ dependencies {
     implementation("com.squareup.moshi:moshi:${BuildPluginsVersion.MOSHI}")
     implementation("com.squareup.retrofit2:retrofit:${BuildPluginsVersion.RETROFIT}")
     implementation("com.squareup.retrofit2:converter-moshi:${BuildPluginsVersion.RETROFIT}")
+    implementation("org.ajoberstar.grgit:grgit-core:${BuildPluginsVersion.GRGIT_PLUGIN}")
+    implementation("org.ajoberstar.grgit:grgit-gradle:${BuildPluginsVersion.GRGIT_PLUGIN}")
 
     testImplementation(TestingLib.JUNIT)
     testImplementation("com.android.tools.build:gradle:${BuildPluginsVersion.ANDROID_PLUGIN}")
@@ -24,8 +26,8 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 gradlePlugin {
