@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.slack
+package ru.kode.android.build.publish.plugin.task.slack.changelog
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -12,7 +12,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
-import ru.kode.android.build.publish.plugin.task.slack.work.SendSlackChangelogWork
+import ru.kode.android.build.publish.plugin.task.slack.changelog.work.SendSlackChangelogWork
 import javax.inject.Inject
 
 abstract class SendSlackChangelogTask @Inject constructor(

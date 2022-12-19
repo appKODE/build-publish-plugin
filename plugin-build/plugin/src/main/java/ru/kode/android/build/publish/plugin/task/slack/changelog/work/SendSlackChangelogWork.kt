@@ -1,12 +1,11 @@
-package ru.kode.android.build.publish.plugin.task.slack.work
+package ru.kode.android.build.publish.plugin.task.slack.changelog.work
 
-import groovy.json.JsonOutput
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
-import org.gradle.process.ExecOperations
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.command.getShellCommandExecutor
+import ru.kode.android.build.publish.plugin.task.slack.changelog.entity.SlackChangelogBody
+import ru.kode.android.build.publish.plugin.task.slack.changelog.sender.SlackWebhookSender
 import javax.inject.Inject
 
 interface SendSlackChangelogParameters : WorkParameters {
@@ -18,12 +17,10 @@ interface SendSlackChangelogParameters : WorkParameters {
     val iconUrl: Property<String>
 }
 
-abstract class SendSlackChangelogWork @Inject constructor(
-    execOperations: ExecOperations,
-) : WorkAction<SendSlackChangelogParameters> {
+abstract class SendSlackChangelogWork @Inject constructor() : WorkAction<SendSlackChangelogParameters> {
 
     private val logger = Logging.getLogger(this::class.java)
-    private val commandExecutor = getShellCommandExecutor(execOperations)
+    private val webhookSender = SlackWebhookSender(logger)
 
     override fun execute() {
         val baseOutputFileName = parameters.baseOutputFileName.get()
@@ -48,26 +45,7 @@ abstract class SendSlackChangelogWork @Inject constructor(
                 )
             )
         )
-        val jsonBody = JsonOutput.toJson(body)
-        val escapedJsonBody = JsonOutput.toJson(jsonBody)
-        commandExecutor.sendToWebHook(parameters.webhookUrl.get(), escapedJsonBody)
+        webhookSender.send(parameters.webhookUrl.get(), body)
         logger.debug("changelog sent to Slack")
     }
-}
-
-@Suppress("ConstructorParameterNaming") // network model
-private data class SlackChangelogBody(
-    val icon_url: String,
-    val username: String,
-    val blocks: List<Block>
-) {
-    data class Block(
-        val type: String,
-        val text: Text
-    )
-
-    data class Text(
-        val type: String,
-        val text: String
-    )
 }

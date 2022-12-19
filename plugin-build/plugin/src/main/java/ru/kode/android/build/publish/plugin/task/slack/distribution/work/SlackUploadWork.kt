@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.slack.work
+package ru.kode.android.build.publish.plugin.task.slack.distribution.work
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logging
@@ -6,7 +6,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.task.slack.uploader.SlackUploader
+import ru.kode.android.build.publish.plugin.task.slack.distribution.uploader.SlackUploader
 import ru.kode.android.build.publish.plugin.util.UploadStreamTimeoutException
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream

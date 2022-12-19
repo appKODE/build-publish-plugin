@@ -2,10 +2,9 @@ package ru.kode.android.build.publish.plugin.task.telegram.work
 
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
-import org.gradle.process.ExecOperations
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.command.getShellCommandExecutor
+import ru.kode.android.build.publish.plugin.task.telegram.sender.TelegramWebhookSender
 import java.net.URLEncoder
 import javax.inject.Inject
 
@@ -20,12 +19,10 @@ interface SendTelegramChangelogParameters : WorkParameters {
     val chatId: Property<String>
 }
 
-abstract class SendTelegramChangelogWork @Inject constructor(
-    execOperations: ExecOperations,
-) : WorkAction<SendTelegramChangelogParameters> {
+abstract class SendTelegramChangelogWork @Inject constructor() : WorkAction<SendTelegramChangelogParameters> {
 
     private val logger = Logging.getLogger(this::class.java)
-    private val commandExecutor = getShellCommandExecutor(execOperations)
+    private val webhookSender = TelegramWebhookSender(logger)
 
     override fun execute() {
         val baseOutputFileName = parameters.baseOutputFileName.get()
@@ -44,7 +41,7 @@ abstract class SendTelegramChangelogWork @Inject constructor(
             parameters.chatId.get(),
             URLEncoder.encode(message, "utf-8")
         )
-        commandExecutor.sendToWebHook(url)
+        webhookSender.send(url)
         logger.debug("changelog sent to Telegram")
     }
 }

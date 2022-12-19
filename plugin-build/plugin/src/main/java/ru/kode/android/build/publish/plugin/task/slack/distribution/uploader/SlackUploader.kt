@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.slack.uploader
+package ru.kode.android.build.publish.plugin.task.slack.distribution.uploader
 
 import com.squareup.moshi.Moshi
 import okhttp3.Interceptor
@@ -11,7 +11,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.logging.Logger
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import ru.kode.android.build.publish.plugin.task.slack.api.SlackApi
+import ru.kode.android.build.publish.plugin.task.slack.distribution.api.SlackApi
 import ru.kode.android.build.publish.plugin.util.UploadException
 import ru.kode.android.build.publish.plugin.util.executeOrThrow
 import java.io.File

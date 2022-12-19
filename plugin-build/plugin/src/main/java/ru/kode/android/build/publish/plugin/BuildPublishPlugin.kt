@@ -38,8 +38,8 @@ import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
 import ru.kode.android.build.publish.plugin.task.appcenter.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
 import ru.kode.android.build.publish.plugin.task.jira.JiraAutomationTask
-import ru.kode.android.build.publish.plugin.task.slack.SendSlackChangelogTask
-import ru.kode.android.build.publish.plugin.task.slack.SlackDistributionTask
+import ru.kode.android.build.publish.plugin.task.slack.changelog.SendSlackChangelogTask
+import ru.kode.android.build.publish.plugin.task.slack.distribution.SlackDistributionTask
 import ru.kode.android.build.publish.plugin.task.tag.GetLastTagTask
 import ru.kode.android.build.publish.plugin.task.tag.PrintLastIncreasedTag
 import ru.kode.android.build.publish.plugin.task.telegram.SendTelegramChangelogTask
