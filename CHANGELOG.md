@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.0-alpha16
+* Remove sh scripts to post webhooks, replace it with retrofit and okhttp
+
 ## 1.1.0-alpha15
 * Port git commands execution to [grgit](https://github.com/ajoberstar/grgit) plugin
 * Add ability to configure application name for AppCenter
