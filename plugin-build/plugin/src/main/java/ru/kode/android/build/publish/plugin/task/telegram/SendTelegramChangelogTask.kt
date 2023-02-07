@@ -73,15 +73,16 @@ abstract class SendTelegramChangelogTask @Inject constructor(
     fun sendChangelog() {
         val currentBuildTag = fromJson(tagBuildFile.asFile.get())
         val escapedCharacters =
-            "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]"
+            "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]|-"
         val changelog = changelogFile.orNull?.asFile?.readText()
         if (changelog.isNullOrEmpty()) {
             logger.error(
                 "[sendChangelog] changelog file not found, is empty or error occurred"
             )
         } else {
-            val changelogWithIssues = changelog.formatIssues()
+            val changelogWithIssues = changelog.formatIssues(escapedCharacters)
             val userMentions = userMentions.orNull.orEmpty().joinToString(", ")
+                .replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(SendTelegramChangelogWork::class.java) { parameters ->
                 parameters.baseOutputFileName.set(baseOutputFileName)
@@ -96,12 +97,27 @@ abstract class SendTelegramChangelogTask @Inject constructor(
         }
     }
 
-    private fun String.formatIssues(): String {
+    private fun String.formatIssues(escapedCharacters: String): String {
         val issueUrlPrefix = issueUrlPrefix.get()
         val issueNumberPattern = issueNumberPattern.get()
-        val issueRegexp = Regex(issueNumberPattern)
-        return this.replace(issueRegexp) { result ->
-            "[${result.value}](${issueUrlPrefix}${result.value})"
-        }
+        val issueRegexp = issueNumberPattern.toRegex()
+
+        return this.split(" ")
+            .joinToString(separator = " ") { substring ->
+                val matchResult = issueRegexp.find(substring)
+
+                if (matchResult != null) {
+                    val url = (issueUrlPrefix + matchResult.value)
+                        .escapeCharacters(escapedCharacters)
+                    val issueId = matchResult.value.escapeCharacters(escapedCharacters)
+                    "[$issueId]($url)"
+                } else {
+                    substring.escapeCharacters(escapedCharacters)
+                }
+            }
+    }
+
+    private fun String.escapeCharacters(escapedCharacters: String): String {
+        return this.replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
     }
 }

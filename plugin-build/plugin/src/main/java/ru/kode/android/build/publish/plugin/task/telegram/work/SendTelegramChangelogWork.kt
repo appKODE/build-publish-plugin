@@ -28,14 +28,17 @@ abstract class SendTelegramChangelogWork @Inject constructor() : WorkAction<Send
         val baseOutputFileName = parameters.baseOutputFileName.get()
         val buildName = parameters.buildName.get()
         val tgUserMentions = parameters.userMentions.get()
+        val escapedHeader = "$baseOutputFileName $buildName"
+            .replace(parameters.escapedCharacters.get().toRegex()) { result -> "\\${result.value}" }
+        val boldHeader = "*$escapedHeader*"
         val message = buildString {
-            append("*$baseOutputFileName $buildName*")
+            append(boldHeader)
             appendLine()
             append(tgUserMentions)
             appendLine()
             appendLine()
             append(parameters.changelog.get())
-        }.formatChangelog(parameters.escapedCharacters.get())
+        }.formatChangelog()
         val url = parameters.webhookUrl.get().format(
             parameters.botId.get(),
             parameters.chatId.get(),
@@ -46,9 +49,7 @@ abstract class SendTelegramChangelogWork @Inject constructor() : WorkAction<Send
     }
 }
 
-private fun String.formatChangelog(escapedCharacters: String): String {
+private fun String.formatChangelog(): String {
     return this
-        .replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
         .replace(Regex("(\r\n|\n)"), "\n")
-        .replace("[-]".toRegex()) { result -> "\\${result.value}" }
 }
