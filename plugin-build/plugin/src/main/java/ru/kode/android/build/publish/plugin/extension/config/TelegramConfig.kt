@@ -21,10 +21,10 @@ interface TelegramConfig {
     val botId: Property<String>
 
     /**
-     * Telegram chat id where changelog will be posted
+     * Telegram chats id where changelog will be posted
      */
     @get:Input
-    val chatId: Property<String>
+    val chatsId: SetProperty<String>
 
     /**
      * List of mentioning users for Slack, can be empty or null
