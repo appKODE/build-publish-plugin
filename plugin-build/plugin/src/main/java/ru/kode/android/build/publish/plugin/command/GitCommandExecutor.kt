@@ -30,7 +30,7 @@ internal class GitCommandExecutor(
         return grgitService.grgit.tag.list()
             .filter { tag ->
                 buildVariants.any { variant ->
-                    tag.name.endsWith("-$variant")
+                    tag.name.contains("-$variant")
                 }
             }
             .map { tag ->
@@ -40,8 +40,7 @@ internal class GitCommandExecutor(
                     message = tag.fullMessage,
                 )
             }
-            .reversed()
-            .take(limitResultCount)
+            .takeLast(limitResultCount)
             .ifEmpty { null }
     }
 

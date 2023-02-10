@@ -63,7 +63,7 @@ abstract class SendTelegramChangelogTask @Inject constructor(
 
     @get:Input
     @get:Option(option = "chatId", description = "Chat id where webhook posted")
-    abstract val chatId: Property<String>
+    abstract val chatsId: SetProperty<String>
 
     @get:Input
     @get:Option(option = "userMentions", description = "User tags to mention in chat")
@@ -91,7 +91,7 @@ abstract class SendTelegramChangelogTask @Inject constructor(
                 parameters.userMentions.set(userMentions)
                 parameters.escapedCharacters.set(escapedCharacters)
                 parameters.botId.set(botId)
-                parameters.chatId.set(chatId)
+                parameters.chatsId.set(chatsId)
             }
         }
     }

@@ -2,6 +2,7 @@ package ru.kode.android.build.publish.plugin.task.telegram.work
 
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.task.telegram.sender.TelegramWebhookSender
@@ -16,7 +17,7 @@ interface SendTelegramChangelogParameters : WorkParameters {
     val userMentions: Property<String>
     val escapedCharacters: Property<String>
     val botId: Property<String>
-    val chatId: Property<String>
+    val chatsId: SetProperty<String>
 }
 
 abstract class SendTelegramChangelogWork @Inject constructor() : WorkAction<SendTelegramChangelogParameters> {
@@ -36,13 +37,16 @@ abstract class SendTelegramChangelogWork @Inject constructor() : WorkAction<Send
             appendLine()
             append(parameters.changelog.get())
         }.formatChangelog(parameters.escapedCharacters.get())
-        val url = parameters.webhookUrl.get().format(
-            parameters.botId.get(),
-            parameters.chatId.get(),
-            URLEncoder.encode(message, "utf-8")
-        )
-        webhookSender.send(url)
-        logger.debug("changelog sent to Telegram")
+
+        parameters.chatsId.get().forEach { chatId ->
+            val url = parameters.webhookUrl.get().format(
+                parameters.botId.get(),
+                chatId,
+                URLEncoder.encode(message, "utf-8")
+            )
+            webhookSender.send(url)
+            logger.debug("changelog sent to Telegram")
+        }
     }
 }
 

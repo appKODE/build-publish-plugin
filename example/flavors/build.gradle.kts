@@ -45,7 +45,7 @@ buildPublish {
         register("default") {
             webhookUrl.set("https://api.telegram.org/%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2")
             botId.set("TELEGRAM_BUILD_BOT_ID")
-            chatId.set("CHAT_ID")
+            chatsId.set(setOf("CHAT_ID"))
             userMentions.set(setOf("@ivan", "@roman", "@serega"))
         }
     }

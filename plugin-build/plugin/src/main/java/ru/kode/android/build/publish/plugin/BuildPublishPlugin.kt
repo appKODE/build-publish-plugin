@@ -274,6 +274,8 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.buildVariantOutputFile.set(outputFileProvider)
             it.apiTokenFile.set(apiTokenFile)
             it.channels.set(channels)
+
+            it.upload()
         }
     }
 
@@ -344,7 +346,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.baseOutputFileName.set(outputConfig.baseFileName)
             it.webhookUrl.set(telegramConfig.webhookUrl)
             it.botId.set(telegramConfig.botId)
-            it.chatId.set(telegramConfig.chatId)
+            it.chatsId.set(telegramConfig.chatsId)
             it.userMentions.set(telegramConfig.userMentions)
         }
     }
