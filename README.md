@@ -1,19 +1,19 @@
 # build-publish-plugin
 
 A configurable plugin to generate changelogs from tags and publish results into Firebase App
-Distribution and send changelog to Telegram or/and Slack (on your choice)
+Distribution and send changelog to Telegram and/or Slack (as you choose).
 
-Plugin will create full set gradle tasks and preconfigure `versionName` and `versionCode` according to last tag.
-Tags should be in format `v<minor_version>.<major_version>.<version_code>-<build_type>`,
-for example `v1.0.666-debug` or `v1.0.666-release` or something else
+Plugin will create a full set of gradle tasks and pre-configure `versionName` and `versionCode` according to the last tag.
+Tags should be formatted as `v<minor_version>.<major_version>.<version_code>-<build_type>`,
+for example `v1.0.666-debug` or `v1.0.666-release`.
 
-There will be some different tasks for all build types and flavors. But the main ones are:
-1. processBuildPublish<build_type> (for example, processBuildPublishDebug) - prepare changelog between 2 last tags, 
-   send apk to Firebase App Distribution and send changelog into Slack and/or Telegram (if configured)
-2. sendChangelog<build_type> (for example, sendChangelogDebug) - just prepare changelog between 2 last tags 
-   and send it into Slack and/or Telegram (if configured)
+Several different tasks will be created for each build type and flavor. But the main ones are:
+1. `processBuildPublish<build_type>` (for example, `processBuildPublishDebug`) - prepare a changelog between 2 last tags, 
+   send apk to Firebase App Distribution and send a changelog to Slack and/or Telegram (if configured)
+2. `sendChangelog<build_type>` (for example, `sendChangelogDebug`) - just prepare a changelog between 2 last tags 
+   and send it to Slack and/or Telegram (if configured)
 
-## How apply
+## How to apply
 
 Using the plugins DSL:
 ```groovy
@@ -52,7 +52,7 @@ Using jar:
       id("ru.kode.android.build-publish")
    }
 ```
-## How configure
+## How to configure
 
 ```kotlin
 buildPublish {
