@@ -5,7 +5,7 @@
 
 ## 1.1.0-alpha15
 * Port git commands execution to [grgit](https://github.com/ajoberstar/grgit) plugin
-* Add ability to configure application name for AppCenter
+* Change app name configuration for AppCenter. Now the full name of the application is passed to the configuration
 * Refactor AppCenter upload status checking
 
 ## 1.1.0-alpha14
