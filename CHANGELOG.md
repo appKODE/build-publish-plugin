@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0-alpha17
+* Fix description of changes for AppCenter in the changelog
+* Update to new gradle version: gradle plugin: 1.7.4, gradle: 7.5, kotlin: 1.8.10
+* Fix logic to attach hypertexts for Telegram
+
 ## 1.1.0-alpha16
 * Remove sh scripts to post webhooks, replace it with retrofit and okhttp
 
