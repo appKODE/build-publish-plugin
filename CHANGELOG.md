@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.0-alpha18
+* Add sorting by build number to correctly detekt last tag
+
 ## 1.1.0-alpha17
 * Fix description of changes for AppCenter in the changelog
 * Update to new gradle version: gradle plugin: 1.7.4, gradle: 7.5, kotlin: 1.8.10
