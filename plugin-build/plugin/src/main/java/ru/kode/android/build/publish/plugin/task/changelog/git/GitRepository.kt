@@ -6,26 +6,26 @@ import ru.kode.android.build.publish.plugin.enity.TagRange
 
 internal class GitRepository(
     private val gitCommandExecutor: GitCommandExecutor,
-    private val buildVariants: Set<String>,
+    private val buildVariant: String,
 ) {
     /**
      * Finds a range of build tags, returning `null` if no build tags are present (happens on a new projects)
      */
     fun findTagRange(buildVariant: String): TagRange? {
-        val tags = gitCommandExecutor.findBuildTags(setOf(buildVariant), limitResultCount = 2)
+        val tags = gitCommandExecutor.findBuildTags(buildVariant, limitResultCount = 2)
         return if (tags != null) {
             val currentBuildTag = tags.first()
             val previousBuildTag = tags.getOrNull(1)
             TagRange(
                 // todo add Build types
-                currentBuildTag = Tag.Build(currentBuildTag, buildVariants),
-                previousBuildTag = previousBuildTag?.let { Tag.Build(it, buildVariants) }
+                currentBuildTag = Tag.Build(currentBuildTag, buildVariant),
+                previousBuildTag = previousBuildTag?.let { Tag.Build(it, buildVariant) }
             )
         } else null
     }
 
     fun findRecentBuildTag(): Tag.Build? {
-        val tags = gitCommandExecutor.findBuildTags(buildVariants, limitResultCount = 1)
-        return tags?.first()?.let { Tag.Build(it, buildVariants) }
+        val tags = gitCommandExecutor.findBuildTags(buildVariant, limitResultCount = 1)
+        return tags?.first()?.let { Tag.Build(it, buildVariant) }
     }
 }

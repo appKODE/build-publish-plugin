@@ -22,9 +22,9 @@ abstract class GenerateTagWork @Inject constructor() : WorkAction<GenerateTagPar
     private val logger = Logging.getLogger(this::class.java)
 
     override fun execute() {
-        val buildVariants = setOf(parameters.buildVariant.get())
+        val buildVariant = parameters.buildVariant.get()
         val gitCommandExecutor = GitCommandExecutor(parameters.grgitService.get())
-        val buildTag = GitRepository(gitCommandExecutor, buildVariants).findRecentBuildTag()
+        val buildTag = GitRepository(gitCommandExecutor, buildVariant).findRecentBuildTag()
         val tagBuildOutput = parameters.tagBuildFile.asFile.get()
 
         if (buildTag != null) {

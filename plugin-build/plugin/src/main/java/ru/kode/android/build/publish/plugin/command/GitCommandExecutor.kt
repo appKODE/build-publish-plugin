@@ -23,15 +23,16 @@ internal class GitCommandExecutor(
     }
 
     /**
-     * Runs git to find information about tags of a set of [buildVariants].
+     * Runs git to find information about tags of the [buildVariant].
      * Resulting set will be limited to [limitResultCount] tags or `null` if no tags found
      */
-    fun findBuildTags(buildVariants: Set<String>, limitResultCount: Int): List<Tag>? {
+    fun findBuildTags(buildVariant: String, limitResultCount: Int): List<Tag>? {
+        val buildTagRegex = Regex(".+\\.(\\d+)-$buildVariant")
         return grgitService.grgit.tag.list()
-            .filter { tag ->
-                buildVariants.any { variant ->
-                    tag.name.endsWith("-$variant")
-                }
+            .filter { tag -> tag.name.matches(buildTagRegex) }
+            .sortedBy { tag ->
+                buildTagRegex.find(tag.name)?.groupValues?.get(1)?.toIntOrNull()
+                    ?: error("internal error: failed to parse build number for tag ${tag.name}")
             }
             .map { tag ->
                 Tag.Generic(

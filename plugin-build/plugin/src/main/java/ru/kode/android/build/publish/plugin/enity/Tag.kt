@@ -25,22 +25,23 @@ sealed class Tag {
         val buildVariant: String,
         val buildNumber: Int
     ) : Tag() {
-        constructor(tag: Tag, buildVariants: Set<String>) : this(
+        constructor(tag: Tag, buildVariant: String) : this(
             tag.name,
             tag.commitSha,
             tag.message,
             buildVersion = tag.toBuildVersion(),
-            buildVariant = tag.toBuildVariant(buildVariants),
+            buildVariant = tag.toBuildVariant(buildVariant),
             buildNumber = tag.toBuildNumber()
         )
     }
 }
 
-private fun Tag.toBuildVariant(buildVariants: Set<String>): String {
-    return buildVariants.firstOrNull { this.name.contains(it) }
-        ?: throw GradleException(
-            "No buildVariants for ${this.name}. Available variants: $buildVariants",
+private fun Tag.toBuildVariant(buildVariant: String): String {
+    return if (this.name.contains(buildVariant)) buildVariant else {
+        throw GradleException(
+            "No buildVariant for ${this.name}. Available variants: $buildVariant",
         )
+    }
 }
 
 private fun Tag.toBuildVersion(): String {
