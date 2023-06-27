@@ -28,9 +28,9 @@ abstract class GenerateChangelogWork @Inject constructor() : WorkAction<Generate
     override fun execute() {
         val messageKey = parameters.commitMessageKey.get()
         val currentBuildTag = fromJson(parameters.tagBuildFile.asFile.get())
-        val buildVariants = setOf(parameters.buildVariant.get())
+        val buildVariant = parameters.buildVariant.get()
         val gitCommandExecutor = GitCommandExecutor(parameters.grgitService.get())
-        val gitRepository = GitRepository(gitCommandExecutor, buildVariants)
+        val gitRepository = GitRepository(gitCommandExecutor, buildVariant)
         val changelog = ChangelogBuilder(gitRepository, gitCommandExecutor, logger, messageKey)
             .buildForBuildTag(
                 currentBuildTag,
