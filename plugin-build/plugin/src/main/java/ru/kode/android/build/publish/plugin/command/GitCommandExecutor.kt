@@ -27,11 +27,15 @@ internal class GitCommandExecutor(
      * Resulting set will be limited to [limitResultCount] tags or `null` if no tags found
      */
     fun findBuildTags(buildVariants: Set<String>, limitResultCount: Int): List<Tag>? {
+        val buildTagRegex = Regex(".+\\.(\\d+)-(${buildVariants.joinToString("|")})")
         return grgitService.grgit.tag.list()
             .filter { tag ->
-                buildVariants.any { variant ->
-                    tag.name.endsWith("-$variant")
-                }
+                buildTagRegex.find(tag.name)?.groupValues?.get(1)?.let { System.err.println(it) }
+                tag.name.matches(buildTagRegex)
+            }
+            .sortedBy { tag ->
+                buildTagRegex.find(tag.name)?.groupValues?.get(1)?.toIntOrNull()
+                    ?: error("internal error: failed to parse build number for tag ${tag.name}")
             }
             .map { tag ->
                 Tag.Generic(
