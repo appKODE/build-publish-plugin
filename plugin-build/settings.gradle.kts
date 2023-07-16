@@ -5,6 +5,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = ("ru.kode.android.build.publish.plugin")
+rootProject.name = "plugin-build"
 
 include(":plugin")

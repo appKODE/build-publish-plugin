@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     kotlin("jvm")
     id("kotlin-kapt")
@@ -18,16 +20,17 @@ dependencies {
     implementation("org.ajoberstar.grgit:grgit-core:${BuildPluginsVersion.GRGIT_PLUGIN}")
     implementation("org.ajoberstar.grgit:grgit-gradle:${BuildPluginsVersion.GRGIT_PLUGIN}")
 
+    testImplementation(kotlin("test-junit5"))
     testImplementation(TestingLib.JUNIT)
-    testImplementation("com.android.tools.build:gradle:${BuildPluginsVersion.ANDROID_PLUGIN}")
-    testImplementation("com.google.firebase:firebase-appdistribution-gradle:${BuildPluginsVersion.APP_DISTRIBUTION_PLUGIN}")
+    testImplementation(gradleTestKit())
 
     kapt("com.squareup.moshi:moshi-kotlin-codegen:${BuildPluginsVersion.MOSHI}")
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
 }
 
 gradlePlugin {
@@ -76,4 +79,10 @@ tasks.create("setupPluginUploadFromEnvironment") {
         System.setProperty("gradle.publish.key", key)
         System.setProperty("gradle.publish.secret", secret)
     }
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform()
+    testLogging.showStandardStreams = true
+    testLogging.events(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
 }

@@ -1,5 +1,5 @@
 object Versions {
-    const val JUNIT = "4.13.2"
+    const val JUNIT = "5.7.1"
 }
 
 object BuildPluginsVersion {
@@ -17,5 +17,5 @@ object BuildPluginsVersion {
 }
 
 object TestingLib {
-    const val JUNIT = "junit:junit:${Versions.JUNIT}"
+    const val JUNIT = "org.junit.jupiter:junit-jupiter:${Versions.JUNIT}"
 }
