@@ -42,9 +42,9 @@ abstract class GenerateChangelogWork @Inject constructor() : WorkAction<Generate
             ?.ellipsizeAt(MAX_CHANGELOG_SYMBOLS)
         val changelogOutput = parameters.changelogFile.asFile.get()
         if (changelog.isNullOrBlank()) {
-            logger.debug("changelog not generated")
+            logger.info("changelog not generated")
         } else {
-            logger.debug("generate changelog")
+            logger.info("generate changelog")
             changelogOutput.writeText(changelog)
         }
     }

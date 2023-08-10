@@ -42,23 +42,23 @@ abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
         val testerGroups = parameters.testerGroups.get()
         val changelogFile = parameters.changelogFile.asFile.get()
 
-        logger.debug("Step 1/7: Prepare upload")
+        logger.info("Step 1/7: Prepare upload")
         val prepareResponse = uploader.prepareRelease(
             buildVersion = parameters.buildName.get(),
             buildNumber = parameters.buildNumber.get()
         )
         uploader.initUploadApi(prepareResponse.upload_domain ?: "https://file.appcenter.ms")
 
-        logger.debug("Step 2/7: Send metadata")
+        logger.info("Step 2/7: Send metadata")
         val packageAssetId = prepareResponse.package_asset_id
         val encodedToken = prepareResponse.url_encoded_token
         val metaResponse = uploader.sendMetaData(outputFile, packageAssetId, encodedToken)
 
         // See NOTE_CHUNKS_UPLOAD_LOOP
-        logger.debug("Step 3/7: Upload apk file chunks")
+        logger.info("Step 3/7: Upload apk file chunks")
         metaResponse.chunk_list.forEachIndexed { i, chunkNumber ->
             val range = (i * metaResponse.chunk_size)..((i + 1) * metaResponse.chunk_size)
-            logger.debug("Step 3/7 : Upload chunk ${i + 1}/${metaResponse.chunk_list.size}")
+            logger.info("Step 3/7 : Upload chunk ${i + 1}/${metaResponse.chunk_list.size}")
             uploader.uploadChunk(
                 packageAssetId = packageAssetId,
                 encodedToken = encodedToken,
@@ -67,13 +67,13 @@ abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
             )
         }
 
-        logger.debug("Step 4/7: Finish upload")
+        logger.info("Step 4/7: Finish upload")
         uploader.sendUploadIsFinished(packageAssetId, encodedToken)
 
-        logger.debug("Step 5/7: Commit uploaded release")
+        logger.info("Step 5/7: Commit uploaded release")
         uploader.commit(prepareResponse.id)
 
-        logger.debug("Step 6/7: Fetching for release to be ready to publish")
+        logger.info("Step 6/7: Fetching for release to be ready to publish")
         val publishResponse = uploader
             .waitingReadyToBePublished(
                 preparedUploadId = prepareResponse.id,
@@ -81,7 +81,7 @@ abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
                     ?: MAX_REQUEST_COUNT,
                 requestDelayMs = requestDelayMs(parameters, outputFile.length()),
             )
-        logger.debug("Step 7/7: Distribute to the app testers: $testerGroups")
+        logger.info("Step 7/7: Distribute to the app testers: $testerGroups")
         val releaseId = publishResponse.release_distinct_id
         if (releaseId != null) {
             uploader.distribute(releaseId, testerGroups, changelogFile.readText())
@@ -92,7 +92,7 @@ abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
                     "field 'release_distinct_id' is null, cannot execute 'distribute' request"
             )
         }
-        logger.debug("upload done")
+        logger.info("upload done")
     }
 
     private fun requestDelayMs(params: AppCenterUploadParameters, fileSizeBytes: Long): Long {

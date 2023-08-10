@@ -25,7 +25,7 @@ internal class SlackUploader(logger: Logger, token: String) {
         .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
         .addInterceptor(AttachTokenInterceptor(token))
         .apply {
-            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.debug(message) }
+            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
             loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
             addNetworkInterceptor(loggingInterceptor)
         }

@@ -6,6 +6,7 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.task.slack.changelog.entity.SlackChangelogBody
 import ru.kode.android.build.publish.plugin.task.slack.changelog.sender.SlackWebhookSender
+import ru.kode.android.build.publish.plugin.util.ellipsizeAt
 import javax.inject.Inject
 
 interface SendSlackChangelogParameters : WorkParameters {
@@ -40,12 +41,18 @@ abstract class SendSlackChangelogWork @Inject constructor() : WorkAction<SendSla
                             appendLine()
                             appendLine()
                             append(parameters.changelog.get())
-                        }
+                        }.also {
+                            if (it.length > MAX_CHANGELOG_SYMBOLS) {
+                                logger.info("changelog has more than $MAX_CHANGELOG_SYMBOLS symbols")
+                            }
+                        }.ellipsizeAt(MAX_CHANGELOG_SYMBOLS)
                     )
                 )
             )
         )
         webhookSender.send(parameters.webhookUrl.get(), body)
-        logger.debug("changelog sent to Slack")
+        logger.info("changelog sent to Slack")
     }
 }
+
+private const val MAX_CHANGELOG_SYMBOLS = 3000

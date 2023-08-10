@@ -103,7 +103,7 @@ abstract class JiraAutomationTask @Inject constructor(
             .mapTo(mutableSetOf()) { it.groupValues[0] }
 
         if (issues.isEmpty()) {
-            logger.warn("issues not found in the changelog, nothing will change")
+            logger.info("issues not found in the changelog, nothing will change")
         } else {
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submitUpdateLabelIfPresent(currentBuildTag, issues)
