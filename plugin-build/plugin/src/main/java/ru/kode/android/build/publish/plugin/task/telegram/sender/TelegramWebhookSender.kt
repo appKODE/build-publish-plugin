@@ -18,7 +18,7 @@ internal class TelegramWebhookSender(
         .readTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
         .writeTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
         .apply {
-            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.debug(message) }
+            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
             loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
             addNetworkInterceptor(loggingInterceptor)
         }
@@ -37,7 +37,7 @@ internal class TelegramWebhookSender(
      * Sends url formatted data to webhook at [webhookUrl]
      */
     fun send(webhookUrl: String) {
-        logger.debug("sending changelog to $webhookUrl")
+        logger.info("sending changelog to $webhookUrl")
         api.send(webhookUrl).executeOrThrow()
     }
 }

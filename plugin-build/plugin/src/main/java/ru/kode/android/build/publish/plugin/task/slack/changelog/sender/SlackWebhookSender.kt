@@ -19,7 +19,7 @@ internal class SlackWebhookSender(
         .readTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
         .writeTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
         .apply {
-            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.debug(message) }
+            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
             loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
             addNetworkInterceptor(loggingInterceptor)
         }
@@ -38,7 +38,7 @@ internal class SlackWebhookSender(
      * Sends [changelogBody] to a webhook at [webhookUrl]
      */
     fun send(webhookUrl: String, changelogBody: SlackChangelogBody) {
-        logger.debug("sending $changelogBody to $webhookUrl")
+        logger.info("sending $changelogBody to $webhookUrl")
         api.send(webhookUrl, changelogBody).executeOrThrow()
     }
 }

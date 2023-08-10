@@ -46,6 +46,6 @@ abstract class SendSlackChangelogWork @Inject constructor() : WorkAction<SendSla
             )
         )
         webhookSender.send(parameters.webhookUrl.get(), body)
-        logger.debug("changelog sent to Slack")
+        logger.info("changelog sent to Slack")
     }
 }

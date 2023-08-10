@@ -29,7 +29,7 @@ internal class JiraService(
         .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
         .addInterceptor(AttachTokenInterceptor(username, password))
         .apply {
-            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.debug(message) }
+            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
             loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
             addNetworkInterceptor(loggingInterceptor)
         }

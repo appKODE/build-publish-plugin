@@ -28,10 +28,10 @@ abstract class GenerateTagWork @Inject constructor() : WorkAction<GenerateTagPar
         val tagBuildOutput = parameters.tagBuildFile.asFile.get()
 
         if (buildTag != null) {
-            logger.debug("last tag ${buildTag.name}, build number ${buildTag.buildNumber}")
+            logger.info("last tag ${buildTag.name}, build number ${buildTag.buildNumber}")
             tagBuildOutput.writeText(buildTag.toJson())
         } else {
-            logger.debug("build tag not created")
+            logger.info("build tag not created")
         }
     }
 }

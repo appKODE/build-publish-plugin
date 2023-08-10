@@ -45,7 +45,7 @@ abstract class SendTelegramChangelogWork @Inject constructor() : WorkAction<Send
             URLEncoder.encode(message, "utf-8")
         )
         webhookSender.send(url)
-        logger.debug("changelog sent to Telegram")
+        logger.info("changelog sent to Telegram")
     }
 }
 

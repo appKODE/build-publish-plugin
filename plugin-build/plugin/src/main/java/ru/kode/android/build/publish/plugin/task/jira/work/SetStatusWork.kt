@@ -33,7 +33,7 @@ abstract class SetStatusWork : WorkAction<SetStatusParameters> {
             try {
                 service.setStatus(issue, parameters.statusTransitionId.get())
             } catch (ex: UploadException) {
-                logger.warn("set status failed for issue $issue, error is ignored", ex)
+                logger.info("set status failed for issue $issue, error is ignored", ex)
             }
         }
     }
