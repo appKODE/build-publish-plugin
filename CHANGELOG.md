@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0-alpha19
+* Add logic to ellipsize slack changelog
+* Replace debug and warn logs to info
+
 ## 1.1.0-alpha18
 * Add sorting by build number to correctly detekt last tag
 
