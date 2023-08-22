@@ -7,6 +7,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
@@ -66,6 +67,11 @@ abstract class SendTelegramChangelogTask @Inject constructor(
     abstract val chatId: Property<String>
 
     @get:Input
+    @get:Optional
+    @get:Option(option = "topicId", description = "Unique identifier for the target message thread")
+    abstract val topicId: Property<String>
+
+    @get:Input
     @get:Option(option = "userMentions", description = "User tags to mention in chat")
     abstract val userMentions: SetProperty<String>
 
@@ -93,6 +99,7 @@ abstract class SendTelegramChangelogTask @Inject constructor(
                 parameters.escapedCharacters.set(escapedCharacters)
                 parameters.botId.set(botId)
                 parameters.chatId.set(chatId)
+                parameters.topicId.set(topicId)
             }
         }
     }
