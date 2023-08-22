@@ -17,6 +17,7 @@ interface SendTelegramChangelogParameters : WorkParameters {
     val escapedCharacters: Property<String>
     val botId: Property<String>
     val chatId: Property<String>
+    val topicId: Property<String>
 }
 
 abstract class SendTelegramChangelogWork @Inject constructor() : WorkAction<SendTelegramChangelogParameters> {
@@ -39,11 +40,22 @@ abstract class SendTelegramChangelogWork @Inject constructor() : WorkAction<Send
             appendLine()
             append(parameters.changelog.get())
         }.formatChangelog()
-        val url = parameters.webhookUrl.get().format(
-            parameters.botId.get(),
-            parameters.chatId.get(),
-            URLEncoder.encode(message, "utf-8")
-        )
+
+        val topicId = parameters.topicId.orNull
+        val url = if (topicId?.isEmpty() == true) {
+            parameters.webhookUrl.get().format(
+                parameters.botId.get(),
+                parameters.chatId.get(),
+                URLEncoder.encode(message, "utf-8")
+            )
+        } else {
+            parameters.webhookUrl.get().format(
+                parameters.botId.get(),
+                parameters.chatId.get(),
+                parameters.topicId.get(),
+                URLEncoder.encode(message, "utf-8")
+            )
+        }
         webhookSender.send(url)
         logger.info("changelog sent to Telegram")
     }

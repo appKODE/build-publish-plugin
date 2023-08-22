@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.0-alpha20
+* Add optional topic id for Telegram webhook
+
 ## 1.1.0-alpha19
 * Add logic to ellipsize slack changelog
 * Replace debug and warn logs to info

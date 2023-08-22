@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.extension.config
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 interface TelegramConfig {
     val name: String
@@ -25,6 +26,13 @@ interface TelegramConfig {
      */
     @get:Input
     val chatId: Property<String>
+
+    /**
+     * Unique identifier for the target message thread
+     */
+    @get:Input
+    @get:Optional
+    val topicId: Property<String>
 
     /**
      * List of mentioning users for Slack, can be empty or null

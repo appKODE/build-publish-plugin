@@ -345,6 +345,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.webhookUrl.set(telegramConfig.webhookUrl)
             it.botId.set(telegramConfig.botId)
             it.chatId.set(telegramConfig.chatId)
+            it.topicId.set(telegramConfig.topicId)
             it.userMentions.set(telegramConfig.userMentions)
         }
     }
