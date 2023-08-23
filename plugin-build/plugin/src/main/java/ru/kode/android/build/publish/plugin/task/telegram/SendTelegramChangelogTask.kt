@@ -55,10 +55,6 @@ abstract class SendTelegramChangelogTask @Inject constructor(
     abstract val issueNumberPattern: Property<String>
 
     @get:Input
-    @get:Option(option = "webhookUrl", description = "Webhook url to send changelog")
-    abstract val webhookUrl: Property<String>
-
-    @get:Input
     @get:Option(option = "botId", description = "Bot id where webhook posted")
     abstract val botId: Property<String>
 
@@ -94,7 +90,6 @@ abstract class SendTelegramChangelogTask @Inject constructor(
                 parameters.baseOutputFileName.set(baseOutputFileName)
                 parameters.buildName.set(currentBuildTag.name)
                 parameters.changelog.set(changelogWithIssues)
-                parameters.webhookUrl.set(webhookUrl)
                 parameters.userMentions.set(userMentions)
                 parameters.escapedCharacters.set(escapedCharacters)
                 parameters.botId.set(botId)

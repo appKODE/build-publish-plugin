@@ -104,15 +104,15 @@ buildPublish {
      * Config for Telegram changelog sender
      *
      * For example:
-     *  webhook_url: "https://api.telegram.org/%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2"
      *  bot_id: "TELEGRAM_BUILD_BOT_ID"
      *  chat_id: "CHAT_ID"
+     *  topic_id: "OPTIONAL_TOPIC_ID"
      */
     tgConfig.set(
         mapOf(
-            "webhook_url" to "https://api.telegram.org/%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2",
             "bot_id" to "TELEGRAM_BUILD_BOT_ID",
-            "chat_id" to "CHAT_ID"
+            "chat_id" to "CHAT_ID",
+            "topic_id" to "OPTIONAL_TOPIC_ID"
         )
     )
 

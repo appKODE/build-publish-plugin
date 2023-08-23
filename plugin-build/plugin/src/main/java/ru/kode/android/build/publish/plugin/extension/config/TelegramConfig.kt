@@ -9,13 +9,6 @@ interface TelegramConfig {
     val name: String
 
     /**
-     * Telegram bot webhook url
-     * For example: https://api.telegram.org/%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2
-     */
-    @get:Input
-    val webhookUrl: Property<String>
-
-    /**
      * Telegram bot id to post changelog in chat
      */
     @get:Input
@@ -29,6 +22,7 @@ interface TelegramConfig {
 
     /**
      * Unique identifier for the target message thread
+     * Represents "message_thread_id"
      */
     @get:Input
     @get:Optional
