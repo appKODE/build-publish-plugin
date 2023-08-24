@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0-alpha21
+* Remove Telegram webhookUrl from TelegramConfig to hide it inside plugin
+* Refactor Slack send request on attachment to correctly send long changelog 
+
 ## 1.1.0-alpha20
 * Add optional topic id for Telegram webhook
 
