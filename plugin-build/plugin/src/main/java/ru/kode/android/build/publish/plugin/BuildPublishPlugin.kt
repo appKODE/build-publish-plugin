@@ -342,7 +342,6 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.issueUrlPrefix.set(changelogConfig.issueUrlPrefix)
             it.issueNumberPattern.set(changelogConfig.issueNumberPattern)
             it.baseOutputFileName.set(outputConfig.baseFileName)
-            it.webhookUrl.set(telegramConfig.webhookUrl)
             it.botId.set(telegramConfig.botId)
             it.chatId.set(telegramConfig.chatId)
             it.topicId.set(telegramConfig.topicId)

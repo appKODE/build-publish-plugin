@@ -12,7 +12,6 @@ interface SendTelegramChangelogParameters : WorkParameters {
     val baseOutputFileName: Property<String>
     val buildName: Property<String>
     val changelog: Property<String>
-    val webhookUrl: Property<String>
     val userMentions: Property<String>
     val escapedCharacters: Property<String>
     val botId: Property<String>
@@ -42,14 +41,14 @@ abstract class SendTelegramChangelogWork @Inject constructor() : WorkAction<Send
         }.formatChangelog()
 
         val topicId = parameters.topicId.orNull
-        val url = if (topicId?.isEmpty() == true) {
-            parameters.webhookUrl.get().format(
+        val url = if (topicId.isNullOrEmpty()) {
+            SEND_MESSAGE_TO_CHAT_WEB_HOOK.format(
                 parameters.botId.get(),
                 parameters.chatId.get(),
                 URLEncoder.encode(message, "utf-8")
             )
         } else {
-            parameters.webhookUrl.get().format(
+            SEND_MESSAGE_TO_TOPIC_WEB_HOOK.format(
                 parameters.botId.get(),
                 parameters.chatId.get(),
                 parameters.topicId.get(),
@@ -65,3 +64,8 @@ private fun String.formatChangelog(): String {
     return this
         .replace(Regex("(\r\n|\n)"), "\n")
 }
+
+private const val SEND_MESSAGE_TO_CHAT_WEB_HOOK =
+    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2"
+private const val SEND_MESSAGE_TO_TOPIC_WEB_HOOK =
+    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2"
