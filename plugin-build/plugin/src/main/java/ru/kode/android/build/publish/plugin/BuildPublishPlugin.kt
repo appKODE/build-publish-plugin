@@ -370,6 +370,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.webhookUrl.set(slackConfig.webhookUrl)
             it.iconUrl.set(slackConfig.iconUrl)
             it.userMentions.set(slackConfig.userMentions)
+            it.attachmentColor.set(slackConfig.attachmentColor)
         }
     }
 

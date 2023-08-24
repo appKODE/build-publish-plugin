@@ -32,6 +32,13 @@ interface SlackConfig {
     val userMentions: SetProperty<String>
 
     /**
+     * Attachment's vertical line color in hex format
+     * For example: #ffffff
+     */
+    @get:Input
+    val attachmentColor: Property<String>
+
+    /**
      * Api token file to upload files in slack
      */
     @get:Optional

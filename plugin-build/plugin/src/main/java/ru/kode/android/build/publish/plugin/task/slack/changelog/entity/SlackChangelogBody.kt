@@ -7,8 +7,15 @@ import com.squareup.moshi.JsonClass
 internal data class SlackChangelogBody(
     val icon_url: String,
     val username: String,
-    val blocks: List<Block>
+    val blocks: List<Block>,
+    val attachments: List<Attachment>,
 ) {
+    @JsonClass(generateAdapter = true)
+    data class Attachment(
+        val color: String,
+        val blocks: List<Block>,
+    )
+
     @JsonClass(generateAdapter = true)
     data class Block(
         val type: String,

@@ -6,7 +6,6 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.task.slack.changelog.entity.SlackChangelogBody
 import ru.kode.android.build.publish.plugin.task.slack.changelog.sender.SlackWebhookSender
-import ru.kode.android.build.publish.plugin.util.ellipsizeAt
 import javax.inject.Inject
 
 interface SendSlackChangelogParameters : WorkParameters {
@@ -16,6 +15,7 @@ interface SendSlackChangelogParameters : WorkParameters {
     val webhookUrl: Property<String>
     val userMentions: Property<String>
     val iconUrl: Property<String>
+    val attachmentColor: Property<String>
 }
 
 abstract class SendSlackChangelogWork @Inject constructor() : WorkAction<SendSlackChangelogParameters> {
@@ -26,33 +26,47 @@ abstract class SendSlackChangelogWork @Inject constructor() : WorkAction<SendSla
     override fun execute() {
         val baseOutputFileName = parameters.baseOutputFileName.get()
         val buildName = parameters.buildName.get()
+        val changelogMessages = parameters.changelog.get()
+            .split("\n")
+            .filter { it.isNotBlank() }
         val body = SlackChangelogBody(
             icon_url = parameters.iconUrl.get(),
             username = "buildBot",
-            blocks = listOf(
-                SlackChangelogBody.Block(
-                    type = "section",
-                    text = SlackChangelogBody.Text(
-                        type = "mrkdwn",
-                        text = buildString {
-                            append("*$baseOutputFileName $buildName*")
-                            append(" ")
-                            append(parameters.userMentions.get())
-                            appendLine()
-                            appendLine()
-                            append(parameters.changelog.get())
-                        }.also {
-                            if (it.length > MAX_CHANGELOG_SYMBOLS) {
-                                logger.info("changelog has more than $MAX_CHANGELOG_SYMBOLS symbols")
-                            }
-                        }.ellipsizeAt(MAX_CHANGELOG_SYMBOLS)
-                    )
+            blocks = listOf(buildHeaderBlock("$baseOutputFileName $buildName")),
+            attachments = listOf(
+                SlackChangelogBody.Attachment(
+                    color = parameters.attachmentColor.get(),
+                    blocks = listOf(buildSectionBlock(parameters.userMentions.get()))
+                        .plus(changelogMessages.map { buildSectionBlock(it) }),
                 )
             )
         )
         webhookSender.send(parameters.webhookUrl.get(), body)
         logger.info("changelog sent to Slack")
     }
+
+    private fun buildHeaderBlock(text: String): SlackChangelogBody.Block {
+        return SlackChangelogBody.Block(
+            type = BLOCK_TYPE_HEADER,
+            text = SlackChangelogBody.Text(
+                type = TEXT_TYPE_PLAIN_TEXT, // header can have plain_text type only
+                text = text,
+            ),
+        )
+    }
+
+    private fun buildSectionBlock(text: String, textType: String = TEXT_TYPE_MARKDOWN): SlackChangelogBody.Block {
+        return SlackChangelogBody.Block(
+            type = BLOCK_TYPE_SECTION,
+            text = SlackChangelogBody.Text(
+                type = textType,
+                text = text,
+            ),
+        )
+    }
 }
 
-private const val MAX_CHANGELOG_SYMBOLS = 3000
+private const val BLOCK_TYPE_HEADER = "header"
+private const val BLOCK_TYPE_SECTION = "section"
+private const val TEXT_TYPE_MARKDOWN = "mrkdwn"
+private const val TEXT_TYPE_PLAIN_TEXT = "plain_text"

@@ -10,7 +10,6 @@ import ru.kode.android.build.publish.plugin.command.GitCommandExecutor
 import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
 import ru.kode.android.build.publish.plugin.task.changelog.git.ChangelogBuilder
 import ru.kode.android.build.publish.plugin.task.changelog.git.GitRepository
-import ru.kode.android.build.publish.plugin.util.ellipsizeAt
 import javax.inject.Inject
 
 interface GenerateChangelogParameters : WorkParameters {
@@ -39,7 +38,6 @@ abstract class GenerateChangelogWork @Inject constructor() : WorkAction<Generate
                     "No changes in comparison with a previous build $previousBuildName"
                 }
             )
-            ?.ellipsizeAt(MAX_CHANGELOG_SYMBOLS)
         val changelogOutput = parameters.changelogFile.asFile.get()
         if (changelog.isNullOrBlank()) {
             logger.info("changelog not generated")
@@ -49,5 +47,3 @@ abstract class GenerateChangelogWork @Inject constructor() : WorkAction<Generate
         }
     }
 }
-
-private const val MAX_CHANGELOG_SYMBOLS = 2000
