@@ -65,6 +65,10 @@ abstract class SendSlackChangelogTask @Inject constructor(
     @get:Option(option = "userMentions", description = "List of mentioning users for Slack")
     abstract val userMentions: SetProperty<String>
 
+    @get:Input
+    @get:Option(option = "attachmentColor", description = "Attachment's vertical line color in hex format")
+    abstract val attachmentColor: Property<String>
+
     @TaskAction
     fun sendChangelog() {
         val currentBuildTag = fromJson(tagBuildFile.asFile.get())
@@ -84,6 +88,7 @@ abstract class SendSlackChangelogTask @Inject constructor(
                 parameters.buildName.set(currentBuildTag.name)
                 parameters.changelog.set(changelogWithIssues)
                 parameters.userMentions.set(userMentions)
+                parameters.attachmentColor.set(attachmentColor)
             }
         }
     }

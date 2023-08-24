@@ -35,8 +35,7 @@ internal class ChangelogBuilder(
         val messageBuilder = StringBuilder().apply {
             val annotatedTagMessage = this@buildChangelog.currentBuildTag.message
             if (annotatedTagMessage != null) {
-                appendLine(annotatedTagMessage)
-                appendLine()
+                appendLine("*$annotatedTagMessage*")
             }
         }
 
