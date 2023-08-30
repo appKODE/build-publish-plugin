@@ -66,6 +66,7 @@ private fun String.formatChangelog(): String {
 }
 
 private const val SEND_MESSAGE_TO_CHAT_WEB_HOOK =
-    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2"
+    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2&disable_web_page_preview=true"
 private const val SEND_MESSAGE_TO_TOPIC_WEB_HOOK =
-    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2"
+    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2" +
+        "&disable_web_page_preview=true"
