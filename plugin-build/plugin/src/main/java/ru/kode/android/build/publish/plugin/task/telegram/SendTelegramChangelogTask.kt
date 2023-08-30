@@ -104,19 +104,17 @@ abstract class SendTelegramChangelogTask @Inject constructor(
         val issueNumberPattern = issueNumberPattern.get()
         val issueRegexp = issueNumberPattern.toRegex()
 
-        return this.split(" ")
-            .joinToString(separator = " ") { substring ->
-                val matchResult = issueRegexp.find(substring)
+        val matchResults = issueRegexp.findAll(this)
+        var out = this.escapeCharacters(escapedCharacters)
 
-                if (matchResult != null) {
-                    val url = (issueUrlPrefix + matchResult.value)
-                        .escapeCharacters(escapedCharacters)
-                    val issueId = matchResult.value.escapeCharacters(escapedCharacters)
-                    "[$issueId]($url)"
-                } else {
-                    substring.escapeCharacters(escapedCharacters)
-                }
-            }
+        matchResults.forEach { matchResult ->
+            val formattedResult = matchResult.value.escapeCharacters(escapedCharacters)
+            val url = (issueUrlPrefix + matchResult.value).escapeCharacters(escapedCharacters)
+            val issueId = matchResult.value.escapeCharacters(escapedCharacters)
+            val link = "[$issueId]($url)"
+            out = out.replace(formattedResult, link)
+        }
+        return out
     }
 
     private fun String.escapeCharacters(escapedCharacters: String): String {
