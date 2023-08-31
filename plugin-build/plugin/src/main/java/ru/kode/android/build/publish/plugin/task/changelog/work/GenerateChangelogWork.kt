@@ -34,8 +34,8 @@ abstract class GenerateChangelogWork @Inject constructor() : WorkAction<Generate
             .buildForBuildTag(
                 currentBuildTag,
                 defaultValueSupplier = { tagRange ->
-                    val previousBuildName = tagRange.previousBuildTag?.name?.let { "(**$it**)" }
-                    "No changes in comparison with a previous build $previousBuildName"
+                    val previousBuildName = tagRange.previousBuildTag?.name?.let { "($it)" }
+                    "No changes compared to the previous build $previousBuildName"
                 }
             )
         val changelogOutput = parameters.changelogFile.asFile.get()
