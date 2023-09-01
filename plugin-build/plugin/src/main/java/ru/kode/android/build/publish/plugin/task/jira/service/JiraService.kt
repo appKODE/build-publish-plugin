@@ -13,6 +13,7 @@ import ru.kode.android.build.publish.plugin.task.jira.entity.AddFixVersionReques
 import ru.kode.android.build.publish.plugin.task.jira.entity.AddLabelRequest
 import ru.kode.android.build.publish.plugin.task.jira.entity.CreateVersionRequest
 import ru.kode.android.build.publish.plugin.task.jira.entity.SetStatusRequest
+import ru.kode.android.build.publish.plugin.util.executeOptionalOrLogError
 import ru.kode.android.build.publish.plugin.util.executeOptionalOrThrow
 import java.util.concurrent.TimeUnit
 
@@ -54,7 +55,7 @@ internal class JiraService(
                 id = statusTransitionId
             )
         )
-        api.setStatus(issue, request).executeOptionalOrThrow()
+        api.setStatus(issue, request).executeOptionalOrLogError()
     }
 
     fun addLabel(issue: String, label: String) {
@@ -63,7 +64,7 @@ internal class JiraService(
                 labels = listOf(AddLabelRequest.Label(label))
             )
         )
-        api.addLabel(issue, request).executeOptionalOrThrow()
+        api.addLabel(issue, request).executeOptionalOrLogError()
     }
 
     fun createVersion(projectId: Long, version: String) {
@@ -71,7 +72,7 @@ internal class JiraService(
             name = version,
             projectId = projectId,
         )
-        api.createVersion(request).executeOptionalOrThrow()
+        api.createVersion(request).executeOptionalOrLogError()
     }
 
     fun addFixVersion(issue: String, version: String) {
@@ -86,7 +87,7 @@ internal class JiraService(
                 )
             )
         )
-        api.addFixVersion(issue, request).executeOptionalOrThrow()
+        api.addFixVersion(issue, request).executeOptionalOrLogError()
     }
 }
 
