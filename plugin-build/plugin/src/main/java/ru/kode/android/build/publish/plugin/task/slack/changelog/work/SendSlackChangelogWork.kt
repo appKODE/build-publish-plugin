@@ -6,6 +6,7 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.task.slack.changelog.entity.SlackChangelogBody
 import ru.kode.android.build.publish.plugin.task.slack.changelog.sender.SlackWebhookSender
+import ru.kode.android.build.publish.plugin.util.ellipsizeAt
 import javax.inject.Inject
 
 interface SendSlackChangelogParameters : WorkParameters {
@@ -50,7 +51,11 @@ abstract class SendSlackChangelogWork @Inject constructor() : WorkAction<SendSla
             type = BLOCK_TYPE_HEADER,
             text = SlackChangelogBody.Text(
                 type = TEXT_TYPE_PLAIN_TEXT, // header can have plain_text type only
-                text = text,
+                text = text.also {
+                    if (it.length > MAX_BLOCK_SYMBOLS) {
+                        logger.info("Header text has more than $MAX_BLOCK_SYMBOLS symbols")
+                    }
+                }.ellipsizeAt(MAX_BLOCK_SYMBOLS),
             ),
         )
     }
@@ -60,7 +65,11 @@ abstract class SendSlackChangelogWork @Inject constructor() : WorkAction<SendSla
             type = BLOCK_TYPE_SECTION,
             text = SlackChangelogBody.Text(
                 type = textType,
-                text = text,
+                text = text.also {
+                    if (it.length > MAX_BLOCK_SYMBOLS) {
+                        logger.info("Block text has more than $MAX_BLOCK_SYMBOLS symbols")
+                    }
+                }.ellipsizeAt(MAX_BLOCK_SYMBOLS),
             ),
         )
     }
@@ -70,3 +79,5 @@ private const val BLOCK_TYPE_HEADER = "header"
 private const val BLOCK_TYPE_SECTION = "section"
 private const val TEXT_TYPE_MARKDOWN = "mrkdwn"
 private const val TEXT_TYPE_PLAIN_TEXT = "plain_text"
+
+private const val MAX_BLOCK_SYMBOLS = 3000
