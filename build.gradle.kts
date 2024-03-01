@@ -1,14 +1,15 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.gitlab.arturbosch.detekt.Detekt
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    kotlin("jvm") version BuildPluginsVersion.KOTLIN apply false
-    id("io.gitlab.arturbosch.detekt") version BuildPluginsVersion.DETEKT
-    id("org.jlleitschuh.gradle.ktlint") version BuildPluginsVersion.KTLINT
-    id("com.github.ben-manes.versions") version BuildPluginsVersion.VERSIONS_PLUGIN
-    id("com.android.application") version BuildPluginsVersion.ANDROID_PLUGIN apply false
-    id("com.google.firebase.appdistribution") version BuildPluginsVersion.APP_DISTRIBUTION_PLUGIN apply false
-    id("org.ajoberstar.grgit") version BuildPluginsVersion.GRGIT_PLUGIN apply false
+    alias(libs.plugins.kotlin) apply false
+    alias(libs.plugins.detekt) apply true
+    alias(libs.plugins.ktlint) apply true
+    alias(libs.plugins.versionsManes) apply false
+    alias(libs.plugins.agp) apply false
+    alias(libs.plugins.firebaseAppdistribution) apply false
+    alias(libs.plugins.grgit) apply false
 }
 
 allprojects {

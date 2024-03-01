@@ -8,21 +8,20 @@ plugins {
 dependencies {
     implementation(kotlin("stdlib-jdk7"))
     implementation(gradleApi())
-    implementation("com.android.tools.build:gradle:${BuildPluginsVersion.ANDROID_PLUGIN}")
-    implementation("com.google.firebase:firebase-appdistribution-gradle:${BuildPluginsVersion.APP_DISTRIBUTION_PLUGIN}")
-    implementation("com.squareup.okhttp3:okhttp:${BuildPluginsVersion.OK_HTTP}")
-    implementation("com.squareup.okhttp3:logging-interceptor:${BuildPluginsVersion.OK_HTTP}")
-    implementation("com.squareup.moshi:moshi:${BuildPluginsVersion.MOSHI}")
-    implementation("com.squareup.retrofit2:retrofit:${BuildPluginsVersion.RETROFIT}")
-    implementation("com.squareup.retrofit2:converter-moshi:${BuildPluginsVersion.RETROFIT}")
-    implementation("org.ajoberstar.grgit:grgit-core:${BuildPluginsVersion.GRGIT_PLUGIN}")
-    implementation("org.ajoberstar.grgit:grgit-gradle:${BuildPluginsVersion.GRGIT_PLUGIN}")
+    implementation(libs.agp)
+    implementation(libs.firebaseAppdistribution)
+    implementation(libs.okhttp)
+    implementation(libs.okhttpLogging)
+    implementation(libs.moshi)
+    implementation(libs.retrofit)
+    implementation(libs.retrofitMoshi)
+    implementation(libs.grgitCore)
+    implementation(libs.grgitGradle)
 
-    testImplementation(TestingLib.JUNIT)
-    testImplementation("com.android.tools.build:gradle:${BuildPluginsVersion.ANDROID_PLUGIN}")
-    testImplementation("com.google.firebase:firebase-appdistribution-gradle:${BuildPluginsVersion.APP_DISTRIBUTION_PLUGIN}")
+    testImplementation(libs.junit)
 
-    kapt("com.squareup.moshi:moshi-kotlin-codegen:${BuildPluginsVersion.MOSHI}")
+    // Migrate to ksp
+    kapt(libs.moshiCodgen)
 }
 
 java {

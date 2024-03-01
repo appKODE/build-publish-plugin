@@ -1,12 +1,13 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.gitlab.arturbosch.detekt.Detekt
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    kotlin("jvm") version BuildPluginsVersion.KOTLIN apply false
-    id("com.gradle.plugin-publish") version BuildPluginsVersion.PLUGIN_PUBLISH apply false
-    id("io.gitlab.arturbosch.detekt") version BuildPluginsVersion.DETEKT
-    id("org.jlleitschuh.gradle.ktlint") version BuildPluginsVersion.KTLINT
-    id("com.github.ben-manes.versions") version BuildPluginsVersion.VERSIONS_PLUGIN
+    alias(libs.plugins.kotlin) apply false
+    alias(libs.plugins.publish) apply false
+    alias(libs.plugins.detekt) apply true
+    alias(libs.plugins.ktlint) apply true
+    alias(libs.plugins.versionsManes) apply false
 }
 
 allprojects {
