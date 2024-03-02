@@ -26,6 +26,10 @@ grgitCore = { module = "org.ajoberstar.grgit:grgit-core", version.ref = "grgit" 
 grgitGradle = { module = "org.ajoberstar.grgit:grgit-gradle", version.ref = "grgit" }
 junit = { module = "junit:junit", version.ref = "junit" }
 
+kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+detekt-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+
 [plugins]
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }

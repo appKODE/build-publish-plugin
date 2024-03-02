@@ -2,12 +2,16 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
+        google()
     }
 }
 dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
     repositories {
         gradlePluginPortal()
         mavenCentral()
+        google()
     }
     versionCatalogs {
         create("libs") {
@@ -19,3 +23,4 @@ dependencyResolutionManagement {
 rootProject.name = ("ru.kode.android.build.publish.plugin")
 
 include(":plugin")
+includeBuild("../build-conventions")
