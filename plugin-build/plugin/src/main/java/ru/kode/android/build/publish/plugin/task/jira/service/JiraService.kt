@@ -20,20 +20,20 @@ internal class JiraService(
     logger: Logger,
     baseUrl: String,
     username: String,
-    password: String
+    password: String,
 ) {
-
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
-        .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
-        .addInterceptor(AttachTokenInterceptor(username, password))
-        .apply {
-            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-            addNetworkInterceptor(loggingInterceptor)
-        }
-        .build()
+    private val client =
+        OkHttpClient.Builder()
+            .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
+            .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
+            .addInterceptor(AttachTokenInterceptor(username, password))
+            .apply {
+                val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
+                loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+                addNetworkInterceptor(loggingInterceptor)
+            }
+            .build()
 
     private val moshi = Moshi.Builder().build()
 
@@ -48,44 +48,64 @@ internal class JiraService(
 
     private val api = createApi<JiraApi>("$baseUrl/rest/api/latest/")
 
-    fun setStatus(issue: String, statusTransitionId: String) {
-        val request = SetStatusRequest(
-            transition = SetStatusRequest.Transition(
-                id = statusTransitionId
+    fun setStatus(
+        issue: String,
+        statusTransitionId: String,
+    ) {
+        val request =
+            SetStatusRequest(
+                transition =
+                    SetStatusRequest.Transition(
+                        id = statusTransitionId,
+                    ),
             )
-        )
         api.setStatus(issue, request).executeOptionalOrThrow()
     }
 
-    fun addLabel(issue: String, label: String) {
-        val request = AddLabelRequest(
-            update = AddLabelRequest.Update(
-                labels = listOf(AddLabelRequest.Label(label))
+    fun addLabel(
+        issue: String,
+        label: String,
+    ) {
+        val request =
+            AddLabelRequest(
+                update =
+                    AddLabelRequest.Update(
+                        labels = listOf(AddLabelRequest.Label(label)),
+                    ),
             )
-        )
         api.addLabel(issue, request).executeOptionalOrThrow()
     }
 
-    fun createVersion(projectId: Long, version: String) {
-        val request = CreateVersionRequest(
-            name = version,
-            projectId = projectId,
-        )
+    fun createVersion(
+        projectId: Long,
+        version: String,
+    ) {
+        val request =
+            CreateVersionRequest(
+                name = version,
+                projectId = projectId,
+            )
         api.createVersion(request).executeOptionalOrThrow()
     }
 
-    fun addFixVersion(issue: String, version: String) {
-        val request = AddFixVersionRequest(
-            update = AddFixVersionRequest.Update(
-                fixVersions = listOf(
-                    AddFixVersionRequest.FixVersion(
-                        AddFixVersionRequest.FixVersion.Description(
-                            name = version
-                        )
-                    )
-                )
+    fun addFixVersion(
+        issue: String,
+        version: String,
+    ) {
+        val request =
+            AddFixVersionRequest(
+                update =
+                    AddFixVersionRequest.Update(
+                        fixVersions =
+                            listOf(
+                                AddFixVersionRequest.FixVersion(
+                                    AddFixVersionRequest.FixVersion.Description(
+                                        name = version,
+                                    ),
+                                ),
+                            ),
+                    ),
             )
-        )
         api.addFixVersion(issue, request).executeOptionalOrThrow()
     }
 }
@@ -96,10 +116,11 @@ private class AttachTokenInterceptor(
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
         val originalRequest = chain.request()
-        val newRequest = originalRequest.newBuilder()
-            .addHeader(name = "Content-Type", "application/json")
-            .addHeader(name = "Authorization", Credentials.basic(username, password))
-            .build()
+        val newRequest =
+            originalRequest.newBuilder()
+                .addHeader(name = "Content-Type", "application/json")
+                .addHeader(name = "Authorization", Credentials.basic(username, password))
+                .build()
         return chain.proceed(newRequest)
     }
 }

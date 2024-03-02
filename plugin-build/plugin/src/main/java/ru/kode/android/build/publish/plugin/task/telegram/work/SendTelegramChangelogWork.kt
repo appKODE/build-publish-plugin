@@ -19,46 +19,50 @@ interface SendTelegramChangelogParameters : WorkParameters {
     val topicId: Property<String>
 }
 
-abstract class SendTelegramChangelogWork @Inject constructor() : WorkAction<SendTelegramChangelogParameters> {
+abstract class SendTelegramChangelogWork
+    @Inject
+    constructor() : WorkAction<SendTelegramChangelogParameters> {
+        private val logger = Logging.getLogger(this::class.java)
+        private val webhookSender = TelegramWebhookSender(logger)
 
-    private val logger = Logging.getLogger(this::class.java)
-    private val webhookSender = TelegramWebhookSender(logger)
+        override fun execute() {
+            val baseOutputFileName = parameters.baseOutputFileName.get()
+            val buildName = parameters.buildName.get()
+            val tgUserMentions = parameters.userMentions.get()
+            val escapedHeader =
+                "$baseOutputFileName $buildName"
+                    .replace(parameters.escapedCharacters.get().toRegex()) { result -> "\\${result.value}" }
+            val boldHeader = "*$escapedHeader*"
+            val message =
+                buildString {
+                    append(boldHeader)
+                    appendLine()
+                    append(tgUserMentions)
+                    appendLine()
+                    appendLine()
+                    append(parameters.changelog.get())
+                }.formatChangelog()
 
-    override fun execute() {
-        val baseOutputFileName = parameters.baseOutputFileName.get()
-        val buildName = parameters.buildName.get()
-        val tgUserMentions = parameters.userMentions.get()
-        val escapedHeader = "$baseOutputFileName $buildName"
-            .replace(parameters.escapedCharacters.get().toRegex()) { result -> "\\${result.value}" }
-        val boldHeader = "*$escapedHeader*"
-        val message = buildString {
-            append(boldHeader)
-            appendLine()
-            append(tgUserMentions)
-            appendLine()
-            appendLine()
-            append(parameters.changelog.get())
-        }.formatChangelog()
-
-        val topicId = parameters.topicId.orNull
-        val url = if (topicId.isNullOrEmpty()) {
-            SEND_MESSAGE_TO_CHAT_WEB_HOOK.format(
-                parameters.botId.get(),
-                parameters.chatId.get(),
-                URLEncoder.encode(message, "utf-8")
-            )
-        } else {
-            SEND_MESSAGE_TO_TOPIC_WEB_HOOK.format(
-                parameters.botId.get(),
-                parameters.chatId.get(),
-                parameters.topicId.get(),
-                URLEncoder.encode(message, "utf-8")
-            )
+            val topicId = parameters.topicId.orNull
+            val url =
+                if (topicId.isNullOrEmpty()) {
+                    SEND_MESSAGE_TO_CHAT_WEB_HOOK.format(
+                        parameters.botId.get(),
+                        parameters.chatId.get(),
+                        URLEncoder.encode(message, "utf-8"),
+                    )
+                } else {
+                    SEND_MESSAGE_TO_TOPIC_WEB_HOOK.format(
+                        parameters.botId.get(),
+                        parameters.chatId.get(),
+                        parameters.topicId.get(),
+                        URLEncoder.encode(message, "utf-8"),
+                    )
+                }
+            webhookSender.send(url)
+            logger.info("changelog sent to Telegram")
         }
-        webhookSender.send(url)
-        logger.info("changelog sent to Telegram")
     }
-}
 
 private fun String.formatChangelog(): String {
     return this

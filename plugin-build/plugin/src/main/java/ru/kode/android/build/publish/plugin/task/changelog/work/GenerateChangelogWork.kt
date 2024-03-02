@@ -20,30 +20,32 @@ interface GenerateChangelogParameters : WorkParameters {
     val grgitService: Property<GrgitService>
 }
 
-abstract class GenerateChangelogWork @Inject constructor() : WorkAction<GenerateChangelogParameters> {
+abstract class GenerateChangelogWork
+    @Inject
+    constructor() : WorkAction<GenerateChangelogParameters> {
+        private val logger = Logging.getLogger(this::class.java)
 
-    private val logger = Logging.getLogger(this::class.java)
-
-    override fun execute() {
-        val messageKey = parameters.commitMessageKey.get()
-        val currentBuildTag = fromJson(parameters.tagBuildFile.asFile.get())
-        val buildVariant = parameters.buildVariant.get()
-        val gitCommandExecutor = GitCommandExecutor(parameters.grgitService.get())
-        val gitRepository = GitRepository(gitCommandExecutor, buildVariant)
-        val changelog = ChangelogBuilder(gitRepository, gitCommandExecutor, logger, messageKey)
-            .buildForBuildTag(
-                currentBuildTag,
-                defaultValueSupplier = { tagRange ->
-                    val previousBuildName = tagRange.previousBuildTag?.name?.let { "($it)" }
-                    "No changes compared to the previous build $previousBuildName"
-                }
-            )
-        val changelogOutput = parameters.changelogFile.asFile.get()
-        if (changelog.isNullOrBlank()) {
-            logger.info("changelog not generated")
-        } else {
-            logger.info("generate changelog")
-            changelogOutput.writeText(changelog)
+        override fun execute() {
+            val messageKey = parameters.commitMessageKey.get()
+            val currentBuildTag = fromJson(parameters.tagBuildFile.asFile.get())
+            val buildVariant = parameters.buildVariant.get()
+            val gitCommandExecutor = GitCommandExecutor(parameters.grgitService.get())
+            val gitRepository = GitRepository(gitCommandExecutor, buildVariant)
+            val changelog =
+                ChangelogBuilder(gitRepository, gitCommandExecutor, logger, messageKey)
+                    .buildForBuildTag(
+                        currentBuildTag,
+                        defaultValueSupplier = { tagRange ->
+                            val previousBuildName = tagRange.previousBuildTag?.name?.let { "($it)" }
+                            "No changes compared to the previous build $previousBuildName"
+                        },
+                    )
+            val changelogOutput = parameters.changelogFile.asFile.get()
+            if (changelog.isNullOrBlank()) {
+                logger.info("changelog not generated")
+            } else {
+                logger.info("generate changelog")
+                changelogOutput.writeText(changelog)
+            }
         }
     }
-}

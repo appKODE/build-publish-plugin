@@ -14,30 +14,35 @@ import java.util.concurrent.TimeUnit
 internal class SlackWebhookSender(
     private val logger: Logger,
 ) {
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-        .readTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-        .writeTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-        .apply {
-            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-            addNetworkInterceptor(loggingInterceptor)
-        }
-        .build()
+    private val client =
+        OkHttpClient.Builder()
+            .connectTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .readTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .writeTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .apply {
+                val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
+                loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+                addNetworkInterceptor(loggingInterceptor)
+            }
+            .build()
 
     private val moshi = Moshi.Builder().build()
 
-    private val api = Retrofit.Builder()
-        .baseUrl(STUB_BASE_URL)
-        .client(client)
-        .addConverterFactory(MoshiConverterFactory.create(moshi))
-        .build()
-        .create(SlackWebhookSenderApi::class.java)
+    private val api =
+        Retrofit.Builder()
+            .baseUrl(STUB_BASE_URL)
+            .client(client)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(SlackWebhookSenderApi::class.java)
 
     /**
      * Sends [changelogBody] to a webhook at [webhookUrl]
      */
-    fun send(webhookUrl: String, changelogBody: SlackChangelogBody) {
+    fun send(
+        webhookUrl: String,
+        changelogBody: SlackChangelogBody,
+    ) {
         logger.info("sending $changelogBody to $webhookUrl")
         api.send(webhookUrl, changelogBody).executeOrThrow()
     }

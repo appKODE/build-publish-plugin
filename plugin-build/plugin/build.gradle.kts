@@ -1,67 +1,56 @@
 plugins {
-    kotlin("jvm")
-    id("kotlin-kapt")
+    id("kotlin-convention")
     id("java-gradle-plugin")
     id("com.gradle.plugin-publish")
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk7"))
     implementation(gradleApi())
-    implementation("com.android.tools.build:gradle:${BuildPluginsVersion.ANDROID_PLUGIN}")
-    implementation("com.google.firebase:firebase-appdistribution-gradle:${BuildPluginsVersion.APP_DISTRIBUTION_PLUGIN}")
-    implementation("com.squareup.okhttp3:okhttp:${BuildPluginsVersion.OK_HTTP}")
-    implementation("com.squareup.okhttp3:logging-interceptor:${BuildPluginsVersion.OK_HTTP}")
-    implementation("com.squareup.moshi:moshi:${BuildPluginsVersion.MOSHI}")
-    implementation("com.squareup.retrofit2:retrofit:${BuildPluginsVersion.RETROFIT}")
-    implementation("com.squareup.retrofit2:converter-moshi:${BuildPluginsVersion.RETROFIT}")
-    implementation("org.ajoberstar.grgit:grgit-core:${BuildPluginsVersion.GRGIT_PLUGIN}")
-    implementation("org.ajoberstar.grgit:grgit-gradle:${BuildPluginsVersion.GRGIT_PLUGIN}")
+    implementation(libs.agp)
+    implementation(libs.firebaseAppdistribution)
+    implementation(libs.okhttp)
+    implementation(libs.okhttpLogging)
+    implementation(libs.moshi)
+    implementation(libs.retrofit)
+    implementation(libs.retrofitMoshi)
+    implementation(libs.grgitCore)
+    implementation(libs.grgitGradle)
 
-    testImplementation(TestingLib.JUNIT)
-    testImplementation("com.android.tools.build:gradle:${BuildPluginsVersion.ANDROID_PLUGIN}")
-    testImplementation("com.google.firebase:firebase-appdistribution-gradle:${BuildPluginsVersion.APP_DISTRIBUTION_PLUGIN}")
+    testImplementation(libs.junit)
 
-    kapt("com.squareup.moshi:moshi-kotlin-codegen:${BuildPluginsVersion.MOSHI}")
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    ksp(libs.moshiCodgen)
 }
 
 gradlePlugin {
     plugins {
-        create(PluginCoordinates.ID) {
-            id = PluginCoordinates.ID
-            implementationClass = PluginCoordinates.IMPLEMENTATION_CLASS
-            version = PluginCoordinates.VERSION
+        create("ru.kode.android.build-publish") {
+            id = "ru.kode.android.build-publish"
+            implementationClass = "ru.kode.android.build.publish.plugin.BuildPublishPlugin"
+            version = project.version
         }
     }
 }
 
 // Configuration Block for the Plugin Marker artifact on Plugin Central
 pluginBundle {
-    website = PluginBundle.WEBSITE
-    vcsUrl = PluginBundle.VCS
-    description = PluginBundle.DESCRIPTION
-    tags = PluginBundle.TAGS
+    website = "https://github.com/appKODE/build-publish-plugin"
+    vcsUrl = "https://github.com/appKODE/build-publish-plugin"
+    description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
+    tags = listOf("firebase", "publish", "changelog", "build")
 
     plugins {
-        getByName(PluginCoordinates.ID) {
-            displayName = PluginBundle.DISPLAY_NAME
+        getByName("ru.kode.android.build-publish") {
+            displayName = "Configure project with Firebase App Distribution and changelogs"
         }
     }
 
     mavenCoordinates {
-        groupId = PluginCoordinates.GROUP
-        artifactId = PluginCoordinates.ID.removePrefix("$groupId.")
-        version = PluginCoordinates.VERSION
+        groupId = project.group.toString()
+        artifactId = "ru.kode.android.build-publish".removePrefix("$groupId.")
+        version = project.version.toString()
     }
-}
-
-project.tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.ExperimentalStdlibApi"
 }
 
 tasks.create("setupPluginUploadFromEnvironment") {

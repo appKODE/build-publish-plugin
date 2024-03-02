@@ -17,21 +17,22 @@ interface GenerateTagParameters : WorkParameters {
     val grgitService: Property<GrgitService>
 }
 
-abstract class GenerateTagWork @Inject constructor() : WorkAction<GenerateTagParameters> {
+abstract class GenerateTagWork
+    @Inject
+    constructor() : WorkAction<GenerateTagParameters> {
+        private val logger = Logging.getLogger(this::class.java)
 
-    private val logger = Logging.getLogger(this::class.java)
+        override fun execute() {
+            val buildVariant = parameters.buildVariant.get()
+            val gitCommandExecutor = GitCommandExecutor(parameters.grgitService.get())
+            val buildTag = GitRepository(gitCommandExecutor, buildVariant).findRecentBuildTag()
+            val tagBuildOutput = parameters.tagBuildFile.asFile.get()
 
-    override fun execute() {
-        val buildVariant = parameters.buildVariant.get()
-        val gitCommandExecutor = GitCommandExecutor(parameters.grgitService.get())
-        val buildTag = GitRepository(gitCommandExecutor, buildVariant).findRecentBuildTag()
-        val tagBuildOutput = parameters.tagBuildFile.asFile.get()
-
-        if (buildTag != null) {
-            logger.info("last tag ${buildTag.name}, build number ${buildTag.buildNumber}")
-            tagBuildOutput.writeText(buildTag.toJson())
-        } else {
-            logger.info("build tag not created")
+            if (buildTag != null) {
+                logger.info("last tag ${buildTag.name}, build number ${buildTag.buildNumber}")
+                tagBuildOutput.writeText(buildTag.toJson())
+            } else {
+                logger.info("build tag not created")
+            }
         }
     }
-}

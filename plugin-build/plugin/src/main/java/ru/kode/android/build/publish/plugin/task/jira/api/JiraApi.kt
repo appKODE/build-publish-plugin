@@ -11,7 +11,6 @@ import ru.kode.android.build.publish.plugin.task.jira.entity.CreateVersionReques
 import ru.kode.android.build.publish.plugin.task.jira.entity.SetStatusRequest
 
 internal interface JiraApi {
-
     @POST("version")
     fun createVersion(
         @Body request: CreateVersionRequest,

@@ -13,46 +13,47 @@ import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.task.slack.distribution.work.SlackUploadWork
 import javax.inject.Inject
 
-abstract class SlackDistributionTask @Inject constructor(
-    private val workerExecutor: WorkerExecutor,
-) : DefaultTask() {
+abstract class SlackDistributionTask
+    @Inject
+    constructor(
+        private val workerExecutor: WorkerExecutor,
+    ) : DefaultTask() {
+        init {
+            description = "Task to send apk to Slack"
+            group = BasePlugin.BUILD_GROUP
+        }
 
-    init {
-        description = "Task to send apk to Slack"
-        group = BasePlugin.BUILD_GROUP
-    }
+        @get:InputFile
+        @get:Option(
+            option = "buildVariantOutputFile",
+            description = "Artifact output file (absolute path is expected)",
+        )
+        abstract val buildVariantOutputFile: RegularFileProperty
 
-    @get:InputFile
-    @get:Option(
-        option = "buildVariantOutputFile",
-        description = "Artifact output file (absolute path is expected)"
-    )
-    abstract val buildVariantOutputFile: RegularFileProperty
+        @get:InputFile
+        @get:Option(
+            option = "channels",
+            description = " Api token file to upload files in slack",
+        )
+        abstract val apiTokenFile: RegularFileProperty
 
-    @get:InputFile
-    @get:Option(
-        option = "channels",
-        description = " Api token file to upload files in slack"
-    )
-    abstract val apiTokenFile: RegularFileProperty
+        @get:Option(
+            option = "channels",
+            description = "Public channels where file will be uploaded",
+        )
+        @get:Input
+        abstract val channels: SetProperty<String>
 
-    @get:Option(
-        option = "channels",
-        description = "Public channels where file will be uploaded"
-    )
-    @get:Input
-    abstract val channels: SetProperty<String>
-
-    @TaskAction
-    fun upload() {
-        val outputFile = buildVariantOutputFile.asFile.get()
-        val apiToken = apiTokenFile.asFile.get().readText()
-        val channels = channels.get()
-        val workQueue: WorkQueue = workerExecutor.noIsolation()
-        workQueue.submit(SlackUploadWork::class.java) { parameters ->
-            parameters.apiToken.set(apiToken)
-            parameters.outputFile.set(outputFile)
-            parameters.channels.set(channels)
+        @TaskAction
+        fun upload() {
+            val outputFile = buildVariantOutputFile.asFile.get()
+            val apiToken = apiTokenFile.asFile.get().readText()
+            val channels = channels.get()
+            val workQueue: WorkQueue = workerExecutor.noIsolation()
+            workQueue.submit(SlackUploadWork::class.java) { parameters ->
+                parameters.apiToken.set(apiToken)
+                parameters.outputFile.set(outputFile)
+                parameters.channels.set(channels)
+            }
         }
     }
-}

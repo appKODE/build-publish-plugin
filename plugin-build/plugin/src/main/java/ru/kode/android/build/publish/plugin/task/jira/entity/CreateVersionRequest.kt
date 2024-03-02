@@ -6,5 +6,5 @@ import com.squareup.moshi.JsonClass
 @Suppress("ConstructorParameterNaming") // network model
 data class CreateVersionRequest(
     val name: String,
-    val projectId: Long
+    val projectId: Long,
 )

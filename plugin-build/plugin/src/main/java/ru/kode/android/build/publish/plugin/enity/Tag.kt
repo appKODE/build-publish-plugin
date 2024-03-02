@@ -14,7 +14,7 @@ sealed class Tag {
     data class Generic(
         override val name: String,
         override val commitSha: String,
-        override val message: String?
+        override val message: String?,
     ) : Tag()
 
     data class Build(
@@ -23,7 +23,7 @@ sealed class Tag {
         override val message: String?,
         val buildVersion: String,
         val buildVariant: String,
-        val buildNumber: Int
+        val buildNumber: Int,
     ) : Tag() {
         constructor(tag: Tag, buildVariant: String) : this(
             tag.name,
@@ -31,13 +31,15 @@ sealed class Tag {
             tag.message,
             buildVersion = tag.toBuildVersion(),
             buildVariant = tag.toBuildVariant(buildVariant),
-            buildNumber = tag.toBuildNumber()
+            buildNumber = tag.toBuildNumber(),
         )
     }
 }
 
 private fun Tag.toBuildVariant(buildVariant: String): String {
-    return if (this.name.contains(buildVariant)) buildVariant else {
+    return if (this.name.contains(buildVariant)) {
+        buildVariant
+    } else {
         throw GradleException(
             "No buildVariant for ${this.name}. Available variants: $buildVariant",
         )

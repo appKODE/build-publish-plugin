@@ -22,7 +22,6 @@ internal class ChunkRequestBody(
     private val range: LongRange,
     private val contentType: String = "application/octet-stream",
 ) : RequestBody() {
-
     private val contentLength: Long by lazy {
         (range.last - range.first).coerceAtMost(file.length() - range.first)
     }

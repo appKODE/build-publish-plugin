@@ -9,7 +9,6 @@ import org.gradle.api.tasks.options.Option
 import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
 
 abstract class PrintLastIncreasedTag : DefaultTask() {
-
     init {
         description = "Task to print last increased tag"
         group = BasePlugin.BUILD_GROUP

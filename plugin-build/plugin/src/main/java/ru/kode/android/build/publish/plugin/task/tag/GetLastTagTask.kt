@@ -16,38 +16,39 @@ import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.task.tag.work.GenerateTagWork
 import javax.inject.Inject
 
-abstract class GetLastTagTask @Inject constructor(
-    private val workerExecutor: WorkerExecutor,
-    objectFactory: ObjectFactory,
-) : DefaultTask() {
+abstract class GetLastTagTask
+    @Inject
+    constructor(
+        private val workerExecutor: WorkerExecutor,
+        objectFactory: ObjectFactory,
+    ) : DefaultTask() {
+        private var grgitService: Property<GrgitService>
 
-    private var grgitService: Property<GrgitService>
-
-    init {
-        description = "Get last tag task"
-        group = BasePlugin.BUILD_GROUP
-        grgitService = objectFactory.property(GrgitService::class.java)
-    }
-
-    @Internal
-    fun getGrgitService(): Property<GrgitService> = grgitService
-
-    @get:Input
-    @get:Option(option = "buildVariant", description = "Current build variant")
-    abstract val buildVariant: Property<String>
-
-    @get:OutputFile
-    @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
-    abstract val tagBuildFile: RegularFileProperty
-
-    @TaskAction
-    fun getLastTag() {
-        val workQueue: WorkQueue = workerExecutor.noIsolation()
-        workQueue.submit(GenerateTagWork::class.java) { parameters ->
-            parameters.tagBuildFile.set(tagBuildFile)
-            parameters.buildVariant.set(buildVariant)
-            parameters.grgitService.set(grgitService)
+        init {
+            description = "Get last tag task"
+            group = BasePlugin.BUILD_GROUP
+            grgitService = objectFactory.property(GrgitService::class.java)
         }
-        workQueue.await()
+
+        @Internal
+        fun getGrgitService(): Property<GrgitService> = grgitService
+
+        @get:Input
+        @get:Option(option = "buildVariant", description = "Current build variant")
+        abstract val buildVariant: Property<String>
+
+        @get:OutputFile
+        @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
+        abstract val tagBuildFile: RegularFileProperty
+
+        @TaskAction
+        fun getLastTag() {
+            val workQueue: WorkQueue = workerExecutor.noIsolation()
+            workQueue.submit(GenerateTagWork::class.java) { parameters ->
+                parameters.tagBuildFile.set(tagBuildFile)
+                parameters.buildVariant.set(buildVariant)
+                parameters.grgitService.set(grgitService)
+            }
+            workQueue.await()
+        }
     }
-}

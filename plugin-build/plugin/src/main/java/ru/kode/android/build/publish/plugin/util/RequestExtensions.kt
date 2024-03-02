@@ -24,4 +24,5 @@ fun <T> Response<T>.successOrThrow() =
     }
 
 internal class UploadStreamTimeoutException : Throwable()
+
 internal class UploadException(override val message: String) : Throwable(message)

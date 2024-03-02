@@ -17,17 +17,17 @@ interface AddFixVersionParameters : WorkParameters {
 }
 
 abstract class AddFixVersionWork : WorkAction<AddFixVersionParameters> {
-
     private val logger = Logging.getLogger(this::class.java)
 
     @Suppress("SwallowedException") // see logs below
     override fun execute() {
-        val service = JiraService(
-            logger,
-            parameters.baseUrl.get(),
-            parameters.username.get(),
-            parameters.password.get()
-        )
+        val service =
+            JiraService(
+                logger,
+                parameters.baseUrl.get(),
+                parameters.username.get(),
+                parameters.password.get(),
+            )
         val issues = parameters.issues.get()
         val version = parameters.version.get()
         val projectId = parameters.projectId.get()

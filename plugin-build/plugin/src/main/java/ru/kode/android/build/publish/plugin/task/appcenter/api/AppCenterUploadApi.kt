@@ -9,14 +9,13 @@ import ru.kode.android.build.publish.plugin.task.appcenter.entity.ChunkRequestBo
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.SendMetaDataResponse
 
 internal interface AppCenterUploadApi {
-
     @POST("/upload/set_metadata/{packageAssetId}")
     fun sendMetaData(
         @Path("packageAssetId") packageAssetId: String,
         @Query("file_name") fileName: String,
         @Query("file_size") fileSize: Long,
         @Query("token", encoded = true) encodedToken: String,
-        @Query("content_type") contentType: String
+        @Query("content_type") contentType: String,
     ): Call<SendMetaDataResponse>
 
     @POST("/upload/upload_chunk/{packageAssetId}")
@@ -24,7 +23,7 @@ internal interface AppCenterUploadApi {
         @Path("packageAssetId") packageAssetId: String,
         @Query("token", encoded = true) encodedToken: String,
         @Query("block_number") chunkNumber: Int,
-        @Body chunk: ChunkRequestBody
+        @Body chunk: ChunkRequestBody,
     ): Call<Unit>
 
     @POST("/upload/finished/{packageAssetId}")

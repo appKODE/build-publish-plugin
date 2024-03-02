@@ -1,0 +1,21 @@
+plugins {
+  id 'groovy-gradle-plugin'
+}
+
+repositories {
+  mavenCentral()
+  google()
+  gradlePluginPortal()
+}
+
+dependencies {
+  // specifying plugins as dependencies here is a way to specify their version
+  // this is needed if plugin is not applied in the root build.gradle with a concrete version
+  // From gradle manual:
+  // "External plugins need to be added as implementation dependencies before they
+  //  can be applied in a precompiled script plugin"
+  implementation libs.kotlin.plugin
+  implementation libs.detekt.plugin
+  implementation libs.ksp.plugin
+  implementation libs.ktlint.plugin
+}

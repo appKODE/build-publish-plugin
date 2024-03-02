@@ -13,7 +13,10 @@ internal class GitCommandExecutor(
      * For example calling this function with arguments `"CHANGELOG", CommitRange("someSHA1", "someSHA2")`
      * will run `git log` command and  extract lines containing "CHANGELOG" from each commit in that range.
      */
-    fun extractTagFromCommitMessages(tag: String, range: CommitRange?): List<String> {
+    fun extractTagFromCommitMessages(
+        tag: String,
+        range: CommitRange?,
+    ): List<String> {
         return getCommitsByRange(range)
             .flatMap { commit ->
                 commit.fullMessage
@@ -26,7 +29,10 @@ internal class GitCommandExecutor(
      * Runs git to find information about tags of the [buildVariant].
      * Resulting set will be limited to [limitResultCount] tags or `null` if no tags found
      */
-    fun findBuildTags(buildVariant: String, limitResultCount: Int): List<Tag>? {
+    fun findBuildTags(
+        buildVariant: String,
+        limitResultCount: Int,
+    ): List<Tag>? {
         val buildTagRegex = Regex(".+\\.(\\d+)-$buildVariant")
         return grgitService.grgit.tag.list()
             .filter { tag -> tag.name.matches(buildTagRegex) }
