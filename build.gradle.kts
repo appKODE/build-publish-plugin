@@ -20,7 +20,5 @@ tasks.register("preMerge") {
     dependsOnRecursivelyByName(this, "ktlintFormat")
     dependsOnRecursivelyByName(this, "detektDebug")
 
-    /*dependsOn(gradle.includedBuild("plugin-build").task(":plugin:ktlintFormat"))
-    dependsOn(gradle.includedBuild("plugin-build").task(":plugin:check"))
-    dependsOn(gradle.includedBuild("plugin-build").task(":plugin:validatePlugins"))*/
+    dependsOn(gradle.includedBuild("plugin-build").task(":preMerge"))
 }

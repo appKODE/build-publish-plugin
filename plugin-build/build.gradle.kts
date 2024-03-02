@@ -9,3 +9,20 @@ allprojects {
     group = "ru.kode.android"
     version = "1.1.0-alpha21"
 }
+
+val dependsOnRecursivelyByName = { task: Task, name: String ->
+    subprojects {
+        this.tasks.matching { it.name == name }.forEach { t ->
+            task.dependsOn(t)
+        }
+    }
+}
+
+tasks.register("preMerge") {
+    group = "verification"
+
+    dependsOnRecursivelyByName(this, "check")
+    dependsOnRecursivelyByName(this, "validatePlugins")
+    dependsOnRecursivelyByName(this, "ktlintFormat")
+    dependsOnRecursivelyByName(this, "detektDebug")
+}
