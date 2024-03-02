@@ -1,8 +1,8 @@
 plugins {
     kotlin("jvm")
-    id("kotlin-kapt")
     id("java-gradle-plugin")
     id("com.gradle.plugin-publish")
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
@@ -20,8 +20,7 @@ dependencies {
 
     testImplementation(libs.junit)
 
-    // Migrate to ksp
-    kapt(libs.moshiCodgen)
+    ksp(libs.moshiCodgen)
 }
 
 java {

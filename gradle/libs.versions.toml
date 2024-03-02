@@ -1,4 +1,5 @@
 [versions]
+kotlin = "1.8.10"
 agp = "7.4.1"
 detekt = "1.19.0"
 ktlint = "10.0.0"
@@ -6,11 +7,11 @@ versions = "0.38.0"
 firebaseAppdistribution = "3.0.0"
 grgit = "5.0.0"
 publish = "0.14.0"
-kotlin = "1.8.10"
 okhttp = "4.9.3"
 moshi = "1.14.0"
 retrofit = "2.9.0"
 junit = "4.13.2"
+ksp = "1.8.10-1.0.9"
 
 [libraries]
 agp = { module = "com.android.tools.build:gradle", version.ref = "agp" }
@@ -34,3 +35,4 @@ firebaseAppdistribution = { id = "com.google.firebase.appdistribution", version.
 grgit = { id = "org.ajoberstar.grgit", version.ref = "grgit" }
 publish = { id = "com.gradle.plugin-publish", version.ref = "publish" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
