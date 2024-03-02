@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm")
+    id("kotlin-convention")
     id("java-gradle-plugin")
     id("com.gradle.plugin-publish")
     id("com.google.devtools.ksp")
@@ -21,11 +21,6 @@ dependencies {
     testImplementation(libs.junit)
 
     ksp(libs.moshiCodgen)
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
 }
 
 gradlePlugin {
@@ -56,10 +51,6 @@ pluginBundle {
         artifactId = PluginCoordinates.ID.removePrefix("$groupId.")
         version = PluginCoordinates.VERSION
     }
-}
-
-project.tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.ExperimentalStdlibApi"
 }
 
 tasks.create("setupPluginUploadFromEnvironment") {

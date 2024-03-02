@@ -27,13 +27,13 @@ grgitGradle = { module = "org.ajoberstar.grgit:grgit-gradle", version.ref = "grg
 junit = { module = "junit:junit", version.ref = "junit" }
 
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+ktlint-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
 detekt-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 
 [plugins]
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
-versionsManes = { id = "com.github.ben-manes.versions", version.ref = "versions" }
 agp = { id = "com.android.application", version.ref = "agp" }
 firebaseAppdistribution = { id = "com.google.firebase.appdistribution", version.ref = "firebaseAppdistribution" }
 grgit = { id = "org.ajoberstar.grgit", version.ref = "grgit" }

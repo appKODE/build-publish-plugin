@@ -17,4 +17,5 @@ dependencies {
   implementation libs.kotlin.plugin
   implementation libs.detekt.plugin
   implementation libs.ksp.plugin
+  implementation libs.ktlint.plugin
 }

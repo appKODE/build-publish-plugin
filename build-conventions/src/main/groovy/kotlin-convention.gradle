@@ -1,0 +1,65 @@
+// plugins block in groovy script doesn't support using "alias(..)"
+// see https://github.com/gradle/gradle/issues/15383#issuecomment-1396061277
+// but outside of plugins block everything works ok
+plugins {
+  id "org.jetbrains.kotlin.jvm"
+  id "io.gitlab.arturbosch.detekt"
+  id "org.jlleitschuh.gradle.ktlint"
+}
+
+kotlin {
+  jvmToolchain {
+    languageVersion = JavaLanguageVersion.of(11)
+  }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+  kotlinOptions {
+    jvmTarget = "11"
+    freeCompilerArgs += "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+    freeCompilerArgs += "-opt-in=kotlinx.coroutines.FlowPreview"
+    freeCompilerArgs += "-opt-in=kotlin.contracts.ExperimentalContracts"
+    freeCompilerArgs += "-Xopt-in=kotlin.ExperimentalStdlibApi"
+  }
+}
+
+ktlint {
+  verbose = true
+  outputToConsole = true
+  enableExperimentalRules = true
+  debug = false
+  android = false
+  ignoreFailures = false
+  disabledRules = ["import-ordering"]
+  filter {
+    exclude("**/generated/**")
+    include("**/kotlin/**")
+  }
+}
+
+detekt {
+  config = files(rootProject.file("config/detekt/detekt.yml"))
+  ignoredBuildTypes = [ "release" ]
+}
+
+tasks.withType(io.gitlab.arturbosch.detekt.Detekt).configureEach {
+  jvmTarget = "11"
+  // "exclude(**/generated/**)" doesn't work for some reason, see
+  // https://github.com/detekt/detekt/issues/4127#issuecomment-1260733842
+  exclude {
+    // Use separator to make sure it also works on Windows
+    def sep = File.separator
+    it.file.absolutePath.contains("${sep}generated${sep}")
+  }
+  reports {
+    html.required = true
+    xml.required = false
+    txt.required = false
+    sarif.required = false
+    html.outputLocation = file("build/reports/detekt.html")
+  }
+}
+
+tasks.withType(io.gitlab.arturbosch.detekt.DetektCreateBaselineTask).configureEach {
+  jvmTarget = "11"
+}
