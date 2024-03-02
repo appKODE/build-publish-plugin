@@ -22,53 +22,54 @@ import javax.inject.Inject
  * then result can be used in Firebase App Distribution without rebuilding configs
  * and it can be used in all other tasks without duplicates in different places
  */
-abstract class GenerateChangelogTask @Inject constructor(
-    private val workerExecutor: WorkerExecutor,
-    objectFactory: ObjectFactory,
-) : DefaultTask() {
+abstract class GenerateChangelogTask
+    @Inject
+    constructor(
+        private val workerExecutor: WorkerExecutor,
+        objectFactory: ObjectFactory,
+    ) : DefaultTask() {
+        private var grgitService: Property<GrgitService>
 
-    private var grgitService: Property<GrgitService>
+        init {
+            description = "Task to generate changelog"
+            group = BasePlugin.BUILD_GROUP
+            grgitService = objectFactory.property(GrgitService::class.java)
+        }
 
-    init {
-        description = "Task to generate changelog"
-        group = BasePlugin.BUILD_GROUP
-        grgitService = objectFactory.property(GrgitService::class.java)
-    }
+        @Internal
+        fun getGrgitService(): Property<GrgitService> = grgitService
 
-    @Internal
-    fun getGrgitService(): Property<GrgitService> = grgitService
+        @get:InputFile
+        @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
+        abstract val tagBuildFile: RegularFileProperty
 
-    @get:InputFile
-    @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
-    abstract val tagBuildFile: RegularFileProperty
+        @get:Input
+        @get:Option(option = "buildVariant", description = "Current build variant")
+        abstract val buildVariant: Property<String>
 
-    @get:Input
-    @get:Option(option = "buildVariant", description = "Current build variant")
-    abstract val buildVariant: Property<String>
+        @get:Input
+        @get:Option(
+            option = "commitMessageKey",
+            description = "Message key to collect interested commits",
+        )
+        abstract val commitMessageKey: Property<String>
 
-    @get:Input
-    @get:Option(
-        option = "commitMessageKey",
-        description = "Message key to collect interested commits"
-    )
-    abstract val commitMessageKey: Property<String>
+        @get:OutputFile
+        @get:Option(
+            option = "changelogFile",
+            description = "File with saved changelog",
+        )
+        abstract val changelogFile: RegularFileProperty
 
-    @get:OutputFile
-    @get:Option(
-        option = "changelogFile",
-        description = "File with saved changelog"
-    )
-    abstract val changelogFile: RegularFileProperty
-
-    @TaskAction
-    fun generateChangelog() {
-        val workQueue: WorkQueue = workerExecutor.noIsolation()
-        workQueue.submit(GenerateChangelogWork::class.java) { parameters ->
-            parameters.commitMessageKey.set(commitMessageKey)
-            parameters.buildVariant.set(buildVariant)
-            parameters.tagBuildFile.set(tagBuildFile)
-            parameters.changelogFile.set(changelogFile)
-            parameters.grgitService.set(grgitService)
+        @TaskAction
+        fun generateChangelog() {
+            val workQueue: WorkQueue = workerExecutor.noIsolation()
+            workQueue.submit(GenerateChangelogWork::class.java) { parameters ->
+                parameters.commitMessageKey.set(commitMessageKey)
+                parameters.buildVariant.set(buildVariant)
+                parameters.tagBuildFile.set(tagBuildFile)
+                parameters.changelogFile.set(changelogFile)
+                parameters.grgitService.set(grgitService)
+            }
         }
     }
-}

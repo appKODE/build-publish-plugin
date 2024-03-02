@@ -13,25 +13,27 @@ import java.util.concurrent.TimeUnit
 internal class TelegramWebhookSender(
     private val logger: Logger,
 ) {
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-        .readTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-        .writeTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-        .apply {
-            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-            addNetworkInterceptor(loggingInterceptor)
-        }
-        .build()
+    private val client =
+        OkHttpClient.Builder()
+            .connectTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .readTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .writeTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .apply {
+                val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
+                loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+                addNetworkInterceptor(loggingInterceptor)
+            }
+            .build()
 
     private val moshi = Moshi.Builder().build()
 
-    private val api = Retrofit.Builder()
-        .baseUrl(STUB_BASE_URL)
-        .client(client)
-        .addConverterFactory(MoshiConverterFactory.create(moshi))
-        .build()
-        .create(TelegramWebhookSenderApi::class.java)
+    private val api =
+        Retrofit.Builder()
+            .baseUrl(STUB_BASE_URL)
+            .client(client)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(TelegramWebhookSenderApi::class.java)
 
     /**
      * Sends url formatted data to webhook at [webhookUrl]

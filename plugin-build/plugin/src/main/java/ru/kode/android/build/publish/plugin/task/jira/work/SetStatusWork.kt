@@ -17,17 +17,17 @@ interface SetStatusParameters : WorkParameters {
 }
 
 abstract class SetStatusWork : WorkAction<SetStatusParameters> {
-
     private val logger = Logging.getLogger(this::class.java)
 
     @Suppress("SwallowedException") // see logs below
     override fun execute() {
-        val service = JiraService(
-            logger,
-            parameters.baseUrl.get(),
-            parameters.username.get(),
-            parameters.password.get()
-        )
+        val service =
+            JiraService(
+                logger,
+                parameters.baseUrl.get(),
+                parameters.username.get(),
+                parameters.password.get(),
+            )
         val issues = parameters.issues.get()
         issues.forEach { issue ->
             try {

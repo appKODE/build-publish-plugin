@@ -11,11 +11,10 @@ internal class ChangelogBuilder(
     private val logger: Logger?,
     private val messageKey: String,
 ) {
-
     @Suppress("ReturnCount")
     fun buildForBuildTag(
         buildTag: Tag.Build,
-        defaultValueSupplier: ((TagRange) -> String?)? = null
+        defaultValueSupplier: ((TagRange) -> String?)? = null,
     ): String? {
         val buildVariant = buildTag.buildVariant
         return buildForBuildVariant(buildVariant, defaultValueSupplier)
@@ -23,21 +22,23 @@ internal class ChangelogBuilder(
 
     private fun buildForBuildVariant(
         buildVariant: String,
-        defaultValueSupplier: ((TagRange) -> String?)? = null
+        defaultValueSupplier: ((TagRange) -> String?)? = null,
     ): String? {
-        val tagRange = gitRepository.findTagRange(buildVariant)
-            .also { if (it == null) logger?.warn("failed to build a changelog: no build tags") }
-            ?: return null
+        val tagRange =
+            gitRepository.findTagRange(buildVariant)
+                .also { if (it == null) logger?.warn("failed to build a changelog: no build tags") }
+                ?: return null
         return tagRange.buildChangelog() ?: defaultValueSupplier?.invoke(tagRange)
     }
 
     private fun TagRange.buildChangelog(): String? {
-        val messageBuilder = StringBuilder().apply {
-            val annotatedTagMessage = this@buildChangelog.currentBuildTag.message
-            if (annotatedTagMessage != null) {
-                appendLine("*$annotatedTagMessage*")
+        val messageBuilder =
+            StringBuilder().apply {
+                val annotatedTagMessage = this@buildChangelog.currentBuildTag.message
+                if (annotatedTagMessage != null) {
+                    appendLine("*$annotatedTagMessage*")
+                }
             }
-        }
 
         // it can happen that 2 tags point to the same commit, so no extraction of changelog is necessary
         // (but remember, tags can be annotated - which is taken care of above)

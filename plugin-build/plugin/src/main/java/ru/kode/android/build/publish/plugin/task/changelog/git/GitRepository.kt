@@ -13,15 +13,15 @@ internal class GitRepository(
      */
     fun findTagRange(buildVariant: String): TagRange? {
         val tags = gitCommandExecutor.findBuildTags(buildVariant, limitResultCount = 2)
-        return if (tags != null) {
-            val currentBuildTag = tags.first()
-            val previousBuildTag = tags.getOrNull(1)
+        return tags?.let {
+            val currentBuildTag = it.first()
+            val previousBuildTag = it.getOrNull(1)
             TagRange(
                 // todo add Build types
                 currentBuildTag = Tag.Build(currentBuildTag, buildVariant),
-                previousBuildTag = previousBuildTag?.let { Tag.Build(it, buildVariant) }
+                previousBuildTag = previousBuildTag?.let { Tag.Build(it, buildVariant) },
             )
-        } else null
+        }
     }
 
     fun findRecentBuildTag(): Tag.Build? {

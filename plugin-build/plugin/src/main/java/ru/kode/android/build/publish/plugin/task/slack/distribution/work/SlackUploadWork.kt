@@ -24,15 +24,15 @@ interface SlackUploadParameters : WorkParameters {
 }
 
 abstract class SlackUploadWork : WorkAction<SlackUploadParameters> {
-
     private val logger = Logging.getLogger(this::class.java)
 
     @Suppress("SwallowedException") // see logs below
     override fun execute() {
-        val uploader = SlackUploader(
-            logger,
-            parameters.apiToken.get()
-        )
+        val uploader =
+            SlackUploader(
+                logger,
+                parameters.apiToken.get(),
+            )
         val uploadFile = parameters.outputFile.asFile.get()
         val zippedUploadFile = File(uploadFile.toString().replace(".${uploadFile.extension}", ".zip"))
         zip(listOf(uploadFile), zippedUploadFile)
@@ -40,13 +40,13 @@ abstract class SlackUploadWork : WorkAction<SlackUploadParameters> {
             uploader.upload(
                 zippedUploadFile,
                 parameters.channels.get(),
-                parameters.message.orNull
+                parameters.message.orNull,
             )
         } catch (ex: UploadStreamTimeoutException) {
             logger.error(
                 "slack upload failed with timeout exception, " +
                     "but probably uploaded, " +
-                    "see https://github.com/slackapi/python-slack-sdk/issues/1165"
+                    "see https://github.com/slackapi/python-slack-sdk/issues/1165",
             )
         }
     }

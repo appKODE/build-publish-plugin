@@ -8,5 +8,5 @@ data class CommitRange(
     /**
      * SHA of second commit
      */
-    val sha2: String
+    val sha2: String,
 )

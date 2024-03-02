@@ -6,5 +6,5 @@ import com.squareup.moshi.JsonClass
 @Suppress("ConstructorParameterNaming") // network model
 internal data class SlackUploadResponse(
     val ok: Boolean,
-    val error: String?
+    val error: String?,
 )

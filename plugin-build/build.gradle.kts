@@ -18,6 +18,11 @@ val dependsOnRecursivelyByName = { task: Task, name: String ->
     }
 }
 
+tasks.register("clean", Delete::class.java) {
+    delete(rootProject.buildDir)
+    dependsOnRecursivelyByName(this, "clean")
+}
+
 tasks.register("preMerge") {
     group = "verification"
 

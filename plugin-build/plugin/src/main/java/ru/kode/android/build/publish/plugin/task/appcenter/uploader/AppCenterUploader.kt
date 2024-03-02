@@ -27,18 +27,18 @@ internal class AppCenterUploader(
     logger: Logger,
     token: String,
 ) {
-
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-        .readTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-        .writeTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-        .addInterceptor(AttachTokenInterceptor(token))
-        .apply {
-            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-            addNetworkInterceptor(loggingInterceptor)
-        }
-        .build()
+    private val client =
+        OkHttpClient.Builder()
+            .connectTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .readTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .writeTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .addInterceptor(AttachTokenInterceptor(token))
+            .apply {
+                val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
+                loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+                addNetworkInterceptor(loggingInterceptor)
+            }
+            .build()
 
     private val moshi = Moshi.Builder().build()
 
@@ -64,7 +64,10 @@ internal class AppCenterUploader(
         _uploadApi = createApi<AppCenterUploadApi>(uploadDomain)
     }
 
-    fun prepareRelease(buildVersion: String, buildNumber: String): PrepareResponse {
+    fun prepareRelease(
+        buildVersion: String,
+        buildNumber: String,
+    ): PrepareResponse {
         val request = PrepareReleaseRequest(buildVersion, buildNumber)
         return api.prepareRelease(ownerName, appName, request).executeOrThrow()
     }
@@ -75,13 +78,14 @@ internal class AppCenterUploader(
         encodedToken: String,
     ): SendMetaDataResponse {
         val contentType = "application/vnd.android.package-archive"
-        val response = uploadApi.sendMetaData(
-            packageAssetId = packageAssetId,
-            fileName = apkFile.name,
-            fileSize = apkFile.length(),
-            encodedToken = encodedToken,
-            contentType = contentType,
-        ).executeOrThrow()
+        val response =
+            uploadApi.sendMetaData(
+                packageAssetId = packageAssetId,
+                fileName = apkFile.name,
+                fileSize = apkFile.length(),
+                encodedToken = encodedToken,
+                contentType = contentType,
+            ).executeOrThrow()
         if (response.status_code != "Success") {
             throw UploadException("send meta data terminated with ${response.status_code}")
         }
@@ -116,7 +120,7 @@ internal class AppCenterUploader(
     fun waitingReadyToBePublished(
         preparedUploadId: String,
         maxRequestCount: Int,
-        requestDelayMs: Long
+        requestDelayMs: Long,
     ): GetUploadResponse {
         var requestCount = 0
         var response: GetUploadResponse
@@ -138,10 +142,11 @@ internal class AppCenterUploader(
         distributionGroups: Set<String>,
         releaseNotes: String,
     ) {
-        val request = DistributeRequest(
-            destinations = distributionGroups.map { DistributeRequest.Destination(it) },
-            release_notes = releaseNotes,
-        )
+        val request =
+            DistributeRequest(
+                destinations = distributionGroups.map { DistributeRequest.Destination(it) },
+                release_notes = releaseNotes,
+            )
         api.distribute(ownerName, appName, releaseId, request).executeOrThrow()
     }
 }
@@ -151,11 +156,12 @@ private class AttachTokenInterceptor(
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
         val originalRequest = chain.request()
-        val newRequest = originalRequest.newBuilder()
-            .addHeader(name = "Content-Type", "application/json")
-            .addHeader("Accept", "application/json")
-            .addHeader(name = "X-API-Token", token)
-            .build()
+        val newRequest =
+            originalRequest.newBuilder()
+                .addHeader(name = "Content-Type", "application/json")
+                .addHeader("Accept", "application/json")
+                .addHeader(name = "X-API-Token", token)
+                .build()
         return chain.proceed(newRequest)
     }
 }

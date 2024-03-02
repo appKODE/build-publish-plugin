@@ -6,5 +6,7 @@ import retrofit2.http.Url
 
 internal interface TelegramWebhookSenderApi {
     @POST
-    fun send(@Url webhookUrl: String): Call<Unit>
+    fun send(
+        @Url webhookUrl: String,
+    ): Call<Unit>
 }

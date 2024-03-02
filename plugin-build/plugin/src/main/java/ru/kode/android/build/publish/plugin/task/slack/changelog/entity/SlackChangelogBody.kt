@@ -19,12 +19,12 @@ internal data class SlackChangelogBody(
     @JsonClass(generateAdapter = true)
     data class Block(
         val type: String,
-        val text: Text
+        val text: Text,
     )
 
     @JsonClass(generateAdapter = true)
     data class Text(
         val type: String,
-        val text: String
+        val text: String,
     )
 }

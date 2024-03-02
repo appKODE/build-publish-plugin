@@ -32,13 +32,13 @@ ktlint {
   ignoreFailures = false
   disabledRules = ["import-ordering"]
   filter {
-    exclude("**/generated/**")
     include("**/kotlin/**")
+    exclude { it.file.path.contains("generated") }
   }
 }
 
 detekt {
-  config = files(rootProject.file("config/detekt/detekt.yml"))
+  config = files(rootProject.file("../config/detekt/detekt.yml"))
   ignoredBuildTypes = [ "release" ]
 }
 

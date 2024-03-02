@@ -10,7 +10,6 @@ import retrofit2.http.PartMap
 import ru.kode.android.build.publish.plugin.task.slack.distribution.entity.SlackUploadResponse
 
 internal interface SlackApi {
-
     @POST("files.upload")
     @Multipart
     fun upload(

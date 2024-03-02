@@ -10,5 +10,8 @@ import ru.kode.android.build.publish.plugin.task.slack.changelog.entity.SlackCha
 internal interface SlackWebhookSenderApi {
     @Headers("Content-Type:application/json")
     @POST
-    fun send(@Url webhookUrl: String, @Body body: SlackChangelogBody): Call<Unit>
+    fun send(
+        @Url webhookUrl: String,
+        @Body body: SlackChangelogBody,
+    ): Call<Unit>
 }

@@ -70,34 +70,39 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         project.stopExecutionIfNotSupported()
         project.pluginManager.apply(GrgitServicePlugin::class.java)
 
-        val buildPublishExtension = project.extensions
-            .create(EXTENSION_NAME, BuildPublishExtension::class.java)
-        val androidExtension = project.extensions
-            .getByType(ApplicationAndroidComponentsExtension::class.java)
+        val buildPublishExtension =
+            project.extensions
+                .create(EXTENSION_NAME, BuildPublishExtension::class.java)
+        val androidExtension =
+            project.extensions
+                .getByType(ApplicationAndroidComponentsExtension::class.java)
         val changelogFile = project.layout.buildDirectory.file(CHANGELOG_FILENAME)
-        val grgitService = project.extensions
-            .getByType(GrgitServiceExtension::class.java)
-            .service
+        val grgitService =
+            project.extensions
+                .getByType(GrgitServiceExtension::class.java)
+                .service
         androidExtension.onVariants(
             callback = { variant ->
-                val output = variant.outputs
-                    .find { it is VariantOutputImpl && it.fullName == variant.name }
-                    as? VariantOutputImpl
+                val output =
+                    variant.outputs
+                        .find { it is VariantOutputImpl && it.fullName == variant.name }
+                        as? VariantOutputImpl
                 if (output != null) {
                     val buildVariant = BuildVariant(variant.name, variant.flavorName, variant.buildType)
                     val outputFileName = output.outputFileName.get()
-                    val outputProviders = project.registerVariantTasks(
-                        buildPublishExtension,
-                        buildVariant,
-                        changelogFile,
-                        outputFileName,
-                        grgitService,
-                    )
+                    val outputProviders =
+                        project.registerVariantTasks(
+                            buildPublishExtension,
+                            buildVariant,
+                            changelogFile,
+                            outputFileName,
+                            grgitService,
+                        )
                     output.versionCode.set(outputProviders.versionCode)
                     output.outputFileName.set(outputProviders.outputFileName)
                     output.versionName.set(outputProviders.versionName)
                 }
-            }
+            },
         )
         androidExtension.finalizeDsl {
             project.configurePlugins(buildPublishExtension, changelogFile.get().asFile)
@@ -115,33 +120,39 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         val outputConfig = buildPublishExtension.output.getByName("default")
         val tagBuildProvider = registerGetLastTagTask(buildVariant, grgitService)
         val versionCodeProvider = tagBuildProvider.map(::mapToVersionCode)
-        val outputFileNameProvider = outputConfig.baseFileName.zip(tagBuildProvider) { baseFileName, tagBuildFile ->
-            mapToOutputFileName(tagBuildFile, outputFileName, baseFileName)
-        }
-        val versionNameProvider = tagBuildProvider.map { tagBuildFile ->
-            mapToVersionName(tagBuildFile, buildVariant)
-        }
-        val outputFileProvider = outputFileNameProvider.flatMap { fileName ->
-            mapToOutputFile(buildVariant, fileName)
-        }
+        val outputFileNameProvider =
+            outputConfig.baseFileName.zip(tagBuildProvider) { baseFileName, tagBuildFile ->
+                mapToOutputFileName(tagBuildFile, outputFileName, baseFileName)
+            }
+        val versionNameProvider =
+            tagBuildProvider.map { tagBuildFile ->
+                mapToVersionName(tagBuildFile, buildVariant)
+            }
+        val outputFileProvider =
+            outputFileNameProvider.flatMap { fileName ->
+                mapToOutputFile(buildVariant, fileName)
+            }
         tasks.registerPrintLastIncreasedTagTask(
             buildVariant,
-            tagBuildProvider
+            tagBuildProvider,
         )
-        val changelogConfig = with(buildPublishExtension.changelog) {
-            findByName(buildVariant.name) ?: findByName("default")
-        }
-        if (changelogConfig != null) {
-            val generateChangelogFileProvider = tasks.registerGenerateChangelogTask(
-                changelogConfig.commitMessageKey,
-                buildVariant,
-                changelogFile,
-                tagBuildProvider,
-                grgitService,
-            )
-            val telegramConfig = with(buildPublishExtension.telegram) {
+        val changelogConfig =
+            with(buildPublishExtension.changelog) {
                 findByName(buildVariant.name) ?: findByName("default")
             }
+        if (changelogConfig != null) {
+            val generateChangelogFileProvider =
+                tasks.registerGenerateChangelogTask(
+                    changelogConfig.commitMessageKey,
+                    buildVariant,
+                    changelogFile,
+                    tagBuildProvider,
+                    grgitService,
+                )
+            val telegramConfig =
+                with(buildPublishExtension.telegram) {
+                    findByName(buildVariant.name) ?: findByName("default")
+                }
             if (telegramConfig != null) {
                 tasks.registerSendTelegramChangelogTask(
                     outputConfig,
@@ -149,12 +160,13 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     telegramConfig,
                     buildVariant,
                     generateChangelogFileProvider,
-                    tagBuildProvider
+                    tagBuildProvider,
                 )
             }
-            val slackConfig = with(buildPublishExtension.slack) {
-                findByName(buildVariant.name) ?: findByName("default")
-            }
+            val slackConfig =
+                with(buildPublishExtension.slack) {
+                    findByName(buildVariant.name) ?: findByName("default")
+                }
             if (slackConfig != null) {
                 tasks.registerSlackTasks(
                     outputConfig,
@@ -163,26 +175,29 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     buildVariant,
                     generateChangelogFileProvider,
                     tagBuildProvider,
-                    outputFileProvider
+                    outputFileProvider,
                 )
             }
-            val appCenterDistributionConfig = with(buildPublishExtension.appCenterDistribution) {
-                findByName(buildVariant.name) ?: findByName("default")
-            }
+            val appCenterDistributionConfig =
+                with(buildPublishExtension.appCenterDistribution) {
+                    findByName(buildVariant.name) ?: findByName("default")
+                }
             if (appCenterDistributionConfig != null) {
-                val params = AppCenterDistributionTaskParams(
-                    config = appCenterDistributionConfig,
-                    buildVariant = buildVariant,
-                    changelogFileProvider = generateChangelogFileProvider,
-                    buildVariantOutputFileProvider = outputFileProvider,
-                    tagBuildProvider = tagBuildProvider,
-                    outputConfig = outputConfig,
-                )
+                val params =
+                    AppCenterDistributionTaskParams(
+                        config = appCenterDistributionConfig,
+                        buildVariant = buildVariant,
+                        changelogFileProvider = generateChangelogFileProvider,
+                        buildVariantOutputFileProvider = outputFileProvider,
+                        tagBuildProvider = tagBuildProvider,
+                        outputConfig = outputConfig,
+                    )
                 tasks.registerAppCenterDistributionTask(params)
             }
-            val jiraConfig = with(buildPublishExtension.jira) {
-                findByName(buildVariant.name) ?: findByName("default")
-            }
+            val jiraConfig =
+                with(buildPublishExtension.jira) {
+                    findByName(buildVariant.name) ?: findByName("default")
+                }
             if (jiraConfig != null) {
                 tasks.registerJiraTasks(
                     jiraConfig,
@@ -196,7 +211,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         return OutputProviders(
             versionName = versionNameProvider,
             versionCode = versionCodeProvider,
-            outputFileName = outputFileNameProvider
+            outputFileName = outputFileNameProvider,
         )
     }
 
@@ -238,7 +253,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         buildVariant: BuildVariant,
         generateChangelogFileProvider: Provider<RegularFile>,
         tagBuildProvider: Provider<RegularFile>,
-        outputFileProvider: Provider<RegularFile>
+        outputFileProvider: Provider<RegularFile>,
     ) {
         registerSendSlackChangelogTask(
             outputConfig,
@@ -246,7 +261,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             slackConfig,
             buildVariant,
             generateChangelogFileProvider,
-            tagBuildProvider
+            tagBuildProvider,
         )
         if (
             slackConfig.uploadApiTokenFile.isPresent &&
@@ -256,7 +271,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 slackConfig.uploadApiTokenFile,
                 slackConfig.uploadChannels,
                 buildVariant,
-                outputFileProvider
+                outputFileProvider,
             )
         }
     }
@@ -265,11 +280,11 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         apiTokenFile: RegularFileProperty,
         channels: SetProperty<String>,
         buildVariant: BuildVariant,
-        outputFileProvider: Provider<RegularFile>
+        outputFileProvider: Provider<RegularFile>,
     ) {
         register(
             "$SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
-            SlackDistributionTask::class.java
+            SlackDistributionTask::class.java,
         ) {
             it.buildVariantOutputFile.set(outputFileProvider)
             it.apiTokenFile.set(apiTokenFile)
@@ -281,11 +296,12 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         buildVariant: BuildVariant,
         grgitService: Provider<GrgitService>,
     ): Provider<RegularFile> {
-        val tagBuildFile = project.layout.buildDirectory
-            .file("tag-build-${buildVariant.name}.json")
+        val tagBuildFile =
+            project.layout.buildDirectory
+                .file("tag-build-${buildVariant.name}.json")
         return tasks.register(
             "$GET_LAST_TAG_TASK_PREFIX${buildVariant.capitalizedName()}",
-            GetLastTagTask::class.java
+            GetLastTagTask::class.java,
         ) { task ->
             task.tagBuildFile.set(tagBuildFile)
             task.buildVariant.set(buildVariant.name)
@@ -295,11 +311,11 @@ abstract class BuildPublishPlugin : Plugin<Project> {
 
     private fun TaskContainer.registerPrintLastIncreasedTagTask(
         buildVariant: BuildVariant,
-        tagBuildProvider: Provider<RegularFile>
+        tagBuildProvider: Provider<RegularFile>,
     ) {
         register(
             "$PRINT_LAST_INCREASED_TAG_TASK_PREFIX${buildVariant.capitalizedName()}",
-            PrintLastIncreasedTag::class.java
+            PrintLastIncreasedTag::class.java,
         ) { task ->
             task.tagBuildFile.set(tagBuildProvider)
         }
@@ -314,7 +330,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
     ): Provider<RegularFile> {
         return register(
             "$GENERATE_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
-            GenerateChangelogTask::class.java
+            GenerateChangelogTask::class.java,
         ) {
             it.commitMessageKey.set(commitMessageKey)
             it.buildVariant.set(buildVariant.name)
@@ -331,11 +347,11 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         telegramConfig: TelegramConfig,
         buildVariant: BuildVariant,
         changelogFileProvider: Provider<RegularFile>,
-        tagBuildProvider: Provider<RegularFile>
+        tagBuildProvider: Provider<RegularFile>,
     ) {
         register(
             "$SEND_TELEGRAM_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
-            SendTelegramChangelogTask::class.java
+            SendTelegramChangelogTask::class.java,
         ) {
             it.changelogFile.set(changelogFileProvider)
             it.tagBuildFile.set(tagBuildProvider)
@@ -356,11 +372,11 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         slackConfig: SlackConfig,
         buildVariant: BuildVariant,
         changelogFileProvider: Provider<RegularFile>,
-        tagBuildProvider: Provider<RegularFile>
+        tagBuildProvider: Provider<RegularFile>,
     ) {
         register(
             "$SEND_SLACK_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
-            SendSlackChangelogTask::class.java
+            SendSlackChangelogTask::class.java,
         ) {
             it.changelogFile.set(changelogFileProvider)
             it.tagBuildFile.set(tagBuildProvider)
@@ -410,14 +426,16 @@ private fun Project.configurePlugins(
                 val appExtension = extensions.getByType(AppExtension::class.java)
                 appExtension.configure()
             }
-            is AppDistributionPlugin -> if (firebaseAppDistributionConfig != null) {
-                val appDistributionExtension = extensions
-                    .getByType(AppDistributionExtension::class.java)
-                appDistributionExtension.configure(
-                    config = firebaseAppDistributionConfig,
-                    changelogFile = changelogFile,
-                )
-            }
+            is AppDistributionPlugin ->
+                if (firebaseAppDistributionConfig != null) {
+                    val appDistributionExtension =
+                        extensions
+                            .getByType(AppDistributionExtension::class.java)
+                    appDistributionExtension.configure(
+                        config = firebaseAppDistributionConfig,
+                        changelogFile = changelogFile,
+                    )
+                }
         }
     }
 }
@@ -426,20 +444,20 @@ private fun Project.configurePlugins(
 private fun Project.stopExecutionIfNotSupported() {
     if (AgpVersions.CURRENT < AgpVersions.VERSION_7_0_4) {
         throw StopExecutionException(
-            "Must only be used with with Android Gradle Plugin >= 7.4 "
+            "Must only be used with with Android Gradle Plugin >= 7.4 ",
         )
     }
     if (!plugins.hasPlugin(AppPlugin::class.java)) {
         throw StopExecutionException(
             "Must only be used with Android application projects." +
-                " Please apply the 'com.android.application' plugin."
+                " Please apply the 'com.android.application' plugin.",
         )
     }
 
     if (!plugins.hasPlugin(AppDistributionPlugin::class.java)) {
         throw StopExecutionException(
             "Must only be used with Firebase App Distribution." +
-                " Please apply the 'com.google.firebase.appdistribution' plugin."
+                " Please apply the 'com.google.firebase.appdistribution' plugin.",
         )
     }
 }
@@ -455,12 +473,16 @@ private fun AppDistributionExtension.configure(
     config: FirebaseAppDistributionConfig,
     changelogFile: File,
 ) {
-    val serviceCredentialsFilePath = config
-        .serviceCredentialsFilePath.orNull
-        ?.takeIf { it.isNotBlank() }
-    val applicationId = config
-        .appId.orNull
-        ?.takeIf { it.isNotBlank() }
+    val serviceCredentialsFilePath =
+        config
+            .serviceCredentialsFilePath
+            .orNull
+            ?.takeIf { it.isNotBlank() }
+    val applicationId =
+        config
+            .appId
+            .orNull
+            ?.takeIf { it.isNotBlank() }
     val testerGroups = config.testerGroups.get()
     val artifactType = config.artifactType.orNull ?: "APK"
 
@@ -497,7 +519,11 @@ private fun mapToVersionCode(tagBuildFile: RegularFile): Int {
     }
 }
 
-private fun mapToOutputFileName(tagBuildFile: RegularFile, outputFileName: String, baseFileName: String?): String {
+private fun mapToOutputFileName(
+    tagBuildFile: RegularFile,
+    outputFileName: String,
+    baseFileName: String?,
+): String {
     val file = tagBuildFile.asFile
     val formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy"))
     return if (file.exists() && outputFileName.endsWith(".apk")) {
@@ -507,10 +533,15 @@ private fun mapToOutputFileName(tagBuildFile: RegularFile, outputFileName: Strin
         "$baseFileName-$versionName-vc$versionCode-$formattedDate.apk"
     } else if (!file.exists() && outputFileName.endsWith(".apk")) {
         "$baseFileName-$formattedDate.apk"
-    } else "$baseFileName.${outputFileName.split(".").last()}"
+    } else {
+        "$baseFileName.${outputFileName.split(".").last()}"
+    }
 }
 
-private fun mapToVersionName(tagBuildFile: RegularFile, buildVariant: BuildVariant): String {
+private fun mapToVersionName(
+    tagBuildFile: RegularFile,
+    buildVariant: BuildVariant,
+): String {
     val file = tagBuildFile.asFile
     return if (file.exists()) {
         fromJson(tagBuildFile.asFile).name
@@ -521,7 +552,7 @@ private fun mapToVersionName(tagBuildFile: RegularFile, buildVariant: BuildVaria
 
 private fun Project.mapToOutputFile(
     buildVariant: BuildVariant,
-    fileName: String
+    fileName: String,
 ): Provider<RegularFile> {
     return project.tasks.withType(PackageAndroidArtifact::class.java)
         .firstOrNull { it.variantName == buildVariant.name }
