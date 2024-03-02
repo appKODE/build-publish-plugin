@@ -6,6 +6,6 @@ plugins {
 }
 
 allprojects {
-    group = PluginCoordinates.GROUP
-    version = PluginCoordinates.VERSION
+    group = "ru.kode.android"
+    version = "1.1.0-alpha21"
 }

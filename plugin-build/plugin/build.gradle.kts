@@ -25,31 +25,31 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        create(PluginCoordinates.ID) {
-            id = PluginCoordinates.ID
-            implementationClass = PluginCoordinates.IMPLEMENTATION_CLASS
-            version = PluginCoordinates.VERSION
+        create("ru.kode.android.build-publish") {
+            id = "ru.kode.android.build-publish"
+            implementationClass = "ru.kode.android.build.publish.plugin.BuildPublishPlugin"
+            version = project.version
         }
     }
 }
 
 // Configuration Block for the Plugin Marker artifact on Plugin Central
 pluginBundle {
-    website = PluginBundle.WEBSITE
-    vcsUrl = PluginBundle.VCS
-    description = PluginBundle.DESCRIPTION
-    tags = PluginBundle.TAGS
+    website = "https://github.com/appKODE/build-publish-plugin"
+    vcsUrl = "https://github.com/appKODE/build-publish-plugin"
+    description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
+    tags = listOf("firebase", "publish", "changelog", "build")
 
     plugins {
-        getByName(PluginCoordinates.ID) {
-            displayName = PluginBundle.DISPLAY_NAME
+        getByName("ru.kode.android.build-publish") {
+            displayName = "Configure project with Firebase App Distribution and changelogs"
         }
     }
 
     mavenCoordinates {
-        groupId = PluginCoordinates.GROUP
-        artifactId = PluginCoordinates.ID.removePrefix("$groupId.")
-        version = PluginCoordinates.VERSION
+        groupId = project.group.toString()
+        artifactId = "ru.kode.android.build-publish".removePrefix("$groupId.")
+        version = project.version.toString()
     }
 }
 
