@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    id("com.google.firebase.appdistribution")
     id("ru.kode.android.build-publish")
 }
 

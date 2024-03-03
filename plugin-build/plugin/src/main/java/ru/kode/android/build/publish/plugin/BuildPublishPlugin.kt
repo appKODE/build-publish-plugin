@@ -64,7 +64,6 @@ internal object AgpVersions {
     val VERSION_7_0_4: VersionNumber = VersionNumber.parse("7.0.4")
 }
 
-@Suppress("LongMethod", "TooManyFunctions") // TODO Split into small methods
 abstract class BuildPublishPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.stopExecutionIfNotSupported()
@@ -81,6 +80,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             project.extensions
                 .getByType(GrgitServiceExtension::class.java)
                 .service
+
         androidExtension.onVariants(
             callback = { variant ->
                 val output =
@@ -105,7 +105,17 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             },
         )
         androidExtension.finalizeDsl {
-            project.configurePlugins(buildPublishExtension, changelogFile.get().asFile)
+            val firebaseAppDistributionConfig =
+                buildPublishExtension
+                    .firebaseDistribution
+                    // NOTE: NamedDomainObjectContainer can be resolved only in task on after finalizeDsl,
+                    // because it can be defined after plugin application
+                    .findByName("default")
+
+            if (firebaseAppDistributionConfig != null) {
+                project.pluginManager.apply(AppDistributionPlugin::class.java)
+            }
+            project.configurePlugins(firebaseAppDistributionConfig, changelogFile.get().asFile)
         }
     }
 
@@ -416,17 +426,17 @@ abstract class BuildPublishPlugin : Plugin<Project> {
 }
 
 private fun Project.configurePlugins(
-    buildPublishExtension: BuildPublishExtension,
+    firebaseAppDistributionConfig: FirebaseAppDistributionConfig?,
     changelogFile: File,
 ) {
-    val firebaseAppDistributionConfig = buildPublishExtension.firebaseDistribution.findByName("default")
     plugins.all { plugin ->
         when (plugin) {
             is AppPlugin -> {
                 val appExtension = extensions.getByType(AppExtension::class.java)
                 appExtension.configure()
             }
-            is AppDistributionPlugin ->
+
+            is AppDistributionPlugin -> {
                 if (firebaseAppDistributionConfig != null) {
                     val appDistributionExtension =
                         extensions
@@ -436,6 +446,7 @@ private fun Project.configurePlugins(
                         changelogFile = changelogFile,
                     )
                 }
+            }
         }
     }
 }
@@ -451,13 +462,6 @@ private fun Project.stopExecutionIfNotSupported() {
         throw StopExecutionException(
             "Must only be used with Android application projects." +
                 " Please apply the 'com.android.application' plugin.",
-        )
-    }
-
-    if (!plugins.hasPlugin(AppDistributionPlugin::class.java)) {
-        throw StopExecutionException(
-            "Must only be used with Firebase App Distribution." +
-                " Please apply the 'com.google.firebase.appdistribution' plugin.",
         )
     }
 }
