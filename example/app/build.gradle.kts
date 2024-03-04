@@ -52,6 +52,11 @@ buildPublish {
         register("default") {
             baseFileName.set("example-base-project-android")
         }
+
+        register("armv8MinApi21AlphaDebug") {
+            baseFileName.set("example-base-project-android")
+            useVersionsFromTag.set(false)
+        }
     }
     changelog {
         register("default") {

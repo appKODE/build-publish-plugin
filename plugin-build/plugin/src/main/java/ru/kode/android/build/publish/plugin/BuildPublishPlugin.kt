@@ -54,10 +54,14 @@ internal const val GENERATE_CHANGELOG_TASK_PREFIX = "generateChangelog"
 internal const val PRINT_LAST_INCREASED_TAG_TASK_PREFIX = "printLastIncreasedTag"
 internal const val GET_LAST_TAG_TASK_PREFIX = "getLastTag"
 internal const val DEFAULT_BUILD_VERSION = "v0.0.1"
+internal const val DEFAULT_VERSION_NAME = "$DEFAULT_BUILD_VERSION-dev"
+internal const val DEFAULT_VERSION_CODE = 1
+internal const val DEFAULT_BASE_FILE_NAME = "dev-build"
 internal const val CHANGELOG_FILENAME = "changelog.txt"
 internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistributionUpload"
 internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
 internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
+internal const val DEFAULT_CONTAINER_NAME = "default"
 
 internal object AgpVersions {
     val CURRENT: VersionNumber = VersionNumber.parse(ANDROID_GRADLE_PLUGIN_VERSION).baseVersion
@@ -110,7 +114,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     .firebaseDistribution
                     // NOTE: NamedDomainObjectContainer can be resolved only in task on after finalizeDsl,
                     // because it can be defined after plugin application
-                    .findByName("default")
+                    .findByName(DEFAULT_CONTAINER_NAME)
 
             if (firebaseAppDistributionConfig != null) {
                 project.pluginManager.apply(AppDistributionPlugin::class.java)
@@ -127,16 +131,41 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         outputFileName: String,
         grgitService: Provider<GrgitService>,
     ): OutputProviders {
-        val outputConfig = buildPublishExtension.output.getByName("default")
+        val outputConfig =
+            with(buildPublishExtension.output) {
+                findByName(buildVariant.name) ?: getByName(DEFAULT_CONTAINER_NAME)
+            }
         val tagBuildProvider = registerGetLastTagTask(buildVariant, grgitService)
-        val versionCodeProvider = tagBuildProvider.map(::mapToVersionCode)
+        val useVersionsFromTagProvider = outputConfig.useVersionsFromTag.orElse(true)
+        val versionCodeProvider =
+            useVersionsFromTagProvider.flatMap { useVersionsFromTag ->
+                if (useVersionsFromTag) {
+                    tagBuildProvider.map(::mapToVersionCode)
+                } else {
+                    project.provider { DEFAULT_VERSION_CODE }
+                }
+            }
         val outputFileNameProvider =
-            outputConfig.baseFileName.zip(tagBuildProvider) { baseFileName, tagBuildFile ->
-                mapToOutputFileName(tagBuildFile, outputFileName, baseFileName)
+            useVersionsFromTagProvider.flatMap { useVersionsFromTag ->
+                if (useVersionsFromTag) {
+                    outputConfig.baseFileName.zip(tagBuildProvider) { baseFileName, tagBuildFile ->
+                        mapToOutputFileName(tagBuildFile, outputFileName, baseFileName)
+                    }
+                } else {
+                    outputConfig.baseFileName.map { baseFileName ->
+                        createDefaultOutputFileName(baseFileName, outputFileName)
+                    }
+                }
             }
         val versionNameProvider =
-            tagBuildProvider.map { tagBuildFile ->
-                mapToVersionName(tagBuildFile, buildVariant)
+            useVersionsFromTagProvider.flatMap { useVersionsFromTag ->
+                if (useVersionsFromTag) {
+                    tagBuildProvider.map { tagBuildFile ->
+                        mapToVersionName(tagBuildFile, buildVariant)
+                    }
+                } else {
+                    project.provider { DEFAULT_VERSION_NAME }
+                }
             }
         val outputFileProvider =
             outputFileNameProvider.flatMap { fileName ->
@@ -148,7 +177,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         )
         val changelogConfig =
             with(buildPublishExtension.changelog) {
-                findByName(buildVariant.name) ?: findByName("default")
+                findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
             }
         if (changelogConfig != null) {
             val generateChangelogFileProvider =
@@ -161,7 +190,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 )
             val telegramConfig =
                 with(buildPublishExtension.telegram) {
-                    findByName(buildVariant.name) ?: findByName("default")
+                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
                 }
             if (telegramConfig != null) {
                 tasks.registerSendTelegramChangelogTask(
@@ -175,7 +204,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             }
             val slackConfig =
                 with(buildPublishExtension.slack) {
-                    findByName(buildVariant.name) ?: findByName("default")
+                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
                 }
             if (slackConfig != null) {
                 tasks.registerSlackTasks(
@@ -190,7 +219,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             }
             val appCenterDistributionConfig =
                 with(buildPublishExtension.appCenterDistribution) {
-                    findByName(buildVariant.name) ?: findByName("default")
+                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
                 }
             if (appCenterDistributionConfig != null) {
                 val params =
@@ -206,7 +235,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             }
             val jiraConfig =
                 with(buildPublishExtension.jira) {
-                    findByName(buildVariant.name) ?: findByName("default")
+                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
                 }
             if (jiraConfig != null) {
                 tasks.registerJiraTasks(
@@ -468,8 +497,8 @@ private fun Project.stopExecutionIfNotSupported() {
 
 private fun AppExtension.configure() {
     defaultConfig {
-        it.versionCode = 1
-        it.versionName = "$DEFAULT_BUILD_VERSION-dev"
+        it.versionCode = DEFAULT_VERSION_CODE
+        it.versionName = DEFAULT_VERSION_NAME
     }
 }
 
@@ -519,7 +548,7 @@ private fun mapToVersionCode(tagBuildFile: RegularFile): Int {
     return if (file.exists()) {
         fromJson(file).buildNumber
     } else {
-        1
+        DEFAULT_VERSION_CODE
     }
 }
 
@@ -538,8 +567,16 @@ private fun mapToOutputFileName(
     } else if (!file.exists() && outputFileName.endsWith(".apk")) {
         "$baseFileName-$formattedDate.apk"
     } else {
-        "$baseFileName.${outputFileName.split(".").last()}"
+        createDefaultOutputFileName(baseFileName, outputFileName)
     }
+}
+
+private fun createDefaultOutputFileName(
+    baseFileName: String?,
+    outputFileName: String,
+): String {
+    return (baseFileName ?: DEFAULT_BASE_FILE_NAME)
+        .let { "$it.${outputFileName.split(".").last()}" }
 }
 
 private fun mapToVersionName(
