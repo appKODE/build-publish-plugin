@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0
+* Hide firebase app distribution plugin inside, and add logic to apply it only if required
+* Add `useVersionsFromTag` property inside OutputConfig to disable logic when versions and file names is applied from tag   
+* Change plugin structure (add build conventions, migrate from buildSrc to version catalog)
+* Update Kotlin to 1.9.22 and all dependencies to last versions
+
 ## 1.1.0-alpha21
 * Remove Telegram webhookUrl from TelegramConfig to hide it inside plugin
 * Refactor Slack send request on attachment to correctly send long changelog 

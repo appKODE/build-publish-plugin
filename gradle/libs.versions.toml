@@ -31,8 +31,6 @@ detekt-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", v
 ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 
 [plugins]
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 agp = { id = "com.android.application", version.ref = "agp" }
 firebaseAppdistribution = { id = "com.google.firebase.appdistribution", version.ref = "firebaseAppdistribution" }
 grgit = { id = "org.ajoberstar.grgit", version.ref = "grgit" }

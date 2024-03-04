@@ -20,6 +20,11 @@ buildPublish {
         register("default") {
             baseFileName.set("example-base-project-android")
         }
+
+        register("debug") {
+            baseFileName.set("example-base-project-android")
+            useVersionsFromTag.set(false)
+        }
     }
     changelog {
         register("default") {
