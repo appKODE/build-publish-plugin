@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 interface GenerateChangelogParameters : WorkParameters {
     val commitMessageKey: Property<String>
-    val buildVariant: Property<String>
+    val buildTagPattern: Property<String>
     val tagBuildFile: RegularFileProperty
     val changelogFile: RegularFileProperty
     val grgitService: Property<GrgitService>
@@ -27,14 +27,15 @@ abstract class GenerateChangelogWork
 
         override fun execute() {
             val messageKey = parameters.commitMessageKey.get()
+            val buildTagPattern = parameters.buildTagPattern.orNull
             val currentBuildTag = fromJson(parameters.tagBuildFile.asFile.get())
-            val buildVariant = parameters.buildVariant.get()
             val gitCommandExecutor = GitCommandExecutor(parameters.grgitService.get())
-            val gitRepository = GitRepository(gitCommandExecutor, buildVariant)
+            val gitRepository = GitRepository(gitCommandExecutor)
             val changelog =
                 ChangelogBuilder(gitRepository, gitCommandExecutor, logger, messageKey)
                     .buildForBuildTag(
                         currentBuildTag,
+                        buildTagPattern,
                         defaultValueSupplier = { tagRange ->
                             val previousBuildName = tagRange.previousBuildTag?.name?.let { "($it)" }
                             "No changes compared to the previous build $previousBuildName"

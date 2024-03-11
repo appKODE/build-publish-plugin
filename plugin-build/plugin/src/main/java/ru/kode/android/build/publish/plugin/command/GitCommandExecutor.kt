@@ -9,19 +9,19 @@ internal class GitCommandExecutor(
     private val grgitService: GrgitService,
 ) {
     /**
-     * Extracts lines which contain [tag] from all commit messages in commit range (inclusive).
+     * Extracts lines which contain [key] from all commit messages in commit range (inclusive).
      * For example calling this function with arguments `"CHANGELOG", CommitRange("someSHA1", "someSHA2")`
      * will run `git log` command and  extract lines containing "CHANGELOG" from each commit in that range.
      */
-    fun extractTagFromCommitMessages(
-        tag: String,
+    fun extractMarkedCommitMessages(
+        key: String,
         range: CommitRange?,
     ): List<String> {
         return getCommitsByRange(range)
             .flatMap { commit ->
                 commit.fullMessage
                     .split('\n')
-                    .filter { message -> message.contains(tag) }
+                    .filter { message -> message.contains(key) }
             }
     }
 
@@ -30,10 +30,9 @@ internal class GitCommandExecutor(
      * Resulting set will be limited to [limitResultCount] tags or `null` if no tags found
      */
     fun findBuildTags(
-        buildVariant: String,
+        buildTagRegex: Regex,
         limitResultCount: Int,
     ): List<Tag>? {
-        val buildTagRegex = Regex(".+\\.(\\d+)-$buildVariant")
         return grgitService.grgit.tag.list()
             .filter { tag -> tag.name.matches(buildTagRegex) }
             .sortedBy { tag ->

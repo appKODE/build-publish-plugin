@@ -9,6 +9,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
@@ -44,15 +45,19 @@ abstract class GenerateChangelogTask
         abstract val tagBuildFile: RegularFileProperty
 
         @get:Input
-        @get:Option(option = "buildVariant", description = "Current build variant")
-        abstract val buildVariant: Property<String>
-
-        @get:Input
         @get:Option(
             option = "commitMessageKey",
             description = "Message key to collect interested commits",
         )
         abstract val commitMessageKey: Property<String>
+
+        @get:Input
+        @get:Option(
+            option = "buildTagPattern",
+            description = "Tag pattern to correctly search related tags",
+        )
+        @get:Optional
+        abstract val buildTagPattern: Property<String>
 
         @get:OutputFile
         @get:Option(
@@ -66,7 +71,7 @@ abstract class GenerateChangelogTask
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(GenerateChangelogWork::class.java) { parameters ->
                 parameters.commitMessageKey.set(commitMessageKey)
-                parameters.buildVariant.set(buildVariant)
+                parameters.buildTagPattern.set(buildTagPattern)
                 parameters.tagBuildFile.set(tagBuildFile)
                 parameters.changelogFile.set(changelogFile)
                 parameters.grgitService.set(grgitService)

@@ -14,18 +14,20 @@ internal class ChangelogBuilder(
     @Suppress("ReturnCount")
     fun buildForBuildTag(
         buildTag: Tag.Build,
+        buildTagPattern: String?,
         defaultValueSupplier: ((TagRange) -> String?)? = null,
     ): String? {
         val buildVariant = buildTag.buildVariant
-        return buildForBuildVariant(buildVariant, defaultValueSupplier)
+        return buildForBuildVariant(buildVariant, buildTagPattern, defaultValueSupplier)
     }
 
     private fun buildForBuildVariant(
         buildVariant: String,
+        buildTagPattern: String?,
         defaultValueSupplier: ((TagRange) -> String?)? = null,
     ): String? {
         val tagRange =
-            gitRepository.findTagRange(buildVariant)
+            gitRepository.findTagRange(buildVariant, buildTagPattern)
                 .also { if (it == null) logger?.warn("failed to build a changelog: no build tags") }
                 ?: return null
         return tagRange.buildChangelog() ?: defaultValueSupplier?.invoke(tagRange)
@@ -44,7 +46,7 @@ internal class ChangelogBuilder(
         // (but remember, tags can be annotated - which is taken care of above)
         if (this.currentBuildTag.commitSha != this.previousBuildTag?.commitSha) {
             gitCommandExecutor
-                .extractTagFromCommitMessages(messageKey, this.asCommitRange())
+                .extractMarkedCommitMessages(messageKey, this.asCommitRange())
                 .map { it.replace(Regex("\\s*$messageKey:?\\s*"), "• ") }
                 .forEach {
                     messageBuilder.appendLine(it)

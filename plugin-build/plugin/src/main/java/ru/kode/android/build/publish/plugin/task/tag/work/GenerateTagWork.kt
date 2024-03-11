@@ -13,6 +13,7 @@ import javax.inject.Inject
 
 interface GenerateTagParameters : WorkParameters {
     val buildVariant: Property<String>
+    val buildTagPattern: Property<String>
     val tagBuildFile: RegularFileProperty
     val grgitService: Property<GrgitService>
 }
@@ -24,8 +25,9 @@ abstract class GenerateTagWork
 
         override fun execute() {
             val buildVariant = parameters.buildVariant.get()
+            val buildTagPattern = parameters.buildTagPattern.orNull
             val gitCommandExecutor = GitCommandExecutor(parameters.grgitService.get())
-            val buildTag = GitRepository(gitCommandExecutor, buildVariant).findRecentBuildTag()
+            val buildTag = GitRepository(gitCommandExecutor).findRecentBuildTag(buildVariant, buildTagPattern)
             val tagBuildOutput = parameters.tagBuildFile.asFile.get()
 
             if (buildTag != null) {
