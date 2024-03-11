@@ -46,12 +46,14 @@ private fun Tag.toBuildVariant(buildVariant: String): String {
     }
 }
 
+// TODO: Add logic to configure logic to extract build version outside
 private fun Tag.toBuildVersion(): String {
     val tagFirstPart = name.split("-").first()
     val numbers = Regex("\\d+").findAll(tagFirstPart).toList()
     return numbers.dropLast(1).joinToString(separator = ".") { it.value }
 }
 
+// TODO: Add logic to configure logic to extract build number outside
 private fun Tag.toBuildNumber(): Int {
     val tagFirstPart = name.split("-").first()
     return Regex("\\d+").findAll(tagFirstPart).last().value.toInt()

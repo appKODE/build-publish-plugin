@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0-alpha01
+* Add experimental logic to configure build tag pattern (buildTagPattern). But now it has restrictions: for example, in tag name should be only one - delimiter
+
 ## 1.2.0
 * Hide firebase app distribution plugin inside, and add logic to apply it only if required
 * Add `useVersionsFromTag` property inside OutputConfig to disable logic when versions and file names is applied from tag   

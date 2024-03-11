@@ -45,6 +45,11 @@ buildPublish {
         register("default") {
             baseFileName.set("example-base-project-android")
         }
+
+        register("x86MinApi21AlphaDebug") {
+            baseFileName.set("example-base-project-android")
+            buildTagPattern.set("cabinet\\+.+\\.(\\d+)-x86MinApi21AlphaDebug")
+        }
     }
     changelog {
         register("default") {

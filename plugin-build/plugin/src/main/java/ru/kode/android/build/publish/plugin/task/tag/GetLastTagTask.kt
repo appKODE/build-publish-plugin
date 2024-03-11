@@ -8,6 +8,7 @@ import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
@@ -37,6 +38,11 @@ abstract class GetLastTagTask
         @get:Option(option = "buildVariant", description = "Current build variant")
         abstract val buildVariant: Property<String>
 
+        @get:Input
+        @get:Option(option = "buildTagPattern", description = "Tag pattern to correctly search related tags")
+        @get:Optional
+        abstract val buildTagPattern: Property<String>
+
         @get:OutputFile
         @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
         abstract val tagBuildFile: RegularFileProperty
@@ -47,6 +53,7 @@ abstract class GetLastTagTask
             workQueue.submit(GenerateTagWork::class.java) { parameters ->
                 parameters.tagBuildFile.set(tagBuildFile)
                 parameters.buildVariant.set(buildVariant)
+                parameters.buildTagPattern.set(buildTagPattern)
                 parameters.grgitService.set(grgitService)
             }
             workQueue.await()

@@ -2,6 +2,7 @@ package ru.kode.android.build.publish.plugin.extension.config
 
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 interface OutputConfig {
     val name: String
@@ -25,4 +26,8 @@ interface OutputConfig {
      */
     @get:Input
     val useVersionsFromTag: Property<Boolean>
+
+    @get:Input
+    @get:Optional
+    val buildTagPattern: Property<String>
 }

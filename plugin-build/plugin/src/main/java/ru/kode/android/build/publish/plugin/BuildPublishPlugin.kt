@@ -135,7 +135,12 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             with(buildPublishExtension.output) {
                 findByName(buildVariant.name) ?: getByName(DEFAULT_CONTAINER_NAME)
             }
-        val tagBuildProvider = registerGetLastTagTask(buildVariant, grgitService)
+        val tagBuildProvider =
+            registerGetLastTagTask(
+                buildVariant,
+                outputConfig.buildTagPattern,
+                grgitService,
+            )
         val useVersionsFromTagProvider = outputConfig.useVersionsFromTag.orElse(true)
         val versionCodeProvider =
             useVersionsFromTagProvider.flatMap { useVersionsFromTag ->
@@ -183,6 +188,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             val generateChangelogFileProvider =
                 tasks.registerGenerateChangelogTask(
                     changelogConfig.commitMessageKey,
+                    outputConfig.buildTagPattern,
                     buildVariant,
                     changelogFile,
                     tagBuildProvider,
@@ -333,6 +339,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
 
     private fun Project.registerGetLastTagTask(
         buildVariant: BuildVariant,
+        buildTagPattern: Provider<String>,
         grgitService: Provider<GrgitService>,
     ): Provider<RegularFile> {
         val tagBuildFile =
@@ -344,6 +351,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         ) { task ->
             task.tagBuildFile.set(tagBuildFile)
             task.buildVariant.set(buildVariant.name)
+            task.buildTagPattern.set(buildTagPattern)
             task.getGrgitService().set(grgitService)
         }.flatMap { it.tagBuildFile }
     }
@@ -362,6 +370,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
 
     private fun TaskContainer.registerGenerateChangelogTask(
         commitMessageKey: Provider<String>,
+        buildTagPattern: Provider<String>,
         buildVariant: BuildVariant,
         changelogFile: Provider<RegularFile>,
         tagBuildProvider: Provider<RegularFile>,
@@ -372,7 +381,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             GenerateChangelogTask::class.java,
         ) {
             it.commitMessageKey.set(commitMessageKey)
-            it.buildVariant.set(buildVariant.name)
+            it.buildTagPattern.set(buildTagPattern)
             it.changelogFile.set(changelogFile)
             it.tagBuildFile.set(tagBuildProvider)
             it.getGrgitService().set(grgitService)
