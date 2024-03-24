@@ -48,7 +48,6 @@ Using jar:
    // and this plugin (ru.kode.android.build-publish)
    plugins {
       id("com.android.application")
-      id("com.google.firebase.appdistribution")
       id("ru.kode.android.build-publish")
    }
 ```

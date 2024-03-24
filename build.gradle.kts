@@ -15,7 +15,7 @@ val dependsOnRecursivelyByName = { task: Task, name: String ->
 }
 
 tasks.register("clean", Delete::class.java) {
-    delete(rootProject.buildDir)
+    delete(layout.buildDirectory)
     dependsOnRecursivelyByName(this, "clean")
     dependsOn(gradle.includedBuild("plugin-build").task(":clean"))
 }
