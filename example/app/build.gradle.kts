@@ -1,16 +1,16 @@
 plugins {
     id("com.android.application")
-    id("com.google.firebase.appdistribution")
     id("ru.kode.android.build-publish")
 }
 
 android {
-    compileSdk = 33
+    namespace = "ru.kode.android.app"
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.dimensions.android"
-        minSdk = 21
-        targetSdk = 33
+        minSdk = 26
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
     }
