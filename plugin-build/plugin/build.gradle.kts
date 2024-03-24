@@ -6,7 +6,6 @@ plugins {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk7"))
     implementation(gradleApi())
     implementation(libs.agp)
     implementation(libs.firebaseAppdistribution)
@@ -24,32 +23,30 @@ dependencies {
 }
 
 gradlePlugin {
+    website.set("https://github.com/appKODE/build-publish-plugin")
+    vcsUrl.set("https://github.com/appKODE/build-publish-plugin")
+
     plugins {
         create("ru.kode.android.build-publish") {
             id = "ru.kode.android.build-publish"
+            displayName = "Configure project with Firebase App Distribution and changelogs"
             implementationClass = "ru.kode.android.build.publish.plugin.BuildPublishPlugin"
             version = project.version
+            description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
+            tags.set(listOf("firebase", "publish", "changelog", "build"))
         }
     }
 }
 
-// Configuration Block for the Plugin Marker artifact on Plugin Central
-pluginBundle {
-    website = "https://github.com/appKODE/build-publish-plugin"
-    vcsUrl = "https://github.com/appKODE/build-publish-plugin"
-    description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
-    tags = listOf("firebase", "publish", "changelog", "build")
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = project.group.toString()
+            artifactId = "ru.kode.android.build-publish".removePrefix("$groupId.")
+            version = project.version.toString()
 
-    plugins {
-        getByName("ru.kode.android.build-publish") {
-            displayName = "Configure project with Firebase App Distribution and changelogs"
+            from(components["java"])
         }
-    }
-
-    mavenCoordinates {
-        groupId = project.group.toString()
-        artifactId = "ru.kode.android.build-publish".removePrefix("$groupId.")
-        version = project.version.toString()
     }
 }
 
