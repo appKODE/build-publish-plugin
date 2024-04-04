@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "ru.kode.android"
-    version = "1.3.0-alpha01"
+    version = "1.3.0-alpha02"
 }
 
 val dependsOnRecursivelyByName = { task: Task, name: String ->
@@ -19,7 +19,7 @@ val dependsOnRecursivelyByName = { task: Task, name: String ->
 }
 
 tasks.register("clean", Delete::class.java) {
-    delete(rootProject.buildDir)
+    delete(layout.buildDirectory)
     dependsOnRecursivelyByName(this, "clean")
 }
 
