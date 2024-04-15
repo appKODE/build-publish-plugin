@@ -16,6 +16,8 @@ dependencies {
     implementation(libs.retrofitMoshi)
     implementation(libs.grgitCore)
     implementation(libs.grgitGradle)
+    implementation(libs.play.publish)
+    implementation(libs.google.auth)
 
     testImplementation(libs.junit)
 
@@ -31,7 +33,7 @@ gradlePlugin {
             id = "ru.kode.android.build-publish"
             displayName = "Configure project with Firebase App Distribution and changelogs"
             implementationClass = "ru.kode.android.build.publish.plugin.BuildPublishPlugin"
-            version = project.version
+            version = "1.3.2"
             description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
             tags.set(listOf("firebase", "publish", "changelog", "build"))
         }
@@ -43,7 +45,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
             artifactId = "ru.kode.android.build-publish".removePrefix("$groupId.")
-            version = project.version.toString()
+            version = "1.3.2"
 
             from(components["java"])
         }

@@ -6,6 +6,7 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.impl.VariantOutputImpl
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
+import com.android.build.gradle.internal.tasks.PackageBundleTask
 import com.android.build.gradle.tasks.PackageAndroidArtifact
 import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import com.google.firebase.appdistribution.gradle.AppDistributionExtension
@@ -18,6 +19,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.StopExecutionException
@@ -33,11 +35,13 @@ import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
+import ru.kode.android.build.publish.plugin.extension.config.PlayConfig
 import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
 import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
 import ru.kode.android.build.publish.plugin.task.appcenter.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
 import ru.kode.android.build.publish.plugin.task.jira.JiraAutomationTask
+import ru.kode.android.build.publish.plugin.task.play.PlayDistributionTask
 import ru.kode.android.build.publish.plugin.task.slack.changelog.SendSlackChangelogTask
 import ru.kode.android.build.publish.plugin.task.slack.distribution.SlackDistributionTask
 import ru.kode.android.build.publish.plugin.task.tag.GetLastTagTask
@@ -47,6 +51,7 @@ import ru.kode.android.build.publish.plugin.util.capitalizedName
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.logging.Logger
 
 internal const val SEND_SLACK_CHANGELOG_TASK_PREFIX = "sendSlackChangelog"
 internal const val SEND_TELEGRAM_CHANGELOG_TASK_PREFIX = "sendTelegramChangelog"
@@ -59,6 +64,7 @@ internal const val DEFAULT_VERSION_CODE = 1
 internal const val DEFAULT_BASE_FILE_NAME = "dev-build"
 internal const val CHANGELOG_FILENAME = "changelog.txt"
 internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistributionUpload"
+internal const val PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX = "playUpload"
 internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
 internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
 internal const val DEFAULT_CONTAINER_NAME = "default"
@@ -87,6 +93,10 @@ abstract class BuildPublishPlugin : Plugin<Project> {
 
         androidExtension.onVariants(
             callback = { variant ->
+                Logging.getLogger(this::class.java).info("FOUND VARIANT: $variant WITH OUTPUT NAME ${variant.outputs
+                    .find { it is VariantOutputImpl && it.fullName == variant.name }
+                    as? VariantOutputImpl}")
+
                 val output =
                     variant.outputs
                         .find { it is VariantOutputImpl && it.fullName == variant.name }
@@ -238,6 +248,21 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                         outputConfig = outputConfig,
                     )
                 tasks.registerAppCenterDistributionTask(params)
+            }
+            val playConfig =
+                with(buildPublishExtension.play) {
+                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+                }
+            if (playConfig != null) {
+                val params =
+                    PlayTaskParams(
+                        config = playConfig,
+                        buildVariant = buildVariant,
+                        buildVariantOutputFileProvider = outputFileProvider,
+                        tagBuildProvider = tagBuildProvider,
+                        outputConfig = outputConfig,
+                    )
+                tasks.registerPlayTask(params)
             }
             val jiraConfig =
                 with(buildPublishExtension.jira) {
@@ -461,6 +486,25 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.uploadStatusRequestDelayCoefficient.set(config.uploadStatusRequestDelayCoefficient)
         }
     }
+
+    private fun TaskContainer.registerPlayTask(
+        params: PlayTaskParams,
+    ): TaskProvider<PlayDistributionTask> {
+        val buildVariant = params.buildVariant
+        val config = params.config
+
+        return register(
+            "$PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
+            PlayDistributionTask::class.java,
+        ) {
+            it.tagBuildFile.set(params.tagBuildProvider)
+            it.buildVariantOutputFile.set(params.buildVariantOutputFileProvider)
+            it.apiTokenFile.set(config.apiTokenFile)
+            it.appId.set(config.appId)
+            it.trackId.set(config.trackId)
+            it.updatePriority.set(config.updatePriority)
+        }
+    }
 }
 
 private fun Project.configurePlugins(
@@ -552,6 +596,15 @@ private data class AppCenterDistributionTaskParams(
     val outputConfig: OutputConfig,
 )
 
+
+private data class PlayTaskParams(
+    val config: PlayConfig,
+    val buildVariant: BuildVariant,
+    val buildVariantOutputFileProvider: Provider<RegularFile>,
+    val tagBuildProvider: Provider<RegularFile>,
+    val outputConfig: OutputConfig,
+)
+
 private fun mapToVersionCode(tagBuildFile: RegularFile): Int {
     val file = tagBuildFile.asFile
     return if (file.exists()) {
@@ -573,8 +626,15 @@ private fun mapToOutputFileName(
         val versionName = tagBuild.buildVariant
         val versionCode = tagBuild.buildNumber
         "$baseFileName-$versionName-vc$versionCode-$formattedDate.apk"
+    } else if (file.exists() && outputFileName.endsWith(".aab")) {
+        val tagBuild = fromJson(file)
+        val versionName = tagBuild.buildVariant
+        val versionCode = tagBuild.buildNumber
+        "$baseFileName-$versionName-vc$versionCode-$formattedDate.aab"
     } else if (!file.exists() && outputFileName.endsWith(".apk")) {
         "$baseFileName-$formattedDate.apk"
+    }  else if (!file.exists() && outputFileName.endsWith(".aab")) {
+        "$baseFileName-$formattedDate.aab"
     } else {
         createDefaultOutputFileName(baseFileName, outputFileName)
     }
@@ -604,9 +664,16 @@ private fun Project.mapToOutputFile(
     buildVariant: BuildVariant,
     fileName: String,
 ): Provider<RegularFile> {
-    return project.tasks.withType(PackageAndroidArtifact::class.java)
-        .firstOrNull { it.variantName == buildVariant.name }
-        ?.outputDirectory
-        ?.map { directory -> directory.file(fileName) }
-        ?: throw GradleException("no output for variant ${buildVariant.name}")
+    return if (fileName.endsWith("aab")) {
+        project.tasks.withType(PackageBundleTask::class.java)
+            .firstOrNull { it.variantName == buildVariant.name }
+            ?.bundleFile
+            ?: throw GradleException("no output for variant ${buildVariant.name}")
+    } else {
+        project.tasks.withType(PackageAndroidArtifact::class.java)
+            .firstOrNull { it.variantName == buildVariant.name }
+            ?.outputDirectory
+            ?.map { directory -> directory.file(fileName) }
+            ?: throw GradleException("no output for variant ${buildVariant.name}")
+    }
 }

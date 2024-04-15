@@ -7,8 +7,10 @@ import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
+import ru.kode.android.build.publish.plugin.extension.config.PlayConfig
 import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
 import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
+import ru.kode.android.build.publish.plugin.task.play.PlayDistributionTask
 import javax.inject.Inject
 
 const val EXTENSION_NAME = "buildPublish"
@@ -31,4 +33,6 @@ abstract class BuildPublishExtension
             objectFactory.domainObjectContainer(FirebaseAppDistributionConfig::class.java)
         val appCenterDistribution: NamedDomainObjectContainer<AppCenterDistributionConfig> =
             objectFactory.domainObjectContainer(AppCenterDistributionConfig::class.java)
+        val play: NamedDomainObjectContainer<PlayConfig> =
+            objectFactory.domainObjectContainer(PlayConfig::class.java)
     }
