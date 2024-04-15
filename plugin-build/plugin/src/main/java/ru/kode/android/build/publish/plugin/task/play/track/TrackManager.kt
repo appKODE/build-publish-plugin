@@ -7,10 +7,6 @@ import ru.kode.android.build.publish.plugin.task.play.publisher.InternalPlayPubl
 import ru.kode.android.build.publish.plugin.task.play.publisher.ReleaseStatus
 
 internal interface TrackManager {
-    fun findHighestTrack(): Track?
-
-    fun getReleaseNotes(): Map<String, List<LocalizedText>>
-
     fun update(config: UpdateConfig)
 
     fun promote(config: PromoteConfig)
@@ -43,35 +39,15 @@ internal class DefaultTrackManager(
     private val publisher: InternalPlayPublisher,
     private val editId: String,
 ) : TrackManager {
-    override fun findHighestTrack(): Track? {
-        return publisher.listTracks(editId).maxByOrNull {
-            it.releases.orEmpty().flatMap { it.versionCodes.orEmpty() }.maxOrNull() ?: 0
-        }
-    }
-
-    override fun getReleaseNotes(): Map<String, List<LocalizedText>> {
-        val releaseNotes = mutableMapOf<String, List<LocalizedText>>()
-
-        val tracks = publisher.listTracks(editId)
-        for (track in tracks) {
-            val notes = track.releases?.maxByOrNull {
-                it.versionCodes?.maxOrNull() ?: Long.MIN_VALUE
-            }?.releaseNotes.orEmpty()
-
-            releaseNotes[track.track] = notes
-        }
-
-        return releaseNotes
-    }
-
     override fun update(config: TrackManager.UpdateConfig) {
-        val track = if (config.didPreviousBuildSkipCommit) {
-            createTrackForSkippedCommit(config)
-        } else if (config.base.releaseStatus.orDefault().isRollout()) {
-            createTrackForRollout(config)
-        } else {
-            createDefaultTrack(config)
-        }
+        val track =
+            if (config.didPreviousBuildSkipCommit) {
+                createTrackForSkippedCommit(config)
+            } else if (config.base.releaseStatus.orDefault().isRollout()) {
+                createTrackForRollout(config)
+            } else {
+                createDefaultTrack(config)
+            }
 
         publisher.updateTrack(editId, track)
     }
@@ -89,38 +65,44 @@ internal class DefaultTrackManager(
         // Only keep the unique statuses from the highest version code since duplicate statuses are
         // not allowed. This is how we deal with an update from inProgress -> completed. We update
         // all the tracks to completed, then get rid of the one that used to be inProgress.
-        track.releases = track.releases.sortedByDescending {
-            it.versionCodes?.maxOrNull()
-        }.distinctBy {
-            it.status
-        }
+        track.releases =
+            track.releases.sortedByDescending {
+                it.versionCodes?.maxOrNull()
+            }.distinctBy {
+                it.status
+            }
 
         println("Promoting release from track '${track.track}'")
         track.track = config.promoteTrackName
         publisher.updateTrack(editId, track)
     }
 
+    @Suppress("NestedBlockDepth") // TODO refactor and simplify TrackManager
     private fun createTrackForSkippedCommit(config: TrackManager.UpdateConfig): Track {
         val track = publisher.getTrack(editId, config.trackName)
 
         if (track.releases.isNullOrEmpty()) {
             track.releases = listOf(TrackRelease().mergeChanges(config.versionCodes, config.base))
         } else {
-            val hasReleaseToBeUpdated = track.releases.firstOrNull {
-                it.status == config.base.releaseStatus.orDefault().publishedName
-            } != null
+            val hasReleaseToBeUpdated =
+                track.releases.firstOrNull {
+                    it.status == config.base.releaseStatus.orDefault().publishedName
+                } != null
 
             if (hasReleaseToBeUpdated) {
                 for (release in track.releases) {
                     if (release.status == config.base.releaseStatus.orDefault().publishedName) {
                         release.mergeChanges(
-                                release.versionCodes.orEmpty() + config.versionCodes, config.base)
+                            release.versionCodes.orEmpty() + config.versionCodes,
+                            config.base,
+                        )
                     }
                 }
             } else {
-                val release = TrackRelease().mergeChanges(config.versionCodes, config.base).apply {
-                    maybeCopyChangelogFromPreviousRelease(config.trackName)
-                }
+                val release =
+                    TrackRelease().mergeChanges(config.versionCodes, config.base).apply {
+                        maybeCopyChangelogFromPreviousRelease(config.trackName)
+                    }
                 track.releases = track.releases + release
             }
         }
@@ -132,27 +114,32 @@ internal class DefaultTrackManager(
         val track = publisher.getTrack(editId, config.trackName)
 
         val keep = track.releases.orEmpty().filterNot { it.isRollout() }
-        val release = TrackRelease().mergeChanges(config.versionCodes, config.base).apply {
-            maybeCopyChangelogFromPreviousRelease(config.trackName)
-        }
+        val release =
+            TrackRelease().mergeChanges(config.versionCodes, config.base).apply {
+                maybeCopyChangelogFromPreviousRelease(config.trackName)
+            }
         track.releases = keep + release
 
         return track
     }
 
-    private fun createDefaultTrack(config: TrackManager.UpdateConfig) = Track().apply {
-        track = config.trackName
-        val release = TrackRelease().mergeChanges(config.versionCodes, config.base).apply {
-            maybeCopyChangelogFromPreviousRelease(config.trackName)
+    private fun createDefaultTrack(config: TrackManager.UpdateConfig) =
+        Track().apply {
+            track = config.trackName
+            val release =
+                TrackRelease()
+                    .mergeChanges(config.versionCodes, config.base)
+                    .apply { maybeCopyChangelogFromPreviousRelease(config.trackName) }
+            releases = listOf(release)
         }
-        releases = listOf(release)
-    }
 
     private fun TrackRelease.maybeCopyChangelogFromPreviousRelease(trackName: String) {
         if (!releaseNotes.isNullOrEmpty()) return
 
-        val previousRelease = publisher.getTrack(editId, trackName)
-                .releases.orEmpty()
+        val previousRelease =
+            publisher.getTrack(editId, trackName)
+                .releases
+                .orEmpty()
                 .maxByOrNull { it.versionCodes.orEmpty().maxOrNull() ?: 1 }
         releaseNotes = previousRelease?.releaseNotes
     }
@@ -169,12 +156,18 @@ internal class DefaultTrackManager(
         updateUpdatePriority(config.updatePriority)
     }
 
-    private fun TrackRelease.updateVersionCodes(versionCodes: List<Long>?, retainableArtifacts: List<Long>?) {
+    private fun TrackRelease.updateVersionCodes(
+        versionCodes: List<Long>?,
+        retainableArtifacts: List<Long>?,
+    ) {
         val newVersions = versionCodes ?: this.versionCodes.orEmpty()
         this.versionCodes = newVersions + retainableArtifacts.orEmpty()
     }
 
-    private fun TrackRelease.updateStatus(releaseStatus: ReleaseStatus?, hasUserFraction: Boolean) {
+    private fun TrackRelease.updateStatus(
+        releaseStatus: ReleaseStatus?,
+        hasUserFraction: Boolean,
+    ) {
         if (releaseStatus != null) {
             status = releaseStatus.publishedName
         } else if (hasUserFraction) {
@@ -189,25 +182,27 @@ internal class DefaultTrackManager(
     }
 
     private fun TrackRelease.updateReleaseNotes(rawReleaseNotes: Map<String, String?>?) {
-        val releaseNotes = rawReleaseNotes.orEmpty().map { (locale, notes) ->
-            LocalizedText().apply {
-                language = locale
-                text = notes
+        val releaseNotes =
+            rawReleaseNotes.orEmpty().map { (locale, notes) ->
+                LocalizedText().apply {
+                    language = locale
+                    text = notes
+                }
             }
-        }
         val existingReleaseNotes = this.releaseNotes.orEmpty()
 
-        this.releaseNotes = if (existingReleaseNotes.isEmpty()) {
-            releaseNotes
-        } else {
-            val merged = releaseNotes.toMutableList()
+        this.releaseNotes =
+            if (existingReleaseNotes.isEmpty()) {
+                releaseNotes
+            } else {
+                val merged = releaseNotes.toMutableList()
 
-            for (existing in existingReleaseNotes) {
-                if (merged.none { it.language == existing.language }) merged += existing
+                for (existing in existingReleaseNotes) {
+                    if (merged.none { it.language == existing.language }) merged += existing
+                }
+
+                merged
             }
-
-            merged
-        }
     }
 
     private fun TrackRelease.updateUserFraction(userFraction: Double?) {
@@ -226,12 +221,11 @@ internal class DefaultTrackManager(
         }
     }
 
-    private fun ReleaseStatus.isRollout() =
-            this == ReleaseStatus.IN_PROGRESS || this == ReleaseStatus.HALTED
+    private fun ReleaseStatus.isRollout() = this == ReleaseStatus.IN_PROGRESS || this == ReleaseStatus.HALTED
 
     private fun TrackRelease.isRollout() =
-            status == ReleaseStatus.IN_PROGRESS.publishedName ||
-                    status == ReleaseStatus.HALTED.publishedName
+        status == ReleaseStatus.IN_PROGRESS.publishedName ||
+            status == ReleaseStatus.HALTED.publishedName
 
     private fun ReleaseStatus?.orDefault() = this ?: DEFAULT_RELEASE_STATUS
 

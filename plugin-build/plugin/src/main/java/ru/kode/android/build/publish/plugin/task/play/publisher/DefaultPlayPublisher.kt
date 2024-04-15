@@ -7,13 +7,10 @@ import com.google.api.client.http.FileContent
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.androidpublisher.AndroidPublisher
 import com.google.api.services.androidpublisher.model.Apk
-import com.google.api.services.androidpublisher.model.AppDetails
 import com.google.api.services.androidpublisher.model.Bundle
 import com.google.api.services.androidpublisher.model.DeobfuscationFilesUploadResponse
 import com.google.api.services.androidpublisher.model.ExpansionFile
-import com.google.api.services.androidpublisher.model.Image
 import com.google.api.services.androidpublisher.model.InAppProduct
-import com.google.api.services.androidpublisher.model.Listing
 import com.google.api.services.androidpublisher.model.Track
 import java.io.File
 import kotlin.math.roundToInt
@@ -38,7 +35,10 @@ internal class DefaultPlayPublisher(
         }
     }
 
-    override fun commitEdit(id: String, sendChangesForReview: Boolean): CommitResponse {
+    override fun commitEdit(
+        id: String,
+        sendChangesForReview: Boolean,
+    ): CommitResponse {
         return try {
             publisher.edits().commit(appId, id)
                 .setChangesNotSentForReview(!sendChangesForReview)
@@ -53,37 +53,10 @@ internal class DefaultPlayPublisher(
         publisher.edits().validate(appId, id).execute()
     }
 
-    override fun getAppDetails(editId: String): AppDetails {
-        return publisher.edits().details().get(appId, editId).execute()
-    }
-
-    override fun getListings(editId: String): List<Listing> {
-        return publisher.edits().listings().list(appId, editId).execute()?.listings.orEmpty()
-    }
-
-    override fun getImages(editId: String, locale: String, type: String): List<Image> {
-        val response = publisher.edits().images().list(appId, editId, locale, type).execute()
-        return response?.images.orEmpty()
-    }
-
-    override fun updateDetails(editId: String, details: AppDetails) {
-        publisher.edits().details().update(appId, editId, details).execute()
-    }
-
-    override fun updateListing(editId: String, locale: String, listing: Listing) {
-        publisher.edits().listings().update(appId, editId, locale, listing).execute()
-    }
-
-    override fun deleteImages(editId: String, locale: String, type: String) {
-        publisher.edits().images().deleteall(appId, editId, locale, type).execute()
-    }
-
-    override fun uploadImage(editId: String, locale: String, type: String, image: File) {
-        val content = FileContent(MIME_TYPE_IMAGE, image)
-        publisher.edits().images().upload(appId, editId, locale, type, content).execute()
-    }
-
-    override fun getTrack(editId: String, track: String): Track {
+    override fun getTrack(
+        editId: String,
+        track: String,
+    ): Track {
         return try {
             publisher.edits().tracks().get(appId, editId, track).execute()
         } catch (e: GoogleJsonResponseException) {
@@ -99,28 +72,44 @@ internal class DefaultPlayPublisher(
         return publisher.edits().tracks().list(appId, editId).execute()?.tracks.orEmpty()
     }
 
-    override fun updateTrack(editId: String, track: Track) {
-        println("Updating ${track.releases.map { it.status }.distinct()} release " +
-            "($appId:${track.releases.flatMap { it.versionCodes.orEmpty() }}) " +
-            "in track '${track.track}'")
+    override fun updateTrack(
+        editId: String,
+        track: Track,
+    ) {
+        println(
+            "Updating ${track.releases.map { it.status }.distinct()} release " +
+                "($appId:${track.releases.flatMap { it.versionCodes.orEmpty() }}) " +
+                "in track '${track.track}'",
+        )
         publisher.edits().tracks().update(appId, editId, track.track, track).execute()
     }
 
-    override fun uploadBundle(editId: String, bundleFile: File): Bundle {
+    override fun uploadBundle(
+        editId: String,
+        bundleFile: File,
+    ): Bundle {
         val content = FileContent(MIME_TYPE_STREAM, bundleFile)
         return publisher.edits().bundles().upload(appId, editId, content)
             .trackUploadProgress("App Bundle", bundleFile)
             .execute()
     }
 
-    override fun uploadApk(editId: String, apkFile: File): Apk {
+    override fun uploadApk(
+        editId: String,
+        apkFile: File,
+    ): Apk {
         val content = FileContent(MIME_TYPE_APK, apkFile)
         return publisher.edits().apks().upload(appId, editId, content)
             .trackUploadProgress("APK", apkFile)
             .execute()
     }
 
-    override fun attachObb(editId: String, type: String, appVersion: Int, obbVersion: Int) {
+    override fun attachObb(
+        editId: String,
+        type: String,
+        appVersion: Int,
+        obbVersion: Int,
+    ) {
         val obb = ExpansionFile().also { it.referencesVersion = obbVersion }
         publisher.edits().expansionfiles()
             .update(appId, editId, appVersion, type, obb)
@@ -134,11 +123,12 @@ internal class DefaultPlayPublisher(
         type: String,
     ): DeobfuscationFilesUploadResponse {
         val mapping = FileContent(MIME_TYPE_STREAM, file)
-        val humanFileName = when (type) {
-            "proguard" -> "mapping"
-            "nativeCode" -> "native debug symbols"
-            else -> type
-        }
+        val humanFileName =
+            when (type) {
+                "proguard" -> "mapping"
+                "nativeCode" -> "native debug symbols"
+                else -> type
+            }
         return publisher.edits().deobfuscationfiles()
             .upload(appId, editId, versionCode, type, mapping)
             .trackUploadProgress("$humanFileName file", file)
@@ -146,27 +136,30 @@ internal class DefaultPlayPublisher(
     }
 
     override fun uploadInternalSharingBundle(bundleFile: File): UploadInternalSharingArtifactResponse {
-        val bundle = publisher.internalappsharingartifacts()
-            .uploadbundle(appId, FileContent(MIME_TYPE_STREAM, bundleFile))
-            .trackUploadProgress("App Bundle", bundleFile)
-            .execute()
+        val bundle =
+            publisher.internalappsharingartifacts()
+                .uploadbundle(appId, FileContent(MIME_TYPE_STREAM, bundleFile))
+                .trackUploadProgress("App Bundle", bundleFile)
+                .execute()
 
         return UploadInternalSharingArtifactResponse(bundle.toPrettyString(), bundle.downloadUrl)
     }
 
     override fun uploadInternalSharingApk(apkFile: File): UploadInternalSharingArtifactResponse {
-        val apk = publisher.internalappsharingartifacts()
-            .uploadapk(appId, FileContent(MIME_TYPE_APK, apkFile))
-            .trackUploadProgress("APK", apkFile)
-            .execute()
+        val apk =
+            publisher.internalappsharingartifacts()
+                .uploadapk(appId, FileContent(MIME_TYPE_APK, apkFile))
+                .trackUploadProgress("APK", apkFile)
+                .execute()
 
         return UploadInternalSharingArtifactResponse(apk.toPrettyString(), apk.downloadUrl)
     }
 
     override fun getInAppProducts(): List<GppProduct> {
-        fun AndroidPublisher.Inappproducts.List.withToken(token: String?) = apply {
-            this.token = token
-        }
+        fun AndroidPublisher.Inappproducts.List.withToken(token: String?) =
+            apply {
+                this.token = token
+            }
 
         val products = mutableListOf<InAppProduct>()
 
@@ -205,11 +198,12 @@ internal class DefaultPlayPublisher(
         return UpdateProductResponse(false)
     }
 
-    private fun readProductFile(product: File) = product.inputStream().use {
-        GsonFactory.getDefaultInstance()
-            .createJsonParser(it)
-            .parse(InAppProduct::class.java)
-    }
+    private fun readProductFile(product: File) =
+        product.inputStream().use {
+            GsonFactory.getDefaultInstance()
+                .createJsonParser(it)
+                .parse(InAppProduct::class.java)
+        }
 
     private fun <T, R : AbstractGoogleClientRequest<T>> R.trackUploadProgress(
         thing: String,

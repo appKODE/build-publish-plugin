@@ -10,7 +10,6 @@ import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.extension.config.PlayConfig
 import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
 import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
-import ru.kode.android.build.publish.plugin.task.play.PlayDistributionTask
 import javax.inject.Inject
 
 const val EXTENSION_NAME = "buildPublish"

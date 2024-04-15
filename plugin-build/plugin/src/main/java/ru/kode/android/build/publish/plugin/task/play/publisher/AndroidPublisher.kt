@@ -19,30 +19,34 @@ import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.client.ProxyAuthenticationStrategy
 import java.io.FileInputStream
 import java.io.InputStream
+import java.lang.IllegalStateException
 import java.security.KeyStore
 import java.util.concurrent.TimeUnit
 
+@Suppress("TooGenericExceptionCaught") // Exception is rethrown with proper message
 internal fun createPublisher(credentials: InputStream): AndroidPublisher {
     val transport = buildTransport()
-    val credential = try {
-        GoogleCredentials.fromStream(credentials) { transport }
-    } catch (e: Exception) {
-        throw Exception(
-            "Credential parsing may have failed. " +
-                "Ensure credential files supplied in the DSL contain valid JSON " +
-                "and/or the ANDROID_PUBLISHER_CREDENTIALS envvar contains valid JSON " +
-                "(not a file path).", e)
-    }.createScoped(listOf(AndroidPublisherScopes.ANDROIDPUBLISHER))
+    val credential =
+        try {
+            GoogleCredentials.fromStream(credentials) { transport }
+        } catch (e: Exception) {
+            throw IllegalStateException(
+                "Credential parsing may have failed. " +
+                    "Ensure credential files supplied in the DSL contain valid JSON " +
+                    "and/or the ANDROID_PUBLISHER_CREDENTIALS envvar contains valid JSON " +
+                    "(not a file path).",
+                e,
+            )
+        }.createScoped(listOf(AndroidPublisherScopes.ANDROIDPUBLISHER))
 
     return AndroidPublisher.Builder(
         transport,
         GsonFactory.getDefaultInstance(),
-        AndroidPublisherAdapter(credential)
+        AndroidPublisherAdapter(credential),
     ).setApplicationName("PLUGIN_NAME").build()
 }
 
-internal infix fun GoogleJsonResponseException.has(error: String) =
-    details?.errors.orEmpty().any { it.reason == error }
+internal infix fun GoogleJsonResponseException.has(error: String) = details?.errors.orEmpty().any { it.reason == error }
 
 private fun buildTransport(): HttpTransport {
     val trustStore: String? = System.getProperty("javax.net.ssl.trustStore", null)
@@ -72,12 +76,13 @@ private fun createHttpTransport(): HttpTransport {
             val credentials = BasicCredentialsProvider()
             credentials.setCredentials(
                 AuthScope(proxyHost, proxyPort),
-                UsernamePasswordCredentials(proxyUser, proxyPassword)
+                UsernamePasswordCredentials(proxyUser, proxyPassword),
             )
-            val httpClient = ApacheHttpTransport.newDefaultHttpClientBuilder()
-                .setProxyAuthenticationStrategy(ProxyAuthenticationStrategy.INSTANCE)
-                .setDefaultCredentialsProvider(credentials)
-                .build()
+            val httpClient =
+                ApacheHttpTransport.newDefaultHttpClientBuilder()
+                    .setProxyAuthenticationStrategy(ProxyAuthenticationStrategy.INSTANCE)
+                    .setDefaultCredentialsProvider(credentials)
+                    .build()
             return ApacheHttpTransport(httpClient)
         }
     }
@@ -88,15 +93,16 @@ private class AndroidPublisherAdapter(
     credential: GoogleCredentials,
 ) : HttpCredentialsAdapter(credential) {
     override fun initialize(request: HttpRequest) {
-        val backOffHandler = HttpBackOffUnsuccessfulResponseHandler(
-            ExponentialBackOff.Builder()
-                .setMaxElapsedTimeMillis(TimeUnit.MINUTES.toMillis(3).toInt())
-                .build()
-        )
+        val backOffHandler =
+            HttpBackOffUnsuccessfulResponseHandler(
+                ExponentialBackOff.Builder()
+                    .setMaxElapsedTimeMillis(TimeUnit.MINUTES.toMillis(3).toInt())
+                    .build(),
+            )
 
         super.initialize(
             request.setReadTimeout(0)
-                .setUnsuccessfulResponseHandler(backOffHandler)
+                .setUnsuccessfulResponseHandler(backOffHandler),
         )
     }
 }

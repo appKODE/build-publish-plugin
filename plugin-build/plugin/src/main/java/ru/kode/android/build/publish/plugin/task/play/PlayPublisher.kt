@@ -36,7 +36,10 @@ interface PlayPublisher {
      * More docs are available
      * [here](https://developers.google.com/android-publisher/api-ref/edits/commit).
      */
-    fun commitEdit(id: String, sendChangesForReview: Boolean = true): CommitResponse
+    fun commitEdit(
+        id: String,
+        sendChangesForReview: Boolean = true,
+    ): CommitResponse
 
     /**
      * Validates an edit with the given [id].

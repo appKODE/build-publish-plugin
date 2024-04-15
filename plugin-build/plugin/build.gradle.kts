@@ -33,7 +33,7 @@ gradlePlugin {
             id = "ru.kode.android.build-publish"
             displayName = "Configure project with Firebase App Distribution and changelogs"
             implementationClass = "ru.kode.android.build.publish.plugin.BuildPublishPlugin"
-            version = "1.3.2"
+            version = project.version
             description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
             tags.set(listOf("firebase", "publish", "changelog", "build"))
         }
@@ -45,7 +45,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
             artifactId = "ru.kode.android.build-publish".removePrefix("$groupId.")
-            version = "1.3.2"
+            version = project.version.toString()
 
             from(components["java"])
         }

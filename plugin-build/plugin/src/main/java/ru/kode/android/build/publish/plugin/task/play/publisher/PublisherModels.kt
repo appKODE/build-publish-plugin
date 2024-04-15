@@ -6,9 +6,10 @@ package ru.kode.android.build.publish.plugin.task.play.publisher
  * More docs are available
  * [here](https://developers.google.com/android-publisher/api-ref/edits/tracks).
  */
+@Suppress("EnumNaming") // Google API Model
 enum class ReleaseStatus(
-        /** The API name of the status. */
-        val publishedName: String,
+    /** The API name of the status. */
+    val publishedName: String,
 ) {
     /** The release is live. */
     COMPLETED("completed"),
@@ -20,7 +21,7 @@ enum class ReleaseStatus(
     HALTED("halted"),
 
     /** The release is still being rolled out. */
-    IN_PROGRESS("inProgress")
+    IN_PROGRESS("inProgress"),
 }
 
 /**
@@ -29,9 +30,10 @@ enum class ReleaseStatus(
  * More docs are available
  * [here](https://github.com/Triple-T/gradle-play-publisher#handling-version-conflicts).
  */
+@Suppress("EnumNaming") // Google API Model
 enum class ResolutionStrategy(
-        /** The API name of the strategy. */
-        val publishedName: String,
+    /** The API name of the strategy. */
+    val publishedName: String,
 ) {
     /** Conflicts should be automagically resolved. */
     AUTO("auto"),
@@ -47,5 +49,5 @@ enum class ResolutionStrategy(
     FAIL("fail"),
 
     /** Keep going and pretend like nothing happened. */
-    IGNORE("ignore")
+    IGNORE("ignore"),
 }

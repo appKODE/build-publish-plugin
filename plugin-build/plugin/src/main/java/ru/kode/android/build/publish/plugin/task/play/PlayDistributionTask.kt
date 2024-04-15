@@ -5,7 +5,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
@@ -14,13 +13,14 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
-import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_COUNT
-import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_DELAY_MS
-import ru.kode.android.build.publish.plugin.task.appcenter.work.AppCenterUploadWork
 import ru.kode.android.build.publish.plugin.task.play.work.PlayUploadWork
-import ru.kode.android.build.publish.plugin.util.capitalized
 import javax.inject.Inject
 
+/**
+ * Task to publish app at given release track in google play console with set priority
+ * Contains basic functionality, for the extensions reference to original implementation:
+ * https://github.com/Triple-T/gradle-play-publisher
+ */
 abstract class PlayDistributionTask
     @Inject
     constructor(
@@ -55,7 +55,6 @@ abstract class PlayDistributionTask
             description = "appId from Play Console",
         )
         abstract val appId: Property<String>
-
 
         @get:Input
         @get:Option(
