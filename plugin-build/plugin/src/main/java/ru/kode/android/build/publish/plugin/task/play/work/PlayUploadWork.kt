@@ -37,7 +37,7 @@ abstract class PlayUploadWork : WorkAction<PlayUploadParameters> {
                 publisher = createPublisher(parameters.apiToken.asFile.get().inputStream()),
                 appId = parameters.appId.get(),
             )
-        logger.info("Step 1/3: Requesting track edit...")
+        logger.info("Step 1/4: Requesting track edit...")
         val editId =
             when (val result = publisher.insertEdit()) {
                 is EditResponse.Success -> result.id
@@ -59,7 +59,7 @@ abstract class PlayUploadWork : WorkAction<PlayUploadParameters> {
         val trackManager = DefaultTrackManager(publisher, editId)
         val editManager = DefaultEditManager(publisher, trackManager, editId)
 
-        logger.info("Step 2/3: Upload bundle for $editId")
+        logger.info("Step 2/4: Upload bundle for $editId")
 
         val versionCode = editManager.uploadBundle(file, ResolutionStrategy.IGNORE)
 
@@ -68,7 +68,7 @@ abstract class PlayUploadWork : WorkAction<PlayUploadParameters> {
             return
         }
 
-        logger.info("Step 3/3: Pushing $releaseName to $track at P=$priority V=$versionCode")
+        logger.info("Step 3/4: Pushing $releaseName to $track at P=$priority V=$versionCode")
 
         trackManager.update(
             config =
@@ -77,12 +77,16 @@ abstract class PlayUploadWork : WorkAction<PlayUploadParameters> {
                     versionCodes = listOf(versionCode),
                     didPreviousBuildSkipCommit = false,
                     TrackManager.BaseConfig(
-                        userFraction = parameters.versionCode.orNull ?: 0.1,
                         updatePriority = priority,
                         releaseName = parameters.releaseName.get(),
                     ),
                 ),
         )
-        logger.info("Step 3/3: Bundle upload successful")
+
+        logger.info("Step 3/4: Commit $editId")
+
+        publisher.commitEdit(editId)
+
+        logger.info("Step 4/4: Bundle upload successful")
     }
 }
