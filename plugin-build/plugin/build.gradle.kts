@@ -16,6 +16,8 @@ dependencies {
     implementation(libs.retrofitMoshi)
     implementation(libs.grgitCore)
     implementation(libs.grgitGradle)
+    implementation(libs.play.publish)
+    implementation(libs.google.auth)
 
     testImplementation(libs.junit)
 

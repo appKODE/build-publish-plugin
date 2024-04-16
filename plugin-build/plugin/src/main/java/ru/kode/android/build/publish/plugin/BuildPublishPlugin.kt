@@ -2,6 +2,7 @@
 
 package ru.kode.android.build.publish.plugin
 
+import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.impl.VariantOutputImpl
 import com.android.build.gradle.AppExtension
@@ -33,11 +34,13 @@ import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
+import ru.kode.android.build.publish.plugin.extension.config.PlayConfig
 import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
 import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
 import ru.kode.android.build.publish.plugin.task.appcenter.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
 import ru.kode.android.build.publish.plugin.task.jira.JiraAutomationTask
+import ru.kode.android.build.publish.plugin.task.play.PlayDistributionTask
 import ru.kode.android.build.publish.plugin.task.slack.changelog.SendSlackChangelogTask
 import ru.kode.android.build.publish.plugin.task.slack.distribution.SlackDistributionTask
 import ru.kode.android.build.publish.plugin.task.tag.GetLastTagTask
@@ -59,6 +62,7 @@ internal const val DEFAULT_VERSION_CODE = 1
 internal const val DEFAULT_BASE_FILE_NAME = "dev-build"
 internal const val CHANGELOG_FILENAME = "changelog.txt"
 internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistributionUpload"
+internal const val PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX = "playUpload"
 internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
 internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
 internal const val DEFAULT_CONTAINER_NAME = "default"
@@ -93,17 +97,20 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                         as? VariantOutputImpl
                 if (output != null) {
                     val buildVariant = BuildVariant(variant.name, variant.flavorName, variant.buildType)
-                    val outputFileName = output.outputFileName.get()
+                    val apkOutputFileName = output.outputFileName.get()
+
+                    val bundleFile = variant.artifacts.get(SingleArtifact.BUNDLE)
                     val outputProviders =
                         project.registerVariantTasks(
                             buildPublishExtension,
                             buildVariant,
                             changelogFile,
-                            outputFileName,
+                            apkOutputFileName,
+                            bundleFile,
                             grgitService,
                         )
                     output.versionCode.set(outputProviders.versionCode)
-                    output.outputFileName.set(outputProviders.outputFileName)
+                    output.outputFileName.set(outputProviders.apkOutputFileName)
                     output.versionName.set(outputProviders.versionName)
                 }
             },
@@ -128,7 +135,8 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         buildPublishExtension: BuildPublishExtension,
         buildVariant: BuildVariant,
         changelogFile: Provider<RegularFile>,
-        outputFileName: String,
+        apkOutputFileName: String,
+        bundleFile: Provider<RegularFile>,
         grgitService: Provider<GrgitService>,
     ): OutputProviders {
         val outputConfig =
@@ -150,15 +158,15 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     project.provider { DEFAULT_VERSION_CODE }
                 }
             }
-        val outputFileNameProvider =
+        val apkOutputFileNameProvider =
             useVersionsFromTagProvider.flatMap { useVersionsFromTag ->
                 if (useVersionsFromTag) {
                     outputConfig.baseFileName.zip(tagBuildProvider) { baseFileName, tagBuildFile ->
-                        mapToOutputFileName(tagBuildFile, outputFileName, baseFileName)
+                        mapToOutputApkFileName(tagBuildFile, apkOutputFileName, baseFileName)
                     }
                 } else {
                     outputConfig.baseFileName.map { baseFileName ->
-                        createDefaultOutputFileName(baseFileName, outputFileName)
+                        createDefaultOutputFileName(baseFileName, apkOutputFileName)
                     }
                 }
             }
@@ -172,9 +180,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     project.provider { DEFAULT_VERSION_NAME }
                 }
             }
-        val outputFileProvider =
-            outputFileNameProvider.flatMap { fileName ->
-                mapToOutputFile(buildVariant, fileName)
+        val apkOutputFileProvider =
+            apkOutputFileNameProvider.flatMap { fileName ->
+                mapToOutputApkFile(buildVariant, fileName)
             }
         tasks.registerPrintLastIncreasedTagTask(
             buildVariant,
@@ -220,7 +228,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     buildVariant,
                     generateChangelogFileProvider,
                     tagBuildProvider,
-                    outputFileProvider,
+                    apkOutputFileProvider,
                 )
             }
             val appCenterDistributionConfig =
@@ -233,11 +241,26 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                         config = appCenterDistributionConfig,
                         buildVariant = buildVariant,
                         changelogFileProvider = generateChangelogFileProvider,
-                        buildVariantOutputFileProvider = outputFileProvider,
+                        apkOutputFileProvider = apkOutputFileProvider,
                         tagBuildProvider = tagBuildProvider,
                         outputConfig = outputConfig,
                     )
                 tasks.registerAppCenterDistributionTask(params)
+            }
+            val playConfig =
+                with(buildPublishExtension.play) {
+                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+                }
+            if (playConfig != null) {
+                val params =
+                    PlayTaskParams(
+                        config = playConfig,
+                        buildVariant = buildVariant,
+                        bundleOutputFileProvider = bundleFile,
+                        tagBuildProvider = tagBuildProvider,
+                        outputConfig = outputConfig,
+                    )
+                tasks.registerPlayTask(params)
             }
             val jiraConfig =
                 with(buildPublishExtension.jira) {
@@ -256,7 +279,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         return OutputProviders(
             versionName = versionNameProvider,
             versionCode = versionCodeProvider,
-            outputFileName = outputFileNameProvider,
+            apkOutputFileName = apkOutputFileNameProvider,
         )
     }
 
@@ -298,7 +321,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         buildVariant: BuildVariant,
         generateChangelogFileProvider: Provider<RegularFile>,
         tagBuildProvider: Provider<RegularFile>,
-        outputFileProvider: Provider<RegularFile>,
+        apkOutputFileProvider: Provider<RegularFile>,
     ) {
         registerSendSlackChangelogTask(
             outputConfig,
@@ -316,7 +339,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 slackConfig.uploadApiTokenFile,
                 slackConfig.uploadChannels,
                 buildVariant,
-                outputFileProvider,
+                apkOutputFileProvider,
             )
         }
     }
@@ -325,13 +348,13 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         apiTokenFile: RegularFileProperty,
         channels: SetProperty<String>,
         buildVariant: BuildVariant,
-        outputFileProvider: Provider<RegularFile>,
+        apkOutputFileProvider: Provider<RegularFile>,
     ) {
         register(
             "$SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
             SlackDistributionTask::class.java,
         ) {
-            it.buildVariantOutputFile.set(outputFileProvider)
+            it.buildVariantOutputFile.set(apkOutputFileProvider)
             it.apiTokenFile.set(apiTokenFile)
             it.channels.set(channels)
         }
@@ -449,7 +472,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             AppCenterDistributionTask::class.java,
         ) {
             it.tagBuildFile.set(params.tagBuildProvider)
-            it.buildVariantOutputFile.set(params.buildVariantOutputFileProvider)
+            it.buildVariantOutputFile.set(params.apkOutputFileProvider)
             it.changelogFile.set(params.changelogFileProvider)
             it.apiTokenFile.set(config.apiTokenFile)
             it.ownerName.set(config.ownerName)
@@ -459,6 +482,23 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.maxUploadStatusRequestCount.set(config.maxUploadStatusRequestCount)
             it.uploadStatusRequestDelayMs.set(config.uploadStatusRequestDelayMs)
             it.uploadStatusRequestDelayCoefficient.set(config.uploadStatusRequestDelayCoefficient)
+        }
+    }
+
+    private fun TaskContainer.registerPlayTask(params: PlayTaskParams): TaskProvider<PlayDistributionTask> {
+        val buildVariant = params.buildVariant
+        val config = params.config
+
+        return register(
+            "$PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
+            PlayDistributionTask::class.java,
+        ) {
+            it.tagBuildFile.set(params.tagBuildProvider)
+            it.buildVariantOutputFile.set(params.bundleOutputFileProvider)
+            it.apiTokenFile.set(config.apiTokenFile)
+            it.appId.set(config.appId)
+            it.trackId.set(config.trackId)
+            it.updatePriority.set(config.updatePriority)
         }
     }
 }
@@ -540,14 +580,22 @@ private fun AppDistributionExtension.configure(
 private data class OutputProviders(
     val versionName: Provider<String>,
     val versionCode: Provider<Int>,
-    val outputFileName: Provider<String>,
+    val apkOutputFileName: Provider<String>,
 )
 
 private data class AppCenterDistributionTaskParams(
     val config: AppCenterDistributionConfig,
     val buildVariant: BuildVariant,
     val changelogFileProvider: Provider<RegularFile>,
-    val buildVariantOutputFileProvider: Provider<RegularFile>,
+    val apkOutputFileProvider: Provider<RegularFile>,
+    val tagBuildProvider: Provider<RegularFile>,
+    val outputConfig: OutputConfig,
+)
+
+private data class PlayTaskParams(
+    val config: PlayConfig,
+    val buildVariant: BuildVariant,
+    val bundleOutputFileProvider: Provider<RegularFile>,
     val tagBuildProvider: Provider<RegularFile>,
     val outputConfig: OutputConfig,
 )
@@ -561,7 +609,7 @@ private fun mapToVersionCode(tagBuildFile: RegularFile): Int {
     }
 }
 
-private fun mapToOutputFileName(
+private fun mapToOutputApkFileName(
     tagBuildFile: RegularFile,
     outputFileName: String,
     baseFileName: String?,
@@ -600,7 +648,7 @@ private fun mapToVersionName(
     }
 }
 
-private fun Project.mapToOutputFile(
+private fun Project.mapToOutputApkFile(
     buildVariant: BuildVariant,
     fileName: String,
 ): Provider<RegularFile> {

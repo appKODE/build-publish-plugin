@@ -11,6 +11,8 @@ moshi = "1.15.0"
 retrofit = "2.9.0"
 junit = "4.13.2"
 ksp = "1.9.23-1.0.19"
+play-publish = "v3-rev20231115-2.0.0"
+google-auth = "1.20.0"
 
 [libraries]
 agp = { module = "com.android.tools.build:gradle", version.ref = "agp" }
@@ -29,6 +31,8 @@ kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.
 ktlint-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
 detekt-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+play-publish = { module = "com.google.apis:google-api-services-androidpublisher", version.ref = "play-publish" }
+google-auth = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "google-auth" }
 
 [plugins]
 agp = { id = "com.android.application", version.ref = "agp" }
