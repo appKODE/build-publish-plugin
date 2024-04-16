@@ -13,7 +13,7 @@ internal interface TrackManager {
 
     data class BaseConfig(
         val releaseStatus: ReleaseStatus? = null,
-        val userFraction: Double?,
+        val userFraction: Double? = null,
         val updatePriority: Int?,
         val releaseNotes: Map<String, String?>? = emptyMap(),
         val retainableArtifacts: List<Long>? = null,
