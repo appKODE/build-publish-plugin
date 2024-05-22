@@ -4,6 +4,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.extension.config.AppCenterDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
+import ru.kode.android.build.publish.plugin.extension.config.ClickUpConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
@@ -24,6 +25,8 @@ abstract class BuildPublishExtension
             objectFactory.domainObjectContainer(ChangelogConfig::class.java)
         val jira: NamedDomainObjectContainer<JiraConfig> =
             objectFactory.domainObjectContainer(JiraConfig::class.java)
+        val clickUp: NamedDomainObjectContainer<ClickUpConfig> =
+            objectFactory.domainObjectContainer(ClickUpConfig::class.java)
         val telegram: NamedDomainObjectContainer<TelegramConfig> =
             objectFactory.domainObjectContainer(TelegramConfig::class.java)
         val slack: NamedDomainObjectContainer<SlackConfig> =

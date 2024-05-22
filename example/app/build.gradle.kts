@@ -74,6 +74,14 @@ buildPublish {
             fixVersionPattern.set("fix_%2\$s_%1\$s")
         }
     }
+    clickUp {
+        register("default") {
+            apiTokenFile = File("clickup-token.txt")
+            fixVersionPattern = "fix_%2\$s_%1\$s"
+            fixVersionFieldId = "01234567qwerty"
+            tagName = "test_tag_name"
+        }
+    }
     telegram {
         register("default") {
             botId.set("0000")
