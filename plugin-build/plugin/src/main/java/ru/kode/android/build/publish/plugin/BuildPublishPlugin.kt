@@ -31,6 +31,7 @@ import ru.kode.android.build.publish.plugin.extension.BuildPublishExtension
 import ru.kode.android.build.publish.plugin.extension.EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.extension.config.AppCenterDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
+import ru.kode.android.build.publish.plugin.extension.config.ClickUpConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
@@ -39,6 +40,7 @@ import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
 import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
 import ru.kode.android.build.publish.plugin.task.appcenter.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
+import ru.kode.android.build.publish.plugin.task.clickup.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.task.jira.JiraAutomationTask
 import ru.kode.android.build.publish.plugin.task.play.PlayDistributionTask
 import ru.kode.android.build.publish.plugin.task.slack.changelog.SendSlackChangelogTask
@@ -65,6 +67,7 @@ internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistri
 internal const val PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX = "playUpload"
 internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
 internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
+internal const val CLICK_UP_AUTOMATION_TASK = "clickUpAutomation"
 internal const val DEFAULT_CONTAINER_NAME = "default"
 
 internal object AgpVersions {
@@ -275,6 +278,20 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     tagBuildProvider,
                 )
             }
+
+            val clickUpConfig =
+                with(buildPublishExtension.clickUp) {
+                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+                }
+            if (clickUpConfig != null) {
+                tasks.registerClickUpTasks(
+                    clickUpConfig,
+                    buildVariant,
+                    changelogConfig.issueNumberPattern,
+                    changelogFile,
+                    tagBuildProvider,
+                )
+            }
         }
         return OutputProviders(
             versionName = versionNameProvider,
@@ -309,6 +326,41 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 it.labelPattern.set(config.labelPattern)
                 it.fixVersionPattern.set(config.fixVersionPattern)
                 it.resolvedStatusTransitionId.set(config.resolvedStatusTransitionId)
+            }
+        }
+    }
+
+    private fun TaskContainer.registerClickUpTasks(
+        config: ClickUpConfig,
+        buildVariant: BuildVariant,
+        issueNumberPattern: Provider<String>,
+        changelogFileProvider: Provider<RegularFile>,
+        tagBuildProvider: Provider<RegularFile>,
+    ) {
+        val fixVersionIsPresent =
+            config.fixVersionPattern.isPresent && config.fixVersionFieldId.isPresent
+        val hasMissingFixVersionProperties =
+            config.fixVersionPattern.isPresent || config.fixVersionFieldId.isPresent
+
+        if (!fixVersionIsPresent && hasMissingFixVersionProperties) {
+            throw GradleException(
+                "To use the fixVersion logic, the fixVersionPattern or fixVersionFieldId " +
+                    "properties must be specified",
+            )
+        }
+
+        if (fixVersionIsPresent || config.tagName.isPresent) {
+            register(
+                "$CLICK_UP_AUTOMATION_TASK${buildVariant.capitalizedName()}",
+                ClickUpAutomationTask::class.java,
+            ) {
+                it.tagBuildFile.set(tagBuildProvider)
+                it.changelogFile.set(changelogFileProvider)
+                it.issueNumberPattern.set(issueNumberPattern)
+                it.apiTokenFile.set(config.apiTokenFile)
+                it.fixVersionPattern.set(config.fixVersionPattern)
+                it.fixVersionFieldId.set(config.fixVersionFieldId)
+                it.taskTag.set(config.tagName)
             }
         }
     }
