@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "ru.kode.android"
-    version = "1.3.0-alpha05"
+    version = "1.3.0-alpha06"
 }
 
 val dependsOnRecursivelyByName = { task: Task, name: String ->
