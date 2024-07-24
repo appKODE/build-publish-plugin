@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.telegram
+package ru.kode.android.build.publish.plugin.task.telegram.changelog
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -13,8 +13,16 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
-import ru.kode.android.build.publish.plugin.task.telegram.work.SendTelegramChangelogWork
+import ru.kode.android.build.publish.plugin.task.telegram.changelog.work.SendTelegramChangelogWork
 import javax.inject.Inject
+import kotlin.collections.joinToString
+import kotlin.collections.orEmpty
+import kotlin.io.readText
+import kotlin.jvm.java
+import kotlin.sequences.forEach
+import kotlin.text.isNullOrEmpty
+import kotlin.text.replace
+import kotlin.text.toRegex
 
 abstract class SendTelegramChangelogTask
     @Inject

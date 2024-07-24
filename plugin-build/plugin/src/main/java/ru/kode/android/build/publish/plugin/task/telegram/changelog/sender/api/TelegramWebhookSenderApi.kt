@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.telegram.sender.api
+package ru.kode.android.build.publish.plugin.task.telegram.changelog.sender.api
 
 import retrofit2.Call
 import retrofit2.http.POST

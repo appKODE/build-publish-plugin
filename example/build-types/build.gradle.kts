@@ -41,4 +41,12 @@ buildPublish {
             testerGroups.set(setOf("android-testers"))
         }
     }
+    telegram {
+        register("default") {
+            botId.set("313123131231")
+            chatId.set("-00000000")
+            userMentions.set(emptyList())
+            uploadBuild.set(true)
+        }
+    }
 }
