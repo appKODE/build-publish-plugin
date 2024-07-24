@@ -13,7 +13,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
-import ru.kode.android.build.publish.plugin.task.telegram.work.SendTelegramChangelogWork
+import ru.kode.android.build.publish.plugin.task.telegram.changelog.work.SendTelegramChangelogWork
 import javax.inject.Inject
 import kotlin.collections.joinToString
 import kotlin.collections.orEmpty

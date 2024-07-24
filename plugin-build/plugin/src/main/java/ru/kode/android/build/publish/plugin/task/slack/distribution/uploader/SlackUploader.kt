@@ -87,7 +87,7 @@ private class AttachTokenInterceptor(
     }
 }
 
-private fun createPartFromString(value: String): RequestBody {
+fun createPartFromString(value: String): RequestBody {
     return value.toRequestBody(MultipartBody.FORM)
 }
 

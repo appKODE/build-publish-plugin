@@ -34,4 +34,12 @@ interface TelegramConfig {
      */
     @get:Input
     val userMentions: SetProperty<String>
+
+    /**
+     * Should upload build at the same chat or not
+     * Works only if file size is smaller then 50 mb
+     */
+    @get:Input
+    @get:Optional
+    val uploadBuild: Property<Boolean>
 }

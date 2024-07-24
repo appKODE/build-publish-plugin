@@ -6,7 +6,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.logging.Logger
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import ru.kode.android.build.publish.plugin.task.telegram.sender.api.TelegramWebhookSenderApi
+import ru.kode.android.build.publish.plugin.task.telegram.changelog.sender.api.TelegramWebhookSenderApi
 import ru.kode.android.build.publish.plugin.util.executeOrThrow
 import java.util.concurrent.TimeUnit
 

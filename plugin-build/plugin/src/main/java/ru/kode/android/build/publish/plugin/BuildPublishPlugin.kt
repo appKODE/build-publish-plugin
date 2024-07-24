@@ -48,6 +48,7 @@ import ru.kode.android.build.publish.plugin.task.slack.distribution.SlackDistrib
 import ru.kode.android.build.publish.plugin.task.tag.GetLastTagTask
 import ru.kode.android.build.publish.plugin.task.tag.PrintLastIncreasedTag
 import ru.kode.android.build.publish.plugin.task.telegram.changelog.SendTelegramChangelogTask
+import ru.kode.android.build.publish.plugin.task.telegram.distribution.TelegramDistributionTask
 import ru.kode.android.build.publish.plugin.util.capitalizedName
 import java.io.File
 import java.time.LocalDate
@@ -66,6 +67,7 @@ internal const val CHANGELOG_FILENAME = "changelog.txt"
 internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistributionUpload"
 internal const val PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX = "playUpload"
 internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
+internal const val TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX = "telegramDistributionUpload"
 internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
 internal const val CLICK_UP_AUTOMATION_TASK = "clickUpAutomation"
 internal const val DEFAULT_CONTAINER_NAME = "default"
@@ -210,13 +212,14 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
                 }
             if (telegramConfig != null) {
-                tasks.registerSendTelegramChangelogTask(
+                tasks.registerTelegramTasks(
                     outputConfig,
                     changelogConfig,
                     telegramConfig,
                     buildVariant,
                     generateChangelogFileProvider,
                     tagBuildProvider,
+                    apkOutputFileProvider,
                 )
             }
             val slackConfig =
@@ -464,13 +467,14 @@ abstract class BuildPublishPlugin : Plugin<Project> {
     }
 
     @Suppress("LongParameterList") // TODO Get parameters inside
-    private fun TaskContainer.registerSendTelegramChangelogTask(
+    private fun TaskContainer.registerTelegramTasks(
         outputConfig: OutputConfig,
         changelogConfig: ChangelogConfig,
         telegramConfig: TelegramConfig,
         buildVariant: BuildVariant,
         changelogFileProvider: Provider<RegularFile>,
         tagBuildProvider: Provider<RegularFile>,
+        apkOutputFileProvider: Provider<RegularFile>,
     ) {
         register(
             "$SEND_TELEGRAM_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
@@ -485,6 +489,33 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.chatId.set(telegramConfig.chatId)
             it.topicId.set(telegramConfig.topicId)
             it.userMentions.set(telegramConfig.userMentions)
+        }
+        if (telegramConfig.uploadBuild.orNull == true) {
+            registerTelegramUploadTask(
+                telegramConfig.botId,
+                telegramConfig.chatId,
+                telegramConfig.topicId,
+                buildVariant,
+                apkOutputFileProvider,
+            )
+        }
+    }
+
+    private fun TaskContainer.registerTelegramUploadTask(
+        botId: Provider<String>,
+        chatId: Provider<String>,
+        topicId: Provider<String>,
+        buildVariant: BuildVariant,
+        apkOutputFileProvider: Provider<RegularFile>,
+    ) {
+        register(
+            "$TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
+            TelegramDistributionTask::class.java,
+        ) {
+            it.buildVariantOutputFile.set(apkOutputFileProvider)
+            it.botId.set(botId)
+            it.chatId.set(chatId)
+            it.topicId.set(topicId)
         }
     }
 
