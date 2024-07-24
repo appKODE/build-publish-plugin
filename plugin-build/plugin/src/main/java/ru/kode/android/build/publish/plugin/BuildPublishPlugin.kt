@@ -47,7 +47,7 @@ import ru.kode.android.build.publish.plugin.task.slack.changelog.SendSlackChange
 import ru.kode.android.build.publish.plugin.task.slack.distribution.SlackDistributionTask
 import ru.kode.android.build.publish.plugin.task.tag.GetLastTagTask
 import ru.kode.android.build.publish.plugin.task.tag.PrintLastIncreasedTag
-import ru.kode.android.build.publish.plugin.task.telegram.SendTelegramChangelogTask
+import ru.kode.android.build.publish.plugin.task.telegram.changelog.SendTelegramChangelogTask
 import ru.kode.android.build.publish.plugin.util.capitalizedName
 import java.io.File
 import java.time.LocalDate

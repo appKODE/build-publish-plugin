@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.telegram.sender
+package ru.kode.android.build.publish.plugin.task.telegram.changelog.sender
 
 import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
