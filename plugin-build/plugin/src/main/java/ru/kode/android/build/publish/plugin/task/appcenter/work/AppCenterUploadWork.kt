@@ -10,6 +10,7 @@ import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_COUNT
 import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_DELAY_MS
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.ChunkRequestBody
 import ru.kode.android.build.publish.plugin.task.appcenter.uploader.AppCenterUploader
+import ru.kode.android.build.publish.plugin.util.ellipsizeAt
 import kotlin.math.round
 
 interface AppCenterUploadParameters : WorkParameters {
@@ -87,7 +88,11 @@ abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
         logger.info("Step 7/7: Distribute to the app testers: $testerGroups")
         val releaseId = publishResponse.release_distinct_id
         if (releaseId != null) {
-            uploader.distribute(releaseId, testerGroups, changelogFile.readText())
+            uploader.distribute(
+                releaseId = releaseId,
+                distributionGroups = testerGroups,
+                releaseNotes = changelogFile.readText().ellipsizeAt(MAX_NOTES_CHARACTERS_COUNT),
+            )
         } else {
             logger.error(
                 "Apk was uploaded, " +
@@ -118,3 +123,4 @@ private fun Long.bytesToMegabytes(): Double {
 
 private const val BYTES_PER_MEGABYTE = 1024.0 * 1024.0
 private const val MILLIS_IN_SEC = 1000
+private const val MAX_NOTES_CHARACTERS_COUNT = 5000
