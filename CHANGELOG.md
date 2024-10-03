@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.3.0-alpha07
+* Add a maximum character limit for notes app center
+* Add split attachments into parts when sending large changelog file to avoid "Upload error, code=403, reason=invalid_token"
+
+## 1.3.0-alpha06
+* Add ability to upload builds into Telegram via telegramDistributionUpload* tasks
+
+## 1.3.0-alpha05
+* Add task to automate ClickUp workflows via clickUpAutomation tasks
+
+## 1.3.0-alpha04
+* Fix commit of Google Play track edit being omitted
+
+## 1.3.0-alpha03
+* Implement Google Play uploading logic via playUpload* tasks
+
+## 1.3.0-alpha02
+* Update apg to 8.3.1 and gradle to 8.7, and other libs
+
 ## 1.3.0-alpha01
 * Add experimental logic to configure build tag pattern (buildTagPattern). But now it has restrictions: for example, in tag name should be only one - delimiter
 
