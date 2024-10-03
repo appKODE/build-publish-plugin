@@ -32,20 +32,23 @@ abstract class SendSlackChangelogWork
                 parameters.changelog.get()
                     .split("\n")
                     .filter { it.isNotBlank() }
+            val allAttachmentBlocks =
+                listOf(buildSectionBlock(parameters.userMentions.get()))
+                    .plus(changelogMessages.map { buildSectionBlock(it) })
+            val splitAttachmentBlocks =
+                allAttachmentBlocks.chunked(MAX_ATTACHMENTS_COUNT)
             val body =
                 SlackChangelogBody(
                     icon_url = parameters.iconUrl.get(),
                     username = "buildBot",
                     blocks = listOf(buildHeaderBlock("$baseOutputFileName $buildName")),
                     attachments =
-                        listOf(
+                        splitAttachmentBlocks.map { blocks ->
                             SlackChangelogBody.Attachment(
                                 color = parameters.attachmentColor.get(),
-                                blocks =
-                                    listOf(buildSectionBlock(parameters.userMentions.get()))
-                                        .plus(changelogMessages.map { buildSectionBlock(it) }),
-                            ),
-                        ),
+                                blocks = blocks,
+                            )
+                        },
                 )
             webhookSender.send(parameters.webhookUrl.get(), body)
             logger.info("changelog sent to Slack")
@@ -94,3 +97,4 @@ private const val TEXT_TYPE_MARKDOWN = "mrkdwn"
 private const val TEXT_TYPE_PLAIN_TEXT = "plain_text"
 
 private const val MAX_BLOCK_SYMBOLS = 3000
+private const val MAX_ATTACHMENTS_COUNT = 50
