@@ -15,14 +15,6 @@ import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
 import ru.kode.android.build.publish.plugin.task.telegram.changelog.work.SendTelegramChangelogWork
 import javax.inject.Inject
-import kotlin.collections.joinToString
-import kotlin.collections.orEmpty
-import kotlin.io.readText
-import kotlin.jvm.java
-import kotlin.sequences.forEach
-import kotlin.text.isNullOrEmpty
-import kotlin.text.replace
-import kotlin.text.toRegex
 
 abstract class SendTelegramChangelogTask
     @Inject
@@ -96,16 +88,46 @@ abstract class SendTelegramChangelogTask
                     userMentions.orNull.orEmpty().joinToString(", ")
                         .replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
-                workQueue.submit(SendTelegramChangelogWork::class.java) { parameters ->
-                    parameters.baseOutputFileName.set(baseOutputFileName)
-                    parameters.buildName.set(currentBuildTag.name)
-                    parameters.changelog.set(changelogWithIssues)
-                    parameters.userMentions.set(userMentions)
-                    parameters.escapedCharacters.set(escapedCharacters)
-                    parameters.botId.set(botId)
-                    parameters.chatId.set(chatId)
-                    parameters.topicId.set(topicId)
+                if (changelogWithIssues.length > MESSAGE_MAX_LENGTH) {
+                    changelogWithIssues
+                        .chunked(MESSAGE_MAX_LENGTH)
+                        .forEach { chunk ->
+                            sendChangelogInternal(
+                                workQueue = workQueue,
+                                userMentions = userMentions,
+                                escapedCharacters = escapedCharacters,
+                                changelog = chunk,
+                                currentBuildTagName = currentBuildTag.name,
+                            )
+                        }
+                } else {
+                    sendChangelogInternal(
+                        workQueue = workQueue,
+                        userMentions = userMentions,
+                        escapedCharacters = escapedCharacters,
+                        changelog = changelogWithIssues,
+                        currentBuildTagName = currentBuildTag.name,
+                    )
                 }
+            }
+        }
+
+        private fun sendChangelogInternal(
+            workQueue: WorkQueue,
+            userMentions: String,
+            escapedCharacters: String,
+            changelog: String,
+            currentBuildTagName: String,
+        ) {
+            workQueue.submit(SendTelegramChangelogWork::class.java) { parameters ->
+                parameters.baseOutputFileName.set(baseOutputFileName)
+                parameters.buildName.set(currentBuildTagName)
+                parameters.changelog.set(changelog)
+                parameters.userMentions.set(userMentions)
+                parameters.escapedCharacters.set(escapedCharacters)
+                parameters.botId.set(botId)
+                parameters.chatId.set(chatId)
+                parameters.topicId.set(topicId)
             }
         }
 
@@ -114,7 +136,7 @@ abstract class SendTelegramChangelogTask
             val issueNumberPattern = issueNumberPattern.get()
             val issueRegexp = issueNumberPattern.toRegex()
 
-            val matchResults = issueRegexp.findAll(this)
+            val matchResults = issueRegexp.findAll(this).distinctBy { it.value }
             var out = this.escapeCharacters(escapedCharacters)
 
             matchResults.forEach { matchResult ->
@@ -130,4 +152,33 @@ abstract class SendTelegramChangelogTask
         private fun String.escapeCharacters(escapedCharacters: String): String {
             return this.replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
         }
+
+        private fun String.chunked(
+            chunkLength: Int,
+            delimiter: Char = '\n',
+        ): List<String> {
+            val result = mutableListOf<String>()
+            var currentIndex = 0
+            while (currentIndex < this.length) {
+                var nextNewlineIndex = currentIndex
+                var tempNewlineIndex = currentIndex
+                while (tempNewlineIndex < (currentIndex + chunkLength)) {
+                    tempNewlineIndex = this.indexOf(delimiter, tempNewlineIndex + 1)
+                    if (tempNewlineIndex == -1) {
+                        val chunk = this.substring(currentIndex, nextNewlineIndex)
+                        result.add(chunk)
+                        return result
+                    }
+                    if (tempNewlineIndex <= (currentIndex + chunkLength)) {
+                        nextNewlineIndex = tempNewlineIndex
+                    }
+                }
+                val chunk = this.substring(currentIndex, nextNewlineIndex)
+                result.add(chunk)
+                currentIndex = nextNewlineIndex
+            }
+            return result
+        }
     }
+
+private const val MESSAGE_MAX_LENGTH = 4096
