@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0-alpha09
+* Add logic to upload build as Confluence comment
+
 ## 1.3.0-alpha08
 * Add logic to send Telegram changelog by chunks
 * Fix logic to add links in Telegram changelog to avoid "Upload error, code=400, reason={"ok":false,"error_code":400,"description":"Bad Request: can't parse entities: Character ')' is reserved and must be escaped with the preceding '\\'"}"
