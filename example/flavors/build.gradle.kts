@@ -49,6 +49,13 @@ buildPublish {
             userMentions.set(setOf("@ivan", "@roman", "@serega"))
         }
     }
+    confluence {
+        register("default") {
+            username.set("@username")
+            password.set("@password")
+            pageId.set("123435")
+        }
+    }
     firebaseDistribution {
         register("default") {
             serviceCredentialsFilePath.set("test-test")

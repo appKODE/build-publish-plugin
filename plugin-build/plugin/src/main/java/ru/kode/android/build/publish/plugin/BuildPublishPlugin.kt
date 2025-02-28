@@ -32,6 +32,7 @@ import ru.kode.android.build.publish.plugin.extension.EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.extension.config.AppCenterDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.extension.config.ClickUpConfig
+import ru.kode.android.build.publish.plugin.extension.config.ConfluenceConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
@@ -41,6 +42,7 @@ import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
 import ru.kode.android.build.publish.plugin.task.appcenter.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
 import ru.kode.android.build.publish.plugin.task.clickup.ClickUpAutomationTask
+import ru.kode.android.build.publish.plugin.task.confluence.ConfluenceDistributionTask
 import ru.kode.android.build.publish.plugin.task.jira.JiraAutomationTask
 import ru.kode.android.build.publish.plugin.task.play.PlayDistributionTask
 import ru.kode.android.build.publish.plugin.task.slack.changelog.SendSlackChangelogTask
@@ -68,6 +70,7 @@ internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistri
 internal const val PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX = "playUpload"
 internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
 internal const val TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX = "telegramDistributionUpload"
+internal const val CONFLUENCE_DISTRIBUTION_UPLOAD_TASK_PREFIX = "confluenceDistributionUpload"
 internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
 internal const val CLICK_UP_AUTOMATION_TASK = "clickUpAutomation"
 internal const val DEFAULT_CONTAINER_NAME = "default"
@@ -220,6 +223,17 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     generateChangelogFileProvider,
                     tagBuildProvider,
                     apkOutputFileProvider,
+                )
+            }
+            val confluenceConfig =
+                with(buildPublishExtension.confluence) {
+                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+                }
+            if (confluenceConfig != null) {
+                tasks.registerConfluenceUploadTask(
+                    config = confluenceConfig,
+                    buildVariant = buildVariant,
+                    apkOutputFileProvider = apkOutputFileProvider,
                 )
             }
             val slackConfig =
@@ -516,6 +530,22 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.botId.set(botId)
             it.chatId.set(chatId)
             it.topicId.set(topicId)
+        }
+    }
+
+    private fun TaskContainer.registerConfluenceUploadTask(
+        config: ConfluenceConfig,
+        buildVariant: BuildVariant,
+        apkOutputFileProvider: Provider<RegularFile>,
+    ) {
+        register(
+            "$CONFLUENCE_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
+            ConfluenceDistributionTask::class.java,
+        ) {
+            it.buildVariantOutputFile.set(apkOutputFileProvider)
+            it.username.set(config.username)
+            it.password.set(config.password)
+            it.pageId.set(config.pageId)
         }
     }
 

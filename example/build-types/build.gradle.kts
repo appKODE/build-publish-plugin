@@ -49,4 +49,11 @@ buildPublish {
             uploadBuild.set(true)
         }
     }
+    confluence {
+        register("default") {
+            username.set("@username")
+            password.set("@password")
+            pageId.set("123435")
+        }
+    }
 }
