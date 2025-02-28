@@ -5,6 +5,7 @@ import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.extension.config.AppCenterDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.extension.config.ClickUpConfig
+import ru.kode.android.build.publish.plugin.extension.config.ConfluenceConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
@@ -29,6 +30,8 @@ abstract class BuildPublishExtension
             objectFactory.domainObjectContainer(ClickUpConfig::class.java)
         val telegram: NamedDomainObjectContainer<TelegramConfig> =
             objectFactory.domainObjectContainer(TelegramConfig::class.java)
+        val confluence: NamedDomainObjectContainer<ConfluenceConfig> =
+            objectFactory.domainObjectContainer(ConfluenceConfig::class.java)
         val slack: NamedDomainObjectContainer<SlackConfig> =
             objectFactory.domainObjectContainer(SlackConfig::class.java)
         val firebaseDistribution: NamedDomainObjectContainer<FirebaseAppDistributionConfig> =
