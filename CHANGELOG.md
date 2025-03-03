@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0-alpha12
+* Revert logic to set `versionCode` and `versionName` providers
+
 ## 1.3.0-alpha11
 * Add logic to disable default configurations
 
