@@ -27,6 +27,14 @@ interface OutputConfig {
     @get:Input
     val useVersionsFromTag: Property<Boolean>
 
+    /**
+     * Use default version code and version name values when the useVersionsFromTag is set to false
+     *
+     * Default: true
+     */
+    @get:Input
+    val useDefaultVersionsAsFallback: Property<Boolean>
+
     @get:Input
     @get:Optional
     val buildTagPattern: Property<String>

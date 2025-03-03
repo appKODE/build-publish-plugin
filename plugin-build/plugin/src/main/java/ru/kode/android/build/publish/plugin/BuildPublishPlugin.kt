@@ -117,9 +117,13 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                             bundleFile,
                             grgitService,
                         )
-                    output.versionCode.set(outputProviders.versionCode)
+                    if (outputProviders.versionCode != null) {
+                        output.versionCode.set(outputProviders.versionCode)
+                    }
+                    if (outputProviders.versionName != null) {
+                        output.versionName.set(outputProviders.versionName)
+                    }
                     output.outputFileName.set(outputProviders.apkOutputFileName)
-                    output.versionName.set(outputProviders.versionName)
                 }
             },
         )
@@ -157,36 +161,37 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 outputConfig.buildTagPattern,
                 grgitService,
             )
-        val useVersionsFromTagProvider = outputConfig.useVersionsFromTag.orElse(true)
+        val useVersionsFromTag = outputConfig.useVersionsFromTag.getOrElse(true)
+        val useDefaultVersionsAsFallback =
+            outputConfig.useDefaultVersionsAsFallback.getOrElse(true)
         val versionCodeProvider =
-            useVersionsFromTagProvider.flatMap { useVersionsFromTag ->
-                if (useVersionsFromTag) {
-                    tagBuildProvider.map(::mapToVersionCode)
-                } else {
-                    project.provider { DEFAULT_VERSION_CODE }
-                }
+            when {
+                useVersionsFromTag -> tagBuildProvider.map(::mapToVersionCode)
+                useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_CODE }
+                else -> null
             }
         val apkOutputFileNameProvider =
-            useVersionsFromTagProvider.flatMap { useVersionsFromTag ->
-                if (useVersionsFromTag) {
+            when {
+                useVersionsFromTag -> {
                     outputConfig.baseFileName.zip(tagBuildProvider) { baseFileName, tagBuildFile ->
                         mapToOutputApkFileName(tagBuildFile, apkOutputFileName, baseFileName)
                     }
-                } else {
+                }
+                else -> {
                     outputConfig.baseFileName.map { baseFileName ->
                         createDefaultOutputFileName(baseFileName, apkOutputFileName)
                     }
                 }
             }
         val versionNameProvider =
-            useVersionsFromTagProvider.flatMap { useVersionsFromTag ->
-                if (useVersionsFromTag) {
+            when {
+                useVersionsFromTag -> {
                     tagBuildProvider.map { tagBuildFile ->
                         mapToVersionName(tagBuildFile, buildVariant)
                     }
-                } else {
-                    project.provider { DEFAULT_VERSION_NAME }
                 }
+                useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_NAME }
+                else -> null
             }
         val apkOutputFileProvider =
             apkOutputFileNameProvider.flatMap { fileName ->
@@ -691,8 +696,8 @@ private fun AppDistributionExtension.configure(
 }
 
 private data class OutputProviders(
-    val versionName: Provider<String>,
-    val versionCode: Provider<Int>,
+    val versionName: Provider<String>?,
+    val versionCode: Provider<Int>?,
     val apkOutputFileName: Provider<String>,
 )
 

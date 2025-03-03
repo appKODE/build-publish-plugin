@@ -17,17 +17,17 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v2
       - name: Cache Gradle Caches
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.gradle/caches/
           key: cache-gradle-cache
       - name: Cache Gradle Wrapper
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.gradle/wrapper/
           key: cache-gradle-wrapper
       - name: Setup java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
       - name: Run Gradle tasks
