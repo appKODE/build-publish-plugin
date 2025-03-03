@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0-alpha10
+* Add logic to disable fallback for `versionCode` and `versionName`
+
 ## 1.3.0-alpha09
 * Add logic to upload build as Confluence comment
 
