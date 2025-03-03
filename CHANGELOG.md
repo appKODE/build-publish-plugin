@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0-alpha11
+* Add logic to disable default configurations
+
 ## 1.3.0-alpha10
 * Add logic to disable fallback for `versionCode` and `versionName`
 
