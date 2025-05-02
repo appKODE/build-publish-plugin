@@ -418,19 +418,23 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             slackConfig.uploadChannels.isPresent
         ) {
             registerSlackUploadTask(
+                outputConfig,
                 slackConfig.uploadApiTokenFile,
                 slackConfig.uploadChannels,
                 buildVariant,
                 apkOutputFileProvider,
+                tagBuildProvider,
             )
         }
     }
 
     private fun TaskContainer.registerSlackUploadTask(
+        outputConfig: OutputConfig,
         apiTokenFile: RegularFileProperty,
         channels: SetProperty<String>,
         buildVariant: BuildVariant,
         apkOutputFileProvider: Provider<RegularFile>,
+        tagBuildProvider: Provider<RegularFile>,
     ) {
         register(
             "$SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
@@ -439,6 +443,8 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.buildVariantOutputFile.set(apkOutputFileProvider)
             it.apiTokenFile.set(apiTokenFile)
             it.channels.set(channels)
+            it.tagBuildFile.set(tagBuildProvider)
+            it.baseOutputFileName.set(outputConfig.baseFileName)
         }
     }
 

@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.task.slack.distribution.uploader
 
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapter
 import okhttp3.Interceptor
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -12,6 +13,7 @@ import org.gradle.api.logging.Logger
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.kode.android.build.publish.plugin.task.slack.distribution.api.SlackApi
+import ru.kode.android.build.publish.plugin.task.slack.distribution.entity.UploadingFileRequest
 import ru.kode.android.build.publish.plugin.util.UploadException
 import ru.kode.android.build.publish.plugin.util.executeOrThrow
 import java.io.File
@@ -45,30 +47,36 @@ internal class SlackUploader(logger: Logger, token: String) {
     private val api = createApi<SlackApi>("https://slack.com/api/")
 
     fun upload(
+        baseOutputFileName: String,
+        buildName: String,
         file: File,
         channels: Set<String>,
-        message: String?,
     ) {
-        val filePart =
-            MultipartBody.Part.createFormData(
-                "file",
-                file.name,
-                file.asRequestBody(),
+        val getUrlResponse =
+            api.getUploadUrl(
+                fileName = file.name,
+                length = file.length(),
             )
-        val map =
-            if (message != null) {
-                hashMapOf(
-                    "initial_comment" to createPartFromString(message),
-                    "channels" to createPartFromString(channels.joinToString()),
+                .executeOrThrow()
+        if (getUrlResponse.ok) {
+            val url = requireNotNull(getUrlResponse.uploadUrl)
+            val fileId = requireNotNull(getUrlResponse.fileId)
+            val filePart =
+                MultipartBody.Part.createFormData(
+                    "file",
+                    file.name,
+                    file.asRequestBody(),
                 )
-            } else {
-                hashMapOf(
-                    "channels" to createPartFromString(channels.joinToString()),
-                )
-            }
-        val response = api.upload(map, filePart).executeOrThrow()
-        if (!response.ok) {
-            throw UploadException("slack uploading failed ${response.error}")
+            api.upload(url, createPartFromString(file.name), filePart).executeOrThrow()
+            val filesAdapter = moshi.adapter<List<UploadingFileRequest>>()
+            val files = filesAdapter.toJson(listOf(UploadingFileRequest(fileId, file.name)))
+            api.completeUploading(
+                files = files,
+                channels = channels.joinToString(),
+                initialComment = "$baseOutputFileName $buildName",
+            ).executeOrThrow()
+        } else {
+            throw UploadException(requireNotNull(getUrlResponse.error))
         }
     }
 }
