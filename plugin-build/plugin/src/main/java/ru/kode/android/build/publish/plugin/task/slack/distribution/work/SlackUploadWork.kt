@@ -17,6 +17,8 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 interface SlackUploadParameters : WorkParameters {
+    val baseOutputFileName: Property<String>
+    val buildName: Property<String>
     val outputFile: RegularFileProperty
     val apiToken: Property<String>
     val message: Property<String>
@@ -38,9 +40,10 @@ abstract class SlackUploadWork : WorkAction<SlackUploadParameters> {
         zip(listOf(uploadFile), zippedUploadFile)
         try {
             uploader.upload(
+                parameters.baseOutputFileName.get(),
+                parameters.buildName.get(),
                 zippedUploadFile,
                 parameters.channels.get(),
-                parameters.message.orNull,
             )
         } catch (ex: UploadStreamTimeoutException) {
             logger.error(

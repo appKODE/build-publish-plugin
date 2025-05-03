@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0-alpha13
+* Update slack upload logic with new Slack API upload flow
+
 ## 1.3.0-alpha12
 * Revert logic to set `versionCode` and `versionName` providers
 
