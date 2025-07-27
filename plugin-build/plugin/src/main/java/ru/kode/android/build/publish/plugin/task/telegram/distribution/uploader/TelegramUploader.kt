@@ -11,6 +11,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.kode.android.build.publish.plugin.task.slack.distribution.uploader.createPartFromString
 import ru.kode.android.build.publish.plugin.task.telegram.distribution.api.TelegramApi
 import ru.kode.android.build.publish.plugin.util.UploadException
+import ru.kode.android.build.publish.plugin.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.util.executeOrThrow
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -21,6 +22,7 @@ internal class TelegramUploader(logger: Logger) {
             .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+            .addProxyIfAvailable()
             .apply {
                 val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
                 loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY

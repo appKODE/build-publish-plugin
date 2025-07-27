@@ -13,6 +13,7 @@ import ru.kode.android.build.publish.plugin.task.jira.entity.AddFixVersionReques
 import ru.kode.android.build.publish.plugin.task.jira.entity.AddLabelRequest
 import ru.kode.android.build.publish.plugin.task.jira.entity.CreateVersionRequest
 import ru.kode.android.build.publish.plugin.task.jira.entity.SetStatusRequest
+import ru.kode.android.build.publish.plugin.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.util.executeOptionalOrThrow
 import java.util.concurrent.TimeUnit
 
@@ -28,6 +29,7 @@ internal class JiraService(
             .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
             .addInterceptor(AttachTokenInterceptor(username, password))
+            .addProxyIfAvailable()
             .apply {
                 val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
                 loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY

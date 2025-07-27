@@ -6,8 +6,10 @@ import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
 
+@DisableCachingByDefault
 abstract class PrintLastIncreasedTag : DefaultTask() {
     init {
         description = "Task to print last increased tag"
