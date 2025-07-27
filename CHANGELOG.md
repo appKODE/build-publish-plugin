@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.0-alpha14
+* Add proxy settings for OkHttp if it's available to correctly authorize
+* Disable caching by default for tag tags (GetLastTagTask and PrintLastIncreasedTag)
+
 ## 1.3.0-alpha13
 * Update slack upload logic with new Slack API upload flow
 
