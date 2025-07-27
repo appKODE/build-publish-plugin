@@ -13,6 +13,7 @@ import ru.kode.android.build.publish.plugin.task.confluence.entity.AddCommentReq
 import ru.kode.android.build.publish.plugin.task.confluence.entity.Body
 import ru.kode.android.build.publish.plugin.task.confluence.entity.Container
 import ru.kode.android.build.publish.plugin.task.confluence.entity.Storage
+import ru.kode.android.build.publish.plugin.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.util.executeOrThrow
 import java.io.File
 import java.util.Base64
@@ -24,6 +25,7 @@ internal class ConfluenceUploader(logger: Logger) {
             .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+            .addProxyIfAvailable()
             .apply {
                 val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
                 loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY

@@ -12,11 +12,13 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.task.tag.work.GenerateTagWork
 import javax.inject.Inject
 
+@DisableCachingByDefault
 abstract class GetLastTagTask
     @Inject
     constructor(

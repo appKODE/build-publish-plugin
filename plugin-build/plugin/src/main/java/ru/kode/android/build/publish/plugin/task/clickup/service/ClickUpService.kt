@@ -9,6 +9,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.kode.android.build.publish.plugin.task.clickup.api.ClickUpApi
 import ru.kode.android.build.publish.plugin.task.clickup.entity.AddFieldToTaskRequest
+import ru.kode.android.build.publish.plugin.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.util.executeOptionalOrThrow
 import java.util.concurrent.TimeUnit
 
@@ -22,6 +23,7 @@ internal class ClickUpService(
             .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
             .addInterceptor(AttachTokenInterceptor(apiToken))
+            .addProxyIfAvailable()
             .apply {
                 val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
                 loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY

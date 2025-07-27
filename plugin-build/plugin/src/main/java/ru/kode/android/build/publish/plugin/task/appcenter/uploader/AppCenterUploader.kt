@@ -17,6 +17,7 @@ import ru.kode.android.build.publish.plugin.task.appcenter.entity.PrepareRelease
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.PrepareResponse
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.SendMetaDataResponse
 import ru.kode.android.build.publish.plugin.util.UploadException
+import ru.kode.android.build.publish.plugin.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.util.executeOrThrow
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -33,6 +34,7 @@ internal class AppCenterUploader(
             .readTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
             .addInterceptor(AttachTokenInterceptor(token))
+            .addProxyIfAvailable()
             .apply {
                 val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
                 loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
