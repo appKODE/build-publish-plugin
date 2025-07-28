@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0-alpha15
+* Add logic to ignore proxy settings according to nonProxyHosts
+
 ## 1.3.0-alpha14
 * Add proxy settings for OkHttp if it's available to correctly authorize
 * Disable caching by default for tag tags (GetLastTagTask and PrintLastIncreasedTag)
