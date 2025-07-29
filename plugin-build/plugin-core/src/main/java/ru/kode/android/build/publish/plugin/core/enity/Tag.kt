@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.enity
+package ru.kode.android.build.publish.plugin.core.enity
 
 import org.gradle.api.GradleException
 

@@ -11,7 +11,7 @@ import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.extension.config.PlayConfig
 import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
-import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
+import ru.kode.android.build.publish.plugin.telegram.core.TelegramConfig
 import javax.inject.Inject
 
 const val EXTENSION_NAME = "buildPublish"

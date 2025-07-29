@@ -25,8 +25,6 @@ import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.util.internal.VersionNumber
-import ru.kode.android.build.publish.plugin.enity.BuildVariant
-import ru.kode.android.build.publish.plugin.enity.mapper.fromJson
 import ru.kode.android.build.publish.plugin.extension.BuildPublishExtension
 import ru.kode.android.build.publish.plugin.extension.EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.extension.config.AppCenterDistributionConfig
@@ -38,7 +36,6 @@ import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.extension.config.PlayConfig
 import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
-import ru.kode.android.build.publish.plugin.extension.config.TelegramConfig
 import ru.kode.android.build.publish.plugin.task.appcenter.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
 import ru.kode.android.build.publish.plugin.task.clickup.ClickUpAutomationTask
@@ -51,10 +48,13 @@ import ru.kode.android.build.publish.plugin.task.tag.GetLastTagTask
 import ru.kode.android.build.publish.plugin.task.tag.PrintLastIncreasedTag
 import ru.kode.android.build.publish.plugin.task.telegram.changelog.SendTelegramChangelogTask
 import ru.kode.android.build.publish.plugin.task.telegram.distribution.TelegramDistributionTask
-import ru.kode.android.build.publish.plugin.util.capitalizedName
+import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.telegram.core.TelegramConfig
+import ru.kode.android.build.publish.plugin.core.mapper.fromJson
 
 internal const val SEND_SLACK_CHANGELOG_TASK_PREFIX = "sendSlackChangelog"
 internal const val SEND_TELEGRAM_CHANGELOG_TASK_PREFIX = "sendTelegramChangelog"

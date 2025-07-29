@@ -10,7 +10,7 @@ import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_COUNT
 import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_DELAY_MS
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.ChunkRequestBody
 import ru.kode.android.build.publish.plugin.task.appcenter.uploader.AppCenterUploader
-import ru.kode.android.build.publish.plugin.util.ellipsizeAt
+import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
 import kotlin.math.round
 
 interface AppCenterUploadParameters : WorkParameters {

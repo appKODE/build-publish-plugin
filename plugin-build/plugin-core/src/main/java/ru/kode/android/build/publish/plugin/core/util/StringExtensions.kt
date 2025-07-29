@@ -1,8 +1,8 @@
-package ru.kode.android.build.publish.plugin.util
+package ru.kode.android.build.publish.plugin.core.util
 
 import java.util.Locale
 
-internal fun String.capitalized(): String = replaceFirstChar { it.titlecase(Locale.ROOT) }
+fun String.capitalized(): String = replaceFirstChar { it.titlecase(Locale.ROOT) }
 
 fun String.ellipsizeAt(size: Int): String {
     return if (this.length <= size) {

@@ -6,7 +6,7 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.task.slack.changelog.entity.SlackChangelogBody
 import ru.kode.android.build.publish.plugin.task.slack.changelog.sender.SlackWebhookSender
-import ru.kode.android.build.publish.plugin.util.ellipsizeAt
+import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
 import javax.inject.Inject
 
 interface SendSlackChangelogParameters : WorkParameters {
