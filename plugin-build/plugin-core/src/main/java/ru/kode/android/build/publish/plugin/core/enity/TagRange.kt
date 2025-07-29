@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.enity
+package ru.kode.android.build.publish.plugin.core.enity
 
 data class TagRange(
     val currentBuildTag: Tag,

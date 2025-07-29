@@ -1,12 +1,12 @@
-package ru.kode.android.build.publish.plugin.command
+package ru.kode.android.build.publish.plugin.core.command
 
 import org.ajoberstar.grgit.Commit
-import org.ajoberstar.grgit.gradle.GrgitService
-import ru.kode.android.build.publish.plugin.enity.CommitRange
-import ru.kode.android.build.publish.plugin.enity.Tag
+import org.ajoberstar.grgit.Grgit
+import ru.kode.android.build.publish.plugin.core.enity.CommitRange
+import ru.kode.android.build.publish.plugin.core.enity.Tag
 
-internal class GitCommandExecutor(
-    private val grgitService: GrgitService,
+class GitCommandExecutor(
+    private val grgit: Grgit,
 ) {
     /**
      * Extracts lines which contain [key] from all commit messages in commit range (inclusive).
@@ -33,7 +33,7 @@ internal class GitCommandExecutor(
         buildTagRegex: Regex,
         limitResultCount: Int,
     ): List<Tag>? {
-        return grgitService.grgit.tag.list()
+        return grgit.tag.list()
             .filter { tag -> tag.name.matches(buildTagRegex) }
             .sortedBy { tag ->
                 buildTagRegex.find(tag.name)?.groupValues?.get(1)?.toIntOrNull()
@@ -53,9 +53,9 @@ internal class GitCommandExecutor(
 
     private fun getCommitsByRange(range: CommitRange?): List<Commit> {
         return when {
-            range == null -> grgitService.grgit.log()
+            range == null -> grgit.log()
             range.sha1 == null -> {
-                val commits = grgitService.grgit.log()
+                val commits = grgit.log()
                 val lastCommitIndex = commits.indexOfFirst { it.id == range.sha2 }
                 return if (lastCommitIndex == UNKNOWN_COMMIT_INDEX) {
                     commits
@@ -63,7 +63,8 @@ internal class GitCommandExecutor(
                     commits.subList(lastCommitIndex, commits.size)
                 }
             }
-            else -> grgitService.grgit.log { options -> options.range(range.sha1, range.sha2) }
+
+            else -> grgit.log { options -> options.range(range.sha1, range.sha2) }
         }
     }
 }

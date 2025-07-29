@@ -1,8 +1,8 @@
 package ru.kode.android.build.publish.plugin.task.changelog.git
 
-import ru.kode.android.build.publish.plugin.command.GitCommandExecutor
-import ru.kode.android.build.publish.plugin.enity.Tag
-import ru.kode.android.build.publish.plugin.enity.TagRange
+import ru.kode.android.build.publish.plugin.core.command.GitCommandExecutor
+import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.enity.TagRange
 
 internal class GitRepository(
     private val gitCommandExecutor: GitCommandExecutor,

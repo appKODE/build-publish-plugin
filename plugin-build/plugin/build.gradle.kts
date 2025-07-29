@@ -6,6 +6,9 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":plugin-core"))
+    implementation(project(":plugin-telegram"))
+
     implementation(gradleApi())
     implementation(libs.agp)
     implementation(libs.firebaseAppdistribution)
@@ -18,7 +21,7 @@ dependencies {
     implementation(libs.grgitGradle)
     implementation(libs.play.publish)
     implementation(libs.google.auth)
-
+    implementation(libs.google.auth)
     testImplementation(libs.junit)
 
     ksp(libs.moshiCodgen)
