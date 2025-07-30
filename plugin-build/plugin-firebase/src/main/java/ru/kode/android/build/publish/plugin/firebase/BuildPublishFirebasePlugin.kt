@@ -9,10 +9,10 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionPlugin
 import org.gradle.api.file.RegularFileProperty
+import ru.kode.android.build.publish.plugin.core.util.getDefault
 import ru.kode.android.build.publish.plugin.firebase.extensions.BuildPublishExtension
 import java.io.File
 
-internal const val DEFAULT_CONTAINER_NAME = "default"
 const val EXTENSION_NAME = "buildPublish"
 
 interface BuildPublishFirebasePlugin : Plugin<Project> {
@@ -32,7 +32,7 @@ interface BuildPublishFirebasePlugin : Plugin<Project> {
                     .firebaseDistribution
                     // NOTE: NamedDomainObjectContainer can be resolved only in task on after finalizeDsl,
                     // because it can be defined after plugin application
-                    .findByName(DEFAULT_CONTAINER_NAME)
+                    .getDefault()
 
             if (firebaseAppDistributionConfig != null) {
                 project.pluginManager.apply(AppDistributionPlugin::class.java)
