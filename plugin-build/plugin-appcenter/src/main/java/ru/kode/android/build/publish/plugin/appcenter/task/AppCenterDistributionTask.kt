@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.appcenter
+package ru.kode.android.build.publish.plugin.appcenter.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -14,9 +14,9 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
-import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_COUNT
-import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_DELAY_MS
-import ru.kode.android.build.publish.plugin.task.appcenter.work.AppCenterUploadWork
+import ru.kode.android.build.publish.plugin.appcenter.core.MAX_REQUEST_COUNT
+import ru.kode.android.build.publish.plugin.appcenter.core.MAX_REQUEST_DELAY_MS
+import ru.kode.android.build.publish.plugin.appcenter.task.work.AppCenterUploadWork
 import ru.kode.android.build.publish.plugin.core.util.capitalized
 import javax.inject.Inject
 

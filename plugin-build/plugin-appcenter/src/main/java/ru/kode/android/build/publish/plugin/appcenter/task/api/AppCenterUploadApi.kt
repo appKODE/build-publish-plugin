@@ -1,12 +1,12 @@
-package ru.kode.android.build.publish.plugin.task.appcenter.api
+package ru.kode.android.build.publish.plugin.appcenter.task.api
 
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
-import ru.kode.android.build.publish.plugin.task.appcenter.entity.ChunkRequestBody
-import ru.kode.android.build.publish.plugin.task.appcenter.entity.SendMetaDataResponse
+import ru.kode.android.build.publish.plugin.appcenter.task.entity.ChunkRequestBody
+import ru.kode.android.build.publish.plugin.appcenter.task.entity.SendMetaDataResponse
 
 internal interface AppCenterUploadApi {
     @POST("/upload/set_metadata/{packageAssetId}")

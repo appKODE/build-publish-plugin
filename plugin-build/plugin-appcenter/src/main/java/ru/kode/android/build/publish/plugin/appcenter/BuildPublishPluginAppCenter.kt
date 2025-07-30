@@ -1,11 +1,11 @@
 @file:Suppress("UnstableApiUsage")
 
-package ru.kode.android.build.publish.plugin.slack
+package ru.kode.android.build.publish.plugin.appcenter
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-interface BuildPublishPluginSlack : Plugin<Project> {
+interface BuildPublishPluginAppCenter : Plugin<Project> {
     override fun apply(project: Project) {
 
     }

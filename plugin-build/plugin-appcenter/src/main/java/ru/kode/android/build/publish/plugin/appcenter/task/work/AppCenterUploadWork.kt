@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.appcenter.work
+package ru.kode.android.build.publish.plugin.appcenter.task.work
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logging
@@ -6,10 +6,10 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_COUNT
-import ru.kode.android.build.publish.plugin.extension.config.MAX_REQUEST_DELAY_MS
-import ru.kode.android.build.publish.plugin.task.appcenter.entity.ChunkRequestBody
-import ru.kode.android.build.publish.plugin.task.appcenter.uploader.AppCenterUploader
+import ru.kode.android.build.publish.plugin.appcenter.core.MAX_REQUEST_COUNT
+import ru.kode.android.build.publish.plugin.appcenter.core.MAX_REQUEST_DELAY_MS
+import ru.kode.android.build.publish.plugin.appcenter.task.entity.ChunkRequestBody
+import ru.kode.android.build.publish.plugin.appcenter.task.uploader.AppCenterUploader
 import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
 import kotlin.math.round
 

@@ -2,7 +2,7 @@ package ru.kode.android.build.publish.plugin.extension
 
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
-import ru.kode.android.build.publish.plugin.extension.config.AppCenterDistributionConfig
+import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.extension.config.ClickUpConfig
 import ru.kode.android.build.publish.plugin.extension.config.ConfluenceConfig
