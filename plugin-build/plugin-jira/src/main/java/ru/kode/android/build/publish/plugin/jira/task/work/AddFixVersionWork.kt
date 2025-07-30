@@ -1,21 +1,22 @@
-package ru.kode.android.build.publish.plugin.task.jira.work
+package ru.kode.android.build.publish.plugin.jira.task.work
 
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.task.jira.service.JiraService
+import ru.kode.android.build.publish.plugin.jira.task.service.JiraService
 
-interface AddLabelParameters : WorkParameters {
+interface AddFixVersionParameters : WorkParameters {
     val baseUrl: Property<String>
+    val projectId: Property<Long>
     val username: Property<String>
     val password: Property<String>
     val issues: SetProperty<String>
-    val label: Property<String>
+    val version: Property<String>
 }
 
-abstract class AddLabelWork : WorkAction<AddLabelParameters> {
+abstract class AddFixVersionWork : WorkAction<AddFixVersionParameters> {
     private val logger = Logging.getLogger(this::class.java)
 
     @Suppress("SwallowedException") // see logs below
@@ -28,6 +29,9 @@ abstract class AddLabelWork : WorkAction<AddLabelParameters> {
                 parameters.password.get(),
             )
         val issues = parameters.issues.get()
-        issues.forEach { issue -> service.addLabel(issue, parameters.label.get()) }
+        val version = parameters.version.get()
+        val projectId = parameters.projectId.get()
+        service.createVersion(projectId, version)
+        issues.forEach { issue -> service.addFixVersion(issue, version) }
     }
 }

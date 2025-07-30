@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.jira
+package ru.kode.android.build.publish.plugin.jira.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -13,9 +13,9 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
-import ru.kode.android.build.publish.plugin.task.jira.work.AddFixVersionWork
-import ru.kode.android.build.publish.plugin.task.jira.work.AddLabelWork
-import ru.kode.android.build.publish.plugin.task.jira.work.SetStatusWork
+import ru.kode.android.build.publish.plugin.jira.task.work.AddFixVersionWork
+import ru.kode.android.build.publish.plugin.jira.task.work.AddLabelWork
+import ru.kode.android.build.publish.plugin.jira.task.work.SetStatusWork
 import javax.inject.Inject
 
 abstract class JiraAutomationTask
