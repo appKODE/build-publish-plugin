@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.extension.config
+package ru.kode.android.build.publish.plugin.clickup.core
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property

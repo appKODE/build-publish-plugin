@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.clickup.entity
+package ru.kode.android.build.publish.plugin.clickup.task.entity
 
 import com.squareup.moshi.JsonClass
 
