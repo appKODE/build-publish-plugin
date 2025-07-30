@@ -11,6 +11,7 @@ dependencies {
     implementation(project(":plugin-slack"))
     implementation(project(":plugin-appcenter"))
     implementation(project(":plugin-clickup"))
+    implementation(project(":plugin-jira"))
 
     implementation(gradleApi())
     implementation(libs.agp)

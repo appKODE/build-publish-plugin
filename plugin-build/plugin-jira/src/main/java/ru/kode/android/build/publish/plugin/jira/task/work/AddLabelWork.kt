@@ -1,22 +1,21 @@
-package ru.kode.android.build.publish.plugin.task.jira.work
+package ru.kode.android.build.publish.plugin.jira.task.work
 
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.task.jira.service.JiraService
-import ru.kode.android.build.publish.plugin.core.util.UploadException
+import ru.kode.android.build.publish.plugin.jira.task.service.JiraService
 
-interface SetStatusParameters : WorkParameters {
+interface AddLabelParameters : WorkParameters {
     val baseUrl: Property<String>
     val username: Property<String>
     val password: Property<String>
     val issues: SetProperty<String>
-    val statusTransitionId: Property<String>
+    val label: Property<String>
 }
 
-abstract class SetStatusWork : WorkAction<SetStatusParameters> {
+abstract class AddLabelWork : WorkAction<AddLabelParameters> {
     private val logger = Logging.getLogger(this::class.java)
 
     @Suppress("SwallowedException") // see logs below
@@ -29,12 +28,6 @@ abstract class SetStatusWork : WorkAction<SetStatusParameters> {
                 parameters.password.get(),
             )
         val issues = parameters.issues.get()
-        issues.forEach { issue ->
-            try {
-                service.setStatus(issue, parameters.statusTransitionId.get())
-            } catch (ex: UploadException) {
-                logger.info("set status failed for issue $issue, error is ignored", ex)
-            }
-        }
+        issues.forEach { issue -> service.addLabel(issue, parameters.label.get()) }
     }
 }

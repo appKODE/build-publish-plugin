@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.jira.service
+package ru.kode.android.build.publish.plugin.jira.task.service
 
 import com.squareup.moshi.Moshi
 import okhttp3.Credentials
@@ -8,11 +8,11 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.logging.Logger
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import ru.kode.android.build.publish.plugin.task.jira.api.JiraApi
-import ru.kode.android.build.publish.plugin.task.jira.entity.AddFixVersionRequest
-import ru.kode.android.build.publish.plugin.task.jira.entity.AddLabelRequest
-import ru.kode.android.build.publish.plugin.task.jira.entity.CreateVersionRequest
-import ru.kode.android.build.publish.plugin.task.jira.entity.SetStatusRequest
+import ru.kode.android.build.publish.plugin.jira.task.api.JiraApi
+import ru.kode.android.build.publish.plugin.jira.task.entity.AddFixVersionRequest
+import ru.kode.android.build.publish.plugin.jira.task.entity.AddLabelRequest
+import ru.kode.android.build.publish.plugin.jira.task.entity.CreateVersionRequest
+import ru.kode.android.build.publish.plugin.jira.task.entity.SetStatusRequest
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.core.util.executeOptionalOrThrow
 import java.util.concurrent.TimeUnit

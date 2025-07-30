@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.jira.entity
+package ru.kode.android.build.publish.plugin.jira.task.entity
 
 import com.squareup.moshi.JsonClass
 
