@@ -1,10 +1,10 @@
-package ru.kode.android.build.publish.plugin.task.play.publisher
+package ru.kode.android.build.publish.plugin.play.task.publisher
 
 import com.google.api.services.androidpublisher.model.Apk
 import com.google.api.services.androidpublisher.model.Bundle
 import com.google.api.services.androidpublisher.model.DeobfuscationFilesUploadResponse
 import com.google.api.services.androidpublisher.model.Track
-import ru.kode.android.build.publish.plugin.task.play.PlayPublisher
+import ru.kode.android.build.publish.plugin.play.task.PlayPublisher
 import java.io.File
 import java.io.IOException
 

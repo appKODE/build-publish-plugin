@@ -1,10 +1,10 @@
-package ru.kode.android.build.publish.plugin.task.play
+package ru.kode.android.build.publish.plugin.play.task
 
-import ru.kode.android.build.publish.plugin.task.play.publisher.CommitResponse
-import ru.kode.android.build.publish.plugin.task.play.publisher.EditResponse
-import ru.kode.android.build.publish.plugin.task.play.publisher.GppProduct
-import ru.kode.android.build.publish.plugin.task.play.publisher.UpdateProductResponse
-import ru.kode.android.build.publish.plugin.task.play.publisher.UploadInternalSharingArtifactResponse
+import ru.kode.android.build.publish.plugin.play.task.publisher.CommitResponse
+import ru.kode.android.build.publish.plugin.play.task.publisher.EditResponse
+import ru.kode.android.build.publish.plugin.play.task.publisher.GppProduct
+import ru.kode.android.build.publish.plugin.play.task.publisher.UpdateProductResponse
+import ru.kode.android.build.publish.plugin.play.task.publisher.UploadInternalSharingArtifactResponse
 import java.io.File
 
 /**

@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.play.publisher
+package ru.kode.android.build.publish.plugin.play.task.publisher
 
 /**
  * Models the possible release statuses for the track API.

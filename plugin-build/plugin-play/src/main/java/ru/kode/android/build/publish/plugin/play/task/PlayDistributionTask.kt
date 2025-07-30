@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.play
+package ru.kode.android.build.publish.plugin.play.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -13,7 +13,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
-import ru.kode.android.build.publish.plugin.task.play.work.PlayUploadWork
+import ru.kode.android.build.publish.plugin.play.task.work.PlayUploadWork
 import javax.inject.Inject
 
 /**

@@ -14,6 +14,8 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.retrofit)
     implementation(libs.retrofitMoshi)
+    implementation(libs.play.publish)
+    implementation(libs.google.auth)
 
     testImplementation(libs.junit)
 
@@ -25,10 +27,10 @@ gradlePlugin {
     vcsUrl.set("https://github.com/appKODE/build-publish-plugin")
 
     plugins {
-        create("ru.kode.android.build-publish.clickup") {
-            id = "ru.kode.android.build-publish.clickup"
+        create("ru.kode.android.build-publish.play") {
+            id = "ru.kode.android.build-publish.play"
             displayName = "Configure project with Firebase App Distribution and changelogs"
-            implementationClass = "ru.kode.android.build.publish.plugin.clickup.BuildPublishPluginClickUp"
+            implementationClass = "ru.kode.android.build.publish.plugin.play.BuildPublishPluginPlay"
             version = project.version
             description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
             tags.set(listOf("firebase", "publish", "changelog", "build"))
@@ -40,7 +42,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = "ru.kode.android.build-publish.clickup".removePrefix("$groupId.")
+            artifactId = "ru.kode.android.build-publish.play".removePrefix("$groupId.")
             version = project.version.toString()
 
             from(components["java"])

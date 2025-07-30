@@ -1,7 +1,7 @@
-package ru.kode.android.build.publish.plugin.task.play.track
+package ru.kode.android.build.publish.plugin.play.task.track
 
-import ru.kode.android.build.publish.plugin.task.play.publisher.ReleaseStatus
-import ru.kode.android.build.publish.plugin.task.play.publisher.ResolutionStrategy
+import ru.kode.android.build.publish.plugin.play.task.publisher.ReleaseStatus
+import ru.kode.android.build.publish.plugin.play.task.publisher.ResolutionStrategy
 import java.io.File
 
 interface EditManager {

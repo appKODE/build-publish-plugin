@@ -9,7 +9,7 @@ import ru.kode.android.build.publish.plugin.extension.config.ConfluenceConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.jira.core.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
-import ru.kode.android.build.publish.plugin.extension.config.PlayConfig
+import ru.kode.android.build.publish.plugin.play.core.PlayConfig
 import ru.kode.android.build.publish.plugin.slack.core.SlackConfig
 import ru.kode.android.build.publish.plugin.telegram.core.TelegramConfig
 import javax.inject.Inject
