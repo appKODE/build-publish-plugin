@@ -27,7 +27,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.util.internal.VersionNumber
 import ru.kode.android.build.publish.plugin.extension.BuildPublishExtension
 import ru.kode.android.build.publish.plugin.extension.EXTENSION_NAME
-import ru.kode.android.build.publish.plugin.extension.config.AppCenterDistributionConfig
+import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.extension.config.ClickUpConfig
 import ru.kode.android.build.publish.plugin.extension.config.ConfluenceConfig
@@ -36,7 +36,7 @@ import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.extension.config.PlayConfig
 import ru.kode.android.build.publish.plugin.slack.core.SlackConfig
-import ru.kode.android.build.publish.plugin.task.appcenter.AppCenterDistributionTask
+import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
 import ru.kode.android.build.publish.plugin.task.clickup.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.task.confluence.ConfluenceDistributionTask

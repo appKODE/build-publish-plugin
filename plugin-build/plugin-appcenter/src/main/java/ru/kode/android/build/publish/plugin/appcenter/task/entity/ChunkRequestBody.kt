@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.appcenter.entity
+package ru.kode.android.build.publish.plugin.appcenter.task.entity
 
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

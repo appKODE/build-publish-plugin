@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.slack.extensions
+package ru.kode.android.build.publish.plugin.appcenter.extensions
 
 import org.gradle.api.model.ObjectFactory
 import javax.inject.Inject

@@ -9,6 +9,7 @@ dependencies {
     implementation(project(":plugin-core"))
     implementation(project(":plugin-telegram"))
     implementation(project(":plugin-slack"))
+    implementation(project(":plugin-appcenter"))
 
     implementation(gradleApi())
     implementation(libs.agp)

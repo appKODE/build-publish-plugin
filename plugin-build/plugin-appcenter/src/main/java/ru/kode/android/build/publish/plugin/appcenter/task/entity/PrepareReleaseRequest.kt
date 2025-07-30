@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.appcenter.entity
+package ru.kode.android.build.publish.plugin.appcenter.task.entity
 
 import com.squareup.moshi.JsonClass
 

@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.appcenter.uploader
+package ru.kode.android.build.publish.plugin.appcenter.task.uploader
 
 import com.squareup.moshi.Moshi
 import okhttp3.Interceptor
@@ -7,15 +7,15 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.logging.Logger
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import ru.kode.android.build.publish.plugin.task.appcenter.api.AppCenterApi
-import ru.kode.android.build.publish.plugin.task.appcenter.api.AppCenterUploadApi
-import ru.kode.android.build.publish.plugin.task.appcenter.entity.ChunkRequestBody
-import ru.kode.android.build.publish.plugin.task.appcenter.entity.CommitRequest
-import ru.kode.android.build.publish.plugin.task.appcenter.entity.DistributeRequest
-import ru.kode.android.build.publish.plugin.task.appcenter.entity.GetUploadResponse
-import ru.kode.android.build.publish.plugin.task.appcenter.entity.PrepareReleaseRequest
-import ru.kode.android.build.publish.plugin.task.appcenter.entity.PrepareResponse
-import ru.kode.android.build.publish.plugin.task.appcenter.entity.SendMetaDataResponse
+import ru.kode.android.build.publish.plugin.appcenter.task.api.AppCenterApi
+import ru.kode.android.build.publish.plugin.appcenter.task.api.AppCenterUploadApi
+import ru.kode.android.build.publish.plugin.appcenter.task.entity.ChunkRequestBody
+import ru.kode.android.build.publish.plugin.appcenter.task.entity.CommitRequest
+import ru.kode.android.build.publish.plugin.appcenter.task.entity.DistributeRequest
+import ru.kode.android.build.publish.plugin.appcenter.task.entity.GetUploadResponse
+import ru.kode.android.build.publish.plugin.appcenter.task.entity.PrepareReleaseRequest
+import ru.kode.android.build.publish.plugin.appcenter.task.entity.PrepareResponse
+import ru.kode.android.build.publish.plugin.appcenter.task.entity.SendMetaDataResponse
 import ru.kode.android.build.publish.plugin.core.util.UploadException
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
