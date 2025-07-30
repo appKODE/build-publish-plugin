@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":plugin-clickup"))
     implementation(project(":plugin-jira"))
     implementation(project(":plugin-play"))
+    implementation(project(":plugin-confluence"))
 
     implementation(gradleApi())
     implementation(libs.agp)

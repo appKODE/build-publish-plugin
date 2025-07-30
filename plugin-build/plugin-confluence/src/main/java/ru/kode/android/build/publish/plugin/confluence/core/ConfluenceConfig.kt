@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.extension.config
+package ru.kode.android.build.publish.plugin.confluence.core
 
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input

@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.confluence.entity
+package ru.kode.android.build.publish.plugin.confluence.task.entity
 
 import com.squareup.moshi.JsonClass
 

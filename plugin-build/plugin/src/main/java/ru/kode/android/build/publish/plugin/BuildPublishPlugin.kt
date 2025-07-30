@@ -30,7 +30,7 @@ import ru.kode.android.build.publish.plugin.extension.EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.clickup.core.ClickUpConfig
-import ru.kode.android.build.publish.plugin.extension.config.ConfluenceConfig
+import ru.kode.android.build.publish.plugin.confluence.core.ConfluenceConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.jira.core.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
@@ -39,7 +39,7 @@ import ru.kode.android.build.publish.plugin.slack.core.SlackConfig
 import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpAutomationTask
-import ru.kode.android.build.publish.plugin.task.confluence.ConfluenceDistributionTask
+import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceDistributionTask
 import ru.kode.android.build.publish.plugin.jira.task.JiraAutomationTask
 import ru.kode.android.build.publish.plugin.play.task.PlayDistributionTask
 import ru.kode.android.build.publish.plugin.slack.task.changelog.SendSlackChangelogTask

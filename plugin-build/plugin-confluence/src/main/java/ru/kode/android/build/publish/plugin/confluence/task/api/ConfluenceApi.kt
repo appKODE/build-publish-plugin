@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.confluence.api
+package ru.kode.android.build.publish.plugin.confluence.task.api
 
 import okhttp3.MultipartBody
 import retrofit2.Call
@@ -8,7 +8,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
-import ru.kode.android.build.publish.plugin.task.confluence.entity.AddCommentRequest
+import ru.kode.android.build.publish.plugin.confluence.task.entity.AddCommentRequest
 
 interface ConfluenceApi {
     @Multipart
