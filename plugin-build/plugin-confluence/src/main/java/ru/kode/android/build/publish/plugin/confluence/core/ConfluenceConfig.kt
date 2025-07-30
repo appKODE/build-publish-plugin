@@ -1,13 +1,12 @@
 package ru.kode.android.build.publish.plugin.confluence.core
 
-import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
-import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceDistributionTask
+import ru.kode.android.build.publish.plugin.confluence.task.distribution.ConfluenceDistributionTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 

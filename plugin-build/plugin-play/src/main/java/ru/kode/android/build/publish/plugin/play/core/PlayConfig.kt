@@ -1,6 +1,5 @@
 package ru.kode.android.build.publish.plugin.play.core
 
-import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -11,7 +10,7 @@ import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.play.task.PlayDistributionTask
+import ru.kode.android.build.publish.plugin.play.task.distribution.PlayDistributionTask
 
 internal const val PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX = "playUpload"
 

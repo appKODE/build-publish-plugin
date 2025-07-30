@@ -1,7 +1,6 @@
 package ru.kode.android.build.publish.plugin.clickup.core
 
 import org.gradle.api.GradleException
-import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -11,7 +10,7 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
-import ru.kode.android.build.publish.plugin.clickup.task.ClickUpAutomationTask
+import ru.kode.android.build.publish.plugin.clickup.task.automation.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 
