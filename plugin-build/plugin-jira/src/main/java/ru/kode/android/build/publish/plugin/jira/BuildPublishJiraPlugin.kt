@@ -1,11 +1,11 @@
 @file:Suppress("UnstableApiUsage")
 
-package ru.kode.android.build.publish.plugin.telegram
+package ru.kode.android.build.publish.plugin.jira
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-interface BuildPublishPluginTelegram : Plugin<Project> {
+interface BuildPublishJiraPlugin : Plugin<Project> {
     override fun apply(project: Project) {
 
     }

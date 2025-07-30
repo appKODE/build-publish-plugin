@@ -1,11 +1,11 @@
 @file:Suppress("UnstableApiUsage")
 
-package ru.kode.android.build.publish.plugin.appcenter
+package ru.kode.android.build.publish.plugin.clickup
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-interface BuildPublishPluginAppCenter : Plugin<Project> {
+interface BuildPublishClickUpPlugin : Plugin<Project> {
     override fun apply(project: Project) {
 
     }

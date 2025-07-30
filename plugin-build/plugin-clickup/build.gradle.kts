@@ -28,7 +28,7 @@ gradlePlugin {
         create("ru.kode.android.build-publish.clickup") {
             id = "ru.kode.android.build-publish.clickup"
             displayName = "Configure project with Firebase App Distribution and changelogs"
-            implementationClass = "ru.kode.android.build.publish.plugin.clickup.BuildPublishPluginClickUp"
+            implementationClass = "ru.kode.android.build.publish.plugin.clickup.BuildPublishClickUpPlugin"
             version = project.version
             description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
             tags.set(listOf("firebase", "publish", "changelog", "build"))
