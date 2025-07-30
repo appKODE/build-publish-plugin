@@ -16,45 +16,35 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Provider
-import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskContainer
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.util.internal.VersionNumber
 import ru.kode.android.build.publish.plugin.extension.BuildPublishExtension
 import ru.kode.android.build.publish.plugin.extension.EXTENSION_NAME
-import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterDistributionConfig
+import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterDistributionTaskParams
+import ru.kode.android.build.publish.plugin.clickup.core.ClickUpAutomationTaskParams
 import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
-import ru.kode.android.build.publish.plugin.clickup.core.ClickUpConfig
 import ru.kode.android.build.publish.plugin.confluence.core.ConfluenceConfig
-import ru.kode.android.build.publish.plugin.jira.core.JiraConfig
+import ru.kode.android.build.publish.plugin.confluence.core.ConfluenceDistributionTaskParams
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
-import ru.kode.android.build.publish.plugin.play.core.PlayConfig
-import ru.kode.android.build.publish.plugin.slack.core.SlackConfig
-import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
-import ru.kode.android.build.publish.plugin.clickup.task.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceDistributionTask
-import ru.kode.android.build.publish.plugin.jira.task.JiraAutomationTask
-import ru.kode.android.build.publish.plugin.play.task.PlayDistributionTask
-import ru.kode.android.build.publish.plugin.slack.task.changelog.SendSlackChangelogTask
-import ru.kode.android.build.publish.plugin.slack.task.distribution.SlackDistributionTask
 import ru.kode.android.build.publish.plugin.task.tag.GetLastTagTask
 import ru.kode.android.build.publish.plugin.task.tag.PrintLastIncreasedTag
-import ru.kode.android.build.publish.plugin.telegram.task.changelog.SendTelegramChangelogTask
-import ru.kode.android.build.publish.plugin.telegram.task.distribution.TelegramDistributionTask
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
-import ru.kode.android.build.publish.plugin.telegram.core.TelegramConfig
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
 import ru.kode.android.build.publish.plugin.firebase.BuildPublishFirebasePlugin
+import ru.kode.android.build.publish.plugin.jira.core.JiraAutomationTaskParams
+import ru.kode.android.build.publish.plugin.play.core.PlayTaskParams
+import ru.kode.android.build.publish.plugin.slack.core.SlackChangelogTaskParams
+import ru.kode.android.build.publish.plugin.slack.core.SlackDistributionTasksParams
+import ru.kode.android.build.publish.plugin.telegram.core.TelegramChangelogTaskParams
+import ru.kode.android.build.publish.plugin.telegram.core.TelegramDistributionTasksParams
 
-internal const val SEND_SLACK_CHANGELOG_TASK_PREFIX = "sendSlackChangelog"
-internal const val SEND_TELEGRAM_CHANGELOG_TASK_PREFIX = "sendTelegramChangelog"
 internal const val GENERATE_CHANGELOG_TASK_PREFIX = "generateChangelog"
 internal const val PRINT_LAST_INCREASED_TAG_TASK_PREFIX = "printLastIncreasedTag"
 internal const val GET_LAST_TAG_TASK_PREFIX = "getLastTag"
@@ -63,14 +53,6 @@ internal const val DEFAULT_VERSION_NAME = "$DEFAULT_BUILD_VERSION-dev"
 internal const val DEFAULT_VERSION_CODE = 1
 internal const val DEFAULT_BASE_FILE_NAME = "dev-build"
 internal const val CHANGELOG_FILENAME = "changelog.txt"
-internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistributionUpload"
-internal const val PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX = "playUpload"
-internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
-internal const val TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX = "telegramDistributionUpload"
-internal const val TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "telegramDistributionUploadBundle"
-internal const val CONFLUENCE_DISTRIBUTION_UPLOAD_TASK_PREFIX = "confluenceDistributionUpload"
-internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
-internal const val CLICK_UP_AUTOMATION_TASK = "clickUpAutomation"
 internal const val DEFAULT_CONTAINER_NAME = "default"
 
 internal object AgpVersions {
@@ -155,7 +137,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
     private fun Project.registerVariantTasks(
         buildPublishExtension: BuildPublishExtension,
         buildVariant: BuildVariant,
-        changelogFile: Provider<RegularFile>,
+        changelogFileProvider: Provider<RegularFile>,
         apkOutputFileName: String,
         bundleFile: Provider<RegularFile>,
         grgitService: Provider<GrgitService>,
@@ -218,108 +200,125 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     changelogConfig.commitMessageKey,
                     outputConfig.buildTagPattern,
                     buildVariant,
-                    changelogFile,
+                    changelogFileProvider,
                     tagBuildProvider,
                     grgitService,
                 )
-            val telegramConfig =
-                with(buildPublishExtension.telegram) {
-                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                }
-            if (telegramConfig != null) {
-                tasks.registerTelegramTasks(
-                    outputConfig,
-                    changelogConfig,
-                    telegramConfig,
-                    buildVariant,
-                    generateChangelogFileProvider,
-                    tagBuildProvider,
-                    apkOutputFileProvider,
-                    bundleFile,
+
+            with(buildPublishExtension.telegram) {
+                findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+            }?.apply {
+                registerChangelogTask(
+                    project = this@registerVariantTasks,
+                    params = TelegramChangelogTaskParams(
+                        outputConfig.baseFileName,
+                        changelogConfig.issueNumberPattern,
+                        changelogConfig.issueUrlPrefix,
+                        buildVariant,
+                        generateChangelogFileProvider,
+                        tagBuildProvider,
+                    )
+                )
+                registerDistributionTask(
+                    project = this@registerVariantTasks,
+                    params = TelegramDistributionTasksParams(
+                        outputConfig.baseFileName,
+                        buildVariant,
+                        tagBuildProvider,
+                        apkOutputFileProvider,
+                    )
                 )
             }
-            val confluenceConfig =
-                with(buildPublishExtension.confluence) {
-                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                }
-            if (confluenceConfig != null) {
-                tasks.registerConfluenceUploadTask(
-                    config = confluenceConfig,
-                    buildVariant = buildVariant,
-                    apkOutputFileProvider = apkOutputFileProvider,
+
+            with(buildPublishExtension.confluence) {
+                findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+            }?.apply {
+                registerDistributionTask(
+                    project = this@registerVariantTasks,
+                    params = ConfluenceDistributionTaskParams(
+                        buildVariant = buildVariant,
+                        apkOutputFileProvider = apkOutputFileProvider,
+                    )
                 )
             }
-            val slackConfig =
-                with(buildPublishExtension.slack) {
-                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                }
-            if (slackConfig != null) {
-                tasks.registerSlackTasks(
-                    outputConfig,
-                    changelogConfig,
-                    slackConfig,
-                    buildVariant,
-                    generateChangelogFileProvider,
-                    tagBuildProvider,
-                    apkOutputFileProvider,
+            with(buildPublishExtension.slack) {
+                findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+            }?.apply {
+                registerChangelogTask(
+                    project = this@registerVariantTasks,
+                    params = SlackChangelogTaskParams(
+                        outputConfig.baseFileName,
+                        changelogConfig.issueNumberPattern,
+                        changelogConfig.issueUrlPrefix,
+                        buildVariant,
+                        generateChangelogFileProvider,
+                        tagBuildProvider,
+                    )
+                )
+                registerDistributionTask(
+                    project = this@registerVariantTasks,
+                    params = SlackDistributionTasksParams(
+                        outputConfig.baseFileName,
+                        buildVariant,
+                        tagBuildProvider,
+                        apkOutputFileProvider,
+                    )
                 )
             }
-            val appCenterDistributionConfig =
-                with(buildPublishExtension.appCenterDistribution) {
-                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                }
-            if (appCenterDistributionConfig != null) {
-                val params =
-                    AppCenterDistributionTaskParams(
-                        config = appCenterDistributionConfig,
+
+            with(buildPublishExtension.appCenterDistribution) {
+                findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+            }?.apply {
+                registerDistributionTask(
+                    project = project,
+                    params = AppCenterDistributionTaskParams(
                         buildVariant = buildVariant,
                         changelogFileProvider = generateChangelogFileProvider,
                         apkOutputFileProvider = apkOutputFileProvider,
                         tagBuildProvider = tagBuildProvider,
-                        outputConfig = outputConfig,
+                        baseFileName = outputConfig.baseFileName,
                     )
-                tasks.registerAppCenterDistributionTask(params)
-            }
-            val playConfig =
-                with(buildPublishExtension.play) {
-                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                }
-            if (playConfig != null) {
-                val params =
-                    PlayTaskParams(
-                        config = playConfig,
-                        buildVariant = buildVariant,
-                        bundleOutputFileProvider = bundleFile,
-                        tagBuildProvider = tagBuildProvider,
-                        outputConfig = outputConfig,
-                    )
-                tasks.registerPlayTask(params)
-            }
-            val jiraConfig =
-                with(buildPublishExtension.jira) {
-                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                }
-            if (jiraConfig != null) {
-                tasks.registerJiraTasks(
-                    jiraConfig,
-                    buildVariant,
-                    changelogConfig.issueNumberPattern,
-                    changelogFile,
-                    tagBuildProvider,
                 )
             }
 
-            val clickUpConfig =
-                with(buildPublishExtension.clickUp) {
-                    findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                }
-            if (clickUpConfig != null) {
-                tasks.registerClickUpTasks(
-                    clickUpConfig,
-                    buildVariant,
-                    changelogConfig.issueNumberPattern,
-                    changelogFile,
-                    tagBuildProvider,
+            with(buildPublishExtension.play) {
+                findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+            }?.apply {
+                registerDistributionTask(
+                    project = this@registerVariantTasks,
+                    params = PlayTaskParams(
+                        buildVariant = buildVariant,
+                        bundleOutputFileProvider = bundleFile,
+                        tagBuildProvider = tagBuildProvider,
+                    )
+                )
+            }
+
+            with(buildPublishExtension.jira) {
+                findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+            }?.apply {
+                registerAutomationTask(
+                    project = this@registerVariantTasks,
+                    params = JiraAutomationTaskParams(
+                        buildVariant = buildVariant,
+                        issueNumberPattern = changelogConfig.issueNumberPattern,
+                        changelogFileProvider = changelogFileProvider,
+                        tagBuildProvider = tagBuildProvider,
+                    )
+                )
+            }
+
+            with(buildPublishExtension.clickUp) {
+                findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+            }?.apply {
+                registerAutomationTask(
+                    project = this@registerVariantTasks,
+                    params = ClickUpAutomationTaskParams(
+                        buildVariant = buildVariant,
+                        issueNumberPattern = changelogConfig.issueNumberPattern,
+                        changelogFileProvider = changelogFileProvider,
+                        tagBuildProvider = tagBuildProvider,
+                    )
                 )
             }
         }
@@ -328,124 +327,6 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             versionCode = versionCodeProvider,
             apkOutputFileName = apkOutputFileNameProvider,
         )
-    }
-
-    private fun TaskContainer.registerJiraTasks(
-        config: JiraConfig,
-        buildVariant: BuildVariant,
-        issueNumberPattern: Provider<String>,
-        changelogFileProvider: Provider<RegularFile>,
-        tagBuildProvider: Provider<RegularFile>,
-    ) {
-        if (
-            config.labelPattern.isPresent ||
-            config.fixVersionPattern.isPresent ||
-            config.resolvedStatusTransitionId.isPresent
-        ) {
-            register(
-                "$JIRA_AUTOMATION_TASK${buildVariant.capitalizedName()}",
-                JiraAutomationTask::class.java,
-            ) {
-                it.tagBuildFile.set(tagBuildProvider)
-                it.changelogFile.set(changelogFileProvider)
-                it.issueNumberPattern.set(issueNumberPattern)
-                it.baseUrl.set(config.baseUrl)
-                it.username.set(config.authUsername)
-                it.projectId.set(config.projectId)
-                it.password.set(config.authPassword)
-                it.labelPattern.set(config.labelPattern)
-                it.fixVersionPattern.set(config.fixVersionPattern)
-                it.resolvedStatusTransitionId.set(config.resolvedStatusTransitionId)
-            }
-        }
-    }
-
-    private fun TaskContainer.registerClickUpTasks(
-        config: ClickUpConfig,
-        buildVariant: BuildVariant,
-        issueNumberPattern: Provider<String>,
-        changelogFileProvider: Provider<RegularFile>,
-        tagBuildProvider: Provider<RegularFile>,
-    ) {
-        val fixVersionIsPresent =
-            config.fixVersionPattern.isPresent && config.fixVersionFieldId.isPresent
-        val hasMissingFixVersionProperties =
-            config.fixVersionPattern.isPresent || config.fixVersionFieldId.isPresent
-
-        if (!fixVersionIsPresent && hasMissingFixVersionProperties) {
-            throw GradleException(
-                "To use the fixVersion logic, the fixVersionPattern or fixVersionFieldId " +
-                    "properties must be specified",
-            )
-        }
-
-        if (fixVersionIsPresent || config.tagName.isPresent) {
-            register(
-                "$CLICK_UP_AUTOMATION_TASK${buildVariant.capitalizedName()}",
-                ClickUpAutomationTask::class.java,
-            ) {
-                it.tagBuildFile.set(tagBuildProvider)
-                it.changelogFile.set(changelogFileProvider)
-                it.issueNumberPattern.set(issueNumberPattern)
-                it.apiTokenFile.set(config.apiTokenFile)
-                it.fixVersionPattern.set(config.fixVersionPattern)
-                it.fixVersionFieldId.set(config.fixVersionFieldId)
-                it.taskTag.set(config.tagName)
-            }
-        }
-    }
-
-    @Suppress("LongParameterList") // TODO Get parameters inside
-    private fun TaskContainer.registerSlackTasks(
-        outputConfig: OutputConfig,
-        changelogConfig: ChangelogConfig,
-        slackConfig: SlackConfig,
-        buildVariant: BuildVariant,
-        generateChangelogFileProvider: Provider<RegularFile>,
-        tagBuildProvider: Provider<RegularFile>,
-        apkOutputFileProvider: Provider<RegularFile>,
-    ) {
-        registerSendSlackChangelogTask(
-            outputConfig,
-            changelogConfig,
-            slackConfig,
-            buildVariant,
-            generateChangelogFileProvider,
-            tagBuildProvider,
-        )
-        if (
-            slackConfig.uploadApiTokenFile.isPresent &&
-            slackConfig.uploadChannels.isPresent
-        ) {
-            registerSlackUploadTask(
-                outputConfig,
-                slackConfig.uploadApiTokenFile,
-                slackConfig.uploadChannels,
-                buildVariant,
-                apkOutputFileProvider,
-                tagBuildProvider,
-            )
-        }
-    }
-
-    private fun TaskContainer.registerSlackUploadTask(
-        outputConfig: OutputConfig,
-        apiTokenFile: RegularFileProperty,
-        channels: SetProperty<String>,
-        buildVariant: BuildVariant,
-        apkOutputFileProvider: Provider<RegularFile>,
-        tagBuildProvider: Provider<RegularFile>,
-    ) {
-        register(
-            "$SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
-            SlackDistributionTask::class.java,
-        ) {
-            it.buildVariantOutputFile.set(apkOutputFileProvider)
-            it.apiTokenFile.set(apiTokenFile)
-            it.channels.set(channels)
-            it.tagBuildFile.set(tagBuildProvider)
-            it.baseOutputFileName.set(outputConfig.baseFileName)
-        }
     }
 
     private fun Project.registerGetLastTagTask(
@@ -498,158 +379,6 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.getGrgitService().set(grgitService)
         }.flatMap { it.changelogFile }
     }
-
-    @Suppress("LongParameterList") // TODO Get parameters inside
-    private fun TaskContainer.registerTelegramTasks(
-        outputConfig: OutputConfig,
-        changelogConfig: ChangelogConfig,
-        telegramConfig: TelegramConfig,
-        buildVariant: BuildVariant,
-        changelogFileProvider: Provider<RegularFile>,
-        tagBuildProvider: Provider<RegularFile>,
-        apkOutputFileProvider: Provider<RegularFile>,
-        bundleOutputFileProvider: Provider<RegularFile>,
-    ) {
-        register(
-            "$SEND_TELEGRAM_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
-            SendTelegramChangelogTask::class.java,
-        ) {
-            it.changelogFile.set(changelogFileProvider)
-            it.tagBuildFile.set(tagBuildProvider)
-            it.issueUrlPrefix.set(changelogConfig.issueUrlPrefix)
-            it.issueNumberPattern.set(changelogConfig.issueNumberPattern)
-            it.baseOutputFileName.set(outputConfig.baseFileName)
-            it.botId.set(telegramConfig.botId)
-            it.botBaseUrl.set(telegramConfig.botBaseUrl)
-            it.botAuthUsername.set(telegramConfig.botAuthUsername)
-            it.botAuthPassword.set(telegramConfig.botAuthPassword)
-            it.chatId.set(telegramConfig.chatId)
-            it.topicId.set(telegramConfig.topicId)
-            it.userMentions.set(telegramConfig.userMentions)
-        }
-        if (telegramConfig.uploadBuild.orNull == true) {
-            registerTelegramUploadTasks(
-                telegramConfig,
-                buildVariant,
-                apkOutputFileProvider,
-                bundleOutputFileProvider,
-            )
-        }
-    }
-
-    private fun TaskContainer.registerTelegramUploadTasks(
-        telegramConfig: TelegramConfig,
-        buildVariant: BuildVariant,
-        apkOutputFileProvider: Provider<RegularFile>,
-        bundleOutputFileProvider: Provider<RegularFile>,
-    ) {
-        register(
-            "$TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
-            TelegramDistributionTask::class.java,
-        ) {
-            it.buildVariantOutputFile.set(apkOutputFileProvider)
-            it.botId.set(telegramConfig.botId)
-            it.botBaseUrl.set(telegramConfig.botBaseUrl)
-            it.botAuthUsername.set(telegramConfig.botAuthUsername)
-            it.botAuthPassword.set(telegramConfig.botAuthPassword)
-            it.chatId.set(telegramConfig.chatId)
-            it.topicId.set(telegramConfig.topicId)
-        }
-        register(
-            "$TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${buildVariant.capitalizedName()}",
-            TelegramDistributionTask::class.java,
-        ) {
-            it.buildVariantOutputFile.set(bundleOutputFileProvider)
-            it.botId.set(telegramConfig.botId)
-            it.botBaseUrl.set(telegramConfig.botBaseUrl)
-            it.botAuthUsername.set(telegramConfig.botAuthUsername)
-            it.botAuthPassword.set(telegramConfig.botAuthPassword)
-            it.chatId.set(telegramConfig.chatId)
-            it.topicId.set(telegramConfig.topicId)
-        }
-    }
-
-    private fun TaskContainer.registerConfluenceUploadTask(
-        config: ConfluenceConfig,
-        buildVariant: BuildVariant,
-        apkOutputFileProvider: Provider<RegularFile>,
-    ) {
-        register(
-            "$CONFLUENCE_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
-            ConfluenceDistributionTask::class.java,
-        ) {
-            it.buildVariantOutputFile.set(apkOutputFileProvider)
-            it.username.set(config.username)
-            it.password.set(config.password)
-            it.pageId.set(config.pageId)
-        }
-    }
-
-    @Suppress("LongParameterList") // TODO Get parameters inside
-    private fun TaskContainer.registerSendSlackChangelogTask(
-        outputConfig: OutputConfig,
-        changelogConfig: ChangelogConfig,
-        slackConfig: SlackConfig,
-        buildVariant: BuildVariant,
-        changelogFileProvider: Provider<RegularFile>,
-        tagBuildProvider: Provider<RegularFile>,
-    ) {
-        register(
-            "$SEND_SLACK_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
-            SendSlackChangelogTask::class.java,
-        ) {
-            it.changelogFile.set(changelogFileProvider)
-            it.tagBuildFile.set(tagBuildProvider)
-            it.issueUrlPrefix.set(changelogConfig.issueUrlPrefix)
-            it.issueNumberPattern.set(changelogConfig.issueNumberPattern)
-            it.baseOutputFileName.set(outputConfig.baseFileName)
-            it.webhookUrl.set(slackConfig.webhookUrl)
-            it.iconUrl.set(slackConfig.iconUrl)
-            it.userMentions.set(slackConfig.userMentions)
-            it.attachmentColor.set(slackConfig.attachmentColor)
-        }
-    }
-
-    private fun TaskContainer.registerAppCenterDistributionTask(
-        params: AppCenterDistributionTaskParams,
-    ): TaskProvider<AppCenterDistributionTask> {
-        val buildVariant = params.buildVariant
-        val config = params.config
-
-        return register(
-            "$APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
-            AppCenterDistributionTask::class.java,
-        ) {
-            it.tagBuildFile.set(params.tagBuildProvider)
-            it.buildVariantOutputFile.set(params.apkOutputFileProvider)
-            it.changelogFile.set(params.changelogFileProvider)
-            it.apiTokenFile.set(config.apiTokenFile)
-            it.ownerName.set(config.ownerName)
-            it.appName.set(config.appName)
-            it.baseFileName.set(params.outputConfig.baseFileName)
-            it.testerGroups.set(config.testerGroups)
-            it.maxUploadStatusRequestCount.set(config.maxUploadStatusRequestCount)
-            it.uploadStatusRequestDelayMs.set(config.uploadStatusRequestDelayMs)
-            it.uploadStatusRequestDelayCoefficient.set(config.uploadStatusRequestDelayCoefficient)
-        }
-    }
-
-    private fun TaskContainer.registerPlayTask(params: PlayTaskParams): TaskProvider<PlayDistributionTask> {
-        val buildVariant = params.buildVariant
-        val config = params.config
-
-        return register(
-            "$PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
-            PlayDistributionTask::class.java,
-        ) {
-            it.tagBuildFile.set(params.tagBuildProvider)
-            it.buildVariantOutputFile.set(params.bundleOutputFileProvider)
-            it.apiTokenFile.set(config.apiTokenFile)
-            it.appId.set(config.appId)
-            it.trackId.set(config.trackId)
-            it.updatePriority.set(config.updatePriority)
-        }
-    }
 }
 
 @Suppress("ThrowsCount") // block to throws exceptions on apply
@@ -679,23 +408,6 @@ private data class OutputProviders(
     val versionName: Provider<String>?,
     val versionCode: Provider<Int>?,
     val apkOutputFileName: Provider<String>,
-)
-
-private data class AppCenterDistributionTaskParams(
-    val config: AppCenterDistributionConfig,
-    val buildVariant: BuildVariant,
-    val changelogFileProvider: Provider<RegularFile>,
-    val apkOutputFileProvider: Provider<RegularFile>,
-    val tagBuildProvider: Provider<RegularFile>,
-    val outputConfig: OutputConfig,
-)
-
-private data class PlayTaskParams(
-    val config: PlayConfig,
-    val buildVariant: BuildVariant,
-    val bundleOutputFileProvider: Provider<RegularFile>,
-    val tagBuildProvider: Provider<RegularFile>,
-    val outputConfig: OutputConfig,
 )
 
 private fun mapToVersionCode(tagBuildFile: RegularFile): Int {
