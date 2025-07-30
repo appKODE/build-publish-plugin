@@ -21,27 +21,34 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.util.internal.VersionNumber
+import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterDistributionTaskParams
+import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterTasksRegistrar
+import ru.kode.android.build.publish.plugin.clickup.task.ClickUpAutomationTaskParams
+import ru.kode.android.build.publish.plugin.clickup.task.ClickUpTasksRegistrar
+import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceDistributionTaskParams
+import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceTasksRegistrar
+import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.mapper.fromJson
+import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.extension.BuildPublishExtension
 import ru.kode.android.build.publish.plugin.extension.EXTENSION_NAME
-import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterDistributionTaskParams
-import ru.kode.android.build.publish.plugin.clickup.core.ClickUpAutomationTaskParams
-import ru.kode.android.build.publish.plugin.confluence.core.ConfluenceDistributionTaskParams
+import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
+import ru.kode.android.build.publish.plugin.firebase.BuildPublishFirebasePlugin
+import ru.kode.android.build.publish.plugin.jira.task.JiraAutomationTaskParams
+import ru.kode.android.build.publish.plugin.jira.task.JiraTasksRegistrar
+import ru.kode.android.build.publish.plugin.play.task.PlayTaskParams
+import ru.kode.android.build.publish.plugin.play.task.PlayTasksRegistrar
+import ru.kode.android.build.publish.plugin.slack.task.SlackChangelogTaskParams
+import ru.kode.android.build.publish.plugin.slack.task.SlackDistributionTasksParams
+import ru.kode.android.build.publish.plugin.slack.task.SlackTasksRegistrar
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
 import ru.kode.android.build.publish.plugin.task.tag.GetLastTagTask
 import ru.kode.android.build.publish.plugin.task.tag.PrintLastIncreasedTag
-import ru.kode.android.build.publish.plugin.core.util.capitalizedName
+import ru.kode.android.build.publish.plugin.telegram.task.TelegramChangelogTaskParams
+import ru.kode.android.build.publish.plugin.telegram.task.TelegramDistributionTasksParams
+import ru.kode.android.build.publish.plugin.telegram.task.TelegramTasksRegistrar
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
-import ru.kode.android.build.publish.plugin.core.mapper.fromJson
-import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
-import ru.kode.android.build.publish.plugin.firebase.BuildPublishFirebasePlugin
-import ru.kode.android.build.publish.plugin.jira.core.JiraAutomationTaskParams
-import ru.kode.android.build.publish.plugin.play.core.PlayTaskParams
-import ru.kode.android.build.publish.plugin.slack.core.SlackChangelogTaskParams
-import ru.kode.android.build.publish.plugin.slack.core.SlackDistributionTasksParams
-import ru.kode.android.build.publish.plugin.telegram.core.TelegramChangelogTaskParams
-import ru.kode.android.build.publish.plugin.telegram.core.TelegramDistributionTasksParams
 
 internal const val GENERATE_CHANGELOG_TASK_PREFIX = "generateChangelog"
 internal const val PRINT_LAST_INCREASED_TAG_TASK_PREFIX = "printLastIncreasedTag"
@@ -184,8 +191,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         with(buildPublishExtension.telegram) {
             findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
         }?.apply {
-            registerChangelogTask(
+            TelegramTasksRegistrar.registerChangelogTask(
                 project = this@registerChangelogDependentTasks,
+                config = this,
                 params = TelegramChangelogTaskParams(
                     outputConfig.baseFileName,
                     changelogConfig.issueNumberPattern,
@@ -195,8 +203,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     outputProviders.tagBuildProvider,
                 )
             )
-            registerDistributionTask(
+            TelegramTasksRegistrar.registerDistributionTask(
                 project = this@registerChangelogDependentTasks,
+                config = this,
                 params = TelegramDistributionTasksParams(
                     outputConfig.baseFileName,
                     buildVariant,
@@ -209,8 +218,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         with(buildPublishExtension.confluence) {
             findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
         }?.apply {
-            registerDistributionTask(
+            ConfluenceTasksRegistrar.registerDistributionTask(
                 project = this@registerChangelogDependentTasks,
+                config = this,
                 params = ConfluenceDistributionTaskParams(
                     buildVariant = buildVariant,
                     apkOutputFileProvider = apkOutputFileProvider,
@@ -220,8 +230,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         with(buildPublishExtension.slack) {
             findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
         }?.apply {
-            registerChangelogTask(
+            SlackTasksRegistrar.registerChangelogTask(
                 project = this@registerChangelogDependentTasks,
+                config = this,
                 params = SlackChangelogTaskParams(
                     outputConfig.baseFileName,
                     changelogConfig.issueNumberPattern,
@@ -231,8 +242,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     outputProviders.tagBuildProvider,
                 )
             )
-            registerDistributionTask(
+            SlackTasksRegistrar.registerDistributionTask(
                 project = this@registerChangelogDependentTasks,
+                config = this,
                 params = SlackDistributionTasksParams(
                     outputConfig.baseFileName,
                     buildVariant,
@@ -245,8 +257,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         with(buildPublishExtension.appCenterDistribution) {
             findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
         }?.apply {
-            registerDistributionTask(
+            AppCenterTasksRegistrar.registerDistributionTask(
                 project = this@registerChangelogDependentTasks,
+                config = this,
                 params = AppCenterDistributionTaskParams(
                     buildVariant = buildVariant,
                     changelogFileProvider = generateChangelogFileProvider,
@@ -260,8 +273,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         with(buildPublishExtension.play) {
             findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
         }?.apply {
-            registerDistributionTask(
+            PlayTasksRegistrar.registerDistributionTask(
                 project = this@registerChangelogDependentTasks,
+                config = this,
                 params = PlayTaskParams(
                     buildVariant = buildVariant,
                     bundleOutputFileProvider = bundleFile,
@@ -273,8 +287,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         with(buildPublishExtension.jira) {
             findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
         }?.apply {
-            registerAutomationTask(
+            JiraTasksRegistrar.registerAutomationTask(
                 project = this@registerChangelogDependentTasks,
+                config = this,
                 params = JiraAutomationTaskParams(
                     buildVariant = buildVariant,
                     issueNumberPattern = changelogConfig.issueNumberPattern,
@@ -287,8 +302,9 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         with(buildPublishExtension.clickUp) {
             findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
         }?.apply {
-            registerAutomationTask(
+            ClickUpTasksRegistrar.registerAutomationTask(
                 project = this@registerChangelogDependentTasks,
+                config = this,
                 params = ClickUpAutomationTaskParams(
                     buildVariant = buildVariant,
                     issueNumberPattern = changelogConfig.issueNumberPattern,

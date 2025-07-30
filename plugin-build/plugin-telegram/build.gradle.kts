@@ -28,7 +28,7 @@ gradlePlugin {
         create("ru.kode.android.build-publish.telegram") {
             id = "ru.kode.android.build-publish.telegram"
             displayName = "Configure project with Firebase App Distribution and changelogs"
-            implementationClass = "ru.kode.android.build.publish.plugin.telegram.BuildPublishPluginTelegram"
+            implementationClass = "ru.kode.android.build.publish.plugin.telegram.BuildPublishTelegramPlugin"
             version = project.version
             description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
             tags.set(listOf("firebase", "publish", "changelog", "build"))

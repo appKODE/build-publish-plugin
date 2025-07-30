@@ -28,7 +28,7 @@ gradlePlugin {
         create("ru.kode.android.build-publish.confluence") {
             id = "ru.kode.android.build-publish.confluence"
             displayName = "Configure project with Firebase App Distribution and changelogs"
-            implementationClass = "ru.kode.android.build.publish.plugin.confluence.BuildPublishPluginConfluence"
+            implementationClass = "ru.kode.android.build.publish.plugin.confluence.BuildPublishConfluencePlugin"
             version = project.version
             description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
             tags.set(listOf("firebase", "publish", "changelog", "build"))

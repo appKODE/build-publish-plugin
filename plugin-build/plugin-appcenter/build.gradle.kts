@@ -28,7 +28,7 @@ gradlePlugin {
         create("ru.kode.android.build-publish.appcenter") {
             id = "ru.kode.android.build-publish.appcenter"
             displayName = "Configure project with Firebase App Distribution and changelogs"
-            implementationClass = "ru.kode.android.build.publish.plugin.appcenter.BuildPublishPluginAppCenter"
+            implementationClass = "ru.kode.android.build.publish.plugin.appcenter.BuildPublishAppCenterPlugin"
             version = project.version
             description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
             tags.set(listOf("firebase", "publish", "changelog", "build"))
