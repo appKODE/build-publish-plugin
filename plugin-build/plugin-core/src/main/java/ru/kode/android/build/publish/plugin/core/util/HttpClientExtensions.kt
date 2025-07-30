@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.util
+package ru.kode.android.build.publish.plugin.core.util
 
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
@@ -9,6 +9,9 @@ import java.net.Proxy
 import java.net.ProxySelector
 import java.net.SocketAddress
 import java.net.URI
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.MultipartBody
 
 private val logger = Logging.getLogger("HttpClientExtensions")
 
@@ -76,4 +79,8 @@ private class DynamicProxySelector : ProxySelector() {
     ) {
         logger.error("Proxy connection failed for $uri", error)
     }
+}
+
+fun createPartFromString(value: String): RequestBody {
+    return value.toRequestBody(MultipartBody.FORM)
 }

@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.telegram.distribution.uploader
+package ru.kode.android.build.publish.plugin.telegram.task.distribution.uploader
 
 import com.squareup.moshi.Moshi
 import okhttp3.MultipartBody
@@ -8,11 +8,11 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.logging.Logger
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import ru.kode.android.build.publish.plugin.task.slack.distribution.uploader.createPartFromString
-import ru.kode.android.build.publish.plugin.task.telegram.distribution.api.TelegramApi
-import ru.kode.android.build.publish.plugin.util.UploadException
-import ru.kode.android.build.publish.plugin.util.addProxyIfAvailable
-import ru.kode.android.build.publish.plugin.util.executeOrThrow
+import ru.kode.android.build.publish.plugin.core.util.createPartFromString
+import ru.kode.android.build.publish.plugin.telegram.task.distribution.api.TelegramApi
+import ru.kode.android.build.publish.plugin.core.util.UploadException
+import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
+import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
 import java.io.File
 import java.util.concurrent.TimeUnit
 

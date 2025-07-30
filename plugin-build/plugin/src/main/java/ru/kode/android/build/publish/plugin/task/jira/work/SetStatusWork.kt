@@ -6,7 +6,7 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.task.jira.service.JiraService
-import ru.kode.android.build.publish.plugin.util.UploadException
+import ru.kode.android.build.publish.plugin.core.util.UploadException
 
 interface SetStatusParameters : WorkParameters {
     val baseUrl: Property<String>

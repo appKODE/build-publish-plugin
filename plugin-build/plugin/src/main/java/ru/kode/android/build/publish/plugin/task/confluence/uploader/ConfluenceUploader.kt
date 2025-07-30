@@ -13,8 +13,8 @@ import ru.kode.android.build.publish.plugin.task.confluence.entity.AddCommentReq
 import ru.kode.android.build.publish.plugin.task.confluence.entity.Body
 import ru.kode.android.build.publish.plugin.task.confluence.entity.Container
 import ru.kode.android.build.publish.plugin.task.confluence.entity.Storage
-import ru.kode.android.build.publish.plugin.util.addProxyIfAvailable
-import ru.kode.android.build.publish.plugin.util.executeOrThrow
+import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
+import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
 import java.io.File
 import java.util.Base64
 import java.util.concurrent.TimeUnit

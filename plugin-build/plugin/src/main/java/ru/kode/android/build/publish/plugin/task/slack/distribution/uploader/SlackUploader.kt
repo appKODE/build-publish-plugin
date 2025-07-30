@@ -5,18 +5,17 @@ import com.squareup.moshi.adapter
 import okhttp3.Interceptor
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.logging.Logger
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.kode.android.build.publish.plugin.task.slack.distribution.api.SlackApi
 import ru.kode.android.build.publish.plugin.task.slack.distribution.entity.UploadingFileRequest
-import ru.kode.android.build.publish.plugin.util.UploadException
-import ru.kode.android.build.publish.plugin.util.addProxyIfAvailable
-import ru.kode.android.build.publish.plugin.util.executeOrThrow
+import ru.kode.android.build.publish.plugin.core.util.UploadException
+import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
+import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
+import ru.kode.android.build.publish.plugin.core.util.createPartFromString
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -95,10 +94,6 @@ private class AttachTokenInterceptor(
                 .build()
         return chain.proceed(newRequest)
     }
-}
-
-fun createPartFromString(value: String): RequestBody {
-    return value.toRequestBody(MultipartBody.FORM)
 }
 
 private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L

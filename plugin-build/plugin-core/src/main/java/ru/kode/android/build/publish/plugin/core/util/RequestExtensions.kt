@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.util
+package ru.kode.android.build.publish.plugin.core.util
 
 import retrofit2.Call
 import retrofit2.Response
@@ -23,6 +23,6 @@ fun <T> Response<T>.successOrThrow() =
         }
     }
 
-internal class UploadStreamTimeoutException : Throwable()
+class UploadStreamTimeoutException : Throwable()
 
-internal class UploadException(override val message: String) : Throwable(message)
+class UploadException(override val message: String) : Throwable(message)

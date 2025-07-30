@@ -8,8 +8,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.kode.android.build.publish.plugin.task.slack.changelog.entity.SlackChangelogBody
 import ru.kode.android.build.publish.plugin.task.slack.changelog.sender.api.SlackWebhookSenderApi
-import ru.kode.android.build.publish.plugin.util.addProxyIfAvailable
-import ru.kode.android.build.publish.plugin.util.executeOrThrow
+import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
+import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
 import java.util.concurrent.TimeUnit
 
 internal class SlackWebhookSender(
