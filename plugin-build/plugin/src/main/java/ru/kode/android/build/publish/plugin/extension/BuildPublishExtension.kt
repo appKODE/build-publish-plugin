@@ -22,22 +22,31 @@ abstract class BuildPublishExtension
     constructor(objectFactory: ObjectFactory) {
         val output: NamedDomainObjectContainer<OutputConfig> =
             objectFactory.domainObjectContainer(OutputConfig::class.java)
+
         val changelog: NamedDomainObjectContainer<ChangelogConfig> =
             objectFactory.domainObjectContainer(ChangelogConfig::class.java)
+
         val jira: NamedDomainObjectContainer<JiraConfig> =
             objectFactory.domainObjectContainer(JiraConfig::class.java)
+
         val clickUp: NamedDomainObjectContainer<ClickUpConfig> =
             objectFactory.domainObjectContainer(ClickUpConfig::class.java)
+
         val telegram: NamedDomainObjectContainer<TelegramConfig> =
             objectFactory.domainObjectContainer(TelegramConfig::class.java)
+
         val confluence: NamedDomainObjectContainer<ConfluenceConfig> =
             objectFactory.domainObjectContainer(ConfluenceConfig::class.java)
+
         val slack: NamedDomainObjectContainer<SlackConfig> =
             objectFactory.domainObjectContainer(SlackConfig::class.java)
+
         val firebaseDistribution: NamedDomainObjectContainer<FirebaseAppDistributionConfig> =
             objectFactory.domainObjectContainer(FirebaseAppDistributionConfig::class.java)
+
         val appCenterDistribution: NamedDomainObjectContainer<AppCenterDistributionConfig> =
             objectFactory.domainObjectContainer(AppCenterDistributionConfig::class.java)
+
         val play: NamedDomainObjectContainer<PlayConfig> =
             objectFactory.domainObjectContainer(PlayConfig::class.java)
     }
