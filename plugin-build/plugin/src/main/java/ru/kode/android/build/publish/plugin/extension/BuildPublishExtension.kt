@@ -10,7 +10,7 @@ import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistribu
 import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.extension.config.PlayConfig
-import ru.kode.android.build.publish.plugin.extension.config.SlackConfig
+import ru.kode.android.build.publish.plugin.slack.core.SlackConfig
 import ru.kode.android.build.publish.plugin.telegram.core.TelegramConfig
 import javax.inject.Inject
 
