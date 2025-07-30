@@ -77,18 +77,18 @@ interface TelegramConfig {
     val uploadBuild: Property<Boolean>
 
     fun registerChangelogTask(
-        project: Project,
+        project: TaskContainer,
         params: TelegramChangelogTaskParams
     ): TaskProvider<SendTelegramChangelogTask> {
-        return project.tasks.registerSendTelegramChangelogTask(this, params)
+        return project.registerSendTelegramChangelogTask(this, params)
     }
 
     fun registerDistributionTask(
-        project: Project,
+        project: TaskContainer,
         params: TelegramDistributionTasksParams
     ): TaskProvider<TelegramDistributionTask>? {
         return if (this.uploadBuild.orNull == true) {
-            project.tasks.registerTelegramUploadTask(this, params)
+            project.registerTelegramUploadTask(this, params)
         } else {
             // TODO: Add logs
             null

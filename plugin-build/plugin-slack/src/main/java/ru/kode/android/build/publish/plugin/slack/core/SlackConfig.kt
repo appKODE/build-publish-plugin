@@ -65,21 +65,21 @@ interface SlackConfig {
     val uploadChannels: SetProperty<String>
 
     fun registerChangelogTask(
-        project: Project,
+        project: TaskContainer,
         params: SlackChangelogTaskParams
     ): TaskProvider<SendSlackChangelogTask> {
-        return project.tasks.registerSendSlackChangelogTask(this, params)
+        return project.registerSendSlackChangelogTask(this, params)
     }
 
     fun registerDistributionTask(
-        project: Project,
+        project: TaskContainer,
         params: SlackDistributionTasksParams
     ): TaskProvider<SlackDistributionTask>? {
         return if (
             this.uploadApiTokenFile.isPresent &&
             this.uploadChannels.isPresent
         ) {
-            project.tasks.registerSlackDistributionTask(this, params)
+            project.registerSlackDistributionTask(this, params)
         } else {
             // TODO: Add logs
             null

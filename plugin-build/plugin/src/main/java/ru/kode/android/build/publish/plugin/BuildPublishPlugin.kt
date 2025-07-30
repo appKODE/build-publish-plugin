@@ -16,6 +16,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskContainer
@@ -33,6 +34,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
+import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.firebase.BuildPublishFirebasePlugin
 import ru.kode.android.build.publish.plugin.jira.core.JiraAutomationTaskParams
 import ru.kode.android.build.publish.plugin.play.core.PlayTaskParams
@@ -102,147 +104,25 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                         outputProviders.tagBuildProvider,
                     )
 
-                    val apkOutputFileProvider = outputProviders.apkOutputFileName.flatMap { fileName ->
-                        project.mapToOutputApkFile(buildVariant, fileName)
-                    }
-
                     val changelogConfig =
                         with(buildPublishExtension.changelog) {
                             findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
                         }
 
                     if (changelogConfig != null) {
-                        val outputConfig =
-                            with(buildPublishExtension.output) {
-                                findByName(buildVariant.name) ?: getByName(DEFAULT_CONTAINER_NAME)
-                            }
-
-                        val generateChangelogFileProvider =
-                            project.tasks.registerGenerateChangelogTask(
-                                changelogConfig.commitMessageKey,
-                                outputConfig.buildTagPattern,
-                                buildVariant,
-                                changelogFileProvider,
-                                outputProviders.tagBuildProvider,
-                                grgitService,
-                            )
-
-                        with(buildPublishExtension.telegram) {
-                            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                        }?.apply {
-                            registerChangelogTask(
-                                project = project,
-                                params = TelegramChangelogTaskParams(
-                                    outputConfig.baseFileName,
-                                    changelogConfig.issueNumberPattern,
-                                    changelogConfig.issueUrlPrefix,
-                                    buildVariant,
-                                    generateChangelogFileProvider,
-                                    outputProviders.tagBuildProvider,
-                                )
-                            )
-                            registerDistributionTask(
-                                project = project,
-                                params = TelegramDistributionTasksParams(
-                                    outputConfig.baseFileName,
-                                    buildVariant,
-                                    outputProviders.tagBuildProvider,
-                                    apkOutputFileProvider,
-                                )
-                            )
+                        val apkOutputFileProvider = outputProviders.apkOutputFileName.flatMap { fileName ->
+                            project.mapToOutputApkFile(buildVariant, fileName)
                         }
-
-                        with(buildPublishExtension.confluence) {
-                            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                        }?.apply {
-                            registerDistributionTask(
-                                project = project,
-                                params = ConfluenceDistributionTaskParams(
-                                    buildVariant = buildVariant,
-                                    apkOutputFileProvider = apkOutputFileProvider,
-                                )
-                            )
-                        }
-                        with(buildPublishExtension.slack) {
-                            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                        }?.apply {
-                            registerChangelogTask(
-                                project = project,
-                                params = SlackChangelogTaskParams(
-                                    outputConfig.baseFileName,
-                                    changelogConfig.issueNumberPattern,
-                                    changelogConfig.issueUrlPrefix,
-                                    buildVariant,
-                                    generateChangelogFileProvider,
-                                    outputProviders.tagBuildProvider,
-                                )
-                            )
-                            registerDistributionTask(
-                                project = project,
-                                params = SlackDistributionTasksParams(
-                                    outputConfig.baseFileName,
-                                    buildVariant,
-                                    outputProviders.tagBuildProvider,
-                                    apkOutputFileProvider,
-                                )
-                            )
-                        }
-
-                        with(buildPublishExtension.appCenterDistribution) {
-                            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                        }?.apply {
-                            registerDistributionTask(
-                                project = project,
-                                params = AppCenterDistributionTaskParams(
-                                    buildVariant = buildVariant,
-                                    changelogFileProvider = generateChangelogFileProvider,
-                                    apkOutputFileProvider = apkOutputFileProvider,
-                                    tagBuildProvider = outputProviders.tagBuildProvider,
-                                    baseFileName = outputConfig.baseFileName,
-                                )
-                            )
-                        }
-
-                        with(buildPublishExtension.play) {
-                            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                        }?.apply {
-                            registerDistributionTask(
-                                project = project,
-                                params = PlayTaskParams(
-                                    buildVariant = buildVariant,
-                                    bundleOutputFileProvider = bundleFile,
-                                    tagBuildProvider = outputProviders.tagBuildProvider,
-                                )
-                            )
-                        }
-
-                        with(buildPublishExtension.jira) {
-                            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                        }?.apply {
-                            registerAutomationTask(
-                                project = project,
-                                params = JiraAutomationTaskParams(
-                                    buildVariant = buildVariant,
-                                    issueNumberPattern = changelogConfig.issueNumberPattern,
-                                    changelogFileProvider = changelogFileProvider,
-                                    tagBuildProvider = outputProviders.tagBuildProvider,
-                                )
-                            )
-                        }
-
-                        with(buildPublishExtension.clickUp) {
-                            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
-                        }?.apply {
-                            registerAutomationTask(
-                                project = project,
-                                params = ClickUpAutomationTaskParams(
-                                    buildVariant = buildVariant,
-                                    issueNumberPattern = changelogConfig.issueNumberPattern,
-                                    changelogFileProvider = changelogFileProvider,
-                                    tagBuildProvider = outputProviders.tagBuildProvider,
-                                )
-                            )
-                        }
+                        project.tasks.registerChangelogDependentTasks(
+                            changelogConfig,
+                            buildPublishExtension,
+                            buildVariant,
+                            changelogFileProvider,
+                            outputProviders,
+                            grgitService,
+                            apkOutputFileProvider,
+                            bundleFile
+                        )
                     }
 
                     if (outputProviders.versionCode != null) {
@@ -276,7 +156,149 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         }
     }
 
-    @Suppress("ComplexMethod", "LongMethod") // split to multiple methods
+    private fun TaskContainer.registerChangelogDependentTasks(
+        changelogConfig: ChangelogConfig,
+        buildPublishExtension: BuildPublishExtension,
+        buildVariant: BuildVariant,
+        changelogFileProvider: Provider<RegularFile>,
+        outputProviders: OutputProviders,
+        grgitService: Property<GrgitService>,
+        apkOutputFileProvider: Provider<RegularFile>,
+        bundleFile: Provider<RegularFile>
+    ) {
+        val outputConfig =
+            with(buildPublishExtension.output) {
+                findByName(buildVariant.name) ?: getByName(DEFAULT_CONTAINER_NAME)
+            }
+
+        val generateChangelogFileProvider =
+            registerGenerateChangelogTask(
+                changelogConfig.commitMessageKey,
+                outputConfig.buildTagPattern,
+                buildVariant,
+                changelogFileProvider,
+                outputProviders.tagBuildProvider,
+                grgitService,
+            )
+
+        with(buildPublishExtension.telegram) {
+            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+        }?.apply {
+            registerChangelogTask(
+                project = this@registerChangelogDependentTasks,
+                params = TelegramChangelogTaskParams(
+                    outputConfig.baseFileName,
+                    changelogConfig.issueNumberPattern,
+                    changelogConfig.issueUrlPrefix,
+                    buildVariant,
+                    generateChangelogFileProvider,
+                    outputProviders.tagBuildProvider,
+                )
+            )
+            registerDistributionTask(
+                project = this@registerChangelogDependentTasks,
+                params = TelegramDistributionTasksParams(
+                    outputConfig.baseFileName,
+                    buildVariant,
+                    outputProviders.tagBuildProvider,
+                    apkOutputFileProvider,
+                )
+            )
+        }
+
+        with(buildPublishExtension.confluence) {
+            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+        }?.apply {
+            registerDistributionTask(
+                project = this@registerChangelogDependentTasks,
+                params = ConfluenceDistributionTaskParams(
+                    buildVariant = buildVariant,
+                    apkOutputFileProvider = apkOutputFileProvider,
+                )
+            )
+        }
+        with(buildPublishExtension.slack) {
+            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+        }?.apply {
+            registerChangelogTask(
+                project = this@registerChangelogDependentTasks,
+                params = SlackChangelogTaskParams(
+                    outputConfig.baseFileName,
+                    changelogConfig.issueNumberPattern,
+                    changelogConfig.issueUrlPrefix,
+                    buildVariant,
+                    generateChangelogFileProvider,
+                    outputProviders.tagBuildProvider,
+                )
+            )
+            registerDistributionTask(
+                project = this@registerChangelogDependentTasks,
+                params = SlackDistributionTasksParams(
+                    outputConfig.baseFileName,
+                    buildVariant,
+                    outputProviders.tagBuildProvider,
+                    apkOutputFileProvider,
+                )
+            )
+        }
+
+        with(buildPublishExtension.appCenterDistribution) {
+            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+        }?.apply {
+            registerDistributionTask(
+                project = this@registerChangelogDependentTasks,
+                params = AppCenterDistributionTaskParams(
+                    buildVariant = buildVariant,
+                    changelogFileProvider = generateChangelogFileProvider,
+                    apkOutputFileProvider = apkOutputFileProvider,
+                    tagBuildProvider = outputProviders.tagBuildProvider,
+                    baseFileName = outputConfig.baseFileName,
+                )
+            )
+        }
+
+        with(buildPublishExtension.play) {
+            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+        }?.apply {
+            registerDistributionTask(
+                project = this@registerChangelogDependentTasks,
+                params = PlayTaskParams(
+                    buildVariant = buildVariant,
+                    bundleOutputFileProvider = bundleFile,
+                    tagBuildProvider = outputProviders.tagBuildProvider,
+                )
+            )
+        }
+
+        with(buildPublishExtension.jira) {
+            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+        }?.apply {
+            registerAutomationTask(
+                project = this@registerChangelogDependentTasks,
+                params = JiraAutomationTaskParams(
+                    buildVariant = buildVariant,
+                    issueNumberPattern = changelogConfig.issueNumberPattern,
+                    changelogFileProvider = changelogFileProvider,
+                    tagBuildProvider = outputProviders.tagBuildProvider,
+                )
+            )
+        }
+
+        with(buildPublishExtension.clickUp) {
+            findByName(buildVariant.name) ?: findByName(DEFAULT_CONTAINER_NAME)
+        }?.apply {
+            registerAutomationTask(
+                project = this@registerChangelogDependentTasks,
+                params = ClickUpAutomationTaskParams(
+                    buildVariant = buildVariant,
+                    issueNumberPattern = changelogConfig.issueNumberPattern,
+                    changelogFileProvider = changelogFileProvider,
+                    tagBuildProvider = outputProviders.tagBuildProvider,
+                )
+            )
+        }
+    }
+
     private fun Project.registerVariantTasks(
         buildPublishExtension: BuildPublishExtension,
         buildVariant: BuildVariant,
