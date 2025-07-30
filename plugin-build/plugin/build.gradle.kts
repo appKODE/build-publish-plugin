@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":plugin-appcenter"))
     implementation(project(":plugin-clickup"))
     implementation(project(":plugin-jira"))
+    implementation(project(":plugin-play"))
 
     implementation(gradleApi())
     implementation(libs.agp)
@@ -24,7 +25,6 @@ dependencies {
     implementation(libs.grgitCore)
     implementation(libs.grgitGradle)
     implementation(libs.play.publish)
-    implementation(libs.google.auth)
     implementation(libs.google.auth)
     testImplementation(libs.junit)
 

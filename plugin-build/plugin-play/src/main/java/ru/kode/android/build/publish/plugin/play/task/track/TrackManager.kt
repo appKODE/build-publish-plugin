@@ -1,10 +1,10 @@
-package ru.kode.android.build.publish.plugin.task.play.track
+package ru.kode.android.build.publish.plugin.play.task.track
 
 import com.google.api.services.androidpublisher.model.LocalizedText
 import com.google.api.services.androidpublisher.model.Track
 import com.google.api.services.androidpublisher.model.TrackRelease
-import ru.kode.android.build.publish.plugin.task.play.publisher.InternalPlayPublisher
-import ru.kode.android.build.publish.plugin.task.play.publisher.ReleaseStatus
+import ru.kode.android.build.publish.plugin.play.task.publisher.InternalPlayPublisher
+import ru.kode.android.build.publish.plugin.play.task.publisher.ReleaseStatus
 
 internal interface TrackManager {
     fun update(config: UpdateConfig)
@@ -171,7 +171,7 @@ internal class DefaultTrackManager(
         if (releaseStatus != null) {
             status = releaseStatus.publishedName
         } else if (hasUserFraction) {
-            status = ReleaseStatus.IN_PROGRESS.publishedName
+            status = ru.kode.android.build.publish.plugin.play.task.publisher.ReleaseStatus.IN_PROGRESS.publishedName
         } else if (status == null) {
             status = DEFAULT_RELEASE_STATUS.publishedName
         }
@@ -209,7 +209,7 @@ internal class DefaultTrackManager(
         if (userFraction != null) {
             this.userFraction = userFraction.takeIf { isRollout() }
         } else if (isRollout() && this.userFraction == null) {
-            this.userFraction = DEFAULT_USER_FRACTION
+            this.userFraction = ru.kode.android.build.publish.plugin.play.task.track.DefaultTrackManager.DEFAULT_USER_FRACTION
         } else if (!isRollout()) {
             this.userFraction = null
         }
@@ -224,8 +224,8 @@ internal class DefaultTrackManager(
     private fun ReleaseStatus.isRollout() = this == ReleaseStatus.IN_PROGRESS || this == ReleaseStatus.HALTED
 
     private fun TrackRelease.isRollout() =
-        status == ReleaseStatus.IN_PROGRESS.publishedName ||
-            status == ReleaseStatus.HALTED.publishedName
+        status == ru.kode.android.build.publish.plugin.play.task.publisher.ReleaseStatus.IN_PROGRESS.publishedName ||
+            status == ru.kode.android.build.publish.plugin.play.task.publisher.ReleaseStatus.HALTED.publishedName
 
     private fun ReleaseStatus?.orDefault() = this ?: DEFAULT_RELEASE_STATUS
 

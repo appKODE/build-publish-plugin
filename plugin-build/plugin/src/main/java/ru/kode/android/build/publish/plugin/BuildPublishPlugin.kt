@@ -34,14 +34,14 @@ import ru.kode.android.build.publish.plugin.extension.config.ConfluenceConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.jira.core.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
-import ru.kode.android.build.publish.plugin.extension.config.PlayConfig
+import ru.kode.android.build.publish.plugin.play.core.PlayConfig
 import ru.kode.android.build.publish.plugin.slack.core.SlackConfig
 import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.task.changelog.GenerateChangelogTask
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.task.confluence.ConfluenceDistributionTask
 import ru.kode.android.build.publish.plugin.jira.task.JiraAutomationTask
-import ru.kode.android.build.publish.plugin.task.play.PlayDistributionTask
+import ru.kode.android.build.publish.plugin.play.task.PlayDistributionTask
 import ru.kode.android.build.publish.plugin.slack.task.changelog.SendSlackChangelogTask
 import ru.kode.android.build.publish.plugin.slack.task.distribution.SlackDistributionTask
 import ru.kode.android.build.publish.plugin.task.tag.GetLastTagTask

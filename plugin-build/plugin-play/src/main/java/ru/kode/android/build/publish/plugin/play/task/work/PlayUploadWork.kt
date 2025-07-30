@@ -1,17 +1,17 @@
-package ru.kode.android.build.publish.plugin.task.play.work
+package ru.kode.android.build.publish.plugin.play.task.work
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.task.play.publisher.DefaultPlayPublisher
-import ru.kode.android.build.publish.plugin.task.play.publisher.EditResponse
-import ru.kode.android.build.publish.plugin.task.play.publisher.ResolutionStrategy
-import ru.kode.android.build.publish.plugin.task.play.publisher.createPublisher
-import ru.kode.android.build.publish.plugin.task.play.track.DefaultEditManager
-import ru.kode.android.build.publish.plugin.task.play.track.DefaultTrackManager
-import ru.kode.android.build.publish.plugin.task.play.track.TrackManager
+import ru.kode.android.build.publish.plugin.play.task.publisher.DefaultPlayPublisher
+import ru.kode.android.build.publish.plugin.play.task.publisher.EditResponse
+import ru.kode.android.build.publish.plugin.play.task.publisher.ResolutionStrategy
+import ru.kode.android.build.publish.plugin.play.task.publisher.createPublisher
+import ru.kode.android.build.publish.plugin.play.task.track.DefaultEditManager
+import ru.kode.android.build.publish.plugin.play.task.track.DefaultTrackManager
+import ru.kode.android.build.publish.plugin.play.task.track.TrackManager
 
 interface PlayUploadParameters : WorkParameters {
     val appId: Property<String>

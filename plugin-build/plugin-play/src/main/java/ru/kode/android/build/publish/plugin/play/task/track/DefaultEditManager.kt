@@ -1,11 +1,11 @@
-package ru.kode.android.build.publish.plugin.task.play.track
+package ru.kode.android.build.publish.plugin.play.task.track
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import org.slf4j.LoggerFactory
-import ru.kode.android.build.publish.plugin.task.play.publisher.InternalPlayPublisher
-import ru.kode.android.build.publish.plugin.task.play.publisher.ReleaseStatus
-import ru.kode.android.build.publish.plugin.task.play.publisher.ResolutionStrategy
-import ru.kode.android.build.publish.plugin.task.play.publisher.has
+import ru.kode.android.build.publish.plugin.play.task.publisher.InternalPlayPublisher
+import ru.kode.android.build.publish.plugin.play.task.publisher.ReleaseStatus
+import ru.kode.android.build.publish.plugin.play.task.publisher.ResolutionStrategy
+import ru.kode.android.build.publish.plugin.play.task.publisher.has
 import java.io.File
 
 internal class DefaultEditManager(

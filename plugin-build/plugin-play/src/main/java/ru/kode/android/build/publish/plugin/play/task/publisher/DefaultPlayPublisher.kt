@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.play.publisher
+package ru.kode.android.build.publish.plugin.play.task.publisher
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.googleapis.media.MediaHttpUploader
