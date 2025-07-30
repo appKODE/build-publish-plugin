@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.confluence.uploader
+package ru.kode.android.build.publish.plugin.confluence.task.uploader
 
 import com.squareup.moshi.Moshi
 import okhttp3.MultipartBody
@@ -8,11 +8,11 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.logging.Logger
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import ru.kode.android.build.publish.plugin.task.confluence.api.ConfluenceApi
-import ru.kode.android.build.publish.plugin.task.confluence.entity.AddCommentRequest
-import ru.kode.android.build.publish.plugin.task.confluence.entity.Body
-import ru.kode.android.build.publish.plugin.task.confluence.entity.Container
-import ru.kode.android.build.publish.plugin.task.confluence.entity.Storage
+import ru.kode.android.build.publish.plugin.confluence.task.api.ConfluenceApi
+import ru.kode.android.build.publish.plugin.confluence.task.entity.AddCommentRequest
+import ru.kode.android.build.publish.plugin.confluence.task.entity.Body
+import ru.kode.android.build.publish.plugin.confluence.task.entity.Container
+import ru.kode.android.build.publish.plugin.confluence.task.entity.Storage
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
 import java.io.File

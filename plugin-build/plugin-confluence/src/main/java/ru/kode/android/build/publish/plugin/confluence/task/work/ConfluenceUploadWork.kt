@@ -1,11 +1,11 @@
-package ru.kode.android.build.publish.plugin.task.confluence.work
+package ru.kode.android.build.publish.plugin.confluence.task.work
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.task.confluence.uploader.ConfluenceUploader
+import ru.kode.android.build.publish.plugin.confluence.task.uploader.ConfluenceUploader
 import ru.kode.android.build.publish.plugin.core.util.UploadStreamTimeoutException
 
 interface ConfluenceUploadParameters : WorkParameters {
