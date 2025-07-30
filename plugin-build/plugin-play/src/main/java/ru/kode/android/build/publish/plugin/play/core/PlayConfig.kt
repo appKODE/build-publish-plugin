@@ -45,10 +45,10 @@ interface PlayConfig {
     val updatePriority: Property<Int>
 
     fun registerDistributionTask(
-        project: Project,
+        project: TaskContainer,
         params: PlayTaskParams
     ): TaskProvider<PlayDistributionTask> {
-        return project.tasks.registerPlayDistributionTask(this, params)
+        return project.registerPlayDistributionTask(this, params)
     }
 }
 

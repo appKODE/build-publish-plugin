@@ -33,10 +33,10 @@ interface ConfluenceConfig {
     val pageId: Property<String>
 
     fun registerDistributionTask(
-        project: Project,
+        project: TaskContainer,
         params: ConfluenceDistributionTaskParams
     ): TaskProvider<ConfluenceDistributionTask>? {
-        return project.tasks.registerConfluenceDistributionTask(this, params)
+        return project.registerConfluenceDistributionTask(this, params)
     }
 }
 

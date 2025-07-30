@@ -48,10 +48,10 @@ interface ClickUpConfig {
     val tagName: Property<String>
 
     fun registerAutomationTask(
-        project: Project,
+        project: TaskContainer,
         params: ClickUpAutomationTaskParams,
     ): TaskProvider<ClickUpAutomationTask>? {
-        return project.tasks.registerClickUpTasks(this, params)
+        return project.registerClickUpTasks(this, params)
     }
 }
 

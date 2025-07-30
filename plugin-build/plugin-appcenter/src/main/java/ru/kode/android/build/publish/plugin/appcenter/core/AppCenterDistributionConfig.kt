@@ -78,10 +78,10 @@ interface AppCenterDistributionConfig {
     val uploadStatusRequestDelayCoefficient: Property<Long>
 
     fun registerDistributionTask(
-        project: Project,
+        project: TaskContainer,
         params: AppCenterDistributionTaskParams
     ): TaskProvider<AppCenterDistributionTask> {
-        return project.tasks.registerAppCenterDistributionTask(this, params)
+        return project.registerAppCenterDistributionTask(this, params)
     }
 }
 

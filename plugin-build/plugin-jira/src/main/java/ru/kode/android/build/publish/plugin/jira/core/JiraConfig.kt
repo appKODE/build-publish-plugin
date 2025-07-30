@@ -41,10 +41,10 @@ interface JiraConfig {
     val resolvedStatusTransitionId: Property<String>
 
     fun registerAutomationTask(
-        project: Project,
+        project: TaskContainer,
         params: JiraAutomationTaskParams,
     ) {
-        project.tasks.registerJiraTasks(this, params)
+        project.registerJiraTasks(this, params)
     }
 }
 
