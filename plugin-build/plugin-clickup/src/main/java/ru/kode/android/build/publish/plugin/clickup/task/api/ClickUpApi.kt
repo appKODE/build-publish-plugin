@@ -1,10 +1,10 @@
-package ru.kode.android.build.publish.plugin.task.clickup.api
+package ru.kode.android.build.publish.plugin.clickup.task.api
 
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.Path
-import ru.kode.android.build.publish.plugin.task.clickup.entity.AddFieldToTaskRequest
+import ru.kode.android.build.publish.plugin.clickup.task.entity.AddFieldToTaskRequest
 
 interface ClickUpApi {
     @POST("v2/task/{task_id}/tag/{tag_name}")

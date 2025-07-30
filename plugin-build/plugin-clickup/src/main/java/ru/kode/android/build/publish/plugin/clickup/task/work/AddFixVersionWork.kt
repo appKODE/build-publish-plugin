@@ -1,11 +1,11 @@
-package ru.kode.android.build.publish.plugin.task.clickup.work
+package ru.kode.android.build.publish.plugin.clickup.task.work
 
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.task.clickup.service.ClickUpService
+import ru.kode.android.build.publish.plugin.clickup.task.service.ClickUpService
 
 interface AddFixVersionParameters : WorkParameters {
     val apiToken: Property<String>

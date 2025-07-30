@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.clickup.service
+package ru.kode.android.build.publish.plugin.clickup.task.service
 
 import com.squareup.moshi.Moshi
 import okhttp3.Interceptor
@@ -7,8 +7,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.logging.Logger
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import ru.kode.android.build.publish.plugin.task.clickup.api.ClickUpApi
-import ru.kode.android.build.publish.plugin.task.clickup.entity.AddFieldToTaskRequest
+import ru.kode.android.build.publish.plugin.clickup.task.api.ClickUpApi
+import ru.kode.android.build.publish.plugin.clickup.task.entity.AddFieldToTaskRequest
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.core.util.executeOptionalOrThrow
 import java.util.concurrent.TimeUnit

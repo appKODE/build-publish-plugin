@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.clickup
+package ru.kode.android.build.publish.plugin.clickup.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -13,8 +13,8 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
-import ru.kode.android.build.publish.plugin.task.clickup.work.AddFixVersionWork
-import ru.kode.android.build.publish.plugin.task.clickup.work.AddTagToTaskWork
+import ru.kode.android.build.publish.plugin.clickup.task.work.AddFixVersionWork
+import ru.kode.android.build.publish.plugin.clickup.task.work.AddTagToTaskWork
 import javax.inject.Inject
 
 abstract class ClickUpAutomationTask

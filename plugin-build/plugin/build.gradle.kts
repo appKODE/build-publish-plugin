@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":plugin-telegram"))
     implementation(project(":plugin-slack"))
     implementation(project(":plugin-appcenter"))
+    implementation(project(":plugin-clickup"))
 
     implementation(gradleApi())
     implementation(libs.agp)

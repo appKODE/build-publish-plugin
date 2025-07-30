@@ -4,7 +4,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
-import ru.kode.android.build.publish.plugin.extension.config.ClickUpConfig
+import ru.kode.android.build.publish.plugin.clickup.core.ClickUpConfig
 import ru.kode.android.build.publish.plugin.extension.config.ConfluenceConfig
 import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.extension.config.JiraConfig
