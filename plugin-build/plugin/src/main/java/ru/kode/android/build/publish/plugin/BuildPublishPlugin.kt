@@ -9,8 +9,6 @@ import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.tasks.PackageAndroidArtifact
 import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
-import com.google.firebase.appdistribution.gradle.AppDistributionExtension
-import com.google.firebase.appdistribution.gradle.AppDistributionPlugin
 import org.ajoberstar.grgit.gradle.GrgitService
 import org.ajoberstar.grgit.gradle.GrgitServiceExtension
 import org.ajoberstar.grgit.gradle.GrgitServicePlugin
@@ -31,7 +29,6 @@ import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterDistribution
 import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.clickup.core.ClickUpConfig
 import ru.kode.android.build.publish.plugin.confluence.core.ConfluenceConfig
-import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.jira.core.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.play.core.PlayConfig
@@ -49,12 +46,12 @@ import ru.kode.android.build.publish.plugin.task.tag.PrintLastIncreasedTag
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.SendTelegramChangelogTask
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.TelegramDistributionTask
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.telegram.core.TelegramConfig
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
+import ru.kode.android.build.publish.plugin.firebase.BuildPublishFirebasePlugin
 
 internal const val SEND_SLACK_CHANGELOG_TASK_PREFIX = "sendSlackChangelog"
 internal const val SEND_TELEGRAM_CHANGELOG_TASK_PREFIX = "sendTelegramChangelog"
@@ -86,38 +83,43 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         project.stopExecutionIfNotSupported()
         project.pluginManager.apply(GrgitServicePlugin::class.java)
 
-        val buildPublishExtension =
-            project.extensions
-                .create(EXTENSION_NAME, BuildPublishExtension::class.java)
-        val androidExtension =
-            project.extensions
-                .getByType(ApplicationAndroidComponentsExtension::class.java)
+        val buildPublishExtension = project.extensions
+            .create(EXTENSION_NAME, BuildPublishExtension::class.java)
+        val androidExtension = project.extensions
+            .getByType(ApplicationAndroidComponentsExtension::class.java)
         val changelogFile = project.layout.buildDirectory.file(CHANGELOG_FILENAME)
-        val grgitService =
-            project.extensions
-                .getByType(GrgitServiceExtension::class.java)
-                .service
+        val grgitService = project.extensions
+            .getByType(GrgitServiceExtension::class.java)
+            .service
+
+        // TODO: Decide how to handle such extensions? Maybe it will be possible to do it dynamically
+        val firebaseDistributionExtensions = buildPublishExtension
+            .firebaseDistribution
+            .findByName(DEFAULT_CONTAINER_NAME)
+
+        if (firebaseDistributionExtensions != null) {
+            project.pluginManager.apply(BuildPublishFirebasePlugin::class.java)
+        }
 
         androidExtension.onVariants(
             callback = { variant ->
-                val output =
-                    variant.outputs
-                        .find { it is VariantOutputImpl && it.fullName == variant.name }
-                        as? VariantOutputImpl
+                val output = variant.outputs
+                    .find { it is VariantOutputImpl && it.fullName == variant.name }
+                    as? VariantOutputImpl
+
                 if (output != null) {
                     val buildVariant = BuildVariant(variant.name, variant.flavorName, variant.buildType)
                     val apkOutputFileName = output.outputFileName.get()
 
                     val bundleFile = variant.artifacts.get(SingleArtifact.BUNDLE)
-                    val outputProviders =
-                        project.registerVariantTasks(
-                            buildPublishExtension,
-                            buildVariant,
-                            changelogFile,
-                            apkOutputFileName,
-                            bundleFile,
-                            grgitService,
-                        )
+                    val outputProviders = project.registerVariantTasks(
+                        buildPublishExtension,
+                        buildVariant,
+                        changelogFile,
+                        apkOutputFileName,
+                        bundleFile,
+                        grgitService,
+                    )
                     if (outputProviders.versionCode != null) {
                         output.versionCode.set(outputProviders.versionCode)
                     }
@@ -129,28 +131,23 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             },
         )
         androidExtension.finalizeDsl {
-            val firebaseAppDistributionConfig =
-                buildPublishExtension
-                    .firebaseDistribution
-                    // NOTE: NamedDomainObjectContainer can be resolved only in task on after finalizeDsl,
-                    // because it can be defined after plugin application
-                    .findByName(DEFAULT_CONTAINER_NAME)
-
-            if (firebaseAppDistributionConfig != null) {
-                project.pluginManager.apply(AppDistributionPlugin::class.java)
+            val outputConfig = with(buildPublishExtension.output) {
+                getByName(DEFAULT_CONTAINER_NAME)
             }
-            val outputConfig =
-                with(buildPublishExtension.output) {
-                    getByName(DEFAULT_CONTAINER_NAME)
+            val useDefaultVersionsAsFallback = outputConfig
+                .useDefaultVersionsAsFallback
+                .getOrElse(true)
+
+            project.plugins.all { plugin ->
+                when (plugin) {
+                    is AppPlugin -> {
+                        if (useDefaultVersionsAsFallback) {
+                            val appExtension = project.extensions.getByType(AppExtension::class.java)
+                            appExtension.configure()
+                        }
+                    }
                 }
-            project.configurePlugins(
-                useDefaultVersionsAsFallback =
-                    outputConfig
-                        .useDefaultVersionsAsFallback
-                        .getOrElse(true),
-                firebaseAppDistributionConfig = firebaseAppDistributionConfig,
-                changelogFile = changelogFile.get().asFile,
-            )
+            }
         }
     }
 
@@ -199,6 +196,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                         mapToVersionName(tagBuildFile, buildVariant)
                     }
                 }
+
                 useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_NAME }
                 else -> null
             }
@@ -654,35 +652,6 @@ abstract class BuildPublishPlugin : Plugin<Project> {
     }
 }
 
-private fun Project.configurePlugins(
-    useDefaultVersionsAsFallback: Boolean,
-    firebaseAppDistributionConfig: FirebaseAppDistributionConfig?,
-    changelogFile: File,
-) {
-    plugins.all { plugin ->
-        when (plugin) {
-            is AppPlugin -> {
-                if (useDefaultVersionsAsFallback) {
-                    val appExtension = extensions.getByType(AppExtension::class.java)
-                    appExtension.configure()
-                }
-            }
-
-            is AppDistributionPlugin -> {
-                if (firebaseAppDistributionConfig != null) {
-                    val appDistributionExtension =
-                        extensions
-                            .getByType(AppDistributionExtension::class.java)
-                    appDistributionExtension.configure(
-                        config = firebaseAppDistributionConfig,
-                        changelogFile = changelogFile,
-                    )
-                }
-            }
-        }
-    }
-}
-
 @Suppress("ThrowsCount") // block to throws exceptions on apply
 private fun Project.stopExecutionIfNotSupported() {
     if (AgpVersions.CURRENT < AgpVersions.VERSION_7_0_4) {
@@ -705,31 +674,6 @@ private fun AppExtension.configure() {
     }
 }
 
-private fun AppDistributionExtension.configure(
-    config: FirebaseAppDistributionConfig,
-    changelogFile: File,
-) {
-    val serviceCredentialsFilePath =
-        config
-            .serviceCredentialsFilePath
-            .orNull
-            ?.takeIf { it.isNotBlank() }
-    val applicationId =
-        config
-            .appId
-            .orNull
-            ?.takeIf { it.isNotBlank() }
-    val testerGroups = config.testerGroups.get()
-    val artifactType = config.artifactType.orNull ?: "APK"
-
-    if (applicationId != null) {
-        appId = applicationId
-    }
-    serviceCredentialsFile = serviceCredentialsFilePath.orEmpty()
-    releaseNotesFile = changelogFile.path
-    this.artifactType = artifactType
-    this.groups = testerGroups.joinToString(",")
-}
 
 private data class OutputProviders(
     val versionName: Provider<String>?,
