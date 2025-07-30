@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.telegram.distribution.entity
+package ru.kode.android.build.publish.plugin.telegram.task.distribution.entity
 
 import com.squareup.moshi.JsonClass
 

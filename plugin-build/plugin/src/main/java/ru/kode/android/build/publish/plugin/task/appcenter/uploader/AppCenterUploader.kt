@@ -16,9 +16,9 @@ import ru.kode.android.build.publish.plugin.task.appcenter.entity.GetUploadRespo
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.PrepareReleaseRequest
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.PrepareResponse
 import ru.kode.android.build.publish.plugin.task.appcenter.entity.SendMetaDataResponse
-import ru.kode.android.build.publish.plugin.util.UploadException
-import ru.kode.android.build.publish.plugin.util.addProxyIfAvailable
-import ru.kode.android.build.publish.plugin.util.executeOrThrow
+import ru.kode.android.build.publish.plugin.core.util.UploadException
+import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
+import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
 import java.io.File
 import java.util.concurrent.TimeUnit
 

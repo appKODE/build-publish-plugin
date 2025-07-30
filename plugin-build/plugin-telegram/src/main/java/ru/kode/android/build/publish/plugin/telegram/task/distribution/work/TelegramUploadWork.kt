@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.telegram.distribution.work
+package ru.kode.android.build.publish.plugin.telegram.task.distribution.work
 
 import okhttp3.Credentials
 import org.gradle.api.file.RegularFileProperty
@@ -6,8 +6,8 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.task.telegram.distribution.uploader.TelegramUploader
-import ru.kode.android.build.publish.plugin.util.UploadStreamTimeoutException
+import ru.kode.android.build.publish.plugin.telegram.task.distribution.uploader.TelegramUploader
+import ru.kode.android.build.publish.plugin.core.util.UploadStreamTimeoutException
 
 interface TelegramUploadParameters : WorkParameters {
     val outputFile: RegularFileProperty

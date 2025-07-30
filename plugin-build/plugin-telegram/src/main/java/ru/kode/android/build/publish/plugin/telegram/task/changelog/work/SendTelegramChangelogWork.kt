@@ -1,11 +1,11 @@
-package ru.kode.android.build.publish.plugin.task.telegram.changelog.work
+package ru.kode.android.build.publish.plugin.telegram.task.changelog.work
 
 import okhttp3.Credentials
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.task.telegram.changelog.sender.TelegramWebhookSender
+import ru.kode.android.build.publish.plugin.telegram.task.changelog.sender.TelegramWebhookSender
 import java.net.URLEncoder
 import javax.inject.Inject
 

@@ -13,8 +13,8 @@ import ru.kode.android.build.publish.plugin.task.jira.entity.AddFixVersionReques
 import ru.kode.android.build.publish.plugin.task.jira.entity.AddLabelRequest
 import ru.kode.android.build.publish.plugin.task.jira.entity.CreateVersionRequest
 import ru.kode.android.build.publish.plugin.task.jira.entity.SetStatusRequest
-import ru.kode.android.build.publish.plugin.util.addProxyIfAvailable
-import ru.kode.android.build.publish.plugin.util.executeOptionalOrThrow
+import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
+import ru.kode.android.build.publish.plugin.core.util.executeOptionalOrThrow
 import java.util.concurrent.TimeUnit
 
 internal class JiraService(

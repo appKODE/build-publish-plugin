@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.task.telegram.distribution
+package ru.kode.android.build.publish.plugin.telegram.task.distribution
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.task.telegram.distribution.work.TelegramUploadWork
+import ru.kode.android.build.publish.plugin.telegram.task.distribution.work.TelegramUploadWork
 import javax.inject.Inject
 
 abstract class TelegramDistributionTask

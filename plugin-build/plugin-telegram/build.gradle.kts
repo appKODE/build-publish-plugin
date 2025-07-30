@@ -7,17 +7,11 @@ plugins {
 
 dependencies {
     implementation(gradleApi())
-    implementation(libs.agp)
-    implementation(libs.firebaseAppdistribution)
     implementation(libs.okhttp)
     implementation(libs.okhttpLogging)
     implementation(libs.moshi)
     implementation(libs.retrofit)
     implementation(libs.retrofitMoshi)
-    implementation(libs.grgitCore)
-    implementation(libs.grgitGradle)
-    implementation(libs.play.publish)
-    implementation(libs.google.auth)
     implementation(project(":plugin-core"))
 
     testImplementation(libs.junit)
@@ -33,7 +27,7 @@ gradlePlugin {
         create("ru.kode.android.build-publish.telegram") {
             id = "ru.kode.android.build-publish.telegram"
             displayName = "Configure project with Firebase App Distribution and changelogs"
-            implementationClass = "ru.kode.android.build.publish.plugin.BuildPublishPluginTelegram"
+            implementationClass = "ru.kode.android.build.publish.plugin.telegram.BuildPublishPluginTelegram"
             version = project.version
             description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
             tags.set(listOf("firebase", "publish", "changelog", "build"))
@@ -50,19 +44,5 @@ publishing {
 
             from(components["java"])
         }
-    }
-}
-
-tasks.create("setupPluginUploadFromEnvironment") {
-    doLast {
-        val key = System.getenv("GRADLE_PUBLISH_KEY")
-        val secret = System.getenv("GRADLE_PUBLISH_SECRET")
-
-        if (key == null || secret == null) {
-            throw GradleException("gradlePublishKey and/or gradlePublishSecret are not defined environment variables")
-        }
-
-        System.setProperty("gradle.publish.key", key)
-        System.setProperty("gradle.publish.secret", secret)
     }
 }
