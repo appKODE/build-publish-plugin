@@ -428,7 +428,6 @@ private fun AppExtension.configure() {
     }
 }
 
-
 private data class OutputProviders(
     val versionName: Provider<String>?,
     val versionCode: Provider<Int>?,
