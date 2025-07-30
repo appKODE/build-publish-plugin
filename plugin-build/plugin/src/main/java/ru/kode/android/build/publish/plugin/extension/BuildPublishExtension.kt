@@ -6,7 +6,7 @@ import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterDistribution
 import ru.kode.android.build.publish.plugin.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.clickup.core.ClickUpConfig
 import ru.kode.android.build.publish.plugin.confluence.core.ConfluenceConfig
-import ru.kode.android.build.publish.plugin.extension.config.FirebaseAppDistributionConfig
+import ru.kode.android.build.publish.plugin.firebase.core.FirebaseAppDistributionConfig
 import ru.kode.android.build.publish.plugin.jira.core.JiraConfig
 import ru.kode.android.build.publish.plugin.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.play.core.PlayConfig

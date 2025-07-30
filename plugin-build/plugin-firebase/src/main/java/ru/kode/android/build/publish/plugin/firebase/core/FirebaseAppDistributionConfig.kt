@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.extension.config
+package ru.kode.android.build.publish.plugin.firebase.core
 
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty

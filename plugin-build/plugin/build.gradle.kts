@@ -14,22 +14,13 @@ dependencies {
     implementation(project(":plugin-jira"))
     implementation(project(":plugin-play"))
     implementation(project(":plugin-confluence"))
+    implementation(project(":plugin-firebase"))
 
     implementation(gradleApi())
     implementation(libs.agp)
-    implementation(libs.firebaseAppdistribution)
-    implementation(libs.okhttp)
-    implementation(libs.okhttpLogging)
-    implementation(libs.moshi)
-    implementation(libs.retrofit)
-    implementation(libs.retrofitMoshi)
     implementation(libs.grgitCore)
     implementation(libs.grgitGradle)
-    implementation(libs.play.publish)
-    implementation(libs.google.auth)
     testImplementation(libs.junit)
-
-    ksp(libs.moshiCodgen)
 }
 
 gradlePlugin {
