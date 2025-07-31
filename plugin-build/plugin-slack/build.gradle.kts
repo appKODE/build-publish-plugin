@@ -25,8 +25,8 @@ gradlePlugin {
     vcsUrl.set("https://github.com/appKODE/build-publish-plugin")
 
     plugins {
-        create("ru.kode.android.build-publish.slack") {
-            id = "ru.kode.android.build-publish.slack"
+        create("ru.kode.android.build-publish-novo.slack") {
+            id = "ru.kode.android.build-publish-novo.slack"
             displayName = "Configure project with Firebase App Distribution and changelogs"
             implementationClass = "ru.kode.android.build.publish.plugin.slack.BuildPublishSlackPlugin"
             version = project.version
@@ -40,7 +40,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = "ru.kode.android.build-publish.slack".removePrefix("$groupId.")
+            artifactId = "ru.kode.android.build-publish-novo.slack".removePrefix("$groupId.")
             version = project.version.toString()
 
             from(components["java"])

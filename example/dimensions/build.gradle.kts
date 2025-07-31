@@ -1,8 +1,8 @@
 plugins {
     id("com.android.application")
-    id("ru.kode.android.build-publish.base")
-    id("ru.kode.android.build-publish.slack")
-    id("ru.kode.android.build-publish.firebase")
+    id("ru.kode.android.build-publish-novo.base")
+    id("ru.kode.android.build-publish-novo.slack")
+    id("ru.kode.android.build-publish-novo.firebase")
 }
 
 android {
