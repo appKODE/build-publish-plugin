@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'com.google.firebase.appdistribution'
-    id 'ru.kode.android.build-publish'
+    id 'ru.kode.android.build-publish.base'
 }
 
 android {
@@ -22,7 +22,7 @@ android {
     }
 }
 
-buildPublish {
+buildPublishBase {
     output {
         register("default") {
             baseFileName = "base-project-android"

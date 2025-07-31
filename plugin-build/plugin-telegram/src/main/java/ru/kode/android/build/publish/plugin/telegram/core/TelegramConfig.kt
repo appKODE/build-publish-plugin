@@ -5,7 +5,6 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-
 interface TelegramConfig {
     val name: String
 

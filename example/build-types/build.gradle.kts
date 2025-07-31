@@ -1,6 +1,9 @@
 plugins {
     id("com.android.application")
-    id("ru.kode.android.build-publish")
+    id("ru.kode.android.build-publish.base")
+    id("ru.kode.android.build-publish.firebase")
+    id("ru.kode.android.build-publish.telegram")
+    id("ru.kode.android.build-publish.confluence")
 }
 
 android {
@@ -16,7 +19,7 @@ android {
     }
 }
 
-buildPublish {
+buildPublishBase {
     output {
         register("default") {
             baseFileName.set("example-base-project-android")
@@ -34,6 +37,9 @@ buildPublish {
             commitMessageKey.set("CHANGELOG")
         }
     }
+}
+
+buildPublishFirebase {
     firebaseDistribution {
         register("default") {
             serviceCredentialsFilePath.set("test-test")
@@ -41,6 +47,8 @@ buildPublish {
             testerGroups.set(setOf("android-testers"))
         }
     }
+}
+buildPublishTelegram {
     telegram {
         register("default") {
             botId.set("313123131231")
@@ -49,6 +57,9 @@ buildPublish {
             uploadBuild.set(true)
         }
     }
+}
+
+buildPublishConfluence {
     confluence {
         register("default") {
             username.set("@username")

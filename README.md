@@ -48,7 +48,7 @@ Using jar:
    // and this plugin (ru.kode.android.build-publish)
    plugins {
       id("com.android.application")
-      id("ru.kode.android.build-publish")
+      id("ru.kode.android.build-publish.base")
    }
 ```
 ## How to configure

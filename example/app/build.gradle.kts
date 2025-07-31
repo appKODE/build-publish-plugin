@@ -1,6 +1,11 @@
 plugins {
     id("com.android.application")
-    id("ru.kode.android.build-publish")
+    id("ru.kode.android.build-publish.base")
+    id("ru.kode.android.build-publish.jira")
+    id("ru.kode.android.build-publish.appcenter")
+    id("ru.kode.android.build-publish.confluence")
+    id("ru.kode.android.build-publish.telegram")
+    id("ru.kode.android.build-publish.clickup")
 }
 
 android {
@@ -47,7 +52,7 @@ dependencies {
     implementation("com.google.android.material:material:1.4.0")
 }
 
-buildPublish {
+buildPublishBase {
     output {
         register("default") {
             baseFileName.set("example-base-project-android")
@@ -65,6 +70,9 @@ buildPublish {
             commitMessageKey.set("CHANGELOG")
         }
     }
+}
+
+buildPublishJira {
     jira {
         register("default") {
             baseUrl.set("https://jira.exmaple.ru")
@@ -74,29 +82,9 @@ buildPublish {
             fixVersionPattern.set("fix_%2\$s_%1\$s")
         }
     }
-    clickUp {
-        register("default") {
-            apiTokenFile = File("clickup-token.txt")
-            fixVersionPattern = "fix_%2\$s_%1\$s"
-            fixVersionFieldId = "01234567qwerty"
-            tagName = "test_tag_name"
-        }
-    }
-    telegram {
-        register("default") {
-            botId.set("0000")
-            chatId.set("0000")
-            topicId.set("0000")
-            userMentions.set(setOf("@ivan", "@roman", "@serega"))
-        }
-    }
-    confluence {
-        register("default") {
-            username.set("@username")
-            password.set("@password")
-            pageId.set("123435")
-        }
-    }
+}
+
+buildPublishAppCenter {
     appCenterDistribution {
         register("default") {
             appName.set("Android")
@@ -117,6 +105,38 @@ buildPublish {
             ownerName.set("android-team-kode.ru")
             apiTokenFile.set(File("appcenter-token.txt"))
             testerGroups.set(setOf("Collaborators"))
+        }
+    }
+}
+
+buildPublishConfluence {
+    confluence {
+        register("default") {
+            username.set("@username")
+            password.set("@password")
+            pageId.set("123435")
+        }
+    }
+}
+
+buildPublishTelegram {
+    telegram {
+        register("default") {
+            botId.set("0000")
+            chatId.set("0000")
+            topicId.set("0000")
+            userMentions.set(setOf("@ivan", "@roman", "@serega"))
+        }
+    }
+}
+
+buildPublishClickUp {
+    clickUp {
+        register("default") {
+            apiTokenFile = File("clickup-token.txt")
+            fixVersionPattern = "fix_%2\$s_%1\$s"
+            fixVersionFieldId = "01234567qwerty"
+            tagName = "test_tag_name"
         }
     }
 }
