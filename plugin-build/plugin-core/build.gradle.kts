@@ -7,7 +7,6 @@ plugins {
 dependencies {
     implementation(gradleApi())
     implementation(libs.grgitCore)
-    implementation(libs.grgitGradle)
     implementation(libs.okhttp)
     implementation(libs.retrofit)
 }
