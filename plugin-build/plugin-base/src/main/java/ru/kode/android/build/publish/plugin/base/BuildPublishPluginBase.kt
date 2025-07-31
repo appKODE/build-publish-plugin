@@ -170,7 +170,7 @@ private fun Project.registerChangelogDependentTasks(
     buildVariant: BuildVariant,
     changelogFileProvider: Provider<RegularFile>,
     outputProviders: OutputProviders,
-    grgitService: Property<GrgitService>,
+    grgitService: Provider<GrgitService>,
     apkOutputFileProvider: Provider<RegularFile>,
     bundleFile: Provider<RegularFile>
 ) {
