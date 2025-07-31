@@ -18,7 +18,7 @@ Several different tasks will be created for each build type and flavor. But the 
 Using the plugins DSL:
 ```groovy
    plugins {
-        id "ru.kode.android.build-publish" version "1.0.0"
+        id "ru.kode.android.build-publish-novo" version "1.0.0"
    }
 ```
 Using legacy plugin application:
@@ -33,7 +33,7 @@ Using legacy plugin application:
         classpath "ru.kode.android:build-publish:1.0.0"
       }
    }
-   apply plugin: "ru.kode.android.build-publish"
+   apply plugin: "ru.kode.android.build-publish-novo"
 ```
 Using jar:
 ```groovy
@@ -45,10 +45,10 @@ Using jar:
    }
     
    // Apply required plugins (com.android.application, com.google.firebase.appdistribution)
-   // and this plugin (ru.kode.android.build-publish)
+   // and this plugin (ru.kode.android.build-publish-novo)
    plugins {
       id("com.android.application")
-      id("ru.kode.android.build-publish.base")
+      id("ru.kode.android.build-publish-novo.base")
    }
 ```
 ## How to configure

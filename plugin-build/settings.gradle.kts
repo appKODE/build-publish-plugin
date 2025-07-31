@@ -20,7 +20,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = ("ru.kode.android.build.publish.plugin")
+rootProject.name = ("ru.kode.android.build.publish.novo.plugin")
 
 include(":plugin-base")
 include(":plugin-core")

@@ -1,11 +1,11 @@
 plugins {
     id("com.android.application")
-    id("ru.kode.android.build-publish.base")
-    id("ru.kode.android.build-publish.jira")
-    id("ru.kode.android.build-publish.appcenter")
-    id("ru.kode.android.build-publish.confluence")
-    id("ru.kode.android.build-publish.telegram")
-    id("ru.kode.android.build-publish.clickup")
+    id("ru.kode.android.build-publish-novo.base")
+    id("ru.kode.android.build-publish-novo.jira")
+    id("ru.kode.android.build-publish-novo.appcenter")
+    id("ru.kode.android.build-publish-novo.confluence")
+    id("ru.kode.android.build-publish-novo.telegram")
+    id("ru.kode.android.build-publish-novo.clickup")
 }
 
 android {

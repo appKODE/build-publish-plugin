@@ -25,8 +25,8 @@ gradlePlugin {
     vcsUrl.set("https://github.com/appKODE/build-publish-plugin")
 
     plugins {
-        create("ru.kode.android.build-publish.telegram") {
-            id = "ru.kode.android.build-publish.telegram"
+        create("ru.kode.android.build-publish-novo.telegram") {
+            id = "ru.kode.android.build-publish-novo.telegram"
             displayName = "Configure project with Firebase App Distribution and changelogs"
             implementationClass = "ru.kode.android.build.publish.plugin.telegram.BuildPublishTelegramPlugin"
             version = project.version
@@ -40,7 +40,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = "ru.kode.android.build-publish.telegram".removePrefix("$groupId.")
+            artifactId = "ru.kode.android.build-publish-novo.telegram".removePrefix("$groupId.")
             version = project.version.toString()
 
             from(components["java"])

@@ -25,8 +25,8 @@ gradlePlugin {
     vcsUrl.set("https://github.com/appKODE/build-publish-plugin")
 
     plugins {
-        create("ru.kode.android.build-publish.clickup") {
-            id = "ru.kode.android.build-publish.clickup"
+        create("ru.kode.android.build-publish-novo.clickup") {
+            id = "ru.kode.android.build-publish-novo.clickup"
             displayName = "Configure project with Firebase App Distribution and changelogs"
             implementationClass = "ru.kode.android.build.publish.plugin.clickup.BuildPublishClickUpPlugin"
             version = project.version
@@ -40,7 +40,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = "ru.kode.android.build-publish.clickup".removePrefix("$groupId.")
+            artifactId = "ru.kode.android.build-publish-novo.clickup".removePrefix("$groupId.")
             version = project.version.toString()
 
             from(components["java"])
