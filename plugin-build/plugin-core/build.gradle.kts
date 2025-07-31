@@ -1,6 +1,5 @@
 plugins {
     id("kotlin-convention")
-    id("java-gradle-plugin")
     id("com.gradle.plugin-publish")
 }
 
