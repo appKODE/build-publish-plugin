@@ -30,11 +30,11 @@ gradlePlugin {
     plugins {
         create("ru.kode.android.build-publish-novo.base") {
             id = "ru.kode.android.build-publish-novo.base"
-            displayName = "Configure project with Firebase App Distribution and changelogs"
+            displayName = "Configure project output using tag and generate changelog"
             implementationClass = "ru.kode.android.build.publish.plugin.base.BuildPublishPluginBase"
             version = project.version
-            description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
-            tags.set(listOf("firebase", "publish", "changelog", "build"))
+            description = "Android plugin to configure output and changelog generation"
+            tags.set(listOf("output", "publish", "changelog", "build"))
         }
     }
 }

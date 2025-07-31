@@ -27,11 +27,11 @@ gradlePlugin {
     plugins {
         create("ru.kode.android.build-publish-novo.telegram") {
             id = "ru.kode.android.build-publish-novo.telegram"
-            displayName = "Configure project with Firebase App Distribution and changelogs"
+            displayName = "Integrate Telegram into Android project"
             implementationClass = "ru.kode.android.build.publish.plugin.telegram.BuildPublishTelegramPlugin"
             version = project.version
-            description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
-            tags.set(listOf("firebase", "publish", "changelog", "build"))
+            description = "Android plugin to automate Telegram operations"
+            tags.set(listOf("telegram", "publish", "changelog", "build"))
         }
     }
 }
