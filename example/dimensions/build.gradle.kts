@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
-    id("ru.kode.android.build-publish")
+    id("ru.kode.android.build-publish.base")
+    id("ru.kode.android.build-publish.slack")
+    id("ru.kode.android.build-publish.firebase")
 }
 
 android {
@@ -41,7 +43,7 @@ android {
     }
 }
 
-buildPublish {
+buildPublishBase {
     output {
         register("default") {
             baseFileName.set("example-base-project-android")
@@ -59,19 +61,25 @@ buildPublish {
             commitMessageKey.set("CHANGELOG")
         }
     }
+}
+
+buildPublishFirebase {
+    firebaseDistribution {
+        register("default") {
+            serviceCredentialsFilePath.set("test-test")
+            appId.set("ru.kode.test.app")
+            testerGroups.set(setOf("android-testers"))
+        }
+    }
+}
+
+buildPublishSlack {
     slack {
         register("default") {
             webhookUrl.set("https://hooks.slack.com/services/111111111/AAAAAAA/DDDDDDD")
             iconUrl.set("https://i.imgur.com/HQTF5FK.png")
             userMentions.set(setOf("@aa", "@bb", "@cc"))
             attachmentColor.set("#ffffff")
-        }
-    }
-    firebaseDistribution {
-        register("default") {
-            serviceCredentialsFilePath.set("test-test")
-            appId.set("ru.kode.test.app")
-            testerGroups.set(setOf("android-testers"))
         }
     }
 }

@@ -10,25 +10,26 @@ import com.google.firebase.appdistribution.gradle.AppDistributionExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionPlugin
 import org.gradle.api.file.RegularFileProperty
 import ru.kode.android.build.publish.plugin.core.util.getDefault
-import ru.kode.android.build.publish.plugin.firebase.extensions.BuildPublishExtension
+import ru.kode.android.build.publish.plugin.firebase.extensions.BuildPublishFirebaseExtension
 import java.io.File
 
-const val EXTENSION_NAME = "buildPublish"
+private const val FIREBASE_EXTENSION_NAME = "buildPublishFirebase"
 
-interface BuildPublishFirebasePlugin : Plugin<Project> {
+abstract class BuildPublishFirebasePlugin : Plugin<Project> {
     override fun apply(project: Project) {
+
         val androidExtension = project.extensions
             .getByType(ApplicationAndroidComponentsExtension::class.java)
 
+        // TODO: Decide what to do with changelog file
         val changelogFile: RegularFileProperty? = null
 
-        // TODO: Create another extensions
-        val buildPublishExtension = project.extensions
-            .create(EXTENSION_NAME, BuildPublishExtension::class.java)
+        val buildPublishFirebaseExtension = project.extensions
+            .create(FIREBASE_EXTENSION_NAME, BuildPublishFirebaseExtension::class.java)
 
         androidExtension.finalizeDsl {
             val firebaseAppDistributionConfig =
-                buildPublishExtension
+                buildPublishFirebaseExtension
                     .firebaseDistribution
                     // NOTE: NamedDomainObjectContainer can be resolved only in task on after finalizeDsl,
                     // because it can be defined after plugin application
@@ -37,10 +38,12 @@ interface BuildPublishFirebasePlugin : Plugin<Project> {
             if (firebaseAppDistributionConfig != null) {
                 project.pluginManager.apply(AppDistributionPlugin::class.java)
             }
-            project.configurePlugin(
-                firebaseAppDistributionConfig = firebaseAppDistributionConfig,
-                changelogFile = changelogFile!!.get().asFile,
-            )
+            if (changelogFile != null) {
+                project.configurePlugin(
+                    firebaseAppDistributionConfig = firebaseAppDistributionConfig,
+                    changelogFile = changelogFile.get().asFile,
+                )
+            }
         }
     }
 }

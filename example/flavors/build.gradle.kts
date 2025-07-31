@@ -1,6 +1,9 @@
 plugins {
     id("com.android.application")
-    id("ru.kode.android.build-publish")
+    id("ru.kode.android.build-publish.base")
+    id("ru.kode.android.build-publish.confluence")
+    id("ru.kode.android.build-publish.telegram")
+    id("ru.kode.android.build-publish.firebase")
 }
 
 android {
@@ -28,7 +31,7 @@ android {
     }
 }
 
-buildPublish {
+buildPublishBase {
     output {
         register("default") {
             baseFileName.set("flavors-example")
@@ -41,6 +44,9 @@ buildPublish {
             commitMessageKey.set("CHANGELOG")
         }
     }
+}
+
+buildPublishTelegram {
     telegram {
         register("default") {
             botId.set("TELEGRAM_BUILD_BOT_ID")
@@ -49,6 +55,9 @@ buildPublish {
             userMentions.set(setOf("@ivan", "@roman", "@serega"))
         }
     }
+}
+
+buildPublishConfluence {
     confluence {
         register("default") {
             username.set("@username")
@@ -56,6 +65,9 @@ buildPublish {
             pageId.set("123435")
         }
     }
+}
+
+buildPublishFirebase {
     firebaseDistribution {
         register("default") {
             serviceCredentialsFilePath.set("test-test")

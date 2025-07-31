@@ -22,7 +22,7 @@ dependencyResolutionManagement {
 
 rootProject.name = ("ru.kode.android.build.publish.plugin")
 
-include(":plugin")
+include(":plugin-base")
 include(":plugin-core")
 include(":plugin-telegram")
 include(":plugin-slack")
