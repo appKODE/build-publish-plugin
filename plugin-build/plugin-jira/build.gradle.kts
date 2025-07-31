@@ -27,11 +27,11 @@ gradlePlugin {
     plugins {
         create("ru.kode.android.build-publish-novo.jira") {
             id = "ru.kode.android.build-publish-novo.jira"
-            displayName = "Configure project with Firebase App Distribution and changelogs"
+            displayName = "Integrate Jira into Android project"
             implementationClass = "ru.kode.android.build.publish.plugin.jira.BuildPublishJiraPlugin"
             version = project.version
-            description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
-            tags.set(listOf("firebase", "publish", "changelog", "build"))
+            description = "Android plugin to automate Jira operations"
+            tags.set(listOf("jira", "publish", "changelog", "build"))
         }
     }
 }

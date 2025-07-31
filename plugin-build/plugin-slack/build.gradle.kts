@@ -27,11 +27,11 @@ gradlePlugin {
     plugins {
         create("ru.kode.android.build-publish-novo.slack") {
             id = "ru.kode.android.build-publish-novo.slack"
-            displayName = "Configure project with Firebase App Distribution and changelogs"
+            displayName = "Integrate Slack into Android project"
             implementationClass = "ru.kode.android.build.publish.plugin.slack.BuildPublishSlackPlugin"
             version = project.version
-            description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
-            tags.set(listOf("firebase", "publish", "changelog", "build"))
+            description = "Android plugin to automate Slack operations"
+            tags.set(listOf("slack", "publish", "changelog", "build"))
         }
     }
 }

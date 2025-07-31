@@ -27,11 +27,11 @@ gradlePlugin {
     plugins {
         create("ru.kode.android.build-publish-novo.confluence") {
             id = "ru.kode.android.build-publish-novo.confluence"
-            displayName = "Configure project with Firebase App Distribution and changelogs"
+            displayName = "Integrate Confluence into Android project"
             implementationClass = "ru.kode.android.build.publish.plugin.confluence.BuildPublishConfluencePlugin"
             version = project.version
-            description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
-            tags.set(listOf("firebase", "publish", "changelog", "build"))
+            description = "Android plugin to automate Confluence operations"
+            tags.set(listOf("confluence", "publish", "changelog", "build"))
         }
     }
 }

@@ -29,7 +29,7 @@ gradlePlugin {
     plugins {
         create("ru.kode.android.build-publish-novo.firebase") {
             id = "ru.kode.android.build-publish-novo.firebase"
-            displayName = "Configure project with Firebase App Distribution and changelogs"
+            displayName = "Integrate Firebase into Android project"
             implementationClass = "ru.kode.android.build.publish.plugin.firebase.BuildPublishFirebasePlugin"
             version = project.version
             description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
