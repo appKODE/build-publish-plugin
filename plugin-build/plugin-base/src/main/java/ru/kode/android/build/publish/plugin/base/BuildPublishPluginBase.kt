@@ -7,8 +7,6 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.impl.VariantOutputImpl
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.tasks.PackageAndroidArtifact
-import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import org.ajoberstar.grgit.gradle.GrgitService
 import org.ajoberstar.grgit.gradle.GrgitServiceExtension
 import org.ajoberstar.grgit.gradle.GrgitServicePlugin
@@ -18,11 +16,10 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.StopExecutionException
-import org.gradle.util.internal.VersionNumber
 import ru.kode.android.build.publish.plugin.appcenter.extensions.BuildPublishAppCenterExtension
 import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterDistributionTaskParams
 import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterTasksRegistrar
+import ru.kode.android.build.publish.plugin.base.check.stopExecutionIfNotSupported
 import ru.kode.android.build.publish.plugin.clickup.extensions.BuildPublishClickUpExtension
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpAutomationTaskParams
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpTasksRegistrar
@@ -36,6 +33,7 @@ import ru.kode.android.build.publish.plugin.core.util.getDefault
 import ru.kode.android.build.publish.plugin.base.extension.BuildPublishBaseExtension
 import ru.kode.android.build.publish.plugin.base.extension.BASE_EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.base.extension.config.ChangelogConfig
+import ru.kode.android.build.publish.plugin.base.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.jira.extensions.BuildPublishJiraExtension
 import ru.kode.android.build.publish.plugin.jira.task.JiraAutomationTaskParams
 import ru.kode.android.build.publish.plugin.jira.task.JiraTasksRegistrar
@@ -54,17 +52,12 @@ import ru.kode.android.build.publish.plugin.base.task.GenerateChangelogTaskParam
 import ru.kode.android.build.publish.plugin.base.task.LastTagTaskParams
 import ru.kode.android.build.publish.plugin.base.task.OutputProviders
 import ru.kode.android.build.publish.plugin.base.task.PrintLastIncreasedTagTaskParams
+import ru.kode.android.build.publish.plugin.base.util.mapToOutputApkFile
+import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.telegram.extensions.BuildPublishTelegramExtension
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramChangelogTaskParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramDistributionTasksParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramTasksRegistrar
-
-internal const val CHANGELOG_FILENAME = "changelog.txt"
-
-internal object AgpVersions {
-    val CURRENT: VersionNumber = VersionNumber.parse(ANDROID_GRADLE_PLUGIN_VERSION).baseVersion
-    val VERSION_7_0_4: VersionNumber = VersionNumber.parse("7.0.4")
-}
 
 abstract class BuildPublishPluginBase : Plugin<Project> {
     override fun apply(project: Project) {
@@ -76,7 +69,7 @@ abstract class BuildPublishPluginBase : Plugin<Project> {
             .create(BASE_EXTENSION_NAME, BuildPublishBaseExtension::class.java)
         val androidExtension = project.extensions
             .getByType(ApplicationAndroidComponentsExtension::class.java)
-        val changelogFileProvider = project.layout.buildDirectory.file(CHANGELOG_FILENAME)
+        val changelogFileProvider = project.changelogDirectory()
         val grgitService = project.extensions
             .getByType(GrgitServiceExtension::class.java)
             .service
@@ -119,9 +112,10 @@ abstract class BuildPublishPluginBase : Plugin<Project> {
                         val apkOutputFileProvider = outputProviders.apkOutputFileName.flatMap { fileName ->
                             project.mapToOutputApkFile(buildVariant, fileName)
                         }
+
                         project.registerChangelogDependentTasks(
                             changelogConfig,
-                            buildPublishBaseExtension,
+                            outputConfig,
                             buildVariant,
                             changelogFileProvider,
                             outputProviders,
@@ -161,180 +155,6 @@ abstract class BuildPublishPluginBase : Plugin<Project> {
         }
     }
 
-    private fun Project.registerChangelogDependentTasks(
-        changelogConfig: ChangelogConfig,
-        buildPublishExtension: BuildPublishBaseExtension,
-        buildVariant: BuildVariant,
-        changelogFileProvider: Provider<RegularFile>,
-        outputProviders: OutputProviders,
-        grgitService: Property<GrgitService>,
-        apkOutputFileProvider: Provider<RegularFile>,
-        bundleFile: Provider<RegularFile>
-    ) {
-        val outputConfig = buildPublishExtension.output.getByNameOrRequiredDefault(buildVariant.name)
-
-        val generateChangelogFileProvider =
-            ChangelogTasksRegistrar.registerGenerateChangelogTask(
-                project = this,
-                params = GenerateChangelogTaskParams(
-                    changelogConfig.commitMessageKey,
-                    outputConfig.buildTagPattern,
-                    buildVariant,
-                    changelogFileProvider,
-                    outputProviders.tagBuildProvider,
-                    grgitService,
-                )
-            )
-
-        val telegramExtension = extensions.findByType(BuildPublishTelegramExtension::class.java)
-
-        telegramExtension?.telegram?.getByNameOrNullableDefault(buildVariant.name)
-            ?.apply {
-                TelegramTasksRegistrar.registerChangelogTask(
-                    project = this@registerChangelogDependentTasks.tasks,
-                    config = this,
-                    params = TelegramChangelogTaskParams(
-                        outputConfig.baseFileName,
-                        changelogConfig.issueNumberPattern,
-                        changelogConfig.issueUrlPrefix,
-                        buildVariant,
-                        generateChangelogFileProvider,
-                        outputProviders.tagBuildProvider,
-                    )
-                )
-                TelegramTasksRegistrar.registerDistributionTask(
-                    project = this@registerChangelogDependentTasks.tasks,
-                    config = this,
-                    params = TelegramDistributionTasksParams(
-                        outputConfig.baseFileName,
-                        buildVariant,
-                        outputProviders.tagBuildProvider,
-                        apkOutputFileProvider,
-                    )
-                )
-            }
-
-        val confluenceExtension = extensions.findByType(BuildPublishConfluenceExtension::class.java)
-
-        confluenceExtension?.confluence?.getByNameOrNullableDefault(buildVariant.name)
-            ?.apply {
-                ConfluenceTasksRegistrar.registerDistributionTask(
-                    project = this@registerChangelogDependentTasks.tasks,
-                    config = this,
-                    params = ConfluenceDistributionTaskParams(
-                        buildVariant = buildVariant,
-                        apkOutputFileProvider = apkOutputFileProvider,
-                    )
-                )
-            }
-
-        val slackExtension = extensions.findByType(BuildPublishSlackExtension::class.java)
-
-        slackExtension?.slack?.getByNameOrNullableDefault(buildVariant.name)
-            ?.apply {
-                SlackTasksRegistrar.registerChangelogTask(
-                    project = this@registerChangelogDependentTasks.tasks,
-                    config = this,
-                    params = SlackChangelogTaskParams(
-                        outputConfig.baseFileName,
-                        changelogConfig.issueNumberPattern,
-                        changelogConfig.issueUrlPrefix,
-                        buildVariant,
-                        generateChangelogFileProvider,
-                        outputProviders.tagBuildProvider,
-                    )
-                )
-                SlackTasksRegistrar.registerDistributionTask(
-                    project = this@registerChangelogDependentTasks.tasks,
-                    config = this,
-                    params = SlackDistributionTasksParams(
-                        outputConfig.baseFileName,
-                        buildVariant,
-                        outputProviders.tagBuildProvider,
-                        apkOutputFileProvider,
-                    )
-                )
-            }
-
-        val appCenterExtension = extensions.findByType(BuildPublishAppCenterExtension::class.java)
-
-        appCenterExtension?.appCenterDistribution?.getByNameOrNullableDefault(buildVariant.name)
-            ?.apply {
-                AppCenterTasksRegistrar.registerDistributionTask(
-                    project = this@registerChangelogDependentTasks.tasks,
-                    config = this,
-                    params = AppCenterDistributionTaskParams(
-                        buildVariant = buildVariant,
-                        changelogFileProvider = generateChangelogFileProvider,
-                        apkOutputFileProvider = apkOutputFileProvider,
-                        tagBuildProvider = outputProviders.tagBuildProvider,
-                        baseFileName = outputConfig.baseFileName,
-                    )
-                )
-            }
-
-        val playExtension = extensions.findByType(BuildPublishPlayExtension::class.java)
-
-        playExtension?.play?.getByNameOrNullableDefault(buildVariant.name)
-            ?.apply {
-                PlayTasksRegistrar.registerDistributionTask(
-                    project = this@registerChangelogDependentTasks.tasks,
-                    config = this,
-                    params = PlayTaskParams(
-                        buildVariant = buildVariant,
-                        bundleOutputFileProvider = bundleFile,
-                        tagBuildProvider = outputProviders.tagBuildProvider,
-                    )
-                )
-            }
-
-        val jiraExtension = extensions.findByType(BuildPublishJiraExtension::class.java)
-
-        jiraExtension?.jira?.getByNameOrNullableDefault(buildVariant.name)
-            ?.apply {
-                JiraTasksRegistrar.registerAutomationTask(
-                    project = this@registerChangelogDependentTasks.tasks,
-                    config = this,
-                    params = JiraAutomationTaskParams(
-                        buildVariant = buildVariant,
-                        issueNumberPattern = changelogConfig.issueNumberPattern,
-                        changelogFileProvider = changelogFileProvider,
-                        tagBuildProvider = outputProviders.tagBuildProvider,
-                    )
-                )
-            }
-
-        val clickUpExtension = extensions.findByType(BuildPublishClickUpExtension::class.java)
-
-        clickUpExtension?.clickUp?.getByNameOrNullableDefault(buildVariant.name)
-            ?.apply {
-                ClickUpTasksRegistrar.registerAutomationTask(
-                    project = this@registerChangelogDependentTasks.tasks,
-                    config = this,
-                    params = ClickUpAutomationTaskParams(
-                        buildVariant = buildVariant,
-                        issueNumberPattern = changelogConfig.issueNumberPattern,
-                        changelogFileProvider = changelogFileProvider,
-                        tagBuildProvider = outputProviders.tagBuildProvider,
-                    )
-                )
-            }
-    }
-}
-
-@Suppress("ThrowsCount") // block to throws exceptions on apply
-private fun Project.stopExecutionIfNotSupported() {
-    if (AgpVersions.CURRENT < AgpVersions.VERSION_7_0_4) {
-        throw StopExecutionException(
-            "Must only be used with with Android Gradle Plugin >= 7.4 ",
-        )
-    }
-    if (!plugins.hasPlugin(AppPlugin::class.java)) {
-        throw StopExecutionException(
-            "Must only be used with Android application projects." +
-                " Please apply the 'com.android.application' plugin.",
-        )
-    }
 }
 
 private fun AppExtension.configure() {
@@ -344,13 +164,161 @@ private fun AppExtension.configure() {
     }
 }
 
-private fun Project.mapToOutputApkFile(
+private fun Project.registerChangelogDependentTasks(
+    changelogConfig: ChangelogConfig,
+    outputConfig: OutputConfig,
     buildVariant: BuildVariant,
-    fileName: String,
-): Provider<RegularFile> {
-    return tasks.withType(PackageAndroidArtifact::class.java)
-        .firstOrNull { it.variantName == buildVariant.name }
-        ?.outputDirectory
-        ?.map { directory -> directory.file(fileName) }
-        ?: throw GradleException("no output for variant ${buildVariant.name}")
+    changelogFileProvider: Provider<RegularFile>,
+    outputProviders: OutputProviders,
+    grgitService: Property<GrgitService>,
+    apkOutputFileProvider: Provider<RegularFile>,
+    bundleFile: Provider<RegularFile>
+) {
+
+    val generateChangelogFileProvider =
+        ChangelogTasksRegistrar.registerGenerateChangelogTask(
+            project = this,
+            params = GenerateChangelogTaskParams(
+                changelogConfig.commitMessageKey,
+                outputConfig.buildTagPattern,
+                buildVariant,
+                changelogFileProvider,
+                outputProviders.tagBuildProvider,
+                grgitService,
+            )
+        )
+
+    val telegramExtension = extensions.findByType(BuildPublishTelegramExtension::class.java)
+
+    telegramExtension?.telegram?.getByNameOrNullableDefault(buildVariant.name)
+        ?.apply {
+            TelegramTasksRegistrar.registerChangelogTask(
+                project = this@registerChangelogDependentTasks.tasks,
+                config = this,
+                params = TelegramChangelogTaskParams(
+                    outputConfig.baseFileName,
+                    changelogConfig.issueNumberPattern,
+                    changelogConfig.issueUrlPrefix,
+                    buildVariant,
+                    generateChangelogFileProvider,
+                    outputProviders.tagBuildProvider,
+                )
+            )
+            TelegramTasksRegistrar.registerDistributionTask(
+                project = this@registerChangelogDependentTasks.tasks,
+                config = this,
+                params = TelegramDistributionTasksParams(
+                    outputConfig.baseFileName,
+                    buildVariant,
+                    outputProviders.tagBuildProvider,
+                    apkOutputFileProvider,
+                )
+            )
+        }
+
+    val confluenceExtension = extensions.findByType(BuildPublishConfluenceExtension::class.java)
+
+    confluenceExtension?.confluence?.getByNameOrNullableDefault(buildVariant.name)
+        ?.apply {
+            ConfluenceTasksRegistrar.registerDistributionTask(
+                project = this@registerChangelogDependentTasks.tasks,
+                config = this,
+                params = ConfluenceDistributionTaskParams(
+                    buildVariant = buildVariant,
+                    apkOutputFileProvider = apkOutputFileProvider,
+                )
+            )
+        }
+
+    val slackExtension = extensions.findByType(BuildPublishSlackExtension::class.java)
+
+    slackExtension?.slack?.getByNameOrNullableDefault(buildVariant.name)
+        ?.apply {
+            SlackTasksRegistrar.registerChangelogTask(
+                project = this@registerChangelogDependentTasks.tasks,
+                config = this,
+                params = SlackChangelogTaskParams(
+                    outputConfig.baseFileName,
+                    changelogConfig.issueNumberPattern,
+                    changelogConfig.issueUrlPrefix,
+                    buildVariant,
+                    generateChangelogFileProvider,
+                    outputProviders.tagBuildProvider,
+                )
+            )
+            SlackTasksRegistrar.registerDistributionTask(
+                project = this@registerChangelogDependentTasks.tasks,
+                config = this,
+                params = SlackDistributionTasksParams(
+                    outputConfig.baseFileName,
+                    buildVariant,
+                    outputProviders.tagBuildProvider,
+                    apkOutputFileProvider,
+                )
+            )
+        }
+
+    val appCenterExtension = extensions.findByType(BuildPublishAppCenterExtension::class.java)
+
+    appCenterExtension?.appCenterDistribution?.getByNameOrNullableDefault(buildVariant.name)
+        ?.apply {
+            AppCenterTasksRegistrar.registerDistributionTask(
+                project = this@registerChangelogDependentTasks.tasks,
+                config = this,
+                params = AppCenterDistributionTaskParams(
+                    buildVariant = buildVariant,
+                    changelogFileProvider = generateChangelogFileProvider,
+                    apkOutputFileProvider = apkOutputFileProvider,
+                    tagBuildProvider = outputProviders.tagBuildProvider,
+                    baseFileName = outputConfig.baseFileName,
+                )
+            )
+        }
+
+    val playExtension = extensions.findByType(BuildPublishPlayExtension::class.java)
+
+    playExtension?.play?.getByNameOrNullableDefault(buildVariant.name)
+        ?.apply {
+            PlayTasksRegistrar.registerDistributionTask(
+                project = this@registerChangelogDependentTasks.tasks,
+                config = this,
+                params = PlayTaskParams(
+                    buildVariant = buildVariant,
+                    bundleOutputFileProvider = bundleFile,
+                    tagBuildProvider = outputProviders.tagBuildProvider,
+                )
+            )
+        }
+
+    val jiraExtension = extensions.findByType(BuildPublishJiraExtension::class.java)
+
+    jiraExtension?.jira?.getByNameOrNullableDefault(buildVariant.name)
+        ?.apply {
+            JiraTasksRegistrar.registerAutomationTask(
+                project = this@registerChangelogDependentTasks.tasks,
+                config = this,
+                params = JiraAutomationTaskParams(
+                    buildVariant = buildVariant,
+                    issueNumberPattern = changelogConfig.issueNumberPattern,
+                    changelogFileProvider = changelogFileProvider,
+                    tagBuildProvider = outputProviders.tagBuildProvider,
+                )
+            )
+        }
+
+    val clickUpExtension = extensions.findByType(BuildPublishClickUpExtension::class.java)
+
+    clickUpExtension?.clickUp?.getByNameOrNullableDefault(buildVariant.name)
+        ?.apply {
+            ClickUpTasksRegistrar.registerAutomationTask(
+                project = this@registerChangelogDependentTasks.tasks,
+                config = this,
+                params = ClickUpAutomationTaskParams(
+                    buildVariant = buildVariant,
+                    issueNumberPattern = changelogConfig.issueNumberPattern,
+                    changelogFileProvider = changelogFileProvider,
+                    tagBuildProvider = outputProviders.tagBuildProvider,
+                )
+            )
+        }
 }

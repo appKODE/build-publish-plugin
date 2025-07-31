@@ -8,7 +8,7 @@ import ru.kode.android.build.publish.plugin.firebase.core.FirebaseAppDistributio
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionPlugin
-import org.gradle.api.file.RegularFileProperty
+import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.core.util.getDefault
 import ru.kode.android.build.publish.plugin.firebase.extensions.BuildPublishFirebaseExtension
 import java.io.File
@@ -21,8 +21,7 @@ abstract class BuildPublishFirebasePlugin : Plugin<Project> {
         val androidExtension = project.extensions
             .getByType(ApplicationAndroidComponentsExtension::class.java)
 
-        // TODO: Decide what to do with changelog file
-        val changelogFile: RegularFileProperty? = null
+        val changelogFile = project.changelogDirectory()
 
         val buildPublishFirebaseExtension = project.extensions
             .create(FIREBASE_EXTENSION_NAME, BuildPublishFirebaseExtension::class.java)
@@ -38,12 +37,10 @@ abstract class BuildPublishFirebasePlugin : Plugin<Project> {
             if (firebaseAppDistributionConfig != null) {
                 project.pluginManager.apply(AppDistributionPlugin::class.java)
             }
-            if (changelogFile != null) {
-                project.configurePlugin(
-                    firebaseAppDistributionConfig = firebaseAppDistributionConfig,
-                    changelogFile = changelogFile.get().asFile,
-                )
-            }
+            project.configurePlugin(
+                firebaseAppDistributionConfig = firebaseAppDistributionConfig,
+                changelogFile = changelogFile.get().asFile,
+            )
         }
     }
 }
