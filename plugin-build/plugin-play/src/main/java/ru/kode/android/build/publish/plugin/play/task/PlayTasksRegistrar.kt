@@ -6,7 +6,7 @@ import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.play.core.PlayConfig
+import ru.kode.android.build.publish.plugin.play.core.PlayDistribution
 import ru.kode.android.build.publish.plugin.play.task.distribution.PlayDistributionTask
 
 internal const val PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX = "playUpload"
@@ -15,15 +15,15 @@ object PlayTasksRegistrar {
 
     fun registerDistributionTask(
         project: TaskContainer,
-        config: PlayConfig,
+        distributionConfig: PlayDistribution,
         params: PlayTaskParams
     ): TaskProvider<PlayDistributionTask> {
-        return project.registerPlayDistributionTask(config, params)
+        return project.registerPlayDistributionTask(distributionConfig, params)
     }
 }
 
 private fun TaskContainer.registerPlayDistributionTask(
-    config: PlayConfig,
+    distributionConfig: PlayDistribution,
     params: PlayTaskParams
 ): TaskProvider<PlayDistributionTask> {
     val buildVariant = params.buildVariant
@@ -34,10 +34,10 @@ private fun TaskContainer.registerPlayDistributionTask(
     ) {
         it.tagBuildFile.set(params.tagBuildProvider)
         it.buildVariantOutputFile.set(params.bundleOutputFileProvider)
-        it.apiTokenFile.set(config.apiTokenFile)
-        it.appId.set(config.appId)
-        it.trackId.set(config.trackId)
-        it.updatePriority.set(config.updatePriority)
+        it.apiTokenFile.set(distributionConfig.apiTokenFile)
+        it.appId.set(distributionConfig.appId)
+        it.trackId.set(distributionConfig.trackId)
+        it.updatePriority.set(distributionConfig.updatePriority)
     }
 }
 
