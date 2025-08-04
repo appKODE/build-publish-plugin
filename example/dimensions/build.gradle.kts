@@ -64,7 +64,7 @@ buildPublishBase {
 }
 
 buildPublishFirebase {
-    firebaseDistribution {
+    distribution {
         register("default") {
             serviceCredentialsFilePath.set("test-test")
             appId.set("ru.kode.test.app")

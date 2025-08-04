@@ -4,7 +4,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 
-interface FirebaseAppDistributionConfig {
+interface FirebaseDistributionConfig {
     val name: String
 
     /**

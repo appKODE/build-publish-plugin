@@ -28,6 +28,7 @@ buildPublishBase {
             baseFileName = "base-project-android"
         }
     }
+
     changelog {
         register("default") {
             issueNumberPattern = "BASE-\\d+"
