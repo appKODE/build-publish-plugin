@@ -4,17 +4,8 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-interface JiraConfig {
+interface JiraAutomationConfig {
     val name: String
-
-    @get:Input
-    val authUsername: Property<String>
-
-    @get:Input
-    val authPassword: Property<String>
-
-    @get:Input
-    val baseUrl: Property<String>
 
     @get:Input
     val projectId: Property<Long>

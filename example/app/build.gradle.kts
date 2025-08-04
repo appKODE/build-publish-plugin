@@ -73,11 +73,15 @@ buildPublishBase {
 }
 
 buildPublishJira {
-    jira {
+    auth {
         register("default") {
             baseUrl.set("https://jira.exmaple.ru")
             authUsername.set("test_user")
             authPassword.set("test_password")
+        }
+    }
+    automation {
+        register("default") {
             projectId.set(1111)
             fixVersionPattern.set("fix_%2\$s_%1\$s")
         }
