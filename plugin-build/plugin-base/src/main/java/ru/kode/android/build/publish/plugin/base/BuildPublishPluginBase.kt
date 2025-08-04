@@ -279,20 +279,23 @@ private fun Project.registerChangelogDependentTasks(
 
     val appCenterExtension = extensions.findByType(BuildPublishAppCenterExtension::class.java)
 
-    appCenterExtension?.appCenterDistribution?.getByNameOrNullableDefault(buildVariant.name)
-        ?.apply {
-            AppCenterTasksRegistrar.registerDistributionTask(
-                project = this@registerChangelogDependentTasks.tasks,
-                config = this,
-                params = AppCenterDistributionTaskParams(
-                    buildVariant = buildVariant,
-                    changelogFileProvider = generateChangelogFileProvider,
-                    apkOutputFileProvider = apkOutputFileProvider,
-                    tagBuildProvider = outputProviders.tagBuildProvider,
-                    baseFileName = outputConfig.baseFileName,
-                )
+    appCenterExtension?.let { extension ->
+        val appCenterAuthConfig = extension.auth.getByNameOrRequiredDefault(buildVariant.name)
+        val appCenterDistributionConfig = extension.distribution.getByNameOrRequiredDefault(buildVariant.name)
+
+        AppCenterTasksRegistrar.registerDistributionTask(
+            project = this@registerChangelogDependentTasks.tasks,
+            authConfig = appCenterAuthConfig,
+            distributionConfig = appCenterDistributionConfig,
+            params = AppCenterDistributionTaskParams(
+                buildVariant = buildVariant,
+                changelogFileProvider = generateChangelogFileProvider,
+                apkOutputFileProvider = apkOutputFileProvider,
+                tagBuildProvider = outputProviders.tagBuildProvider,
+                baseFileName = outputConfig.baseFileName,
             )
-        }
+        )
+    }
 
     val playExtension = extensions.findByType(BuildPublishPlayExtension::class.java)
 
