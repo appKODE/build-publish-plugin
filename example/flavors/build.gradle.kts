@@ -1,6 +1,6 @@
 plugins {
     id("com.android.application")
-    id("ru.kode.android.build-publish-novo.base")
+    id("ru.kode.android.build-publish-novo.foundation")
     id("ru.kode.android.build-publish-novo.confluence")
     id("ru.kode.android.build-publish-novo.telegram")
     id("ru.kode.android.build-publish-novo.firebase")
@@ -31,7 +31,7 @@ android {
     }
 }
 
-buildPublishBase {
+buildPublishFoundation {
     output {
         register("default") {
             baseFileName.set("flavors-example")

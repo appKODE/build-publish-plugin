@@ -1,6 +1,6 @@
 plugins {
     id("com.android.application")
-    id("ru.kode.android.build-publish-novo.base")
+    id("ru.kode.android.build-publish-novo.foundation")
     id("ru.kode.android.build-publish-novo.firebase")
     id("ru.kode.android.build-publish-novo.telegram")
     id("ru.kode.android.build-publish-novo.confluence")
@@ -19,7 +19,7 @@ android {
     }
 }
 
-buildPublishBase {
+buildPublishFoundation {
     output {
         register("default") {
             baseFileName.set("example-base-project-android")
