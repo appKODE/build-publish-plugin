@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
+import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterAuthConfig
 import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterDistributionConfig
 import ru.kode.android.build.publish.plugin.appcenter.task.distribution.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
@@ -16,16 +17,17 @@ object AppCenterTasksRegistrar {
 
     fun registerDistributionTask(
         project: TaskContainer,
-        config: AppCenterDistributionConfig,
+        authConfig: AppCenterAuthConfig,
+        distributionConfig: AppCenterDistributionConfig,
         params: AppCenterDistributionTaskParams
     ): TaskProvider<AppCenterDistributionTask> {
-        return project.registerAppCenterDistributionTask(config, params)
+        return project.registerAppCenterDistributionTask(authConfig, distributionConfig, params)
     }
 }
 
-
 private fun TaskContainer.registerAppCenterDistributionTask(
-    config: AppCenterDistributionConfig,
+    authConfig: AppCenterAuthConfig,
+    distributionConfig: AppCenterDistributionConfig,
     params: AppCenterDistributionTaskParams,
 ): TaskProvider<AppCenterDistributionTask> {
     val buildVariant = params.buildVariant
@@ -37,14 +39,14 @@ private fun TaskContainer.registerAppCenterDistributionTask(
         it.tagBuildFile.set(params.tagBuildProvider)
         it.buildVariantOutputFile.set(params.apkOutputFileProvider)
         it.changelogFile.set(params.changelogFileProvider)
-        it.apiTokenFile.set(config.apiTokenFile)
-        it.ownerName.set(config.ownerName)
-        it.appName.set(config.appName)
+        it.apiTokenFile.set(authConfig.apiTokenFile)
+        it.ownerName.set(authConfig.ownerName)
+        it.appName.set(distributionConfig.appName)
         it.baseFileName.set(params.baseFileName)
-        it.testerGroups.set(config.testerGroups)
-        it.maxUploadStatusRequestCount.set(config.maxUploadStatusRequestCount)
-        it.uploadStatusRequestDelayMs.set(config.uploadStatusRequestDelayMs)
-        it.uploadStatusRequestDelayCoefficient.set(config.uploadStatusRequestDelayCoefficient)
+        it.testerGroups.set(distributionConfig.testerGroups)
+        it.maxUploadStatusRequestCount.set(distributionConfig.maxUploadStatusRequestCount)
+        it.uploadStatusRequestDelayMs.set(distributionConfig.uploadStatusRequestDelayMs)
+        it.uploadStatusRequestDelayCoefficient.set(distributionConfig.uploadStatusRequestDelayCoefficient)
     }
 }
 

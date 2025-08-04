@@ -1,10 +1,8 @@
 package ru.kode.android.build.publish.plugin.appcenter.core
 
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 
 internal const val MAX_REQUEST_COUNT = 20
@@ -12,18 +10,6 @@ internal const val MAX_REQUEST_DELAY_MS = 2000L
 
 interface AppCenterDistributionConfig {
     val name: String
-
-    /**
-     * The path to JSON file with token for App Center project
-     */
-    @get:InputFile
-    val apiTokenFile: RegularFileProperty
-
-    /**
-     * Owner name of the App Center project
-     */
-    @get:Input
-    val ownerName: Property<String>
 
     /**
      * "Application name in AppCenter. If appName isn't set plugin uses <baseFileName>-<variantName>,
