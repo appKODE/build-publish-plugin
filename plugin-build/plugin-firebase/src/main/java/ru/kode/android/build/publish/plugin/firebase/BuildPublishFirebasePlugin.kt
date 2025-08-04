@@ -4,7 +4,7 @@ package ru.kode.android.build.publish.plugin.firebase
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import ru.kode.android.build.publish.plugin.firebase.core.FirebaseAppDistributionConfig
+import ru.kode.android.build.publish.plugin.firebase.core.FirebaseDistributionConfig
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionPlugin
@@ -29,7 +29,7 @@ abstract class BuildPublishFirebasePlugin : Plugin<Project> {
         androidExtension.finalizeDsl {
             val firebaseAppDistributionConfig =
                 buildPublishFirebaseExtension
-                    .firebaseDistribution
+                    .distribution
                     // NOTE: NamedDomainObjectContainer can be resolved only in task on after finalizeDsl,
                     // because it can be defined after plugin application
                     .getDefault()
@@ -38,7 +38,7 @@ abstract class BuildPublishFirebasePlugin : Plugin<Project> {
                 project.pluginManager.apply(AppDistributionPlugin::class.java)
             }
             project.configurePlugin(
-                firebaseAppDistributionConfig = firebaseAppDistributionConfig,
+                firebaseDistributionConfig = firebaseAppDistributionConfig,
                 changelogFile = changelogFile.get().asFile,
             )
         }
@@ -46,18 +46,18 @@ abstract class BuildPublishFirebasePlugin : Plugin<Project> {
 }
 
 private fun Project.configurePlugin(
-    firebaseAppDistributionConfig: FirebaseAppDistributionConfig?,
+    firebaseDistributionConfig: FirebaseDistributionConfig?,
     changelogFile: File,
 ) {
     plugins.all { plugin ->
         when (plugin) {
             is AppDistributionPlugin -> {
-                if (firebaseAppDistributionConfig != null) {
+                if (firebaseDistributionConfig != null) {
                     val appDistributionExtension =
                         extensions
                             .getByType(AppDistributionExtension::class.java)
                     appDistributionExtension.configure(
-                        config = firebaseAppDistributionConfig,
+                        config = firebaseDistributionConfig,
                         changelogFile = changelogFile,
                     )
                 }
@@ -67,7 +67,7 @@ private fun Project.configurePlugin(
 }
 
 private fun AppDistributionExtension.configure(
-    config: FirebaseAppDistributionConfig,
+    config: FirebaseDistributionConfig,
     changelogFile: File,
 ) {
     val serviceCredentialsFilePath =
