@@ -1,6 +1,6 @@
 plugins {
     id("com.android.application")
-    id("ru.kode.android.build-publish-novo.base")
+    id("ru.kode.android.build-publish-novo.foundation")
     id("ru.kode.android.build-publish-novo.jira")
     id("ru.kode.android.build-publish-novo.appcenter")
     id("ru.kode.android.build-publish-novo.confluence")
@@ -52,7 +52,7 @@ dependencies {
     implementation("com.google.android.material:material:1.4.0")
 }
 
-buildPublishBase {
+buildPublishFoundation {
     output {
         register("default") {
             baseFileName.set("example-base-project-android")

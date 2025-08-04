@@ -22,7 +22,7 @@ dependencyResolutionManagement {
 
 rootProject.name = ("ru.kode.android.build.publish.novo.plugin")
 
-include(":plugin-base")
+include(":plugin-foundation")
 include(":plugin-core")
 include(":plugin-telegram")
 include(":plugin-slack")
