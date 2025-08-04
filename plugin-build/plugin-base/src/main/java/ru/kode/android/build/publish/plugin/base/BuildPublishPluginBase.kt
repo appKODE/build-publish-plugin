@@ -309,19 +309,22 @@ private fun Project.registerChangelogDependentTasks(
 
     val jiraExtension = extensions.findByType(BuildPublishJiraExtension::class.java)
 
-    jiraExtension?.jira?.getByNameOrNullableDefault(buildVariant.name)
-        ?.apply {
-            JiraTasksRegistrar.registerAutomationTask(
-                project = this@registerChangelogDependentTasks.tasks,
-                config = this,
-                params = JiraAutomationTaskParams(
-                    buildVariant = buildVariant,
-                    issueNumberPattern = changelogConfig.issueNumberPattern,
-                    changelogFileProvider = changelogFileProvider,
-                    tagBuildProvider = outputProviders.tagBuildProvider,
-                )
+    jiraExtension?.let { extension ->
+        val jiraAuthConfig = extension.auth.getByNameOrRequiredDefault(buildVariant.name)
+        val jiraAutomationConfig = extension.automation.getByNameOrRequiredDefault(buildVariant.name)
+
+        JiraTasksRegistrar.registerAutomationTask(
+            project = this@registerChangelogDependentTasks.tasks,
+            authConfig = jiraAuthConfig,
+            automationConfig = jiraAutomationConfig,
+            params = JiraAutomationTaskParams(
+                buildVariant = buildVariant,
+                issueNumberPattern = changelogConfig.issueNumberPattern,
+                changelogFileProvider = changelogFileProvider,
+                tagBuildProvider = outputProviders.tagBuildProvider,
             )
-        }
+        )
+    }
 
     val clickUpExtension = extensions.findByType(BuildPublishClickUpExtension::class.java)
 

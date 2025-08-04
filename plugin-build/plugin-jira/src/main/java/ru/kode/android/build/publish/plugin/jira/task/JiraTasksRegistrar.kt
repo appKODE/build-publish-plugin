@@ -6,7 +6,8 @@ import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.jira.core.JiraConfig
+import ru.kode.android.build.publish.plugin.jira.core.JiraAuthConfig
+import ru.kode.android.build.publish.plugin.jira.core.JiraAutomationConfig
 import ru.kode.android.build.publish.plugin.jira.task.automation.JiraAutomationTask
 
 internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
@@ -15,21 +16,23 @@ object JiraTasksRegistrar {
 
     fun registerAutomationTask(
         project: TaskContainer,
-        config: JiraConfig,
+        authConfig: JiraAuthConfig,
+        automationConfig: JiraAutomationConfig,
         params: JiraAutomationTaskParams,
     ): TaskProvider<JiraAutomationTask>? {
-        return project.registerJiraTasks(config, params)
+        return project.registerJiraTasks(authConfig, automationConfig, params)
     }
 }
 
 private fun TaskContainer.registerJiraTasks(
-    config: JiraConfig,
+    authConfig: JiraAuthConfig,
+    automationConfig: JiraAutomationConfig,
     params: JiraAutomationTaskParams,
 ): TaskProvider<JiraAutomationTask>? {
     return if (
-        config.labelPattern.isPresent ||
-        config.fixVersionPattern.isPresent ||
-        config.resolvedStatusTransitionId.isPresent
+        automationConfig.labelPattern.isPresent ||
+        automationConfig.fixVersionPattern.isPresent ||
+        automationConfig.resolvedStatusTransitionId.isPresent
     ) {
         register(
             "$JIRA_AUTOMATION_TASK${params.buildVariant.capitalizedName()}",
@@ -38,13 +41,13 @@ private fun TaskContainer.registerJiraTasks(
             it.tagBuildFile.set(params.tagBuildProvider)
             it.changelogFile.set(params.changelogFileProvider)
             it.issueNumberPattern.set(params.issueNumberPattern)
-            it.baseUrl.set(config.baseUrl)
-            it.username.set(config.authUsername)
-            it.projectId.set(config.projectId)
-            it.password.set(config.authPassword)
-            it.labelPattern.set(config.labelPattern)
-            it.fixVersionPattern.set(config.fixVersionPattern)
-            it.resolvedStatusTransitionId.set(config.resolvedStatusTransitionId)
+            it.baseUrl.set(authConfig.baseUrl)
+            it.username.set(authConfig.authUsername)
+            it.projectId.set(automationConfig.projectId)
+            it.password.set(authConfig.authPassword)
+            it.labelPattern.set(automationConfig.labelPattern)
+            it.fixVersionPattern.set(automationConfig.fixVersionPattern)
+            it.resolvedStatusTransitionId.set(automationConfig.resolvedStatusTransitionId)
         }
     } else {
         null
