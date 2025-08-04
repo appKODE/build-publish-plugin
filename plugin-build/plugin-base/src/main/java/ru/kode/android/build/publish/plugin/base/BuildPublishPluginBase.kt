@@ -294,18 +294,18 @@ private fun Project.registerChangelogDependentTasks(
 
     val playExtension = extensions.findByType(BuildPublishPlayExtension::class.java)
 
-    playExtension?.play?.getByNameOrNullableDefault(buildVariant.name)
-        ?.apply {
-            PlayTasksRegistrar.registerDistributionTask(
-                project = this@registerChangelogDependentTasks.tasks,
-                config = this,
-                params = PlayTaskParams(
-                    buildVariant = buildVariant,
-                    bundleOutputFileProvider = bundleFile,
-                    tagBuildProvider = outputProviders.tagBuildProvider,
-                )
+    playExtension?.let { extension ->
+        val playDistributionConfig = extension.distribution.getByNameOrRequiredDefault(buildVariant.name)
+        PlayTasksRegistrar.registerDistributionTask(
+            project = this@registerChangelogDependentTasks.tasks,
+            distributionConfig = playDistributionConfig,
+            params = PlayTaskParams(
+                buildVariant = buildVariant,
+                bundleOutputFileProvider = bundleFile,
+                tagBuildProvider = outputProviders.tagBuildProvider,
             )
-        }
+        )
+    }
 
     val jiraExtension = extensions.findByType(BuildPublishJiraExtension::class.java)
 
