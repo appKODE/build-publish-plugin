@@ -7,7 +7,9 @@ import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.telegram.core.TelegramConfig
+import ru.kode.android.build.publish.plugin.telegram.core.TelegramBotConfig
+import ru.kode.android.build.publish.plugin.telegram.core.TelegramChangelogConfig
+import ru.kode.android.build.publish.plugin.telegram.core.TelegramDistributionConfig
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.SendTelegramChangelogTask
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.TelegramDistributionTask
 
@@ -18,19 +20,21 @@ object TelegramTasksRegistrar {
 
     fun registerChangelogTask(
         project: TaskContainer,
-        config: TelegramConfig,
+        botConfig: TelegramBotConfig,
+        changelogConfig: TelegramChangelogConfig,
         params: TelegramChangelogTaskParams
     ): TaskProvider<SendTelegramChangelogTask> {
-        return project.registerSendTelegramChangelogTask(config, params)
+        return project.registerSendTelegramChangelogTask(botConfig, changelogConfig, params)
     }
 
     fun registerDistributionTask(
         project: TaskContainer,
-        config: TelegramConfig,
+        botConfig: TelegramBotConfig,
+        distributionConfig: TelegramDistributionConfig,
         params: TelegramDistributionTasksParams
     ): TaskProvider<TelegramDistributionTask>? {
-        return if (config.uploadBuild.orNull == true) {
-            project.registerTelegramUploadTask(config, params)
+        return if (distributionConfig.uploadBuild.orNull == true) {
+            project.registerTelegramUploadTask(botConfig, params)
         } else {
             // TODO: Add logs
             null
@@ -39,7 +43,8 @@ object TelegramTasksRegistrar {
 }
 
 private fun TaskContainer.registerSendTelegramChangelogTask(
-    config: TelegramConfig,
+    botConfig: TelegramBotConfig,
+    changelogConfig: TelegramChangelogConfig,
     params: TelegramChangelogTaskParams
 ): TaskProvider<SendTelegramChangelogTask> {
     return register(
@@ -51,15 +56,15 @@ private fun TaskContainer.registerSendTelegramChangelogTask(
         it.issueUrlPrefix.set(params.issueUrlPrefix)
         it.issueNumberPattern.set(params.issueNumberPattern)
         it.baseOutputFileName.set(params.baseFileName)
-        it.botId.set(config.botId)
-        it.chatId.set(config.chatId)
-        it.topicId.set(config.topicId)
-        it.userMentions.set(config.userMentions)
+        it.botId.set(botConfig.botId)
+        it.chatId.set(botConfig.chatId)
+        it.topicId.set(botConfig.topicId)
+        it.userMentions.set(changelogConfig.userMentions)
     }
 }
 
 private fun TaskContainer.registerTelegramUploadTask(
-    config: TelegramConfig,
+    botConfig: TelegramBotConfig,
     params: TelegramDistributionTasksParams,
 ): TaskProvider<TelegramDistributionTask> {
     return register(
@@ -67,9 +72,9 @@ private fun TaskContainer.registerTelegramUploadTask(
         TelegramDistributionTask::class.java,
     ) {
         it.buildVariantOutputFile.set(params.apkOutputFileProvider)
-        it.botId.set(config.botId)
-        it.chatId.set(config.chatId)
-        it.topicId.set(config.topicId)
+        it.botId.set(botConfig.botId)
+        it.chatId.set(botConfig.chatId)
+        it.topicId.set(botConfig.topicId)
     }
 }
 

@@ -47,11 +47,15 @@ buildPublishBase {
 }
 
 buildPublishTelegram {
-    telegram {
+    bot {
         register("default") {
             botId.set("TELEGRAM_BUILD_BOT_ID")
             chatId.set("CHAT_ID")
             topicId.set("OPTIONAL_TOPIC_ID")
+        }
+    }
+    changelog {
+        register("default") {
             userMentions.set(setOf("@ivan", "@roman", "@serega"))
         }
     }

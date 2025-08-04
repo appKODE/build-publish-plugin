@@ -14,7 +14,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.appcenter.extensions.BuildPublishAppCenterExtension
 import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterDistributionTaskParams
@@ -190,11 +189,16 @@ private fun Project.registerChangelogDependentTasks(
 
     val telegramExtension = extensions.findByType(BuildPublishTelegramExtension::class.java)
 
-    telegramExtension?.telegram?.getByNameOrNullableDefault(buildVariant.name)
-        ?.apply {
+    telegramExtension?.let { extension ->
+        val telegramBotConfig = extension.bot.getByNameOrRequiredDefault(buildVariant.name)
+        val telegramChangelogConfig = extension.changelog.getByNameOrNullableDefault(buildVariant.name)
+        val telegramDistributionConfig = extension.distribution.getByNameOrNullableDefault(buildVariant.name)
+
+        if (telegramChangelogConfig != null) {
             TelegramTasksRegistrar.registerChangelogTask(
                 project = this@registerChangelogDependentTasks.tasks,
-                config = this,
+                botConfig = telegramBotConfig,
+                changelogConfig = telegramChangelogConfig,
                 params = TelegramChangelogTaskParams(
                     outputConfig.baseFileName,
                     changelogConfig.issueNumberPattern,
@@ -204,9 +208,12 @@ private fun Project.registerChangelogDependentTasks(
                     outputProviders.tagBuildProvider,
                 )
             )
+        }
+        if (telegramDistributionConfig != null) {
             TelegramTasksRegistrar.registerDistributionTask(
                 project = this@registerChangelogDependentTasks.tasks,
-                config = this,
+                botConfig = telegramBotConfig,
+                distributionConfig = telegramDistributionConfig,
                 params = TelegramDistributionTasksParams(
                     outputConfig.baseFileName,
                     buildVariant,
@@ -215,6 +222,7 @@ private fun Project.registerChangelogDependentTasks(
                 )
             )
         }
+    }
 
     val confluenceExtension = extensions.findByType(BuildPublishConfluenceExtension::class.java)
 
@@ -232,11 +240,16 @@ private fun Project.registerChangelogDependentTasks(
 
     val slackExtension = extensions.findByType(BuildPublishSlackExtension::class.java)
 
-    slackExtension?.slack?.getByNameOrNullableDefault(buildVariant.name)
-        ?.apply {
+    slackExtension?.let { extension ->
+        val slackBotConfig = extension.bot.getByNameOrRequiredDefault(buildVariant.name)
+        val slackChangelogConfig = extension.changelog.getByNameOrNullableDefault(buildVariant.name)
+        val slackDistributionConfig = extension.distribution.getByNameOrNullableDefault(buildVariant.name)
+
+        if (slackChangelogConfig != null) {
             SlackTasksRegistrar.registerChangelogTask(
                 project = this@registerChangelogDependentTasks.tasks,
-                config = this,
+                botConfig = slackBotConfig,
+                changelogConfig = slackChangelogConfig,
                 params = SlackChangelogTaskParams(
                     outputConfig.baseFileName,
                     changelogConfig.issueNumberPattern,
@@ -246,9 +259,12 @@ private fun Project.registerChangelogDependentTasks(
                     outputProviders.tagBuildProvider,
                 )
             )
+        }
+
+        if (slackDistributionConfig != null) {
             SlackTasksRegistrar.registerDistributionTask(
                 project = this@registerChangelogDependentTasks.tasks,
-                config = this,
+                distributionConfig = slackDistributionConfig,
                 params = SlackDistributionTasksParams(
                     outputConfig.baseFileName,
                     buildVariant,
@@ -257,6 +273,7 @@ private fun Project.registerChangelogDependentTasks(
                 )
             )
         }
+    }
 
     val appCenterExtension = extensions.findByType(BuildPublishAppCenterExtension::class.java)
 

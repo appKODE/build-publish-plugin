@@ -120,11 +120,15 @@ buildPublishConfluence {
 }
 
 buildPublishTelegram {
-    telegram {
+    bot {
         register("default") {
             botId.set("0000")
             chatId.set("0000")
             topicId.set("0000")
+        }
+    }
+    changelog {
+        register("default") {
             userMentions.set(setOf("@ivan", "@roman", "@serega"))
         }
     }
