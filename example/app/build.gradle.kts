@@ -143,9 +143,13 @@ buildPublishTelegram {
 }
 
 buildPublishClickUp {
-    clickUp {
+    auth {
         register("default") {
             apiTokenFile = File("clickup-token.txt")
+        }
+    }
+    automation {
+        register("default") {
             fixVersionPattern = "fix_%2\$s_%1\$s"
             fixVersionFieldId = "01234567qwerty"
             tagName = "test_tag_name"

@@ -5,7 +5,8 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
-import ru.kode.android.build.publish.plugin.clickup.core.ClickUpConfig
+import ru.kode.android.build.publish.plugin.clickup.core.ClickUpAuthConfig
+import ru.kode.android.build.publish.plugin.clickup.core.ClickUpAutomationConfig
 import ru.kode.android.build.publish.plugin.clickup.task.automation.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
@@ -16,21 +17,23 @@ object ClickUpTasksRegistrar {
 
     fun registerAutomationTask(
         project: TaskContainer,
-        config: ClickUpConfig,
+        authConfig: ClickUpAuthConfig,
+        automationConfig: ClickUpAutomationConfig,
         params: ClickUpAutomationTaskParams,
     ): TaskProvider<ClickUpAutomationTask>? {
-        return project.registerClickUpTasks(config, params)
+        return project.registerClickUpTasks(authConfig, automationConfig, params)
     }
 }
 
 private fun TaskContainer.registerClickUpTasks(
-    config: ClickUpConfig,
+    config: ClickUpAuthConfig,
+    automationConfig: ClickUpAutomationConfig,
     params: ClickUpAutomationTaskParams,
 ): TaskProvider<ClickUpAutomationTask>? {
     val fixVersionIsPresent =
-        config.fixVersionPattern.isPresent && config.fixVersionFieldId.isPresent
+        automationConfig.fixVersionPattern.isPresent && automationConfig.fixVersionFieldId.isPresent
     val hasMissingFixVersionProperties =
-        config.fixVersionPattern.isPresent || config.fixVersionFieldId.isPresent
+        automationConfig.fixVersionPattern.isPresent || automationConfig.fixVersionFieldId.isPresent
 
     if (!fixVersionIsPresent && hasMissingFixVersionProperties) {
         throw GradleException(
@@ -39,7 +42,7 @@ private fun TaskContainer.registerClickUpTasks(
         )
     }
 
-    return if (fixVersionIsPresent || config.tagName.isPresent) {
+    return if (fixVersionIsPresent || automationConfig.tagName.isPresent) {
         register(
             "$CLICK_UP_AUTOMATION_TASK${params.buildVariant.capitalizedName()}",
             ClickUpAutomationTask::class.java,
@@ -48,9 +51,9 @@ private fun TaskContainer.registerClickUpTasks(
             it.changelogFile.set(params.changelogFileProvider)
             it.issueNumberPattern.set(params.issueNumberPattern)
             it.apiTokenFile.set(config.apiTokenFile)
-            it.fixVersionPattern.set(config.fixVersionPattern)
-            it.fixVersionFieldId.set(config.fixVersionFieldId)
-            it.taskTag.set(config.tagName)
+            it.fixVersionPattern.set(automationConfig.fixVersionPattern)
+            it.fixVersionFieldId.set(automationConfig.fixVersionFieldId)
+            it.taskTag.set(automationConfig.tagName)
         }
     } else {
         null
