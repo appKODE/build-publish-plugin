@@ -3,7 +3,7 @@ package ru.kode.android.build.publish.plugin.confluence.core
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 
-interface ConfluenceConfig {
+interface ConfluenceAuthConfig {
     val name: String
 
     /**
@@ -15,12 +15,6 @@ interface ConfluenceConfig {
      * Confluence user password
      */
     val password: Property<String>
-
-    /**
-     * Confluence page id
-     */
-    @get:Input
-    val pageId: Property<String>
 
 }
 

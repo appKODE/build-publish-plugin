@@ -226,17 +226,19 @@ private fun Project.registerChangelogDependentTasks(
 
     val confluenceExtension = extensions.findByType(BuildPublishConfluenceExtension::class.java)
 
-    confluenceExtension?.confluence?.getByNameOrNullableDefault(buildVariant.name)
-        ?.apply {
-            ConfluenceTasksRegistrar.registerDistributionTask(
-                project = this@registerChangelogDependentTasks.tasks,
-                config = this,
-                params = ConfluenceDistributionTaskParams(
-                    buildVariant = buildVariant,
-                    apkOutputFileProvider = apkOutputFileProvider,
-                )
+    confluenceExtension?.let { extension ->
+        val confluenceAuthConfig = extension.auth.getByNameOrRequiredDefault(buildVariant.name)
+        val confluenceDistributionConfig = extension.distribution.getByNameOrRequiredDefault(buildVariant.name)
+        ConfluenceTasksRegistrar.registerDistributionTask(
+            project = this@registerChangelogDependentTasks.tasks,
+            authConfig = confluenceAuthConfig,
+            distributionConfig = confluenceDistributionConfig,
+            params = ConfluenceDistributionTaskParams(
+                buildVariant = buildVariant,
+                apkOutputFileProvider = apkOutputFileProvider,
             )
-        }
+        )
+    }
 
     val slackExtension = extensions.findByType(BuildPublishSlackExtension::class.java)
 

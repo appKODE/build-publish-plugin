@@ -64,10 +64,15 @@ buildPublishTelegram {
 }
 
 buildPublishConfluence {
-    confluence {
+    auth {
         register("default") {
             username.set("@username")
             password.set("@password")
+        }
+    }
+
+    distribution {
+        register("default") {
             pageId.set("123435")
         }
     }
