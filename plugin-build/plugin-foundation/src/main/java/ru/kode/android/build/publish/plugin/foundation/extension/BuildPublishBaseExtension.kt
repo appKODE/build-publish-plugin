@@ -6,8 +6,6 @@ import ru.kode.android.build.publish.plugin.foundation.extension.config.Changelo
 import ru.kode.android.build.publish.plugin.foundation.extension.config.OutputConfig
 import javax.inject.Inject
 
-private const val BASE_EXTENSION_NAME = "buildPublishFoundation"
-
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishBaseExtension
     @Inject

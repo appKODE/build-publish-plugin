@@ -18,7 +18,7 @@ import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.appcenter.extensions.BuildPublishAppCenterExtension
 import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterDistributionTaskParams
 import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterTasksRegistrar
-import ru.kode.android.build.publish.plugin.foundation.check.stopExecutionIfNotSupported
+import ru.kode.android.build.publish.plugin.foundation.validate.stopExecutionIfNotSupported
 import ru.kode.android.build.publish.plugin.clickup.extensions.BuildPublishClickUpExtension
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpAutomationTaskParams
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpTasksRegistrar
@@ -30,7 +30,6 @@ import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableDefault
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredDefault
 import ru.kode.android.build.publish.plugin.core.util.getDefault
 import ru.kode.android.build.publish.plugin.foundation.extension.BuildPublishBaseExtension
-import ru.kode.android.build.publish.plugin.foundation.extension.BASE_EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.foundation.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.foundation.extension.config.OutputConfig
 import ru.kode.android.build.publish.plugin.jira.extensions.BuildPublishJiraExtension
@@ -58,6 +57,8 @@ import ru.kode.android.build.publish.plugin.telegram.task.TelegramChangelogTaskP
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramDistributionTasksParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramTasksRegistrar
 
+private const val EXTENSION_NAME = "buildPublishFoundation"
+
 abstract class BuildPublishPluginFoundation : Plugin<Project> {
     override fun apply(project: Project) {
         project.stopExecutionIfNotSupported()
@@ -65,7 +66,7 @@ abstract class BuildPublishPluginFoundation : Plugin<Project> {
         project.pluginManager.apply(GrgitServicePlugin::class.java)
 
         val buildPublishBaseExtension = project.extensions
-            .create(BASE_EXTENSION_NAME, BuildPublishBaseExtension::class.java)
+            .create(EXTENSION_NAME, BuildPublishBaseExtension::class.java)
         val androidExtension = project.extensions
             .getByType(ApplicationAndroidComponentsExtension::class.java)
         val changelogFileProvider = project.changelogDirectory()

@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.foundation.check
+package ru.kode.android.build.publish.plugin.foundation.validate
 
 import com.android.build.gradle.AppPlugin
 import org.gradle.util.internal.VersionNumber
