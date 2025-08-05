@@ -1,6 +1,5 @@
 package ru.kode.android.build.publish.plugin.foundation.task
 
-import org.ajoberstar.grgit.gradle.GrgitService
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
@@ -32,7 +31,6 @@ private fun TaskContainer.registerGenerateChangelogTask(
         it.buildTagPattern.set(params.buildTagPattern)
         it.changelogFile.set(params.changelogFile)
         it.tagBuildFile.set(params.tagBuildProvider)
-        it.getGrgitService().set(params.grgitService)
     }.flatMap { it.changelogFile }
 }
 
@@ -42,5 +40,4 @@ data class GenerateChangelogTaskParams(
     val buildVariant: BuildVariant,
     val changelogFile: Provider<RegularFile>,
     val tagBuildProvider: Provider<RegularFile>,
-    val grgitService: Provider<GrgitService>,
 )
