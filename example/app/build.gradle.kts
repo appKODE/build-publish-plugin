@@ -1,3 +1,5 @@
+import ru.kode.android.build.publish.plugin.core.util.createDefault
+
 plugins {
     id("com.android.application")
     id("ru.kode.android.build-publish-novo.foundation")
@@ -53,22 +55,13 @@ dependencies {
 }
 
 buildPublishFoundation {
-    output {
-        register("default") {
-            baseFileName.set("example-base-project-android")
-        }
-
-        register("armv8MinApi21AlphaDebug") {
-            baseFileName.set("example-base-project-android")
-            useVersionsFromTag.set(false)
-        }
+    outputDefault {
+        baseFileName.set("example-base-project-android")
     }
-    changelog {
-        register("default") {
-            issueNumberPattern.set("AT-\\d+")
-            issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
-            commitMessageKey.set("CHANGELOG")
-        }
+    changelogDefault {
+        issueNumberPattern.set("AT-\\d+")
+        issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
+        commitMessageKey.set("CHANGELOG")
     }
 }
 
@@ -97,7 +90,7 @@ buildPublishAppCenter {
     }
 
     distribution {
-        register("default") {
+        createDefault {
             appName.set("Android")
             testerGroups.set(setOf("Collaborators"))
         }

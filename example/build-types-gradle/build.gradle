@@ -4,6 +4,8 @@ plugins {
     id 'ru.kode.android.build-publish-novo.foundation'
 }
 
+import ru.kode.android.build.publish.plugin.core.util.GradleApiExtensionsKt
+
 android {
     namespace = "ru.kode.android.build.types.example"
     compileSdk 34
@@ -24,16 +26,14 @@ android {
 
 buildPublishFoundation {
     output {
-        register("default") {
-            baseFileName = "base-project-android"
+        GradleApiExtensionsKt.createDefault(it) {
+            it.baseFileName = "base-project-android"
         }
     }
 
-    changelog {
-        register("default") {
-            issueNumberPattern = "BASE-\\d+"
-            issueUrlPrefix = "https://jira.exmaple.ru/browse/"
-            commitMessageKey = "CHANGELOG"
-        }
+    changelogDefault {
+        issueNumberPattern = "BASE-\\d+"
+        issueUrlPrefix = "https://jira.exmaple.ru/browse/"
+        commitMessageKey = "CHANGELOG"
     }
 }
