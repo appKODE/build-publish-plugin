@@ -7,9 +7,6 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.impl.VariantOutputImpl
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
-import org.ajoberstar.grgit.gradle.GrgitService
-import org.ajoberstar.grgit.gradle.GrgitServiceExtension
-import org.ajoberstar.grgit.gradle.GrgitServicePlugin
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -18,7 +15,6 @@ import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.appcenter.extensions.BuildPublishAppCenterExtension
 import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterDistributionTaskParams
 import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterTasksRegistrar
-import ru.kode.android.build.publish.plugin.foundation.validate.stopExecutionIfNotSupported
 import ru.kode.android.build.publish.plugin.clickup.extensions.BuildPublishClickUpExtension
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpAutomationTaskParams
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpTasksRegistrar
@@ -26,12 +22,24 @@ import ru.kode.android.build.publish.plugin.confluence.extensions.BuildPublishCo
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceDistributionTaskParams
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceTasksRegistrar
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableDefault
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredDefault
 import ru.kode.android.build.publish.plugin.core.util.getDefault
 import ru.kode.android.build.publish.plugin.foundation.extension.BuildPublishBaseExtension
 import ru.kode.android.build.publish.plugin.foundation.extension.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.foundation.extension.config.OutputConfig
+import ru.kode.android.build.publish.plugin.foundation.service.GitExecutorServicePlugin
+import ru.kode.android.build.publish.plugin.foundation.task.ChangelogTasksRegistrar
+import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_CODE
+import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_NAME
+import ru.kode.android.build.publish.plugin.foundation.task.GenerateChangelogTaskParams
+import ru.kode.android.build.publish.plugin.foundation.task.LastTagTaskParams
+import ru.kode.android.build.publish.plugin.foundation.task.OutputProviders
+import ru.kode.android.build.publish.plugin.foundation.task.PrintLastIncreasedTagTaskParams
+import ru.kode.android.build.publish.plugin.foundation.task.TagTasksRegistrar
+import ru.kode.android.build.publish.plugin.foundation.util.mapToOutputApkFile
+import ru.kode.android.build.publish.plugin.foundation.validate.stopExecutionIfNotSupported
 import ru.kode.android.build.publish.plugin.jira.extensions.BuildPublishJiraExtension
 import ru.kode.android.build.publish.plugin.jira.task.JiraAutomationTaskParams
 import ru.kode.android.build.publish.plugin.jira.task.JiraTasksRegistrar
@@ -42,16 +50,6 @@ import ru.kode.android.build.publish.plugin.slack.extensions.BuildPublishSlackEx
 import ru.kode.android.build.publish.plugin.slack.task.SlackChangelogTaskParams
 import ru.kode.android.build.publish.plugin.slack.task.SlackDistributionTasksParams
 import ru.kode.android.build.publish.plugin.slack.task.SlackTasksRegistrar
-import ru.kode.android.build.publish.plugin.foundation.task.ChangelogTasksRegistrar
-import ru.kode.android.build.publish.plugin.foundation.task.TagTasksRegistrar
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_CODE
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_NAME
-import ru.kode.android.build.publish.plugin.foundation.task.GenerateChangelogTaskParams
-import ru.kode.android.build.publish.plugin.foundation.task.LastTagTaskParams
-import ru.kode.android.build.publish.plugin.foundation.task.OutputProviders
-import ru.kode.android.build.publish.plugin.foundation.task.PrintLastIncreasedTagTaskParams
-import ru.kode.android.build.publish.plugin.foundation.util.mapToOutputApkFile
-import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.telegram.extensions.BuildPublishTelegramExtension
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramChangelogTaskParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramDistributionTasksParams
@@ -59,20 +57,17 @@ import ru.kode.android.build.publish.plugin.telegram.task.TelegramTasksRegistrar
 
 private const val EXTENSION_NAME = "buildPublishFoundation"
 
-abstract class BuildPublishPluginFoundation : Plugin<Project> {
+abstract class BuildPublishPluginFoundationPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.stopExecutionIfNotSupported()
 
-        project.pluginManager.apply(GrgitServicePlugin::class.java)
+        project.pluginManager.apply(GitExecutorServicePlugin::class.java)
 
         val buildPublishBaseExtension = project.extensions
             .create(EXTENSION_NAME, BuildPublishBaseExtension::class.java)
         val androidExtension = project.extensions
             .getByType(ApplicationAndroidComponentsExtension::class.java)
         val changelogFileProvider = project.changelogDirectory()
-        val grgitService = project.extensions
-            .getByType(GrgitServiceExtension::class.java)
-            .service
 
         androidExtension.onVariants(
             callback = { variant ->
@@ -94,7 +89,7 @@ abstract class BuildPublishPluginFoundation : Plugin<Project> {
                             buildVariant,
                             outputConfig,
                             apkOutputFileName,
-                            grgitService,
+                            //gitExecutorService
                         )
                     )
 
@@ -119,9 +114,8 @@ abstract class BuildPublishPluginFoundation : Plugin<Project> {
                             buildVariant,
                             changelogFileProvider,
                             outputProviders,
-                            grgitService,
                             apkOutputFileProvider,
-                            bundleFile
+                            bundleFile,
                         )
                     }
 
@@ -170,7 +164,6 @@ private fun Project.registerChangelogDependentTasks(
     buildVariant: BuildVariant,
     changelogFileProvider: Provider<RegularFile>,
     outputProviders: OutputProviders,
-    grgitService: Provider<GrgitService>,
     apkOutputFileProvider: Provider<RegularFile>,
     bundleFile: Provider<RegularFile>
 ) {
@@ -184,7 +177,6 @@ private fun Project.registerChangelogDependentTasks(
                 buildVariant,
                 changelogFileProvider,
                 outputProviders.tagBuildProvider,
-                grgitService,
             )
         )
 

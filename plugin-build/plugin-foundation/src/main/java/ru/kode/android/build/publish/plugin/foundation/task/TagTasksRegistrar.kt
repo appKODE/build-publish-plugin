@@ -1,6 +1,5 @@
 package ru.kode.android.build.publish.plugin.foundation.task
 
-import org.ajoberstar.grgit.gradle.GrgitService
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
@@ -95,7 +94,6 @@ private fun Project.registerGetLastTagTask(
         task.tagBuildFile.set(tagBuildFile)
         task.buildVariant.set(params.buildVariant.name)
         task.buildTagPattern.set(params.outputConfig.buildTagPattern)
-        task.getGrgitService().set(params.grgitService)
     }.flatMap { it.tagBuildFile }
 }
 
@@ -169,7 +167,6 @@ data class LastTagTaskParams(
     val buildVariant: BuildVariant,
     val outputConfig: OutputConfig,
     val apkOutputFileName: String,
-    val grgitService: Provider<GrgitService>,
 )
 
 data class PrintLastIncreasedTagTaskParams(

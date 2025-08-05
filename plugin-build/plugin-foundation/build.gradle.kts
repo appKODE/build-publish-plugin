@@ -31,7 +31,15 @@ gradlePlugin {
         create("ru.kode.android.build-publish-novo.foundation") {
             id = "ru.kode.android.build-publish-novo.foundation"
             displayName = "Configure project output using tag and generate changelog"
-            implementationClass = "ru.kode.android.build.publish.plugin.foundation.BuildPublishPluginFoundation"
+            implementationClass = "ru.kode.android.build.publish.plugin.foundation.BuildPublishPluginFoundationPlugin"
+            version = project.version
+            description = "Android plugin to configure output and changelog generation"
+            tags.set(listOf("output", "publish", "changelog", "build"))
+        }
+        create("ru.kode.android.build-publish-novo.foundation.service") {
+            id = "ru.kode.android.build-publish-novo.foundation.service"
+            displayName = "Configure project output using tag and generate changelog "
+            implementationClass = "ru.kode.android.build.publish.plugin.foundation.service.GitExecutorServicePlugin"
             version = project.version
             description = "Android plugin to configure output and changelog generation"
             tags.set(listOf("output", "publish", "changelog", "build"))

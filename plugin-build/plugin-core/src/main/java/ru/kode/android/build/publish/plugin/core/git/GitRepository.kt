@@ -1,10 +1,10 @@
-package ru.kode.android.build.publish.plugin.foundation.task.changelog.git
+package ru.kode.android.build.publish.plugin.core.git
 
 import ru.kode.android.build.publish.plugin.core.command.GitCommandExecutor
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.enity.TagRange
 
-internal class GitRepository(
+class GitRepository(
     private val gitCommandExecutor: GitCommandExecutor,
 ) {
     /**
@@ -33,6 +33,15 @@ internal class GitRepository(
         val buildTagRegex = Regex(buildTagPattern ?: DEFAULT_TAG_PATTERN.format(buildVariant))
         val tags = gitCommandExecutor.findBuildTags(buildTagRegex, limitResultCount = 1)
         return tags?.first()?.let { Tag.Build(it, buildVariant) }
+    }
+
+    fun markedCommitMessages(
+        messageKey: String,
+        tagRange: TagRange
+    ): List<String> {
+        return gitCommandExecutor
+            .extractMarkedCommitMessages(messageKey, tagRange.asCommitRange())
+            .map { it.replace(Regex("\\s*$messageKey:?\\s*"), "• ") }
     }
 }
 
