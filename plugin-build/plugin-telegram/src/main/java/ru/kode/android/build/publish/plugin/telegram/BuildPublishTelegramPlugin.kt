@@ -6,6 +6,7 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
+import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.telegram.extensions.BuildPublishTelegramExtension
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramNetworkService
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramNetworkServiceExtension
@@ -25,7 +26,7 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
             val services: Provider<Map<String, Provider<TelegramNetworkService>>> = project.provider {
                 extension.bot.fold(mapOf()) { acc, authConfig ->
                     val service = project.gradle.sharedServices.registerIfAbsent(
-                        networkServiceName(project, authConfig.name),
+                        project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),
                         TelegramNetworkService::class.java
                     ) {
                         it.maxParallelUsages.set(1)
@@ -47,6 +48,3 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
     }
 }
 
-private fun networkServiceName(project: Project, buildName: String): String {
-    return "${NETWORK_SERVICE_NAME}_${project.name}_${buildName}"
-}

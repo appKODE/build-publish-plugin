@@ -6,6 +6,7 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
+import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.jira.extensions.BuildPublishJiraExtension
 import ru.kode.android.build.publish.plugin.jira.service.JiraNetworkService
 import ru.kode.android.build.publish.plugin.jira.service.JiraNetworkServiceExtension
@@ -26,7 +27,7 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
             val services: Provider<Map<String, Provider<JiraNetworkService>>> = project.provider {
                 extension.auth.fold(mapOf()) { acc, authConfig ->
                     val service = project.gradle.sharedServices.registerIfAbsent(
-                        networkServiceName(project, authConfig.name),
+                        project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),
                         JiraNetworkService::class.java,
                         {
                             it.maxParallelUsages.set(1)
@@ -47,8 +48,4 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
             )
         }
     }
-}
-
-private fun networkServiceName(project: Project, buildName: String): String {
-    return "${NETWORK_SERVICE_NAME}_${project.name}_${buildName}"
 }

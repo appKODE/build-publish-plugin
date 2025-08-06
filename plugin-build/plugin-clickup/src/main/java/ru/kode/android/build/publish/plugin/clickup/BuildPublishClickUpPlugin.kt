@@ -9,6 +9,7 @@ import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.clickup.extensions.BuildPublishClickUpExtension
 import ru.kode.android.build.publish.plugin.clickup.service.ClickUpNetworkService
 import ru.kode.android.build.publish.plugin.clickup.service.ClickUpNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.core.util.serviceName
 
 private const val EXTENSION_NAME = "buildPublishClickUp"
 private const val NETWORK_SERVICE_NAME = "clickUpNetworkService"
@@ -25,7 +26,7 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
             val services: Provider<Map<String, Provider<ClickUpNetworkService>>> = project.provider {
                 extension.auth.fold(mapOf()) { acc, authConfig ->
                     val service = project.gradle.sharedServices.registerIfAbsent(
-                        networkServiceName(project, authConfig.name),
+                        project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),
                         ClickUpNetworkService::class.java,
                         {
                             it.maxParallelUsages.set(1)
@@ -44,8 +45,4 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
             )
         }
     }
-}
-
-private fun networkServiceName(project: Project, buildName: String): String {
-    return "${NETWORK_SERVICE_NAME}_${project.name}_${buildName}"
 }
