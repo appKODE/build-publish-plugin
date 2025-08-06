@@ -7,6 +7,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.confluence.extensions.BuildPublishConfluenceExtension
+import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.jira.service.ConfluenceNetworkService
 import ru.kode.android.build.publish.plugin.jira.service.ConfluenceNetworkServiceExtension
 
@@ -25,7 +26,7 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
             val services: Provider<Map<String, Provider<ConfluenceNetworkService>>> = project.provider {
                 extension.auth.fold(mapOf()) { acc, authConfig ->
                     val service = project.gradle.sharedServices.registerIfAbsent(
-                        networkServiceName(project, authConfig.name),
+                        project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),
                         ConfluenceNetworkService::class.java,
                         {
                             it.maxParallelUsages.set(1)
@@ -46,8 +47,4 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
             )
         }
     }
-}
-
-private fun networkServiceName(project: Project, buildName: String): String {
-    return "${NETWORK_SERVICE_NAME}_${project.name}_${buildName}"
 }

@@ -9,6 +9,7 @@ import ru.kode.android.build.publish.plugin.appcenter.extensions.BuildPublishApp
 import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkService
 import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkServiceExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import ru.kode.android.build.publish.plugin.core.util.serviceName
 
 private const val EXTENSION_NAME = "buildPublishAppCenter"
 private const val NETWORK_SERVICE_NAME = "appCenterNetworkService"
@@ -25,7 +26,7 @@ abstract class BuildPublishAppCenterPlugin : Plugin<Project> {
             val services: Provider<Map<String, Provider<AppCenterNetworkService>>> = project.provider {
                 extension.auth.fold(mapOf()) { acc, authConfig ->
                     val service = project.gradle.sharedServices.registerIfAbsent(
-                        networkServiceName(project, authConfig.name),
+                        project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),
                         AppCenterNetworkService::class.java,
                         {
                             it.maxParallelUsages.set(1)
@@ -45,8 +46,4 @@ abstract class BuildPublishAppCenterPlugin : Plugin<Project> {
             )
         }
     }
-}
-
-private fun networkServiceName(project: Project, buildName: String): String {
-    return "${NETWORK_SERVICE_NAME}_${project.name}_${buildName}"
 }
