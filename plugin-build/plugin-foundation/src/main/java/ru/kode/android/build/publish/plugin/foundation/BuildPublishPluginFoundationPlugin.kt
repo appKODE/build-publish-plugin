@@ -249,7 +249,7 @@ private fun Project.registerChangelogDependentTasks(
 
         if (slackChangelogConfig != null) {
             SlackTasksRegistrar.registerChangelogTask(
-                project = this@registerChangelogDependentTasks.tasks,
+                project = this@registerChangelogDependentTasks,
                 botConfig = slackBotConfig,
                 changelogConfig = slackChangelogConfig,
                 params = SlackChangelogTaskParams(
@@ -265,7 +265,7 @@ private fun Project.registerChangelogDependentTasks(
 
         if (slackDistributionConfig != null) {
             SlackTasksRegistrar.registerDistributionTask(
-                project = this@registerChangelogDependentTasks.tasks,
+                project = this@registerChangelogDependentTasks,
                 distributionConfig = slackDistributionConfig,
                 params = SlackDistributionTasksParams(
                     baseFileName = outputConfig.baseFileName,

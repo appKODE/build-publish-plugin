@@ -7,11 +7,13 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
+import ru.kode.android.build.publish.plugin.slack.service.SlackWebhookService
 import ru.kode.android.build.publish.plugin.slack.task.changelog.work.SendSlackChangelogWork
 import javax.inject.Inject
 
@@ -24,6 +26,9 @@ abstract class SendSlackChangelogTask
             description = "Task to send changelog for Slack"
             group = BasePlugin.BUILD_GROUP
         }
+
+        @get:Internal
+        abstract val networkService: Property<SlackWebhookService>
 
         @get:InputFile
         @get:Option(option = "changelogFile", description = "File with saved changelog")
@@ -55,10 +60,6 @@ abstract class SendSlackChangelogTask
         abstract val issueNumberPattern: Property<String>
 
         @get:Input
-        @get:Option(option = "webhookUrl", description = "Webhook url to send changelog")
-        abstract val webhookUrl: Property<String>
-
-        @get:Input
         @get:Option(option = "iconUrl", description = "Icon url to show in chat")
         abstract val iconUrl: Property<String>
 
@@ -84,12 +85,12 @@ abstract class SendSlackChangelogTask
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 workQueue.submit(SendSlackChangelogWork::class.java) { parameters ->
                     parameters.baseOutputFileName.set(baseOutputFileName)
-                    parameters.webhookUrl.set(webhookUrl)
                     parameters.iconUrl.set(iconUrl)
                     parameters.buildName.set(currentBuildTag.name)
                     parameters.changelog.set(changelogWithIssues)
                     parameters.userMentions.set(userMentions)
                     parameters.attachmentColor.set(attachmentColor)
+                    parameters.networkService.set(networkService)
                 }
             }
         }
