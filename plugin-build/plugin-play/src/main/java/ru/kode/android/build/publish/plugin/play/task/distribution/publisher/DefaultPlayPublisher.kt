@@ -229,6 +229,5 @@ internal class DefaultPlayPublisher(
     private companion object {
         const val MIME_TYPE_STREAM = "application/octet-stream"
         const val MIME_TYPE_APK = "application/vnd.android.package-archive"
-        const val MIME_TYPE_IMAGE = "image/*"
     }
 }

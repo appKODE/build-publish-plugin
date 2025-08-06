@@ -9,13 +9,9 @@ dependencies {
     implementation(project(":plugin-core"))
 
     implementation(gradleApi())
-    implementation(libs.okhttp)
-    implementation(libs.okhttpLogging)
-    implementation(libs.moshi)
-    implementation(libs.retrofit)
-    implementation(libs.retrofitMoshi)
     implementation(libs.play.publish)
     implementation(libs.google.auth)
+    implementation(libs.agp)
 
     testImplementation(libs.junit)
 

@@ -301,7 +301,7 @@ private fun Project.registerChangelogDependentTasks(
         val playDistributionConfig = extension.distribution.getByNameOrRequiredDefault(buildVariant.name)
 
         PlayTasksRegistrar.registerDistributionTask(
-            project = this@registerChangelogDependentTasks.tasks,
+            project = this@registerChangelogDependentTasks,
             distributionConfig = playDistributionConfig,
             params = PlayTaskParams(
                 buildVariant = buildVariant,
