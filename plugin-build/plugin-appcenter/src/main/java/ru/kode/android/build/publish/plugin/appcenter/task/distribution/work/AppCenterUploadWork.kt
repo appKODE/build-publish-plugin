@@ -13,7 +13,7 @@ import ru.kode.android.build.publish.plugin.appcenter.task.distribution.entity.C
 import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
 import kotlin.math.round
 
-interface AppCenterUploadParameters : WorkParameters {
+internal interface AppCenterUploadParameters : WorkParameters {
     val appName: Property<String>
     val buildName: Property<String>
     val buildNumber: Property<String>

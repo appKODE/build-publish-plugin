@@ -6,7 +6,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import ru.kode.android.build.publish.plugin.clickup.task.automation.entity.AddFieldToTaskRequest
 
-interface ClickUpApi {
+internal interface ClickUpApi {
     @POST("v2/task/{task_id}/tag/{tag_name}")
     fun addTagToTask(
         @Path("task_id") taskId: String,

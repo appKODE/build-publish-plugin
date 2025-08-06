@@ -6,11 +6,13 @@ import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
+import ru.kode.android.build.publish.plugin.clickup.service.ClickUpNetworkService
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddFixVersionWork
@@ -27,6 +29,9 @@ abstract class ClickUpAutomationTask
             group = BasePlugin.BUILD_GROUP
         }
 
+        @get:Internal
+        abstract val networkService: Property<ClickUpNetworkService>
+
         @get:InputFile
         @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
         abstract val tagBuildFile: RegularFileProperty
@@ -41,13 +46,6 @@ abstract class ClickUpAutomationTask
             description = "How task number formatted",
         )
         abstract val issueNumberPattern: Property<String>
-
-        @get:InputFile
-        @get:Option(
-            option = "apiTokenFile",
-            description = "API token for ClickUp",
-        )
-        abstract val apiTokenFile: RegularFileProperty
 
         @get:Input
         @get:Option(
@@ -104,10 +102,10 @@ abstract class ClickUpAutomationTask
                         )
                 val fieldId = fixVersionFieldId.get()
                 submit(AddFixVersionWork::class.java) { parameters ->
-                    parameters.apiToken.set(apiTokenFile.asFile.get().readText())
                     parameters.issues.set(issues)
                     parameters.version.set(version)
                     parameters.fieldId.set(fieldId)
+                    parameters.networkService.set(networkService)
                 }
             }
         }
@@ -116,9 +114,9 @@ abstract class ClickUpAutomationTask
             if (taskTag.isPresent) {
                 val tagName = taskTag.get()
                 submit(AddTagToTaskWork::class.java) { parameters ->
-                    parameters.apiToken.set(apiTokenFile.asFile.get().readText())
                     parameters.issues.set(issues)
                     parameters.tagName.set(tagName)
+                    parameters.networkService.set(networkService)
                 }
             }
         }

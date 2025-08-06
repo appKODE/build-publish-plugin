@@ -11,8 +11,8 @@ import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkSe
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 
 private const val EXTENSION_NAME = "buildPublishAppCenter"
-private const val APP_CENTER_NETWORK_SERVICE_NAME = "appCenterNetworkService"
-private const val APP_CENTER_NETWORK_SERVICE_EXTENSION_NAME = "appCenterNetworkServiceExtension"
+private const val NETWORK_SERVICE_NAME = "appCenterNetworkService"
+private const val NETWORK_SERVICE_EXTENSION_NAME = "appCenterNetworkServiceExtension"
 
 abstract class BuildPublishAppCenterPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -25,7 +25,7 @@ abstract class BuildPublishAppCenterPlugin : Plugin<Project> {
             val services: Provider<Map<String, Provider<AppCenterNetworkService>>> = project.provider {
                 extension.auth.fold(mapOf()) { acc, authConfig ->
                     val service = project.gradle.sharedServices.registerIfAbsent(
-                        appCenterNetworkServiceName(project, authConfig.name),
+                        networkServiceName(project, authConfig.name),
                         AppCenterNetworkService::class.java,
                         {
                             it.maxParallelUsages.set(1)
@@ -39,7 +39,7 @@ abstract class BuildPublishAppCenterPlugin : Plugin<Project> {
                 }
             }
             project.extensions.create(
-                APP_CENTER_NETWORK_SERVICE_EXTENSION_NAME,
+                NETWORK_SERVICE_EXTENSION_NAME,
                 AppCenterNetworkServiceExtension::class.java,
                 services
             )
@@ -47,6 +47,6 @@ abstract class BuildPublishAppCenterPlugin : Plugin<Project> {
     }
 }
 
-private fun appCenterNetworkServiceName(project: Project, buildName: String): String {
-    return "${APP_CENTER_NETWORK_SERVICE_NAME}_${project.name}_${buildName}"
+private fun networkServiceName(project: Project, buildName: String): String {
+    return "${NETWORK_SERVICE_NAME}_${project.name}_${buildName}"
 }

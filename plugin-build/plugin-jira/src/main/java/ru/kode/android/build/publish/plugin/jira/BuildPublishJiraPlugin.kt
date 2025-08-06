@@ -11,8 +11,8 @@ import ru.kode.android.build.publish.plugin.jira.service.JiraNetworkService
 import ru.kode.android.build.publish.plugin.jira.service.JiraNetworkServiceExtension
 
 private const val EXTENSION_NAME = "buildPublishJira"
-private const val JIRA_NETWORK_SERVICE_NAME = "jiraNetworkService"
-private const val JIRA_NETWORK_SERVICE_EXTENSION_NAME = "jiraNetworkServiceExtension"
+private const val NETWORK_SERVICE_NAME = "jiraNetworkService"
+private const val NETWORK_SERVICE_EXTENSION_NAME = "jiraNetworkServiceExtension"
 
 abstract class BuildPublishJiraPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -26,7 +26,7 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
             val services: Provider<Map<String, Provider<JiraNetworkService>>> = project.provider {
                 extension.auth.fold(mapOf()) { acc, authConfig ->
                     val service = project.gradle.sharedServices.registerIfAbsent(
-                        jiraNetworkServiceName(project, authConfig.name),
+                        networkServiceName(project, authConfig.name),
                         JiraNetworkService::class.java,
                         {
                             it.maxParallelUsages.set(1)
@@ -41,7 +41,7 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
                 }
             }
             project.extensions.create(
-                JIRA_NETWORK_SERVICE_EXTENSION_NAME,
+                NETWORK_SERVICE_EXTENSION_NAME,
                 JiraNetworkServiceExtension::class.java,
                 services
             )
@@ -49,6 +49,6 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
     }
 }
 
-private fun jiraNetworkServiceName(project: Project, buildName: String): String {
-    return "${JIRA_NETWORK_SERVICE_NAME}_${project.name}_${buildName}"
+private fun networkServiceName(project: Project, buildName: String): String {
+    return "${NETWORK_SERVICE_NAME}_${project.name}_${buildName}"
 }
