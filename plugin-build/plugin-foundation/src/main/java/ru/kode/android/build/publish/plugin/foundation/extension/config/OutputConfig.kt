@@ -20,12 +20,22 @@ interface OutputConfig {
      *
      * For details see [explanation](https://youtu.be/7ll-rkLCtyk?si=Qv_LS0weiYCBT0OV&t=943)
      *
-     * If disabled, hardcoded values will be used
+     * If disabled, hardcoded values will be used if useDefaultVersionsAsFallback is true
      *
      * Default: true
      */
     @get:Input
+    @get:Optional
     val useVersionsFromTag: Property<Boolean>
+
+    /**
+     * Use stubs if tag was not found to not crash builds
+     *
+     * Default: true
+     */
+    @get:Input
+    @get:Optional
+    val useStubsForTagAsFallback: Property<Boolean>
 
     /**
      * Use default version code and version name values when the useVersionsFromTag is set to false
@@ -33,7 +43,8 @@ interface OutputConfig {
      * Default: true
      */
     @get:Input
-    val useDefaultVersionsAsFallback: Property<Boolean>
+    @get:Optional
+    val useDefaultsForVersionsAsFallback: Property<Boolean>
 
     @get:Input
     @get:Optional

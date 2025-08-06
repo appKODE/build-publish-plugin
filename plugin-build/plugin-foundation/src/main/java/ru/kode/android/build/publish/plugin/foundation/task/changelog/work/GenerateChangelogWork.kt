@@ -24,7 +24,7 @@ abstract class GenerateChangelogWork
 
         override fun execute() {
             val messageKey = parameters.commitMessageKey.get()
-            val buildTagPattern = parameters.buildTagPattern.orNull
+            val buildTagPattern = parameters.buildTagPattern.get()
             val currentBuildTag = fromJson(parameters.tagBuildFile.asFile.get())
             val changelog = parameters.gitExecutorService.get()
                 .changelogBuilder
@@ -39,9 +39,10 @@ abstract class GenerateChangelogWork
                 )
             val changelogOutput = parameters.changelogFile.asFile.get()
             if (changelog.isNullOrBlank()) {
-                logger.info("changelog not generated")
+                logger.info("changelog is NOT generated for `$buildTagPattern` buildTagPattern and `$currentBuildTag` build tag")
+                changelogOutput.writeText("No changes because changelog is not generated for tag ${currentBuildTag.name}")
             } else {
-                logger.info("generate changelog")
+                logger.info("changelog is generated for `$buildTagPattern` buildTagPattern and `$currentBuildTag` build tag")
                 changelogOutput.writeText(changelog)
             }
         }

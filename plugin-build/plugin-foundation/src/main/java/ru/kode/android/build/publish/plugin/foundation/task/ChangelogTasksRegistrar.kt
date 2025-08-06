@@ -28,7 +28,7 @@ private fun TaskContainer.registerGenerateChangelogTask(
         GenerateChangelogTask::class.java,
     ) {
         it.commitMessageKey.set(params.commitMessageKey)
-        it.buildTagPattern.set(params.buildTagPattern)
+        it.buildTagPattern.set(params.buildTagPatternProvider)
         it.changelogFile.set(params.changelogFile)
         it.tagBuildFile.set(params.tagBuildProvider)
     }.flatMap { it.changelogFile }
@@ -36,7 +36,7 @@ private fun TaskContainer.registerGenerateChangelogTask(
 
 data class GenerateChangelogTaskParams(
     val commitMessageKey: Provider<String>,
-    val buildTagPattern: Provider<String>,
+    val buildTagPatternProvider: Provider<String>,
     val buildVariant: BuildVariant,
     val changelogFile: Provider<RegularFile>,
     val tagBuildProvider: Provider<RegularFile>,

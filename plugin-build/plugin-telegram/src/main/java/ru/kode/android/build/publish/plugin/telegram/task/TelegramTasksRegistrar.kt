@@ -80,7 +80,7 @@ private fun TaskContainer.registerTelegramUploadTask(
 
 data class TelegramChangelogTaskParams(
     val baseFileName: Property<String>,
-    val issueNumberPattern: Property<String>,
+    val issueNumberPattern: Provider<String>,
     val issueUrlPrefix: Property<String>,
     val buildVariant: BuildVariant,
     val generateChangelogFileProvider: Provider<RegularFile>,

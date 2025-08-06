@@ -12,9 +12,9 @@ class GitRepository(
      */
     fun findTagRange(
         buildVariant: String,
-        buildTagPattern: String?,
+        buildTagPattern: String,
     ): TagRange? {
-        val buildTagRegex = Regex(buildTagPattern ?: DEFAULT_TAG_PATTERN.format(buildVariant))
+        val buildTagRegex = Regex(buildTagPattern)
         return gitCommandExecutor.findBuildTags(buildTagRegex, limitResultCount = 2)
             ?.let { tags ->
                 val currentBuildTag = tags.first()
@@ -28,9 +28,9 @@ class GitRepository(
 
     fun findRecentBuildTag(
         buildVariant: String,
-        buildTagPattern: String?,
+        buildTagPattern: String,
     ): Tag.Build? {
-        val buildTagRegex = Regex(buildTagPattern ?: DEFAULT_TAG_PATTERN.format(buildVariant))
+        val buildTagRegex = Regex(buildTagPattern)
         val tags = gitCommandExecutor.findBuildTags(buildTagRegex, limitResultCount = 1)
         return tags?.first()?.let { Tag.Build(it, buildVariant) }
     }
@@ -45,4 +45,4 @@ class GitRepository(
     }
 }
 
-private const val DEFAULT_TAG_PATTERN = ".+\\.(\\d+)-%s"
+const val DEFAULT_TAG_PATTERN = ".+\\.(\\d+)-%s"

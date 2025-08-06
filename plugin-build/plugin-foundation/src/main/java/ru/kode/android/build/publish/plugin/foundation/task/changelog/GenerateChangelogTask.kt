@@ -7,10 +7,10 @@ import org.gradle.api.provider.Property
 import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.foundation.service.GitExecutorService
@@ -22,6 +22,7 @@ import javax.inject.Inject
  * then result can be used in Firebase App Distribution without rebuilding configs
  * and it can be used in all other tasks without duplicates in different places
  */
+@DisableCachingByDefault
 abstract class GenerateChangelogTask
     @Inject
     constructor(
@@ -52,7 +53,6 @@ abstract class GenerateChangelogTask
             option = "buildTagPattern",
             description = "Tag pattern to correctly search related tags",
         )
-        @get:Optional
         abstract val buildTagPattern: Property<String>
 
         @get:OutputFile

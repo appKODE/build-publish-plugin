@@ -22,6 +22,7 @@ import ru.kode.android.build.publish.plugin.confluence.extensions.BuildPublishCo
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceDistributionTaskParams
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceTasksRegistrar
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.git.DEFAULT_TAG_PATTERN
 import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableDefault
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredDefault
@@ -67,7 +68,6 @@ abstract class BuildPublishPluginFoundationPlugin : Plugin<Project> {
             .create(EXTENSION_NAME, BuildPublishBaseExtension::class.java)
         val androidExtension = project.extensions
             .getByType(ApplicationAndroidComponentsExtension::class.java)
-        val changelogFileProvider = project.changelogDirectory()
 
         androidExtension.onVariants(
             callback = { variant ->
@@ -83,21 +83,31 @@ abstract class BuildPublishPluginFoundationPlugin : Plugin<Project> {
 
                     val outputConfig = buildPublishBaseExtension.output.getByNameOrRequiredDefault(buildVariant.name)
 
+                    val buildTagPatternProvider = outputConfig.buildTagPattern.orElse(
+                        DEFAULT_TAG_PATTERN.format(buildVariant.name)
+                    )
+
                     val outputProviders = TagTasksRegistrar.registerLastTagTask(
                         project,
                         params = LastTagTaskParams(
-                            buildVariant,
-                            outputConfig,
-                            apkOutputFileName,
-                            //gitExecutorService
+                            buildVariant = buildVariant,
+                            apkOutputFileName = apkOutputFileName,
+                            useVersionsFromTag = outputConfig.useVersionsFromTag
+                                .convention(true),
+                            baseFileName = outputConfig.baseFileName,
+                            useDefaultsForVersionsAsFallback = outputConfig.useDefaultsForVersionsAsFallback
+                                .convention(true),
+                            useStubsForTagAsFallback = outputConfig.useStubsForTagAsFallback
+                                .convention(true),
+                            buildTagPattern = buildTagPatternProvider
                         )
                     )
 
                     TagTasksRegistrar.registerPrintLastIncreasedTagTask(
                         project = project,
                         params = PrintLastIncreasedTagTaskParams(
-                            buildVariant,
-                            outputProviders.tagBuildProvider,
+                            buildVariant = buildVariant,
+                            tagBuildProvider = outputProviders.tagBuildProvider,
                         )
                     )
 
@@ -108,14 +118,26 @@ abstract class BuildPublishPluginFoundationPlugin : Plugin<Project> {
                             project.mapToOutputApkFile(buildVariant, fileName)
                         }
 
+                        val generateChangelogFileProvider =
+                            ChangelogTasksRegistrar.registerGenerateChangelogTask(
+                                project = project,
+                                params = GenerateChangelogTaskParams(
+                                    commitMessageKey = changelogConfig.commitMessageKey,
+                                    buildTagPatternProvider = buildTagPatternProvider,
+                                    buildVariant = buildVariant,
+                                    changelogFile = project.changelogDirectory(),
+                                    tagBuildProvider = outputProviders.tagBuildProvider,
+                                )
+                            )
+
                         project.registerChangelogDependentTasks(
-                            changelogConfig,
-                            outputConfig,
-                            buildVariant,
-                            changelogFileProvider,
-                            outputProviders,
-                            apkOutputFileProvider,
-                            bundleFile,
+                            changelogConfig = changelogConfig,
+                            outputConfig = outputConfig,
+                            buildVariant = buildVariant,
+                            generateChangelogFileProvider = generateChangelogFileProvider,
+                            outputProviders = outputProviders,
+                            apkOutputFileProvider = apkOutputFileProvider,
+                            bundleFile = bundleFile,
                         )
                     }
 
@@ -133,7 +155,7 @@ abstract class BuildPublishPluginFoundationPlugin : Plugin<Project> {
             val outputConfig = buildPublishBaseExtension.output.getDefault()
                 ?: throw GradleException("output config should be defined")
             val useDefaultVersionsAsFallback = outputConfig
-                .useDefaultVersionsAsFallback
+                .useDefaultsForVersionsAsFallback
                 .getOrElse(true)
 
             project.plugins.all { plugin ->
@@ -162,25 +184,14 @@ private fun Project.registerChangelogDependentTasks(
     changelogConfig: ChangelogConfig,
     outputConfig: OutputConfig,
     buildVariant: BuildVariant,
-    changelogFileProvider: Provider<RegularFile>,
+    generateChangelogFileProvider: Provider<RegularFile>,
     outputProviders: OutputProviders,
     apkOutputFileProvider: Provider<RegularFile>,
     bundleFile: Provider<RegularFile>
 ) {
 
-    val generateChangelogFileProvider =
-        ChangelogTasksRegistrar.registerGenerateChangelogTask(
-            project = this,
-            params = GenerateChangelogTaskParams(
-                changelogConfig.commitMessageKey,
-                outputConfig.buildTagPattern,
-                buildVariant,
-                changelogFileProvider,
-                outputProviders.tagBuildProvider,
-            )
-        )
-
     val telegramExtension = extensions.findByType(BuildPublishTelegramExtension::class.java)
+    val issueNumberPattern = changelogConfig.issueNumberPattern
 
     telegramExtension?.let { extension ->
         val telegramBotConfig = extension.bot.getByNameOrRequiredDefault(buildVariant.name)
@@ -193,12 +204,12 @@ private fun Project.registerChangelogDependentTasks(
                 botConfig = telegramBotConfig,
                 changelogConfig = telegramChangelogConfig,
                 params = TelegramChangelogTaskParams(
-                    outputConfig.baseFileName,
-                    changelogConfig.issueNumberPattern,
-                    changelogConfig.issueUrlPrefix,
-                    buildVariant,
-                    generateChangelogFileProvider,
-                    outputProviders.tagBuildProvider,
+                    baseFileName = outputConfig.baseFileName,
+                    issueNumberPattern = issueNumberPattern,
+                    issueUrlPrefix = changelogConfig.issueUrlPrefix,
+                    buildVariant = buildVariant,
+                    generateChangelogFileProvider = generateChangelogFileProvider,
+                    tagBuildProvider = outputProviders.tagBuildProvider,
                 )
             )
         }
@@ -208,10 +219,10 @@ private fun Project.registerChangelogDependentTasks(
                 botConfig = telegramBotConfig,
                 distributionConfig = telegramDistributionConfig,
                 params = TelegramDistributionTasksParams(
-                    outputConfig.baseFileName,
-                    buildVariant,
-                    outputProviders.tagBuildProvider,
-                    apkOutputFileProvider,
+                    baseFileName = outputConfig.baseFileName,
+                    buildVariant = buildVariant,
+                    tagBuildProvider = outputProviders.tagBuildProvider,
+                    apkOutputFileProvider = apkOutputFileProvider,
                 )
             )
         }
@@ -246,12 +257,12 @@ private fun Project.registerChangelogDependentTasks(
                 botConfig = slackBotConfig,
                 changelogConfig = slackChangelogConfig,
                 params = SlackChangelogTaskParams(
-                    outputConfig.baseFileName,
-                    changelogConfig.issueNumberPattern,
-                    changelogConfig.issueUrlPrefix,
-                    buildVariant,
-                    generateChangelogFileProvider,
-                    outputProviders.tagBuildProvider,
+                    baseFileName = outputConfig.baseFileName,
+                    issueNumberPattern = issueNumberPattern,
+                    issueUrlPrefix = changelogConfig.issueUrlPrefix,
+                    buildVariant = buildVariant,
+                    generateChangelogFileProvider = generateChangelogFileProvider,
+                    tagBuildProvider = outputProviders.tagBuildProvider,
                 )
             )
         }
@@ -261,10 +272,10 @@ private fun Project.registerChangelogDependentTasks(
                 project = this@registerChangelogDependentTasks.tasks,
                 distributionConfig = slackDistributionConfig,
                 params = SlackDistributionTasksParams(
-                    outputConfig.baseFileName,
-                    buildVariant,
-                    outputProviders.tagBuildProvider,
-                    apkOutputFileProvider,
+                    baseFileName = outputConfig.baseFileName,
+                    buildVariant = buildVariant,
+                    tagBuildProvider = outputProviders.tagBuildProvider,
+                    apkOutputFileProvider = apkOutputFileProvider,
                 )
             )
         }
@@ -308,17 +319,14 @@ private fun Project.registerChangelogDependentTasks(
     val jiraExtension = extensions.findByType(BuildPublishJiraExtension::class.java)
 
     jiraExtension?.let { extension ->
-        val jiraAuthConfig = extension.auth.getByNameOrRequiredDefault(buildVariant.name)
         val jiraAutomationConfig = extension.automation.getByNameOrRequiredDefault(buildVariant.name)
-
         JiraTasksRegistrar.registerAutomationTask(
-            project = this@registerChangelogDependentTasks.tasks,
-            authConfig = jiraAuthConfig,
+            project = this@registerChangelogDependentTasks,
             automationConfig = jiraAutomationConfig,
             params = JiraAutomationTaskParams(
                 buildVariant = buildVariant,
-                issueNumberPattern = changelogConfig.issueNumberPattern,
-                changelogFileProvider = changelogFileProvider,
+                issueNumberPattern = issueNumberPattern,
+                changelogFileProvider = generateChangelogFileProvider,
                 tagBuildProvider = outputProviders.tagBuildProvider,
             )
         )
@@ -336,8 +344,8 @@ private fun Project.registerChangelogDependentTasks(
             automationConfig = clickUpAutomationConfig,
             params = ClickUpAutomationTaskParams(
                 buildVariant = buildVariant,
-                issueNumberPattern = changelogConfig.issueNumberPattern,
-                changelogFileProvider = changelogFileProvider,
+                issueNumberPattern = issueNumberPattern,
+                changelogFileProvider = generateChangelogFileProvider,
                 tagBuildProvider = outputProviders.tagBuildProvider,
             )
         )
