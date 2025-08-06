@@ -4,7 +4,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 @Suppress("ConstructorParameterNaming") // network model
-data class AddLabelRequest(
+internal data class AddLabelRequest(
     val update: Update,
 ) {
     @JsonClass(generateAdapter = true)

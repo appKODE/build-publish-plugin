@@ -10,7 +10,7 @@ import ru.kode.android.build.publish.plugin.jira.task.automation.entity.AddLabel
 import ru.kode.android.build.publish.plugin.jira.task.automation.entity.CreateVersionRequest
 import ru.kode.android.build.publish.plugin.jira.task.automation.entity.SetStatusRequest
 
-interface JiraApi {
+internal interface JiraApi {
     @POST("version")
     fun createVersion(
         @Body request: CreateVersionRequest,

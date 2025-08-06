@@ -4,7 +4,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 @Suppress("ConstructorParameterNaming") // network model
-data class CreateVersionRequest(
+internal data class CreateVersionRequest(
     val name: String,
     val projectId: Long,
 )

@@ -8,6 +8,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
@@ -16,6 +17,7 @@ import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
 import ru.kode.android.build.publish.plugin.appcenter.core.MAX_REQUEST_COUNT
 import ru.kode.android.build.publish.plugin.appcenter.core.MAX_REQUEST_DELAY_MS
+import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkService
 import ru.kode.android.build.publish.plugin.appcenter.task.distribution.work.AppCenterUploadWork
 import ru.kode.android.build.publish.plugin.core.util.capitalized
 import javax.inject.Inject
@@ -25,10 +27,14 @@ abstract class AppCenterDistributionTask
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
+
         init {
             description = "Task to send apk to AppCenter"
             group = BasePlugin.BUILD_GROUP
         }
+
+        @get:Internal
+        abstract val networkService: Property<AppCenterNetworkService>
 
         @get:InputFile
         @get:Option(
@@ -47,20 +53,6 @@ abstract class AppCenterDistributionTask
         @get:InputFile
         @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
         abstract val tagBuildFile: RegularFileProperty
-
-        @get:InputFile
-        @get:Option(
-            option = "apiTokenFile",
-            description = "API token for target project in AppCenter",
-        )
-        abstract val apiTokenFile: RegularFileProperty
-
-        @get:Input
-        @get:Option(
-            option = "ownerName",
-            description = "Owner name of target project in AppCenter",
-        )
-        abstract val ownerName: Property<String>
 
         @get:Input
         @get:Optional
@@ -112,10 +104,8 @@ abstract class AppCenterDistributionTask
             if (outputFile.extension != "apk") throw GradleException("file ${outputFile.path} is not apk")
             val currentBuildTag = fromJson(tagBuildFile.asFile.get())
             val changelogFile = changelogFile.asFile.get()
-            val apiTokenFile = apiTokenFile.asFile.get()
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(AppCenterUploadWork::class.java) { parameters ->
-                parameters.ownerName.set(ownerName)
                 parameters.appName.set(
                     if (appName.isPresent) {
                         appName
@@ -127,7 +117,6 @@ abstract class AppCenterDistributionTask
                 )
                 parameters.buildName.set(currentBuildTag.name)
                 parameters.buildNumber.set(currentBuildTag.buildNumber.toString())
-                parameters.apiToken.set(apiTokenFile.readText())
                 parameters.outputFile.set(outputFile)
                 parameters.testerGroups.set(testerGroups)
                 parameters.changelogFile.set(changelogFile)

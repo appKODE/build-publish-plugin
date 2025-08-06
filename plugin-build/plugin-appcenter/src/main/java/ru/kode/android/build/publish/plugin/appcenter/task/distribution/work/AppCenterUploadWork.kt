@@ -8,15 +8,13 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.appcenter.core.MAX_REQUEST_COUNT
 import ru.kode.android.build.publish.plugin.appcenter.core.MAX_REQUEST_DELAY_MS
+import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkService
 import ru.kode.android.build.publish.plugin.appcenter.task.distribution.entity.ChunkRequestBody
-import ru.kode.android.build.publish.plugin.appcenter.task.distribution.uploader.AppCenterUploader
 import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
 import kotlin.math.round
 
 interface AppCenterUploadParameters : WorkParameters {
-    val ownerName: Property<String>
     val appName: Property<String>
-    val apiToken: Property<String>
     val buildName: Property<String>
     val buildNumber: Property<String>
     val outputFile: RegularFileProperty
@@ -25,19 +23,14 @@ interface AppCenterUploadParameters : WorkParameters {
     val maxUploadStatusRequestCount: Property<Int>
     val uploadStatusRequestDelayMs: Property<Long>
     val uploadStatusRequestDelayCoefficient: Property<Long>
+    val networkService: Property<AppCenterNetworkService>
 }
 
-abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
+internal abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
     private val logger = Logging.getLogger(this::class.java)
 
     override fun execute() {
-        val uploader =
-            AppCenterUploader(
-                parameters.ownerName.get(),
-                parameters.appName.get(),
-                logger,
-                parameters.apiToken.get(),
-            )
+        val networkService = parameters.networkService.get()
 
         val outputFile = parameters.outputFile.asFile.get()
         val testerGroups = parameters.testerGroups.get()
@@ -45,23 +38,24 @@ abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
 
         logger.info("Step 1/7: Prepare upload")
         val prepareResponse =
-            uploader.prepareRelease(
+            networkService.prepareRelease(
                 buildVersion = parameters.buildName.get(),
                 buildNumber = parameters.buildNumber.get(),
             )
-        uploader.initUploadApi(prepareResponse.upload_domain ?: "https://file.appcenter.ms")
+        networkService.initUploadApi(prepareResponse.upload_domain ?: "https://file.appcenter.ms")
+        networkService.initAppName(parameters.appName.get())
 
         logger.info("Step 2/7: Send metadata")
         val packageAssetId = prepareResponse.package_asset_id
         val encodedToken = prepareResponse.url_encoded_token
-        val metaResponse = uploader.sendMetaData(outputFile, packageAssetId, encodedToken)
+        val metaResponse = networkService.sendMetaData(outputFile, packageAssetId, encodedToken)
 
         // See NOTE_CHUNKS_UPLOAD_LOOP
         logger.info("Step 3/7: Upload apk file chunks")
         metaResponse.chunk_list.forEachIndexed { i, chunkNumber ->
             val range = (i * metaResponse.chunk_size)..((i + 1) * metaResponse.chunk_size)
             logger.info("Step 3/7 : Upload chunk ${i + 1}/${metaResponse.chunk_list.size}")
-            uploader.uploadChunk(
+            networkService.uploadChunk(
                 packageAssetId = packageAssetId,
                 encodedToken = encodedToken,
                 chunkNumber = chunkNumber,
@@ -70,14 +64,14 @@ abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
         }
 
         logger.info("Step 4/7: Finish upload")
-        uploader.sendUploadIsFinished(packageAssetId, encodedToken)
+        networkService.sendUploadIsFinished(packageAssetId, encodedToken)
 
         logger.info("Step 5/7: Commit uploaded release")
-        uploader.commit(prepareResponse.id)
+        networkService.commit(prepareResponse.id)
 
         logger.info("Step 6/7: Fetching for release to be ready to publish")
         val publishResponse =
-            uploader
+            networkService
                 .waitingReadyToBePublished(
                     preparedUploadId = prepareResponse.id,
                     maxRequestCount =
@@ -88,7 +82,7 @@ abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
         logger.info("Step 7/7: Distribute to the app testers: $testerGroups")
         val releaseId = publishResponse.release_distinct_id
         if (releaseId != null) {
-            uploader.distribute(
+            networkService.distribute(
                 releaseId = releaseId,
                 distributionGroups = testerGroups,
                 releaseNotes = changelogFile.readText().ellipsizeAt(MAX_NOTES_CHARACTERS_COUNT),
