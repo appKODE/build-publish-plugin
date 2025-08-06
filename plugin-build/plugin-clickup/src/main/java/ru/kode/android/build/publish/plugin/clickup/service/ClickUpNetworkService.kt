@@ -35,8 +35,8 @@ abstract class ClickUpNetworkService @Inject constructor() : BuildService<ClickU
             parameters.token.map { token ->
                 OkHttpClient.Builder()
                     .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                    .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
-                    .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
+                    .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .addInterceptor(AttachTokenInterceptor(token.asFile.readText()))
                     .addProxyIfAvailable()
                     .apply {

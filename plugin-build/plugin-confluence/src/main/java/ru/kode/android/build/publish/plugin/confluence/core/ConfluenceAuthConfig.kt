@@ -16,5 +16,10 @@ interface ConfluenceAuthConfig {
      */
     val password: Property<String>
 
+    /**
+     * Confluence baseUrl
+     */
+    val baseUrl: Property<String>
+
 }
 

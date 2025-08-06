@@ -231,11 +231,9 @@ private fun Project.registerChangelogDependentTasks(
     val confluenceExtension = extensions.findByType(BuildPublishConfluenceExtension::class.java)
 
     confluenceExtension?.let { extension ->
-        val confluenceAuthConfig = extension.auth.getByNameOrRequiredDefault(buildVariant.name)
         val confluenceDistributionConfig = extension.distribution.getByNameOrRequiredDefault(buildVariant.name)
         ConfluenceTasksRegistrar.registerDistributionTask(
-            project = this@registerChangelogDependentTasks.tasks,
-            authConfig = confluenceAuthConfig,
+            project = this@registerChangelogDependentTasks,
             distributionConfig = confluenceDistributionConfig,
             params = ConfluenceDistributionTaskParams(
                 buildVariant = buildVariant,

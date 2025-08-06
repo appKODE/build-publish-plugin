@@ -38,8 +38,8 @@ abstract class JiraNetworkService @Inject constructor() : BuildService<JiraNetwo
             parameters.username.zip(parameters.password) { username, password ->
                 OkHttpClient.Builder()
                     .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                    .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
-                    .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.MINUTES)
+                    .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .addInterceptor(AttachTokenInterceptor(username, password))
                     .addProxyIfAvailable()
                     .apply {
