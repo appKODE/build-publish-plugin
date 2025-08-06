@@ -12,7 +12,7 @@ class ChangelogBuilder(
     fun buildForBuildTag(
         messageKey: String,
         buildTag: Tag.Build,
-        buildTagPattern: String?,
+        buildTagPattern: String,
         defaultValueSupplier: ((TagRange) -> String?)? = null,
     ): String? {
         val buildVariant = buildTag.buildVariant
@@ -22,7 +22,7 @@ class ChangelogBuilder(
     private fun buildForBuildVariant(
         messageKey: String,
         buildVariant: String,
-        buildTagPattern: String?,
+        buildTagPattern: String,
         defaultValueSupplier: ((TagRange) -> String?)? = null,
     ): String? {
         val tagRange =

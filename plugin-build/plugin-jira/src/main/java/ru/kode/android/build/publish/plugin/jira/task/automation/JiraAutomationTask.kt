@@ -6,6 +6,7 @@ import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
@@ -13,6 +14,7 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
+import ru.kode.android.build.publish.plugin.jira.service.JiraNetworkService
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddFixVersionWork
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddLabelWork
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.SetStatusWork
@@ -27,6 +29,9 @@ abstract class JiraAutomationTask
             description = "Task to automate jira statuses"
             group = BasePlugin.BUILD_GROUP
         }
+
+        @get:Internal
+        abstract val networkService: Property<JiraNetworkService>
 
         @get:InputFile
         @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
@@ -45,31 +50,10 @@ abstract class JiraAutomationTask
 
         @get:Input
         @get:Option(
-            option = "baseUrl",
-            description = "Base url of used jira task tracker",
-        )
-        abstract val baseUrl: Property<String>
-
-        @get:Input
-        @get:Option(
             option = "projectId",
             description = "Project id in jira task tracker",
         )
         abstract val projectId: Property<Long>
-
-        @get:Input
-        @get:Option(
-            option = "username",
-            description = "Username of admin account",
-        )
-        abstract val username: Property<String>
-
-        @get:Input
-        @get:Option(
-            option = "password",
-            description = "Password or token of admin account",
-        )
-        abstract val password: Property<String>
 
         @get:Input
         @get:Option(
@@ -105,7 +89,7 @@ abstract class JiraAutomationTask
                     .mapTo(mutableSetOf()) { it.groupValues[0] }
 
             if (issues.isEmpty()) {
-                logger.info("issues not found in the changelog, nothing will change")
+                logger.info("issues not found in the changelog, nothing will change: ${networkService.get().api}")
             } else {
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 workQueue.submitUpdateLabelIfPresent(currentBuildTag, issues)
@@ -117,11 +101,9 @@ abstract class JiraAutomationTask
         private fun WorkQueue.submitUpdateStatusIfPresent(issues: MutableSet<String>) {
             if (resolvedStatusTransitionId.isPresent) {
                 submit(SetStatusWork::class.java) { parameters ->
-                    parameters.baseUrl.set(baseUrl)
-                    parameters.username.set(username)
-                    parameters.password.set(password)
                     parameters.issues.set(issues)
                     parameters.statusTransitionId.set(resolvedStatusTransitionId)
+                    parameters.networkService.set(networkService)
                 }
             }
         }
@@ -139,12 +121,10 @@ abstract class JiraAutomationTask
                             currentBuildTag.buildVariant,
                         )
                 submit(AddFixVersionWork::class.java) { parameters ->
-                    parameters.baseUrl.set(baseUrl)
-                    parameters.username.set(username)
-                    parameters.password.set(password)
                     parameters.issues.set(issues)
                     parameters.version.set(version)
                     parameters.projectId.set(projectId)
+                    parameters.networkService.set(networkService)
                 }
             }
         }
@@ -162,11 +142,9 @@ abstract class JiraAutomationTask
                             currentBuildTag.buildVariant,
                         )
                 submit(AddLabelWork::class.java) { parameters ->
-                    parameters.baseUrl.set(baseUrl)
-                    parameters.username.set(username)
-                    parameters.password.set(password)
                     parameters.issues.set(issues)
                     parameters.label.set(label)
+                    parameters.networkService.set(networkService)
                 }
             }
         }

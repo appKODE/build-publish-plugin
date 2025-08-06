@@ -60,7 +60,7 @@ buildPublishFoundation {
     }
     changelogDefault {
         issueNumberPattern.set("AT-\\d+")
-        issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
+        issueUrlPrefix.set("https://jira.atlassian.com/")
         commitMessageKey.set("CHANGELOG")
     }
 }
@@ -68,9 +68,14 @@ buildPublishFoundation {
 buildPublishJira {
     auth {
         register("default") {
-            baseUrl.set("https://jira.exmaple.ru")
-            authUsername.set("test_user")
-            authPassword.set("test_password")
+            baseUrl.set("https://jira.atlassian.com")
+            authUsername.set("test_user_default")
+            authPassword.set("test_password_default")
+        }
+        register("release") {
+            baseUrl.set("https://jira.atlassian.com")
+            authUsername.set("test_user_release")
+            authPassword.set("test_password_release")
         }
     }
     automation {

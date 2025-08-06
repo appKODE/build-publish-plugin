@@ -5,30 +5,21 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.jira.task.automation.service.JiraService
 import ru.kode.android.build.publish.plugin.core.util.UploadException
+import ru.kode.android.build.publish.plugin.jira.service.JiraNetworkService
 
 interface SetStatusParameters : WorkParameters {
-    val baseUrl: Property<String>
-    val username: Property<String>
-    val password: Property<String>
     val issues: SetProperty<String>
     val statusTransitionId: Property<String>
+    val networkService: Property<JiraNetworkService>
 }
 
 abstract class SetStatusWork : WorkAction<SetStatusParameters> {
     private val logger = Logging.getLogger(this::class.java)
 
-    @Suppress("SwallowedException") // see logs below
     override fun execute() {
-        val service =
-            JiraService(
-                logger,
-                parameters.baseUrl.get(),
-                parameters.username.get(),
-                parameters.password.get(),
-            )
         val issues = parameters.issues.get()
+        val service = parameters.networkService.get()
         issues.forEach { issue ->
             try {
                 service.setStatus(issue, parameters.statusTransitionId.get())

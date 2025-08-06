@@ -6,8 +6,6 @@ import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
@@ -28,6 +26,7 @@ abstract class GetLastTagTask
         init {
             description = "Get last tag task"
             group = BasePlugin.BUILD_GROUP
+            outputs.upToDateWhen { false }
         }
 
         @get:ServiceReference
@@ -39,8 +38,11 @@ abstract class GetLastTagTask
 
         @get:Input
         @get:Option(option = "buildTagPattern", description = "Tag pattern to correctly search related tags")
-        @get:Optional
         abstract val buildTagPattern: Property<String>
+
+        @get:Input
+        @get:Option(option = "useStubsForTagAsFallback", description = "Use stubs if tag was not found to not crash builds")
+        abstract val useStubsForTagAsFallback: Property<Boolean>
 
         @get:OutputFile
         @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
@@ -54,6 +56,7 @@ abstract class GetLastTagTask
                 parameters.buildVariant.set(buildVariant)
                 parameters.buildTagPattern.set(buildTagPattern)
                 parameters.gitExecutorService.set(gitExecutorService)
+                parameters.useStubsForTagAsFallback.set(useStubsForTagAsFallback)
             }
             workQueue.await()
         }

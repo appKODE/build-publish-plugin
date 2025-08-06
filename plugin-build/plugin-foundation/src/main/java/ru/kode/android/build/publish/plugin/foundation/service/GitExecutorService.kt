@@ -22,16 +22,11 @@ abstract class GitExecutorService @Inject constructor() : BuildService<GitExecut
     protected abstract val changelogBuilderProperty: Property<ChangelogBuilder>
 
     init {
-        try {
-            executorProperty.set(parameters.grgitService.map { grGitService ->
-                GitCommandExecutor(grGitService.grgit)
-            })
-            repositoryProperty.set(executorProperty!!.map { GitRepository(it) })
-            changelogBuilderProperty.set(repositoryProperty!!.map { ChangelogBuilder(it, logger) })
-            println("created GitExecutorService")
-        } catch (ex: Throwable) {
-            println("not created GitExecutorService: ${ex.printStackTrace()}")
-        }
+        executorProperty.set(parameters.grgitService.map { grGitService ->
+            GitCommandExecutor(grGitService.grgit)
+        })
+        repositoryProperty.set(executorProperty!!.map { GitRepository(it) })
+        changelogBuilderProperty.set(repositoryProperty!!.map { ChangelogBuilder(it, logger) })
     }
 
     val commandExecutor: GitCommandExecutor
