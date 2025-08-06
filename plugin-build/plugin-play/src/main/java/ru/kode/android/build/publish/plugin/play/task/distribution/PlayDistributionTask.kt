@@ -7,12 +7,14 @@ import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
+import ru.kode.android.build.publish.plugin.play.service.PlayNetworkService
 import ru.kode.android.build.publish.plugin.play.task.distribution.work.PlayUploadWork
 import javax.inject.Inject
 
@@ -26,10 +28,14 @@ abstract class PlayDistributionTask
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
+
         init {
             description = "Task to send apk to Google Play"
             group = BasePlugin.BUILD_GROUP
         }
+
+        @get:Internal
+        abstract val networkService: Property<PlayNetworkService>
 
         @get:InputFile
         @get:Option(
@@ -42,19 +48,6 @@ abstract class PlayDistributionTask
         @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
         abstract val tagBuildFile: RegularFileProperty
 
-        @get:InputFile
-        @get:Option(
-            option = "apiTokenFile",
-            description = "API token for google play console",
-        )
-        abstract val apiTokenFile: RegularFileProperty
-
-        @get:Input
-        @get:Option(
-            option = "appId",
-            description = "appId from Play Console",
-        )
-        abstract val appId: Property<String>
 
         @get:Input
         @get:Option(
@@ -74,22 +67,19 @@ abstract class PlayDistributionTask
         @TaskAction
         fun upload() {
             val outputFile = buildVariantOutputFile.asFile.get()
-            if (outputFile.extension != "aab") throw GradleException("file ${outputFile.path} is not bundle")
+            if (outputFile.extension != "aab") throw GradleException("file ${outputFile.path} is not bundle, not possible to deploy it to Google Play")
             val tag = fromJson(tagBuildFile.asFile.get())
             val releaseName = "${tag.name}(${tag.buildVersion}.${tag.buildNumber})"
-            val apiTokenFile = apiTokenFile.asFile.get()
-            val workQueue: WorkQueue = workerExecutor.noIsolation()
             val trackId = trackId.orNull ?: "internal"
-            val appId = appId.get()
             val updatePriority = updatePriority.orNull ?: 0
 
+            val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(PlayUploadWork::class.java) { parameters ->
-                parameters.appId.set(appId)
-                parameters.apiToken.set(apiTokenFile)
                 parameters.trackId.set(trackId)
                 parameters.updatePriority.set(updatePriority)
                 parameters.releaseName.set(releaseName)
                 parameters.outputFile.set(outputFile)
+                parameters.networkService.set(networkService)
             }
         }
     }
