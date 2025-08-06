@@ -1,15 +1,17 @@
 package ru.kode.android.build.publish.plugin.slack.task
 
+import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
+import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrDefault
 import ru.kode.android.build.publish.plugin.slack.core.SlackBotConfig
 import ru.kode.android.build.publish.plugin.slack.core.SlackChangelogConfig
 import ru.kode.android.build.publish.plugin.slack.core.SlackDistributionConfig
+import ru.kode.android.build.publish.plugin.slack.service.SlackServiceExtension
 import ru.kode.android.build.publish.plugin.slack.task.changelog.SendSlackChangelogTask
 import ru.kode.android.build.publish.plugin.slack.task.distribution.SlackDistributionTask
 
@@ -19,7 +21,7 @@ internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpl
 object SlackTasksRegistrar {
 
     fun registerChangelogTask(
-        project: TaskContainer,
+        project: Project,
         botConfig: SlackBotConfig,
         changelogConfig: SlackChangelogConfig,
         params: SlackChangelogTaskParams
@@ -28,7 +30,7 @@ object SlackTasksRegistrar {
     }
 
     fun registerDistributionTask(
-        project: TaskContainer,
+        project: Project,
         distributionConfig: SlackDistributionConfig,
         params: SlackDistributionTasksParams
     ): TaskProvider<SlackDistributionTask>? {
@@ -44,40 +46,52 @@ object SlackTasksRegistrar {
     }
 }
 
-private fun TaskContainer.registerSendSlackChangelogTask(
+private fun Project.registerSendSlackChangelogTask(
     botConfig: SlackBotConfig,
     changelogConfig: SlackChangelogConfig,
     params: SlackChangelogTaskParams,
 ): TaskProvider<SendSlackChangelogTask> {
-    return register(
+    return tasks.register(
         "$SEND_SLACK_CHANGELOG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         SendSlackChangelogTask::class.java,
     ) {
+
+        val webhookService = extensions
+            .getByType(SlackServiceExtension::class.java)
+            .webhookServices
+            .flatMapByNameOrDefault(params.buildVariant.name)
+
         it.changelogFile.set(params.generateChangelogFileProvider)
         it.tagBuildFile.set(params.tagBuildProvider)
         it.issueUrlPrefix.set(params.issueUrlPrefix)
         it.issueNumberPattern.set(params.issueNumberPattern)
         it.baseOutputFileName.set(params.baseFileName)
-        it.webhookUrl.set(botConfig.webhookUrl)
         it.iconUrl.set(botConfig.iconUrl)
         it.userMentions.set(changelogConfig.userMentions)
         it.attachmentColor.set(changelogConfig.attachmentColor)
+        it.networkService.set(webhookService)
     }
 }
 
-private fun TaskContainer.registerSlackDistributionTask(
+private fun Project.registerSlackDistributionTask(
     distributionConfig: SlackDistributionConfig,
     params: SlackDistributionTasksParams,
 ): TaskProvider<SlackDistributionTask> {
-    return register(
+    return tasks.register(
         "$SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         SlackDistributionTask::class.java,
     ) {
+
+        val uploadService = extensions
+            .getByType(SlackServiceExtension::class.java)
+            .uploadServices
+            .flatMapByNameOrDefault(params.buildVariant.name)
+
         it.buildVariantOutputFile.set(params.apkOutputFileProvider)
-        it.apiTokenFile.set(distributionConfig.uploadApiTokenFile)
         it.channels.set(distributionConfig.uploadChannels)
         it.tagBuildFile.set(params.tagBuildProvider)
         it.baseOutputFileName.set(params.baseFileName)
+        it.networkService.set(uploadService)
     }
 }
 

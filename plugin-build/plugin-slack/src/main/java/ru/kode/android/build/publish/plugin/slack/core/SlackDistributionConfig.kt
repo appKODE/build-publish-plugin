@@ -12,7 +12,6 @@ interface SlackDistributionConfig {
     /**
      * Api token file to upload files in slack
      */
-    @get:Optional
     @get:InputFile
     val uploadApiTokenFile: RegularFileProperty
 
