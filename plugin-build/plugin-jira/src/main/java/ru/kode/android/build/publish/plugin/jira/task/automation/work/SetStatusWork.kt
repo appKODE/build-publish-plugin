@@ -14,7 +14,7 @@ interface SetStatusParameters : WorkParameters {
     val networkService: Property<JiraNetworkService>
 }
 
-abstract class SetStatusWork : WorkAction<SetStatusParameters> {
+internal abstract class SetStatusWork : WorkAction<SetStatusParameters> {
     private val logger = Logging.getLogger(this::class.java)
 
     override fun execute() {

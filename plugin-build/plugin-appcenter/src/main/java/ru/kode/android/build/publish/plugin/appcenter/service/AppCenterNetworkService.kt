@@ -1,10 +1,15 @@
-package ru.kode.android.build.publish.plugin.appcenter.task.distribution.uploader
+package ru.kode.android.build.publish.plugin.appcenter.service
 
 import com.squareup.moshi.Moshi
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
+import org.gradle.api.provider.Property
+import org.gradle.api.services.BuildService
+import org.gradle.api.services.BuildServiceParameters
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.kode.android.build.publish.plugin.appcenter.task.distribution.api.AppCenterApi
@@ -21,52 +26,81 @@ import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
 import java.io.File
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-internal class AppCenterUploader(
-    private val ownerName: String,
-    private val appName: String,
-    logger: Logger,
-    token: String,
-) {
-    private val client =
-        OkHttpClient.Builder()
-            .connectTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-            .readTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-            .writeTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-            .addInterceptor(AttachTokenInterceptor(token))
-            .addProxyIfAvailable()
-            .apply {
-                val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-                loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-                addNetworkInterceptor(loggingInterceptor)
-            }
-            .build()
+private const val API_BASE_URL = "https://api.appcenter.ms/v0.1/"
+private const val HTTP_CONNECT_TIMEOUT_SEC = 60L
 
-    private val moshi = Moshi.Builder().build()
+abstract class AppCenterNetworkService @Inject constructor() : BuildService<AppCenterNetworkService.Params> {
 
-    private inline fun <reified T> createApi(baseUrl: String): T {
-        return Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .client(client)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-            .create(T::class.java)
+    interface Params : BuildServiceParameters {
+        val token: RegularFileProperty
+        val ownerName: Property<String>
     }
 
-    private val api = createApi<AppCenterApi>("https://api.appcenter.ms/v0.1/")
+    internal abstract val okHttpClientProperty: Property<OkHttpClient>
+    internal abstract val apiProperty: Property<AppCenterApi>
+    internal abstract val retrofitBuilderProperty: Property<Retrofit.Builder>
+    internal abstract val uploadApiProperty: Property<AppCenterUploadApi>
+    internal abstract val appNameProperty: Property<String>
 
-    private var _uploadApi: AppCenterUploadApi? = null
+    init {
+        okHttpClientProperty.set(
+            parameters.token.map { token ->
+                OkHttpClient.Builder()
+                    .connectTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+                    .readTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+                    .writeTimeout(HTTP_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+                    .addInterceptor(AttachTokenInterceptor(token.asFile.readText()))
+                    .addProxyIfAvailable()
+                    .apply {
+                        val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
+                        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+                        addNetworkInterceptor(loggingInterceptor)
+                    }
+                    .build()
+            }
+        )
+        retrofitBuilderProperty.set(
+            okHttpClientProperty.map { client ->
+                val moshi = Moshi.Builder().build()
+                Retrofit.Builder()
+                    .client(client)
+                    .addConverterFactory(MoshiConverterFactory.create(moshi))
+            }
+        )
+        apiProperty.set(
+            retrofitBuilderProperty.map {
+                it.baseUrl(API_BASE_URL).build().create(AppCenterApi::class.java)
+            }
+        )
+    }
+
+    private val api: AppCenterApi
+        get() = apiProperty.get()
 
     private val uploadApi: AppCenterUploadApi
-        get() {
-            return _uploadApi ?: error("upload api is not initialized")
-        }
+        get() = uploadApiProperty.get()
 
-    fun initUploadApi(uploadDomain: String) {
-        _uploadApi = createApi<AppCenterUploadApi>(uploadDomain)
+    private val ownerName: String
+        get() = parameters.ownerName.get()
+
+    private val appName: String
+        get() = appNameProperty.get()
+
+    internal fun initUploadApi(uploadDomain: String) {
+        uploadApiProperty.set(
+            retrofitBuilderProperty.map {
+                it.baseUrl(uploadDomain).build().create(AppCenterUploadApi::class.java)
+            }
+        )
     }
 
-    fun prepareRelease(
+    internal fun initAppName(appName: String) {
+        appNameProperty.set(appName)
+    }
+
+    internal fun prepareRelease(
         buildVersion: String,
         buildNumber: String,
     ): PrepareResponse {
@@ -74,7 +108,7 @@ internal class AppCenterUploader(
         return api.prepareRelease(ownerName, appName, request).executeOrThrow()
     }
 
-    fun sendMetaData(
+    internal fun sendMetaData(
         apkFile: File,
         packageAssetId: String,
         encodedToken: String,
@@ -94,7 +128,7 @@ internal class AppCenterUploader(
         return response
     }
 
-    fun uploadChunk(
+    internal fun uploadChunk(
         packageAssetId: String,
         encodedToken: String,
         chunkNumber: Int,
@@ -105,7 +139,7 @@ internal class AppCenterUploader(
             .executeOrThrow()
     }
 
-    fun sendUploadIsFinished(
+    internal fun sendUploadIsFinished(
         packageAssetId: String,
         encodedToken: String,
     ) {
@@ -114,12 +148,12 @@ internal class AppCenterUploader(
             .executeOrThrow()
     }
 
-    fun commit(preparedUploadId: String) {
+    internal fun commit(preparedUploadId: String) {
         api.commit(ownerName, appName, preparedUploadId, CommitRequest(preparedUploadId))
             .executeOrThrow()
     }
 
-    fun waitingReadyToBePublished(
+    internal fun waitingReadyToBePublished(
         preparedUploadId: String,
         maxRequestCount: Int,
         requestDelayMs: Long,
@@ -139,7 +173,7 @@ internal class AppCenterUploader(
         return api.getUpload(ownerName, appName, preparedUploadId).executeOrThrow()
     }
 
-    fun distribute(
+    internal fun distribute(
         releaseId: String,
         distributionGroups: Set<String>,
         releaseNotes: String,
@@ -150,6 +184,10 @@ internal class AppCenterUploader(
                 release_notes = releaseNotes,
             )
         api.distribute(ownerName, appName, releaseId, request).executeOrThrow()
+    }
+
+    companion object {
+        private val logger: Logger = Logging.getLogger(AppCenterNetworkService::class.java)
     }
 }
 
@@ -167,5 +205,3 @@ private class AttachTokenInterceptor(
         return chain.proceed(newRequest)
     }
 }
-
-private const val HTTP_CONNECT_TIMEOUT_SEC = 60L

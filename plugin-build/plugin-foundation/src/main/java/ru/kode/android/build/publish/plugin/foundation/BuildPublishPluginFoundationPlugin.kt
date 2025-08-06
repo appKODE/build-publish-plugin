@@ -288,8 +288,7 @@ private fun Project.registerChangelogDependentTasks(
         val appCenterDistributionConfig = extension.distribution.getByNameOrRequiredDefault(buildVariant.name)
 
         AppCenterTasksRegistrar.registerDistributionTask(
-            project = this@registerChangelogDependentTasks.tasks,
-            authConfig = appCenterAuthConfig,
+            project = this@registerChangelogDependentTasks,
             distributionConfig = appCenterDistributionConfig,
             params = AppCenterDistributionTaskParams(
                 buildVariant = buildVariant,

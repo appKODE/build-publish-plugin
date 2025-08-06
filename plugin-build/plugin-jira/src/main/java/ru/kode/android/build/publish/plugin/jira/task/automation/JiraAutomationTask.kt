@@ -89,7 +89,7 @@ abstract class JiraAutomationTask
                     .mapTo(mutableSetOf()) { it.groupValues[0] }
 
             if (issues.isEmpty()) {
-                logger.info("issues not found in the changelog, nothing will change: ${networkService.get().api}")
+                logger.info("issues not found in the changelog, nothing will change")
             } else {
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 workQueue.submitUpdateLabelIfPresent(currentBuildTag, issues)

@@ -13,7 +13,7 @@ interface AddFixVersionParameters : WorkParameters {
     val networkService: Property<JiraNetworkService>
 }
 
-abstract class AddFixVersionWork : WorkAction<AddFixVersionParameters> {
+internal abstract class AddFixVersionWork : WorkAction<AddFixVersionParameters> {
     @Suppress("SwallowedException") // see logs below
     override fun execute() {
         val service = parameters.networkService.get()

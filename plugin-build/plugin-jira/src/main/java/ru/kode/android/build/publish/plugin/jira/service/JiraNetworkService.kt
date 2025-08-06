@@ -30,8 +30,8 @@ abstract class JiraNetworkService @Inject constructor() : BuildService<JiraNetwo
         val password: Property<String>
     }
 
-    protected abstract val okHttpClientProperty: Property<OkHttpClient>
-    protected abstract val apiProperty: Property<JiraApi>
+    internal abstract val okHttpClientProperty: Property<OkHttpClient>
+    internal abstract val apiProperty: Property<JiraApi>
 
     init {
         okHttpClientProperty.set(
@@ -64,10 +64,7 @@ abstract class JiraNetworkService @Inject constructor() : BuildService<JiraNetwo
         )
     }
 
-    val api: JiraApi
-        get() = apiProperty.get().also {
-            println("baseurl ${parameters.baseUrl.get()}, login ${parameters.username.get()}")
-        }
+    private val api: JiraApi get() = apiProperty.get()
 
     fun setStatus(
         issue: String,

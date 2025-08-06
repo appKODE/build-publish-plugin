@@ -12,7 +12,7 @@ interface AddLabelParameters : WorkParameters {
     val networkService: Property<JiraNetworkService>
 }
 
-abstract class AddLabelWork : WorkAction<AddLabelParameters> {
+internal abstract class AddLabelWork : WorkAction<AddLabelParameters> {
 
     override fun execute() {
         val service = parameters.networkService.get()

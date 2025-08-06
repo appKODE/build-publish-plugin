@@ -4,7 +4,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 @Suppress("ConstructorParameterNaming") // network model
-data class SetStatusRequest(
+internal data class SetStatusRequest(
     val transition: Transition,
 ) {
     @JsonClass(generateAdapter = true)
