@@ -4,8 +4,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.telegram.task.changelog.sender.TelegramWebhookSender
-import java.net.URLEncoder
+import ru.kode.android.build.publish.plugin.telegram.service.TelegramNetworkService
 import javax.inject.Inject
 
 interface SendTelegramChangelogParameters : WorkParameters {
@@ -14,16 +13,14 @@ interface SendTelegramChangelogParameters : WorkParameters {
     val changelog: Property<String>
     val userMentions: Property<String>
     val escapedCharacters: Property<String>
-    val botId: Property<String>
-    val chatId: Property<String>
-    val topicId: Property<String>
+    val networkService: Property<TelegramNetworkService>
 }
 
 abstract class SendTelegramChangelogWork
     @Inject
     constructor() : WorkAction<SendTelegramChangelogParameters> {
         private val logger = Logging.getLogger(this::class.java)
-        private val webhookSender = TelegramWebhookSender(logger)
+        private val service = parameters.networkService.get()
 
         override fun execute() {
             val baseOutputFileName = parameters.baseOutputFileName.get()
@@ -42,24 +39,7 @@ abstract class SendTelegramChangelogWork
                     appendLine()
                     append(parameters.changelog.get())
                 }.formatChangelog()
-
-            val topicId = parameters.topicId.orNull
-            val url =
-                if (topicId.isNullOrEmpty()) {
-                    SEND_MESSAGE_TO_CHAT_WEB_HOOK.format(
-                        parameters.botId.get(),
-                        parameters.chatId.get(),
-                        URLEncoder.encode(message, "utf-8"),
-                    )
-                } else {
-                    SEND_MESSAGE_TO_TOPIC_WEB_HOOK.format(
-                        parameters.botId.get(),
-                        parameters.chatId.get(),
-                        parameters.topicId.get(),
-                        URLEncoder.encode(message, "utf-8"),
-                    )
-                }
-            webhookSender.send(url)
+            service.send(message)
             logger.info("changelog sent to Telegram")
         }
     }
@@ -69,8 +49,3 @@ private fun String.formatChangelog(): String {
         .replace(Regex("(\r\n|\n)"), "\n")
 }
 
-private const val SEND_MESSAGE_TO_CHAT_WEB_HOOK =
-    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2&disable_web_page_preview=true"
-private const val SEND_MESSAGE_TO_TOPIC_WEB_HOOK =
-    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2" +
-        "&disable_web_page_preview=true"
