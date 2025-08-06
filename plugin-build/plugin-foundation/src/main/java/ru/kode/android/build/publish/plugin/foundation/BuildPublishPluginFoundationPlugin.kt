@@ -334,12 +334,10 @@ private fun Project.registerChangelogDependentTasks(
     val clickUpExtension = extensions.findByType(BuildPublishClickUpExtension::class.java)
 
     clickUpExtension?.let { extension ->
-        val clickUpAuthConfig = extension.auth.getByNameOrRequiredDefault(buildVariant.name)
         val clickUpAutomationConfig = extension.automation.getByNameOrRequiredDefault(buildVariant.name)
 
         ClickUpTasksRegistrar.registerAutomationTask(
-            project = this@registerChangelogDependentTasks.tasks,
-            authConfig = clickUpAuthConfig,
+            project = this@registerChangelogDependentTasks,
             automationConfig = clickUpAutomationConfig,
             params = ClickUpAutomationTaskParams(
                 buildVariant = buildVariant,
