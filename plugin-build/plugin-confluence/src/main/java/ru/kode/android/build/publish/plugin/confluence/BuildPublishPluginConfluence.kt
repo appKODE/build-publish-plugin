@@ -2,14 +2,52 @@
 
 package ru.kode.android.build.publish.plugin.confluence
 
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.confluence.extensions.BuildPublishConfluenceExtension
+import ru.kode.android.build.publish.plugin.jira.service.ConfluenceNetworkService
+import ru.kode.android.build.publish.plugin.jira.service.ConfluenceNetworkServiceExtension
 
 private const val EXTENSION_NAME = "buildPublishConfluence"
+private const val NETWORK_SERVICE_NAME = "confluenceNetworkService"
+private const val NETWORK_SERVICE_EXTENSION_NAME = "confluenceNetworkServiceExtension"
 
 abstract class BuildPublishConfluencePlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        project.extensions.create(EXTENSION_NAME, BuildPublishConfluenceExtension::class.java)
+        val extension = project.extensions.create(EXTENSION_NAME, BuildPublishConfluenceExtension::class.java)
+
+        val androidExtension = project.extensions
+            .getByType(ApplicationAndroidComponentsExtension::class.java)
+
+        androidExtension.finalizeDsl {
+            val services: Provider<Map<String, Provider<ConfluenceNetworkService>>> = project.provider {
+                extension.auth.fold(mapOf()) { acc, authConfig ->
+                    val service = project.gradle.sharedServices.registerIfAbsent(
+                        networkServiceName(project, authConfig.name),
+                        ConfluenceNetworkService::class.java,
+                        {
+                            it.maxParallelUsages.set(1)
+                            it.parameters.password.set(authConfig.password)
+                            it.parameters.username.set(authConfig.username)
+                            it.parameters.baseUrl.set(authConfig.baseUrl)
+                        }
+                    )
+                    acc.toMutableMap().apply {
+                        put(authConfig.name, service)
+                    }
+                }
+            }
+            project.extensions.create(
+                NETWORK_SERVICE_EXTENSION_NAME,
+                ConfluenceNetworkServiceExtension::class.java,
+                services
+            )
+        }
     }
+}
+
+private fun networkServiceName(project: Project, buildName: String): String {
+    return "${NETWORK_SERVICE_NAME}_${project.name}_${buildName}"
 }

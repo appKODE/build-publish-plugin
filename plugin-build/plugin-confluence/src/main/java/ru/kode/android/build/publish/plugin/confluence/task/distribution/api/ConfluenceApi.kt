@@ -15,14 +15,12 @@ interface ConfluenceApi {
     @POST("rest/api/content/{pageId}/child/attachment")
     fun uploadAttachment(
         @Path("pageId") pageId: String,
-        @Header("Authorization") authHeader: String,
         @Header("X-Atlassian-Token") atlassianToken: String = "no-check",
         @Part file: MultipartBody.Part,
     ): Call<Unit>
 
     @POST("rest/api/content")
     fun addComment(
-        @Header("Authorization") authHeader: String,
         @Header("Content-Type") contentType: String = "application/json",
         @Body commentRequest: AddCommentRequest,
     ): Call<Unit>

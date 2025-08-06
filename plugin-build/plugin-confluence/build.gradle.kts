@@ -14,6 +14,7 @@ dependencies {
     implementation(libs.moshi)
     implementation(libs.retrofit)
     implementation(libs.retrofitMoshi)
+    implementation(libs.agp)
 
     testImplementation(libs.junit)
 
