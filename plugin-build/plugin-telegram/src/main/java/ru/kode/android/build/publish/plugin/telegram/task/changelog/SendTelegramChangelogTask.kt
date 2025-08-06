@@ -7,12 +7,13 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.mapper.fromJson
+import ru.kode.android.build.publish.plugin.telegram.service.TelegramNetworkService
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.work.SendTelegramChangelogWork
 import javax.inject.Inject
 
@@ -25,6 +26,10 @@ abstract class SendTelegramChangelogTask
             description = "Task to send changelog for Telegram"
             group = BasePlugin.BUILD_GROUP
         }
+
+        @get:Internal
+        abstract val networkService: Property<TelegramNetworkService>
+
 
         @get:InputFile
         @get:Option(option = "changelogFile", description = "File with saved changelog")
@@ -54,31 +59,6 @@ abstract class SendTelegramChangelogTask
             description = "How task number formatted",
         )
         abstract val issueNumberPattern: Property<String>
-
-        @get:Input
-        @get:Option(option = "botId", description = "Bot id where webhook posted")
-        abstract val botId: Property<String>
-
-        @get:Input
-        @get:Option(option = "botBaseUrl", description = "Bot server base url")
-        abstract val botBaseUrl: Property<String>
-
-        @get:Input
-        @get:Option(option = "botBaseUrl", description = "Bot server auth username")
-        abstract val botAuthUsername: Property<String>
-
-        @get:Input
-        @get:Option(option = "botAuthPassword", description = "Bot server auth password")
-        abstract val botAuthPassword: Property<String>
-
-        @get:Input
-        @get:Option(option = "chatId", description = "Chat id where webhook posted")
-        abstract val chatId: Property<String>
-
-        @get:Input
-        @get:Optional
-        @get:Option(option = "topicId", description = "Unique identifier for the target message thread")
-        abstract val topicId: Property<String>
 
         @get:Input
         @get:Option(option = "userMentions", description = "User tags to mention in chat")
@@ -137,12 +117,7 @@ abstract class SendTelegramChangelogTask
                 parameters.changelog.set(changelog)
                 parameters.userMentions.set(userMentions)
                 parameters.escapedCharacters.set(escapedCharacters)
-                parameters.botId.set(botId)
-                parameters.botBaseUrl.set(botBaseUrl)
-                parameters.botAuthUsername.set(botAuthUsername)
-                parameters.botAuthPassword.set(botAuthPassword)
-                parameters.chatId.set(chatId)
-                parameters.topicId.set(topicId)
+                parameters.networkService.set(networkService)
             }
         }
 

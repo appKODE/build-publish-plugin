@@ -194,14 +194,12 @@ private fun Project.registerChangelogDependentTasks(
     val issueNumberPattern = changelogConfig.issueNumberPattern
 
     telegramExtension?.let { extension ->
-        val telegramBotConfig = extension.bot.getByNameOrRequiredDefault(buildVariant.name)
         val telegramChangelogConfig = extension.changelog.getByNameOrNullableDefault(buildVariant.name)
         val telegramDistributionConfig = extension.distribution.getByNameOrNullableDefault(buildVariant.name)
 
         if (telegramChangelogConfig != null) {
             TelegramTasksRegistrar.registerChangelogTask(
-                project = this@registerChangelogDependentTasks.tasks,
-                botConfig = telegramBotConfig,
+                project = this@registerChangelogDependentTasks,
                 changelogConfig = telegramChangelogConfig,
                 params = TelegramChangelogTaskParams(
                     baseFileName = outputConfig.baseFileName,
@@ -215,8 +213,7 @@ private fun Project.registerChangelogDependentTasks(
         }
         if (telegramDistributionConfig != null) {
             TelegramTasksRegistrar.registerDistributionTask(
-                project = this@registerChangelogDependentTasks.tasks,
-                botConfig = telegramBotConfig,
+                project = this@registerChangelogDependentTasks,
                 distributionConfig = telegramDistributionConfig,
                 params = TelegramDistributionTasksParams(
                     baseFileName = outputConfig.baseFileName,
@@ -232,6 +229,7 @@ private fun Project.registerChangelogDependentTasks(
 
     confluenceExtension?.let { extension ->
         val confluenceDistributionConfig = extension.distribution.getByNameOrRequiredDefault(buildVariant.name)
+
         ConfluenceTasksRegistrar.registerDistributionTask(
             project = this@registerChangelogDependentTasks,
             distributionConfig = confluenceDistributionConfig,
@@ -282,7 +280,6 @@ private fun Project.registerChangelogDependentTasks(
     val appCenterExtension = extensions.findByType(BuildPublishAppCenterExtension::class.java)
 
     appCenterExtension?.let { extension ->
-        val appCenterAuthConfig = extension.auth.getByNameOrRequiredDefault(buildVariant.name)
         val appCenterDistributionConfig = extension.distribution.getByNameOrRequiredDefault(buildVariant.name)
 
         AppCenterTasksRegistrar.registerDistributionTask(
@@ -302,6 +299,7 @@ private fun Project.registerChangelogDependentTasks(
 
     playExtension?.let { extension ->
         val playDistributionConfig = extension.distribution.getByNameOrRequiredDefault(buildVariant.name)
+
         PlayTasksRegistrar.registerDistributionTask(
             project = this@registerChangelogDependentTasks.tasks,
             distributionConfig = playDistributionConfig,
