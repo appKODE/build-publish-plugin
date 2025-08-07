@@ -20,7 +20,16 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = ("ru.kode.android.build.publish.plugin")
+rootProject.name = ("ru.kode.android.build.publish.novo.plugin")
 
-include(":plugin")
+include(":plugin-foundation")
+include(":plugin-core")
+include(":plugin-telegram")
+include(":plugin-slack")
+include(":plugin-appcenter")
+include(":plugin-clickup")
+include(":plugin-jira")
+include(":plugin-play")
+include(":plugin-confluence")
+include(":plugin-firebase")
 includeBuild("../build-conventions")
