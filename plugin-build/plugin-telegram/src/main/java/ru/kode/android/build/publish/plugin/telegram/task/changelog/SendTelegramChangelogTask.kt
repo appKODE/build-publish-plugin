@@ -30,7 +30,6 @@ abstract class SendTelegramChangelogTask
         @get:Internal
         abstract val networkService: Property<TelegramNetworkService>
 
-
         @get:InputFile
         @get:Option(option = "changelogFile", description = "File with saved changelog")
         abstract val changelogFile: RegularFileProperty

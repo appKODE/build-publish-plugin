@@ -11,9 +11,10 @@ abstract class GitExecutorServicePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.pluginManager.apply(GrgitServicePlugin::class.java)
 
-        val grGitService = project.extensions
-            .getByType(GrgitServiceExtension::class.java)
-            .service
+        val grGitService =
+            project.extensions
+                .getByType(GrgitServiceExtension::class.java)
+                .service
 
         project.gradle.sharedServices.registerIfAbsent(
             "${GIT_EXECUTOR_SERVICE_NAME}_{${project.name}}",
@@ -21,7 +22,7 @@ abstract class GitExecutorServicePlugin : Plugin<Project> {
             {
                 it.maxParallelUsages.set(1)
                 it.parameters.grgitService.set(grGitService)
-            }
+            },
         )
     }
 }

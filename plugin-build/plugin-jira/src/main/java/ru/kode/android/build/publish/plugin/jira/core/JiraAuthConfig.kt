@@ -14,5 +14,4 @@ interface JiraAuthConfig {
 
     @get:Input
     val authPassword: Property<String>
-
 }

@@ -28,7 +28,6 @@ abstract class PlayDistributionTask
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
-
         init {
             description = "Task to send apk to Google Play"
             group = BasePlugin.BUILD_GROUP
@@ -48,7 +47,6 @@ abstract class PlayDistributionTask
         @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
         abstract val tagBuildFile: RegularFileProperty
 
-
         @get:Input
         @get:Option(
             option = "trackId",
@@ -67,7 +65,11 @@ abstract class PlayDistributionTask
         @TaskAction
         fun upload() {
             val outputFile = buildVariantOutputFile.asFile.get()
-            if (outputFile.extension != "aab") throw GradleException("file ${outputFile.path} is not bundle, not possible to deploy it to Google Play")
+            if (outputFile.extension != "aab") {
+                throw GradleException(
+                    "file ${outputFile.path} is not bundle, not possible to deploy it to Google Play",
+                )
+            }
             val tag = fromJson(tagBuildFile.asFile.get())
             val releaseName = "${tag.name}(${tag.buildVersion}.${tag.buildNumber})"
             val trackId = trackId.orNull ?: "internal"

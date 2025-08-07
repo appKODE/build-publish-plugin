@@ -19,5 +19,4 @@ interface PlayAuth {
      */
     @get:Input
     val appId: Property<String>
-
 }

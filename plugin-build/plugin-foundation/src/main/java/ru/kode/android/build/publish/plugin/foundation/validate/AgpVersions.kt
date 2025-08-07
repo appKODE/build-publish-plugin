@@ -1,10 +1,10 @@
 package ru.kode.android.build.publish.plugin.foundation.validate
 
 import com.android.build.gradle.AppPlugin
-import org.gradle.util.internal.VersionNumber
 import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
+import org.gradle.util.internal.VersionNumber
 
 internal object AgpVersions {
     val CURRENT: VersionNumber = VersionNumber.parse(ANDROID_GRADLE_PLUGIN_VERSION).baseVersion

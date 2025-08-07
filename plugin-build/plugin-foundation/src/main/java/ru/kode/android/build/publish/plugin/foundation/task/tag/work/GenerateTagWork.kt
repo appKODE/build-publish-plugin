@@ -29,16 +29,17 @@ abstract class GenerateTagWork
         override fun execute() {
             val buildVariant = parameters.buildVariant.get()
             val buildTagPattern = parameters.buildTagPattern.get()
-            val buildTag = parameters.gitExecutorService.get()
-                .repository
-                .findRecentBuildTag(buildVariant, buildTagPattern)
+            val buildTag =
+                parameters.gitExecutorService.get()
+                    .repository
+                    .findRecentBuildTag(buildVariant, buildTagPattern)
             val tagBuildOutput = parameters.tagBuildFile.asFile.get()
             val useStubsForTagAsFallback = parameters.useStubsForTagAsFallback.get()
 
             if (buildTag != null) {
                 logger.info(
                     "last tag ${buildTag.name}, build number ${buildTag.buildNumber} was found, " +
-                        "and tag build file is generated"
+                        "and tag build file is generated",
                 )
                 tagBuildOutput.writeText(buildTag.toJson())
             } else if (useStubsForTagAsFallback) {
@@ -49,19 +50,20 @@ abstract class GenerateTagWork
                         message = "WARNING: Not real tag, not use it for release",
                         buildVersion = DEFAULT_BUILD_VERSION,
                         buildVariant = buildVariant,
-                        buildNumber = DEFAULT_VERSION_CODE
-                    ).toJson()
+                        buildNumber = DEFAULT_VERSION_CODE,
+                    ).toJson(),
                 )
             } else {
                 logger.info(
-                    "build tag file not created for '${buildVariant}' build variant. " +
-                        "Maybe pattern is wrong, or tag not exists, or tag was not fetched"
+                    "build tag file not created for '$buildVariant' build variant. " +
+                        "Maybe pattern is wrong, or tag not exists, or tag was not fetched",
                 )
                 throw GradleException(
-                    "There is no last tag for '$buildVariant' build variant which matches `$buildTagPattern` pattern. \n" +
+                    "There is no last tag for '$buildVariant' build variant which " +
+                        "matches `$buildTagPattern` pattern. \n" +
                         "It's a crucial file for all other tasks. without it nothing will work. \n" +
                         "Check that tag for that build variant exists, if not - create it. \n" +
-                        "If it exists, try to rerun task with --info property and debug it"
+                        "If it exists, try to rerun task with --info property and debug it",
                 )
             }
         }

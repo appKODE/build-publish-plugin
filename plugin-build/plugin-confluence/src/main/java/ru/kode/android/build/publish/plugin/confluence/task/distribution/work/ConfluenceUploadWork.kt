@@ -5,8 +5,8 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceNetworkService
 import ru.kode.android.build.publish.plugin.core.util.UploadStreamTimeoutException
-import ru.kode.android.build.publish.plugin.jira.service.ConfluenceNetworkService
 
 interface ConfluenceUploadParameters : WorkParameters {
     val outputFile: RegularFileProperty

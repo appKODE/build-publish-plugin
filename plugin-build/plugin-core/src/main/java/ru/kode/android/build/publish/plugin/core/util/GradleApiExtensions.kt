@@ -13,41 +13,34 @@ const val DEFAULT_CONTAINER_NAME = "default"
 
 inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrRequiredDefault(
     name: String,
-    defaultName: String = DEFAULT_CONTAINER_NAME
+    defaultName: String = DEFAULT_CONTAINER_NAME,
 ): T {
     return findByName(name) ?: getByName(defaultName)
 }
 
 inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrNullableDefault(
     name: String,
-    defaultName: String = DEFAULT_CONTAINER_NAME
+    defaultName: String = DEFAULT_CONTAINER_NAME,
 ): T? {
     return findByName(name) ?: findByName(defaultName)
 }
 
-inline fun <reified T> NamedDomainObjectContainer<T>.getDefault(
-    defaultName: String = DEFAULT_CONTAINER_NAME
-): T? {
+inline fun <reified T> NamedDomainObjectContainer<T>.getDefault(defaultName: String = DEFAULT_CONTAINER_NAME): T? {
     return findByName(defaultName)
 }
 
 @Throws(InvalidUserDataException::class)
-fun <T> PolymorphicDomainObjectContainer<T>.createDefault(
-    configurationAction: Action<in T>
-): NamedDomainObjectProvider<T> {
+@Suppress("MaxLineLength") // One parameter function
+fun <T> PolymorphicDomainObjectContainer<T>.createDefault(configurationAction: Action<in T>): NamedDomainObjectProvider<T> {
     return this.register(DEFAULT_CONTAINER_NAME, configurationAction)
 }
 
 @Throws(InvalidUserDataException::class)
-fun <T> NamedDomainObjectContainer<T>.createDefault(
-    configurationAction: Action<in T>
-): NamedDomainObjectProvider<T> {
+fun <T> NamedDomainObjectContainer<T>.createDefault(configurationAction: Action<in T>): NamedDomainObjectProvider<T> {
     return this.register(DEFAULT_CONTAINER_NAME, configurationAction)
 }
 
-inline fun <reified T> Provider<Map<String, Provider<T>>>.flatMapByNameOrDefault(
-    name: String
-): Provider<T> {
+inline fun <reified T> Provider<Map<String, Provider<T>>>.flatMapByNameOrDefault(name: String): Provider<T> {
     return this.flatMap { providers ->
         providers[name]
             ?: providers[DEFAULT_CONTAINER_NAME]
@@ -57,7 +50,7 @@ inline fun <reified T> Provider<Map<String, Provider<T>>>.flatMapByNameOrDefault
 
 fun Project.serviceName(
     serviceName: String,
-    buildName: String
+    buildName: String,
 ): String {
-    return "${serviceName}_${name}_${buildName}"
+    return "${serviceName}_${name}_$buildName"
 }

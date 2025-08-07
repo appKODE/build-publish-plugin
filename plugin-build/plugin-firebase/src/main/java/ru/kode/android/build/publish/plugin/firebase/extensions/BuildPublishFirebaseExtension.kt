@@ -11,12 +11,10 @@ import javax.inject.Inject
 abstract class BuildPublishFirebaseExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BaseExtension() {
-
         val distribution: NamedDomainObjectContainer<FirebaseDistributionConfig> =
             objectFactory.domainObjectContainer(FirebaseDistributionConfig::class.java)
 
         fun distributionDefault(configurationAction: Action<FirebaseDistributionConfig>) {
             prepareDefault(distribution, configurationAction)
         }
-
     }

@@ -2,14 +2,14 @@ package ru.kode.android.build.publish.plugin.telegram.task
 
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrDefault
-import ru.kode.android.build.publish.plugin.telegram.core.TelegramBotConfig
 import ru.kode.android.build.publish.plugin.telegram.core.TelegramChangelogConfig
 import ru.kode.android.build.publish.plugin.telegram.core.TelegramDistributionConfig
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramNetworkServiceExtension
@@ -20,11 +20,12 @@ internal const val SEND_TELEGRAM_CHANGELOG_TASK_PREFIX = "sendTelegramChangelog"
 internal const val TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX = "telegramDistributionUpload"
 
 object TelegramTasksRegistrar {
+    private val logger: Logger = Logging.getLogger(this::class.java)
 
     fun registerChangelogTask(
         project: Project,
         changelogConfig: TelegramChangelogConfig,
-        params: TelegramChangelogTaskParams
+        params: TelegramChangelogTaskParams,
     ): TaskProvider<SendTelegramChangelogTask> {
         return project.registerSendTelegramChangelogTask(changelogConfig, params)
     }
@@ -32,12 +33,14 @@ object TelegramTasksRegistrar {
     fun registerDistributionTask(
         project: Project,
         distributionConfig: TelegramDistributionConfig,
-        params: TelegramDistributionTasksParams
+        params: TelegramDistributionTaskParams,
     ): TaskProvider<TelegramDistributionTask>? {
         return if (distributionConfig.uploadBuild.orNull == true) {
             project.registerTelegramUploadTask(params)
         } else {
-            // TODO: Add logs
+            logger.info(
+                "TelegramDistributionTask was not created, uploadBuild is not present or false",
+            )
             null
         }
     }
@@ -45,17 +48,17 @@ object TelegramTasksRegistrar {
 
 private fun Project.registerSendTelegramChangelogTask(
     changelogConfig: TelegramChangelogConfig,
-    params: TelegramChangelogTaskParams
+    params: TelegramChangelogTaskParams,
 ): TaskProvider<SendTelegramChangelogTask> {
     return tasks.register(
         "$SEND_TELEGRAM_CHANGELOG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         SendTelegramChangelogTask::class.java,
     ) {
-
-        val networkService = project.extensions
-            .getByType(TelegramNetworkServiceExtension::class.java)
-            .services
-            .flatMapByNameOrDefault(params.buildVariant.name)
+        val networkService =
+            project.extensions
+                .getByType(TelegramNetworkServiceExtension::class.java)
+                .services
+                .flatMapByNameOrDefault(params.buildVariant.name)
 
         it.changelogFile.set(params.generateChangelogFileProvider)
         it.tagBuildFile.set(params.tagBuildProvider)
@@ -67,17 +70,17 @@ private fun Project.registerSendTelegramChangelogTask(
     }
 }
 
-private fun Project.registerTelegramUploadTask(
-    params: TelegramDistributionTasksParams,
-): TaskProvider<TelegramDistributionTask> {
+@Suppress("MaxLineLength") // One parameter function
+private fun Project.registerTelegramUploadTask(params: TelegramDistributionTaskParams): TaskProvider<TelegramDistributionTask> {
     return tasks.register(
         "$TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         TelegramDistributionTask::class.java,
     ) {
-        val networkService = project.extensions
-            .getByType(TelegramNetworkServiceExtension::class.java)
-            .services
-            .flatMapByNameOrDefault(params.buildVariant.name)
+        val networkService =
+            project.extensions
+                .getByType(TelegramNetworkServiceExtension::class.java)
+                .services
+                .flatMapByNameOrDefault(params.buildVariant.name)
 
         it.buildVariantOutputFile.set(params.apkOutputFileProvider)
         it.networkService.set(networkService)
@@ -93,7 +96,7 @@ data class TelegramChangelogTaskParams(
     val tagBuildProvider: Provider<RegularFile>,
 )
 
-data class TelegramDistributionTasksParams(
+data class TelegramDistributionTaskParams(
     val baseFileName: Property<String>,
     val buildVariant: BuildVariant,
     val tagBuildProvider: Provider<RegularFile>,

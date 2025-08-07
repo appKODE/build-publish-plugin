@@ -26,7 +26,7 @@ abstract class PlayUploadWork : WorkAction<PlayUploadParameters> {
             file = file,
             trackId = track,
             priority = priority,
-            releaseName = releaseName
+            releaseName = releaseName,
         )
     }
 }

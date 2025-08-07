@@ -24,4 +24,4 @@ abstract class BuildPublishJiraExtension
         fun automationDefault(configurationAction: Action<JiraAutomationConfig>) {
             prepareDefault(automation, configurationAction)
         }
-}
+    }

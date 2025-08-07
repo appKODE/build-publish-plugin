@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.jira.service
+package ru.kode.android.build.publish.plugin.confluence.service
 
 import com.squareup.moshi.Moshi
 import okhttp3.Credentials
@@ -6,6 +6,7 @@ import okhttp3.Interceptor
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -25,91 +26,91 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-abstract class ConfluenceNetworkService @Inject constructor() : BuildService<ConfluenceNetworkService.Params> {
+abstract class ConfluenceNetworkService
+    @Inject
+    constructor() : BuildService<ConfluenceNetworkService.Params> {
+        interface Params : BuildServiceParameters {
+            val baseUrl: Property<String>
+            val username: Property<String>
+            val password: Property<String>
+        }
 
-    interface Params : BuildServiceParameters {
-        val baseUrl: Property<String>
-        val username: Property<String>
-        val password: Property<String>
-    }
+        internal abstract val okHttpClientProperty: Property<OkHttpClient>
+        internal abstract val apiProperty: Property<ConfluenceApi>
 
-    internal abstract val okHttpClientProperty: Property<OkHttpClient>
-    internal abstract val apiProperty: Property<ConfluenceApi>
-
-    init {
-        okHttpClientProperty.set(
-            parameters.username.zip(parameters.password) { username, password ->
-                OkHttpClient.Builder()
-                    .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-                    .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-                    .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-                    .addInterceptor(AttachTokenInterceptor(username, password))
-                    .addProxyIfAvailable()
-                    .apply {
-                        val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-                        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-                        addNetworkInterceptor(loggingInterceptor)
-                    }
-                    .build()
-
-            }
-        )
-        apiProperty.set(
-            okHttpClientProperty.zip(parameters.baseUrl) { client, baseUrl ->
-                val moshi = Moshi.Builder().build()
-                Retrofit.Builder()
-                    .baseUrl(baseUrl)
-                    .client(client)
-                    .addConverterFactory(MoshiConverterFactory.create(moshi))
-                    .build()
-                    .create(ConfluenceApi::class.java)
-            }
-        )
-    }
-
-    private val api: ConfluenceApi get() = apiProperty.get()
-    private val baseUrl: String = parameters.baseUrl.get()
-
-    fun uploadFile(
-        pageId: String,
-        file: File,
-    ) {
-        val filePart =
-            MultipartBody.Part.createFormData(
-                "file",
-                file.name,
-                file.asRequestBody(),
+        init {
+            okHttpClientProperty.set(
+                parameters.username.zip(parameters.password) { username, password ->
+                    OkHttpClient.Builder()
+                        .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+                        .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+                        .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+                        .addInterceptor(AttachTokenInterceptor(username, password))
+                        .addProxyIfAvailable()
+                        .apply {
+                            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
+                            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+                            addNetworkInterceptor(loggingInterceptor)
+                        }
+                        .build()
+                },
             )
-        api.uploadAttachment(
-            pageId = pageId,
-            file = filePart,
-        ).executeOrThrow()
-    }
+            apiProperty.set(
+                okHttpClientProperty.zip(parameters.baseUrl) { client, baseUrl ->
+                    val moshi = Moshi.Builder().build()
+                    Retrofit.Builder()
+                        .baseUrl(baseUrl)
+                        .client(client)
+                        .addConverterFactory(MoshiConverterFactory.create(moshi))
+                        .build()
+                        .create(ConfluenceApi::class.java)
+                },
+            )
+        }
 
-    fun addComment(
-        pageId: String,
-        fileName: String,
-    ) {
-        val comment = "<a href=\"$baseUrl/download/attachments/$pageId/$fileName\">$fileName</a>"
-        api.addComment(
-            commentRequest =
-                AddCommentRequest(
-                    container = Container(pageId),
-                    body = Body(Storage(comment)),
-                ),
-        ).executeOrThrow()
-    }
+        private val api: ConfluenceApi get() = apiProperty.get()
+        private val baseUrl: String = parameters.baseUrl.get()
 
-    companion object {
-        private val logger: Logger = Logging.getLogger(ConfluenceNetworkService::class.java)
+        fun uploadFile(
+            pageId: String,
+            file: File,
+        ) {
+            val filePart =
+                MultipartBody.Part.createFormData(
+                    "file",
+                    file.name,
+                    file.asRequestBody(),
+                )
+            api.uploadAttachment(
+                pageId = pageId,
+                file = filePart,
+            ).executeOrThrow()
+        }
+
+        fun addComment(
+            pageId: String,
+            fileName: String,
+        ) {
+            val comment = "<a href=\"$baseUrl/download/attachments/$pageId/$fileName\">$fileName</a>"
+            api.addComment(
+                commentRequest =
+                    AddCommentRequest(
+                        container = Container(pageId),
+                        body = Body(Storage(comment)),
+                    ),
+            ).executeOrThrow()
+        }
+
+        companion object {
+            private val logger: Logger = Logging.getLogger(ConfluenceNetworkService::class.java)
+        }
     }
-}
 
 private class AttachTokenInterceptor(
     private val username: String,
     private val password: String,
 ) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
+    override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
         val newRequest =
             originalRequest.newBuilder()

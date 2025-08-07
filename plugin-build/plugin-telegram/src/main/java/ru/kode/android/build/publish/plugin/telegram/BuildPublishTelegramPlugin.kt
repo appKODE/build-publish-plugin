@@ -19,32 +19,34 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create(EXTENSION_NAME, BuildPublishTelegramExtension::class.java)
 
-        val androidExtension = project.extensions
-            .getByType(ApplicationAndroidComponentsExtension::class.java)
+        val androidExtension =
+            project.extensions
+                .getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
-            val services: Provider<Map<String, Provider<TelegramNetworkService>>> = project.provider {
-                extension.bot.fold(mapOf()) { acc, authConfig ->
-                    val service = project.gradle.sharedServices.registerIfAbsent(
-                        project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),
-                        TelegramNetworkService::class.java
-                    ) {
-                        it.maxParallelUsages.set(1)
-                        it.parameters.botId.set(authConfig.botId)
-                        it.parameters.chatId.set(authConfig.chatId)
-                        it.parameters.topicId.set(authConfig.topicId)
-                    }
-                    acc.toMutableMap().apply {
-                        put(authConfig.name, service)
+            val services: Provider<Map<String, Provider<TelegramNetworkService>>> =
+                project.provider {
+                    extension.bot.fold(mapOf()) { acc, authConfig ->
+                        val service =
+                            project.gradle.sharedServices.registerIfAbsent(
+                                project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),
+                                TelegramNetworkService::class.java,
+                            ) {
+                                it.maxParallelUsages.set(1)
+                                it.parameters.botId.set(authConfig.botId)
+                                it.parameters.chatId.set(authConfig.chatId)
+                                it.parameters.topicId.set(authConfig.topicId)
+                            }
+                        acc.toMutableMap().apply {
+                            put(authConfig.name, service)
+                        }
                     }
                 }
-            }
             project.extensions.create(
                 NETWORK_SERVICE_EXTENSION_NAME,
                 TelegramNetworkServiceExtension::class.java,
-                services
+                services,
             )
         }
     }
 }
-

@@ -23,19 +23,19 @@ internal const val DEFAULT_VERSION_NAME = "$DEFAULT_BUILD_VERSION-dev"
 internal const val DEFAULT_VERSION_CODE = 1
 
 object TagTasksRegistrar {
-
     fun registerLastTagTask(
         project: Project,
         params: LastTagTaskParams,
     ): OutputProviders {
-
         val tagBuildProvider = project.registerGetLastTagTask(params)
-        val useVersionsFromTag = params
-            .useVersionsFromTag
-            .get()
-        val useDefaultVersionsAsFallback = params
-            .useDefaultsForVersionsAsFallback
-            .get()
+        val useVersionsFromTag =
+            params
+                .useVersionsFromTag
+                .get()
+        val useDefaultVersionsAsFallback =
+            params
+                .useDefaultsForVersionsAsFallback
+                .get()
         val versionCodeProvider =
             when {
                 useVersionsFromTag -> tagBuildProvider.map(::mapToVersionCode)
@@ -68,21 +68,19 @@ object TagTasksRegistrar {
             versionName = versionNameProvider,
             versionCode = versionCodeProvider,
             apkOutputFileName = apkOutputFileNameProvider,
-            tagBuildProvider = tagBuildProvider
+            tagBuildProvider = tagBuildProvider,
         )
     }
 
     fun registerPrintLastIncreasedTagTask(
         project: Project,
-        params: PrintLastIncreasedTagTaskParams
+        params: PrintLastIncreasedTagTaskParams,
     ): TaskProvider<PrintLastIncreasedTag> {
         return project.tasks.registerPrintLastIncreasedTagTask(params)
     }
 }
 
-private fun Project.registerGetLastTagTask(
-    params: LastTagTaskParams,
-): Provider<RegularFile> {
+private fun Project.registerGetLastTagTask(params: LastTagTaskParams): Provider<RegularFile> {
     val tagBuildFile =
         project.layout.buildDirectory
             .file("tag-build-${params.buildVariant.name}.json")
@@ -97,9 +95,8 @@ private fun Project.registerGetLastTagTask(
     }.flatMap { it.tagBuildFile }
 }
 
-private fun TaskContainer.registerPrintLastIncreasedTagTask(
-    params: PrintLastIncreasedTagTaskParams
-): TaskProvider<PrintLastIncreasedTag> {
+@Suppress("MaxLineLength") // One parameter function
+private fun TaskContainer.registerPrintLastIncreasedTagTask(params: PrintLastIncreasedTagTaskParams): TaskProvider<PrintLastIncreasedTag> {
     return register(
         "$PRINT_LAST_INCREASED_TAG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         PrintLastIncreasedTag::class.java,
@@ -170,7 +167,7 @@ data class LastTagTaskParams(
     val baseFileName: Property<String>,
     val useDefaultsForVersionsAsFallback: Property<Boolean>,
     val useStubsForTagAsFallback: Property<Boolean>,
-    val buildTagPattern: Provider<String>
+    val buildTagPattern: Provider<String>,
 )
 
 data class PrintLastIncreasedTagTaskParams(

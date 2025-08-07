@@ -21,5 +21,4 @@ interface JiraAutomationConfig {
     @get:Input
     @get:Optional
     val resolvedStatusTransitionId: Property<String>
-
 }

@@ -13,10 +13,10 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.clickup.service.ClickUpNetworkService
-import ru.kode.android.build.publish.plugin.core.enity.Tag
-import ru.kode.android.build.publish.plugin.core.mapper.fromJson
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddFixVersionWork
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddTagToTaskWork
+import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.mapper.fromJson
 import javax.inject.Inject
 
 abstract class ClickUpAutomationTask

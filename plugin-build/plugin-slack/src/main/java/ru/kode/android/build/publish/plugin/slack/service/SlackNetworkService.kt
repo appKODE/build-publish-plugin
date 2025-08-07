@@ -17,39 +17,40 @@ import javax.inject.Inject
 
 private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L
 
-abstract class SlackNetworkService @Inject constructor(
-    providerFactory: ProviderFactory
-) : BuildService<BuildServiceParameters.None> {
+abstract class SlackNetworkService
+    @Inject
+    constructor(
+        providerFactory: ProviderFactory,
+    ) : BuildService<BuildServiceParameters.None> {
+        internal abstract val okHttpClientProperty: Property<OkHttpClient>
+        internal abstract val retrofitProperty: Property<Retrofit.Builder>
+        internal abstract val moshiProperty: Property<Moshi>
 
-    internal abstract val okHttpClientProperty: Property<OkHttpClient>
-    internal abstract val retrofitProperty: Property<Retrofit.Builder>
-    internal abstract val moshiProperty: Property<Moshi>
+        init {
+            okHttpClientProperty.set(
+                OkHttpClient.Builder()
+                    .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+                    .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+                    .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+                    .addProxyIfAvailable()
+                    .apply {
+                        val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
+                        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+                        addNetworkInterceptor(loggingInterceptor)
+                    }
+                    .build(),
+            )
+            moshiProperty.set(providerFactory.provider { Moshi.Builder().build() })
+            retrofitProperty.set(
+                okHttpClientProperty.zip(moshiProperty) { client, moshi ->
+                    Retrofit.Builder()
+                        .client(client)
+                        .addConverterFactory(MoshiConverterFactory.create(moshi))
+                },
+            )
+        }
 
-    init {
-        okHttpClientProperty.set(
-            OkHttpClient.Builder()
-                .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-                .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-                .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-                .addProxyIfAvailable()
-                .apply {
-                    val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-                    loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-                    addNetworkInterceptor(loggingInterceptor)
-                }
-                .build()
-        )
-        moshiProperty.set(providerFactory.provider { Moshi.Builder().build() })
-        retrofitProperty.set(
-            okHttpClientProperty.zip(moshiProperty) { client, moshi ->
-                Retrofit.Builder()
-                    .client(client)
-                    .addConverterFactory(MoshiConverterFactory.create(moshi))
-            }
-        )
+        companion object {
+            private val logger: Logger = Logging.getLogger(SlackUploadService::class.java)
+        }
     }
-
-    companion object {
-        private val logger: Logger = Logging.getLogger(SlackUploadService::class.java)
-    }
-}

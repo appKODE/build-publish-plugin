@@ -37,7 +37,7 @@ class GitRepository(
 
     fun markedCommitMessages(
         messageKey: String,
-        tagRange: TagRange
+        tagRange: TagRange,
     ): List<String> {
         return gitCommandExecutor
             .extractMarkedCommitMessages(messageKey, tagRange.asCommitRange())

@@ -11,8 +11,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
+import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceNetworkService
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.work.ConfluenceUploadWork
-import ru.kode.android.build.publish.plugin.jira.service.ConfluenceNetworkService
 import javax.inject.Inject
 
 abstract class ConfluenceDistributionTask
@@ -28,14 +28,12 @@ abstract class ConfluenceDistributionTask
         @get:Internal
         abstract val networkService: Property<ConfluenceNetworkService>
 
-
         @get:InputFile
         @get:Option(
             option = "buildVariantOutputFile",
             description = "Artifact output file (absolute path is expected)",
         )
         abstract val buildVariantOutputFile: RegularFileProperty
-
 
         @get:Input
         @get:Option(

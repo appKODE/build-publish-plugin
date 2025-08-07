@@ -12,5 +12,4 @@ interface TelegramChangelogConfig {
      */
     @get:Input
     val userMentions: SetProperty<String>
-
 }

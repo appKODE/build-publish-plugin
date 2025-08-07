@@ -28,7 +28,6 @@ abstract class GenerateChangelogTask
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
-
         init {
             description = "Task to generate changelog"
             group = BasePlugin.BUILD_GROUP

@@ -14,5 +14,4 @@ interface TelegramDistributionConfig {
     @get:Input
     @get:Optional
     val uploadBuild: Property<Boolean>
-
 }

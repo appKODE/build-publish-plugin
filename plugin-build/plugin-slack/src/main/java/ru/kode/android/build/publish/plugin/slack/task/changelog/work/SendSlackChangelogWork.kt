@@ -30,7 +30,7 @@ abstract class SendSlackChangelogWork
                 changelog = parameters.changelog.get(),
                 userMentions = parameters.userMentions.get(),
                 iconUrl = parameters.iconUrl.get(),
-                attachmentColor = parameters.attachmentColor.get()
+                attachmentColor = parameters.attachmentColor.get(),
             )
             logger.info("changelog sent to Slack")
         }

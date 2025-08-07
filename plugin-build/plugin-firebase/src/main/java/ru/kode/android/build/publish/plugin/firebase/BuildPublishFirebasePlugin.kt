@@ -2,14 +2,14 @@
 
 package ru.kode.android.build.publish.plugin.firebase
 
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import ru.kode.android.build.publish.plugin.firebase.core.FirebaseDistributionConfig
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionPlugin
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.core.util.getDefault
+import ru.kode.android.build.publish.plugin.firebase.core.FirebaseDistributionConfig
 import ru.kode.android.build.publish.plugin.firebase.extensions.BuildPublishFirebaseExtension
 import java.io.File
 
@@ -17,14 +17,15 @@ private const val EXTENSION_NAME = "buildPublishFirebase"
 
 abstract class BuildPublishFirebasePlugin : Plugin<Project> {
     override fun apply(project: Project) {
-
-        val androidExtension = project.extensions
-            .getByType(ApplicationAndroidComponentsExtension::class.java)
+        val androidExtension =
+            project.extensions
+                .getByType(ApplicationAndroidComponentsExtension::class.java)
 
         val changelogFile = project.changelogDirectory()
 
-        val buildPublishFirebaseExtension = project.extensions
-            .create(EXTENSION_NAME, BuildPublishFirebaseExtension::class.java)
+        val buildPublishFirebaseExtension =
+            project.extensions
+                .create(EXTENSION_NAME, BuildPublishFirebaseExtension::class.java)
 
         androidExtension.finalizeDsl {
             val firebaseAppDistributionConfig =
