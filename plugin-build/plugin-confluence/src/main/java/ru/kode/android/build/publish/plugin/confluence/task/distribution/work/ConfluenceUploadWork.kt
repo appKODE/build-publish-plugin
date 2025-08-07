@@ -5,7 +5,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceNetworkService
+import ru.kode.android.build.publish.plugin.confluence.service.network.ConfluenceNetworkService
 import ru.kode.android.build.publish.plugin.core.util.UploadStreamTimeoutException
 
 interface ConfluenceUploadParameters : WorkParameters {
@@ -15,7 +15,7 @@ interface ConfluenceUploadParameters : WorkParameters {
     val networkService: Property<ConfluenceNetworkService>
 }
 
-abstract class ConfluenceUploadWork : WorkAction<ConfluenceUploadParameters> {
+internal abstract class ConfluenceUploadWork : WorkAction<ConfluenceUploadParameters> {
     private val logger = Logging.getLogger(this::class.java)
     private val uploader = parameters.networkService.get()
 

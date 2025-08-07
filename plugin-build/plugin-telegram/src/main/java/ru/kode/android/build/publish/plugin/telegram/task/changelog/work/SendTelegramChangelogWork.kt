@@ -4,10 +4,10 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.telegram.service.TelegramNetworkService
+import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
 import javax.inject.Inject
 
-interface SendTelegramChangelogParameters : WorkParameters {
+internal interface SendTelegramChangelogParameters : WorkParameters {
     val baseOutputFileName: Property<String>
     val buildName: Property<String>
     val changelog: Property<String>
@@ -16,7 +16,7 @@ interface SendTelegramChangelogParameters : WorkParameters {
     val networkService: Property<TelegramNetworkService>
 }
 
-abstract class SendTelegramChangelogWork
+internal abstract class SendTelegramChangelogWork
     @Inject
     constructor() : WorkAction<SendTelegramChangelogParameters> {
         private val logger = Logging.getLogger(this::class.java)

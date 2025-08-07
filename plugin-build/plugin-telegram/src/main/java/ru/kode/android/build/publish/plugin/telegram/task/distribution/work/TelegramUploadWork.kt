@@ -6,7 +6,7 @@ import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.util.UploadStreamTimeoutException
-import ru.kode.android.build.publish.plugin.telegram.service.TelegramNetworkService
+import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
 
 internal interface TelegramUploadParameters : WorkParameters {
     val outputFile: RegularFileProperty

@@ -7,8 +7,8 @@ import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrDefault
-import ru.kode.android.build.publish.plugin.jira.core.JiraAutomationConfig
-import ru.kode.android.build.publish.plugin.jira.service.JiraNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
+import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
 import ru.kode.android.build.publish.plugin.jira.task.automation.JiraAutomationTask
 
 internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
@@ -34,8 +34,8 @@ private fun Project.registerJiraTasks(
     ) {
         val networkService =
             project.extensions
-                .getByType(JiraNetworkServiceExtension::class.java)
-                .services
+                .getByType(JiraServiceExtension::class.java)
+                .networkServices
                 .flatMapByNameOrDefault(params.buildVariant.name)
 
         tasks.register(

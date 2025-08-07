@@ -7,9 +7,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.util.serviceName
-import ru.kode.android.build.publish.plugin.play.extensions.BuildPublishPlayExtension
-import ru.kode.android.build.publish.plugin.play.service.PlayNetworkService
-import ru.kode.android.build.publish.plugin.play.service.PlayNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.play.extension.BuildPublishPlayExtension
+import ru.kode.android.build.publish.plugin.play.service.PlayServiceExtension
+import ru.kode.android.build.publish.plugin.play.service.network.PlayNetworkService
 
 private const val EXTENSION_NAME = "buildPublishPlay"
 private const val NETWORK_SERVICE_NAME = "playNetworkService"
@@ -44,7 +44,7 @@ abstract class BuildPublishPlayPlugin : Plugin<Project> {
                 }
             project.extensions.create(
                 NETWORK_SERVICE_EXTENSION_NAME,
-                PlayNetworkServiceExtension::class.java,
+                PlayServiceExtension::class.java,
                 services,
             )
         }

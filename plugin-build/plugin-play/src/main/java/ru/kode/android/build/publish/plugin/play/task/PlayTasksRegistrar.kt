@@ -7,8 +7,8 @@ import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrDefault
-import ru.kode.android.build.publish.plugin.play.core.PlayDistribution
-import ru.kode.android.build.publish.plugin.play.service.PlayNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.play.config.PlayDistribution
+import ru.kode.android.build.publish.plugin.play.service.PlayServiceExtension
 import ru.kode.android.build.publish.plugin.play.task.distribution.PlayDistributionTask
 
 internal const val PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX = "playUpload"
@@ -35,8 +35,8 @@ private fun Project.registerPlayDistributionTask(
     ) {
         val networkService =
             extensions
-                .getByType(PlayNetworkServiceExtension::class.java)
-                .services
+                .getByType(PlayServiceExtension::class.java)
+                .networkServices
                 .flatMapByNameOrDefault(params.buildVariant.name)
 
         it.tagBuildFile.set(params.tagBuildProvider)

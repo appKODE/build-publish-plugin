@@ -8,7 +8,7 @@ import java.io.File
  *
  * For the full API docs, see [here](https://developers.google.com/android-publisher/api-ref).
  */
-interface PlayPublisher {
+internal interface PlayPublisher {
     /**
      * Creates a new edit.
      *

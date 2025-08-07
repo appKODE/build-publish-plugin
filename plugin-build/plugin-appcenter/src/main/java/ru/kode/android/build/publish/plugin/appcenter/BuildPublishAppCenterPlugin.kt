@@ -6,9 +6,9 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.appcenter.extensions.BuildPublishAppCenterExtension
-import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkService
-import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.appcenter.extension.BuildPublishAppCenterExtension
+import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterServiceExtension
+import ru.kode.android.build.publish.plugin.appcenter.service.network.AppCenterNetworkService
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 
 private const val EXTENSION_NAME = "buildPublishAppCenter"
@@ -44,7 +44,7 @@ abstract class BuildPublishAppCenterPlugin : Plugin<Project> {
                 }
             project.extensions.create(
                 NETWORK_SERVICE_EXTENSION_NAME,
-                AppCenterNetworkServiceExtension::class.java,
+                AppCenterServiceExtension::class.java,
                 services,
             )
         }

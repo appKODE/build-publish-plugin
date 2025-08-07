@@ -6,9 +6,9 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.confluence.extensions.BuildPublishConfluenceExtension
-import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceNetworkService
-import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.confluence.extension.BuildPublishConfluenceExtension
+import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceServiceExtension
+import ru.kode.android.build.publish.plugin.confluence.service.network.ConfluenceNetworkService
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 
 private const val EXTENSION_NAME = "buildPublishConfluence"
@@ -45,7 +45,7 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
                 }
             project.extensions.create(
                 NETWORK_SERVICE_EXTENSION_NAME,
-                ConfluenceNetworkServiceExtension::class.java,
+                ConfluenceServiceExtension::class.java,
                 services,
             )
         }

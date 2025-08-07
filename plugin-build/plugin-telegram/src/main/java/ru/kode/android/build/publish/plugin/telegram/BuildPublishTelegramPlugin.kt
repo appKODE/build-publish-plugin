@@ -7,9 +7,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.util.serviceName
-import ru.kode.android.build.publish.plugin.telegram.extensions.BuildPublishTelegramExtension
-import ru.kode.android.build.publish.plugin.telegram.service.TelegramNetworkService
-import ru.kode.android.build.publish.plugin.telegram.service.TelegramNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.telegram.extension.BuildPublishTelegramExtension
+import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExtension
+import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
 
 private const val EXTENSION_NAME = "buildPublishTelegram"
 private const val NETWORK_SERVICE_NAME = "telegramNetworkService"
@@ -44,7 +44,7 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
                 }
             project.extensions.create(
                 NETWORK_SERVICE_EXTENSION_NAME,
-                TelegramNetworkServiceExtension::class.java,
+                TelegramServiceExtension::class.java,
                 services,
             )
         }

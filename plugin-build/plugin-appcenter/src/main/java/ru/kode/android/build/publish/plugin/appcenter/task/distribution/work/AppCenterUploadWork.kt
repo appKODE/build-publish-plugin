@@ -6,9 +6,9 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.appcenter.core.MAX_REQUEST_COUNT
-import ru.kode.android.build.publish.plugin.appcenter.core.MAX_REQUEST_DELAY_MS
-import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkService
+import ru.kode.android.build.publish.plugin.appcenter.config.MAX_REQUEST_COUNT
+import ru.kode.android.build.publish.plugin.appcenter.config.MAX_REQUEST_DELAY_MS
+import ru.kode.android.build.publish.plugin.appcenter.service.network.AppCenterNetworkService
 import ru.kode.android.build.publish.plugin.appcenter.task.distribution.entity.ChunkRequestBody
 import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
 import kotlin.math.round

@@ -8,7 +8,7 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.util.UploadStreamTimeoutException
 import ru.kode.android.build.publish.plugin.core.zip.zipFiles
-import ru.kode.android.build.publish.plugin.slack.service.SlackUploadService
+import ru.kode.android.build.publish.plugin.slack.service.upload.SlackUploadService
 import java.io.File
 
 internal interface SlackUploadParameters : WorkParameters {

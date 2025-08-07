@@ -4,8 +4,8 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
-import ru.kode.android.build.publish.plugin.confluence.core.ConfluenceDistributionConfig
-import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceDistributionConfig
+import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceServiceExtension
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.ConfluenceDistributionTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
@@ -33,8 +33,8 @@ private fun Project.registerConfluenceDistributionTask(
     ) {
         val networkService =
             project.extensions
-                .getByType(ConfluenceNetworkServiceExtension::class.java)
-                .services
+                .getByType(ConfluenceServiceExtension::class.java)
+                .networkServices
                 .flatMapByNameOrDefault(params.buildVariant.name)
 
         it.buildVariantOutputFile.set(params.apkOutputFileProvider)

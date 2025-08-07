@@ -6,9 +6,9 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.clickup.extensions.BuildPublishClickUpExtension
-import ru.kode.android.build.publish.plugin.clickup.service.ClickUpNetworkService
-import ru.kode.android.build.publish.plugin.clickup.service.ClickUpNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.clickup.extension.BuildPublishClickUpExtension
+import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtension
+import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpNetworkService
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 
 private const val EXTENSION_NAME = "buildPublishClickUp"
@@ -43,7 +43,7 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
                 }
             project.extensions.create(
                 NETWORK_SERVICE_EXTENSION_NAME,
-                ClickUpNetworkServiceExtension::class.java,
+                ClickUpServiceExtension::class.java,
                 services,
             )
         }

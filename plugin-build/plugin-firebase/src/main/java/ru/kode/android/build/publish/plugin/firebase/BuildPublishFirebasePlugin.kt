@@ -9,8 +9,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.core.util.getDefault
-import ru.kode.android.build.publish.plugin.firebase.core.FirebaseDistributionConfig
-import ru.kode.android.build.publish.plugin.firebase.extensions.BuildPublishFirebaseExtension
+import ru.kode.android.build.publish.plugin.firebase.config.FirebaseDistributionConfig
+import ru.kode.android.build.publish.plugin.firebase.extension.BuildPublishFirebaseExtension
 import java.io.File
 
 private const val EXTENSION_NAME = "buildPublishFirebase"

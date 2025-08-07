@@ -50,7 +50,11 @@ inline fun <reified T> Provider<Map<String, Provider<T>>>.flatMapByNameOrDefault
 
 fun Project.serviceName(
     serviceName: String,
-    buildName: String,
+    postfix: String? = null,
 ): String {
-    return "${serviceName}_${name}_$buildName"
+    return if (postfix == null) {
+        "${serviceName}_$name"
+    } else {
+        "${serviceName}_${name}_$postfix"
+    }
 }
