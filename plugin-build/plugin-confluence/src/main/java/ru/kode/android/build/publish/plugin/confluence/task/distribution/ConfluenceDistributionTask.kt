@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceNetworkService
+import ru.kode.android.build.publish.plugin.confluence.service.network.ConfluenceNetworkService
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.work.ConfluenceUploadWork
 import javax.inject.Inject
 

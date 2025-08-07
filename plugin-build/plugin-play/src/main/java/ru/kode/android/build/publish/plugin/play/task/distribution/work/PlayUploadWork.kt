@@ -4,9 +4,9 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.play.service.PlayNetworkService
+import ru.kode.android.build.publish.plugin.play.service.network.PlayNetworkService
 
-interface PlayUploadParameters : WorkParameters {
+internal interface PlayUploadParameters : WorkParameters {
     val outputFile: RegularFileProperty
     val trackId: Property<String>
     val releaseName: Property<String>
@@ -14,7 +14,7 @@ interface PlayUploadParameters : WorkParameters {
     val networkService: Property<PlayNetworkService>
 }
 
-abstract class PlayUploadWork : WorkAction<PlayUploadParameters> {
+internal abstract class PlayUploadWork : WorkAction<PlayUploadParameters> {
     override fun execute() {
         val track = parameters.trackId.get()
         val priority = parameters.updatePriority.orNull ?: 0

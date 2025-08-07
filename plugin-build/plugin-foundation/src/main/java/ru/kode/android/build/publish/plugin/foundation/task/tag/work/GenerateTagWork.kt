@@ -7,13 +7,13 @@ import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.enity.Tag
-import ru.kode.android.build.publish.plugin.core.mapper.toJson
-import ru.kode.android.build.publish.plugin.foundation.service.GitExecutorService
+import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
+import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_BUILD_VERSION
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_CODE
 import javax.inject.Inject
 
-interface GenerateTagParameters : WorkParameters {
+internal interface GenerateTagParameters : WorkParameters {
     val buildVariant: Property<String>
     val buildTagPattern: Property<String>
     val tagBuildFile: RegularFileProperty
@@ -21,7 +21,7 @@ interface GenerateTagParameters : WorkParameters {
     val useStubsForTagAsFallback: Property<Boolean>
 }
 
-abstract class GenerateTagWork
+internal abstract class GenerateTagWork
     @Inject
     constructor() : WorkAction<GenerateTagParameters> {
         private val logger = Logging.getLogger(this::class.java)

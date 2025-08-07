@@ -12,8 +12,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.core.mapper.fromJson
-import ru.kode.android.build.publish.plugin.telegram.service.TelegramNetworkService
+import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.work.SendTelegramChangelogWork
 import javax.inject.Inject
 

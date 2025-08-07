@@ -7,11 +7,11 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.util.serviceName
-import ru.kode.android.build.publish.plugin.slack.extensions.BuildPublishSlackExtension
-import ru.kode.android.build.publish.plugin.slack.service.SlackNetworkService
+import ru.kode.android.build.publish.plugin.slack.extension.BuildPublishSlackExtension
 import ru.kode.android.build.publish.plugin.slack.service.SlackServiceExtension
-import ru.kode.android.build.publish.plugin.slack.service.SlackUploadService
-import ru.kode.android.build.publish.plugin.slack.service.SlackWebhookService
+import ru.kode.android.build.publish.plugin.slack.service.network.SlackNetworkService
+import ru.kode.android.build.publish.plugin.slack.service.upload.SlackUploadService
+import ru.kode.android.build.publish.plugin.slack.service.webhook.SlackWebhookService
 
 private const val EXTENSION_NAME = "buildPublishSlack"
 private const val NETWORK_SERVICE_NAME = "slackNetworkService"

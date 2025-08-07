@@ -5,11 +5,11 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.core.mapper.fromJson
-import ru.kode.android.build.publish.plugin.foundation.service.GitExecutorService
+import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
 import javax.inject.Inject
 
-interface GenerateChangelogParameters : WorkParameters {
+internal interface GenerateChangelogParameters : WorkParameters {
     val commitMessageKey: Property<String>
     val buildTagPattern: Property<String>
     val tagBuildFile: RegularFileProperty
@@ -17,7 +17,7 @@ interface GenerateChangelogParameters : WorkParameters {
     val gitExecutorService: Property<GitExecutorService>
 }
 
-abstract class GenerateChangelogWork
+internal abstract class GenerateChangelogWork
     @Inject
     constructor() : WorkAction<GenerateChangelogParameters> {
         private val logger = Logging.getLogger(this::class.java)
@@ -28,7 +28,7 @@ abstract class GenerateChangelogWork
             val currentBuildTag = fromJson(parameters.tagBuildFile.asFile.get())
             val changelog =
                 parameters.gitExecutorService.get()
-                    .changelogBuilder
+                    .gitChangelogBuilder
                     .buildForBuildTag(
                         messageKey,
                         currentBuildTag,

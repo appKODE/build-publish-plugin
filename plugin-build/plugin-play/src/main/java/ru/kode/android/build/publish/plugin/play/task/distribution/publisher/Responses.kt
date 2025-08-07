@@ -2,50 +2,6 @@ package ru.kode.android.build.publish.plugin.play.task.distribution.publisher
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 
-/** Response for an app details request. */
-data class GppAppDetails internal constructor(
-    /** The default language. */
-    val defaultLocale: String?,
-    /** Developer contact email. */
-    val contactEmail: String?,
-    /** Developer contact phone. */
-    val contactPhone: String?,
-    /** Developer contact website. */
-    val contactWebsite: String?,
-)
-
-/** Response for an app listing request. */
-data class GppListing internal constructor(
-    /** The listing's language. */
-    val locale: String,
-    /** The app description. */
-    val fullDescription: String?,
-    /** The app tagline. */
-    val shortDescription: String?,
-    /** The app title. */
-    val title: String?,
-    /** The app promo url. */
-    val video: String?,
-)
-
-/** Response for an app graphic request. */
-data class GppImage internal constructor(
-    /** The image's download URL. */
-    val url: String,
-    /** The image's SHA256 hash. */
-    val sha256: String,
-)
-
-/** Response for a track release note request. */
-data class ReleaseNote internal constructor(
-    /** The release note's track. */
-    val track: String,
-    /** The release note's language. */
-    val locale: String,
-    /** The release note. */
-    val contents: String,
-)
-
 /** Response for an edit request. */
 sealed class EditResponse {
     /** Response for a successful edit request. */
@@ -60,18 +16,6 @@ sealed class EditResponse {
     ) : EditResponse() {
         /** @return true if the app wasn't found in the Play Console, false otherwise */
         fun isNewApp(): Boolean = e has "applicationNotFound"
-
-        /** @return true if the provided edit is invalid for any reason, false otherwise */
-        fun isInvalidEdit(): Boolean = e has "editAlreadyCommitted" || e has "editNotFound" || e has "editExpired"
-
-        /** @return true if the user doesn't have permission to access this app, false otherwise */
-        fun isUnauthorized(): Boolean = e.statusCode == 401
-
-        /** Cleanly rethrows the error. */
-        fun rethrow(): Nothing = throw e
-
-        /** Wraps the error in a new exception with the provided [newMessage]. */
-        fun rethrow(newMessage: String): Nothing = throw IllegalStateException(newMessage, e)
     }
 }
 
@@ -83,21 +27,7 @@ sealed class CommitResponse {
     /** Response for an unsuccessful commit request. */
     data class Failure internal constructor(
         private val e: GoogleJsonResponseException,
-    ) : CommitResponse() {
-        /** @return true if the changes cannot be sent for review, false otherwise */
-        fun failedToSendForReview(): Boolean =
-            e has "badRequest" &&
-                e.details.message.orEmpty().contains("changesNotSentForReview")
-
-        /** Cleanly rethrows the error. */
-        fun rethrow(suppressed: Failure? = null): Nothing {
-            if (suppressed != null) {
-                e.addSuppressed(suppressed.e)
-            }
-
-            throw e
-        }
-    }
+    ) : CommitResponse()
 }
 
 /** Response for an internal sharing artifact upload. */

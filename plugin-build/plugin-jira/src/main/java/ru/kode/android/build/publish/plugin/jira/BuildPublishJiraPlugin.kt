@@ -7,9 +7,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.util.serviceName
-import ru.kode.android.build.publish.plugin.jira.extensions.BuildPublishJiraExtension
-import ru.kode.android.build.publish.plugin.jira.service.JiraNetworkService
-import ru.kode.android.build.publish.plugin.jira.service.JiraNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.jira.extension.BuildPublishJiraExtension
+import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
+import ru.kode.android.build.publish.plugin.jira.service.network.JiraNetworkService
 
 private const val EXTENSION_NAME = "buildPublishJira"
 private const val NETWORK_SERVICE_NAME = "jiraNetworkService"
@@ -47,7 +47,7 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
                 }
             project.extensions.create(
                 NETWORK_SERVICE_EXTENSION_NAME,
-                JiraNetworkServiceExtension::class.java,
+                JiraServiceExtension::class.java,
                 services,
             )
         }

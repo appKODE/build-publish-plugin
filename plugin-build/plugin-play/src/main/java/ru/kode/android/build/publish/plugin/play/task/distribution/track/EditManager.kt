@@ -4,7 +4,7 @@ import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.Rel
 import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.ResolutionStrategy
 import java.io.File
 
-interface EditManager {
+internal interface EditManager {
     fun promoteRelease(
         promoteTrackName: String,
         fromTrackName: String,

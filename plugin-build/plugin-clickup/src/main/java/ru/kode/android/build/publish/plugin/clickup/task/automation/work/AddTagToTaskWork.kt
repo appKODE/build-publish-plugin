@@ -4,7 +4,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.clickup.service.ClickUpNetworkService
+import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpNetworkService
 
 internal interface AddTagToTaskParameters : WorkParameters {
     val tagName: Property<String>

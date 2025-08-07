@@ -5,8 +5,8 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
-import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterDistributionConfig
-import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.appcenter.config.AppCenterDistributionConfig
+import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterServiceExtension
 import ru.kode.android.build.publish.plugin.appcenter.task.distribution.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
@@ -36,8 +36,8 @@ private fun Project.registerAppCenterDistributionTask(
     ) {
         val networkService =
             project.extensions
-                .getByType(AppCenterNetworkServiceExtension::class.java)
-                .services
+                .getByType(AppCenterServiceExtension::class.java)
+                .networkServices
                 .flatMapByNameOrDefault(params.buildVariant.name)
 
         it.tagBuildFile.set(params.tagBuildProvider)

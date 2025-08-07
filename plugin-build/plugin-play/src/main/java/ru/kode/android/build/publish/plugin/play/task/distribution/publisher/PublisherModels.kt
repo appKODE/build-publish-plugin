@@ -7,7 +7,7 @@ package ru.kode.android.build.publish.plugin.play.task.distribution.publisher
  * [here](https://developers.google.com/android-publisher/api-ref/edits/tracks).
  */
 @Suppress("EnumNaming") // Google API Model
-enum class ReleaseStatus(
+internal enum class ReleaseStatus(
     /** The API name of the status. */
     val publishedName: String,
 ) {
@@ -31,7 +31,7 @@ enum class ReleaseStatus(
  * [here](https://github.com/Triple-T/gradle-play-publisher#handling-version-conflicts).
  */
 @Suppress("EnumNaming") // Google API Model
-enum class ResolutionStrategy(
+internal enum class ResolutionStrategy(
     /** The API name of the strategy. */
     val publishedName: String,
 ) {

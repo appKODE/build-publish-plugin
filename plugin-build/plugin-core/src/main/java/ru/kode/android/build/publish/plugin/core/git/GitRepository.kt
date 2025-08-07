@@ -1,6 +1,5 @@
 package ru.kode.android.build.publish.plugin.core.git
 
-import ru.kode.android.build.publish.plugin.core.command.GitCommandExecutor
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.enity.TagRange
 

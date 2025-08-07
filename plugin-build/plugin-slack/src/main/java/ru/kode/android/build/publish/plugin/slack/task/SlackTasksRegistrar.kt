@@ -10,9 +10,9 @@ import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrDefault
-import ru.kode.android.build.publish.plugin.slack.core.SlackBotConfig
-import ru.kode.android.build.publish.plugin.slack.core.SlackChangelogConfig
-import ru.kode.android.build.publish.plugin.slack.core.SlackDistributionConfig
+import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
+import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
+import ru.kode.android.build.publish.plugin.slack.config.SlackDistributionConfig
 import ru.kode.android.build.publish.plugin.slack.service.SlackServiceExtension
 import ru.kode.android.build.publish.plugin.slack.task.changelog.SendSlackChangelogTask
 import ru.kode.android.build.publish.plugin.slack.task.distribution.SlackDistributionTask

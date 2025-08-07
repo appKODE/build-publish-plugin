@@ -6,9 +6,9 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.util.UploadException
-import ru.kode.android.build.publish.plugin.jira.service.JiraNetworkService
+import ru.kode.android.build.publish.plugin.jira.service.network.JiraNetworkService
 
-interface SetStatusParameters : WorkParameters {
+internal interface SetStatusParameters : WorkParameters {
     val issues: SetProperty<String>
     val statusTransitionId: Property<String>
     val networkService: Property<JiraNetworkService>

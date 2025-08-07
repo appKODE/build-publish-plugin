@@ -5,8 +5,8 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
-import ru.kode.android.build.publish.plugin.clickup.core.ClickUpAutomationConfig
-import ru.kode.android.build.publish.plugin.clickup.service.ClickUpNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAutomationConfig
+import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtension
 import ru.kode.android.build.publish.plugin.clickup.task.automation.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
@@ -42,8 +42,8 @@ private fun Project.registerClickUpTasks(
 
     val networkService =
         project.extensions
-            .getByType(ClickUpNetworkServiceExtension::class.java)
-            .services
+            .getByType(ClickUpServiceExtension::class.java)
+            .networkServices
             .flatMapByNameOrDefault(params.buildVariant.name)
 
     return if (fixVersionIsPresent || automationConfig.tagName.isPresent) {

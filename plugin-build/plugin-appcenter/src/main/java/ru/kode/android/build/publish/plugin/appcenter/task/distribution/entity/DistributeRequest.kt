@@ -4,7 +4,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 @Suppress("ConstructorParameterNaming") // network model
-data class DistributeRequest(
+internal data class DistributeRequest(
     val destinations: List<Destination>,
     val release_notes: String,
     val upload_status: String = "uploadFinished",

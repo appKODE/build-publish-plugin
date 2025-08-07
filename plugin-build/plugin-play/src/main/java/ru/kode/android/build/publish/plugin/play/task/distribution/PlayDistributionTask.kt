@@ -13,8 +13,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.core.mapper.fromJson
-import ru.kode.android.build.publish.plugin.play.service.PlayNetworkService
+import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.play.service.network.PlayNetworkService
 import ru.kode.android.build.publish.plugin.play.task.distribution.work.PlayUploadWork
 import javax.inject.Inject
 
