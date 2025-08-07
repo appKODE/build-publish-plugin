@@ -1,7 +1,10 @@
 package ru.kode.android.build.publish.plugin.core.util
 
 import okhttp3.Credentials
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.gradle.api.logging.Logging
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -9,9 +12,6 @@ import java.net.Proxy
 import java.net.ProxySelector
 import java.net.SocketAddress
 import java.net.URI
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.MultipartBody
 
 private val logger = Logging.getLogger("HttpClientExtensions")
 

@@ -22,7 +22,6 @@ abstract class GetLastTagTask
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
-
         init {
             description = "Get last tag task"
             group = BasePlugin.BUILD_GROUP
@@ -41,7 +40,10 @@ abstract class GetLastTagTask
         abstract val buildTagPattern: Property<String>
 
         @get:Input
-        @get:Option(option = "useStubsForTagAsFallback", description = "Use stubs if tag was not found to not crash builds")
+        @get:Option(
+            option = "useStubsForTagAsFallback",
+            description = "Use stubs if tag was not found to not crash builds",
+        )
         abstract val useStubsForTagAsFallback: Property<Boolean>
 
         @get:OutputFile

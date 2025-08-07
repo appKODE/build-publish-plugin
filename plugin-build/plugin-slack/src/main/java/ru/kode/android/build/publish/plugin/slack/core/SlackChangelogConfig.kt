@@ -20,5 +20,4 @@ interface SlackChangelogConfig {
      */
     @get:Input
     val attachmentColor: Property<String>
-
 }

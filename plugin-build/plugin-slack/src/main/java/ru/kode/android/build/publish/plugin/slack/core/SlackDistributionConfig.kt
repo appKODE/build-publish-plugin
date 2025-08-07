@@ -21,5 +21,4 @@ interface SlackDistributionConfig {
     @get:Optional
     @get:Input
     val uploadChannels: SetProperty<String>
-
 }

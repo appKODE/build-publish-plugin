@@ -1,12 +1,12 @@
 package ru.kode.android.build.publish.plugin.core.zip
 
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
 
 @Suppress("NestedBlockDepth", "MagicNumber") // simple zip logic
 fun List<File>.zipFiles(zipFile: File): File {

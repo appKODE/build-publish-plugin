@@ -11,34 +11,37 @@ import ru.kode.android.build.publish.plugin.core.git.ChangelogBuilder
 import ru.kode.android.build.publish.plugin.core.git.GitRepository
 import javax.inject.Inject
 
-abstract class GitExecutorService @Inject constructor() : BuildService<GitExecutorService.Params> {
+abstract class GitExecutorService
+    @Inject
+    constructor() : BuildService<GitExecutorService.Params> {
+        interface Params : BuildServiceParameters {
+            val grgitService: Property<GrgitService>
+        }
 
-    interface Params : BuildServiceParameters {
-        val grgitService: Property<GrgitService>
+        protected abstract val executorProperty: Property<GitCommandExecutor>
+        protected abstract val repositoryProperty: Property<GitRepository>
+        protected abstract val changelogBuilderProperty: Property<ChangelogBuilder>
+
+        init {
+            executorProperty.set(
+                parameters.grgitService.map { grGitService ->
+                    GitCommandExecutor(grGitService.grgit)
+                },
+            )
+            repositoryProperty.set(executorProperty!!.map { GitRepository(it) })
+            changelogBuilderProperty.set(repositoryProperty!!.map { ChangelogBuilder(it, logger) })
+        }
+
+        val commandExecutor: GitCommandExecutor
+            get() = executorProperty.get()
+
+        val repository: GitRepository
+            get() = repositoryProperty.get()
+
+        val changelogBuilder: ChangelogBuilder
+            get() = changelogBuilderProperty.get()
+
+        companion object {
+            private val logger: Logger = Logging.getLogger(GitExecutorService::class.java)
+        }
     }
-
-    protected abstract val executorProperty: Property<GitCommandExecutor>
-    protected abstract val repositoryProperty: Property<GitRepository>
-    protected abstract val changelogBuilderProperty: Property<ChangelogBuilder>
-
-    init {
-        executorProperty.set(parameters.grgitService.map { grGitService ->
-            GitCommandExecutor(grGitService.grgit)
-        })
-        repositoryProperty.set(executorProperty!!.map { GitRepository(it) })
-        changelogBuilderProperty.set(repositoryProperty!!.map { ChangelogBuilder(it, logger) })
-    }
-
-    val commandExecutor: GitCommandExecutor
-        get() = executorProperty.get()
-
-    val repository: GitRepository
-        get() = repositoryProperty.get()
-
-    val changelogBuilder: ChangelogBuilder
-        get() = changelogBuilderProperty.get()
-
-    companion object {
-        private val logger: Logger = Logging.getLogger(GitExecutorService::class.java)
-    }
-}

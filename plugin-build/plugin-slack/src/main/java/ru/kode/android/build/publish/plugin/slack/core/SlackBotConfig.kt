@@ -19,5 +19,4 @@ interface SlackBotConfig {
      */
     @get:Input
     val iconUrl: Property<String>
-
 }

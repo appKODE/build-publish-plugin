@@ -21,68 +21,68 @@ import javax.inject.Inject
 
 private const val API_BASE_URL = "https://api.clickup.com/api/"
 
-abstract class ClickUpNetworkService @Inject constructor() : BuildService<ClickUpNetworkService.Params> {
+abstract class ClickUpNetworkService
+    @Inject
+    constructor() : BuildService<ClickUpNetworkService.Params> {
+        interface Params : BuildServiceParameters {
+            val token: RegularFileProperty
+        }
 
-    interface Params : BuildServiceParameters {
-        val token: RegularFileProperty
+        internal abstract val okHttpClientProperty: Property<OkHttpClient>
+        internal abstract val apiProperty: Property<ClickUpApi>
+
+        init {
+            okHttpClientProperty.set(
+                parameters.token.map { token ->
+                    OkHttpClient.Builder()
+                        .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                        .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                        .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                        .addInterceptor(AttachTokenInterceptor(token.asFile.readText()))
+                        .addProxyIfAvailable()
+                        .apply {
+                            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
+                            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+                            addNetworkInterceptor(loggingInterceptor)
+                        }
+                        .build()
+                },
+            )
+            apiProperty.set(
+                okHttpClientProperty.map { client ->
+                    val moshi = Moshi.Builder().build()
+                    Retrofit.Builder()
+                        .baseUrl(API_BASE_URL)
+                        .client(client)
+                        .addConverterFactory(MoshiConverterFactory.create(moshi))
+                        .build()
+                        .create(ClickUpApi::class.java)
+                },
+            )
+        }
+
+        private val api: ClickUpApi get() = apiProperty.get()
+
+        fun addTagToTask(
+            taskId: String,
+            tagName: String,
+        ) {
+            api.addTagToTask(taskId, tagName).executeOptionalOrThrow()
+        }
+
+        fun addFieldToTask(
+            taskId: String,
+            fieldId: String,
+            fieldValue: String,
+        ) {
+            val request = AddFieldToTaskRequest(value = fieldValue)
+            api.addFieldToTask(taskId, fieldId, request).executeOptionalOrThrow()
+        }
+
+        companion object {
+            private val logger: Logger = Logging.getLogger(ClickUpNetworkService::class.java)
+        }
     }
-
-    internal abstract val okHttpClientProperty: Property<OkHttpClient>
-    internal abstract val apiProperty: Property<ClickUpApi>
-
-    init {
-        okHttpClientProperty.set(
-            parameters.token.map { token ->
-                OkHttpClient.Builder()
-                    .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                    .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                    .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                    .addInterceptor(AttachTokenInterceptor(token.asFile.readText()))
-                    .addProxyIfAvailable()
-                    .apply {
-                        val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-                        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-                        addNetworkInterceptor(loggingInterceptor)
-                    }
-                    .build()
-
-            }
-        )
-        apiProperty.set(
-            okHttpClientProperty.map{ client ->
-                val moshi = Moshi.Builder().build()
-                Retrofit.Builder()
-                    .baseUrl(API_BASE_URL)
-                    .client(client)
-                    .addConverterFactory(MoshiConverterFactory.create(moshi))
-                    .build()
-                    .create(ClickUpApi::class.java)
-            }
-        )
-    }
-
-    private val api: ClickUpApi get() = apiProperty.get()
-
-    fun addTagToTask(
-        taskId: String,
-        tagName: String,
-    ) {
-        api.addTagToTask(taskId, tagName).executeOptionalOrThrow()
-    }
-
-    fun addFieldToTask(
-        taskId: String,
-        fieldId: String,
-        fieldValue: String,
-    ) {
-        val request = AddFieldToTaskRequest(value = fieldValue)
-        api.addFieldToTask(taskId, fieldId, request).executeOptionalOrThrow()
-    }
-
-    companion object {
-        private val logger: Logger = Logging.getLogger(ClickUpNetworkService::class.java)
-    }
-}
 
 private class AttachTokenInterceptor(
     private val apiToken: String,

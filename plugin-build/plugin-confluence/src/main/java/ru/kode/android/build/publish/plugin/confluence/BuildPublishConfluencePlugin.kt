@@ -1,40 +1,41 @@
 @file:Suppress("UnstableApiUsage")
 
-package ru.kode.android.build.publish.plugin.appcenter
+package ru.kode.android.build.publish.plugin.confluence
 
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.appcenter.extensions.BuildPublishAppCenterExtension
-import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkService
-import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkServiceExtension
+import ru.kode.android.build.publish.plugin.confluence.extensions.BuildPublishConfluenceExtension
+import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceNetworkService
+import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceNetworkServiceExtension
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 
-private const val EXTENSION_NAME = "buildPublishAppCenter"
-private const val NETWORK_SERVICE_NAME = "appCenterNetworkService"
-private const val NETWORK_SERVICE_EXTENSION_NAME = "appCenterNetworkServiceExtension"
+private const val EXTENSION_NAME = "buildPublishConfluence"
+private const val NETWORK_SERVICE_NAME = "confluenceNetworkService"
+private const val NETWORK_SERVICE_EXTENSION_NAME = "confluenceNetworkServiceExtension"
 
-abstract class BuildPublishAppCenterPlugin : Plugin<Project> {
+abstract class BuildPublishConfluencePlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val extension = project.extensions.create(EXTENSION_NAME, BuildPublishAppCenterExtension::class.java)
+        val extension = project.extensions.create(EXTENSION_NAME, BuildPublishConfluenceExtension::class.java)
 
         val androidExtension =
             project.extensions
                 .getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
-            val services: Provider<Map<String, Provider<AppCenterNetworkService>>> =
+            val services: Provider<Map<String, Provider<ConfluenceNetworkService>>> =
                 project.provider {
                     extension.auth.fold(mapOf()) { acc, authConfig ->
                         val service =
                             project.gradle.sharedServices.registerIfAbsent(
                                 project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),
-                                AppCenterNetworkService::class.java,
+                                ConfluenceNetworkService::class.java,
                                 {
                                     it.maxParallelUsages.set(1)
-                                    it.parameters.token.set(authConfig.apiTokenFile)
-                                    it.parameters.ownerName.set(authConfig.ownerName)
+                                    it.parameters.password.set(authConfig.password)
+                                    it.parameters.username.set(authConfig.username)
+                                    it.parameters.baseUrl.set(authConfig.baseUrl)
                                 },
                             )
                         acc.toMutableMap().apply {
@@ -44,7 +45,7 @@ abstract class BuildPublishAppCenterPlugin : Plugin<Project> {
                 }
             project.extensions.create(
                 NETWORK_SERVICE_EXTENSION_NAME,
-                AppCenterNetworkServiceExtension::class.java,
+                ConfluenceNetworkServiceExtension::class.java,
                 services,
             )
         }

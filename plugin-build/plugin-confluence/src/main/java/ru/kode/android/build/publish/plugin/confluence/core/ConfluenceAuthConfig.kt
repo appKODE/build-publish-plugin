@@ -1,7 +1,6 @@
 package ru.kode.android.build.publish.plugin.confluence.core
 
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
 
 interface ConfluenceAuthConfig {
     val name: String
@@ -20,6 +19,4 @@ interface ConfluenceAuthConfig {
      * Confluence baseUrl
      */
     val baseUrl: Property<String>
-
 }
-

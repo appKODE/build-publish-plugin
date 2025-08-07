@@ -26,23 +26,32 @@ abstract class GenerateChangelogWork
             val messageKey = parameters.commitMessageKey.get()
             val buildTagPattern = parameters.buildTagPattern.get()
             val currentBuildTag = fromJson(parameters.tagBuildFile.asFile.get())
-            val changelog = parameters.gitExecutorService.get()
-                .changelogBuilder
-                .buildForBuildTag(
-                    messageKey,
-                    currentBuildTag,
-                    buildTagPattern,
-                    defaultValueSupplier = { tagRange ->
-                        val previousBuildName = tagRange.previousBuildTag?.name?.let { "($it)" }
-                        "No changes compared to the previous build $previousBuildName"
-                    },
-                )
+            val changelog =
+                parameters.gitExecutorService.get()
+                    .changelogBuilder
+                    .buildForBuildTag(
+                        messageKey,
+                        currentBuildTag,
+                        buildTagPattern,
+                        defaultValueSupplier = { tagRange ->
+                            val previousBuildName = tagRange.previousBuildTag?.name?.let { "($it)" }
+                            "No changes compared to the previous build $previousBuildName"
+                        },
+                    )
             val changelogOutput = parameters.changelogFile.asFile.get()
             if (changelog.isNullOrBlank()) {
-                logger.info("changelog is NOT generated for `$buildTagPattern` buildTagPattern and `$currentBuildTag` build tag")
-                changelogOutput.writeText("No changes because changelog is not generated for tag ${currentBuildTag.name}")
+                logger.info(
+                    "changelog is NOT generated for `$buildTagPattern` buildTagPattern " +
+                        "and `$currentBuildTag` build tag",
+                )
+                changelogOutput.writeText(
+                    "No changes because changelog is not generated for tag ${currentBuildTag.name}",
+                )
             } else {
-                logger.info("changelog is generated for `$buildTagPattern` buildTagPattern and `$currentBuildTag` build tag")
+                logger.info(
+                    "changelog is generated for `$buildTagPattern` buildTagPattern " +
+                        "and `$currentBuildTag` build tag",
+                )
                 changelogOutput.writeText(changelog)
             }
         }

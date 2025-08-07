@@ -48,4 +48,3 @@ private fun String.formatChangelog(): String {
     return this
         .replace(Regex("(\r\n|\n)"), "\n")
 }
-

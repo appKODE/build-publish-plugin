@@ -6,20 +6,19 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.appcenter.core.AppCenterDistributionConfig
+import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkServiceExtension
 import ru.kode.android.build.publish.plugin.appcenter.task.distribution.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrDefault
-import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterNetworkServiceExtension
 
 internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistributionUpload"
 
 object AppCenterTasksRegistrar {
-
     fun registerDistributionTask(
         project: Project,
         distributionConfig: AppCenterDistributionConfig,
-        params: AppCenterDistributionTaskParams
+        params: AppCenterDistributionTaskParams,
     ): TaskProvider<AppCenterDistributionTask> {
         return project.registerAppCenterDistributionTask(distributionConfig, params)
     }
@@ -35,10 +34,11 @@ private fun Project.registerAppCenterDistributionTask(
         "$APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
         AppCenterDistributionTask::class.java,
     ) {
-        val networkService = project.extensions
-            .getByType(AppCenterNetworkServiceExtension::class.java)
-            .services
-            .flatMapByNameOrDefault(params.buildVariant.name)
+        val networkService =
+            project.extensions
+                .getByType(AppCenterNetworkServiceExtension::class.java)
+                .services
+                .flatMapByNameOrDefault(params.buildVariant.name)
 
         it.tagBuildFile.set(params.tagBuildProvider)
         it.buildVariantOutputFile.set(params.apkOutputFileProvider)

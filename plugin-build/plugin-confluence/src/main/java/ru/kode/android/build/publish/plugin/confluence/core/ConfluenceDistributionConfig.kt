@@ -11,6 +11,4 @@ interface ConfluenceDistributionConfig {
      */
     @get:Input
     val pageId: Property<String>
-
 }
-

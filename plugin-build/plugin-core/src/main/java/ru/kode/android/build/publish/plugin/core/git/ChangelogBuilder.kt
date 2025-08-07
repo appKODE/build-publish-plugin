@@ -31,13 +31,13 @@ class ChangelogBuilder(
                 ?: return null
         return buildChangelog(
             tagRange,
-            { gitRepository.markedCommitMessages(messageKey, tagRange) }
+            { gitRepository.markedCommitMessages(messageKey, tagRange) },
         ) ?: defaultValueSupplier?.invoke(tagRange)
     }
 
     private fun buildChangelog(
         tagRange: TagRange,
-        markedCommitMessagesResolver: () -> List<String>
+        markedCommitMessagesResolver: () -> List<String>,
     ): String? {
         val messageBuilder =
             StringBuilder().apply {

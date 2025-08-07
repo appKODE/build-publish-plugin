@@ -11,7 +11,6 @@ import ru.kode.android.build.publish.plugin.foundation.task.changelog.GenerateCh
 internal const val GENERATE_CHANGELOG_TASK_PREFIX = "generateChangelog"
 
 object ChangelogTasksRegistrar {
-
     fun registerGenerateChangelogTask(
         project: Project,
         params: GenerateChangelogTaskParams,
@@ -20,9 +19,7 @@ object ChangelogTasksRegistrar {
     }
 }
 
-private fun TaskContainer.registerGenerateChangelogTask(
-    params: GenerateChangelogTaskParams,
-): Provider<RegularFile> {
+private fun TaskContainer.registerGenerateChangelogTask(params: GenerateChangelogTaskParams): Provider<RegularFile> {
     return register(
         "$GENERATE_CHANGELOG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         GenerateChangelogTask::class.java,

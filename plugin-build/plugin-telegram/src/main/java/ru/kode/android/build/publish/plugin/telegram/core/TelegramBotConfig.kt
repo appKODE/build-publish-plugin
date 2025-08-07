@@ -26,5 +26,4 @@ interface TelegramBotConfig {
     @get:Input
     @get:Optional
     val topicId: Property<String>
-
 }
