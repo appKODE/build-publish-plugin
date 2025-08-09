@@ -34,8 +34,12 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
                             ) {
                                 it.maxParallelUsages.set(1)
                                 it.parameters.botId.set(authConfig.botId)
-                                it.parameters.chatId.set(authConfig.chatId)
-                                it.parameters.topicId.set(authConfig.topicId)
+                                it.parameters.botServerBaseUrl.set(authConfig.botServerBaseUrl)
+                                it.parameters.botServerAuth.set(authConfig.botServerAuth)
+                                // TODO: Add Abbility to send multuple chats
+                                it.parameters.chat.set(authConfig.chats.also {
+                                    println("all chats: ${it.asMap}")
+                                }.first())
                             }
                         acc.toMutableMap().apply {
                             put(authConfig.name, service)
