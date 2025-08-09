@@ -12,4 +12,7 @@ interface TelegramChangelogConfig {
      */
     @get:Input
     val userMentions: SetProperty<String>
+
+    @get:Input
+    val destinationChats: SetProperty<String>
 }

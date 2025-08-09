@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.telegram.config
 
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
@@ -14,4 +15,7 @@ interface TelegramDistributionConfig {
     @get:Input
     @get:Optional
     val uploadBuild: Property<Boolean>
+
+    @get:Input
+    val destinationChats: SetProperty<String>
 }

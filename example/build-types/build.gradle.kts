@@ -53,7 +53,7 @@ buildPublishTelegram {
     bot {
         register("default") {
             botId.set("313123131231")
-            chatId.set("-00000000")
+            //chat.chatId.set("-00000000")
         }
     }
     distribution {

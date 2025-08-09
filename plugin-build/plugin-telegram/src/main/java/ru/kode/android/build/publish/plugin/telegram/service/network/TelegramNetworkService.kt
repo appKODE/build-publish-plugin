@@ -16,6 +16,8 @@ import ru.kode.android.build.publish.plugin.core.util.UploadException
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.core.util.createPartFromString
 import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
+import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotServerAuthConfig
+import ru.kode.android.build.publish.plugin.telegram.config.TelegramChatConfigConfig
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.api.TelegramWebhookSenderApi
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.api.TelegramApi
 import java.io.File
@@ -25,20 +27,23 @@ import javax.inject.Inject
 
 private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L
 private const val STUB_BASE_URL = "http://localhost/"
+private const val TELEGRAM_BASE_RUL = "api.telegram.org"
+
 private const val SEND_MESSAGE_TO_CHAT_WEB_HOOK =
-    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2&disable_web_page_preview=true"
+    "https://%s/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2&disable_web_page_preview=true"
 private const val SEND_MESSAGE_TO_TOPIC_WEB_HOOK =
-    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2" +
+    "https:/%s/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2" +
         "&disable_web_page_preview=true"
-private const val SEND_DOCUMENT_WEB_HOOK = "https://api.telegram.org/bot%s/sendDocument"
+private const val SEND_DOCUMENT_WEB_HOOK = "https://%s/bot%s/sendDocument"
 
 abstract class TelegramNetworkService
     @Inject
     constructor() : BuildService<TelegramNetworkService.Params> {
         interface Params : BuildServiceParameters {
             val botId: Property<String>
-            val chatId: Property<String>
-            val topicId: Property<String>
+            val botServerBaseUrl: Property<String>
+            val botServerAuth: Property<TelegramBotServerAuthConfig>
+            val chat: Property<TelegramChatConfigConfig>
         }
 
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
@@ -84,8 +89,9 @@ abstract class TelegramNetworkService
         private val api: TelegramApi get() = apiProperty.get()
         private val senderApi: TelegramWebhookSenderApi get() = senderApiProperty.get()
         private val botId: String get() = parameters.botId.get()
-        private val chatId: String get() = parameters.chatId.get()
-        private val topicId: String? get() = parameters.topicId.orNull
+        private val botServerBaseUrl: String get() = parameters.botServerBaseUrl.getOrElse(TELEGRAM_BASE_RUL)
+        private val chatId: String get() = parameters.chat.flatMap { it.chatId }.get()
+        private val topicId: String? get() = parameters.chat.flatMap { it.topicId }.orNull
 
         /**
          * Sends url formatted data to webhook at [webhookUrl]
@@ -95,12 +101,14 @@ abstract class TelegramNetworkService
             val webhookUrl =
                 if (topicId.isNullOrEmpty()) {
                     SEND_MESSAGE_TO_CHAT_WEB_HOOK.format(
+                        botServerBaseUrl,
                         botId,
                         chatId,
                         URLEncoder.encode(message, "utf-8"),
                     )
                 } else {
                     SEND_MESSAGE_TO_TOPIC_WEB_HOOK.format(
+                        botServerBaseUrl,
                         botId,
                         chatId,
                         topicId,
@@ -112,7 +120,7 @@ abstract class TelegramNetworkService
         }
 
         fun upload(file: File) {
-            val webhookUrl = SEND_DOCUMENT_WEB_HOOK.format(botId)
+            val webhookUrl = SEND_DOCUMENT_WEB_HOOK.format(botServerBaseUrl, botId)
             val filePart =
                 MultipartBody.Part.createFormData(
                     "document",

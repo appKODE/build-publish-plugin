@@ -1,50 +1,38 @@
 package ru.kode.android.build.publish.plugin.telegram.config
 
+import org.gradle.api.Action
+import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
+import javax.inject.Inject
 
-interface TelegramBotConfig {
-    val name: String
+abstract class TelegramBotConfig @Inject constructor(
+    private val objects: ObjectFactory
+) {
+    abstract val name: String
 
     /**
      * Telegram bot id to post changelog in chat
      */
     @get:Input
-    val botId: Property<String>
+    abstract val botId: Property<String>
 
-    /**
-     * Bot server base url
-     */
     @get:Input
     @get:Optional
-    val botBaseUrl: Property<String>
+    abstract val botServerBaseUrl: Property<String>
 
-    /**
-     * Bot server auth username
-     */
-    @get:Input
     @get:Optional
-    val botAuthUsername: Property<String>
+    @get:Nested
+    val botServerAuth: TelegramBotServerAuthConfig =
+        objects.newInstance(TelegramBotServerAuthConfig::class.java)
 
-    /**
-     * Bot server auth password
-     */
-    @get:Input
-    @get:Optional
-    val botAuthPassword: Property<String>
+    val chats: NamedDomainObjectContainer<TelegramChatConfigConfig> =
+        objects.domainObjectContainer(TelegramChatConfigConfig::class.java)
 
-    /**
-     * Telegram chat id where changelog will be posted
-     */
-    @get:Input
-    val chatId: Property<String>
-
-    /**
-     * Unique identifier for the target message thread
-     * Represents "message_thread_id"
-     */
-    @get:Input
-    @get:Optional
-    val topicId: Property<String>
+    fun chat(chatName: String, action: Action<TelegramChatConfigConfig>) {
+        chats.register(chatName, action)
+    }
 }

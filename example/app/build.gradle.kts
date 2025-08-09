@@ -130,13 +130,20 @@ buildPublishTelegram {
     bot {
         register("default") {
             botId.set("0000")
-            chatId.set("0000")
-            topicId.set("0000")
+            chat("test_chat_A") {
+                chatId = "a"
+                topicId = "1"
+            }
+            chat("test_chat_B") {
+                chatId = "b"
+                topicId = "2"
+            }
         }
     }
     changelog {
         register("default") {
             userMentions.set(setOf("@ivan", "@roman", "@serega"))
+            destinationChats.set(setOf("test_chat_A"))
         }
     }
 }
