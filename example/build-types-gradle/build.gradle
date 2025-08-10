@@ -4,8 +4,6 @@ plugins {
     id 'ru.kode.android.build-publish-novo.foundation'
 }
 
-import ru.kode.android.build.publish.plugin.core.util.GradleApiExtensionsKt
-
 android {
     namespace = "ru.kode.android.build.types.example"
     compileSdk 34
@@ -27,7 +25,7 @@ android {
 buildPublishFoundation {
     output {
         common {
-            it.baseFileName = "base-project-android"
+           it.baseFileName = "base-project-android"
         }
     }
 

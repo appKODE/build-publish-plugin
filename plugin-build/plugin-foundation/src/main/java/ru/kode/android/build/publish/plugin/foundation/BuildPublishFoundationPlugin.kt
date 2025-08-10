@@ -212,8 +212,8 @@ private fun Project.registerChangelogDependentTasks(
     val issueNumberPattern = changelogConfig.issueNumberPattern
 
     telegramExtension?.let { extension ->
-        val telegramChangelogConfig = extension.changelog.getByNameOrNullableCommon(buildVariant.name)
-        val telegramDistributionConfig = extension.distribution.getByNameOrNullableCommon(buildVariant.name)
+        val telegramChangelogConfig = extension.changelogConfigOrNull(buildVariant.name)
+        val telegramDistributionConfig = extension.distributionConfigOrNull(buildVariant.name)
 
         if (telegramChangelogConfig != null) {
             TelegramTasksRegistrar.registerChangelogTask(
@@ -248,7 +248,7 @@ private fun Project.registerChangelogDependentTasks(
     val confluenceExtension = extensions.findByType(BuildPublishConfluenceExtension::class.java)
 
     confluenceExtension?.let { extension ->
-        val confluenceDistributionConfig = extension.distribution.getByNameOrRequiredCommon(buildVariant.name)
+        val confluenceDistributionConfig = extension.distributionConfig(buildVariant.name)
 
         ConfluenceTasksRegistrar.registerDistributionTask(
             project = this@registerChangelogDependentTasks,
@@ -264,9 +264,9 @@ private fun Project.registerChangelogDependentTasks(
     val slackExtension = extensions.findByType(BuildPublishSlackExtension::class.java)
 
     slackExtension?.let { extension ->
-        val slackBotConfig = extension.bot.getByNameOrRequiredCommon(buildVariant.name)
-        val slackChangelogConfig = extension.changelog.getByNameOrNullableCommon(buildVariant.name)
-        val slackDistributionConfig = extension.distribution.getByNameOrNullableCommon(buildVariant.name)
+        val slackBotConfig = extension.botConfig(buildVariant.name)
+        val slackChangelogConfig = extension.changelogConfigOrNull(buildVariant.name)
+        val slackDistributionConfig = extension.distributionConfigOrNull(buildVariant.name)
 
         if (slackChangelogConfig != null) {
             SlackTasksRegistrar.registerChangelogTask(
@@ -303,7 +303,7 @@ private fun Project.registerChangelogDependentTasks(
     val appCenterExtension = extensions.findByType(BuildPublishAppCenterExtension::class.java)
 
     appCenterExtension?.let { extension ->
-        val appCenterDistributionConfig = extension.distribution.getByNameOrRequiredCommon(buildVariant.name)
+        val appCenterDistributionConfig = extension.distributionConfig(buildVariant.name)
 
         AppCenterTasksRegistrar.registerDistributionTask(
             project = this@registerChangelogDependentTasks,
@@ -322,7 +322,7 @@ private fun Project.registerChangelogDependentTasks(
     val playExtension = extensions.findByType(BuildPublishPlayExtension::class.java)
 
     playExtension?.let { extension ->
-        val playDistributionConfig = extension.distribution.getByNameOrRequiredCommon(buildVariant.name)
+        val playDistributionConfig = extension.distributionConfig(buildVariant.name)
 
         PlayTasksRegistrar.registerDistributionTask(
             project = this@registerChangelogDependentTasks,
@@ -339,7 +339,7 @@ private fun Project.registerChangelogDependentTasks(
     val jiraExtension = extensions.findByType(BuildPublishJiraExtension::class.java)
 
     jiraExtension?.let { extension ->
-        val jiraAutomationConfig = extension.automation.getByNameOrRequiredCommon(buildVariant.name)
+        val jiraAutomationConfig = extension.automationConfig(buildVariant.name)
         JiraTasksRegistrar.registerAutomationTask(
             project = this@registerChangelogDependentTasks,
             automationConfig = jiraAutomationConfig,
@@ -356,7 +356,7 @@ private fun Project.registerChangelogDependentTasks(
     val clickUpExtension = extensions.findByType(BuildPublishClickUpExtension::class.java)
 
     clickUpExtension?.let { extension ->
-        val clickUpAutomationConfig = extension.automation.getByNameOrRequiredCommon(buildVariant.name)
+        val clickUpAutomationConfig = extension.automationConfig(buildVariant.name)
 
         ClickUpTasksRegistrar.registerAutomationTask(
             project = this@registerChangelogDependentTasks,

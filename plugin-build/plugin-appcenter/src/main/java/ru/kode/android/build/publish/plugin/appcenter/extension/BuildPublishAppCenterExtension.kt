@@ -7,6 +7,8 @@ import ru.kode.android.build.publish.plugin.appcenter.config.AppCenterAuthConfig
 import ru.kode.android.build.publish.plugin.appcenter.config.AppCenterDistributionConfig
 import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import javax.inject.Inject
 
 @Suppress("UnnecessaryAbstractClass")
@@ -18,6 +20,22 @@ abstract class BuildPublishAppCenterExtension
 
         internal val distribution: NamedDomainObjectContainer<AppCenterDistributionConfig> =
             objectFactory.domainObjectContainer(AppCenterDistributionConfig::class.java)
+
+        val authConfig: (buildName: String) -> AppCenterAuthConfig = { buildName ->
+            auth.getByNameOrRequiredCommon(buildName)
+        }
+
+        val authConfigOrNull: (buildName: String) -> AppCenterAuthConfig? = { buildName ->
+            auth.getByNameOrNullableCommon(buildName)
+        }
+
+        val distributionConfig: (buildName: String) -> AppCenterDistributionConfig = { buildName ->
+            distribution.getByNameOrRequiredCommon(buildName)
+        }
+
+        val distributionConfigOrNull: (buildName: String) -> AppCenterDistributionConfig? = { buildName ->
+            distribution.getByNameOrNullableCommon(buildName)
+        }
 
         fun auth(configurationAction: Action<BaseDomainContainer<AppCenterAuthConfig>>) {
             val container = BaseDomainContainer(auth)

@@ -5,6 +5,8 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.firebase.config.FirebaseDistributionConfig
 import javax.inject.Inject
 
@@ -14,6 +16,14 @@ abstract class BuildPublishFirebaseExtension
     constructor(objectFactory: ObjectFactory) : BaseExtension() {
         val distribution: NamedDomainObjectContainer<FirebaseDistributionConfig> =
             objectFactory.domainObjectContainer(FirebaseDistributionConfig::class.java)
+
+        val distributionConfig: (buildName: String) -> FirebaseDistributionConfig = { buildName ->
+            distribution.getByNameOrRequiredCommon(buildName)
+        }
+
+        val distributionConfigOrNull: (buildName: String) -> FirebaseDistributionConfig? = { buildName ->
+            distribution.getByNameOrNullableCommon(buildName)
+        }
 
         fun distribution(configurationAction: Action<BaseDomainContainer<FirebaseDistributionConfig>>) {
             val container = BaseDomainContainer(distribution)

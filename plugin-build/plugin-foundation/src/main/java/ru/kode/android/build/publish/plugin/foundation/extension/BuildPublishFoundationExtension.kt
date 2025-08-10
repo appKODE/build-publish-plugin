@@ -5,6 +5,8 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.foundation.config.OutputConfig
 import javax.inject.Inject
@@ -18,6 +20,22 @@ abstract class BuildPublishFoundationExtension
 
         internal val changelog: NamedDomainObjectContainer<ChangelogConfig> =
             objectFactory.domainObjectContainer(ChangelogConfig::class.java)
+
+        val outputConfig: (buildName: String) -> OutputConfig = { buildName ->
+            output.getByNameOrRequiredCommon(buildName)
+        }
+
+        val outputConfigOrNull: (buildName: String) -> OutputConfig? = { buildName ->
+            output.getByNameOrNullableCommon(buildName)
+        }
+
+        val changelogConfig: (buildName: String) -> ChangelogConfig = { buildName ->
+            changelog.getByNameOrRequiredCommon(buildName)
+        }
+
+        val changelogConfigOrNull: (buildName: String) -> ChangelogConfig? = { buildName ->
+            changelog.getByNameOrNullableCommon(buildName)
+        }
 
         fun output(configurationAction: Action<BaseDomainContainer<OutputConfig>>) {
             val container = BaseDomainContainer(output)
