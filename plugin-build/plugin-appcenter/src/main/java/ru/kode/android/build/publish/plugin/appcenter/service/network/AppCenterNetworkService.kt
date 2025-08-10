@@ -31,11 +31,31 @@ import javax.inject.Inject
 private const val API_BASE_URL = "https://api.appcenter.ms/v0.1/"
 private const val HTTP_CONNECT_TIMEOUT_SEC = 60L
 
+/**
+ * Build service that manages communication with AppCenter APIs for release upload and distribution.
+ *
+ * This service handles authentication, prepares releases, uploads APK files in chunks,
+ * commits releases, and distributes them to tester groups on AppCenter.
+ *
+ * The service uses Retrofit with Moshi for JSON serialization and OkHttp for HTTP communication,
+ * with token-based authentication injected via an interceptor.
+ *
+ * @constructor Creates an instance of the service with injected parameters.
+ */
 abstract class AppCenterNetworkService
     @Inject
     constructor() : BuildService<AppCenterNetworkService.Params> {
+        /**
+         * Parameters required for configuring the service.
+         */
         interface Params : BuildServiceParameters {
+            /**
+             * File containing the authentication token for AppCenter API.
+             */
             val token: RegularFileProperty
+            /**
+             * The owner (organization or user) name for the AppCenter app.
+             */
             val ownerName: Property<String>
         }
 
@@ -89,6 +109,11 @@ abstract class AppCenterNetworkService
         private val appName: String
             get() = appNameProperty.get()
 
+        /**
+         * Initializes the upload API client with a specific upload domain.
+         *
+         * @param uploadDomain Base URL domain for upload-related API calls.
+         */
         internal fun initUploadApi(uploadDomain: String) {
             uploadApiProperty.set(
                 retrofitBuilderProperty.map {
@@ -97,10 +122,23 @@ abstract class AppCenterNetworkService
             )
         }
 
+        /**
+         * Sets the app name for subsequent API calls.
+         *
+         * @param appName Application name registered in AppCenter.
+         */
         internal fun initAppName(appName: String) {
             appNameProperty.set(appName)
         }
 
+        /**
+         * Prepares a new release on AppCenter with version and build number.
+         *
+         * @param buildVersion Version string for the build (e.g., "1.0.0").
+         * @param buildNumber Numeric or string build identifier.
+         * @return The response containing upload URLs and IDs.
+         * @throws IOException on network failure or API error.
+         */
         internal fun prepareRelease(
             buildVersion: String,
             buildNumber: String,
@@ -109,6 +147,15 @@ abstract class AppCenterNetworkService
             return api.prepareRelease(ownerName, appName, request).executeOrThrow()
         }
 
+        /**
+         * Sends metadata for the APK file to AppCenter upload service.
+         *
+         * @param apkFile The APK file to upload metadata for.
+         * @param packageAssetId Package asset identifier received from prepareRelease.
+         * @param encodedToken Encoded upload token for authorization.
+         * @return Metadata response including chunk info for file upload.
+         * @throws UploadException if the response status is not success.
+         */
         internal fun sendMetaData(
             apkFile: File,
             packageAssetId: String,
@@ -129,6 +176,15 @@ abstract class AppCenterNetworkService
             return response
         }
 
+        /**
+         * Uploads a chunk of the APK file to AppCenter.
+         *
+         * @param packageAssetId Package asset identifier for the upload.
+         * @param encodedToken Encoded upload token for authorization.
+         * @param chunkNumber Index of the chunk to upload.
+         * @param request The chunk request body containing the file data.
+         * @throws IOException on network or API failure.
+         */
         internal fun uploadChunk(
             packageAssetId: String,
             encodedToken: String,
@@ -140,6 +196,12 @@ abstract class AppCenterNetworkService
                 .executeOrThrow()
         }
 
+        /**
+         * Signals to AppCenter that all chunks have been uploaded.
+         *
+         * @param packageAssetId Package asset identifier.
+         * @param encodedToken Encoded upload token.
+         */
         internal fun sendUploadIsFinished(
             packageAssetId: String,
             encodedToken: String,
@@ -149,11 +211,25 @@ abstract class AppCenterNetworkService
                 .executeOrThrow()
         }
 
+        /**
+         * Commits the uploaded release on AppCenter.
+         *
+         * @param preparedUploadId Identifier of the prepared upload.
+         */
         internal fun commit(preparedUploadId: String) {
             api.commit(ownerName, appName, preparedUploadId, CommitRequest(preparedUploadId))
                 .executeOrThrow()
         }
 
+        /**
+         * Polls AppCenter until the release is ready to be published or the max request count is exceeded.
+         *
+         * @param preparedUploadId Upload identifier to check status for.
+         * @param maxRequestCount Maximum number of polling attempts before failure.
+         * @param requestDelayMs Delay in milliseconds between polling attempts.
+         * @return The upload status response containing release distinct id when ready.
+         * @throws IllegalStateException if max request count is exceeded before ready.
+         */
         internal fun waitingReadyToBePublished(
             preparedUploadId: String,
             maxRequestCount: Int,
@@ -174,6 +250,13 @@ abstract class AppCenterNetworkService
             return api.getUpload(ownerName, appName, preparedUploadId).executeOrThrow()
         }
 
+        /**
+         * Distributes the uploaded release to specified tester groups with release notes.
+         *
+         * @param releaseId Release distinct identifier.
+         * @param distributionGroups Set of tester group names.
+         * @param releaseNotes Text notes to accompany the release.
+         */
         internal fun distribute(
             releaseId: String,
             distributionGroups: Set<String>,

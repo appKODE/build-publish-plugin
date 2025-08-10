@@ -11,46 +11,76 @@ import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import javax.inject.Inject
 
+/**
+ * Extension entry point for configuring App Center integration in the build script.
+ *
+ * Holds and manages two main configuration groups:
+ * - [AppCenterAuthConfig] for authentication
+ * - [AppCenterDistributionConfig] for app distribution
+ *
+ * Provides:
+ * - Per-build-type configuration (e.g., `auth {}`, `distribution {}`)
+ * - Common (fallback) configuration shared across build types (`authCommon {}`, `distributionCommon {}`)
+ * - Utility functions to retrieve configs by build name (required and optional variants)
+ */
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishAppCenterExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BaseExtension() {
+        // Stores authentication configs for different build types.
         internal val auth: NamedDomainObjectContainer<AppCenterAuthConfig> =
             objectFactory.domainObjectContainer(AppCenterAuthConfig::class.java)
 
+        // Stores distribution configs for different build types.
         internal val distribution: NamedDomainObjectContainer<AppCenterDistributionConfig> =
             objectFactory.domainObjectContainer(AppCenterDistributionConfig::class.java)
 
+        // Retrieves auth config for a specific build type (throws if not found).
         val authConfig: (buildName: String) -> AppCenterAuthConfig = { buildName ->
             auth.getByNameOrRequiredCommon(buildName)
         }
 
+        // Retrieves auth config for a specific build type, or null if not found.
         val authConfigOrNull: (buildName: String) -> AppCenterAuthConfig? = { buildName ->
             auth.getByNameOrNullableCommon(buildName)
         }
 
+        // Retrieves distribution config for a specific build type (throws if not found).
         val distributionConfig: (buildName: String) -> AppCenterDistributionConfig = { buildName ->
             distribution.getByNameOrRequiredCommon(buildName)
         }
 
+        // Retrieves distribution config for a specific build type, or null if not found.
         val distributionConfigOrNull: (buildName: String) -> AppCenterDistributionConfig? = { buildName ->
             distribution.getByNameOrNullableCommon(buildName)
         }
 
+        /**
+         * Configures authentication for specific build types.
+         */
         fun auth(configurationAction: Action<BaseDomainContainer<AppCenterAuthConfig>>) {
             val container = BaseDomainContainer(auth)
             configurationAction.execute(container)
         }
 
+        /**
+         * Configures distribution for specific build types.
+         */
         fun distribution(configurationAction: Action<BaseDomainContainer<AppCenterDistributionConfig>>) {
             val container = BaseDomainContainer(distribution)
             configurationAction.execute(container)
         }
 
+        /**
+         * Configures authentication settings applied to all build types (fallback).
+         */
         fun authCommon(configurationAction: Action<AppCenterAuthConfig>) {
             common(auth, configurationAction)
         }
 
+        /**
+         * Configures distribution settings applied to all build types (fallback).
+         */
         fun distributionCommon(configurationAction: Action<AppCenterDistributionConfig>) {
             common(distribution, configurationAction)
         }

@@ -13,6 +13,9 @@ import ru.kode.android.build.publish.plugin.appcenter.task.distribution.entity.C
 import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
 import kotlin.math.round
 
+/**
+ * Parameters required for the AppCenter upload work action.
+ */
 internal interface AppCenterUploadParameters : WorkParameters {
     val appName: Property<String>
     val buildName: Property<String>
@@ -26,6 +29,21 @@ internal interface AppCenterUploadParameters : WorkParameters {
     val networkService: Property<AppCenterNetworkService>
 }
 
+/**
+ * WorkAction that performs the uploading of an APK to AppCenter.
+ *
+ * The upload process consists of the following steps:
+ * 1. Prepare a new release on AppCenter using the build version and number.
+ * 2. Initialize the upload API and send the APK metadata.
+ * 3. Upload the APK file in chunks, handling partial uploads.
+ * 4. Mark the upload as finished on AppCenter.
+ * 5. Commit the uploaded release.
+ * 6. Poll AppCenter until the release is ready to be published.
+ * 7. Distribute the release to specified tester groups with changelog notes.
+ *
+ * Upload request delays for polling are dynamically calculated based on APK size
+ * and an optional coefficient or a fixed delay.
+ */
 internal abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
     private val logger = Logging.getLogger(this::class.java)
 
