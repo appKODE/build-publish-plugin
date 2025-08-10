@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.telegram.extension
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
+import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
@@ -13,22 +14,39 @@ import javax.inject.Inject
 abstract class BuildPublishTelegramExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BaseExtension() {
-        val bot: NamedDomainObjectContainer<TelegramBotConfig> =
+        internal val bot: NamedDomainObjectContainer<TelegramBotConfig> =
             objectFactory.domainObjectContainer(TelegramBotConfig::class.java)
-        val changelog: NamedDomainObjectContainer<TelegramChangelogConfig> =
+
+        internal val changelog: NamedDomainObjectContainer<TelegramChangelogConfig> =
             objectFactory.domainObjectContainer(TelegramChangelogConfig::class.java)
-        val distribution: NamedDomainObjectContainer<TelegramDistributionConfig> =
+
+        internal val distribution: NamedDomainObjectContainer<TelegramDistributionConfig> =
             objectFactory.domainObjectContainer(TelegramDistributionConfig::class.java)
 
-        fun botDefault(configurationAction: Action<TelegramBotConfig>) {
-            prepareDefault(bot, configurationAction)
+        fun bot(configurationAction: Action<BaseDomainContainer<TelegramBotConfig>>) {
+            val container = BaseDomainContainer(bot)
+            configurationAction.execute(container)
         }
 
-        fun changelogDefault(configurationAction: Action<TelegramChangelogConfig>) {
-            prepareDefault(changelog, configurationAction)
+        fun changelog(configurationAction: Action<BaseDomainContainer<TelegramChangelogConfig>>) {
+            val container = BaseDomainContainer(changelog)
+            configurationAction.execute(container)
         }
 
-        fun distributionDefault(configurationAction: Action<TelegramDistributionConfig>) {
-            prepareDefault(distribution, configurationAction)
+        fun distribution(configurationAction: Action<BaseDomainContainer<TelegramDistributionConfig>>) {
+            val container = BaseDomainContainer(distribution)
+            configurationAction.execute(container)
+        }
+
+        fun botCommon(configurationAction: Action<TelegramBotConfig>) {
+            common(bot, configurationAction)
+        }
+
+        fun changelogCommon(configurationAction: Action<TelegramChangelogConfig>) {
+            common(changelog, configurationAction)
+        }
+
+        fun distributionCommon(configurationAction: Action<TelegramDistributionConfig>) {
+            common(distribution, configurationAction)
         }
     }

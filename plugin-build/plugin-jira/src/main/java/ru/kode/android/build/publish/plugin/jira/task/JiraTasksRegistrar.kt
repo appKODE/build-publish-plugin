@@ -6,7 +6,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrDefault
+import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
 import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
 import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
 import ru.kode.android.build.publish.plugin.jira.task.automation.JiraAutomationTask
@@ -36,7 +36,7 @@ private fun Project.registerJiraTasks(
             project.extensions
                 .getByType(JiraServiceExtension::class.java)
                 .networkServices
-                .flatMapByNameOrDefault(params.buildVariant.name)
+                .flatMapByNameOrCommon(params.buildVariant.name)
 
         tasks.register(
             "$JIRA_AUTOMATION_TASK${params.buildVariant.capitalizedName()}",

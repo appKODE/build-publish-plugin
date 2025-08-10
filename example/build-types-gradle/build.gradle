@@ -26,12 +26,12 @@ android {
 
 buildPublishFoundation {
     output {
-        GradleApiExtensionsKt.createDefault(it) {
+        common {
             it.baseFileName = "base-project-android"
         }
     }
 
-    changelogDefault {
+    changelogCommon {
         issueNumberPattern = "BASE-\\d+"
         issueUrlPrefix = "https://jira.exmaple.ru/browse/"
         commitMessageKey = "CHANGELOG"

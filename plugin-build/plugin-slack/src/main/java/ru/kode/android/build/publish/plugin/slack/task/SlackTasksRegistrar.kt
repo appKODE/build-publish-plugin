@@ -9,7 +9,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrDefault
+import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackDistributionConfig
@@ -65,7 +65,7 @@ private fun Project.registerSendSlackChangelogTask(
             extensions
                 .getByType(SlackServiceExtension::class.java)
                 .webhookServices
-                .flatMapByNameOrDefault(params.buildVariant.name)
+                .flatMapByNameOrCommon(params.buildVariant.name)
 
         it.changelogFile.set(params.generateChangelogFileProvider)
         it.tagBuildFile.set(params.tagBuildProvider)
@@ -91,7 +91,7 @@ private fun Project.registerSlackDistributionTask(
             extensions
                 .getByType(SlackServiceExtension::class.java)
                 .uploadServices
-                .flatMapByNameOrDefault(params.buildVariant.name)
+                .flatMapByNameOrCommon(params.buildVariant.name)
 
         it.buildVariantOutputFile.set(params.apkOutputFileProvider)
         it.channels.set(distributionConfig.uploadChannels)

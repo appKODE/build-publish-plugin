@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.foundation.extension
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
+import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
 import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.foundation.config.OutputConfig
@@ -12,17 +13,27 @@ import javax.inject.Inject
 abstract class BuildPublishFoundationExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BaseExtension() {
-        val output: NamedDomainObjectContainer<OutputConfig> =
+        internal val output: NamedDomainObjectContainer<OutputConfig> =
             objectFactory.domainObjectContainer(OutputConfig::class.java)
 
-        val changelog: NamedDomainObjectContainer<ChangelogConfig> =
+        internal val changelog: NamedDomainObjectContainer<ChangelogConfig> =
             objectFactory.domainObjectContainer(ChangelogConfig::class.java)
 
-        fun outputDefault(configurationAction: Action<OutputConfig>) {
-            prepareDefault(output, configurationAction)
+        fun output(configurationAction: Action<BaseDomainContainer<OutputConfig>>) {
+            val container = BaseDomainContainer(output)
+            configurationAction.execute(container)
         }
 
-        fun changelogDefault(configurationAction: Action<ChangelogConfig>) {
-            prepareDefault(changelog, configurationAction)
+        fun changelog(configurationAction: Action<BaseDomainContainer<ChangelogConfig>>) {
+            val container = BaseDomainContainer(changelog)
+            configurationAction.execute(container)
+        }
+
+        fun outputCommon(configurationAction: Action<OutputConfig>) {
+            common(output, configurationAction)
+        }
+
+        fun changelogCommon(configurationAction: Action<ChangelogConfig>) {
+            common(changelog, configurationAction)
         }
     }

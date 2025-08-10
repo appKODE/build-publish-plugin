@@ -1,4 +1,5 @@
-import ru.kode.android.build.publish.plugin.core.util.createDefault
+import ru.kode.android.build.publish.plugin.core.util.buildType
+import ru.kode.android.build.publish.plugin.core.util.common
 
 plugins {
     id("com.android.application")
@@ -55,10 +56,10 @@ dependencies {
 }
 
 buildPublishFoundation {
-    outputDefault {
+    outputCommon {
         baseFileName.set("example-base-project-android")
     }
-    changelogDefault {
+    changelogCommon {
         issueNumberPattern.set("AT-\\d+")
         issueUrlPrefix.set("https://jira.atlassian.com/")
         commitMessageKey.set("CHANGELOG")
@@ -67,19 +68,19 @@ buildPublishFoundation {
 
 buildPublishJira {
     auth {
-        register("default") {
+        common {
             baseUrl.set("https://jira.atlassian.com")
             authUsername.set("test_user_default")
             authPassword.set("test_password_default")
         }
-        register("release") {
+        buildType("release") {
             baseUrl.set("https://jira.atlassian.com")
             authUsername.set("test_user_release")
             authPassword.set("test_password_release")
         }
     }
     automation {
-        register("default") {
+        common {
             projectId.set(1111)
             fixVersionPattern.set("fix_%2\$s_%1\$s")
         }
@@ -88,24 +89,24 @@ buildPublishJira {
 
 buildPublishAppCenter {
     auth {
-        register("default") {
+        common {
             ownerName.set("android-team-kode.ru")
             apiTokenFile.set(File("appcenter-token.txt"))
         }
     }
 
     distribution {
-        createDefault {
+        common {
             appName.set("Android")
             testerGroups.set(setOf("Collaborators"))
         }
 
-        register("debug") {
+        buildType("debug") {
             appName.set("AndroidDebug")
             testerGroups.set(setOf("Collaborators"))
         }
 
-        register("release") {
+        buildType("release") {
             appName.set("AndroidRelease")
             testerGroups.set(setOf("Collaborators"))
         }
@@ -114,13 +115,13 @@ buildPublishAppCenter {
 
 buildPublishConfluence {
     auth {
-        register("default") {
+        common {
             username.set("@username")
             password.set("@password")
         }
     }
     distribution {
-        register("default") {
+        buildType("default") {
             pageId.set("123435")
         }
     }
@@ -128,7 +129,7 @@ buildPublishConfluence {
 
 buildPublishTelegram {
     bot {
-        register("default") {
+        common {
             botId.set("0000")
             chat("test_chat_A") {
                 chatId = "a"
@@ -141,7 +142,7 @@ buildPublishTelegram {
         }
     }
     changelog {
-        register("default") {
+        common {
             userMentions.set(setOf("@ivan", "@roman", "@serega"))
             destinationChats.set(setOf("test_chat_A"))
         }
@@ -150,12 +151,12 @@ buildPublishTelegram {
 
 buildPublishClickUp {
     auth {
-        register("default") {
+        common {
             apiTokenFile = File("clickup-token.txt")
         }
     }
     automation {
-        register("default") {
+        common {
             fixVersionPattern = "fix_%2\$s_%1\$s"
             fixVersionFieldId = "01234567qwerty"
             tagName = "test_tag_name"

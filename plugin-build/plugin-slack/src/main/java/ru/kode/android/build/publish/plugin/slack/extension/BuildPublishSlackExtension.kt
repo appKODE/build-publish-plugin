@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.slack.extension
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
+import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
@@ -13,22 +14,39 @@ import javax.inject.Inject
 abstract class BuildPublishSlackExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BaseExtension() {
-        val bot: NamedDomainObjectContainer<SlackBotConfig> =
+        internal val bot: NamedDomainObjectContainer<SlackBotConfig> =
             objectFactory.domainObjectContainer(SlackBotConfig::class.java)
-        val changelog: NamedDomainObjectContainer<SlackChangelogConfig> =
+
+        internal val changelog: NamedDomainObjectContainer<SlackChangelogConfig> =
             objectFactory.domainObjectContainer(SlackChangelogConfig::class.java)
-        val distribution: NamedDomainObjectContainer<SlackDistributionConfig> =
+
+        internal val distribution: NamedDomainObjectContainer<SlackDistributionConfig> =
             objectFactory.domainObjectContainer(SlackDistributionConfig::class.java)
 
-        fun botDefault(configurationAction: Action<SlackBotConfig>) {
-            prepareDefault(bot, configurationAction)
+        fun bot(configurationAction: Action<BaseDomainContainer<SlackBotConfig>>) {
+            val container = BaseDomainContainer(bot)
+            configurationAction.execute(container)
         }
 
-        fun changelogDefault(configurationAction: Action<SlackChangelogConfig>) {
-            prepareDefault(changelog, configurationAction)
+        fun changelog(configurationAction: Action<BaseDomainContainer<SlackChangelogConfig>>) {
+            val container = BaseDomainContainer(changelog)
+            configurationAction.execute(container)
         }
 
-        fun distributionDefault(configurationAction: Action<SlackDistributionConfig>) {
-            prepareDefault(distribution, configurationAction)
+        fun distribution(configurationAction: Action<BaseDomainContainer<SlackDistributionConfig>>) {
+            val container = BaseDomainContainer(distribution)
+            configurationAction.execute(container)
+        }
+
+        fun botCommon(configurationAction: Action<SlackBotConfig>) {
+            common(bot, configurationAction)
+        }
+
+        fun changelogCommon(configurationAction: Action<SlackChangelogConfig>) {
+            common(changelog, configurationAction)
+        }
+
+        fun distributionCommon(configurationAction: Action<SlackDistributionConfig>) {
+            common(distribution, configurationAction)
         }
     }

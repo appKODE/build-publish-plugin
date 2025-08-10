@@ -9,7 +9,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrDefault
+import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramDistributionConfig
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExtension
@@ -58,7 +58,7 @@ private fun Project.registerSendTelegramChangelogTask(
             project.extensions
                 .getByType(TelegramServiceExtension::class.java)
                 .networkServices
-                .flatMapByNameOrDefault(params.buildVariant.name)
+                .flatMapByNameOrCommon(params.buildVariant.name)
 
         it.changelogFile.set(params.generateChangelogFileProvider)
         it.tagBuildFile.set(params.tagBuildProvider)
@@ -80,7 +80,7 @@ private fun Project.registerTelegramUploadTask(params: TelegramDistributionTaskP
             project.extensions
                 .getByType(TelegramServiceExtension::class.java)
                 .networkServices
-                .flatMapByNameOrDefault(params.buildVariant.name)
+                .flatMapByNameOrCommon(params.buildVariant.name)
 
         it.buildVariantOutputFile.set(params.apkOutputFileProvider)
         it.networkService.set(networkService)

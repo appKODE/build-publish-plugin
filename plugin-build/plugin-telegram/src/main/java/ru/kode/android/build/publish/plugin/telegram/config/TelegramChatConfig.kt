@@ -4,7 +4,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-abstract class TelegramChatConfigConfig {
+abstract class TelegramChatConfig {
 
     /**
      * Telegram chat id where bot is added

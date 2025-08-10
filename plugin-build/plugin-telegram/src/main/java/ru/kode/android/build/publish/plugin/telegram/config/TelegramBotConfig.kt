@@ -10,7 +10,7 @@ import org.gradle.api.tasks.Optional
 import javax.inject.Inject
 
 abstract class TelegramBotConfig @Inject constructor(
-    private val objects: ObjectFactory
+    objects: ObjectFactory
 ) {
     abstract val name: String
 
@@ -24,15 +24,15 @@ abstract class TelegramBotConfig @Inject constructor(
     @get:Optional
     abstract val botServerBaseUrl: Property<String>
 
-    @get:Optional
     @get:Nested
+    @get:Optional
     val botServerAuth: TelegramBotServerAuthConfig =
         objects.newInstance(TelegramBotServerAuthConfig::class.java)
 
-    val chats: NamedDomainObjectContainer<TelegramChatConfigConfig> =
-        objects.domainObjectContainer(TelegramChatConfigConfig::class.java)
+    internal val chats: NamedDomainObjectContainer<TelegramChatConfig> =
+        objects.domainObjectContainer(TelegramChatConfig::class.java)
 
-    fun chat(chatName: String, action: Action<TelegramChatConfigConfig>) {
+    fun chat(chatName: String, action: Action<TelegramChatConfig>) {
         chats.register(chatName, action)
     }
 }
