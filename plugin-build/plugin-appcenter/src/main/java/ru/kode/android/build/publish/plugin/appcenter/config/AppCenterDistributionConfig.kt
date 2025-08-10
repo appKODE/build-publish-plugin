@@ -8,46 +8,65 @@ import org.gradle.api.tasks.Optional
 internal const val MAX_REQUEST_COUNT = 20
 internal const val MAX_REQUEST_DELAY_MS = 2000L
 
+/**
+ * Configuration for distributing builds to Microsoft App Center.
+ *
+ * The constants [MAX_REQUEST_COUNT] and [MAX_REQUEST_DELAY_MS] define the plugin's default behavior
+ * when polling App Center for upload completion.
+ */
 interface AppCenterDistributionConfig {
     val name: String
 
     /**
-     * "Application name in AppCenter. If appName isn't set plugin uses <baseFileName>-<variantName>,
-     * for example example-base-project-android-debug, example-base-project-android-internal"
+     * Application name in App Center.
+     *
+     * If this value is not explicitly set, the plugin uses the format:
+     * `<baseFileName>-<variantName>`, for example:
+     * ```
+     * example-base-project-android-debug
+     * example-base-project-android-internal
+     * ```
      */
     @get:Input
     val appName: Property<String>
 
     /**
-     * Test groups for app distribution
+     * Set of test groups in App Center to which the build will be distributed.
      *
-     * For example: [android-testers]
+     * Example:
+     * ```
+     * ["android-testers"]
+     * ```
      */
     @get:Input
     val testerGroups: SetProperty<String>
 
     /**
-     * Max request count to check upload status. Default = [MAX_REQUEST_COUNT]
+     * Maximum number of requests to send when polling upload status.
+     *
+     * If not specified, defaults to [MAX_REQUEST_COUNT].
      */
     @get:Input
     @get:Optional
     val maxUploadStatusRequestCount: Property<Int>
 
     /**
-     * Request delay in ms for each request. Default = [MAX_REQUEST_DELAY_MS] ms
+     * Delay in milliseconds between upload status polling requests.
+     *
+     * If not specified, defaults to [MAX_REQUEST_DELAY_MS].
      */
     @get:Input
     @get:Optional
     val uploadStatusRequestDelayMs: Property<Long>
 
     /**
-     * Coefficient K for dynamic upload status request delay calculation:
+     * Optional coefficient `K` used to calculate dynamic upload status request delay:
      *
+     * ```
      * delaySecs = apkSizeMb / K
+     * ```
      *
-     * If this isn't specified or 0, [uploadStatusRequestDelayMs] will be used.
-     *
-     * Default value is null.
+     * If this is not specified or is set to `0`, [uploadStatusRequestDelayMs] will be used instead.
      */
     @get:Input
     @get:Optional
