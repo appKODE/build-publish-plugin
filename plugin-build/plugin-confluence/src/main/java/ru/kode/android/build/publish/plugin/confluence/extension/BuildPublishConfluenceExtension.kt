@@ -5,8 +5,8 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceAuthConfig
 import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceDistributionConfig
-import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
-import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.api.container.BaseDomainContainer
+import ru.kode.android.build.publish.plugin.core.api.extension.BaseExtension
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import javax.inject.Inject

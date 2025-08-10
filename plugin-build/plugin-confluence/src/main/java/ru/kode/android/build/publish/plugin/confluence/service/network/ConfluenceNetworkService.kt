@@ -20,6 +20,7 @@ import ru.kode.android.build.publish.plugin.confluence.task.distribution.entity.
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.entity.Body
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.entity.Container
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.entity.Storage
+import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
 import java.io.File
@@ -31,8 +32,7 @@ abstract class ConfluenceNetworkService
     constructor() : BuildService<ConfluenceNetworkService.Params> {
         interface Params : BuildServiceParameters {
             val baseUrl: Property<String>
-            val username: Property<String>
-            val password: Property<String>
+            val credentials: Property<BasicAuthCredentials>
         }
 
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
@@ -40,7 +40,8 @@ abstract class ConfluenceNetworkService
 
         init {
             okHttpClientProperty.set(
-                parameters.username.zip(parameters.password) { username, password ->
+                parameters.credentials.flatMap { it.username }
+                    .zip(parameters.credentials.flatMap { it.password }) { username, password ->
                     OkHttpClient.Builder()
                         .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
                         .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)

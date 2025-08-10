@@ -1,8 +1,8 @@
-package ru.kode.android.build.publish.plugin.core.extension
+package ru.kode.android.build.publish.plugin.core.api.extension
 
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
-import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
+import ru.kode.android.build.publish.plugin.core.api.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.util.buildType
 import ru.kode.android.build.publish.plugin.core.util.common
 

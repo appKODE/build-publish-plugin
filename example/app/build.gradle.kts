@@ -67,13 +67,13 @@ buildPublishJira {
     auth {
         common {
             baseUrl.set("https://jira.atlassian.com")
-            authUsername.set("test_user_default")
-            authPassword.set("test_password_default")
+            credentials.username.set("test_user_default")
+            credentials.password.set("test_password_default")
         }
         buildType("release") {
             baseUrl.set("https://jira.atlassian.com")
-            authUsername.set("test_user_release")
-            authPassword.set("test_password_release")
+            credentials.username.set("test_user_release")
+            credentials.password.set("test_password_release")
         }
     }
     automation {
@@ -113,8 +113,8 @@ buildPublishAppCenter {
 buildPublishConfluence {
     auth {
         common {
-            username.set("@username")
-            password.set("@password")
+            credentials.username.set("@username")
+            credentials.password.set("@password")
         }
     }
     distribution {

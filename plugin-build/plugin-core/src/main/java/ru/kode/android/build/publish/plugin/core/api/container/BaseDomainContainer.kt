@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.core.container
+package ru.kode.android.build.publish.plugin.core.api.container
 
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException

@@ -7,6 +7,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
+import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
 import javax.inject.Inject
 
 /**
@@ -42,8 +43,8 @@ abstract class TelegramBotConfig @Inject constructor(
      */
     @get:Nested
     @get:Optional
-    val botServerAuth: TelegramBotServerAuthConfig =
-        objects.newInstance(TelegramBotServerAuthConfig::class.java)
+    val botServerAuth: BasicAuthCredentials =
+        objects.newInstance(BasicAuthCredentials::class.java)
 
     /**
      * Internal container of [TelegramChatConfig] objects representing the chats
