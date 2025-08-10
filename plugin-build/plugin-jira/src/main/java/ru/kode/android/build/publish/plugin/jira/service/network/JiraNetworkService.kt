@@ -12,6 +12,7 @@ import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.core.util.executeOptionalOrThrow
 import ru.kode.android.build.publish.plugin.jira.task.automation.api.JiraApi
@@ -27,8 +28,7 @@ abstract class JiraNetworkService
     constructor() : BuildService<JiraNetworkService.Params> {
         interface Params : BuildServiceParameters {
             val baseUrl: Property<String>
-            val username: Property<String>
-            val password: Property<String>
+            val credentials: Property<BasicAuthCredentials>
         }
 
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
@@ -36,7 +36,8 @@ abstract class JiraNetworkService
 
         init {
             okHttpClientProperty.set(
-                parameters.username.zip(parameters.password) { username, password ->
+                parameters.credentials.flatMap { it.username }
+                    .zip(parameters.credentials.flatMap { it.password }) { username, password ->
                     OkHttpClient.Builder()
                         .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                         .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)

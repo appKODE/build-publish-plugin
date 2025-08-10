@@ -66,8 +66,8 @@ buildPublishTelegram {
 buildPublishConfluence {
     auth {
         common {
-            username.set("@username")
-            password.set("@password")
+            credentials.username.set("@username")
+            credentials.password.set("@password")
         }
     }
 

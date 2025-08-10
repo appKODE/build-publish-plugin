@@ -35,8 +35,7 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
                                 JiraNetworkService::class.java,
                                 {
                                     it.maxParallelUsages.set(1)
-                                    it.parameters.password.set(authConfig.authPassword)
-                                    it.parameters.username.set(authConfig.authUsername)
+                                    it.parameters.credentials.set(authConfig.credentials)
                                     it.parameters.baseUrl.set(authConfig.baseUrl)
                                 },
                             )

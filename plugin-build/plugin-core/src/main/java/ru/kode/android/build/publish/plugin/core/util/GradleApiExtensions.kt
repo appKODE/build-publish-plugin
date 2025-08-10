@@ -7,7 +7,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
+import ru.kode.android.build.publish.plugin.core.api.container.BaseDomainContainer
 
 const val COMMON_CONTAINER_NAME = "default"
 

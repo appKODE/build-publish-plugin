@@ -12,11 +12,11 @@ import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
 import ru.kode.android.build.publish.plugin.core.util.UploadException
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.core.util.createPartFromString
 import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
-import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotServerAuthConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChatConfig
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.api.TelegramWebhookSenderApi
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.api.TelegramApi
@@ -42,7 +42,7 @@ abstract class TelegramNetworkService
         interface Params : BuildServiceParameters {
             val botId: Property<String>
             val botServerBaseUrl: Property<String>
-            val botServerAuth: Property<TelegramBotServerAuthConfig>
+            val botServerAuth: Property<BasicAuthCredentials>
             val chat: Property<TelegramChatConfig>
         }
 

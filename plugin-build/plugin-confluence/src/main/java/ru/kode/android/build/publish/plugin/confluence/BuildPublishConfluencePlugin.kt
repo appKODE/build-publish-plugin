@@ -33,8 +33,7 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
                                 ConfluenceNetworkService::class.java,
                                 {
                                     it.maxParallelUsages.set(1)
-                                    it.parameters.password.set(authConfig.password)
-                                    it.parameters.username.set(authConfig.username)
+                                    it.parameters.credentials.set(authConfig.credentials)
                                     it.parameters.baseUrl.set(authConfig.baseUrl)
                                 },
                             )
