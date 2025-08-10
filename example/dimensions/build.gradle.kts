@@ -1,3 +1,6 @@
+import ru.kode.android.build.publish.plugin.core.util.buildType
+import ru.kode.android.build.publish.plugin.core.util.common
+
 plugins {
     id("com.android.application")
     id("ru.kode.android.build-publish-novo.foundation")
@@ -45,17 +48,17 @@ android {
 
 buildPublishFoundation {
     output {
-        register("default") {
+        common {
             baseFileName.set("example-base-project-android")
         }
 
-        register("x86MinApi21AlphaDebug") {
+        buildType("x86MinApi21AlphaDebug") {
             baseFileName.set("example-base-project-android")
             buildTagPattern.set("cabinet\\+.+\\.(\\d+)-x86MinApi21AlphaDebug")
         }
     }
     changelog {
-        register("default") {
+        common {
             issueNumberPattern.set("BASE-\\d+")
             issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
             commitMessageKey.set("CHANGELOG")
@@ -65,7 +68,7 @@ buildPublishFoundation {
 
 buildPublishFirebase {
     distribution {
-        register("default") {
+        common {
             serviceCredentialsFilePath.set("test-test")
             appId.set("ru.kode.test.app")
             testerGroups.set(setOf("android-testers"))
@@ -75,13 +78,13 @@ buildPublishFirebase {
 
 buildPublishSlack {
     bot {
-        register("default") {
+        common {
             webhookUrl.set("https://hooks.slack.com/services/111111111/AAAAAAA/DDDDDDD")
             iconUrl.set("https://i.imgur.com/HQTF5FK.png")
         }
     }
     changelog {
-        register("default") {
+        common {
             userMentions.set(setOf("@aa", "@bb", "@cc"))
             attachmentColor.set("#ffffff")
         }

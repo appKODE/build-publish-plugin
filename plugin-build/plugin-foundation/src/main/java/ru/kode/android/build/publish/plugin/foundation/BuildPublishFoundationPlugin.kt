@@ -24,9 +24,9 @@ import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceTasksRegis
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.git.DEFAULT_TAG_PATTERN
 import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableDefault
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredDefault
-import ru.kode.android.build.publish.plugin.core.util.getDefault
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
+import ru.kode.android.build.publish.plugin.core.util.getCommon
 import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.foundation.config.OutputConfig
 import ru.kode.android.build.publish.plugin.foundation.extension.BuildPublishFoundationExtension
@@ -87,7 +87,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                     val outputConfig =
                         buildPublishFoundationExtension
                             .output
-                            .getByNameOrRequiredDefault(buildVariant.name)
+                            .getByNameOrRequiredCommon(buildVariant.name)
 
                     val buildTagPatternProvider =
                         outputConfig.buildTagPattern.orElse(
@@ -127,7 +127,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                     val changelogConfig =
                         buildPublishFoundationExtension
                             .changelog
-                            .getByNameOrNullableDefault(buildVariant.name)
+                            .getByNameOrNullableCommon(buildVariant.name)
 
                     if (changelogConfig != null) {
                         val apkOutputFileProvider =
@@ -171,7 +171,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
         )
         androidExtension.finalizeDsl {
             val outputConfig =
-                buildPublishFoundationExtension.output.getDefault()
+                buildPublishFoundationExtension.output.getCommon()
                     ?: throw GradleException("output config should be defined")
             val useDefaultVersionsAsFallback =
                 outputConfig
@@ -212,8 +212,8 @@ private fun Project.registerChangelogDependentTasks(
     val issueNumberPattern = changelogConfig.issueNumberPattern
 
     telegramExtension?.let { extension ->
-        val telegramChangelogConfig = extension.changelog.getByNameOrNullableDefault(buildVariant.name)
-        val telegramDistributionConfig = extension.distribution.getByNameOrNullableDefault(buildVariant.name)
+        val telegramChangelogConfig = extension.changelog.getByNameOrNullableCommon(buildVariant.name)
+        val telegramDistributionConfig = extension.distribution.getByNameOrNullableCommon(buildVariant.name)
 
         if (telegramChangelogConfig != null) {
             TelegramTasksRegistrar.registerChangelogTask(
@@ -248,7 +248,7 @@ private fun Project.registerChangelogDependentTasks(
     val confluenceExtension = extensions.findByType(BuildPublishConfluenceExtension::class.java)
 
     confluenceExtension?.let { extension ->
-        val confluenceDistributionConfig = extension.distribution.getByNameOrRequiredDefault(buildVariant.name)
+        val confluenceDistributionConfig = extension.distribution.getByNameOrRequiredCommon(buildVariant.name)
 
         ConfluenceTasksRegistrar.registerDistributionTask(
             project = this@registerChangelogDependentTasks,
@@ -264,9 +264,9 @@ private fun Project.registerChangelogDependentTasks(
     val slackExtension = extensions.findByType(BuildPublishSlackExtension::class.java)
 
     slackExtension?.let { extension ->
-        val slackBotConfig = extension.bot.getByNameOrRequiredDefault(buildVariant.name)
-        val slackChangelogConfig = extension.changelog.getByNameOrNullableDefault(buildVariant.name)
-        val slackDistributionConfig = extension.distribution.getByNameOrNullableDefault(buildVariant.name)
+        val slackBotConfig = extension.bot.getByNameOrRequiredCommon(buildVariant.name)
+        val slackChangelogConfig = extension.changelog.getByNameOrNullableCommon(buildVariant.name)
+        val slackDistributionConfig = extension.distribution.getByNameOrNullableCommon(buildVariant.name)
 
         if (slackChangelogConfig != null) {
             SlackTasksRegistrar.registerChangelogTask(
@@ -303,7 +303,7 @@ private fun Project.registerChangelogDependentTasks(
     val appCenterExtension = extensions.findByType(BuildPublishAppCenterExtension::class.java)
 
     appCenterExtension?.let { extension ->
-        val appCenterDistributionConfig = extension.distribution.getByNameOrRequiredDefault(buildVariant.name)
+        val appCenterDistributionConfig = extension.distribution.getByNameOrRequiredCommon(buildVariant.name)
 
         AppCenterTasksRegistrar.registerDistributionTask(
             project = this@registerChangelogDependentTasks,
@@ -322,7 +322,7 @@ private fun Project.registerChangelogDependentTasks(
     val playExtension = extensions.findByType(BuildPublishPlayExtension::class.java)
 
     playExtension?.let { extension ->
-        val playDistributionConfig = extension.distribution.getByNameOrRequiredDefault(buildVariant.name)
+        val playDistributionConfig = extension.distribution.getByNameOrRequiredCommon(buildVariant.name)
 
         PlayTasksRegistrar.registerDistributionTask(
             project = this@registerChangelogDependentTasks,
@@ -339,7 +339,7 @@ private fun Project.registerChangelogDependentTasks(
     val jiraExtension = extensions.findByType(BuildPublishJiraExtension::class.java)
 
     jiraExtension?.let { extension ->
-        val jiraAutomationConfig = extension.automation.getByNameOrRequiredDefault(buildVariant.name)
+        val jiraAutomationConfig = extension.automation.getByNameOrRequiredCommon(buildVariant.name)
         JiraTasksRegistrar.registerAutomationTask(
             project = this@registerChangelogDependentTasks,
             automationConfig = jiraAutomationConfig,
@@ -356,7 +356,7 @@ private fun Project.registerChangelogDependentTasks(
     val clickUpExtension = extensions.findByType(BuildPublishClickUpExtension::class.java)
 
     clickUpExtension?.let { extension ->
-        val clickUpAutomationConfig = extension.automation.getByNameOrRequiredDefault(buildVariant.name)
+        val clickUpAutomationConfig = extension.automation.getByNameOrRequiredCommon(buildVariant.name)
 
         ClickUpTasksRegistrar.registerAutomationTask(
             project = this@registerChangelogDependentTasks,

@@ -10,7 +10,7 @@ import ru.kode.android.build.publish.plugin.appcenter.service.AppCenterServiceEx
 import ru.kode.android.build.publish.plugin.appcenter.task.distribution.AppCenterDistributionTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrDefault
+import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
 
 internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistributionUpload"
 
@@ -38,7 +38,7 @@ private fun Project.registerAppCenterDistributionTask(
             project.extensions
                 .getByType(AppCenterServiceExtension::class.java)
                 .networkServices
-                .flatMapByNameOrDefault(params.buildVariant.name)
+                .flatMapByNameOrCommon(params.buildVariant.name)
 
         it.tagBuildFile.set(params.tagBuildProvider)
         it.buildVariantOutputFile.set(params.apkOutputFileProvider)

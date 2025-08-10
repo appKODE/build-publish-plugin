@@ -5,6 +5,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAuthConfig
 import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAutomationConfig
+import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
 import javax.inject.Inject
 
@@ -12,16 +13,27 @@ import javax.inject.Inject
 abstract class BuildPublishClickUpExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BaseExtension() {
-        val auth: NamedDomainObjectContainer<ClickUpAuthConfig> =
+        internal val auth: NamedDomainObjectContainer<ClickUpAuthConfig> =
             objectFactory.domainObjectContainer(ClickUpAuthConfig::class.java)
-        val automation: NamedDomainObjectContainer<ClickUpAutomationConfig> =
+
+        internal val automation: NamedDomainObjectContainer<ClickUpAutomationConfig> =
             objectFactory.domainObjectContainer(ClickUpAutomationConfig::class.java)
 
-        fun authDefault(configurationAction: Action<ClickUpAuthConfig>) {
-            prepareDefault(auth, configurationAction)
+        fun auth(configurationAction: Action<BaseDomainContainer<ClickUpAuthConfig>>) {
+            val container = BaseDomainContainer(auth)
+            configurationAction.execute(container)
         }
 
-        fun automationDefault(configurationAction: Action<ClickUpAutomationConfig>) {
-            prepareDefault(automation, configurationAction)
+        fun automation(configurationAction: Action<BaseDomainContainer<ClickUpAutomationConfig>>) {
+            val container = BaseDomainContainer(automation)
+            configurationAction.execute(container)
+        }
+
+        fun authCommon(configurationAction: Action<ClickUpAuthConfig>) {
+            common(auth, configurationAction)
+        }
+
+        fun automationCommon(configurationAction: Action<ClickUpAutomationConfig>) {
+            common(automation, configurationAction)
         }
     }

@@ -5,6 +5,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceAuthConfig
 import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceDistributionConfig
+import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
 import javax.inject.Inject
 
@@ -12,16 +13,27 @@ import javax.inject.Inject
 abstract class BuildPublishConfluenceExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BaseExtension() {
-        val auth: NamedDomainObjectContainer<ConfluenceAuthConfig> =
+        internal val auth: NamedDomainObjectContainer<ConfluenceAuthConfig> =
             objectFactory.domainObjectContainer(ConfluenceAuthConfig::class.java)
-        val distribution: NamedDomainObjectContainer<ConfluenceDistributionConfig> =
+
+        internal val distribution: NamedDomainObjectContainer<ConfluenceDistributionConfig> =
             objectFactory.domainObjectContainer(ConfluenceDistributionConfig::class.java)
 
-        fun authDefault(configurationAction: Action<ConfluenceAuthConfig>) {
-            prepareDefault(auth, configurationAction)
+        fun auth(configurationAction: Action<BaseDomainContainer<ConfluenceAuthConfig>>) {
+            val container = BaseDomainContainer(auth)
+            configurationAction.execute(container)
         }
 
-        fun distributionDefault(configurationAction: Action<ConfluenceDistributionConfig>) {
-            prepareDefault(distribution, configurationAction)
+        fun distribution(configurationAction: Action<BaseDomainContainer<ConfluenceDistributionConfig>>) {
+            val container = BaseDomainContainer(distribution)
+            configurationAction.execute(container)
+        }
+
+        fun authCommon(configurationAction: Action<ConfluenceAuthConfig>) {
+            common(auth, configurationAction)
+        }
+
+        fun distributionCommon(configurationAction: Action<ConfluenceDistributionConfig>) {
+            common(distribution, configurationAction)
         }
     }

@@ -1,3 +1,5 @@
+import ru.kode.android.build.publish.plugin.core.util.common
+
 plugins {
     id("com.android.application")
     id("ru.kode.android.build-publish-novo.foundation")
@@ -33,12 +35,12 @@ android {
 
 buildPublishFoundation {
     output {
-        register("default") {
+        common {
             baseFileName.set("flavors-example")
         }
     }
     changelog {
-        register("default") {
+        common {
             issueNumberPattern.set("BASE-\\d+")
             issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
             commitMessageKey.set("CHANGELOG")
@@ -48,14 +50,14 @@ buildPublishFoundation {
 
 buildPublishTelegram {
     bot {
-        register("default") {
+        common {
             botId.set("TELEGRAM_BUILD_BOT_ID")
             //chat.chatId.set("CHAT_ID")
             //chat.topicId.set("OPTIONAL_TOPIC_ID")
         }
     }
     changelog {
-        register("default") {
+        common {
             userMentions.set(setOf("@ivan", "@roman", "@serega"))
         }
     }
@@ -63,14 +65,14 @@ buildPublishTelegram {
 
 buildPublishConfluence {
     auth {
-        register("default") {
+        common {
             username.set("@username")
             password.set("@password")
         }
     }
 
     distribution {
-        register("default") {
+        common {
             pageId.set("123435")
         }
     }
@@ -78,7 +80,7 @@ buildPublishConfluence {
 
 buildPublishFirebase {
     distribution {
-        register("default") {
+        common {
             serviceCredentialsFilePath.set("test-test")
             appId.set("ru.kode.test.app")
             testerGroups.set(setOf("android-testers"))

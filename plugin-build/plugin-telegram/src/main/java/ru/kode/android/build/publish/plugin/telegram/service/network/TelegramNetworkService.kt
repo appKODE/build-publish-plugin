@@ -17,7 +17,7 @@ import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.core.util.createPartFromString
 import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotServerAuthConfig
-import ru.kode.android.build.publish.plugin.telegram.config.TelegramChatConfigConfig
+import ru.kode.android.build.publish.plugin.telegram.config.TelegramChatConfig
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.api.TelegramWebhookSenderApi
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.api.TelegramApi
 import java.io.File
@@ -43,7 +43,7 @@ abstract class TelegramNetworkService
             val botId: Property<String>
             val botServerBaseUrl: Property<String>
             val botServerAuth: Property<TelegramBotServerAuthConfig>
-            val chat: Property<TelegramChatConfigConfig>
+            val chat: Property<TelegramChatConfig>
         }
 
         internal abstract val okHttpClientProperty: Property<OkHttpClient>

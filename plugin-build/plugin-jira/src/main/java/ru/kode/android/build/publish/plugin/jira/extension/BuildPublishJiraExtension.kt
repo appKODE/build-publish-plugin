@@ -3,7 +3,9 @@ package ru.kode.android.build.publish.plugin.jira.extension
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
+import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.jira.config.JiraAuthConfig
 import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
 import javax.inject.Inject
@@ -12,16 +14,31 @@ import javax.inject.Inject
 abstract class BuildPublishJiraExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BaseExtension() {
-        val auth: NamedDomainObjectContainer<JiraAuthConfig> =
+        internal val auth: NamedDomainObjectContainer<JiraAuthConfig> =
             objectFactory.domainObjectContainer(JiraAuthConfig::class.java)
-        val automation: NamedDomainObjectContainer<JiraAutomationConfig> =
-            objectFactory.domainObjectContainer(JiraAutomationConfig::class.java)
 
-        fun authDefault(configurationAction: Action<JiraAuthConfig>) {
-            prepareDefault(auth, configurationAction)
+        val authConfig: (buildName: String) -> JiraAuthConfig = { buildName ->
+            auth.getByNameOrRequiredCommon(buildName)
         }
 
-        fun automationDefault(configurationAction: Action<JiraAutomationConfig>) {
-            prepareDefault(automation, configurationAction)
+        internal val automation: NamedDomainObjectContainer<JiraAutomationConfig> =
+            objectFactory.domainObjectContainer(JiraAutomationConfig::class.java)
+
+        fun auth(configurationAction: Action<BaseDomainContainer<JiraAuthConfig>>) {
+            val container = BaseDomainContainer(auth)
+            configurationAction.execute(container)
+        }
+
+        fun automation(configurationAction: Action<BaseDomainContainer<JiraAutomationConfig>>) {
+            val container = BaseDomainContainer(automation)
+            configurationAction.execute(container)
+        }
+
+        fun authAll(configurationAction: Action<JiraAuthConfig>) {
+            common(auth, configurationAction)
+        }
+
+        fun automationAll(configurationAction: Action<JiraAutomationConfig>) {
+            common(automation, configurationAction)
         }
     }

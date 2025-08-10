@@ -5,46 +5,63 @@ import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.NamedDomainObjectProvider
-import org.gradle.api.PolymorphicDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
+import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 
-const val DEFAULT_CONTAINER_NAME = "default"
+const val COMMON_CONTAINER_NAME = "default"
 
-inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrRequiredDefault(
+inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrRequiredCommon(
     name: String,
-    defaultName: String = DEFAULT_CONTAINER_NAME,
+    defaultName: String = COMMON_CONTAINER_NAME,
 ): T {
     return findByName(name) ?: getByName(defaultName)
 }
 
-inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrNullableDefault(
+inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrNullableCommon(
     name: String,
-    defaultName: String = DEFAULT_CONTAINER_NAME,
+    defaultName: String = COMMON_CONTAINER_NAME,
+): T? {
+    return findByName(name) ?: findByName(defaultName)
+}
+inline fun <reified T> BaseDomainContainer<T>.getByNameOrRequiredCommon(
+    name: String,
+    defaultName: String = COMMON_CONTAINER_NAME,
+): T {
+    return findByName(name) ?: getByName(defaultName)
+}
+
+inline fun <reified T> BaseDomainContainer<T>.getByNameOrNullableCommon(
+    name: String,
+    defaultName: String = COMMON_CONTAINER_NAME,
 ): T? {
     return findByName(name) ?: findByName(defaultName)
 }
 
-inline fun <reified T> NamedDomainObjectContainer<T>.getDefault(defaultName: String = DEFAULT_CONTAINER_NAME): T? {
+inline fun <reified T> NamedDomainObjectContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
+    return findByName(defaultName)
+}
+inline fun <reified T> BaseDomainContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
     return findByName(defaultName)
 }
 
 @Throws(InvalidUserDataException::class)
-@Suppress("MaxLineLength") // One parameter function
-fun <T> PolymorphicDomainObjectContainer<T>.createDefault(configurationAction: Action<in T>): NamedDomainObjectProvider<T> {
-    return this.register(DEFAULT_CONTAINER_NAME, configurationAction)
+fun <T> NamedDomainObjectContainer<T>.common(configurationAction: Action<in T>): NamedDomainObjectProvider<T> {
+    return this.register(COMMON_CONTAINER_NAME, configurationAction)
 }
-
 @Throws(InvalidUserDataException::class)
-fun <T> NamedDomainObjectContainer<T>.createDefault(configurationAction: Action<in T>): NamedDomainObjectProvider<T> {
-    return this.register(DEFAULT_CONTAINER_NAME, configurationAction)
+fun <T> NamedDomainObjectContainer<T>.buildType(
+    buildType: String,
+    configurationAction: Action<in T>
+): NamedDomainObjectProvider<T> {
+    return this.register(buildType, configurationAction)
 }
 
-inline fun <reified T> Provider<Map<String, Provider<T>>>.flatMapByNameOrDefault(name: String): Provider<T> {
+inline fun <reified T> Provider<Map<String, Provider<T>>>.flatMapByNameOrCommon(name: String): Provider<T> {
     return this.flatMap { providers ->
         providers[name]
-            ?: providers[DEFAULT_CONTAINER_NAME]
-            ?: throw GradleException("Required object not found for $name or $DEFAULT_CONTAINER_NAME")
+            ?: providers[COMMON_CONTAINER_NAME]
+            ?: throw GradleException("Required object not found for $name or $COMMON_CONTAINER_NAME")
     }
 }
 

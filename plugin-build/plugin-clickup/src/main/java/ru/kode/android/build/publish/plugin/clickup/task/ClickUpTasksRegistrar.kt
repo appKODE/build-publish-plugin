@@ -10,7 +10,7 @@ import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtens
 import ru.kode.android.build.publish.plugin.clickup.task.automation.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrDefault
+import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
 
 internal const val CLICK_UP_AUTOMATION_TASK = "clickUpAutomation"
 
@@ -44,7 +44,7 @@ private fun Project.registerClickUpTasks(
         project.extensions
             .getByType(ClickUpServiceExtension::class.java)
             .networkServices
-            .flatMapByNameOrDefault(params.buildVariant.name)
+            .flatMapByNameOrCommon(params.buildVariant.name)
 
     return if (fixVersionIsPresent || automationConfig.tagName.isPresent) {
         tasks.register(
