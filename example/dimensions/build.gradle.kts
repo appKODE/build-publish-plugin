@@ -1,6 +1,3 @@
-import ru.kode.android.build.publish.plugin.core.util.buildType
-import ru.kode.android.build.publish.plugin.core.util.common
-
 plugins {
     id("com.android.application")
     id("ru.kode.android.build-publish-novo.foundation")

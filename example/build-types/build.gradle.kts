@@ -1,6 +1,3 @@
-import ru.kode.android.build.publish.plugin.core.util.buildType
-import ru.kode.android.build.publish.plugin.core.util.common
-
 plugins {
     id("com.android.application")
     id("ru.kode.android.build-publish-novo.foundation")
@@ -56,7 +53,9 @@ buildPublishTelegram {
     bot {
         common {
             botId.set("313123131231")
-            //chat.chatId.set("-00000000")
+            chat("builds") {
+                chatId.set("-00000000")
+            }
         }
     }
     distribution {

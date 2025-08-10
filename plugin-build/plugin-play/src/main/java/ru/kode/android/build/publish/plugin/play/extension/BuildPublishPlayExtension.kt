@@ -5,6 +5,8 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.play.config.PlayAuth
 import ru.kode.android.build.publish.plugin.play.config.PlayDistribution
 import javax.inject.Inject
@@ -18,6 +20,22 @@ abstract class BuildPublishPlayExtension
 
         internal val distribution: NamedDomainObjectContainer<PlayDistribution> =
             objectFactory.domainObjectContainer(PlayDistribution::class.java)
+
+        val authConfig: (buildName: String) -> PlayAuth = { buildName ->
+            auth.getByNameOrRequiredCommon(buildName)
+        }
+
+        val authConfigOrNull: (buildName: String) -> PlayAuth? = { buildName ->
+            auth.getByNameOrNullableCommon(buildName)
+        }
+
+        val distributionConfig: (buildName: String) -> PlayDistribution = { buildName ->
+            distribution.getByNameOrRequiredCommon(buildName)
+        }
+
+        val distributionConfigOrNull: (buildName: String) -> PlayDistribution? = { buildName ->
+            distribution.getByNameOrNullableCommon(buildName)
+        }
 
         fun auth(configurationAction: Action<BaseDomainContainer<PlayAuth>>) {
             val container = BaseDomainContainer(auth)

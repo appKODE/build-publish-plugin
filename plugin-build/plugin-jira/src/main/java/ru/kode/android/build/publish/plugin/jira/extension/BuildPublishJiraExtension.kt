@@ -5,6 +5,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.jira.config.JiraAuthConfig
 import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
@@ -17,12 +18,24 @@ abstract class BuildPublishJiraExtension
         internal val auth: NamedDomainObjectContainer<JiraAuthConfig> =
             objectFactory.domainObjectContainer(JiraAuthConfig::class.java)
 
+        internal val automation: NamedDomainObjectContainer<JiraAutomationConfig> =
+            objectFactory.domainObjectContainer(JiraAutomationConfig::class.java)
+
         val authConfig: (buildName: String) -> JiraAuthConfig = { buildName ->
             auth.getByNameOrRequiredCommon(buildName)
         }
 
-        internal val automation: NamedDomainObjectContainer<JiraAutomationConfig> =
-            objectFactory.domainObjectContainer(JiraAutomationConfig::class.java)
+        val authConfigOrNull: (buildName: String) -> JiraAuthConfig? = { buildName ->
+            auth.getByNameOrNullableCommon(buildName)
+        }
+
+        val automationConfig: (buildName: String) -> JiraAutomationConfig = { buildName ->
+            automation.getByNameOrRequiredCommon(buildName)
+        }
+
+        val automationConfigOrNull: (buildName: String) -> JiraAutomationConfig? = { buildName ->
+            automation.getByNameOrNullableCommon(buildName)
+        }
 
         fun auth(configurationAction: Action<BaseDomainContainer<JiraAuthConfig>>) {
             val container = BaseDomainContainer(auth)

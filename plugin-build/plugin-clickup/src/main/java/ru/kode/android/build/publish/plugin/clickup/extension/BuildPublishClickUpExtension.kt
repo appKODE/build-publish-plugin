@@ -7,6 +7,8 @@ import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAuthConfig
 import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAutomationConfig
 import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import javax.inject.Inject
 
 @Suppress("UnnecessaryAbstractClass")
@@ -18,6 +20,22 @@ abstract class BuildPublishClickUpExtension
 
         internal val automation: NamedDomainObjectContainer<ClickUpAutomationConfig> =
             objectFactory.domainObjectContainer(ClickUpAutomationConfig::class.java)
+
+        val authConfig: (buildName: String) -> ClickUpAuthConfig = { buildName ->
+            auth.getByNameOrRequiredCommon(buildName)
+        }
+
+        val authConfigOrNull: (buildName: String) -> ClickUpAuthConfig? = { buildName ->
+            auth.getByNameOrNullableCommon(buildName)
+        }
+
+        val automationConfig: (buildName: String) -> ClickUpAutomationConfig = { buildName ->
+            automation.getByNameOrRequiredCommon(buildName)
+        }
+
+        val automationConfigOrNull: (buildName: String) -> ClickUpAutomationConfig? = { buildName ->
+            automation.getByNameOrNullableCommon(buildName)
+        }
 
         fun auth(configurationAction: Action<BaseDomainContainer<ClickUpAuthConfig>>) {
             val container = BaseDomainContainer(auth)

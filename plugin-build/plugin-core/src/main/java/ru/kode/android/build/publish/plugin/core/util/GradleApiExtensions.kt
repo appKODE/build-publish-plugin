@@ -49,6 +49,7 @@ inline fun <reified T> BaseDomainContainer<T>.getCommon(defaultName: String = CO
 fun <T> NamedDomainObjectContainer<T>.common(configurationAction: Action<in T>): NamedDomainObjectProvider<T> {
     return this.register(COMMON_CONTAINER_NAME, configurationAction)
 }
+
 @Throws(InvalidUserDataException::class)
 fun <T> NamedDomainObjectContainer<T>.buildType(
     buildType: String,

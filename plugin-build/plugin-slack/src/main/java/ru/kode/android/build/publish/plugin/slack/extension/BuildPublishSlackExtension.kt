@@ -5,6 +5,8 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackDistributionConfig
@@ -22,6 +24,30 @@ abstract class BuildPublishSlackExtension
 
         internal val distribution: NamedDomainObjectContainer<SlackDistributionConfig> =
             objectFactory.domainObjectContainer(SlackDistributionConfig::class.java)
+
+        val botConfig: (buildName: String) -> SlackBotConfig = { buildName ->
+            bot.getByNameOrRequiredCommon(buildName)
+        }
+
+        val botConfigOrNull: (buildName: String) -> SlackBotConfig? = { buildName ->
+            bot.getByNameOrNullableCommon(buildName)
+        }
+
+        val changelogConfig: (buildName: String) -> SlackChangelogConfig = { buildName ->
+            changelog.getByNameOrRequiredCommon(buildName)
+        }
+
+        val changelogConfigOrNull: (buildName: String) -> SlackChangelogConfig? = { buildName ->
+            changelog.getByNameOrNullableCommon(buildName)
+        }
+
+        val distributionConfig: (buildName: String) -> SlackDistributionConfig = { buildName ->
+            distribution.getByNameOrRequiredCommon(buildName)
+        }
+
+        val distributionConfigOrNull: (buildName: String) -> SlackDistributionConfig? = { buildName ->
+            distribution.getByNameOrNullableCommon(buildName)
+        }
 
         fun bot(configurationAction: Action<BaseDomainContainer<SlackBotConfig>>) {
             val container = BaseDomainContainer(bot)

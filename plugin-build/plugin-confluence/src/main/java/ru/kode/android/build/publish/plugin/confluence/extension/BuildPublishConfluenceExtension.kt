@@ -7,6 +7,8 @@ import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceAuthConf
 import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceDistributionConfig
 import ru.kode.android.build.publish.plugin.core.container.BaseDomainContainer
 import ru.kode.android.build.publish.plugin.core.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import javax.inject.Inject
 
 @Suppress("UnnecessaryAbstractClass")
@@ -18,6 +20,22 @@ abstract class BuildPublishConfluenceExtension
 
         internal val distribution: NamedDomainObjectContainer<ConfluenceDistributionConfig> =
             objectFactory.domainObjectContainer(ConfluenceDistributionConfig::class.java)
+
+        val authConfig: (buildName: String) -> ConfluenceAuthConfig = { buildName ->
+            auth.getByNameOrRequiredCommon(buildName)
+        }
+
+        val authConfigOrNull: (buildName: String) -> ConfluenceAuthConfig? = { buildName ->
+            auth.getByNameOrNullableCommon(buildName)
+        }
+
+        val distributionConfig: (buildName: String) -> ConfluenceDistributionConfig = { buildName ->
+            distribution.getByNameOrRequiredCommon(buildName)
+        }
+
+        val distributionConfigOrNull: (buildName: String) -> ConfluenceDistributionConfig? = { buildName ->
+            distribution.getByNameOrNullableCommon(buildName)
+        }
 
         fun auth(configurationAction: Action<BaseDomainContainer<ConfluenceAuthConfig>>) {
             val container = BaseDomainContainer(auth)
