@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0-alpha17
+* Fix logic to provide correct telegram auth credentials
+
 ## 1.3.0-alpha16
 * Add custom host for telegram bot with basic auth
 * Add task to publish bundle for Telegram Distribution
