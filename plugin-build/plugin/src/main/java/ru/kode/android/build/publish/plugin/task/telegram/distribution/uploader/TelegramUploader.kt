@@ -45,6 +45,7 @@ internal class TelegramUploader(logger: Logger) {
         chatId: String,
         topicId: String?,
         file: File,
+        authorization: String?,
     ) {
         val filePart =
             MultipartBody.Part.createFormData(
@@ -63,7 +64,7 @@ internal class TelegramUploader(logger: Logger) {
                     "chat_id" to createPartFromString(chatId),
                 )
             }
-        val response = api.upload(webhookUrl, params, filePart).executeOrThrow()
+        val response = api.upload(authorization, webhookUrl, params, filePart).executeOrThrow()
         if (!response.ok) {
             throw UploadException("Telegram uploading failed ${response.error_code}")
         }

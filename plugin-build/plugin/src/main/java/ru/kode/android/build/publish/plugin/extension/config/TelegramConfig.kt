@@ -15,6 +15,27 @@ interface TelegramConfig {
     val botId: Property<String>
 
     /**
+     * Bot server base url
+     */
+    @get:Input
+    @get:Optional
+    val botBaseUrl: Property<String>
+
+    /**
+     * Bot server auth username
+     */
+    @get:Input
+    @get:Optional
+    val botAuthUsername: Property<String>
+
+    /**
+     * Bot server auth password
+     */
+    @get:Input
+    @get:Optional
+    val botAuthPassword: Property<String>
+
+    /**
      * Telegram chat id where changelog will be posted
      */
     @get:Input

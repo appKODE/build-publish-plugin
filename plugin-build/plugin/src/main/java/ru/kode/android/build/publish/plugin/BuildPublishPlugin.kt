@@ -70,6 +70,7 @@ internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistri
 internal const val PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX = "playUpload"
 internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
 internal const val TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX = "telegramDistributionUpload"
+internal const val TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "telegramDistributionUploadBundle"
 internal const val CONFLUENCE_DISTRIBUTION_UPLOAD_TASK_PREFIX = "confluenceDistributionUpload"
 internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
 internal const val CLICK_UP_AUTOMATION_TASK = "clickUpAutomation"
@@ -236,6 +237,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     generateChangelogFileProvider,
                     tagBuildProvider,
                     apkOutputFileProvider,
+                    bundleFile
                 )
             }
             val confluenceConfig =
@@ -508,6 +510,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         changelogFileProvider: Provider<RegularFile>,
         tagBuildProvider: Provider<RegularFile>,
         apkOutputFileProvider: Provider<RegularFile>,
+        bundleOutputFileProvider: Provider<RegularFile>,
     ) {
         register(
             "$SEND_TELEGRAM_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
@@ -519,33 +522,47 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             it.issueNumberPattern.set(changelogConfig.issueNumberPattern)
             it.baseOutputFileName.set(outputConfig.baseFileName)
             it.botId.set(telegramConfig.botId)
+            it.botBaseUrl.set(telegramConfig.botBaseUrl)
+            it.botAuthUsername.set(telegramConfig.botAuthUsername)
+            it.botAuthPassword.set(telegramConfig.botAuthPassword)
             it.chatId.set(telegramConfig.chatId)
             it.topicId.set(telegramConfig.topicId)
             it.userMentions.set(telegramConfig.userMentions)
         }
         if (telegramConfig.uploadBuild.orNull == true) {
-            registerTelegramUploadTask(
+            registerTelegramUploadTasks(
                 telegramConfig.botId,
                 telegramConfig.chatId,
                 telegramConfig.topicId,
                 buildVariant,
                 apkOutputFileProvider,
+                bundleOutputFileProvider
             )
         }
     }
 
-    private fun TaskContainer.registerTelegramUploadTask(
+    private fun TaskContainer.registerTelegramUploadTasks(
         botId: Provider<String>,
         chatId: Provider<String>,
         topicId: Provider<String>,
         buildVariant: BuildVariant,
         apkOutputFileProvider: Provider<RegularFile>,
+        bundleOutputFileProvider: Provider<RegularFile>,
     ) {
         register(
             "$TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
             TelegramDistributionTask::class.java,
         ) {
             it.buildVariantOutputFile.set(apkOutputFileProvider)
+            it.botId.set(botId)
+            it.chatId.set(chatId)
+            it.topicId.set(topicId)
+        }
+        register(
+            "$TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${buildVariant.capitalizedName()}",
+            TelegramDistributionTask::class.java,
+        ) {
+            it.buildVariantOutputFile.set(bundleOutputFileProvider)
             it.botId.set(botId)
             it.chatId.set(chatId)
             it.topicId.set(topicId)

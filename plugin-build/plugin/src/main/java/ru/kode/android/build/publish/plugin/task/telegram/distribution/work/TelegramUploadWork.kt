@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.task.telegram.distribution.work
 
+import okhttp3.Credentials
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
@@ -13,6 +14,9 @@ interface TelegramUploadParameters : WorkParameters {
     val botId: Property<String>
     val chatId: Property<String>
     val topicId: Property<String>
+    val botBaseUrl: Property<String>
+    val botAuthUsername: Property<String>
+    val botAuthPassword: Property<String>
 }
 
 abstract class TelegramUploadWork : WorkAction<TelegramUploadParameters> {
@@ -22,12 +26,23 @@ abstract class TelegramUploadWork : WorkAction<TelegramUploadParameters> {
     @Suppress("SwallowedException") // see logs below
     override fun execute() {
         try {
-            val url = SEND_DOCUMENT_WEB_HOOK.format(parameters.botId.get())
+            val url =
+                SEND_DOCUMENT_WEB_HOOK.format(
+                    parameters.botBaseUrl.getOrElse(DEFAULT_BASE_URL),
+                    parameters.botId.get(),
+                )
+            val authorization =
+                parameters.botAuthUsername
+                    .zip(parameters.botAuthUsername) { userName, password ->
+                        Credentials.basic(userName, password)
+                    }
+                    .orNull
             uploader.upload(
                 url,
                 parameters.chatId.get(),
                 parameters.topicId.orNull,
                 parameters.outputFile.asFile.get(),
+                authorization,
             )
         } catch (ex: UploadStreamTimeoutException) {
             logger.error(
@@ -38,4 +53,5 @@ abstract class TelegramUploadWork : WorkAction<TelegramUploadParameters> {
     }
 }
 
-private const val SEND_DOCUMENT_WEB_HOOK = "https://api.telegram.org/bot%s/sendDocument"
+private const val DEFAULT_BASE_URL = "https://api.telegram.org"
+private const val SEND_DOCUMENT_WEB_HOOK = "%s/bot%s/sendDocument"
