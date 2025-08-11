@@ -125,23 +125,28 @@ buildPublishConfluence {
 }
 
 buildPublishTelegram {
-    bot {
+    bots {
         common {
-            botId.set("0000")
-            chat("test_chat_A") {
-                chatId = "a"
-                topicId = "1"
-            }
-            chat("test_chat_B") {
-                chatId = "b"
-                topicId = "2"
+            bot("buildPublish") {
+                botId.set("0000")
+                chat("test_chat_A") {
+                    chatId = "a"
+                    topicId = "1"
+                }
+                chat("test_chat_B") {
+                    chatId = "b"
+                    topicId = "2"
+                }
             }
         }
     }
     changelog {
         common {
             userMentions.set(setOf("@ivan", "@roman", "@serega"))
-            destinationChats.set(setOf("test_chat_A"))
+            destinationBot {
+                botName = "buildPublish"
+                chatNames = setOf("test_chat_A")
+            }
         }
     }
 }

@@ -11,11 +11,20 @@ import retrofit2.http.PartMap
 import retrofit2.http.Url
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.entity.TelegramUploadResponse
 
-internal interface TelegramApi {
+internal interface TelegramDistributionApi {
     @POST
     @Multipart
     fun upload(
         @Header("Authorization") authHeader: String?,
+        @Url webhookUrl: String,
+        @PartMap params: HashMap<String, RequestBody>,
+        @Part filePart: MultipartBody.Part,
+    ): Call<TelegramUploadResponse>
+
+    @POST
+    @Multipart
+    fun uploadAuthorised(
+        @Header("Authorization") authorisation: String,
         @Url webhookUrl: String,
         @PartMap params: HashMap<String, RequestBody>,
         @Part filePart: MultipartBody.Part,

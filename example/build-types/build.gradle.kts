@@ -50,17 +50,24 @@ buildPublishFirebase {
 }
 
 buildPublishTelegram {
-    bot {
+    bots {
         common {
-            botId.set("313123131231")
-            chat("builds") {
-                chatId.set("-00000000")
+            bot("buildPublish") {
+                common {
+                    botId.set("313123131231")
+                    chat("builds") {
+                        chatId.set("-00000000")
+                    }
+                }
             }
         }
     }
     distribution {
         common {
-            uploadBuild.set(true)
+            destinationBot {
+                botName = "buildPublish"
+                chatNames = setOf("builds")
+            }
         }
     }
 }

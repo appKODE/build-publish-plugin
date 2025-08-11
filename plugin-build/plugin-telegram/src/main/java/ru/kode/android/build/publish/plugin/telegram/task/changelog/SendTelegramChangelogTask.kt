@@ -13,6 +13,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.telegram.config.DestinationBot
 import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.work.SendTelegramChangelogWork
 import javax.inject.Inject
@@ -62,6 +63,10 @@ abstract class SendTelegramChangelogTask
         @get:Input
         @get:Option(option = "userMentions", description = "User tags to mention in chat")
         abstract val userMentions: SetProperty<String>
+
+        @get:Input
+        @get:Option(option = "destinationBots", description = "Bots which be used to post changelog")
+        abstract val destinationBots: SetProperty<DestinationBot>
 
         @TaskAction
         fun sendChangelog() {
@@ -117,6 +122,7 @@ abstract class SendTelegramChangelogTask
                 parameters.userMentions.set(userMentions)
                 parameters.escapedCharacters.set(escapedCharacters)
                 parameters.networkService.set(networkService)
+                parameters.destinationBots.set(destinationBots)
             }
         }
 

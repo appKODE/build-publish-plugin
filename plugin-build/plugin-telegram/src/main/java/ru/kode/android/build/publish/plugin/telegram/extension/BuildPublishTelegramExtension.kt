@@ -7,7 +7,7 @@ import ru.kode.android.build.publish.plugin.core.api.container.BaseDomainContain
 import ru.kode.android.build.publish.plugin.core.api.extension.BaseExtension
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
-import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotConfig
+import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotsConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramDistributionConfig
 import javax.inject.Inject
@@ -16,8 +16,8 @@ import javax.inject.Inject
 abstract class BuildPublishTelegramExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BaseExtension() {
-        internal val bot: NamedDomainObjectContainer<TelegramBotConfig> =
-            objectFactory.domainObjectContainer(TelegramBotConfig::class.java)
+        internal val bot: NamedDomainObjectContainer<TelegramBotsConfig> =
+            objectFactory.domainObjectContainer(TelegramBotsConfig::class.java)
 
         internal val changelog: NamedDomainObjectContainer<TelegramChangelogConfig> =
             objectFactory.domainObjectContainer(TelegramChangelogConfig::class.java)
@@ -25,11 +25,11 @@ abstract class BuildPublishTelegramExtension
         internal val distribution: NamedDomainObjectContainer<TelegramDistributionConfig> =
             objectFactory.domainObjectContainer(TelegramDistributionConfig::class.java)
 
-        val botConfig: (buildName: String) -> TelegramBotConfig = { buildName ->
+        val botsConfig: (buildName: String) -> TelegramBotsConfig = { buildName ->
             bot.getByNameOrRequiredCommon(buildName)
         }
 
-        val botConfigOrNull: (buildName: String) -> TelegramBotConfig? = { buildName ->
+        val botsConfigOrNull: (buildName: String) -> TelegramBotsConfig? = { buildName ->
             bot.getByNameOrNullableCommon(buildName)
         }
 
@@ -49,7 +49,7 @@ abstract class BuildPublishTelegramExtension
             distribution.getByNameOrNullableCommon(buildName)
         }
 
-        fun bot(configurationAction: Action<BaseDomainContainer<TelegramBotConfig>>) {
+        fun bots(configurationAction: Action<BaseDomainContainer<TelegramBotsConfig>>) {
             val container = BaseDomainContainer(bot)
             configurationAction.execute(container)
         }
@@ -64,7 +64,7 @@ abstract class BuildPublishTelegramExtension
             configurationAction.execute(container)
         }
 
-        fun botCommon(configurationAction: Action<TelegramBotConfig>) {
+        fun botsCommon(configurationAction: Action<TelegramBotsConfig>) {
             common(bot, configurationAction)
         }
 

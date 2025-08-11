@@ -11,4 +11,10 @@ internal interface TelegramWebhookSenderApi {
         @Header("Authorization") authHeader: String?,
         @Url webhookUrl: String,
     ): Call<Unit>
+
+    @POST
+    fun sendAuthorised(
+        @Header("Authorization") authorisation: String,
+        @Url webhookUrl: String,
+    ): Call<Unit>
 }

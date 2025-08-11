@@ -47,18 +47,26 @@ buildPublishFoundation {
 }
 
 buildPublishTelegram {
-    bot {
+    bots {
         common {
-            botId.set("TELEGRAM_BUILD_BOT_ID")
-            chat("builds") {
-                chatId.set("CHAT_ID")
-                topicId.set("OPTIONAL_TOPIC_ID")
+            bot("buildPublisher") {
+                botId.set("TELEGRAM_BUILD_BOT_ID")
+
+                chat("builds") {
+                    chatId.set("CHAT_ID")
+                    topicId.set("OPTIONAL_TOPIC_ID")
+                }
             }
         }
     }
     changelog {
         common {
             userMentions.set(setOf("@ivan", "@roman", "@serega"))
+
+            destinationBot {
+                botName = "buildPublisher"
+                chatNames = setOf("builds")
+            }
         }
     }
 }

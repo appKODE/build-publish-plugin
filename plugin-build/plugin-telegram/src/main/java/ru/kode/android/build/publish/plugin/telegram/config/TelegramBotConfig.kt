@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.telegram.config
 
 import org.gradle.api.Action
+import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -20,8 +21,7 @@ import javax.inject.Inject
  */
 abstract class TelegramBotConfig @Inject constructor(
     objects: ObjectFactory
-) {
-    abstract val name: String
+) : Named {
 
     /**
      * Telegram bot token (bot ID) used for authenticating API requests to post messages.
