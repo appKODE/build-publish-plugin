@@ -36,6 +36,18 @@ abstract class TelegramDistributionTask
         abstract val botId: Property<String>
 
         @get:Input
+        @get:Option(option = "botBaseUrl", description = "Bot server base url")
+        abstract val botBaseUrl: Property<String>
+
+        @get:Input
+        @get:Option(option = "botBaseUrl", description = "Bot server auth username")
+        abstract val botAuthUsername: Property<String>
+
+        @get:Input
+        @get:Option(option = "botAuthPassword", description = "Bot server auth password")
+        abstract val botAuthPassword: Property<String>
+
+        @get:Input
         @get:Option(option = "chatId", description = "Chat id where webhook posted")
         abstract val chatId: Property<String>
 
@@ -56,6 +68,9 @@ abstract class TelegramDistributionTask
                 parameters.botId.set(botId)
                 parameters.chatId.set(chatId)
                 parameters.topicId.set(topicId)
+                parameters.botBaseUrl.set(botBaseUrl)
+                parameters.botAuthUsername.set(botAuthUsername)
+                parameters.botAuthPassword.set(botAuthPassword)
             }
         }
     }

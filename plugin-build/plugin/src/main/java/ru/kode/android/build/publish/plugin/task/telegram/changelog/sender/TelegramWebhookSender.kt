@@ -40,9 +40,12 @@ internal class TelegramWebhookSender(
     /**
      * Sends url formatted data to webhook at [webhookUrl]
      */
-    fun send(webhookUrl: String) {
+    fun send(
+        webhookUrl: String,
+        authorization: String?,
+    ) {
         logger.info("sending changelog to $webhookUrl")
-        api.send(webhookUrl).executeOrThrow()
+        api.send(authorization, webhookUrl).executeOrThrow()
     }
 }
 

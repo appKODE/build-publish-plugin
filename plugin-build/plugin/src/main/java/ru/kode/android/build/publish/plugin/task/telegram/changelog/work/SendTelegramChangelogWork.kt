@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.task.telegram.changelog.work
 
+import okhttp3.Credentials
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
@@ -17,6 +18,9 @@ interface SendTelegramChangelogParameters : WorkParameters {
     val botId: Property<String>
     val chatId: Property<String>
     val topicId: Property<String>
+    val botBaseUrl: Property<String>
+    val botAuthUsername: Property<String>
+    val botAuthPassword: Property<String>
 }
 
 abstract class SendTelegramChangelogWork
@@ -44,22 +48,32 @@ abstract class SendTelegramChangelogWork
                 }.formatChangelog()
 
             val topicId = parameters.topicId.orNull
+
+            val baseUrl = parameters.botBaseUrl.getOrElse(DEFAULT_BASE_URL)
+            val authorization =
+                parameters.botAuthUsername
+                    .zip(parameters.botAuthUsername) { userName, password ->
+                        Credentials.basic(userName, password)
+                    }
+                    .orNull
             val url =
                 if (topicId.isNullOrEmpty()) {
                     SEND_MESSAGE_TO_CHAT_WEB_HOOK.format(
+                        baseUrl,
                         parameters.botId.get(),
                         parameters.chatId.get(),
                         URLEncoder.encode(message, "utf-8"),
                     )
                 } else {
                     SEND_MESSAGE_TO_TOPIC_WEB_HOOK.format(
+                        baseUrl,
                         parameters.botId.get(),
                         parameters.chatId.get(),
                         parameters.topicId.get(),
                         URLEncoder.encode(message, "utf-8"),
                     )
                 }
-            webhookSender.send(url)
+            webhookSender.send(url, authorization)
             logger.info("changelog sent to Telegram")
         }
     }
@@ -69,8 +83,9 @@ private fun String.formatChangelog(): String {
         .replace(Regex("(\r\n|\n)"), "\n")
 }
 
+private const val DEFAULT_BASE_URL = "https://api.telegram.org"
 private const val SEND_MESSAGE_TO_CHAT_WEB_HOOK =
-    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2&disable_web_page_preview=true"
+    "%s/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2&disable_web_page_preview=true"
 private const val SEND_MESSAGE_TO_TOPIC_WEB_HOOK =
-    "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2" +
+    "%s/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2" +
         "&disable_web_page_preview=true"
