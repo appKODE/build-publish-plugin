@@ -52,7 +52,7 @@ abstract class SendTelegramChangelogWork
             val baseUrl = parameters.botBaseUrl.getOrElse(DEFAULT_BASE_URL)
             val authorization =
                 parameters.botAuthUsername
-                    .zip(parameters.botAuthUsername) { userName, password ->
+                    .zip(parameters.botAuthPassword) { userName, password ->
                         Credentials.basic(userName, password)
                     }
                     .orNull

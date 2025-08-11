@@ -33,7 +33,7 @@ abstract class TelegramUploadWork : WorkAction<TelegramUploadParameters> {
                 )
             val authorization =
                 parameters.botAuthUsername
-                    .zip(parameters.botAuthUsername) { userName, password ->
+                    .zip(parameters.botAuthPassword) { userName, password ->
                         Credentials.basic(userName, password)
                     }
                     .orNull
