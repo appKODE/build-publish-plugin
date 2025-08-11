@@ -237,7 +237,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                     generateChangelogFileProvider,
                     tagBuildProvider,
                     apkOutputFileProvider,
-                    bundleFile
+                    bundleFile,
                 )
             }
             val confluenceConfig =
@@ -536,7 +536,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
                 telegramConfig.topicId,
                 buildVariant,
                 apkOutputFileProvider,
-                bundleOutputFileProvider
+                bundleOutputFileProvider,
             )
         }
     }

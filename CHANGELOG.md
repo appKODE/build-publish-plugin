@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.0-alpha16
+* Add custom host for telegram bot with basic auth
+* Add task to publish bundle for Telegram Distribution
+
 ## 1.3.0-alpha15
 * Add logic to ignore proxy settings according to nonProxyHosts
 
