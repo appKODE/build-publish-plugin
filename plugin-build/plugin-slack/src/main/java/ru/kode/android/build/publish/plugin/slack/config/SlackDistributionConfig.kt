@@ -6,19 +6,23 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 
-interface SlackDistributionConfig {
-    val name: String
+abstract class SlackDistributionConfig {
+    abstract val name: String
 
     /**
      * Api token file to upload files in slack
      */
     @get:InputFile
-    val uploadApiTokenFile: RegularFileProperty
+    abstract val uploadApiTokenFile: RegularFileProperty
 
     /**
      * Public channels where file will be uploaded
      */
     @get:Optional
     @get:Input
-    val uploadChannels: SetProperty<String>
+    internal abstract val destinationChannels: SetProperty<String>
+
+    fun destinationChannel(channelId: String) {
+        destinationChannels.add(channelId)
+    }
 }

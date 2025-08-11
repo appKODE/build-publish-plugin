@@ -86,4 +86,8 @@ buildPublishSlack {
             attachmentColor.set("#ffffff")
         }
     }
+    distributionCommon {
+        uploadApiTokenFile.set(File("Test"))
+        destinationChannel("builds")
+    }
 }

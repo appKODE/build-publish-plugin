@@ -53,17 +53,15 @@ abstract class SlackDistributionTask
             description = "Public channels where file will be uploaded",
         )
         @get:Input
-        abstract val channels: SetProperty<String>
+        abstract val destinationChannels: SetProperty<String>
 
         @TaskAction
         fun upload() {
-            val outputFile = buildVariantOutputFile.asFile.get()
-            val channels = channels.get()
             val currentBuildTag = fromJson(tagBuildFile.asFile.get())
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(SlackUploadWork::class.java) { parameters ->
-                parameters.outputFile.set(outputFile)
-                parameters.channels.set(channels)
+                parameters.outputFile.set(buildVariantOutputFile)
+                parameters.destinationChannels.set(destinationChannels)
                 parameters.buildName.set(currentBuildTag.name)
                 parameters.baseOutputFileName.set(baseOutputFileName)
                 parameters.networkService.set(networkService)

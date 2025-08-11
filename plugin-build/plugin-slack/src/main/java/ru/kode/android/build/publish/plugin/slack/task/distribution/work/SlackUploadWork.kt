@@ -15,7 +15,7 @@ internal interface SlackUploadParameters : WorkParameters {
     val baseOutputFileName: Property<String>
     val buildName: Property<String>
     val outputFile: RegularFileProperty
-    val channels: SetProperty<String>
+    val destinationChannels: SetProperty<String>
     val networkService: Property<SlackUploadService>
 }
 
@@ -38,7 +38,7 @@ internal abstract class SlackUploadWork : WorkAction<SlackUploadParameters> {
                 parameters.baseOutputFileName.get(),
                 parameters.buildName.get(),
                 zippedUploadFile,
-                parameters.channels.get(),
+                parameters.destinationChannels.get(),
             )
         } catch (ex: UploadStreamTimeoutException) {
             logger.error(
