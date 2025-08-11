@@ -1,0 +1,138 @@
+package ru.kode.android.build.publish.plugin.appcenter.task.distribution.work
+
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.logging.Logging
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
+import org.gradle.workers.WorkAction
+import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.appcenter.config.MAX_REQUEST_COUNT
+import ru.kode.android.build.publish.plugin.appcenter.config.MAX_REQUEST_DELAY_MS
+import ru.kode.android.build.publish.plugin.appcenter.service.network.AppCenterNetworkService
+import ru.kode.android.build.publish.plugin.appcenter.task.distribution.entity.ChunkRequestBody
+import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
+import kotlin.math.round
+
+/**
+ * Parameters required for the AppCenter upload work action.
+ */
+internal interface AppCenterUploadParameters : WorkParameters {
+    val appName: Property<String>
+    val buildName: Property<String>
+    val buildNumber: Property<String>
+    val outputFile: RegularFileProperty
+    val testerGroups: SetProperty<String>
+    val changelogFile: RegularFileProperty
+    val maxUploadStatusRequestCount: Property<Int>
+    val uploadStatusRequestDelayMs: Property<Long>
+    val uploadStatusRequestDelayCoefficient: Property<Long>
+    val networkService: Property<AppCenterNetworkService>
+}
+
+/**
+ * WorkAction that performs the uploading of an APK to AppCenter.
+ *
+ * The upload process consists of the following steps:
+ * 1. Prepare a new release on AppCenter using the build version and number.
+ * 2. Initialize the upload API and send the APK metadata.
+ * 3. Upload the APK file in chunks, handling partial uploads.
+ * 4. Mark the upload as finished on AppCenter.
+ * 5. Commit the uploaded release.
+ * 6. Poll AppCenter until the release is ready to be published.
+ * 7. Distribute the release to specified tester groups with changelog notes.
+ *
+ * Upload request delays for polling are dynamically calculated based on APK size
+ * and an optional coefficient or a fixed delay.
+ */
+internal abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
+    private val logger = Logging.getLogger(this::class.java)
+
+    override fun execute() {
+        val networkService = parameters.networkService.get()
+
+        val outputFile = parameters.outputFile.asFile.get()
+        val testerGroups = parameters.testerGroups.get()
+        val changelogFile = parameters.changelogFile.asFile.get()
+
+        logger.info("Step 1/7: Prepare upload")
+        val prepareResponse =
+            networkService.prepareRelease(
+                buildVersion = parameters.buildName.get(),
+                buildNumber = parameters.buildNumber.get(),
+            )
+        networkService.initUploadApi(prepareResponse.upload_domain ?: "https://file.appcenter.ms")
+        networkService.initAppName(parameters.appName.get())
+
+        logger.info("Step 2/7: Send metadata")
+        val packageAssetId = prepareResponse.package_asset_id
+        val encodedToken = prepareResponse.url_encoded_token
+        val metaResponse = networkService.sendMetaData(outputFile, packageAssetId, encodedToken)
+
+        // See NOTE_CHUNKS_UPLOAD_LOOP
+        logger.info("Step 3/7: Upload apk file chunks")
+        metaResponse.chunk_list.forEachIndexed { i, chunkNumber ->
+            val range = (i * metaResponse.chunk_size)..((i + 1) * metaResponse.chunk_size)
+            logger.info("Step 3/7 : Upload chunk ${i + 1}/${metaResponse.chunk_list.size}")
+            networkService.uploadChunk(
+                packageAssetId = packageAssetId,
+                encodedToken = encodedToken,
+                chunkNumber = chunkNumber,
+                request = ChunkRequestBody(outputFile, range, "application/octet-stream"),
+            )
+        }
+
+        logger.info("Step 4/7: Finish upload")
+        networkService.sendUploadIsFinished(packageAssetId, encodedToken)
+
+        logger.info("Step 5/7: Commit uploaded release")
+        networkService.commit(prepareResponse.id)
+
+        logger.info("Step 6/7: Fetching for release to be ready to publish")
+        val publishResponse =
+            networkService
+                .waitingReadyToBePublished(
+                    preparedUploadId = prepareResponse.id,
+                    maxRequestCount =
+                        parameters.maxUploadStatusRequestCount.orNull
+                            ?: MAX_REQUEST_COUNT,
+                    requestDelayMs = requestDelayMs(parameters, outputFile.length()),
+                )
+        logger.info("Step 7/7: Distribute to the app testers: $testerGroups")
+        val releaseId = publishResponse.release_distinct_id
+        if (releaseId != null) {
+            networkService.distribute(
+                releaseId = releaseId,
+                distributionGroups = testerGroups,
+                releaseNotes = changelogFile.readText().ellipsizeAt(MAX_NOTES_CHARACTERS_COUNT),
+            )
+        } else {
+            logger.error(
+                "Apk was uploaded, " +
+                    "but distributors will not be notified: " +
+                    "field 'release_distinct_id' is null, cannot execute 'distribute' request",
+            )
+        }
+        logger.info("upload done")
+    }
+
+    private fun requestDelayMs(
+        params: AppCenterUploadParameters,
+        fileSizeBytes: Long,
+    ): Long {
+        val coefficient = params.uploadStatusRequestDelayCoefficient.orNull
+        return if (coefficient != null) {
+            round((fileSizeBytes.bytesToMegabytes() / coefficient) * MILLIS_IN_SEC).toLong()
+        } else {
+            parameters.uploadStatusRequestDelayMs.orNull ?: MAX_REQUEST_DELAY_MS
+        }
+    }
+}
+
+@Suppress("MagicNumber") // well known formula
+private fun Long.bytesToMegabytes(): Double {
+    return this / BYTES_PER_MEGABYTE
+}
+
+private const val BYTES_PER_MEGABYTE = 1024.0 * 1024.0
+private const val MILLIS_IN_SEC = 1000
+private const val MAX_NOTES_CHARACTERS_COUNT = 5000

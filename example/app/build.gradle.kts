@@ -1,6 +1,11 @@
 plugins {
     id("com.android.application")
-    id("ru.kode.android.build-publish")
+    id("ru.kode.android.build-publish-novo.foundation")
+    id("ru.kode.android.build-publish-novo.jira")
+    id("ru.kode.android.build-publish-novo.appcenter")
+    id("ru.kode.android.build-publish-novo.confluence")
+    id("ru.kode.android.build-publish-novo.telegram")
+    id("ru.kode.android.build-publish-novo.clickup")
 }
 
 android {
@@ -47,76 +52,116 @@ dependencies {
     implementation("com.google.android.material:material:1.4.0")
 }
 
-buildPublish {
-    output {
-        register("default") {
-            baseFileName.set("example-base-project-android")
-        }
+buildPublishFoundation {
+    outputCommon {
+        baseFileName.set("example-base-project-android")
+    }
+    changelogCommon {
+        issueNumberPattern.set("AT-\\d+")
+        issueUrlPrefix.set("https://jira.atlassian.com/")
+        commitMessageKey.set("CHANGELOG")
+    }
+}
 
-        register("armv8MinApi21AlphaDebug") {
-            baseFileName.set("example-base-project-android")
-            useVersionsFromTag.set(false)
+buildPublishJira {
+    auth {
+        common {
+            baseUrl.set("https://jira.atlassian.com")
+            credentials.username.set("test_user_default")
+            credentials.password.set("test_password_default")
+        }
+        buildType("release") {
+            baseUrl.set("https://jira.atlassian.com")
+            credentials.username.set("test_user_release")
+            credentials.password.set("test_password_release")
         }
     }
-    changelog {
-        register("default") {
-            issueNumberPattern.set("AT-\\d+")
-            issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
-            commitMessageKey.set("CHANGELOG")
-        }
-    }
-    jira {
-        register("default") {
-            baseUrl.set("https://jira.exmaple.ru")
-            authUsername.set("test_user")
-            authPassword.set("test_password")
+    automation {
+        common {
             projectId.set(1111)
             fixVersionPattern.set("fix_%2\$s_%1\$s")
         }
     }
-    clickUp {
-        register("default") {
-            apiTokenFile = File("clickup-token.txt")
-            fixVersionPattern = "fix_%2\$s_%1\$s"
-            fixVersionFieldId = "01234567qwerty"
-            tagName = "test_tag_name"
+}
+
+buildPublishAppCenter {
+    auth {
+        common {
+            ownerName.set("android-team-kode.ru")
+            apiTokenFile.set(File("appcenter-token.txt"))
         }
     }
-    telegram {
-        register("default") {
-            botId.set("0000")
-            chatId.set("0000")
-            topicId.set("0000")
-            userMentions.set(setOf("@ivan", "@roman", "@serega"))
+
+    distribution {
+        common {
+            appName.set("Android")
+            testerGroups.set(setOf("Collaborators"))
+        }
+
+        buildType("debug") {
+            appName.set("AndroidDebug")
+            testerGroups.set(setOf("Collaborators"))
+        }
+
+        buildType("release") {
+            appName.set("AndroidRelease")
+            testerGroups.set(setOf("Collaborators"))
         }
     }
-    confluence {
-        register("default") {
-            username.set("@username")
-            password.set("@password")
+}
+
+buildPublishConfluence {
+    auth {
+        common {
+            credentials.username.set("@username")
+            credentials.password.set("@password")
+        }
+    }
+    distribution {
+        buildType("default") {
             pageId.set("123435")
         }
     }
-    appCenterDistribution {
-        register("default") {
-            appName.set("Android")
-            ownerName.set("android-team-kode.ru")
-            apiTokenFile.set(File("appcenter-token.txt"))
-            testerGroups.set(setOf("Collaborators"))
-        }
+}
 
-        register("debug") {
-            appName.set("AndroidDebug")
-            ownerName.set("android-team-kode.ru")
-            apiTokenFile.set(File("appcenter-token.txt"))
-            testerGroups.set(setOf("Collaborators"))
+buildPublishTelegram {
+    bots {
+        common {
+            bot("buildPublish") {
+                botId.set("0000")
+                chat("test_chat_A") {
+                    chatId = "a"
+                    topicId = "1"
+                }
+                chat("test_chat_B") {
+                    chatId = "b"
+                    topicId = "2"
+                }
+            }
         }
+    }
+    changelog {
+        common {
+            userMentions.set(setOf("@ivan", "@roman", "@serega"))
+            destinationBot {
+                botName = "buildPublish"
+                chatNames = setOf("test_chat_A")
+            }
+        }
+    }
+}
 
-        register("release") {
-            appName.set("AndroidRelease")
-            ownerName.set("android-team-kode.ru")
-            apiTokenFile.set(File("appcenter-token.txt"))
-            testerGroups.set(setOf("Collaborators"))
+buildPublishClickUp {
+    auth {
+        common {
+            apiTokenFile = File("clickup-token.txt")
+        }
+    }
+    automation {
+        common {
+            fixVersionPattern = "fix_%2\$s_%1\$s"
+            fixVersionFieldId = "01234567qwerty"
+            tagName = "test_tag_name"
         }
     }
 }

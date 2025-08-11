@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'com.google.firebase.appdistribution'
-    id 'ru.kode.android.build-publish'
+    id 'ru.kode.android.build-publish-novo.foundation'
 }
 
 android {
@@ -22,17 +22,16 @@ android {
     }
 }
 
-buildPublish {
+buildPublishFoundation {
     output {
-        register("default") {
-            baseFileName = "base-project-android"
+        common {
+           it.baseFileName = "base-project-android"
         }
     }
-    changelog {
-        register("default") {
-            issueNumberPattern = "BASE-\\d+"
-            issueUrlPrefix = "https://jira.exmaple.ru/browse/"
-            commitMessageKey = "CHANGELOG"
-        }
+
+    changelogCommon {
+        issueNumberPattern = "BASE-\\d+"
+        issueUrlPrefix = "https://jira.exmaple.ru/browse/"
+        commitMessageKey = "CHANGELOG"
     }
 }

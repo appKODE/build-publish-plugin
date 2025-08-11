@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
-    id("ru.kode.android.build-publish")
+    id("ru.kode.android.build-publish-novo.foundation")
+    id("ru.kode.android.build-publish-novo.slack")
+    id("ru.kode.android.build-publish-novo.firebase")
 }
 
 android {
@@ -41,37 +43,51 @@ android {
     }
 }
 
-buildPublish {
+buildPublishFoundation {
     output {
-        register("default") {
+        common {
             baseFileName.set("example-base-project-android")
         }
 
-        register("x86MinApi21AlphaDebug") {
+        buildType("x86MinApi21AlphaDebug") {
             baseFileName.set("example-base-project-android")
             buildTagPattern.set("cabinet\\+.+\\.(\\d+)-x86MinApi21AlphaDebug")
         }
     }
     changelog {
-        register("default") {
+        common {
             issueNumberPattern.set("BASE-\\d+")
             issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
             commitMessageKey.set("CHANGELOG")
         }
     }
-    slack {
-        register("default") {
-            webhookUrl.set("https://hooks.slack.com/services/111111111/AAAAAAA/DDDDDDD")
-            iconUrl.set("https://i.imgur.com/HQTF5FK.png")
-            userMentions.set(setOf("@aa", "@bb", "@cc"))
-            attachmentColor.set("#ffffff")
-        }
-    }
-    firebaseDistribution {
-        register("default") {
+}
+
+buildPublishFirebase {
+    distribution {
+        common {
             serviceCredentialsFilePath.set("test-test")
             appId.set("ru.kode.test.app")
             testerGroups.set(setOf("android-testers"))
         }
+    }
+}
+
+buildPublishSlack {
+    bot {
+        common {
+            webhookUrl.set("https://hooks.slack.com/services/111111111/AAAAAAA/DDDDDDD")
+            iconUrl.set("https://i.imgur.com/HQTF5FK.png")
+        }
+    }
+    changelog {
+        common {
+            userMentions.set(setOf("@aa", "@bb", "@cc"))
+            attachmentColor.set("#ffffff")
+        }
+    }
+    distributionCommon {
+        uploadApiTokenFile.set(File("Test"))
+        destinationChannel("builds")
     }
 }

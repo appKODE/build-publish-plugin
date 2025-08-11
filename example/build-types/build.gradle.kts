@@ -1,6 +1,9 @@
 plugins {
     id("com.android.application")
-    id("ru.kode.android.build-publish")
+    id("ru.kode.android.build-publish-novo.foundation")
+    id("ru.kode.android.build-publish-novo.firebase")
+    id("ru.kode.android.build-publish-novo.telegram")
+    id("ru.kode.android.build-publish-novo.confluence")
 }
 
 android {
@@ -16,43 +19,69 @@ android {
     }
 }
 
-buildPublish {
+buildPublishFoundation {
     output {
-        register("default") {
+        common {
             baseFileName.set("example-base-project-android")
         }
 
-        register("debug") {
+        buildType("debug") {
             baseFileName.set("example-base-project-android")
             useVersionsFromTag.set(false)
         }
     }
     changelog {
-        register("default") {
+        common {
             issueNumberPattern.set("BASE-\\d+")
             issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
             commitMessageKey.set("CHANGELOG")
         }
     }
-    firebaseDistribution {
-        register("default") {
+}
+
+buildPublishFirebase {
+    distribution {
+        common {
             serviceCredentialsFilePath.set("test-test")
             appId.set("ru.kode.test.app")
             testerGroups.set(setOf("android-testers"))
         }
     }
-    telegram {
-        register("default") {
-            botId.set("313123131231")
-            chatId.set("-00000000")
-            userMentions.set(emptyList())
-            uploadBuild.set(true)
+}
+
+buildPublishTelegram {
+    bots {
+        common {
+            bot("buildPublish") {
+                common {
+                    botId.set("313123131231")
+                    chat("builds") {
+                        chatId.set("-00000000")
+                    }
+                }
+            }
         }
     }
-    confluence {
-        register("default") {
-            username.set("@username")
-            password.set("@password")
+    distribution {
+        common {
+            destinationBot {
+                botName = "buildPublish"
+                chatNames = setOf("builds")
+            }
+        }
+    }
+}
+
+buildPublishConfluence {
+    auth {
+        common {
+            credentials.username.set("@username")
+            credentials.password.set("@password")
+        }
+    }
+
+    distribution {
+        common {
             pageId.set("123435")
         }
     }
