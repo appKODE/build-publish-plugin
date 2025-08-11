@@ -2,8 +2,10 @@ package ru.kode.android.build.publish.plugin.telegram.task.changelog.work
 
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.telegram.config.DestinationBot
 import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
 import javax.inject.Inject
 
@@ -14,6 +16,7 @@ internal interface SendTelegramChangelogParameters : WorkParameters {
     val userMentions: Property<String>
     val escapedCharacters: Property<String>
     val networkService: Property<TelegramNetworkService>
+    val destinationBots: SetProperty<DestinationBot>
 }
 
 internal abstract class SendTelegramChangelogWork
@@ -39,7 +42,7 @@ internal abstract class SendTelegramChangelogWork
                     appendLine()
                     append(parameters.changelog.get())
                 }.formatChangelog()
-            service.send(message)
+            service.send(message, parameters.destinationBots.get())
             logger.info("changelog sent to Telegram")
         }
     }

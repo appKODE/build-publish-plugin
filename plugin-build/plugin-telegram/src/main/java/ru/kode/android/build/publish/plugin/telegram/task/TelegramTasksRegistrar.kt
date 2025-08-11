@@ -35,11 +35,11 @@ object TelegramTasksRegistrar {
         distributionConfig: TelegramDistributionConfig,
         params: TelegramDistributionTaskParams,
     ): TaskProvider<TelegramDistributionTask>? {
-        return if (distributionConfig.uploadBuild.orNull == true) {
-            project.registerTelegramUploadTask(params)
+        return if (distributionConfig.destinationBots.isPresent) {
+            project.registerTelegramUploadTask(distributionConfig, params)
         } else {
             logger.info(
-                "TelegramDistributionTask was not created, uploadBuild is not present or false",
+                "TelegramDistributionTask was not created, destinationBots is not present",
             )
             null
         }
@@ -66,12 +66,16 @@ private fun Project.registerSendTelegramChangelogTask(
         it.issueNumberPattern.set(params.issueNumberPattern)
         it.baseOutputFileName.set(params.baseFileName)
         it.userMentions.set(changelogConfig.userMentions)
+        it.destinationBots.set(changelogConfig.destinationBots)
         it.networkService.set(networkService)
     }
 }
 
 @Suppress("MaxLineLength") // One parameter function
-private fun Project.registerTelegramUploadTask(params: TelegramDistributionTaskParams): TaskProvider<TelegramDistributionTask> {
+private fun Project.registerTelegramUploadTask(
+    distributionConfig: TelegramDistributionConfig,
+    params: TelegramDistributionTaskParams,
+): TaskProvider<TelegramDistributionTask> {
     return tasks.register(
         "$TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         TelegramDistributionTask::class.java,
@@ -83,6 +87,7 @@ private fun Project.registerTelegramUploadTask(params: TelegramDistributionTaskP
                 .flatMapByNameOrCommon(params.buildVariant.name)
 
         it.buildVariantOutputFile.set(params.apkOutputFileProvider)
+        it.destinationBots.set(distributionConfig.destinationBots)
         it.networkService.set(networkService)
     }
 }

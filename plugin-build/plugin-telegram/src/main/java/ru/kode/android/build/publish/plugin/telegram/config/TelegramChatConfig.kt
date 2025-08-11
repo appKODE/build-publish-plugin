@@ -5,6 +5,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 abstract class TelegramChatConfig {
+    abstract val name: String
 
     /**
      * Telegram chat id where bot is added
