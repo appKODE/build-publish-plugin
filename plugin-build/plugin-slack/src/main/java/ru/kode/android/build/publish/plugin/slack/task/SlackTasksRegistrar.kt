@@ -39,7 +39,7 @@ object SlackTasksRegistrar {
     ): TaskProvider<SlackDistributionTask>? {
         return if (
             distributionConfig.uploadApiTokenFile.isPresent &&
-            distributionConfig.uploadChannels.isPresent
+            distributionConfig.destinationChannels.isPresent
         ) {
             project.registerSlackDistributionTask(distributionConfig, params)
         } else {
@@ -94,7 +94,7 @@ private fun Project.registerSlackDistributionTask(
                 .flatMapByNameOrCommon(params.buildVariant.name)
 
         it.buildVariantOutputFile.set(params.apkOutputFileProvider)
-        it.channels.set(distributionConfig.uploadChannels)
+        it.destinationChannels.set(distributionConfig.destinationChannels)
         it.tagBuildFile.set(params.tagBuildProvider)
         it.baseOutputFileName.set(params.baseFileName)
         it.networkService.set(uploadService)
