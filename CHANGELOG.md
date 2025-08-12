@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0-alpha18
+* Fix logic to set Telegram distribution properties
+
 ## 1.3.0-alpha17
 * Fix logic to provide correct telegram auth credentials
 
