@@ -531,9 +531,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
         }
         if (telegramConfig.uploadBuild.orNull == true) {
             registerTelegramUploadTasks(
-                telegramConfig.botId,
-                telegramConfig.chatId,
-                telegramConfig.topicId,
+                telegramConfig,
                 buildVariant,
                 apkOutputFileProvider,
                 bundleOutputFileProvider,
@@ -542,9 +540,7 @@ abstract class BuildPublishPlugin : Plugin<Project> {
     }
 
     private fun TaskContainer.registerTelegramUploadTasks(
-        botId: Provider<String>,
-        chatId: Provider<String>,
-        topicId: Provider<String>,
+        telegramConfig: TelegramConfig,
         buildVariant: BuildVariant,
         apkOutputFileProvider: Provider<RegularFile>,
         bundleOutputFileProvider: Provider<RegularFile>,
@@ -554,18 +550,24 @@ abstract class BuildPublishPlugin : Plugin<Project> {
             TelegramDistributionTask::class.java,
         ) {
             it.buildVariantOutputFile.set(apkOutputFileProvider)
-            it.botId.set(botId)
-            it.chatId.set(chatId)
-            it.topicId.set(topicId)
+            it.botId.set(telegramConfig.botId)
+            it.botBaseUrl.set(telegramConfig.botBaseUrl)
+            it.botAuthUsername.set(telegramConfig.botAuthUsername)
+            it.botAuthPassword.set(telegramConfig.botAuthPassword)
+            it.chatId.set(telegramConfig.chatId)
+            it.topicId.set(telegramConfig.topicId)
         }
         register(
             "$TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${buildVariant.capitalizedName()}",
             TelegramDistributionTask::class.java,
         ) {
             it.buildVariantOutputFile.set(bundleOutputFileProvider)
-            it.botId.set(botId)
-            it.chatId.set(chatId)
-            it.topicId.set(topicId)
+            it.botId.set(telegramConfig.botId)
+            it.botBaseUrl.set(telegramConfig.botBaseUrl)
+            it.botAuthUsername.set(telegramConfig.botAuthUsername)
+            it.botAuthPassword.set(telegramConfig.botAuthPassword)
+            it.chatId.set(telegramConfig.chatId)
+            it.topicId.set(telegramConfig.topicId)
         }
     }
 
