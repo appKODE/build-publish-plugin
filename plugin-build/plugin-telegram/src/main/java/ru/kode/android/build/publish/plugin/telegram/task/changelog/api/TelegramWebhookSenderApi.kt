@@ -8,13 +8,7 @@ import retrofit2.http.Url
 internal interface TelegramWebhookSenderApi {
     @POST
     fun send(
-        @Header("Authorization") authHeader: String?,
-        @Url webhookUrl: String,
-    ): Call<Unit>
-
-    @POST
-    fun sendAuthorised(
-        @Header("Authorization") authorisation: String,
+        @Header("Authorization") authorisation: String?,
         @Url webhookUrl: String,
     ): Call<Unit>
 }

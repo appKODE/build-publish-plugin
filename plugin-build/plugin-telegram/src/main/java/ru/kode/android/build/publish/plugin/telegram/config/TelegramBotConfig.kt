@@ -31,7 +31,7 @@ abstract class TelegramBotConfig @Inject constructor(
 
     /**
      * Optional base URL of the Telegram bot API server.
-     * Defaults to "api.telegram.org" if not provided.
+     * Defaults to "https://api.telegram.org" if not provided.
      */
     @get:Input
     @get:Optional

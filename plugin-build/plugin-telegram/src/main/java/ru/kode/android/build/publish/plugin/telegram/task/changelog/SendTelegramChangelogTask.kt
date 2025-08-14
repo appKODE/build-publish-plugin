@@ -18,6 +18,9 @@ import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNet
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.work.SendTelegramChangelogWork
 import javax.inject.Inject
 
+private const val ESCAPED_CHARACTERS =
+    "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]|-"
+
 abstract class SendTelegramChangelogTask
     @Inject
     constructor(
@@ -71,18 +74,18 @@ abstract class SendTelegramChangelogTask
         @TaskAction
         fun sendChangelog() {
             val currentBuildTag = fromJson(tagBuildFile.asFile.get())
-            val escapedCharacters =
-                "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]|-"
+
             val changelog = changelogFile.orNull?.asFile?.readText()
             if (changelog.isNullOrEmpty()) {
                 logger.error(
                     "[sendChangelog] changelog file not found, is empty or error occurred",
                 )
             } else {
-                val changelogWithIssues = changelog.formatIssues(escapedCharacters)
-                val userMentions =
-                    userMentions.orNull.orEmpty().joinToString(", ")
-                        .replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
+                val changelogWithIssues = changelog.formatIssues(ESCAPED_CHARACTERS)
+                val userMentions = userMentions.orNull.orEmpty()
+                    .joinToString(", ")
+                    .escapeCharacters(ESCAPED_CHARACTERS)
+
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 if (changelogWithIssues.length > MESSAGE_MAX_LENGTH) {
                     changelogWithIssues
@@ -91,8 +94,7 @@ abstract class SendTelegramChangelogTask
                             sendChangelogInternal(
                                 workQueue = workQueue,
                                 userMentions = userMentions,
-                                escapedCharacters = escapedCharacters,
-                                changelog = chunk,
+                                changelog = chunk.formatIssues(ESCAPED_CHARACTERS),
                                 currentBuildTagName = currentBuildTag.name,
                             )
                         }
@@ -100,7 +102,6 @@ abstract class SendTelegramChangelogTask
                     sendChangelogInternal(
                         workQueue = workQueue,
                         userMentions = userMentions,
-                        escapedCharacters = escapedCharacters,
                         changelog = changelogWithIssues,
                         currentBuildTagName = currentBuildTag.name,
                     )
@@ -111,7 +112,6 @@ abstract class SendTelegramChangelogTask
         private fun sendChangelogInternal(
             workQueue: WorkQueue,
             userMentions: String,
-            escapedCharacters: String,
             changelog: String,
             currentBuildTagName: String,
         ) {
@@ -120,7 +120,7 @@ abstract class SendTelegramChangelogTask
                 parameters.buildName.set(currentBuildTagName)
                 parameters.changelog.set(changelog)
                 parameters.userMentions.set(userMentions)
-                parameters.escapedCharacters.set(escapedCharacters)
+                parameters.escapedCharacters.set(ESCAPED_CHARACTERS)
                 parameters.networkService.set(networkService)
                 parameters.destinationBots.set(destinationBots)
             }
@@ -142,10 +142,6 @@ abstract class SendTelegramChangelogTask
                 out = out.replace(formattedResult, link)
             }
             return out
-        }
-
-        private fun String.escapeCharacters(escapedCharacters: String): String {
-            return this.replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
         }
 
         private fun String.chunked(
@@ -177,3 +173,7 @@ abstract class SendTelegramChangelogTask
     }
 
 private const val MESSAGE_MAX_LENGTH = 4096
+
+private fun String.escapeCharacters(escapedCharacters: String): String {
+    return this.replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
+}
