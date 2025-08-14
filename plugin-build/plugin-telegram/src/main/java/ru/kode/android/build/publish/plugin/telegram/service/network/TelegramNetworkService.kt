@@ -27,12 +27,12 @@ import javax.inject.Inject
 
 private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L
 private const val STUB_BASE_URL = "http://localhost/"
-private const val TELEGRAM_BASE_RUL = "api.telegram.org"
+private const val TELEGRAM_BASE_RUL = "https://api.telegram.org"
 
 private const val SEND_MESSAGE_TO_CHAT_WEB_HOOK =
-    "https://%s/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2&disable_web_page_preview=true"
+    "%s/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2&disable_web_page_preview=true"
 private const val SEND_MESSAGE_TO_TOPIC_WEB_HOOK =
-    "https:/%s/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2" +
+    "%s/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2" +
         "&disable_web_page_preview=true"
 private const val SEND_DOCUMENT_WEB_HOOK = "https://%s/bot%s/sendDocument"
 
@@ -91,7 +91,7 @@ abstract class TelegramNetworkService
          * Sends url formatted data to webhook at [webhookUrl]
          */
         fun send(message: String, destinationBots: Set<DestinationBot>) {
-            resolveBots(destinationBots)
+            bots.getBy(destinationBots)
                 .forEach { bot ->
                     val topicId = bot.topicId
                     val webhookUrl =
@@ -111,24 +111,17 @@ abstract class TelegramNetworkService
                                 URLEncoder.encode(message, "utf-8"),
                             )
                         }
-                    logger.info("sending changelog to $webhookUrl")
-                    if (bot.basicAuth != null) {
-                        senderApi
-                            .sendAuthorised(
-                                Credentials.basic(bot.basicAuth.username, bot.basicAuth.password),
-                                webhookUrl
-                            )
-                            .executeOrThrow()
-                    } else {
-                        senderApi
-                            .send(webhookUrl)
-                            .executeOrThrow()
-                    }
+                    logger.info("sending changelog to ${bot.name} by $webhookUrl")
+                    val authorization = bot.basicAuth
+                        ?.let { Credentials.basic(it.username, it.password) }
+                    senderApi
+                        .send(authorization, webhookUrl)
+                        .executeOrThrow()
                 }
         }
 
         fun upload(file: File, destinationBots: Set<DestinationBot>) {
-            resolveBots(destinationBots)
+            bots.getBy(destinationBots)
                 .forEach { bot ->
                     val webhookUrl = SEND_DOCUMENT_WEB_HOOK.format(bot.serverBaseUrl, bot.it)
                     val filePart =
@@ -149,47 +142,13 @@ abstract class TelegramNetworkService
                                 "chat_id" to createPartFromString(bot.chatId),
                             )
                         }
-                    if (bot.basicAuth != null) {
-                        distributionApi
-                            .uploadAuthorised(
-                                Credentials.basic(bot.basicAuth.username, bot.basicAuth.password),
-                                webhookUrl,
-                                params,
-                                filePart
-                            )
-                            .executeOrThrow()
-                    } else {
-                        distributionApi
-                            .upload(webhookUrl, params, filePart)
-                            .executeOrThrow()
-                    }
+                    logger.info("upload file to ${bot.name} by $webhookUrl")
+                    val authorization = bot.basicAuth
+                        ?.let { Credentials.basic(it.username, it.password) }
+                    distributionApi
+                        .upload(authorization, webhookUrl, params, filePart)
+                        .executeOrThrow()
                 }
-            }
-
-            private fun resolveBots(destinationBots: Set<DestinationBot>): List<TelegramBot> {
-                return destinationBots
-                    .flatMap { destinationBot ->
-                        val botName = destinationBot.botName.get()
-                        val chatNames = destinationBot.chatNames.get()
-                        val bot = bots.firstOrNull { it.name == botName }
-                        bot?.chats?.filter { it.name in chatNames }
-                            ?.map { chat ->
-                                val authPassword = bot.botServerAuth.password.orNull
-                                val authUserName = bot.botServerAuth.username.orNull
-                                val basicAuth = if (authUserName != null && authPassword != null) {
-                                    TelegramBot.BasicAuth(authUserName, authPassword)
-                                } else {
-                                    null
-                                }
-                                TelegramBot(
-                                    it = bot.botId.get(),
-                                    serverBaseUrl = bot.botServerBaseUrl.orNull ?: TELEGRAM_BASE_RUL,
-                                    basicAuth = basicAuth,
-                                    chatId = chat.chatId.get(),
-                                    topicId = chat.topicId.orNull,
-                                )
-                            }.orEmpty()
-                    }
             }
 
             companion object {
@@ -197,7 +156,35 @@ abstract class TelegramNetworkService
             }
     }
 
+private fun List<TelegramBotConfig>.getBy(destinationBots: Set<DestinationBot>): List<TelegramBot> {
+    return destinationBots
+        .flatMap { destinationBot ->
+            val botName = destinationBot.botName.get()
+            val chatNames = destinationBot.chatNames.get()
+            val bot = this.firstOrNull { it.name == botName }
+            bot?.chats?.filter { it.name in chatNames }
+                ?.map { chat ->
+                    val authPassword = bot.botServerAuth.password.orNull
+                    val authUserName = bot.botServerAuth.username.orNull
+                    val basicAuth = if (authUserName != null && authPassword != null) {
+                        TelegramBot.BasicAuth(authUserName, authPassword)
+                    } else {
+                        null
+                    }
+                    TelegramBot(
+                        name = bot.name,
+                        it = bot.botId.get(),
+                        serverBaseUrl = bot.botServerBaseUrl.orNull ?: TELEGRAM_BASE_RUL,
+                        basicAuth = basicAuth,
+                        chatId = chat.chatId.get(),
+                        topicId = chat.topicId.orNull,
+                    )
+                }.orEmpty()
+        }
+}
+
 private data class TelegramBot(
+    val name: String,
     val it: String,
     val serverBaseUrl: String,
     val chatId: String,

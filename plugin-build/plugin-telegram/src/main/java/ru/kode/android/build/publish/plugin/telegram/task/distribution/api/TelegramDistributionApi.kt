@@ -15,15 +15,7 @@ internal interface TelegramDistributionApi {
     @POST
     @Multipart
     fun upload(
-        @Url webhookUrl: String,
-        @PartMap params: HashMap<String, RequestBody>,
-        @Part filePart: MultipartBody.Part,
-    ): Call<TelegramUploadResponse>
-
-    @POST
-    @Multipart
-    fun uploadAuthorised(
-        @Header("Authorization") authorisation: String,
+        @Header("Authorization") authorisation: String?,
         @Url webhookUrl: String,
         @PartMap params: HashMap<String, RequestBody>,
         @Part filePart: MultipartBody.Part,
