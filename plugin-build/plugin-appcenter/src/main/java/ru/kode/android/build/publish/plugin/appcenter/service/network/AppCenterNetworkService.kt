@@ -53,6 +53,7 @@ abstract class AppCenterNetworkService
              * File containing the authentication token for AppCenter API.
              */
             val token: RegularFileProperty
+
             /**
              * The owner (organization or user) name for the AppCenter app.
              */

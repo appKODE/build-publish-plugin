@@ -13,8 +13,8 @@ import ru.kode.android.build.publish.plugin.jira.task.automation.JiraAutomationT
 
 internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
 
-object JiraTasksRegistrar {
-    fun registerAutomationTask(
+internal object JiraTasksRegistrar {
+    internal fun registerAutomationTask(
         project: Project,
         automationConfig: JiraAutomationConfig,
         params: JiraAutomationTaskParams,
@@ -42,8 +42,8 @@ private fun Project.registerJiraTasks(
             "$JIRA_AUTOMATION_TASK${params.buildVariant.capitalizedName()}",
             JiraAutomationTask::class.java,
         ) {
-            it.tagBuildFile.set(params.tagBuildProvider)
-            it.changelogFile.set(params.changelogFileProvider)
+            it.buildTagFile.set(params.lastBuildTagFile)
+            it.changelogFile.set(params.changelogFile)
             it.issueNumberPattern.set(params.issueNumberPattern)
             it.projectId.set(automationConfig.projectId)
             it.labelPattern.set(automationConfig.labelPattern)
@@ -56,9 +56,9 @@ private fun Project.registerJiraTasks(
     }
 }
 
-data class JiraAutomationTaskParams(
+internal data class JiraAutomationTaskParams(
     val buildVariant: BuildVariant,
     val issueNumberPattern: Provider<String>,
-    val changelogFileProvider: Provider<RegularFile>,
-    val tagBuildProvider: Provider<RegularFile>,
+    val changelogFile: Provider<RegularFile>,
+    val lastBuildTagFile: Provider<RegularFile>,
 )

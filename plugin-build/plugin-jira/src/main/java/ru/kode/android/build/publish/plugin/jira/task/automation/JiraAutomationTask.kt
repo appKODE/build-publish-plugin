@@ -34,8 +34,8 @@ abstract class JiraAutomationTask
         abstract val networkService: Property<JiraNetworkService>
 
         @get:InputFile
-        @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
-        abstract val tagBuildFile: RegularFileProperty
+        @get:Option(option = "buildTagFile", description = "Json contains info about tag build")
+        abstract val buildTagFile: RegularFileProperty
 
         @get:InputFile
         @get:Option(option = "changelogFile", description = "File with saved changelog")
@@ -81,7 +81,7 @@ abstract class JiraAutomationTask
 
         @TaskAction
         fun upload() {
-            val currentBuildTag = fromJson(tagBuildFile.asFile.get())
+            val currentBuildTag = fromJson(buildTagFile.asFile.get())
             val changelog = changelogFile.asFile.get().readText()
             val issues =
                 Regex(issueNumberPattern.get())

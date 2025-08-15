@@ -14,7 +14,7 @@ import java.io.File
 internal interface SlackUploadParameters : WorkParameters {
     val baseOutputFileName: Property<String>
     val buildName: Property<String>
-    val outputFile: RegularFileProperty
+    val distributionFile: RegularFileProperty
     val destinationChannels: SetProperty<String>
     val networkService: Property<SlackUploadService>
 }
@@ -25,19 +25,19 @@ internal abstract class SlackUploadWork : WorkAction<SlackUploadParameters> {
     @Suppress("SwallowedException") // see logs below
     override fun execute() {
         val uploader = parameters.networkService.get()
-        val uploadFile = parameters.outputFile.asFile.get()
-        val zippedUploadFile =
-            listOf(uploadFile).zipFiles(
+        val distributionFile = parameters.distributionFile.asFile.get()
+        val zippedDistributionFile =
+            listOf(distributionFile).zipFiles(
                 File(
-                    uploadFile.toString()
-                        .replace(".${uploadFile.extension}", ".zip"),
+                    distributionFile.toString()
+                        .replace(".${distributionFile.extension}", ".zip"),
                 ),
             )
         try {
             uploader.upload(
                 parameters.baseOutputFileName.get(),
                 parameters.buildName.get(),
-                zippedUploadFile,
+                zippedDistributionFile,
                 parameters.destinationChannels.get(),
             )
         } catch (ex: UploadStreamTimeoutException) {

@@ -2,20 +2,25 @@ package ru.kode.android.build.publish.plugin.slack.extension
 
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.api.container.BaseDomainContainer
-import ru.kode.android.build.publish.plugin.core.api.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
+import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackDistributionConfig
+import ru.kode.android.build.publish.plugin.slack.task.SlackChangelogTaskParams
+import ru.kode.android.build.publish.plugin.slack.task.SlackDistributionTaskParams
+import ru.kode.android.build.publish.plugin.slack.task.SlackTasksRegistrar
 import javax.inject.Inject
 
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishSlackExtension
     @Inject
-    constructor(objectFactory: ObjectFactory) : BaseExtension() {
+    constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
         internal val bot: NamedDomainObjectContainer<SlackBotConfig> =
             objectFactory.domainObjectContainer(SlackBotConfig::class.java)
 
@@ -74,5 +79,45 @@ abstract class BuildPublishSlackExtension
 
         fun distributionCommon(configurationAction: Action<SlackDistributionConfig>) {
             common(distribution, configurationAction)
+        }
+
+        override fun configure(
+            project: Project,
+            input: ExtensionInput,
+        ) {
+            val slackBotConfig = botConfig(input.buildVariant.name)
+            val slackChangelogConfig = changelogConfigOrNull(input.buildVariant.name)
+            val slackDistributionConfig = distributionConfigOrNull(input.buildVariant.name)
+
+            if (slackChangelogConfig != null) {
+                SlackTasksRegistrar.registerChangelogTask(
+                    project = project,
+                    botConfig = slackBotConfig,
+                    changelogConfig = slackChangelogConfig,
+                    params =
+                        SlackChangelogTaskParams(
+                            baseFileName = input.output.baseFileName,
+                            issueNumberPattern = input.changelog.issueNumberPattern,
+                            issueUrlPrefix = input.changelog.issueUrlPrefix,
+                            buildVariant = input.buildVariant,
+                            changelogFile = input.changelog.file,
+                            lastBuildTagFile = input.output.lastBuildTagFile,
+                        ),
+                )
+            }
+
+            if (slackDistributionConfig != null) {
+                SlackTasksRegistrar.registerDistributionTask(
+                    project = project,
+                    distributionConfig = slackDistributionConfig,
+                    params =
+                        SlackDistributionTaskParams(
+                            baseFileName = input.output.baseFileName,
+                            buildVariant = input.buildVariant,
+                            lastBuildTagFile = input.output.lastBuildTagFile,
+                            apkOutputFile = input.output.apkFile,
+                        ),
+                )
+            }
         }
     }

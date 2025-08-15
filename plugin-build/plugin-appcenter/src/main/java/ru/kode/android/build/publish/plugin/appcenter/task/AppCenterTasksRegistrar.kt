@@ -2,7 +2,6 @@ package ru.kode.android.build.publish.plugin.appcenter.task
 
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.appcenter.config.AppCenterDistributionConfig
@@ -61,8 +60,8 @@ internal const val APP_CENTER_DISTRIBUTION_UPLOAD_TASK_PREFIX = "appCenterDistri
  *  - `appCenterDistributionUploadInternal`
  *  - `appCenterDistributionUploadRelease`
  */
-object AppCenterTasksRegistrar {
-    fun registerDistributionTask(
+internal object AppCenterTasksRegistrar {
+    internal fun registerDistributionTask(
         project: Project,
         distributionConfig: AppCenterDistributionConfig,
         params: AppCenterDistributionTaskParams,
@@ -87,9 +86,9 @@ private fun Project.registerAppCenterDistributionTask(
                 .networkServices
                 .flatMapByNameOrCommon(params.buildVariant.name)
 
-        it.tagBuildFile.set(params.tagBuildProvider)
-        it.buildVariantOutputFile.set(params.apkOutputFileProvider)
-        it.changelogFile.set(params.changelogFileProvider)
+        it.buildTagFile.set(params.lastBuildTagFile)
+        it.distributionFile.set(params.apkOutputFile)
+        it.changelogFile.set(params.changelogFile)
         it.appName.set(distributionConfig.appName)
         it.baseFileName.set(params.baseFileName)
         it.testerGroups.set(distributionConfig.testerGroups)
@@ -100,10 +99,10 @@ private fun Project.registerAppCenterDistributionTask(
     }
 }
 
-data class AppCenterDistributionTaskParams(
+internal data class AppCenterDistributionTaskParams(
     val buildVariant: BuildVariant,
-    val changelogFileProvider: Provider<RegularFile>,
-    val apkOutputFileProvider: Provider<RegularFile>,
-    val tagBuildProvider: Provider<RegularFile>,
-    val baseFileName: Property<String>,
+    val changelogFile: Provider<RegularFile>,
+    val apkOutputFile: Provider<RegularFile>,
+    val lastBuildTagFile: Provider<RegularFile>,
+    val baseFileName: Provider<String>,
 )

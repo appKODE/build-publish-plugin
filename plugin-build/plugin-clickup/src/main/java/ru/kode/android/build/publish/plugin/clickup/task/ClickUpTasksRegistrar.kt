@@ -14,7 +14,7 @@ import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
 
 internal const val CLICK_UP_AUTOMATION_TASK = "clickUpAutomation"
 
-object ClickUpTasksRegistrar {
+internal object ClickUpTasksRegistrar {
     fun registerAutomationTask(
         project: Project,
         automationConfig: ClickUpAutomationConfig,
@@ -51,8 +51,8 @@ private fun Project.registerClickUpTasks(
             "$CLICK_UP_AUTOMATION_TASK${params.buildVariant.capitalizedName()}",
             ClickUpAutomationTask::class.java,
         ) {
-            it.tagBuildFile.set(params.tagBuildProvider)
-            it.changelogFile.set(params.changelogFileProvider)
+            it.buildTagFile.set(params.lastBuildTagFile)
+            it.changelogFile.set(params.changelogFile)
             it.issueNumberPattern.set(params.issueNumberPattern)
             it.fixVersionPattern.set(automationConfig.fixVersionPattern)
             it.fixVersionFieldId.set(automationConfig.fixVersionFieldId)
@@ -64,9 +64,9 @@ private fun Project.registerClickUpTasks(
     }
 }
 
-data class ClickUpAutomationTaskParams(
+internal data class ClickUpAutomationTaskParams(
     val buildVariant: BuildVariant,
     val issueNumberPattern: Provider<String>,
-    val changelogFileProvider: Provider<RegularFile>,
-    val tagBuildProvider: Provider<RegularFile>,
+    val changelogFile: Provider<RegularFile>,
+    val lastBuildTagFile: Provider<RegularFile>,
 )

@@ -24,6 +24,7 @@ inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrNullableCommon(
 ): T? {
     return findByName(name) ?: findByName(defaultName)
 }
+
 inline fun <reified T> BaseDomainContainer<T>.getByNameOrRequiredCommon(
     name: String,
     defaultName: String = COMMON_CONTAINER_NAME,
@@ -41,6 +42,7 @@ inline fun <reified T> BaseDomainContainer<T>.getByNameOrNullableCommon(
 inline fun <reified T> NamedDomainObjectContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
     return findByName(defaultName)
 }
+
 inline fun <reified T> BaseDomainContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
     return findByName(defaultName)
 }
@@ -53,7 +55,7 @@ fun <T> NamedDomainObjectContainer<T>.common(configurationAction: Action<in T>):
 @Throws(InvalidUserDataException::class)
 fun <T> NamedDomainObjectContainer<T>.buildType(
     buildType: String,
-    configurationAction: Action<in T>
+    configurationAction: Action<in T>,
 ): NamedDomainObjectProvider<T> {
     return this.register(buildType, configurationAction)
 }

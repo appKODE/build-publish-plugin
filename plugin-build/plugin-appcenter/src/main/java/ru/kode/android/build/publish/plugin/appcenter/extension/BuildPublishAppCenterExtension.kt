@@ -2,11 +2,15 @@ package ru.kode.android.build.publish.plugin.appcenter.extension
 
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.appcenter.config.AppCenterAuthConfig
 import ru.kode.android.build.publish.plugin.appcenter.config.AppCenterDistributionConfig
+import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterDistributionTaskParams
+import ru.kode.android.build.publish.plugin.appcenter.task.AppCenterTasksRegistrar
 import ru.kode.android.build.publish.plugin.core.api.container.BaseDomainContainer
-import ru.kode.android.build.publish.plugin.core.api.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
+import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import javax.inject.Inject
@@ -26,7 +30,7 @@ import javax.inject.Inject
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishAppCenterExtension
     @Inject
-    constructor(objectFactory: ObjectFactory) : BaseExtension() {
+    constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
         // Stores authentication configs for different build types.
         internal val auth: NamedDomainObjectContainer<AppCenterAuthConfig> =
             objectFactory.domainObjectContainer(AppCenterAuthConfig::class.java)
@@ -83,5 +87,25 @@ abstract class BuildPublishAppCenterExtension
          */
         fun distributionCommon(configurationAction: Action<AppCenterDistributionConfig>) {
             common(distribution, configurationAction)
+        }
+
+        override fun configure(
+            project: Project,
+            input: ExtensionInput,
+        ) {
+            val appCenterDistributionConfig = distributionConfig(input.buildVariant.name)
+
+            AppCenterTasksRegistrar.registerDistributionTask(
+                project = project,
+                distributionConfig = appCenterDistributionConfig,
+                params =
+                    AppCenterDistributionTaskParams(
+                        buildVariant = input.buildVariant,
+                        changelogFile = input.changelog.file,
+                        apkOutputFile = input.output.apkFile,
+                        lastBuildTagFile = input.output.lastBuildTagFile,
+                        baseFileName = input.output.baseFileName,
+                    ),
+            )
         }
     }

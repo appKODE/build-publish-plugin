@@ -38,7 +38,8 @@ private const val NETWORK_SERVICE_EXTENSION_NAME = "appCenterNetworkServiceExten
  *      - `maxParallelUsages` is set to 1 to prevent concurrent API calls with the same credentials.
  *
  * 4. **Exposes network services to the build**:
- *    - Creates [AppCenterServiceExtension] (`appCenterNetworkServiceExtension`) containing a map of service providers, keyed by `authConfig.name`.
+ *    - Creates [AppCenterServiceExtension] (`appCenterNetworkServiceExtension`) containing a map
+ *          of service providers, keyed by `authConfig.name`.
  *    - This lets other tasks or plugins retrieve the correct network service for a given build type.
  *
  * In short:

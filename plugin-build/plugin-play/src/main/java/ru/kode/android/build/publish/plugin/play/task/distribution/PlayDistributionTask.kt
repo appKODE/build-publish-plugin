@@ -38,14 +38,14 @@ abstract class PlayDistributionTask
 
         @get:InputFile
         @get:Option(
-            option = "buildVariantOutputFile",
+            option = "distributionFile",
             description = "Artifact output file (absolute path is expected)",
         )
-        abstract val buildVariantOutputFile: RegularFileProperty
+        abstract val distributionFile: RegularFileProperty
 
         @get:InputFile
         @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
-        abstract val tagBuildFile: RegularFileProperty
+        abstract val buildTagFile: RegularFileProperty
 
         @get:Input
         @get:Option(
@@ -64,13 +64,13 @@ abstract class PlayDistributionTask
 
         @TaskAction
         fun upload() {
-            val outputFile = buildVariantOutputFile.asFile.get()
-            if (outputFile.extension != "aab") {
+            val distributionFile = distributionFile.asFile.get()
+            if (distributionFile.extension != "aab") {
                 throw GradleException(
-                    "file ${outputFile.path} is not bundle, not possible to deploy it to Google Play",
+                    "file ${distributionFile.path} is not bundle, not possible to deploy it to Google Play",
                 )
             }
-            val tag = fromJson(tagBuildFile.asFile.get())
+            val tag = fromJson(buildTagFile.asFile.get())
             val releaseName = "${tag.name}(${tag.buildVersion}.${tag.buildNumber})"
             val trackId = trackId.orNull ?: "internal"
             val updatePriority = updatePriority.orNull ?: 0
@@ -80,7 +80,7 @@ abstract class PlayDistributionTask
                 parameters.trackId.set(trackId)
                 parameters.updatePriority.set(updatePriority)
                 parameters.releaseName.set(releaseName)
-                parameters.outputFile.set(outputFile)
+                parameters.outputFile.set(distributionFile)
                 parameters.networkService.set(networkService)
             }
         }

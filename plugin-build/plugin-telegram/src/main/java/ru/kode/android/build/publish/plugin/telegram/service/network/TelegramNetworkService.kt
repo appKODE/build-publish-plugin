@@ -90,7 +90,10 @@ abstract class TelegramNetworkService
         /**
          * Sends url formatted data to webhook at [webhookUrl]
          */
-        fun send(message: String, destinationBots: Set<DestinationBot>) {
+        fun send(
+            message: String,
+            destinationBots: Set<DestinationBot>,
+        ) {
             bots.getBy(destinationBots)
                 .forEach { bot ->
                     val topicId = bot.topicId
@@ -106,21 +109,25 @@ abstract class TelegramNetworkService
                             SEND_MESSAGE_TO_TOPIC_WEB_HOOK.format(
                                 bot.serverBaseUrl,
                                 bot.it,
-                                bot. chatId,
+                                bot.chatId,
                                 topicId,
                                 URLEncoder.encode(message, "utf-8"),
                             )
                         }
                     logger.info("sending changelog to ${bot.name} by $webhookUrl")
-                    val authorization = bot.basicAuth
-                        ?.let { Credentials.basic(it.username, it.password) }
+                    val authorization =
+                        bot.basicAuth
+                            ?.let { Credentials.basic(it.username, it.password) }
                     senderApi
                         .send(authorization, webhookUrl)
                         .executeOrThrow()
                 }
         }
 
-        fun upload(file: File, destinationBots: Set<DestinationBot>) {
+        fun upload(
+            file: File,
+            destinationBots: Set<DestinationBot>,
+        ) {
             bots.getBy(destinationBots)
                 .forEach { bot ->
                     val webhookUrl = SEND_DOCUMENT_WEB_HOOK.format(bot.serverBaseUrl, bot.it)
@@ -143,17 +150,18 @@ abstract class TelegramNetworkService
                             )
                         }
                     logger.info("upload file to ${bot.name} by $webhookUrl")
-                    val authorization = bot.basicAuth
-                        ?.let { Credentials.basic(it.username, it.password) }
+                    val authorization =
+                        bot.basicAuth
+                            ?.let { Credentials.basic(it.username, it.password) }
                     distributionApi
                         .upload(authorization, webhookUrl, params, filePart)
                         .executeOrThrow()
                 }
-            }
+        }
 
-            companion object {
-                private val logger: Logger = Logging.getLogger(TelegramNetworkService::class.java)
-            }
+        companion object {
+            private val logger: Logger = Logging.getLogger(TelegramNetworkService::class.java)
+        }
     }
 
 private fun List<TelegramBotConfig>.getBy(destinationBots: Set<DestinationBot>): List<TelegramBot> {
@@ -166,11 +174,12 @@ private fun List<TelegramBotConfig>.getBy(destinationBots: Set<DestinationBot>):
                 ?.map { chat ->
                     val authPassword = bot.botServerAuth.password.orNull
                     val authUserName = bot.botServerAuth.username.orNull
-                    val basicAuth = if (authUserName != null && authPassword != null) {
-                        TelegramBot.BasicAuth(authUserName, authPassword)
-                    } else {
-                        null
-                    }
+                    val basicAuth =
+                        if (authUserName != null && authPassword != null) {
+                            TelegramBot.BasicAuth(authUserName, authPassword)
+                        } else {
+                            null
+                        }
                     TelegramBot(
                         name = bot.name,
                         it = bot.botId.get(),
@@ -179,7 +188,8 @@ private fun List<TelegramBotConfig>.getBy(destinationBots: Set<DestinationBot>):
                         chatId = chat.chatId.get(),
                         topicId = chat.topicId.orNull,
                     )
-                }.orEmpty()
+                }
+                .orEmpty()
         }
 }
 
@@ -189,11 +199,10 @@ private data class TelegramBot(
     val serverBaseUrl: String,
     val chatId: String,
     val topicId: String?,
-    val basicAuth: BasicAuth?
-
+    val basicAuth: BasicAuth?,
 ) {
     data class BasicAuth(
         val username: String,
-        val password: String
+        val password: String,
     )
 }

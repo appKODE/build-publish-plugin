@@ -33,8 +33,8 @@ abstract class ClickUpAutomationTask
         abstract val networkService: Property<ClickUpNetworkService>
 
         @get:InputFile
-        @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
-        abstract val tagBuildFile: RegularFileProperty
+        @get:Option(option = "buildTagFile", description = "Json contains info about tag build")
+        abstract val buildTagFile: RegularFileProperty
 
         @get:InputFile
         @get:Option(option = "changelogFile", description = "File with saved changelog")
@@ -73,7 +73,7 @@ abstract class ClickUpAutomationTask
 
         @TaskAction
         fun upload() {
-            val currentBuildTag = fromJson(tagBuildFile.asFile.get())
+            val currentBuildTag = fromJson(buildTagFile.asFile.get())
             val changelog = changelogFile.asFile.get().readText()
             val issues =
                 Regex(issueNumberPattern.get())
