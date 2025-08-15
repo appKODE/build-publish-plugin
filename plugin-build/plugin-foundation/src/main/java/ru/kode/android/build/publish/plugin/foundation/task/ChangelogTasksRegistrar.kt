@@ -10,8 +10,8 @@ import ru.kode.android.build.publish.plugin.foundation.task.changelog.GenerateCh
 
 internal const val GENERATE_CHANGELOG_TASK_PREFIX = "generateChangelog"
 
-object ChangelogTasksRegistrar {
-    fun registerGenerateChangelogTask(
+internal object ChangelogTasksRegistrar {
+    internal fun registerGenerateChangelogTask(
         project: Project,
         params: GenerateChangelogTaskParams,
     ): Provider<RegularFile> {
@@ -25,16 +25,16 @@ private fun TaskContainer.registerGenerateChangelogTask(params: GenerateChangelo
         GenerateChangelogTask::class.java,
     ) {
         it.commitMessageKey.set(params.commitMessageKey)
-        it.buildTagPattern.set(params.buildTagPatternProvider)
+        it.buildTagPattern.set(params.buildTagPattern)
         it.changelogFile.set(params.changelogFile)
-        it.tagBuildFile.set(params.tagBuildProvider)
+        it.buildTagFile.set(params.lastTagFile)
     }.flatMap { it.changelogFile }
 }
 
-data class GenerateChangelogTaskParams(
+internal data class GenerateChangelogTaskParams(
     val commitMessageKey: Provider<String>,
-    val buildTagPatternProvider: Provider<String>,
+    val buildTagPattern: Provider<String>,
     val buildVariant: BuildVariant,
     val changelogFile: Provider<RegularFile>,
-    val tagBuildProvider: Provider<RegularFile>,
+    val lastTagFile: Provider<RegularFile>,
 )

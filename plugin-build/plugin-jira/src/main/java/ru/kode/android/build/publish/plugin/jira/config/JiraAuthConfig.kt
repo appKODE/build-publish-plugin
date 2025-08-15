@@ -7,15 +7,17 @@ import org.gradle.api.tasks.Nested
 import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
 import javax.inject.Inject
 
-abstract class JiraAuthConfig @Inject constructor(
-    objects: ObjectFactory
-) {
-    abstract val name: String
+abstract class JiraAuthConfig
+    @Inject
+    constructor(
+        objects: ObjectFactory,
+    ) {
+        abstract val name: String
 
-    @get:Input
-    abstract val baseUrl: Property<String>
+        @get:Input
+        abstract val baseUrl: Property<String>
 
-    @get:Nested
-    val credentials: BasicAuthCredentials =
-        objects.newInstance(BasicAuthCredentials::class.java)
-}
+        @get:Nested
+        val credentials: BasicAuthCredentials =
+            objects.newInstance(BasicAuthCredentials::class.java)
+    }

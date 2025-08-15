@@ -37,8 +37,8 @@ abstract class GenerateChangelogTask
         abstract val gitExecutorService: Property<GitExecutorService>
 
         @get:InputFile
-        @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
-        abstract val tagBuildFile: RegularFileProperty
+        @get:Option(option = "buildTagFile", description = "Json contains info about tag build")
+        abstract val buildTagFile: RegularFileProperty
 
         @get:Input
         @get:Option(
@@ -67,7 +67,7 @@ abstract class GenerateChangelogTask
             workQueue.submit(GenerateChangelogWork::class.java) { parameters ->
                 parameters.commitMessageKey.set(commitMessageKey)
                 parameters.buildTagPattern.set(buildTagPattern)
-                parameters.tagBuildFile.set(tagBuildFile)
+                parameters.tagBuildFile.set(buildTagFile)
                 parameters.changelogFile.set(changelogFile)
                 parameters.gitExecutorService.set(gitExecutorService)
             }

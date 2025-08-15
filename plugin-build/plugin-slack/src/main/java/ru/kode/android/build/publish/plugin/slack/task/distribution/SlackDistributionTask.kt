@@ -31,8 +31,8 @@ abstract class SlackDistributionTask
         abstract val networkService: Property<SlackUploadService>
 
         @get:InputFile
-        @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
-        abstract val tagBuildFile: RegularFileProperty
+        @get:Option(option = "buildTagFile", description = "Json contains info about tag build")
+        abstract val buildTagFile: RegularFileProperty
 
         @get:Input
         @get:Option(
@@ -43,10 +43,10 @@ abstract class SlackDistributionTask
 
         @get:InputFile
         @get:Option(
-            option = "buildVariantOutputFile",
+            option = "distributionFile",
             description = "Artifact output file (absolute path is expected)",
         )
-        abstract val buildVariantOutputFile: RegularFileProperty
+        abstract val distributionFile: RegularFileProperty
 
         @get:Option(
             option = "channels",
@@ -57,10 +57,10 @@ abstract class SlackDistributionTask
 
         @TaskAction
         fun upload() {
-            val currentBuildTag = fromJson(tagBuildFile.asFile.get())
+            val currentBuildTag = fromJson(buildTagFile.asFile.get())
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(SlackUploadWork::class.java) { parameters ->
-                parameters.outputFile.set(buildVariantOutputFile)
+                parameters.distributionFile.set(distributionFile)
                 parameters.destinationChannels.set(destinationChannels)
                 parameters.buildName.set(currentBuildTag.name)
                 parameters.baseOutputFileName.set(baseOutputFileName)

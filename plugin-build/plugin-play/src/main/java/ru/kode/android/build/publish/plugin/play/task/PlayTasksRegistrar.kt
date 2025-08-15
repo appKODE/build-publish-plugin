@@ -13,8 +13,8 @@ import ru.kode.android.build.publish.plugin.play.task.distribution.PlayDistribut
 
 internal const val PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX = "playUpload"
 
-object PlayTasksRegistrar {
-    fun registerDistributionTask(
+internal object PlayTasksRegistrar {
+    internal fun registerDistributionTask(
         project: Project,
         distributionConfig: PlayDistribution,
         params: PlayTaskParams,
@@ -39,16 +39,16 @@ private fun Project.registerPlayDistributionTask(
                 .networkServices
                 .flatMapByNameOrCommon(params.buildVariant.name)
 
-        it.tagBuildFile.set(params.tagBuildProvider)
-        it.buildVariantOutputFile.set(params.bundleOutputFileProvider)
+        it.buildTagFile.set(params.lastBuildTagFile)
+        it.distributionFile.set(params.bundleOutputFile)
         it.trackId.set(distributionConfig.trackId)
         it.updatePriority.set(distributionConfig.updatePriority)
         it.networkService.set(networkService)
     }
 }
 
-data class PlayTaskParams(
+internal data class PlayTaskParams(
     val buildVariant: BuildVariant,
-    val bundleOutputFileProvider: Provider<RegularFile>,
-    val tagBuildProvider: Provider<RegularFile>,
+    val bundleOutputFile: Provider<RegularFile>,
+    val lastBuildTagFile: Provider<RegularFile>,
 )

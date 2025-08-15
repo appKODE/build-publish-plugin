@@ -32,11 +32,10 @@ abstract class TelegramDistributionTask
 
         @get:InputFile
         @get:Option(
-            option = "buildVariantOutputFile",
-            description = "Artifact output file (absolute path is expected)",
+            option = "distributionFile",
+            description = "Distribution artifact file (absolute path is expected)",
         )
-        abstract val buildVariantOutputFile: RegularFileProperty
-
+        abstract val distributionFile: RegularFileProperty
 
         @get:Input
         @get:Option(option = "destinationBots", description = "Bots which be used to distribute")
@@ -44,10 +43,9 @@ abstract class TelegramDistributionTask
 
         @TaskAction
         fun upload() {
-            val outputFile = buildVariantOutputFile.asFile.get()
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(TelegramUploadWork::class.java) { parameters ->
-                parameters.outputFile.set(outputFile)
+                parameters.distributionFile.set(distributionFile)
                 parameters.networkService.set(networkService)
                 parameters.destinationBots.set(destinationBots)
             }

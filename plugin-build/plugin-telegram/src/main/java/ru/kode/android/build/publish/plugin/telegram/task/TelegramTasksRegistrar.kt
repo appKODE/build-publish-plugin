@@ -4,7 +4,6 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
@@ -19,10 +18,10 @@ import ru.kode.android.build.publish.plugin.telegram.task.distribution.TelegramD
 internal const val SEND_TELEGRAM_CHANGELOG_TASK_PREFIX = "sendTelegramChangelog"
 internal const val TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX = "telegramDistributionUpload"
 
-object TelegramTasksRegistrar {
+internal object TelegramTasksRegistrar {
     private val logger: Logger = Logging.getLogger(this::class.java)
 
-    fun registerChangelogTask(
+    internal fun registerChangelogTask(
         project: Project,
         changelogConfig: TelegramChangelogConfig,
         params: TelegramChangelogTaskParams,
@@ -30,7 +29,7 @@ object TelegramTasksRegistrar {
         return project.registerSendTelegramChangelogTask(changelogConfig, params)
     }
 
-    fun registerDistributionTask(
+    internal fun registerDistributionTask(
         project: Project,
         distributionConfig: TelegramDistributionConfig,
         params: TelegramDistributionTaskParams,
@@ -60,8 +59,8 @@ private fun Project.registerSendTelegramChangelogTask(
                 .networkServices
                 .flatMapByNameOrCommon(params.buildVariant.name)
 
-        it.changelogFile.set(params.generateChangelogFileProvider)
-        it.tagBuildFile.set(params.tagBuildProvider)
+        it.changelogFile.set(params.changelogFile)
+        it.buildTagFile.set(params.lastBuildTagFile)
         it.issueUrlPrefix.set(params.issueUrlPrefix)
         it.issueNumberPattern.set(params.issueNumberPattern)
         it.baseOutputFileName.set(params.baseFileName)
@@ -86,24 +85,24 @@ private fun Project.registerTelegramUploadTask(
                 .networkServices
                 .flatMapByNameOrCommon(params.buildVariant.name)
 
-        it.buildVariantOutputFile.set(params.apkOutputFileProvider)
+        it.distributionFile.set(params.apkOutputFile)
         it.destinationBots.set(distributionConfig.destinationBots)
         it.networkService.set(networkService)
     }
 }
 
-data class TelegramChangelogTaskParams(
-    val baseFileName: Property<String>,
+internal data class TelegramChangelogTaskParams(
+    val baseFileName: Provider<String>,
     val issueNumberPattern: Provider<String>,
-    val issueUrlPrefix: Property<String>,
+    val issueUrlPrefix: Provider<String>,
     val buildVariant: BuildVariant,
-    val generateChangelogFileProvider: Provider<RegularFile>,
-    val tagBuildProvider: Provider<RegularFile>,
+    val changelogFile: Provider<RegularFile>,
+    val lastBuildTagFile: Provider<RegularFile>,
 )
 
-data class TelegramDistributionTaskParams(
-    val baseFileName: Property<String>,
+internal data class TelegramDistributionTaskParams(
+    val baseFileName: Provider<String>,
     val buildVariant: BuildVariant,
-    val tagBuildProvider: Provider<RegularFile>,
-    val apkOutputFileProvider: Provider<RegularFile>,
+    val lastBuildTag: Provider<RegularFile>,
+    val apkOutputFile: Provider<RegularFile>,
 )

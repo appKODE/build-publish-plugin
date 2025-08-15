@@ -39,8 +39,8 @@ abstract class SendTelegramChangelogTask
         abstract val changelogFile: RegularFileProperty
 
         @get:InputFile
-        @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
-        abstract val tagBuildFile: RegularFileProperty
+        @get:Option(option = "buildTagFile", description = "Json contains info about tag build")
+        abstract val buildTagFile: RegularFileProperty
 
         @get:Input
         @get:Option(
@@ -73,7 +73,7 @@ abstract class SendTelegramChangelogTask
 
         @TaskAction
         fun sendChangelog() {
-            val currentBuildTag = fromJson(tagBuildFile.asFile.get())
+            val currentBuildTag = fromJson(buildTagFile.asFile.get())
 
             val changelog = changelogFile.orNull?.asFile?.readText()
             if (changelog.isNullOrEmpty()) {
@@ -82,9 +82,10 @@ abstract class SendTelegramChangelogTask
                 )
             } else {
                 val changelogWithIssues = changelog.formatIssues(ESCAPED_CHARACTERS)
-                val userMentions = userMentions.orNull.orEmpty()
-                    .joinToString(", ")
-                    .escapeCharacters(ESCAPED_CHARACTERS)
+                val userMentions =
+                    userMentions.orNull.orEmpty()
+                        .joinToString(", ")
+                        .escapeCharacters(ESCAPED_CHARACTERS)
 
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 if (changelogWithIssues.length > MESSAGE_MAX_LENGTH) {

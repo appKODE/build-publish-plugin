@@ -20,5 +20,4 @@ abstract class TelegramChatConfig {
     @get:Input
     @get:Optional
     abstract val topicId: Property<String>
-
 }

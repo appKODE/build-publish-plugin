@@ -2,7 +2,6 @@ package ru.kode.android.build.publish.plugin.foundation.task
 
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
@@ -22,12 +21,12 @@ internal const val DEFAULT_BUILD_VERSION = "v0.0.1"
 internal const val DEFAULT_VERSION_NAME = "$DEFAULT_BUILD_VERSION-dev"
 internal const val DEFAULT_VERSION_CODE = 1
 
-object TagTasksRegistrar {
-    fun registerLastTagTask(
+internal object TagTasksRegistrar {
+    internal fun registerLastTagTask(
         project: Project,
         params: LastTagTaskParams,
-    ): OutputProviders {
-        val tagBuildProvider = project.registerGetLastTagTask(params)
+    ): LastTagTaskOutput {
+        val lastBuildTag = project.registerGetLastTagTask(params)
         val useVersionsFromTag =
             params
                 .useVersionsFromTag
@@ -36,15 +35,15 @@ object TagTasksRegistrar {
             params
                 .useDefaultsForVersionsAsFallback
                 .get()
-        val versionCodeProvider =
+        val versionCode =
             when {
-                useVersionsFromTag -> tagBuildProvider.map(::mapToVersionCode)
+                useVersionsFromTag -> lastBuildTag.map(::mapToVersionCode)
                 useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_CODE }
                 else -> null
             }
-        val apkOutputFileNameProvider =
+        val apkOutputFileName =
             if (useVersionsFromTag) {
-                params.baseFileName.zip(tagBuildProvider) { baseFileName, tagBuildFile ->
+                params.baseFileName.zip(lastBuildTag) { baseFileName, tagBuildFile ->
                     mapToOutputApkFileName(tagBuildFile, params.apkOutputFileName, baseFileName)
                 }
             } else {
@@ -52,10 +51,10 @@ object TagTasksRegistrar {
                     createDefaultOutputFileName(baseFileName, params.apkOutputFileName)
                 }
             }
-        val versionNameProvider =
+        val versionName =
             when {
                 useVersionsFromTag -> {
-                    tagBuildProvider.map { tagBuildFile ->
+                    lastBuildTag.map { tagBuildFile ->
                         mapToVersionName(tagBuildFile, params.buildVariant)
                     }
                 }
@@ -64,15 +63,15 @@ object TagTasksRegistrar {
                 else -> null
             }
 
-        return OutputProviders(
-            versionName = versionNameProvider,
-            versionCode = versionCodeProvider,
-            apkOutputFileName = apkOutputFileNameProvider,
-            tagBuildProvider = tagBuildProvider,
+        return LastTagTaskOutput(
+            versionName = versionName,
+            versionCode = versionCode,
+            apkOutputFileName = apkOutputFileName,
+            lastBuildTagFile = lastBuildTag,
         )
     }
 
-    fun registerPrintLastIncreasedTagTask(
+    internal fun registerPrintLastIncreasedTagTask(
         project: Project,
         params: PrintLastIncreasedTagTaskParams,
     ): TaskProvider<PrintLastIncreasedTag> {
@@ -89,7 +88,7 @@ private fun Project.registerGetLastTagTask(params: LastTagTaskParams): Provider<
         GetLastTagTask::class.java,
     ) { task ->
         task.tagBuildFile.set(tagBuildFile)
-        task.buildVariant.set(params.buildVariant.name)
+        task.buildVariantName.set(params.buildVariant.name)
         task.buildTagPattern.set(params.buildTagPattern)
         task.useStubsForTagAsFallback.set(params.useStubsForTagAsFallback)
     }.flatMap { it.tagBuildFile }
@@ -101,7 +100,7 @@ private fun TaskContainer.registerPrintLastIncreasedTagTask(params: PrintLastInc
         "$PRINT_LAST_INCREASED_TAG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         PrintLastIncreasedTag::class.java,
     ) { task ->
-        task.tagBuildFile.set(params.tagBuildProvider)
+        task.buildTagFile.set(params.lastBuildTagFile)
     }
 }
 
@@ -153,24 +152,24 @@ private fun createDefaultOutputFileName(
         .let { "$it.${outputFileName.split(".").last()}" }
 }
 
-data class OutputProviders(
+internal data class LastTagTaskOutput(
     val versionName: Provider<String>?,
     val versionCode: Provider<Int>?,
     val apkOutputFileName: Provider<String>,
-    val tagBuildProvider: Provider<RegularFile>,
+    val lastBuildTagFile: Provider<RegularFile>,
 )
 
-data class LastTagTaskParams(
+internal data class LastTagTaskParams(
     val buildVariant: BuildVariant,
     val apkOutputFileName: String,
-    val useVersionsFromTag: Property<Boolean>,
-    val baseFileName: Property<String>,
-    val useDefaultsForVersionsAsFallback: Property<Boolean>,
-    val useStubsForTagAsFallback: Property<Boolean>,
+    val useVersionsFromTag: Provider<Boolean>,
+    val baseFileName: Provider<String>,
+    val useDefaultsForVersionsAsFallback: Provider<Boolean>,
+    val useStubsForTagAsFallback: Provider<Boolean>,
     val buildTagPattern: Provider<String>,
 )
 
-data class PrintLastIncreasedTagTaskParams(
+internal data class PrintLastIncreasedTagTaskParams(
     val buildVariant: BuildVariant,
-    val tagBuildProvider: Provider<RegularFile>,
+    val lastBuildTagFile: Provider<RegularFile>,
 )

@@ -38,19 +38,19 @@ abstract class JiraNetworkService
             okHttpClientProperty.set(
                 parameters.credentials.flatMap { it.username }
                     .zip(parameters.credentials.flatMap { it.password }) { username, password ->
-                    OkHttpClient.Builder()
-                        .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                        .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                        .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                        .addInterceptor(AttachTokenInterceptor(username, password))
-                        .addProxyIfAvailable()
-                        .apply {
-                            val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-                            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-                            addNetworkInterceptor(loggingInterceptor)
-                        }
-                        .build()
-                },
+                        OkHttpClient.Builder()
+                            .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                            .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                            .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                            .addInterceptor(AttachTokenInterceptor(username, password))
+                            .addProxyIfAvailable()
+                            .apply {
+                                val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
+                                loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+                                addNetworkInterceptor(loggingInterceptor)
+                            }
+                            .build()
+                    },
             )
             apiProperty.set(
                 okHttpClientProperty.zip(parameters.baseUrl) { client, baseUrl ->

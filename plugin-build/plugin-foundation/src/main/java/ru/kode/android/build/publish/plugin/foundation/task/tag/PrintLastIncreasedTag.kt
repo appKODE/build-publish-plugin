@@ -17,12 +17,12 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
     }
 
     @get:InputFile
-    @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
-    abstract val tagBuildFile: RegularFileProperty
+    @get:Option(option = "buildTagFile", description = "Json contains info about tag build")
+    abstract val buildTagFile: RegularFileProperty
 
     @TaskAction
     fun printTag() {
-        val lastBuildTag = fromJson(tagBuildFile.asFile.get())
+        val lastBuildTag = fromJson(buildTagFile.asFile.get())
         val currentBuildNumber = lastBuildTag.buildNumber.toString()
         val increasedBuildNumber = lastBuildTag.buildNumber.inc().toString()
         val nextBuildTag = lastBuildTag.name.replaceFirst(currentBuildNumber, increasedBuildNumber)

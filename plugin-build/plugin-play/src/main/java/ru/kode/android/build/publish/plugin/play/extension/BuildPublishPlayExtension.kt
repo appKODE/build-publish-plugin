@@ -2,19 +2,23 @@ package ru.kode.android.build.publish.plugin.play.extension
 
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.api.container.BaseDomainContainer
-import ru.kode.android.build.publish.plugin.core.api.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
+import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.play.config.PlayAuth
 import ru.kode.android.build.publish.plugin.play.config.PlayDistribution
+import ru.kode.android.build.publish.plugin.play.task.PlayTaskParams
+import ru.kode.android.build.publish.plugin.play.task.PlayTasksRegistrar
 import javax.inject.Inject
 
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishPlayExtension
     @Inject
-    constructor(objectFactory: ObjectFactory) : BaseExtension() {
+    constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
         internal val auth: NamedDomainObjectContainer<PlayAuth> =
             objectFactory.domainObjectContainer(PlayAuth::class.java)
 
@@ -53,5 +57,23 @@ abstract class BuildPublishPlayExtension
 
         fun distributionCommon(configurationAction: Action<PlayDistribution>) {
             common(distribution, configurationAction)
+        }
+
+        override fun configure(
+            project: Project,
+            input: ExtensionInput,
+        ) {
+            val buildVariantConfig = distributionConfig(input.buildVariant.name)
+
+            PlayTasksRegistrar.registerDistributionTask(
+                project = project,
+                distributionConfig = buildVariantConfig,
+                params =
+                    PlayTaskParams(
+                        buildVariant = input.buildVariant,
+                        bundleOutputFile = input.output.bundleFile,
+                        lastBuildTagFile = input.output.lastBuildTagFile,
+                    ),
+            )
         }
     }

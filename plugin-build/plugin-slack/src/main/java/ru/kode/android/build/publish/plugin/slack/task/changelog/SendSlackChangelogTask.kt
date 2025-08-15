@@ -35,8 +35,8 @@ abstract class SendSlackChangelogTask
         abstract val changelogFile: RegularFileProperty
 
         @get:InputFile
-        @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
-        abstract val tagBuildFile: RegularFileProperty
+        @get:Option(option = "buildTagFile", description = "Json contains info about tag build")
+        abstract val buildTagFile: RegularFileProperty
 
         @get:Input
         @get:Option(
@@ -73,7 +73,7 @@ abstract class SendSlackChangelogTask
 
         @TaskAction
         fun sendChangelog() {
-            val currentBuildTag = fromJson(tagBuildFile.asFile.get())
+            val currentBuildTag = fromJson(buildTagFile.asFile.get())
             val changelog = changelogFile.orNull?.asFile?.readText()
             if (changelog.isNullOrEmpty()) {
                 logger.error(

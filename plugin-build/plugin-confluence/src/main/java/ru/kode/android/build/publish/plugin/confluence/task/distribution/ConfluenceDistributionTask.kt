@@ -30,10 +30,10 @@ abstract class ConfluenceDistributionTask
 
         @get:InputFile
         @get:Option(
-            option = "buildVariantOutputFile",
+            option = "distributionFile",
             description = "Artifact output file (absolute path is expected)",
         )
-        abstract val buildVariantOutputFile: RegularFileProperty
+        abstract val distributionFile: RegularFileProperty
 
         @get:Input
         @get:Option(
@@ -44,14 +44,11 @@ abstract class ConfluenceDistributionTask
 
         @TaskAction
         fun upload() {
-            val outputFile = buildVariantOutputFile.asFile.get()
             val pageId = pageId.get()
-            val fileName = outputFile.name
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(ConfluenceUploadWork::class.java) { parameters ->
-                parameters.outputFile.set(outputFile)
+                parameters.outputFile.set(distributionFile)
                 parameters.pageId.set(pageId)
-                parameters.fileName.set(fileName)
                 parameters.networkService.set(networkService)
             }
         }

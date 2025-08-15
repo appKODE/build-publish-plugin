@@ -8,9 +8,8 @@ import org.gradle.api.UnknownDomainObjectException
 import ru.kode.android.build.publish.plugin.core.util.COMMON_CONTAINER_NAME
 
 class BaseDomainContainer<T>(
-    internal val namedContainer: NamedDomainObjectContainer<T>
-)  {
-
+    internal val namedContainer: NamedDomainObjectContainer<T>,
+) {
     @Throws(InvalidUserDataException::class)
     fun common(configurationAction: Action<in T>): NamedDomainObjectProvider<T> {
         return namedContainer.register(COMMON_CONTAINER_NAME, configurationAction)
@@ -19,7 +18,7 @@ class BaseDomainContainer<T>(
     @Throws(InvalidUserDataException::class)
     fun buildType(
         buildType: String,
-        configurationAction: Action<in T>
+        configurationAction: Action<in T>,
     ): NamedDomainObjectProvider<T> {
         return namedContainer.register(buildType, configurationAction)
     }

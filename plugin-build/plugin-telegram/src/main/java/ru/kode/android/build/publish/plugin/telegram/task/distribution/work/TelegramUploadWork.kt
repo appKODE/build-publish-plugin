@@ -11,7 +11,7 @@ import ru.kode.android.build.publish.plugin.telegram.config.DestinationBot
 import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
 
 internal interface TelegramUploadParameters : WorkParameters {
-    val outputFile: RegularFileProperty
+    val distributionFile: RegularFileProperty
     val networkService: Property<TelegramNetworkService>
     val destinationBots: SetProperty<DestinationBot>
 }
@@ -24,8 +24,8 @@ internal abstract class TelegramUploadWork : WorkAction<TelegramUploadParameters
     override fun execute() {
         try {
             service.upload(
-                parameters.outputFile.asFile.get(),
-                parameters.destinationBots.get()
+                parameters.distributionFile.asFile.get(),
+                parameters.destinationBots.get(),
             )
         } catch (ex: UploadStreamTimeoutException) {
             logger.error(

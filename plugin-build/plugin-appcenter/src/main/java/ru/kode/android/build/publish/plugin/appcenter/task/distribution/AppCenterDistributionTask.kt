@@ -31,11 +31,11 @@ import javax.inject.Inject
  *
  * ## Behavior
  * 1. Validates that the provided output file is an APK.
- * 2. Reads build metadata from [tagBuildFile].
+ * 2. Reads build metadata from [buildTagFile].
  * 3. Creates a non-isolated [WorkQueue] for background upload.
  * 4. Submits an [AppCenterUploadWork] unit with all configured parameters.
  *
- * @throws GradleException if [buildVariantOutputFile] is not an APK.
+ * @throws GradleException if [distributionFile] is not an APK.
  */
 abstract class AppCenterDistributionTask
     @Inject
@@ -56,36 +56,38 @@ abstract class AppCenterDistributionTask
         @get:InputFile
         @get:Option(
             option = "changelogFile",
-            description = "Path to a file containing the release changelog."
+            description = "Path to a file containing the release changelog.",
         )
         abstract val changelogFile: RegularFileProperty
 
         @get:InputFile
         @get:Option(
-            option = "buildVariantOutputFile",
-            description = "Absolute path to the APK file to upload."
+            option = "distributionFile",
+            description = "Absolute path to the APK file to upload.",
         )
-        abstract val buildVariantOutputFile: RegularFileProperty
+        abstract val distributionFile: RegularFileProperty
 
         @get:InputFile
         @get:Option(
-            option = "tagBuildFile",
-            description = "Path to a JSON file containing build metadata (name, number, variant)."
+            option = "buildTagFile",
+            description = "Path to a JSON file containing build metadata (name, number, variant).",
         )
-        abstract val tagBuildFile: RegularFileProperty
+        abstract val buildTagFile: RegularFileProperty
 
         @get:Input
         @get:Optional
         @get:Option(
             option = "appName",
-            description = "Application name in AppCenter. Defaults to '<baseFileName>-<variant>' if not set."
+            description =
+                "Application name in AppCenter. Defaults to '<baseFileName>-<variant>' " +
+                    "if not set.",
         )
         abstract val appName: Property<String>
 
         @get:Input
         @get:Option(
             option = "testerGroups",
-            description = "Comma-separated list of AppCenter distribution group names."
+            description = "Comma-separated list of AppCenter distribution group names.",
         )
         abstract val testerGroups: SetProperty<String>
 
@@ -93,7 +95,9 @@ abstract class AppCenterDistributionTask
         @get:Optional
         @get:Option(
             option = "maxUploadStatusRequestCount",
-            description = "Maximum number of polling requests for upload status. Default = $MAX_REQUEST_COUNT."
+            description =
+                "Maximum number of polling requests for upload status. " +
+                    "Default = $MAX_REQUEST_COUNT.",
         )
         abstract val maxUploadStatusRequestCount: Property<Int>
 
@@ -101,7 +105,9 @@ abstract class AppCenterDistributionTask
         @get:Optional
         @get:Option(
             option = "uploadStatusRequestDelayMs",
-            description = "Delay in milliseconds between upload status polling requests. Default = $MAX_REQUEST_DELAY_MS."
+            description =
+                "Delay in milliseconds between upload status polling requests. " +
+                    "Default = $MAX_REQUEST_DELAY_MS.",
         )
         abstract val uploadStatusRequestDelayMs: Property<Long>
 
@@ -109,22 +115,24 @@ abstract class AppCenterDistributionTask
         @get:Optional
         @get:Option(
             option = "uploadStatusRequestDelayCoefficient",
-            description = "If greater than 0, polling delay (in seconds) is calculated as 'APK size (MB) / coefficient'. Otherwise, 'uploadStatusRequestDelayMs' is used."
+            description =
+                "If greater than 0, polling delay (in seconds) is calculated as " +
+                    "'APK size (MB) / coefficient'. Otherwise, 'uploadStatusRequestDelayMs' is used.",
         )
         abstract val uploadStatusRequestDelayCoefficient: Property<Long>
 
         @get:Input
         @get:Option(
             option = "baseFileName",
-            description = "Base file name prefix for the APK artifact."
+            description = "Base file name prefix for the APK artifact.",
         )
         abstract val baseFileName: Property<String>
 
         @TaskAction
         fun upload() {
-            val outputFile = buildVariantOutputFile.asFile.get()
+            val outputFile = distributionFile.asFile.get()
             if (outputFile.extension != "apk") throw GradleException("file ${outputFile.path} is not apk")
-            val currentBuildTag = fromJson(tagBuildFile.asFile.get())
+            val currentBuildTag = fromJson(buildTagFile.asFile.get())
             val changelogFile = changelogFile.asFile.get()
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(AppCenterUploadWork::class.java) { parameters ->

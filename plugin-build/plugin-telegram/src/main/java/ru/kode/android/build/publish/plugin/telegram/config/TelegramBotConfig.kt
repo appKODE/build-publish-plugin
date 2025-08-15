@@ -19,48 +19,52 @@ import javax.inject.Inject
  *
  * @constructor Injects the [ObjectFactory] used for creating nested configuration objects.
  */
-abstract class TelegramBotConfig @Inject constructor(
-    objects: ObjectFactory
-) : Named {
+abstract class TelegramBotConfig
+    @Inject
+    constructor(
+        objects: ObjectFactory,
+    ) : Named {
+        /**
+         * Telegram bot token (bot ID) used for authenticating API requests to post messages.
+         */
+        @get:Input
+        abstract val botId: Property<String>
 
-    /**
-     * Telegram bot token (bot ID) used for authenticating API requests to post messages.
-     */
-    @get:Input
-    abstract val botId: Property<String>
+        /**
+         * Optional base URL of the Telegram bot API server.
+         * Defaults to "https://api.telegram.org" if not provided.
+         */
+        @get:Input
+        @get:Optional
+        abstract val botServerBaseUrl: Property<String>
 
-    /**
-     * Optional base URL of the Telegram bot API server.
-     * Defaults to "https://api.telegram.org" if not provided.
-     */
-    @get:Input
-    @get:Optional
-    abstract val botServerBaseUrl: Property<String>
+        /**
+         * Optional basic authentication credentials for the Telegram bot server.
+         * If not provided, no authentication header is applied.
+         */
+        @get:Nested
+        @get:Optional
+        val botServerAuth: BasicAuthCredentials =
+            objects.newInstance(BasicAuthCredentials::class.java)
 
-    /**
-     * Optional basic authentication credentials for the Telegram bot server.
-     * If not provided, no authentication header is applied.
-     */
-    @get:Nested
-    @get:Optional
-    val botServerAuth: BasicAuthCredentials =
-        objects.newInstance(BasicAuthCredentials::class.java)
+        /**
+         * Internal container of [TelegramChatConfig] objects representing the chats
+         * where this bot has been added.
+         */
+        internal val chats: NamedDomainObjectContainer<TelegramChatConfig> =
+            objects.domainObjectContainer(TelegramChatConfig::class.java)
 
-    /**
-     * Internal container of [TelegramChatConfig] objects representing the chats
-     * where this bot has been added.
-     */
-    internal val chats: NamedDomainObjectContainer<TelegramChatConfig> =
-        objects.domainObjectContainer(TelegramChatConfig::class.java)
-
-    /**
-     * Registers a new chat configuration in the list of chats where this bot is added.
-     *
-     * @param chatName A unique identifier for the chat configuration,
-     *                  e.g. a descriptive name like "builds" or "alerts".
-     * @param action Configuration action to apply to the [TelegramChatConfig].
-     */
-    fun chat(chatName: String, action: Action<TelegramChatConfig>) {
-        chats.register(chatName, action)
+        /**
+         * Registers a new chat configuration in the list of chats where this bot is added.
+         *
+         * @param chatName A unique identifier for the chat configuration,
+         *                  e.g. a descriptive name like "builds" or "alerts".
+         * @param action Configuration action to apply to the [TelegramChatConfig].
+         */
+        fun chat(
+            chatName: String,
+            action: Action<TelegramChatConfig>,
+        ) {
+            chats.register(chatName, action)
+        }
     }
-}

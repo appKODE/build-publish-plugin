@@ -13,8 +13,8 @@ import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
 
 internal const val CONFLUENCE_DISTRIBUTION_UPLOAD_TASK_PREFIX = "confluenceDistributionUpload"
 
-object ConfluenceTasksRegistrar {
-    fun registerDistributionTask(
+internal object ConfluenceTasksRegistrar {
+    internal fun registerDistributionTask(
         project: Project,
         distributionConfig: ConfluenceDistributionConfig,
         params: ConfluenceDistributionTaskParams,
@@ -37,13 +37,13 @@ private fun Project.registerConfluenceDistributionTask(
                 .networkServices
                 .flatMapByNameOrCommon(params.buildVariant.name)
 
-        it.buildVariantOutputFile.set(params.apkOutputFileProvider)
+        it.distributionFile.set(params.apkOutputFile)
         it.pageId.set(distributionConfig.pageId)
         it.networkService.set(networkService)
     }
 }
 
-data class ConfluenceDistributionTaskParams(
+internal data class ConfluenceDistributionTaskParams(
     val buildVariant: BuildVariant,
-    val apkOutputFileProvider: Provider<RegularFile>,
+    val apkOutputFile: Provider<RegularFile>,
 )

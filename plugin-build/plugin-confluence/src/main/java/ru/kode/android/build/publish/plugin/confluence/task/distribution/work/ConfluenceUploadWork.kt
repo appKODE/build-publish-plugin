@@ -11,7 +11,6 @@ import ru.kode.android.build.publish.plugin.core.util.UploadStreamTimeoutExcepti
 interface ConfluenceUploadParameters : WorkParameters {
     val outputFile: RegularFileProperty
     val pageId: Property<String>
-    val fileName: Property<String>
     val networkService: Property<ConfluenceNetworkService>
 }
 
@@ -22,13 +21,14 @@ internal abstract class ConfluenceUploadWork : WorkAction<ConfluenceUploadParame
     @Suppress("SwallowedException") // see logs below
     override fun execute() {
         try {
+            val distributionFile = parameters.outputFile.asFile.get()
             uploader.uploadFile(
                 pageId = parameters.pageId.get(),
-                file = parameters.outputFile.asFile.get(),
+                file = distributionFile,
             )
             uploader.addComment(
                 pageId = parameters.pageId.get(),
-                fileName = parameters.fileName.get(),
+                fileName = distributionFile.name,
             )
         } catch (ex: UploadStreamTimeoutException) {
             logger.error(

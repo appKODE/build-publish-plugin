@@ -2,20 +2,25 @@ package ru.kode.android.build.publish.plugin.telegram.extension
 
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.api.container.BaseDomainContainer
-import ru.kode.android.build.publish.plugin.core.api.extension.BaseExtension
+import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
+import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotsConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramDistributionConfig
+import ru.kode.android.build.publish.plugin.telegram.task.TelegramChangelogTaskParams
+import ru.kode.android.build.publish.plugin.telegram.task.TelegramDistributionTaskParams
+import ru.kode.android.build.publish.plugin.telegram.task.TelegramTasksRegistrar
 import javax.inject.Inject
 
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishTelegramExtension
     @Inject
-    constructor(objectFactory: ObjectFactory) : BaseExtension() {
+    constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
         internal val bot: NamedDomainObjectContainer<TelegramBotsConfig> =
             objectFactory.domainObjectContainer(TelegramBotsConfig::class.java)
 
@@ -74,5 +79,42 @@ abstract class BuildPublishTelegramExtension
 
         fun distributionCommon(configurationAction: Action<TelegramDistributionConfig>) {
             common(distribution, configurationAction)
+        }
+
+        override fun configure(
+            project: Project,
+            input: ExtensionInput,
+        ) {
+            val telegramChangelogConfig = changelogConfigOrNull(input.buildVariant.name)
+            val telegramDistributionConfig = distributionConfigOrNull(input.buildVariant.name)
+
+            if (telegramChangelogConfig != null) {
+                TelegramTasksRegistrar.registerChangelogTask(
+                    project = project,
+                    changelogConfig = telegramChangelogConfig,
+                    params =
+                        TelegramChangelogTaskParams(
+                            baseFileName = input.output.baseFileName,
+                            issueNumberPattern = input.changelog.issueNumberPattern,
+                            issueUrlPrefix = input.changelog.issueUrlPrefix,
+                            buildVariant = input.buildVariant,
+                            changelogFile = input.changelog.file,
+                            lastBuildTagFile = input.output.lastBuildTagFile,
+                        ),
+                )
+            }
+            if (telegramDistributionConfig != null) {
+                TelegramTasksRegistrar.registerDistributionTask(
+                    project = project,
+                    distributionConfig = telegramDistributionConfig,
+                    params =
+                        TelegramDistributionTaskParams(
+                            baseFileName = input.output.baseFileName,
+                            buildVariant = input.buildVariant,
+                            lastBuildTag = input.output.lastBuildTagFile,
+                            apkOutputFile = input.output.apkFile,
+                        ),
+                )
+            }
         }
     }

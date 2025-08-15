@@ -32,8 +32,8 @@ abstract class GetLastTagTask
         abstract val gitExecutorService: Property<GitExecutorService>
 
         @get:Input
-        @get:Option(option = "buildVariant", description = "Current build variant")
-        abstract val buildVariant: Property<String>
+        @get:Option(option = "buildVariantName", description = "Current build variant")
+        abstract val buildVariantName: Property<String>
 
         @get:Input
         @get:Option(option = "buildTagPattern", description = "Tag pattern to correctly search related tags")
@@ -55,7 +55,7 @@ abstract class GetLastTagTask
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(GenerateTagWork::class.java) { parameters ->
                 parameters.tagBuildFile.set(tagBuildFile)
-                parameters.buildVariant.set(buildVariant)
+                parameters.buildVariant.set(buildVariantName)
                 parameters.buildTagPattern.set(buildTagPattern)
                 parameters.gitExecutorService.set(gitExecutorService)
                 parameters.useStubsForTagAsFallback.set(useStubsForTagAsFallback)
