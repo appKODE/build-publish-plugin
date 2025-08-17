@@ -1,7 +1,10 @@
 plugins {
     id("kotlin-convention")
-    id("com.gradle.plugin-publish")
+    id("maven-publish")
 }
+
+group = "ru.kode.android"
+version = "1.0.0"
 
 dependencies {
     implementation(gradleApi())
@@ -14,7 +17,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = "ru.kode.android.build-publish-novo.core".removePrefix("$groupId.")
+            artifactId = "ru.kode.android.build-publish-novo-core".removePrefix("$groupId.")
             version = project.version.toString()
 
             from(components["java"])

@@ -6,6 +6,7 @@ plugins {
     id("ru.kode.android.build-publish-novo.confluence")
     id("ru.kode.android.build-publish-novo.telegram")
     id("ru.kode.android.build-publish-novo.clickup")
+    id("ru.kode.android.build-publish-example.print-tag")
 }
 
 android {
@@ -162,6 +163,17 @@ buildPublishClickUp {
             fixVersionPattern = "fix_%2\$s_%1\$s"
             fixVersionFieldId = "01234567qwerty"
             tagName = "test_tag_name"
+        }
+    }
+}
+
+buildPublishPrintTag {
+    messageCommon {
+        additionalText.set("Additional text common")
+    }
+    message {
+        buildType("armv8MinApi21AlphaRelease") {
+            additionalText.set("Additional text Armv8MinApi21AlphaRelease")
         }
     }
 }

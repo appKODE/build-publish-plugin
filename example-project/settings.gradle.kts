@@ -20,17 +20,16 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = ("ru.kode.android.build.publish.novo.plugin")
+rootProject.name = ("ru.kode.android.build.publish.example-project")
 
-include(":plugin-foundation")
-include(":plugin-telegram")
-include(":plugin-slack")
-include(":plugin-appcenter")
-include(":plugin-clickup")
-include(":plugin-jira")
-include(":plugin-play")
-include(":plugin-confluence")
-include(":plugin-firebase")
+include("app")
+include("build-types")
+include("build-types-gradle")
+include("custom-plugin")
+include("dimensions")
+include("flavors")
+includeBuild("../plugin-build")
+includeBuild("../example-plugin")
 includeBuild("../build-conventions")
 includeBuild("../shared") {
     dependencySubstitution {

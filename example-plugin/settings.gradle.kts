@@ -1,7 +1,6 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        mavenCentral()
         google()
     }
 }
@@ -10,7 +9,6 @@ dependencyResolutionManagement {
 
     repositories {
         gradlePluginPortal()
-        mavenCentral()
         google()
     }
     versionCatalogs {
@@ -20,17 +18,9 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = ("ru.kode.android.build.publish.novo.plugin")
+rootProject.name = ("ru.kode.android.build.publish.example.plugin")
 
-include(":plugin-foundation")
-include(":plugin-telegram")
-include(":plugin-slack")
-include(":plugin-appcenter")
-include(":plugin-clickup")
-include(":plugin-jira")
-include(":plugin-play")
-include(":plugin-confluence")
-include(":plugin-firebase")
+include(":plugin-print-tag")
 includeBuild("../build-conventions")
 includeBuild("../shared") {
     dependencySubstitution {

@@ -13,12 +13,12 @@ dependencyResolutionManagement {
         mavenCentral()
         google()
     }
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
+    }
 }
 
-rootProject.name = ("build-publish")
-
-includeBuild("shared")
-includeBuild("example-project")
-includeBuild("example-plugin")
-includeBuild("plugin-build")
-includeBuild("build-conventions")
+include(":plugin-core")
+includeBuild("../build-conventions")

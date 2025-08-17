@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":plugin-core"))
+    implementation("ru.kode.android:plugin-core")
 
     implementation(gradleApi())
     implementation(libs.okhttp)

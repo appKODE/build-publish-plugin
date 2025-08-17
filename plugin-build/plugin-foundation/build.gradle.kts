@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":plugin-core"))
+    implementation("ru.kode.android:plugin-core")
 
     implementation(gradleApi())
     implementation(libs.agp)
@@ -51,7 +51,7 @@ publishing {
     }
 }
 
-tasks.create("setupPluginUploadFromEnvironment") {
+tasks.register("setupPluginUploadFromEnvironment") {
     doLast {
         val key = System.getenv("GRADLE_PUBLISH_KEY")
         val secret = System.getenv("GRADLE_PUBLISH_SECRET")
