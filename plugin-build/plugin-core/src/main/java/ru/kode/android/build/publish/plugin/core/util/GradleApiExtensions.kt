@@ -7,7 +7,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.core.api.container.BaseDomainContainer
+import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 
 const val COMMON_CONTAINER_NAME = "default"
 
@@ -25,14 +25,14 @@ inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrNullableCommon(
     return findByName(name) ?: findByName(defaultName)
 }
 
-inline fun <reified T> BaseDomainContainer<T>.getByNameOrRequiredCommon(
+inline fun <reified T> BuildPublishDomainObjectContainer<T>.getByNameOrRequiredCommon(
     name: String,
     defaultName: String = COMMON_CONTAINER_NAME,
 ): T {
     return findByName(name) ?: getByName(defaultName)
 }
 
-inline fun <reified T> BaseDomainContainer<T>.getByNameOrNullableCommon(
+inline fun <reified T> BuildPublishDomainObjectContainer<T>.getByNameOrNullableCommon(
     name: String,
     defaultName: String = COMMON_CONTAINER_NAME,
 ): T? {
@@ -43,7 +43,7 @@ inline fun <reified T> NamedDomainObjectContainer<T>.getCommon(defaultName: Stri
     return findByName(defaultName)
 }
 
-inline fun <reified T> BaseDomainContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
+inline fun <reified T> BuildPublishDomainObjectContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
     return findByName(defaultName)
 }
 

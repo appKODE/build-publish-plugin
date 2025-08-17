@@ -13,7 +13,30 @@ import ru.kode.android.build.publish.plugin.jira.task.automation.JiraAutomationT
 
 internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
 
+/**
+ * Registrar for Jira-related Gradle tasks.
+ *
+ * This object is responsible for registering and configuring all Jira-related tasks
+ * in the Gradle build. It handles the creation of tasks for automating Jira workflows
+ * during the build process.
+ *
+ * @see JiraAutomationTask For the task that performs Jira automation
+ * @see JiraAutomationConfig For configuration options
+ */
 internal object JiraTasksRegistrar {
+    /**
+     * Registers a Jira automation task for the given project and configuration.
+     *
+     * This method creates and configures a [JiraAutomationTask] based on the provided
+     * [JiraAutomationConfig] and [JiraAutomationTaskParams]. The task will be registered
+     * only if at least one automation feature (label, fix version, or status transition) is enabled.
+     *
+     * @param project The Gradle project to register the task in
+     * @param automationConfig The Jira automation configuration
+     * @param params Parameters for the automation task
+     *
+     * @return A [TaskProvider] for the created task, or null if no automation features are enabled
+     */
     internal fun registerAutomationTask(
         project: Project,
         automationConfig: JiraAutomationConfig,
@@ -23,6 +46,19 @@ internal object JiraTasksRegistrar {
     }
 }
 
+/**
+ * Registers Jira automation tasks for the given project and build variant.
+ *
+ * This extension function configures a [JiraAutomationTask] with the provided
+ * automation configuration and parameters. The task will be registered only if
+ * at least one automation feature is enabled in the configuration.
+ *
+ * @receiver The Gradle project to register tasks in
+ * @param automationConfig The Jira automation configuration
+ * @param params Parameters for the automation task
+ *
+ * @return A [TaskProvider] for the created task, or null if no automation features are enabled
+ */
 private fun Project.registerJiraTasks(
     automationConfig: JiraAutomationConfig,
     params: JiraAutomationTaskParams,
@@ -56,9 +92,24 @@ private fun Project.registerJiraTasks(
     }
 }
 
+/**
+ * Parameters for configuring a Jira automation task.
+ */
 internal data class JiraAutomationTaskParams(
+    /**
+     * The build variant this task is associated with
+     */
     val buildVariant: BuildVariant,
+    /**
+     * Provider for the pattern used to extract issue numbers from commit messages
+     */
     val issueNumberPattern: Provider<String>,
+    /**
+     * Provider for the changelog file containing commit messages
+     */
     val changelogFile: Provider<RegularFile>,
+    /**
+     * Provider for the file containing the last build tag
+     */
     val lastBuildTagFile: Provider<RegularFile>,
 )

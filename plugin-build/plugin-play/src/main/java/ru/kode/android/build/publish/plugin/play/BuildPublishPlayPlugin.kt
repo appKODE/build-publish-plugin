@@ -15,6 +15,17 @@ private const val EXTENSION_NAME = "buildPublishPlay"
 private const val NETWORK_SERVICE_NAME = "playNetworkService"
 private const val NETWORK_SERVICE_EXTENSION_NAME = "playNetworkServiceExtension"
 
+/**
+ * A Gradle plugin that provides Google Play Store publishing capabilities.
+ *
+ * This plugin enables:
+ * - Publishing apps to the Google Play Store
+ * - Managing app releases and tracks
+ * - Configuring multiple Play Store accounts
+ * - Automating the release process
+ *
+ * It sets up the necessary services and extensions for interacting with the Google Play Developer API.
+ */
 abstract class BuildPublishPlayPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create(EXTENSION_NAME, BuildPublishPlayExtension::class.java)

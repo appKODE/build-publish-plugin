@@ -23,11 +23,35 @@ private const val TEXT_TYPE_PLAIN_TEXT = "plain_text"
 private const val MAX_BLOCK_SYMBOLS = 3000
 private const val MAX_ATTACHMENTS_COUNT = 50
 
+private val logger: Logger = Logging.getLogger(SlackUploadService::class.java)
+
+/**
+ * A service for sending notifications to Slack using incoming webhooks.
+ *
+ * This service provides functionality to:
+ * - Send formatted messages to Slack channels via webhooks
+ * - Handle message formatting with proper blocks and attachments
+ * - Manage message size limits and chunking
+ * - Support both markdown and plain text formatting
+ *
+ * It's designed to work with Slack's Block Kit message formatting and handles
+ * the complexity of splitting large messages into smaller chunks when necessary.
+ */
 abstract class SlackWebhookService
     @Inject
     constructor() : BuildService<SlackWebhookService.Params> {
+        /**
+         * Configuration parameters for the SlackWebhookService.
+         */
         interface Params : BuildServiceParameters {
+            /**
+             * The incoming webhook URL for sending messages
+             */
             val webhookUrl: Property<String>
+
+            /**
+             * The network service to use for HTTP operations
+             */
             val networkService: Property<SlackNetworkService>
         }
 
@@ -35,7 +59,7 @@ abstract class SlackWebhookService
 
         init {
             apiProperty.set(
-                parameters.networkService.get().retrofitProperty.map { retrofit ->
+                parameters.networkService.flatMap { it.retrofitProperty }.map { retrofit ->
                     retrofit.baseUrl(STUB_BASE_URL).build()
                         .create(SlackApi::class.java)
                 },
@@ -46,7 +70,21 @@ abstract class SlackWebhookService
         private val webhookUrl: String get() = parameters.webhookUrl.get()
 
         /**
-         * Sends url formatted data to webhook at [webhookUrl]
+         * Sends a formatted message to the configured Slack webhook.
+         *
+         * This method:
+         * 1. Formats the message with the provided parameters
+         * 2. Handles message chunking if it exceeds Slack's size limits
+         * 3. Sends the message to the configured webhook URL
+         *
+         * @param baseOutputFileName The base name for the build being reported
+         * @param buildName The name or identifier of the build
+         * @param changelog The changelog text to include in the message
+         * @param userMentions Optional user mentions to include in the message
+         * @param iconUrl URL of the icon to display with the message
+         * @param attachmentColor Color code for the message attachment (e.g., "#36a64f" for green)
+         *
+         * @throws Exception if the webhook request fails
          */
         fun send(
             baseOutputFileName: String,
@@ -83,6 +121,13 @@ abstract class SlackWebhookService
             api.send(webhookUrl, changelogBody).executeOrThrow()
         }
 
+        /**
+         * Creates a header block for the Slack message.
+         *
+         * @param text The text to display in the header
+         *
+         * @return A formatted header block
+         */
         private fun buildHeaderBlock(text: String): SlackChangelogBody.Block {
             return SlackChangelogBody.Block(
                 type = BLOCK_TYPE_HEADER,
@@ -117,9 +162,5 @@ abstract class SlackWebhookService
                             }.ellipsizeAt(MAX_BLOCK_SYMBOLS),
                     ),
             )
-        }
-
-        companion object {
-            private val logger: Logger = Logging.getLogger(SlackUploadService::class.java)
         }
     }

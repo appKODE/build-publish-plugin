@@ -9,14 +9,53 @@ import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
 import javax.inject.Inject
 
+/**
+ * Defines the parameters required for the [GenerateChangelogWork] task.
+ *
+ * This interface extends Gradle's [WorkParameters] and provides all necessary
+ * configuration for generating changelog information from Git commit history.
+ */
 internal interface GenerateChangelogParameters : WorkParameters {
+    /**
+     *  The key used to filter relevant commit messages
+     */
     val commitMessageKey: Property<String>
+
+    /**
+     * The pattern used to match Git tags for versioning
+     */
     val buildTagPattern: Property<String>
+
+    /**
+     * JSON file containing information about the last build tag
+     */
     val tagBuildFile: RegularFileProperty
+
+    /**
+     * The output file where the changelog will be written
+     */
     val changelogFile: RegularFileProperty
+
+    /**
+     * Service for executing Git commands and retrieving commit history
+     */
     val gitExecutorService: Property<GitExecutorService>
 }
 
+/**
+ * A Gradle work action that generates a changelog by analyzing Git commit history.
+ *
+ * This work action is responsible for:
+ * - Retrieving commit history between the last tag and HEAD
+ * - Filtering commits based on a message key
+ * - Formatting the changelog output
+ * - Writing the results to a file
+ *
+ * The work is performed in a background thread to avoid blocking the main Gradle build thread.
+ *
+ * @see WorkAction
+ * @see GenerateChangelogParameters
+ */
 internal abstract class GenerateChangelogWork
     @Inject
     constructor() : WorkAction<GenerateChangelogParameters> {
@@ -26,6 +65,7 @@ internal abstract class GenerateChangelogWork
             val messageKey = parameters.commitMessageKey.get()
             val buildTagPattern = parameters.buildTagPattern.get()
             val currentBuildTag = fromJson(parameters.tagBuildFile.asFile.get())
+
             val changelog =
                 parameters.gitExecutorService.get()
                     .gitChangelogBuilder
@@ -34,25 +74,26 @@ internal abstract class GenerateChangelogWork
                         currentBuildTag,
                         buildTagPattern,
                         defaultValueSupplier = { tagRange ->
-                            val previousBuildName = tagRange.previousBuildTag?.name?.let { "($it)" }
+                            val previousBuildName = tagRange.previousBuildTag?.name?.let { "($it)" } ?: ""
                             "No changes compared to the previous build $previousBuildName"
                         },
                     )
             val changelogOutput = parameters.changelogFile.asFile.get()
+
             if (changelog.isNullOrBlank()) {
+                val noChangesMessage = "No changes because changelog is not generated for tag ${currentBuildTag.name}"
                 logger.info(
-                    "changelog is NOT generated for `$buildTagPattern` buildTagPattern " +
-                        "and `$currentBuildTag` build tag",
+                    "Changelog is NOT generated for pattern '$buildTagPattern' " +
+                        "and build tag '$currentBuildTag'. Writing default message.",
                 )
-                changelogOutput.writeText(
-                    "No changes because changelog is not generated for tag ${currentBuildTag.name}",
-                )
+                changelogOutput.writeText(noChangesMessage)
             } else {
                 logger.info(
-                    "changelog is generated for `$buildTagPattern` buildTagPattern " +
-                        "and `$currentBuildTag` build tag",
+                    "Changelog generated successfully for pattern '$buildTagPattern' " +
+                        "and build tag '$currentBuildTag'. Writing to output file.",
                 )
                 changelogOutput.writeText(changelog)
+                logger.debug("Changelog content: $changelog")
             }
         }
     }

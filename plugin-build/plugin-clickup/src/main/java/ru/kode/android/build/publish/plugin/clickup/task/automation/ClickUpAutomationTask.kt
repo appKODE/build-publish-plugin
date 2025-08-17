@@ -19,60 +19,143 @@ import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import javax.inject.Inject
 
+/**
+ * A Gradle task that automates ClickUp task management during the build process.
+ *
+ * This task is responsible for:
+ * - Extracting issue numbers from the changelog using a specified pattern
+ * - Adding version tags to ClickUp tasks mentioned in the changelog
+ * - Updating custom fix version fields for tasks
+ * - Processing tasks asynchronously using Gradle's Worker API
+ *
+ * The task is typically registered by [ClickUpTasksRegistrar] based on the build configuration.
+ *
+ * @see ClickUpTasksRegistrar For task registration
+ * @see ClickUpNetworkService For the underlying network operations
+ */
 abstract class ClickUpAutomationTask
     @Inject
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
         init {
-            description = "Task to automate ClickUp statuses"
+            description = "Automates ClickUp task management during the build process"
             group = BasePlugin.BUILD_GROUP
         }
 
+        /**
+         * The network service used to communicate with the ClickUp API.
+         *
+         * This is an internal property that's injected when the task is created.
+         */
         @get:Internal
         abstract val networkService: Property<ClickUpNetworkService>
 
+        /**
+         * A JSON file containing build tag information.
+         *
+         * This file is used to determine the current build version and number,
+         * which are used when applying version tags or updating fix versions.
+         */
         @get:InputFile
-        @get:Option(option = "buildTagFile", description = "Json contains info about tag build")
+        @get:Option(
+            option = "buildTagFile",
+            description = "JSON file containing build tag information",
+        )
         abstract val buildTagFile: RegularFileProperty
 
+        /**
+         * The changelog file containing commit messages and issue references.
+         *
+         * This file is parsed to extract issue numbers that match the [issueNumberPattern].
+         * Each matching issue will be processed to add tags or update versions.
+         */
         @get:InputFile
-        @get:Option(option = "changelogFile", description = "File with saved changelog")
+        @get:Option(
+            option = "changelogFile",
+            description = "Changelog file containing commit messages and issue references",
+        )
         abstract val changelogFile: RegularFileProperty
 
+        /**
+         * Regular expression pattern used to extract issue numbers from the changelog.
+         *
+         * The pattern should include a capturing group that matches the issue number.
+         * For example, if your issues are referenced as `#123`, the pattern could be `#(\\d+)`.
+         *
+         * The first capturing group will be used as the issue number when making API calls.
+         */
         @get:Input
         @get:Option(
             option = "issueNumberPattern",
-            description = "How task number formatted",
+            description = "Regex pattern to extract issue numbers from changelog",
         )
         abstract val issueNumberPattern: Property<String>
 
+        /**
+         * Pattern used to format the fix version for ClickUp tasks.
+         *
+         * This pattern can include placeholders that will be replaced with actual values:
+         * - `{0}` will be replaced with the build version
+         * - `{1}` will be replaced with the build number
+         *
+         * Example: `"{0} ({1})"` might result in `"1.2.3 (456)"`
+         *
+         * If specified, [fixVersionFieldId] must also be provided.
+         */
         @get:Input
         @get:Option(
             option = "fixVersionPattern",
-            description = "How fix version should be formatted",
+            description = "Pattern to format fix versions for ClickUp tasks",
         )
         @get:Optional
         abstract val fixVersionPattern: Property<String>
 
+        /**
+         * The ID of the custom field in ClickUp where the fix version is stored.
+         *
+         * This is the identifier of the custom field in ClickUp where the version
+         * (formatted according to [fixVersionPattern]) will be set.
+         *
+         * If specified, [fixVersionPattern] must also be provided.
+         */
         @get:Input
         @get:Option(
             option = "fixVersionFieldId",
-            description = "Field id for fix version in ClickUp",
+            description = "ID of the custom field where the fix version is stored",
         )
         @get:Optional
         abstract val fixVersionFieldId: Property<String>
 
+        /**
+         * The tag to be added to ClickUp tasks mentioned in the changelog.
+         *
+         * This tag will be added to all tasks that are found in the changelog.
+         * It's typically used to mark which release a task was included in.
+         *
+         * If not specified, no tags will be added to tasks.
+         */
         @get:Input
         @get:Option(
             option = "taskTag",
-            description = "What tag should be used for tasks",
+            description = "Tag to be added to ClickUp tasks mentioned in the changelog",
         )
         @get:Optional
         abstract val taskTag: Property<String>
 
+        /**
+         * The main task action that processes the changelog and updates ClickUp tasks.
+         *
+         * This method:
+         * 1. Reads the build tag and changelog files
+         * 2. Extracts issue numbers from the changelog using [issueNumberPattern]
+         * 3. If no issues are found, logs a message and exits
+         * 4. Otherwise, submits work items to update versions and/or add tags
+         *
+         * The actual work is performed asynchronously using Gradle's Worker API.
+         */
         @TaskAction
-        fun upload() {
+        fun processClickUpTasks() {
             val currentBuildTag = fromJson(buildTagFile.asFile.get())
             val changelog = changelogFile.asFile.get().readText()
             val issues =
@@ -88,6 +171,15 @@ abstract class ClickUpAutomationTask
             }
         }
 
+        /**
+         * Submits work to update the fix version for the given issues, if configured.
+         *
+         * This method checks if both [fixVersionPattern] and [fixVersionFieldId] are set,
+         * and if so, submits a work item to update the fix version for each issue.
+         *
+         * @param currentBuildTag The current build tag containing version and build number
+         * @param issues The set of issue numbers to update
+         */
         private fun WorkQueue.submitUpdateVersionIfPresent(
             currentBuildTag: Tag.Build,
             issues: Set<String>,
@@ -110,6 +202,14 @@ abstract class ClickUpAutomationTask
             }
         }
 
+        /**
+         * Submits work to add the configured tag to the given issues, if a tag is configured.
+         *
+         * This method checks if [taskTag] is set, and if so, submits a work item
+         * to add the tag to each issue.
+         *
+         * @param issues The set of issue numbers to tag
+         */
         private fun WorkQueue.submitSetTagIfPresent(issues: Set<String>) {
             if (taskTag.isPresent) {
                 val tagName = taskTag.get()

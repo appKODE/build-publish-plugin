@@ -15,13 +15,20 @@ private const val EXTENSION_NAME = "buildPublishClickUp"
 private const val NETWORK_SERVICE_NAME = "clickUpNetworkService"
 private const val NETWORK_SERVICE_EXTENSION_NAME = "clickUpNetworkServiceExtension"
 
+/**
+ * A Gradle plugin that integrates ClickUp task management with the Android build process.
+ *
+ * This plugin provides functionality to automate ClickUp tasks during the build process,
+ * such as updating task statuses, adding tags, and setting custom fields.
+ *
+ * @see BuildPublishClickUpExtension For configuration options
+ * @see ClickUpNetworkService For the underlying network operations
+ */
 abstract class BuildPublishClickUpPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create(EXTENSION_NAME, BuildPublishClickUpExtension::class.java)
 
-        val androidExtension =
-            project.extensions
-                .getByType(ApplicationAndroidComponentsExtension::class.java)
+        val androidExtension = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
             val services: Provider<Map<String, Provider<ClickUpNetworkService>>> =
@@ -41,6 +48,7 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
                         }
                     }
                 }
+
             project.extensions.create(
                 NETWORK_SERVICE_EXTENSION_NAME,
                 ClickUpServiceExtension::class.java,

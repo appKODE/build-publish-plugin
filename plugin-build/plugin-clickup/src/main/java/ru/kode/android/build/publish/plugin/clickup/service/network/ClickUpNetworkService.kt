@@ -20,15 +20,39 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 private const val API_BASE_URL = "https://api.clickup.com/api/"
+private const val HTTP_CONNECT_TIMEOUT_SECONDS = 60L
 
+/**
+ * A Gradle build service that provides network operations for interacting with the ClickUp API.
+ *
+ * This service is responsible for:
+ * - Managing HTTP client configuration and lifecycle
+ * - Handling authentication with the ClickUp API
+ * - Executing API requests with proper error handling
+ * - Managing connection timeouts and retries
+ *
+ * The service is implemented as a [BuildService] to ensure proper resource cleanup
+ * and to maintain a single HTTP client instance across multiple tasks.
+ *
+ * @see BuildService For more information about Gradle build services
+ * @see ClickUpApi For the actual API endpoint definitions
+ */
 abstract class ClickUpNetworkService
     @Inject
     constructor() : BuildService<ClickUpNetworkService.Params> {
+        /**
+         * Configuration parameters for the [ClickUpNetworkService].
+         */
         interface Params : BuildServiceParameters {
+            /**
+             *  A file containing the ClickUp API token for authentication.
+             *  The file should contain the token as plain text with no additional formatting.
+             */
             val token: RegularFileProperty
         }
 
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
+
         internal abstract val apiProperty: Property<ClickUpApi>
 
         init {
@@ -63,6 +87,15 @@ abstract class ClickUpNetworkService
 
         private val api: ClickUpApi get() = apiProperty.get()
 
+        /**
+         * Adds a tag to a ClickUp task.
+         *
+         * @param taskId The ID of the ClickUp task to tag
+         * @param tagName The name of the tag to add
+         *
+         * @throws IOException If the network request fails
+         * @throws RuntimeException If the API returns an error response
+         */
         fun addTagToTask(
             taskId: String,
             tagName: String,
@@ -70,6 +103,16 @@ abstract class ClickUpNetworkService
             api.addTagToTask(taskId, tagName).executeOptionalOrThrow()
         }
 
+        /**
+         * Adds or updates a custom field value for a ClickUp task.
+         *
+         * @param taskId The ID of the ClickUp task to update
+         * @param fieldId The ID of the custom field to set
+         * @param fieldValue The value to set for the custom field
+         *
+         * @throws IOException If the network request fails
+         * @throws RuntimeException If the API returns an error response or the field ID is invalid
+         */
         fun addFieldToTask(
             taskId: String,
             fieldId: String,
@@ -97,5 +140,3 @@ private class AttachTokenInterceptor(
         return chain.proceed(newRequest)
     }
 }
-
-private const val HTTP_CONNECT_TIMEOUT_SECONDS = 60L

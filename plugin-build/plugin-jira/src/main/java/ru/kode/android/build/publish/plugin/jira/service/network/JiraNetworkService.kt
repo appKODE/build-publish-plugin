@@ -23,15 +23,42 @@ import ru.kode.android.build.publish.plugin.jira.task.automation.entity.SetStatu
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+private const val HTTP_CONNECT_TIMEOUT_SECONDS = 30L
+
+private val logger: Logger = Logging.getLogger(JiraNetworkService::class.java)
+
+/**
+ * A Gradle build service that provides network operations for interacting with Jira's REST API.
+ *
+ * This service handles authentication, request/response serialization, and error handling
+ * for Jira API operations. It's designed to be used within Gradle build scripts to
+ * automate Jira-related tasks as part of the build process.
+
+ * @see BuildService
+ * @see JiraApi
+ */
 abstract class JiraNetworkService
     @Inject
     constructor() : BuildService<JiraNetworkService.Params> {
+        /**
+         * Configuration parameters for the Jira network service.
+         *
+         * @see BasicAuthCredentials
+         */
         interface Params : BuildServiceParameters {
+            /**
+             * The base URL of the Jira instance (e.g., "https://your-domain.atlassian.net")
+             */
             val baseUrl: Property<String>
+
+            /**
+             * The authentication credentials for the Jira API, containing username and password/token
+             */
             val credentials: Property<BasicAuthCredentials>
         }
 
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
+
         internal abstract val apiProperty: Property<JiraApi>
 
         init {
@@ -67,6 +94,15 @@ abstract class JiraNetworkService
 
         private val api: JiraApi get() = apiProperty.get()
 
+        /**
+         * Transitions a Jira issue to a new status.
+         *
+         * @param issue The issue key (e.g., "PROJ-123")
+         * @param statusTransitionId The ID of the status transition to execute
+         *
+         * @throws IOException If the network request fails
+         * @throws JiraApiException If the Jira API returns an error
+         */
         fun setStatus(
             issue: String,
             statusTransitionId: String,
@@ -81,6 +117,15 @@ abstract class JiraNetworkService
             api.setStatus(issue, request).executeOptionalOrThrow()
         }
 
+        /**
+         * Adds a label to a Jira issue.
+         *
+         * @param issue The issue key (e.g., "PROJ-123")
+         * @param label The label to add
+         *
+         * @throws IOException If the network request fails
+         * @throws JiraApiException If the Jira API returns an error
+         */
         fun addLabel(
             issue: String,
             label: String,
@@ -95,6 +140,15 @@ abstract class JiraNetworkService
             api.addLabel(issue, request).executeOptionalOrThrow()
         }
 
+        /**
+         * Creates a new version in a Jira project.
+         *
+         * @param projectId The ID of the Jira project
+         * @param version The version name to create
+         *
+         * @throws IOException If the network request fails
+         * @throws JiraApiException If the Jira API returns an error or version already exists
+         */
         fun createVersion(
             projectId: Long,
             version: String,
@@ -107,6 +161,15 @@ abstract class JiraNetworkService
             api.createVersion(request).executeOptionalOrThrow()
         }
 
+        /**
+         * Adds a fix version to a Jira issue.
+         *
+         * @param issue The issue key (e.g., "PROJ-123")
+         * @param version The version to add as a fix version
+         *
+         * @throws IOException If the network request fails
+         * @throws JiraApiException If the Jira API returns an error
+         */
         fun addFixVersion(
             issue: String,
             version: String,
@@ -127,25 +190,18 @@ abstract class JiraNetworkService
                 )
             api.addFixVersion(issue, request).executeOptionalOrThrow()
         }
-
-        companion object {
-            private val logger: Logger = Logging.getLogger(JiraNetworkService::class.java)
-        }
     }
 
 private class AttachTokenInterceptor(
     private val username: String,
     private val password: String,
 ) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
-        val originalRequest = chain.request()
-        val newRequest =
-            originalRequest.newBuilder()
+    override fun intercept(chain: Interceptor.Chain) =
+        chain.proceed(
+            chain.request()
+                .newBuilder()
                 .addHeader(name = "Content-Type", "application/json")
-                .addHeader(name = "Authorization", Credentials.basic(username, password))
-                .build()
-        return chain.proceed(newRequest)
-    }
+                .addHeader("Authorization", Credentials.basic(username, password))
+                .build(),
+        )
 }
-
-private const val HTTP_CONNECT_TIMEOUT_SECONDS = 60L

@@ -15,6 +15,18 @@ import java.io.File
 
 private const val EXTENSION_NAME = "buildPublishFirebase"
 
+/**
+ * A Gradle plugin that configures Firebase App Distribution for Android projects.
+ *
+ * This plugin:
+ * - Integrates with the Firebase App Distribution Gradle Plugin
+ * - Configures distribution settings for different build variants
+ * - Automatically includes changelogs in distribution releases
+ * - Supports configuration of test groups, service credentials, and artifact types
+ *
+ * The plugin is designed to work with the build publishing system and requires
+ * the Firebase App Distribution plugin to be applied to the project.
+ */
 abstract class BuildPublishFirebasePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val androidExtension =
@@ -46,6 +58,12 @@ abstract class BuildPublishFirebasePlugin : Plugin<Project> {
     }
 }
 
+/**
+ * Configures the Firebase App Distribution plugin with the provided settings.
+ *
+ * @param firebaseDistributionConfig The configuration for Firebase App Distribution
+ * @param changelogFile The file containing release notes for the distribution
+ */
 private fun Project.configurePlugin(
     firebaseDistributionConfig: FirebaseDistributionConfig?,
     changelogFile: File,
@@ -67,6 +85,12 @@ private fun Project.configurePlugin(
     }
 }
 
+/**
+ * Configures the AppDistributionExtension with the provided settings.
+ *
+ * @param config The Firebase distribution configuration
+ * @param changelogFile The file containing release notes
+ */
 private fun AppDistributionExtension.configure(
     config: FirebaseDistributionConfig,
     changelogFile: File,

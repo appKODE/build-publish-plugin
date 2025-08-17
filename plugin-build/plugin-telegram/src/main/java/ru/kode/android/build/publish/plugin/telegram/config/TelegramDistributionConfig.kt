@@ -6,6 +6,15 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import javax.inject.Inject
 
+/**
+ * Configuration for sending distribution notifications to Telegram.
+ *
+ * This class allows you to configure how distribution notifications (e.g., new app versions)
+ * are sent to Telegram. It supports sending notifications to multiple bots and chats.
+ *
+ * @see DestinationBot For details on configuring destination bots
+ * @see TelegramBotsConfig For defining available bots
+ */
 abstract class TelegramDistributionConfig
     @Inject
     constructor(
@@ -13,9 +22,27 @@ abstract class TelegramDistributionConfig
     ) {
         abstract val name: String
 
+        /**
+         * Internal set of destination bot configurations.
+         *
+         * This property holds the list of bot and chat combinations that should
+         * receive distribution notifications. Use the [destinationBot] method to
+         * add new destinations instead of modifying this directly.
+         */
         @get:Input
         internal abstract val destinationBots: SetProperty<DestinationBot>
 
+        /**
+         * Configures a destination bot for sending distribution notifications.
+         *
+         * This method creates a new [DestinationBot] configuration and applies
+         * the provided action to it. The configured bot and chats must exist
+         * in the main Telegram configuration.
+         *
+         * @param action A configuration block that will be applied to a new [DestinationBot] instance.
+         *
+         * @see DestinationBot For available configuration options
+         */
         fun destinationBot(action: Action<DestinationBot>) {
             val destinationBot = objects.newInstance(DestinationBot::class.java)
             action.execute(destinationBot)

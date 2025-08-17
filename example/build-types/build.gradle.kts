@@ -44,7 +44,7 @@ buildPublishFirebase {
         common {
             serviceCredentialsFilePath.set("test-test")
             appId.set("ru.kode.test.app")
-            testerGroups.set(setOf("android-testers"))
+            testerGroups("android-testers")
         }
     }
 }
@@ -66,7 +66,7 @@ buildPublishTelegram {
         common {
             destinationBot {
                 botName = "buildPublish"
-                chatNames = setOf("builds")
+                chatNames("builds")
             }
         }
     }

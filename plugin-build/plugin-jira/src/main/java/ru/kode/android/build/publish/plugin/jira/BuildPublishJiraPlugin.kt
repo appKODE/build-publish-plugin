@@ -15,6 +15,18 @@ private const val EXTENSION_NAME = "buildPublishJira"
 private const val NETWORK_SERVICE_NAME = "jiraNetworkService"
 private const val NETWORK_SERVICE_EXTENSION_NAME = "jiraNetworkServiceExtension"
 
+/**
+ * Gradle plugin for integrating Jira issue tracking with Android build and publish workflows.
+ *
+ * This plugin provides functionality to interact with Jira during the build process,
+ * enabling features like:
+ * - Updating Jira issues with build information
+ * - Validating Jira issue statuses before release
+ * - Automating release notes generation from Jira issues
+ *
+ * @see JiraNetworkService For the underlying network communication
+ * @see BuildPublishJiraExtension For configuration options
+ */
 abstract class BuildPublishJiraPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension =

@@ -9,6 +9,17 @@ import ru.kode.android.build.publish.plugin.core.util.serviceName
 internal const val SERVICE_NAME = "gitExecutorService"
 internal const val SERVICE_NAME_EXTENSION = "gitExecutorServiceExtension"
 
+/**
+ * A Gradle plugin that provides Git operations through a shared service.
+ *
+ * This plugin:
+ * - Applies the GrgitServicePlugin for Git repository access
+ * - Registers a shared [GitExecutorService] for performing Git operations
+ * - Provides access to the service through a project extension
+ *
+ * The service is registered as a shared service to ensure thread-safe Git operations
+ * across different tasks and projects.
+ */
 abstract class GitExecutorServicePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.pluginManager.apply(GrgitServicePlugin::class.java)

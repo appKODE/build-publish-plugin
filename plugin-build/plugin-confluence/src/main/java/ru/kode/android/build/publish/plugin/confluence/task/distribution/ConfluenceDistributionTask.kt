@@ -15,19 +15,36 @@ import ru.kode.android.build.publish.plugin.confluence.service.network.Confluenc
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.work.ConfluenceUploadWork
 import javax.inject.Inject
 
+/**
+ * A Gradle task that handles uploading distribution files to Confluence.
+ *
+ * This task is responsible for uploading APK or other distribution files to a specified Confluence page.
+ * It uses Gradle's worker API to perform the upload asynchronously.
+ */
 abstract class ConfluenceDistributionTask
     @Inject
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
         init {
-            description = "Task to send apk to Confluence"
+            description = "Uploads distribution files to a Confluence page"
             group = BasePlugin.BUILD_GROUP
         }
 
+        /**
+         * The network service for interacting with the Confluence REST API.
+         *
+         * This property is injected by the plugin and is used to perform the actual network operations.
+         * It is internal and not meant to be accessed or configured by the user.
+         */
         @get:Internal
         abstract val networkService: Property<ConfluenceNetworkService>
 
+        /**
+         * The distribution file to be uploaded to Confluence.
+         *
+         * This property is expected to be set by the user in the build script.
+         */
         @get:InputFile
         @get:Option(
             option = "distributionFile",
@@ -35,6 +52,12 @@ abstract class ConfluenceDistributionTask
         )
         abstract val distributionFile: RegularFileProperty
 
+        /**
+         * The ID of the Confluence page where the file should be uploaded.
+         *
+         * This property is expected to be set by the user in the build script.
+         * For example, `pageId.set("12345678")` would set the page ID to "12345678".
+         */
         @get:Input
         @get:Option(
             option = "pageId",
@@ -42,6 +65,14 @@ abstract class ConfluenceDistributionTask
         )
         abstract val pageId: Property<String>
 
+        /**
+         * Executes the task to upload the distribution file to Confluence.
+         *
+         * This method retrieves the [pageId] and [distributionFile] properties,
+         * initializes a work queue, and submits a [ConfluenceUploadWork] task to the queue.
+         * The task is configured with the necessary parameters such as the output file,
+         * the Confluence page ID, and the network service.
+         */
         @TaskAction
         fun upload() {
             val pageId = pageId.get()

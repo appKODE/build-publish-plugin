@@ -16,6 +16,18 @@ import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorSe
 import ru.kode.android.build.publish.plugin.foundation.task.tag.work.GenerateTagWork
 import javax.inject.Inject
 
+/**
+ * A Gradle task that retrieves the last Git tag matching a specific pattern for a build variant.
+ *
+ * This task is responsible for:
+ * - Finding the most recent Git tag that matches the specified pattern
+ * - Handling different build variants
+ * - Supporting fallback to stub values when no matching tag is found
+ * - Writing the tag information to a JSON file
+ *
+ * @see DefaultTask
+ * @see GenerateTagWork
+ */
 @DisableCachingByDefault
 abstract class GetLastTagTask
     @Inject
@@ -23,33 +35,84 @@ abstract class GetLastTagTask
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
         init {
-            description = "Get last tag task"
+            description = "Retrieves the last Git tag matching a specific pattern for a build variant"
             group = BasePlugin.BUILD_GROUP
             outputs.upToDateWhen { false }
         }
 
+        /**
+         * The Git executor service used to interact with the Git repository.
+         *
+         * This service provides Git operations needed to find and process tags.
+         *
+         * @see GitExecutorService
+         */
         @get:ServiceReference
         abstract val gitExecutorService: Property<GitExecutorService>
 
+        /**
+         * The name of the current build variant.
+         *
+         * This is used to filter tags specific to the current build variant.
+         * Example values: "debug", "release", "staging"
+         */
         @get:Input
-        @get:Option(option = "buildVariantName", description = "Current build variant")
+        @get:Option(
+            option = "buildVariantName",
+            description = "Current build variant name (e.g., 'debug', 'release')",
+        )
         abstract val buildVariantName: Property<String>
 
+        /**
+         * The pattern used to filter Git tags.
+         *
+         * This pattern is used with `git describe --match` to find relevant tags.
+         */
         @get:Input
-        @get:Option(option = "buildTagPattern", description = "Tag pattern to correctly search related tags")
+        @get:Option(
+            option = "buildTagPattern",
+            description = "Pattern to match Git tags",
+        )
         abstract val buildTagPattern: Property<String>
 
+        /**
+         * Whether to use stub values when no matching tag is found.
+         *
+         * When set to `true`, if no matching tag is found, the task will use default values
+         * instead of failing. This is useful for new projects or branches without tags.
+         */
         @get:Input
         @get:Option(
             option = "useStubsForTagAsFallback",
-            description = "Use stubs if tag was not found to not crash builds",
+            description = "Use default values if no matching tag is found (prevents build failures)",
         )
         abstract val useStubsForTagAsFallback: Property<Boolean>
 
+        /**
+         * The output file where tag information will be written in JSON format.
+         *
+         * The JSON file will contain information about the found tag.
+         */
         @get:OutputFile
-        @get:Option(option = "tagBuildFile", description = "Json contains info about tag build")
+        @get:Option(
+            option = "tagBuildFile",
+            description = "Output JSON file containing information about the found build tag",
+        )
         abstract val tagBuildFile: RegularFileProperty
 
+        /**
+         * Executes the task to find and process the last Git tag.
+         *
+         * This method:
+         * 1. Creates a work queue for background processing
+         * 2. Submits a [GenerateTagWork] task with the configured parameters
+         * 3. Waits for the work to complete
+         *
+         * The actual tag processing is done in a separate worker thread to avoid
+         * blocking the main Gradle build thread during Git operations.
+         *
+         * @see GenerateTagWork
+         */
         @TaskAction
         fun getLastTag() {
             val workQueue: WorkQueue = workerExecutor.noIsolation()

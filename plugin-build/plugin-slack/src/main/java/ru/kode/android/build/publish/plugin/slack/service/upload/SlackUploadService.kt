@@ -19,11 +19,33 @@ import javax.inject.Inject
 
 private const val SLACK_BASE_URL = "https://slack.com/api/"
 
+/**
+ * A service that handles file uploads to Slack using the Slack Files API.
+ *
+ * This service provides functionality to:
+ * - Obtain upload URLs from Slack
+ * - Upload files to Slack
+ * - Complete the upload process and share files in channels
+ * - Handle authentication and error cases
+ *
+ * It's designed to work with the Slack API's file upload flow, which involves
+ * multiple steps to support large file uploads.
+ */
 abstract class SlackUploadService
     @Inject
     constructor() : BuildService<SlackUploadService.Params> {
+        /**
+         * Configuration parameters for the SlackUploadService.
+         */
         interface Params : BuildServiceParameters {
+            /**
+             * File containing the Slack API token for file uploads
+             */
             val uploadApiTokenFile: RegularFileProperty
+
+            /**
+             * The network service to use for HTTP operations
+             */
             val networkService: Property<SlackNetworkService>
         }
 
@@ -42,6 +64,21 @@ abstract class SlackUploadService
         private val uploadApi: SlackUploadApi get() = uploadApiProperty.get()
         private val token: String get() = parameters.uploadApiTokenFile.get().asFile.readText()
 
+        /**
+         * Uploads a file to Slack and shares it in the specified channels.
+         *
+         * This method performs a multi-step upload process:
+         * 1. Requests an upload URL from Slack
+         * 2. Uploads the file content to the provided URL
+         * 3. Completes the upload and shares the file in the specified channels
+         *
+         * @param baseOutputFileName The base name to use for the uploaded file
+         * @param buildName The build name or identifier to include in the comment
+         * @param file The file to upload
+         * @param channels Set of channel IDs or names where the file should be shared
+         *
+         * @throws UploadException if any step of the upload process fails
+         */
         fun upload(
             baseOutputFileName: String,
             buildName: String,

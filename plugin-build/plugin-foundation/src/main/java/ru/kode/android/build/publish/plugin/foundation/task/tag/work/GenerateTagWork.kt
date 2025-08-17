@@ -13,14 +13,53 @@ import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_BUILD_VERSIO
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_CODE
 import javax.inject.Inject
 
+/**
+ * Defines the parameters required for the [GenerateTagWork] task.
+ *
+ * This interface extends Gradle's [WorkParameters] and provides all necessary
+ * configuration for generating build tag information.
+ */
 internal interface GenerateTagParameters : WorkParameters {
+    /**
+     * The name of the build variant (e.g., 'debug', 'release')
+     */
     val buildVariant: Property<String>
+
+    /**
+     * The pattern to match Git tags against
+     */
     val buildTagPattern: Property<String>
+
+    /**
+     * The output file where tag information will be written
+     */
     val tagBuildFile: RegularFileProperty
+
+    /**
+     * Service for executing Git commands
+     */
     val gitExecutorService: Property<GitExecutorService>
+
+    /**
+     * Whether to use stub values when no matching tag is found
+     */
     val useStubsForTagAsFallback: Property<Boolean>
 }
 
+/**
+ * A Gradle work action that generates build tag information by querying Git.
+ *
+ * This work action is responsible for:
+ * - Finding the most recent Git tag matching a specific pattern
+ * - Handling fallback behavior when no tag is found
+ * - Writing tag information to a JSON file for use by other tasks
+ * - Supporting different build variants and tag patterns
+ *
+ * The work is performed in a background thread to avoid blocking the main Gradle build thread.
+ *
+ * @see WorkAction
+ * @see GenerateTagParameters
+ */
 internal abstract class GenerateTagWork
     @Inject
     constructor() : WorkAction<GenerateTagParameters> {
@@ -29,12 +68,13 @@ internal abstract class GenerateTagWork
         override fun execute() {
             val buildVariant = parameters.buildVariant.get()
             val buildTagPattern = parameters.buildTagPattern.get()
+            val tagBuildOutput = parameters.tagBuildFile.asFile.get()
+            val useStubsForTagAsFallback = parameters.useStubsForTagAsFallback.get()
+
             val buildTag =
                 parameters.gitExecutorService.get()
                     .repository
                     .findRecentBuildTag(buildVariant, buildTagPattern)
-            val tagBuildOutput = parameters.tagBuildFile.asFile.get()
-            val useStubsForTagAsFallback = parameters.useStubsForTagAsFallback.get()
 
             if (buildTag != null) {
                 logger.info(
@@ -43,28 +83,39 @@ internal abstract class GenerateTagWork
                 )
                 tagBuildOutput.writeText(buildTag.toJson())
             } else if (useStubsForTagAsFallback) {
-                tagBuildOutput.writeText(
+                val stubTag =
                     Tag.Build(
                         name = buildTagPattern,
                         commitSha = "STUB COMMIT SHA",
-                        message = "WARNING: Not real tag, not use it for release",
+                        message = "WARNING: Not real tag, do not use it for release",
                         buildVersion = DEFAULT_BUILD_VERSION,
                         buildVariant = buildVariant,
                         buildNumber = DEFAULT_VERSION_CODE,
-                    ).toJson(),
-                )
+                    )
+                tagBuildOutput.writeText(stubTag.toJson())
+                logger.warn("Using stub tag information for build variant '$buildVariant'")
             } else {
-                logger.info(
-                    "build tag file not created for '$buildVariant' build variant. " +
-                        "Maybe pattern is wrong, or tag not exists, or tag was not fetched",
-                )
-                throw GradleException(
-                    "There is no last tag for '$buildVariant' build variant which " +
-                        "matches `$buildTagPattern` pattern. \n" +
-                        "It's a crucial file for all other tasks. without it nothing will work. \n" +
-                        "Check that tag for that build variant exists, if not - create it. \n" +
-                        "If it exists, try to rerun task with --info property and debug it",
-                )
+                val errorMessage =
+                    """
+                    |Build tag file not created for '$buildVariant' build variant.
+                    |Possible reasons:
+                    |- The pattern '$buildTagPattern' is incorrect
+                    |- No matching tag exists in the repository
+                    |- The tag exists but wasn't fetched
+                    |
+                    |This is a critical error as other tasks depend on this file.
+                    |
+                    |Troubleshooting steps:
+                    |1. Verify that a tag matching the pattern exists:
+                    |   git tag -l '$buildTagPattern'
+                    |2. If the tag exists but isn't being found, try fetching all tags:
+                    |   git fetch --all --tags
+                    |3. Check the pattern in your build configuration
+                    |4. For more details, run with --info flag
+                    """.trimMargin()
+
+                logger.info("Build tag file not created for '$buildVariant' build variant")
+                throw GradleException(errorMessage)
             }
         }
     }

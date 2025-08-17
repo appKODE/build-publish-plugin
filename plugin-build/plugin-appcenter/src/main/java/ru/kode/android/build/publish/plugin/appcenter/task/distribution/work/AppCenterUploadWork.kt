@@ -13,36 +13,87 @@ import ru.kode.android.build.publish.plugin.appcenter.task.distribution.entity.C
 import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
 import kotlin.math.round
 
+private const val BYTES_PER_MEGABYTE = 1024.0 * 1024.0
+private const val MILLIS_IN_SEC = 1000
+private const val MAX_NOTES_CHARACTERS_COUNT = 5000
+
 /**
- * Parameters required for the AppCenter upload work action.
+ * Configuration parameters for the AppCenter upload work action.
+ *
+ * This interface defines all the inputs required to perform an AppCenter upload,
+ * including file references, build information, and network service configuration.
  */
 internal interface AppCenterUploadParameters : WorkParameters {
+    /**
+     * Name of the application in AppCenter
+     */
     val appName: Property<String>
+
+    /**
+     * Version name of the build
+     */
     val buildName: Property<String>
+
+    /**
+     * Build number or version code
+     */
     val buildNumber: Property<String>
+
+    /**
+     * The APK file to be uploaded
+     */
     val outputFile: RegularFileProperty
+
+    /**
+     * Set of distribution group names to receive the build
+     */
     val testerGroups: SetProperty<String>
+
+    /**
+     * File containing release notes for the distribution
+     */
     val changelogFile: RegularFileProperty
+
+    /**
+     * Maximum number of polling attempts for upload status
+     */
     val maxUploadStatusRequestCount: Property<Int>
+
+    /**
+     * Fixed delay between status polling requests
+     */
     val uploadStatusRequestDelayMs: Property<Long>
+
+    /**
+     * Dynamic delay coefficient based on file size
+     */
     val uploadStatusRequestDelayCoefficient: Property<Long>
+
+    /**
+     * The network service for AppCenter API communication
+     */
     val networkService: Property<AppCenterNetworkService>
 }
 
 /**
- * WorkAction that performs the uploading of an APK to AppCenter.
+ * Gradle WorkAction that orchestrates the upload of an APK to AppCenter.
  *
- * The upload process consists of the following steps:
- * 1. Prepare a new release on AppCenter using the build version and number.
- * 2. Initialize the upload API and send the APK metadata.
- * 3. Upload the APK file in chunks, handling partial uploads.
- * 4. Mark the upload as finished on AppCenter.
- * 5. Commit the uploaded release.
- * 6. Poll AppCenter until the release is ready to be published.
- * 7. Distribute the release to specified tester groups with changelog notes.
+ * This class implements the complete upload workflow to AppCenter's distribution service,
+ * handling all the necessary API calls and error conditions. It's designed to run asynchronously
+ * as part of Gradle's worker API.
  *
- * Upload request delays for polling are dynamically calculated based on APK size
- * and an optional coefficient or a fixed delay.
+ * ## Error Handling
+ * - Network timeouts and retries are handled by the underlying [AppCenterNetworkService]
+ * - Failed chunk uploads will be automatically retried
+ * - The process fails fast on critical errors (e.g., authentication failures)
+ *
+ * ## Performance Considerations
+ * - Uses chunked uploads for better reliability with large APKs
+ * - Implements exponential backoff for status polling
+ * - Logs detailed progress information at each step
+ *
+ * @see AppCenterNetworkService For the underlying API communication
+ * @see AppCenterDistributionTask For the Gradle task that creates this work
  */
 internal abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParameters> {
     private val logger = Logging.getLogger(this::class.java)
@@ -115,6 +166,18 @@ internal abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParamete
         logger.info("upload done")
     }
 
+    /**
+     * Calculates the delay between upload status polling requests.
+     *
+     * The delay can be calculated in two ways:
+     * 1. Dynamically based on file size and a coefficient (if coefficient is provided)
+     * 2. Using a fixed delay (if coefficient is not provided)
+     *
+     * @param params The upload parameters containing delay configuration
+     * @param fileSizeBytes Size of the file being uploaded in bytes
+     *
+     * @return The calculated delay in milliseconds
+     */
     private fun requestDelayMs(
         params: AppCenterUploadParameters,
         fileSizeBytes: Long,
@@ -132,7 +195,3 @@ internal abstract class AppCenterUploadWork : WorkAction<AppCenterUploadParamete
 private fun Long.bytesToMegabytes(): Double {
     return this / BYTES_PER_MEGABYTE
 }
-
-private const val BYTES_PER_MEGABYTE = 1024.0 * 1024.0
-private const val MILLIS_IN_SEC = 1000
-private const val MAX_NOTES_CHARACTERS_COUNT = 5000

@@ -61,11 +61,11 @@ buildPublishTelegram {
     }
     changelog {
         common {
-            userMentions.set(setOf("@ivan", "@roman", "@serega"))
+            userMentions("@ivan", "@roman", "@serega")
 
             destinationBot {
                 botName = "buildPublisher"
-                chatNames = setOf("builds")
+                chatNames("builds")
             }
         }
     }
@@ -91,7 +91,7 @@ buildPublishFirebase {
         common {
             serviceCredentialsFilePath.set("test-test")
             appId.set("ru.kode.test.app")
-            testerGroups.set(setOf("android-testers"))
+            testerGroups("android-testers")
         }
     }
 }

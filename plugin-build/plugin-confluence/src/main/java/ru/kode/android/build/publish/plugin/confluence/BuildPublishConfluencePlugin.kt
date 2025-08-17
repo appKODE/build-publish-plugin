@@ -15,6 +15,17 @@ private const val EXTENSION_NAME = "buildPublishConfluence"
 private const val NETWORK_SERVICE_NAME = "confluenceNetworkService"
 private const val NETWORK_SERVICE_EXTENSION_NAME = "confluenceNetworkServiceExtension"
 
+/**
+ * A Gradle plugin that provides Confluence integration for build publishing.
+ *
+ * This plugin enables:
+ * - Uploading build artifacts to Confluence pages
+ * - Managing Confluence content as part of the build process
+ * - Authentication with multiple Confluence instances
+ *
+ * It sets up the necessary services and extensions for Confluence integration,
+ * including network services for API communication.
+ */
 abstract class BuildPublishConfluencePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create(EXTENSION_NAME, BuildPublishConfluenceExtension::class.java)

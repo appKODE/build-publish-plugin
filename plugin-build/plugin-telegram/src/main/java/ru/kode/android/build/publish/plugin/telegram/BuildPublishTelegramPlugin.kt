@@ -15,6 +15,16 @@ private const val EXTENSION_NAME = "buildPublishTelegram"
 private const val NETWORK_SERVICE_NAME = "telegramNetworkService"
 private const val NETWORK_SERVICE_EXTENSION_NAME = "telegramNetworkServiceExtension"
 
+/**
+ * A Gradle plugin that integrates with Telegram to send build notifications and deployment updates.
+ *
+ * This plugin provides seamless integration with Telegram's Bot API to send notifications about
+ * build status, deployment progress, and changelogs. It's designed to work with the Android
+ * build system and can be configured to send messages at different stages of the build process.
+ *
+ * @see BuildPublishTelegramExtension For available configuration options
+ * @see TelegramNetworkService For the underlying network service implementation
+ */
 abstract class BuildPublishTelegramPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create(EXTENSION_NAME, BuildPublishTelegramExtension::class.java)
@@ -26,7 +36,7 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
         androidExtension.finalizeDsl {
             val services: Provider<Map<String, Provider<TelegramNetworkService>>> =
                 project.provider {
-                    extension.bot.fold(mapOf()) { acc, authConfig ->
+                    extension.bots.fold(mapOf()) { acc, authConfig ->
                         val service =
                             project.gradle.sharedServices.registerIfAbsent(
                                 project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),

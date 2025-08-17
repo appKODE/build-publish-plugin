@@ -13,7 +13,6 @@ import org.gradle.api.Project
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
-import ru.kode.android.build.publish.plugin.core.git.DEFAULT_TAG_PATTERN
 import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
@@ -30,8 +29,22 @@ import ru.kode.android.build.publish.plugin.foundation.task.TagTasksRegistrar
 import ru.kode.android.build.publish.plugin.foundation.util.mapToOutputApkFile
 import ru.kode.android.build.publish.plugin.foundation.validate.stopExecutionIfNotSupported
 
+private const val DEFAULT_TAG_PATTERN = ".+\\.(\\d+)-%s"
 private const val EXTENSION_NAME = "buildPublishFoundation"
 
+/**
+ * Core plugin that provides foundation functionality for the build publishing system.
+ *
+ * This plugin handles:
+ * - Version management through Git tags
+ * - Changelog generation
+ * - Build variant configuration
+ * - Integration with other build publishing plugins
+ * - Common utilities and extensions for build variants
+ *
+ * It applies the [GitExecutorServicePlugin] and sets up the necessary task graph
+ * for version management and changelog generation based on Git history.
+ */
 abstract class BuildPublishFoundationPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.stopExecutionIfNotSupported()
@@ -192,6 +205,14 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
     }
 }
 
+/**
+ * Configures the Android application extension with default version information.
+ *
+ * Sets default versionCode and versionName if not explicitly configured.
+ * These values are used as fallbacks when version information cannot be determined from Git tags.
+ *
+ * @receiver The Android application extension to configure
+ */
 private fun AppExtension.configure() {
     defaultConfig {
         it.versionCode = DEFAULT_VERSION_CODE

@@ -36,10 +36,32 @@ private const val SEND_MESSAGE_TO_TOPIC_WEB_HOOK =
         "&disable_web_page_preview=true"
 private const val SEND_DOCUMENT_WEB_HOOK = "https://%s/bot%s/sendDocument"
 
+private val logger: Logger = Logging.getLogger(TelegramNetworkService::class.java)
+
+/**
+ * A Gradle [BuildService] that handles network communication with the Telegram Bot API.
+ *
+ * This service is responsible for sending messages and files to Telegram chats using the
+ * Telegram Bot API. It supports both simple text messages and file uploads, with support
+ * for topics and multiple chat destinations.
+ *
+ * The service is implemented as a Gradle Build Service to ensure proper resource cleanup
+ * and to maintain a single HTTP client instance across builds.
+ *
+ * @see BuildService For more information about Gradle Build Services
+ * @see Params For configuration parameters
+ */
 abstract class TelegramNetworkService
     @Inject
     constructor() : BuildService<TelegramNetworkService.Params> {
+        /**
+         * Configuration parameters for the TelegramNetworkService.
+         */
         interface Params : BuildServiceParameters {
+            /**
+             * A list of configured Telegram bots that can be used for sending messages.
+             * Each bot is identified by its name and contains the necessary credentials.
+             */
             val bots: Property<List<TelegramBotConfig>>
         }
 
@@ -88,7 +110,19 @@ abstract class TelegramNetworkService
         private val bots: List<TelegramBotConfig> get() = parameters.bots.get()
 
         /**
-         * Sends url formatted data to webhook at [webhookUrl]
+         * Sends a text message to the specified Telegram chats using the configured bots.
+         *
+         * This method sends a Markdown-formatted message to one or more Telegram chats
+         * using the specified bots. The message will be properly escaped for Telegram's
+         * MarkdownV2 format.
+         *
+         * @param message The message to send (supports MarkdownV2 formatting)
+         * @param destinationBots Set of destination bots and their respective chat configurations
+         *
+         * @throws IllegalStateException If no matching bot configuration is found
+         * @throws IOException If there's a network error while sending the message
+         *
+         * @see upload For sending files instead of text messages
          */
         fun send(
             message: String,
@@ -101,14 +135,14 @@ abstract class TelegramNetworkService
                         if (topicId.isNullOrEmpty()) {
                             SEND_MESSAGE_TO_CHAT_WEB_HOOK.format(
                                 bot.serverBaseUrl,
-                                bot.it,
+                                bot.id,
                                 bot.chatId,
                                 URLEncoder.encode(message, "utf-8"),
                             )
                         } else {
                             SEND_MESSAGE_TO_TOPIC_WEB_HOOK.format(
                                 bot.serverBaseUrl,
-                                bot.it,
+                                bot.id,
                                 bot.chatId,
                                 topicId,
                                 URLEncoder.encode(message, "utf-8"),
@@ -124,13 +158,27 @@ abstract class TelegramNetworkService
                 }
         }
 
+        /**
+         * Uploads a file to the specified Telegram chats using the configured bots.
+         *
+         * This method sends a file to one or more Telegram chats using the specified bots.
+         * The file will be sent as a document, and a caption can be included.
+         *
+         * @param file The file to upload
+         * @param destinationBots Set of destination bots and their respective chat configurations
+         *
+         * @throws IllegalStateException If no matching bot configuration is found
+         * @throws IOException If there's a network error or the file cannot be read
+         *
+         * @see send For sending text messages without file attachments
+         */
         fun upload(
             file: File,
             destinationBots: Set<DestinationBot>,
         ) {
             bots.getBy(destinationBots)
                 .forEach { bot ->
-                    val webhookUrl = SEND_DOCUMENT_WEB_HOOK.format(bot.serverBaseUrl, bot.it)
+                    val webhookUrl = SEND_DOCUMENT_WEB_HOOK.format(bot.serverBaseUrl, bot.id)
                     val filePart =
                         MultipartBody.Part.createFormData(
                             "document",
@@ -158,12 +206,19 @@ abstract class TelegramNetworkService
                         .executeOrThrow()
                 }
         }
-
-        companion object {
-            private val logger: Logger = Logging.getLogger(TelegramNetworkService::class.java)
-        }
     }
 
+/**
+ * Retrieves a list of [TelegramBot] configurations based on the provided [destinationBots].
+ *
+ * This function filters the list of [TelegramBotConfig] based on the matching [botName] and [chatNames].
+ * It then maps each matching [TelegramChatConfig] to a [TelegramBot] instance,
+ * using the corresponding [botName], [botId], [botServerBaseUrl], [basicAuth], [chatId], and [topicId].
+ *
+ * @param destinationBots The set of [DestinationBot] configurations.
+ *
+ * @return A list of [TelegramBot] configurations that match the provided [destinationBots].
+ */
 private fun List<TelegramBotConfig>.getBy(destinationBots: Set<DestinationBot>): List<TelegramBot> {
     return destinationBots
         .flatMap { destinationBot ->
@@ -182,7 +237,7 @@ private fun List<TelegramBotConfig>.getBy(destinationBots: Set<DestinationBot>):
                         }
                     TelegramBot(
                         name = bot.name,
-                        it = bot.botId.get(),
+                        id = bot.botId.get(),
                         serverBaseUrl = bot.botServerBaseUrl.orNull ?: TELEGRAM_BASE_RUL,
                         basicAuth = basicAuth,
                         chatId = chat.chatId.get(),
@@ -193,16 +248,46 @@ private fun List<TelegramBotConfig>.getBy(destinationBots: Set<DestinationBot>):
         }
 }
 
+/**
+ * Represents a Telegram bot used for sending messages.
+ */
 private data class TelegramBot(
+    /**
+     * The name of this bot configuration (automatically set from the registration name)
+     */
     val name: String,
-    val it: String,
+    /**
+     * The bot token (e.g., "1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11")
+     */
+    val id: String,
+    /**
+     * The base URL for the Telegram Bot API server (defaults to "https://api.telegram.org")
+     */
     val serverBaseUrl: String,
+    /**
+     * The unique identifier of the chat where the bot will send messages
+     */
     val chatId: String,
+    /**
+     * Optional thread identifier for forum topics or group threads
+     */
     val topicId: String?,
+    /**
+     * Optional basic authentication credentials for the Bot API server
+     */
     val basicAuth: BasicAuth?,
 ) {
+    /**
+     * Represents basic authentication credentials for the Telegram Bot API server.
+     */
     data class BasicAuth(
+        /**
+         * The username for basic authentication
+         */
         val username: String,
+        /**
+         * The password for basic authentication
+         */
         val password: String,
     )
 }

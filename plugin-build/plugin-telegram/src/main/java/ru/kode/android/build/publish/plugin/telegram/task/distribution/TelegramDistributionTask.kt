@@ -17,30 +17,68 @@ import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNet
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.work.TelegramUploadWork
 import javax.inject.Inject
 
+/**
+ * Gradle task for distributing APK files via Telegram.
+ *
+ * This task handles the distribution of Android application packages (APKs/bundles) to specified
+ * Telegram chats using configured bot tokens. It's designed to be used as part of a
+ * CI/CD pipeline to automatically share build artifacts with testers or stakeholders.
+ *
+ * The task uses Gradle's Worker API to perform the upload asynchronously,
+ * which is particularly useful for large files.
+ */
 abstract class TelegramDistributionTask
     @Inject
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
         init {
-            description = "Task to send apk to Telegram"
+            description = "Task to send APK/bundle to Telegram"
             group = BasePlugin.BUILD_GROUP
         }
 
+        /**
+         * Internal network service for handling Telegram API communication.
+         * This is marked as @Internal as it's not part of the task's input/output.
+         */
         @get:Internal
         abstract val networkService: Property<TelegramNetworkService>
 
+        /**
+         * The APK/bundle file to be distributed.
+         *
+         * This property is marked as an input file, so Gradle will check for changes
+         * and only run the task if the file has been modified.
+         */
         @get:InputFile
         @get:Option(
             option = "distributionFile",
-            description = "Distribution artifact file (absolute path is expected)",
+            description = "Absolute path to the file to be distributed",
         )
         abstract val distributionFile: RegularFileProperty
 
+        /**
+         * Set of configured Telegram bots and their destination chats.
+         *
+         * Each [DestinationBot] contains the bot and chat names where the file should be sent.
+         * The task will send the file to all specified destinations.
+         */
         @get:Input
-        @get:Option(option = "destinationBots", description = "Bots which be used to distribute")
+        @get:Option(
+            option = "destinationBots",
+            description = "List of Telegram bot configurations for distribution",
+        )
         abstract val destinationBots: SetProperty<DestinationBot>
 
+        /**
+         * Task action that handles the APK/bundle upload to Telegram.
+         *
+         * This method is automatically called by Gradle when the task is executed.
+         * It creates a new worker to handle the upload asynchronously.
+         *
+         * The actual upload work is delegated to [TelegramUploadWork] to maintain
+         * clean task boundaries and enable better build caching.
+         */
         @TaskAction
         fun upload() {
             val workQueue: WorkQueue = workerExecutor.noIsolation()

@@ -16,15 +16,26 @@ import ru.kode.android.build.publish.plugin.slack.service.upload.SlackUploadServ
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+private val logger: Logger = Logging.getLogger(SlackUploadService::class.java)
+
 private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L
 
+/**
+ * A network service for interacting with the Slack API.
+ *
+ * This service provides the underlying HTTP client and Retrofit configuration
+ * for Slack API communication. It's designed to be used as a shared service
+ * across different Slack-related tasks to manage resources efficiently.
+ */
 abstract class SlackNetworkService
     @Inject
     constructor(
         providerFactory: ProviderFactory,
     ) : BuildService<BuildServiceParameters.None> {
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
+
         internal abstract val retrofitProperty: Property<Retrofit.Builder>
+
         internal abstract val moshiProperty: Property<Moshi>
 
         init {
@@ -49,9 +60,5 @@ abstract class SlackNetworkService
                         .addConverterFactory(MoshiConverterFactory.create(moshi))
                 },
             )
-        }
-
-        companion object {
-            private val logger: Logger = Logging.getLogger(SlackUploadService::class.java)
         }
     }

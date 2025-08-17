@@ -13,7 +13,19 @@ import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
 
 internal const val CONFLUENCE_DISTRIBUTION_UPLOAD_TASK_PREFIX = "confluenceDistributionUpload"
 
+/**
+ * Registers and configures Confluence-related tasks for the build.
+ */
 internal object ConfluenceTasksRegistrar {
+    /**
+     * Registers a Confluence distribution upload task for the given configuration.
+     *
+     * @param project The Gradle project to register the task in
+     * @param distributionConfig Configuration for the Confluence distribution
+     * @param params Parameters for the distribution task
+     *
+     * @return A [TaskProvider] for the registered task
+     */
     internal fun registerDistributionTask(
         project: Project,
         distributionConfig: ConfluenceDistributionConfig,
@@ -23,6 +35,15 @@ internal object ConfluenceTasksRegistrar {
     }
 }
 
+/**
+ * Registers a Confluence distribution task for the current project.
+ *
+ * @receiver The project to register the task in
+ * @param distributionConfig Configuration for the Confluence distribution
+ * @param params Parameters for the distribution task
+ *
+ * @return A [TaskProvider] for the registered task
+ */
 private fun Project.registerConfluenceDistributionTask(
     distributionConfig: ConfluenceDistributionConfig,
     params: ConfluenceDistributionTaskParams,
@@ -43,7 +64,16 @@ private fun Project.registerConfluenceDistributionTask(
     }
 }
 
+/**
+ * Parameters required to create a Confluence distribution task.
+ */
 internal data class ConfluenceDistributionTaskParams(
+    /**
+     * The build variant this task is associated with
+     */
     val buildVariant: BuildVariant,
+    /**
+     * Provider for the APK output file to upload
+     */
     val apkOutputFile: Provider<RegularFile>,
 )

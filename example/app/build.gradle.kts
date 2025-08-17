@@ -95,17 +95,17 @@ buildPublishAppCenter {
     distribution {
         common {
             appName.set("Android")
-            testerGroups.set(setOf("Collaborators"))
+            testerGroups("Collaborators")
         }
 
         buildType("debug") {
             appName.set("AndroidDebug")
-            testerGroups.set(setOf("Collaborators"))
+            testerGroups("Collaborators")
         }
 
         buildType("release") {
             appName.set("AndroidRelease")
-            testerGroups.set(setOf("Collaborators"))
+            testerGroups("Collaborators")
         }
     }
 }
@@ -142,10 +142,10 @@ buildPublishTelegram {
     }
     changelog {
         common {
-            userMentions.set(setOf("@ivan", "@roman", "@serega"))
+            userMentions("@ivan", "@roman", "@serega")
             destinationBot {
                 botName = "buildPublish"
-                chatNames = setOf("test_chat_A")
+                chatNames("test_chat_A")
             }
         }
     }

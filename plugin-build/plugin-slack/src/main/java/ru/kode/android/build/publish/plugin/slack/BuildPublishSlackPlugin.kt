@@ -19,6 +19,18 @@ private const val WEBHOOK_SERVICE_NAME = "slackWebhookService"
 private const val UPLOAD_SERVICE_NAME = "slackUploadService"
 private const val SERVICE_EXTENSION_NAME = "slackServiceExtension"
 
+/**
+ * A Gradle plugin that provides Slack integration for build publishing.
+ *
+ * This plugin enables:
+ * - Sending build notifications to Slack channels
+ * - Uploading build artifacts to Slack
+ * - Configuring multiple Slack workspaces and channels
+ * - Customizing notification messages and channels
+ *
+ * It sets up the necessary services for Slack webhook and file upload functionality,
+ * and provides extensions for build scripts to configure Slack integration.
+ */
 abstract class BuildPublishSlackPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create(EXTENSION_NAME, BuildPublishSlackExtension::class.java)

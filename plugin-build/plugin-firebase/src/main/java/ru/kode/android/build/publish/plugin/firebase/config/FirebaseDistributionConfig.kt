@@ -4,33 +4,75 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 
-interface FirebaseDistributionConfig {
-    val name: String
+/**
+ * Configuration class for Firebase App Distribution settings.
+ *
+ * This class defines the configuration options for distributing Android applications
+ * through Firebase App Distribution. It allows customization of distribution settings
+ * such as service account credentials, artifact type, and tester groups.
+ */
+abstract class FirebaseDistributionConfig {
+    abstract val name: String
 
     /**
-     * The path to your service account private key JSON file for Firebase App Distribution
-     */
-    @get:Input
-    val serviceCredentialsFilePath: Property<String>
-
-    /**
-     * Artifact type for app distribution
-     * For example: APK or AAB
-     */
-    @get:Input
-    val artifactType: Property<String>
-
-    /**
-     * Custom app id for Firebase App Distribution to override google-services.json
-     */
-    @get:Input
-    val appId: Property<String>
-
-    /**
-     * Test groups for app distribution
+     * The file system path to the service account credentials JSON file.
      *
-     * For example: [android-testers]
+     * This file contains the private key for authenticating with Firebase App Distribution.
+     * You can generate this file in the Firebase Console under Project Settings > Service Accounts.
+     *
+     * Example: `"path/to/service-account.json"`
      */
     @get:Input
-    val testerGroups: SetProperty<String>
+    abstract val serviceCredentialsFilePath: Property<String>
+
+    /**
+     * The type of Android application artifact to distribute.
+     *
+     * Supported values:
+     * - `"APK"`: For Android application packages
+     * - `"AAB"`: For Android App Bundles (recommended for production)
+     *
+     * Default: None (must be specified)
+     */
+    @get:Input
+    abstract val artifactType: Property<String>
+
+    /**
+     * The Firebase App ID for distribution.
+     *
+     * This overrides the app ID from google-services.json if specified.
+     * You can find this ID in the Firebase Console under Project Settings > General.
+     *
+     * Format: `1:1234567890:android:0123456789abcdef`
+     */
+    @get:Input
+    abstract val appId: Property<String>
+
+    /**
+     * The set of tester groups that should receive this distribution.
+     *
+     * Tester groups must be created in the Firebase Console before they can be used here.
+     */
+    @get:Input
+    internal abstract val testerGroups: SetProperty<String>
+
+    /**
+     * Adds a single tester group to receive this distribution.
+     *
+     * @param testerGroup The name of the tester group to add
+     * @see testerGroup
+     */
+    fun testerGroup(testerGroup: String) {
+        testerGroups.add(testerGroup)
+    }
+
+    /**
+     * Adds multiple tester groups to receive this distribution.
+     *
+     * @param testerGroup Vararg parameter of tester group names to add
+     * @see testerGroup
+     */
+    fun testerGroups(vararg testerGroup: String) {
+        testerGroups.addAll(testerGroup.toList())
+    }
 }

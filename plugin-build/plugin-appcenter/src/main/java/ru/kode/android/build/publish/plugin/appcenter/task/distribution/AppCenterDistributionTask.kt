@@ -23,19 +23,16 @@ import ru.kode.android.build.publish.plugin.core.util.capitalized
 import javax.inject.Inject
 
 /**
- * Gradle task for uploading an APK build artifact to Microsoft AppCenter.
+ * Gradle task that handles the upload of Android application packages (APKs) to AppCenter.
  *
- * This task takes a built APK along with release metadata (changelog, build info, tester groups)
- * and sends it to the specified AppCenter application. Upload parameters can be configured via
- * Gradle properties or CLI `--option` arguments.
+ * This task is responsible for:
+ * - Validating the input APK file
+ * - Reading build metadata and changelog
+ * - Coordinating the upload process using [AppCenterUploadWork]
+ * - Handling distribution to specified tester groups
  *
- * ## Behavior
- * 1. Validates that the provided output file is an APK.
- * 2. Reads build metadata from [buildTagFile].
- * 3. Creates a non-isolated [WorkQueue] for background upload.
- * 4. Submits an [AppCenterUploadWork] unit with all configured parameters.
- *
- * @throws GradleException if [distributionFile] is not an APK.
+ * @see AppCenterUploadWork For the actual upload implementation
+ * @see AppCenterNetworkService For API communication with AppCenter
  */
 abstract class AppCenterDistributionTask
     @Inject
@@ -48,11 +45,20 @@ abstract class AppCenterDistributionTask
         }
 
         /**
-         *  Instance of [AppCenterNetworkService] used to communicate with AppCenter API.
+         * The AppCenter network service used for API communication.
+         *
+         * This is injected by Gradle and provides the underlying HTTP client
+         * and API methods for interacting with AppCenter's distribution APIs.
          */
         @get:Internal
         abstract val networkService: Property<AppCenterNetworkService>
 
+        /**
+         * File containing the release notes or changelog for this distribution.
+         *
+         * The contents of this file will be displayed to testers in the AppCenter portal
+         * and included in distribution emails. Supports Markdown formatting.
+         */
         @get:InputFile
         @get:Option(
             option = "changelogFile",
@@ -60,6 +66,12 @@ abstract class AppCenterDistributionTask
         )
         abstract val changelogFile: RegularFileProperty
 
+        /**
+         * The Android application package (APK) file to be uploaded to AppCenter.
+         *
+         * This must be a valid APK file. The task will fail if the file doesn't exist
+         * or has an invalid format.
+         */
         @get:InputFile
         @get:Option(
             option = "distributionFile",
@@ -67,6 +79,9 @@ abstract class AppCenterDistributionTask
         )
         abstract val distributionFile: RegularFileProperty
 
+        /**
+         * JSON file containing metadata about the build being distributed.
+         */
         @get:InputFile
         @get:Option(
             option = "buildTagFile",
@@ -74,6 +89,14 @@ abstract class AppCenterDistributionTask
         )
         abstract val buildTagFile: RegularFileProperty
 
+        /**
+         * The name of the application in AppCenter.
+         *
+         * This should match the application name as registered in your AppCenter account.
+         * If not specified, it will be generated as '<baseFileName>-<variant>'.
+         *
+         * Example: "MyApp-Android"
+         */
         @get:Input
         @get:Optional
         @get:Option(
@@ -84,6 +107,14 @@ abstract class AppCenterDistributionTask
         )
         abstract val appName: Property<String>
 
+        /**
+         * Set of distribution group names that should receive this build.
+         *
+         * These groups must already exist in your AppCenter organization.
+         * Testers in these groups will be notified about the new release.
+         *
+         * Example: `setOf("beta-testers", "internal-team")`
+         */
         @get:Input
         @get:Option(
             option = "testerGroups",
@@ -91,6 +122,14 @@ abstract class AppCenterDistributionTask
         )
         abstract val testerGroups: SetProperty<String>
 
+        /**
+         * Maximum number of times to poll for upload status before timing out.
+         *
+         * The task will poll AppCenter's API to check the status of the upload.
+         * This controls how many times it will check before giving up.
+         *
+         * Default: [MAX_REQUEST_COUNT]
+         */
         @get:Input
         @get:Optional
         @get:Option(
@@ -101,6 +140,14 @@ abstract class AppCenterDistributionTask
         )
         abstract val maxUploadStatusRequestCount: Property<Int>
 
+        /**
+         * Delay in milliseconds between upload status polling requests.
+         *
+         * The task will poll AppCenter's API to check the status of the upload.
+         * This controls the time between each polling request.
+         *
+         * Default: [MAX_REQUEST_DELAY_MS]
+         */
         @get:Input
         @get:Optional
         @get:Option(
@@ -111,6 +158,14 @@ abstract class AppCenterDistributionTask
         )
         abstract val uploadStatusRequestDelayMs: Property<Long>
 
+        /**
+         * If greater than 0, polling delay (in milliseconds) is calculated as
+         * 'APK size (MB) / coefficient' * 1000. Otherwise, 'uploadStatusRequestDelayMs' is used.
+         *
+         * Example: If coefficient is 10 and APK size is 5 MB, the delay will be 50 seconds.
+         *
+         * Default: 0 (no dynamic delay)
+         */
         @get:Input
         @get:Optional
         @get:Option(
@@ -121,6 +176,15 @@ abstract class AppCenterDistributionTask
         )
         abstract val uploadStatusRequestDelayCoefficient: Property<Long>
 
+        /**
+         * Base file name prefix for the APK artifact.
+         *
+         * This value is used to generate the final file name for the APK artifact.
+         * It is concatenated with the build variant name to form the full file name.
+         *
+         * Example: If `baseFileName` is set to "MyApp", and the build variant is "debug",
+         * the final file name will be "MyApp-debug.apk".
+         */
         @get:Input
         @get:Option(
             option = "baseFileName",

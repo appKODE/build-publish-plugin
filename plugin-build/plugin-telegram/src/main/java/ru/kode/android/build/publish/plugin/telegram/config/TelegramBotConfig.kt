@@ -12,12 +12,13 @@ import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
 import javax.inject.Inject
 
 /**
- * Abstract configuration for a Telegram bot used for posting changelogs or other messages.
+ * Configuration class for a Telegram bot used for sending build notifications and changelogs.
  *
- * This class provides properties to configure the bot's ID, server URL, authorization,
- * and manages a collection of chats where the bot has been added.
+ * This class allows you to configure the connection to a Telegram bot and define the chats
+ * where notifications should be sent. It supports both standard and self-hosted Telegram Bot API servers.
  *
- * @constructor Injects the [ObjectFactory] used for creating nested configuration objects.
+ * @see TelegramChatConfig For configuring individual chat destinations
+ * @see BasicAuthCredentials For authentication configuration
  */
 abstract class TelegramBotConfig
     @Inject
@@ -25,22 +26,41 @@ abstract class TelegramBotConfig
         objects: ObjectFactory,
     ) : Named {
         /**
-         * Telegram bot token (bot ID) used for authenticating API requests to post messages.
+         * The Telegram bot token used for authenticating API requests.
+         *
+         * This is a required property that identifies your bot when making requests to the Telegram Bot API.
+         * You can obtain this token by talking to [@BotFather](https://t.me/botfather) on Telegram.
+         *
+         * Example: `"1234567890:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"`
          */
         @get:Input
         abstract val botId: Property<String>
 
         /**
-         * Optional base URL of the Telegram bot API server.
-         * Defaults to "https://api.telegram.org" if not provided.
+         * The base URL of the Telegram Bot API server.
+         *
+         * This is an optional property that defaults to Telegram's official API endpoint.
+         * You only need to set this if you're using a self-hosted Bot API server.
+         *
+         * Default: `"https://api.telegram.org"`
          */
         @get:Input
         @get:Optional
         abstract val botServerBaseUrl: Property<String>
 
         /**
-         * Optional basic authentication credentials for the Telegram bot server.
-         * If not provided, no authentication header is applied.
+         * Basic authentication credentials for the Telegram Bot API server.
+         *
+         * This is only required if your self-hosted Bot API server is protected with HTTP Basic Auth.
+         * Leave this unconfigured when using the official Telegram Bot API.
+         *
+         * Example:
+         * ```groovy
+         * botServerAuth {
+         *     username = providers.environmentVariable("TELEGRAM_AUTH_USER")
+         *     password = providers.environmentVariable("TELEGRAM_AUTH_PASSWORD")
+         * }
+         * ```
          */
         @get:Nested
         @get:Optional
@@ -48,18 +68,25 @@ abstract class TelegramBotConfig
             objects.newInstance(BasicAuthCredentials::class.java)
 
         /**
-         * Internal container of [TelegramChatConfig] objects representing the chats
-         * where this bot has been added.
+         * Internal container of chat configurations where this bot will send messages.
+         *
+         * This is an internal property that holds all chat configurations added via the [chat] method.
+         * Use the [chat] method to add new chat configurations instead of accessing this directly.
          */
         internal val chats: NamedDomainObjectContainer<TelegramChatConfig> =
             objects.domainObjectContainer(TelegramChatConfig::class.java)
 
         /**
-         * Registers a new chat configuration in the list of chats where this bot is added.
+         * Configures a chat where the bot will send notifications.
          *
-         * @param chatName A unique identifier for the chat configuration,
-         *                  e.g. a descriptive name like "builds" or "alerts".
-         * @param action Configuration action to apply to the [TelegramChatConfig].
+         * This method registers a new chat configuration with the given name and applies the provided
+         * configuration action. Each chat configuration must have a unique name within the bot.
+         *
+         * @param chatName A unique identifier for the chat configuration (e.g., "releases", "builds", "alerts").
+         *                 This is used to reference the chat in build scripts and should be descriptive.
+         * @param action A configuration block that will be applied to a new [TelegramChatConfig] instance.
+         *
+         * @see TelegramChatConfig For available chat configuration options
          */
         fun chat(
             chatName: String,

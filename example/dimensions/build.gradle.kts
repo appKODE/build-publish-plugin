@@ -68,7 +68,7 @@ buildPublishFirebase {
         common {
             serviceCredentialsFilePath.set("test-test")
             appId.set("ru.kode.test.app")
-            testerGroups.set(setOf("android-testers"))
+            testerGroups("android-testers")
         }
     }
 }
@@ -82,7 +82,7 @@ buildPublishSlack {
     }
     changelog {
         common {
-            userMentions.set(setOf("@aa", "@bb", "@cc"))
+            userMentions("@aa", "@bb", "@cc")
             attachmentColor.set("#ffffff")
         }
     }
