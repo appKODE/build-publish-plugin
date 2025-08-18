@@ -16,7 +16,9 @@ dependencies {
     implementation(libs.retrofitMoshi)
     implementation(libs.agp)
 
-    testImplementation(libs.junit)
+    testImplementation(gradleTestKit())
+    testImplementation(platform(libs.junitBom))
+    testImplementation("org.junit.jupiter:junit-jupiter")
 
     ksp(libs.moshiCodgen)
 }

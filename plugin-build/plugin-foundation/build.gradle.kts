@@ -12,7 +12,11 @@ dependencies {
     implementation(libs.agp)
     implementation(libs.grgitCore)
     implementation(libs.grgitGradle)
-    testImplementation(libs.junit)
+
+    testImplementation(gradleTestKit())
+    testImplementation(platform(libs.junitBom))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 gradlePlugin {
@@ -63,4 +67,8 @@ tasks.register("setupPluginUploadFromEnvironment") {
         System.setProperty("gradle.publish.key", key)
         System.setProperty("gradle.publish.secret", secret)
     }
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
