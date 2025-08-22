@@ -15,6 +15,7 @@ internal fun File.createAndroidProject(
     val topSettingsFile = this.getFile("settings.gradle")
     val topBuildFile = this.getFile("build.gradle")
     val appBuildFile = this.getFile("app/build.gradle")
+    val androidManifestFile = this.getFile("app/src/main/AndroidManifest.xml")
 
     if (topBuildFileContent != null) {
         topBuildFile.writeText(topBuildFileContent)
@@ -116,6 +117,11 @@ internal fun File.createAndroidProject(
                 println(it)
             }
     writeFile(appBuildFile, appBuildFileContent)
+    val androidManifestFileContent = """
+        <?xml version="1.0" encoding="utf-8"?>
+        <manifest />
+    """.trimIndent()
+    writeFile(androidManifestFile, androidManifestFileContent)
 }
 
 @Throws(IOException::class)
