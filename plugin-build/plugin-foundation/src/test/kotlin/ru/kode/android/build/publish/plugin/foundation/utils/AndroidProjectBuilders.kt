@@ -8,6 +8,8 @@ import java.io.FileWriter
 import java.io.IOException
 
 internal fun File.createAndroidProject(
+    buildTypes: List<BuildType>,
+    productFlavors: List<ProductFlavor> = listOf(),
     topBuildFileContent: String? = null,
 ) {
     val topSettingsFile = this.getFile("settings.gradle")
@@ -37,6 +39,41 @@ internal fun File.createAndroidProject(
         include ':app'
         """.trimIndent()
     writeFile(topSettingsFile, topSettingsFileContent)
+    val buildTypesBlock = buildTypes
+        .joinToString(separator = "\n") {
+            """
+                ${it.name} 
+            """
+        }
+        .let {
+            """
+            buildTypes {
+            $it
+            }
+            """
+        }
+    val flavorDimensionsBlock = productFlavors
+        .mapTo(mutableSetOf()) { it.dimension }
+        .joinToString()
+        .takeIf { it.isNotEmpty() }
+        ?.let {
+            "flavorDimensions += [\"${it}\"]"
+        }
+        .orEmpty()
+    val productFlavorsBlock = productFlavors
+        .joinToString(separator = "\n") {
+            """
+                create("${it.name}") {
+                    dimension = "${it.dimension}"
+                }
+            """
+        }.let {
+            """
+            productFlavors {
+            $it
+            }
+            """
+        }
     val appBuildFileContent =
         """
         plugins {
@@ -56,11 +93,12 @@ internal fun File.createAndroidProject(
                 versionCode 1
                 versionName "1.0"
             }
-        
-            buildTypes {
-                debug
-                release
-            }
+            
+            $buildTypesBlock
+            
+            $flavorDimensionsBlock
+            
+            $productFlavorsBlock
         }
         
         buildPublishFoundation {
@@ -74,6 +112,9 @@ internal fun File.createAndroidProject(
             }
         }
         """.trimIndent()
+            .also {
+                println(it)
+            }
     writeFile(appBuildFile, appBuildFileContent)
 }
 
@@ -105,3 +146,13 @@ internal fun File.runTask(task: String): BuildResult {
         .forwardOutput()
         .build()
 }
+
+
+internal data class BuildType(
+    val name: String
+)
+
+internal data class ProductFlavor(
+    val name: String,
+    val dimension: String
+)

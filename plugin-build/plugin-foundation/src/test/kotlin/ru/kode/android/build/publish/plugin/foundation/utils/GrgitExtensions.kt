@@ -17,6 +17,11 @@ internal fun Grgit.commit(message: String) {
     this.commit(mapOf("message" to message))
 }
 
+internal fun Grgit.addAllAndCommit(message: String) {
+    this.addAll()
+    this.commit(message)
+}
+
 internal fun TagService.addNamed(name: String) {
     this.add(mapOf("name" to name))
 }
