@@ -55,10 +55,10 @@ internal fun File.createAndroidProject(
         }
     val flavorDimensionsBlock = productFlavors
         .mapTo(mutableSetOf()) { it.dimension }
-        .joinToString()
+        .joinToString { "\"$it\"" }
         .takeIf { it.isNotEmpty() }
         ?.let {
-            "flavorDimensions += [\"${it}\"]"
+            "flavorDimensions += [$it]"
         }
         .orEmpty()
     val productFlavorsBlock = productFlavors
