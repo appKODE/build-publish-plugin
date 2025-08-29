@@ -136,11 +136,11 @@ abstract class BuildPublishPlayExtension
             project: Project,
             input: ExtensionInput,
         ) {
-            val buildVariantConfig = distributionConfig(input.buildVariant.name)
+            val distributionConfig = distributionConfig(input.buildVariant.name)
 
             PlayTasksRegistrar.registerDistributionTask(
                 project = project,
-                distributionConfig = buildVariantConfig,
+                distributionConfig = distributionConfig,
                 params =
                     PlayTaskParams(
                         buildVariant = input.buildVariant,

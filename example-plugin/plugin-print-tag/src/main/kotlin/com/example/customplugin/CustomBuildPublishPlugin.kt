@@ -54,6 +54,7 @@ abstract class CustomBuildPublishExtension
 
         override fun configure(project: Project, input: ExtensionInput) {
             val messageConfig = messageConfig(input.buildVariant.name)
+
             project.tasks.register(
                 "printTagExample${input.buildVariant.capitalizedName()}",
                 PrintLastTagTask::class.java

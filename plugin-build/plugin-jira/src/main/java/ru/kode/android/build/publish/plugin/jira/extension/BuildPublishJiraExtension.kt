@@ -142,10 +142,11 @@ abstract class BuildPublishJiraExtension
             project: Project,
             input: ExtensionInput,
         ) {
-            val buildVariantConfig = automationConfig(input.buildVariant.name)
+            val automationConfig = automationConfig(input.buildVariant.name)
+
             JiraTasksRegistrar.registerAutomationTask(
                 project = project,
-                automationConfig = buildVariantConfig,
+                automationConfig = automationConfig,
                 params =
                     JiraAutomationTaskParams(
                         buildVariant = input.buildVariant,

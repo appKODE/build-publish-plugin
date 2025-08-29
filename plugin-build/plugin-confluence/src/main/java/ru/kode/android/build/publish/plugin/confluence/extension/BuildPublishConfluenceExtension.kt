@@ -6,7 +6,8 @@ import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceAuthConfig
 import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceDistributionConfig
-import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceDistributionTaskParams
+import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceApkDistributionTaskParams
+import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceBundleDistributionTaskParams
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceTasksRegistrar
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
@@ -136,15 +137,25 @@ abstract class BuildPublishConfluenceExtension
             project: Project,
             input: ExtensionInput,
         ) {
-            val buildVariantConfig = distributionConfig(input.buildVariant.name)
+            val distributionConfig = distributionConfig(input.buildVariant.name)
 
-            ConfluenceTasksRegistrar.registerDistributionTask(
+            ConfluenceTasksRegistrar.registerApkDistributionTask(
                 project = project,
-                distributionConfig = buildVariantConfig,
+                distributionConfig = distributionConfig,
                 params =
-                    ConfluenceDistributionTaskParams(
+                    ConfluenceApkDistributionTaskParams(
                         buildVariant = input.buildVariant,
                         apkOutputFile = input.output.apkFile,
+                    ),
+            )
+
+            ConfluenceTasksRegistrar.registerBundleDistributionTask(
+                project = project,
+                distributionConfig = distributionConfig,
+                params =
+                    ConfluenceBundleDistributionTaskParams(
+                        buildVariant = input.buildVariant,
+                        bundleOutputFile = input.output.bundleFile,
                     ),
             )
         }

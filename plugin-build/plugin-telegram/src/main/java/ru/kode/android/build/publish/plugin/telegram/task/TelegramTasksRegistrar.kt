@@ -18,6 +18,7 @@ import ru.kode.android.build.publish.plugin.telegram.task.distribution.TelegramD
 internal const val SEND_TELEGRAM_CHANGELOG_TASK_PREFIX = "sendTelegramChangelog"
 
 internal const val TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX = "telegramDistributionUpload"
+internal const val TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "telegramDistributionUploadBundle"
 
 /**
  * Utility object for registering Telegram-related Gradle tasks.
@@ -77,19 +78,53 @@ internal object TelegramTasksRegistrar {
      *
      * @throws IllegalStateException If required configuration is missing
      *
-     * @see TelegramDistributionTaskParams For available task parameters
+     * @see TelegramApkDistributionTaskParams For available task parameters
      * @see TelegramDistributionConfig For available configuration options
      */
-    internal fun registerDistributionTask(
+    internal fun registerApkDistributionTask(
         project: Project,
         distributionConfig: TelegramDistributionConfig,
-        params: TelegramDistributionTaskParams,
+        params: TelegramApkDistributionTaskParams,
     ): TaskProvider<TelegramDistributionTask>? {
         return if (distributionConfig.destinationBots.isPresent) {
             project.registerTelegramUploadTask(distributionConfig, params)
         } else {
             logger.info(
-                "TelegramDistributionTask was not created, destinationBots is not present",
+                "TelegramDistributionTask fpr APK was not created, destinationBots is not present",
+            )
+            null
+        }
+    }
+
+    /**
+     * Registers a task for sending distribution notifications to Telegram.
+     *
+     * This method creates and configures a task that will send a notification about
+     * a new app distribution to the configured Telegram chats when executed.
+     *
+     * @param project The Gradle project to register the task in
+     * @param distributionConfig Configuration for the distribution notification,
+     *                          including destination bots and message formatting options
+     * @param params Parameters for the distribution task, including build variant
+     *              and Bundle file location
+     * @return A TaskProvider for the registered TelegramDistributionTask, or null if
+     *         no destination bots are configured
+     *
+     * @throws IllegalStateException If required configuration is missing
+     *
+     * @see TelegramBundleDistributionTaskParams For available task parameters
+     * @see TelegramDistributionConfig For available configuration options
+     */
+    internal fun registerBundleDistributionTask(
+        project: Project,
+        distributionConfig: TelegramDistributionConfig,
+        params: TelegramBundleDistributionTaskParams,
+    ): TaskProvider<TelegramDistributionTask>? {
+        return if (distributionConfig.destinationBots.isPresent) {
+            project.registerTelegramBundleUploadTask(distributionConfig, params)
+        } else {
+            logger.info(
+                "TelegramDistributionTask for Bundle was not created, destinationBots is not present",
             )
             null
         }
@@ -157,12 +192,12 @@ private fun Project.registerSendTelegramChangelogTask(
  * @return A TaskProvider for the registered TelegramDistributionTask
  *
  * @see TelegramDistributionTask For the task implementation
- * @see TelegramDistributionTaskParams For available task parameters
+ * @see TelegramApkDistributionTaskParams For available task parameters
  */
 @Suppress("MaxLineLength") // One parameter function
 private fun Project.registerTelegramUploadTask(
     distributionConfig: TelegramDistributionConfig,
-    params: TelegramDistributionTaskParams,
+    params: TelegramApkDistributionTaskParams,
 ): TaskProvider<TelegramDistributionTask> {
     return tasks.register(
         "$TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
@@ -177,6 +212,52 @@ private fun Project.registerTelegramUploadTask(
         it.distributionFile.set(params.apkOutputFile)
         it.destinationBots.set(distributionConfig.destinationBots)
         it.networkService.set(networkService)
+    }
+}
+
+/**
+ * Registers a Telegram distribution upload notification task in the project.
+ *
+ * This extension function configures a [TelegramDistributionTask] with the provided
+ * parameters and sets up its dependencies.
+ *
+ * The task will be configured to:
+ * - Upload the specified Bundle file
+ * - Format the notification message according to the provided configuration
+ * - Send the notification to the configured Telegram chats
+ *
+ * @receiver The Gradle project to register the task in
+ * @param distributionConfig Configuration for the distribution notification
+ * @param params Parameters for the distribution task
+ * @return A TaskProvider for the registered TelegramDistributionTask
+ *
+ * @see TelegramDistributionTask For the task implementation
+ * @see TelegramBundleDistributionTaskParams For available task parameters
+ */
+private fun Project.registerTelegramBundleUploadTask(
+    distributionConfig: TelegramDistributionConfig,
+    params: TelegramBundleDistributionTaskParams,
+): TaskProvider<TelegramDistributionTask>? {
+    return if (params.bundleOutputFile.isPresent) {
+        tasks.register(
+            "$TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+            TelegramDistributionTask::class.java,
+        ) {
+            val networkService =
+                project.extensions
+                    .getByType(TelegramServiceExtension::class.java)
+                    .networkServices
+                    .flatMapByNameOrCommon(params.buildVariant.name)
+
+            it.distributionFile.set(params.bundleOutputFile)
+            it.destinationBots.set(distributionConfig.destinationBots)
+            it.networkService.set(networkService)
+        }
+    } else {
+        logger.info(
+            "TelegramDistributionTask for Bundle was not created, bundleOutputFile is not present",
+        )
+        null
     }
 }
 
@@ -223,7 +304,7 @@ internal data class TelegramChangelogTaskParams(
  *
  * @see TelegramDistributionTask For how these parameters are used
  */
-internal data class TelegramDistributionTaskParams(
+internal data class TelegramApkDistributionTaskParams(
     /**
      * Base name for the build output.
      *
@@ -248,4 +329,39 @@ internal data class TelegramDistributionTaskParams(
      * The APK file that was distributed.
      */
     val apkOutputFile: Provider<RegularFile>,
+)
+
+/**
+ * Parameters for configuring a Telegram distribution notification task.
+ *
+ * This data class holds all the necessary parameters to configure a [TelegramDistributionTask].
+ * It includes information about the build variant and the Bundle file that was distributed.
+ *
+ * @see TelegramDistributionTask For how these parameters are used
+ */
+internal data class TelegramBundleDistributionTaskParams(
+    /**
+     * Base name for the build output.
+     *
+     * This value is used to generate the final file name for the Bundle artifact.
+     * It is concatenated with the build variant name to form the full file name.
+     *
+     * Example: If `baseFileName` is set to "MyApp", and the build variant is "debug",
+     * the final file name will be "MyApp-debug.bundle".
+     */
+    val baseFileName: Provider<String>,
+    /**
+     * The build variant this task is associated with.
+     */
+    val buildVariant: BuildVariant,
+    /**
+     * File containing the last build tag information.
+     *
+     * This file is typically generated by the [GetLastTagTask] task.
+     */
+    val lastBuildTag: Provider<RegularFile>,
+    /**
+     * The Bundle file that was distributed.
+     */
+    val bundleOutputFile: Provider<RegularFile>,
 )

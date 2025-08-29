@@ -13,7 +13,8 @@ import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotsConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramDistributionConfig
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramChangelogTaskParams
-import ru.kode.android.build.publish.plugin.telegram.task.TelegramDistributionTaskParams
+import ru.kode.android.build.publish.plugin.telegram.task.TelegramApkDistributionTaskParams
+import ru.kode.android.build.publish.plugin.telegram.task.TelegramBundleDistributionTaskParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramTasksRegistrar
 import javax.inject.Inject
 
@@ -201,13 +202,13 @@ abstract class BuildPublishTelegramExtension
             project: Project,
             input: ExtensionInput,
         ) {
-            val telegramChangelogConfig = changelogConfigOrNull(input.buildVariant.name)
-            val telegramDistributionConfig = distributionConfigOrNull(input.buildVariant.name)
+            val changelogConfig = changelogConfigOrNull(input.buildVariant.name)
+            val distributionConfig = distributionConfigOrNull(input.buildVariant.name)
 
-            if (telegramChangelogConfig != null) {
+            if (changelogConfig != null) {
                 TelegramTasksRegistrar.registerChangelogTask(
                     project = project,
-                    changelogConfig = telegramChangelogConfig,
+                    changelogConfig = changelogConfig,
                     params =
                         TelegramChangelogTaskParams(
                             baseFileName = input.output.baseFileName,
@@ -219,16 +220,28 @@ abstract class BuildPublishTelegramExtension
                         ),
                 )
             }
-            if (telegramDistributionConfig != null) {
-                TelegramTasksRegistrar.registerDistributionTask(
+            if (distributionConfig != null) {
+                TelegramTasksRegistrar.registerApkDistributionTask(
                     project = project,
-                    distributionConfig = telegramDistributionConfig,
+                    distributionConfig = distributionConfig,
                     params =
-                        TelegramDistributionTaskParams(
+                        TelegramApkDistributionTaskParams(
                             baseFileName = input.output.baseFileName,
                             buildVariant = input.buildVariant,
                             lastBuildTag = input.output.lastBuildTagFile,
                             apkOutputFile = input.output.apkFile,
+                        ),
+                )
+
+                TelegramTasksRegistrar.registerBundleDistributionTask(
+                    project = project,
+                    distributionConfig = distributionConfig,
+                    params =
+                        TelegramBundleDistributionTaskParams(
+                            baseFileName = input.output.baseFileName,
+                            buildVariant = input.buildVariant,
+                            lastBuildTag = input.output.lastBuildTagFile,
+                            bundleOutputFile = input.output.bundleFile,
                         ),
                 )
             }

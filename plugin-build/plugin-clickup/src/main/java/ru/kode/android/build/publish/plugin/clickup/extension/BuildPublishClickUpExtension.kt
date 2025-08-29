@@ -157,11 +157,11 @@ abstract class BuildPublishClickUpExtension
             project: Project,
             input: ExtensionInput,
         ) {
-            val buildVariantConfig = automationConfig(input.buildVariant.name)
+            val automationConfig = automationConfig(input.buildVariant.name)
 
             ClickUpTasksRegistrar.registerAutomationTask(
                 project = project,
-                automationConfig = buildVariantConfig,
+                automationConfig = automationConfig,
                 params =
                     ClickUpAutomationTaskParams(
                         buildVariant = input.buildVariant,

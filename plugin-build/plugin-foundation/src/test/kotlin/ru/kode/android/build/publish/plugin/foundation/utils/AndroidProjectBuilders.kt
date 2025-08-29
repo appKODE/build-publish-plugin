@@ -8,6 +8,8 @@ import java.io.FileWriter
 import java.io.IOException
 
 internal fun File.createAndroidProject(
+    outputConfig: OutputConfig = OutputConfig(),
+    changelogConfig: ChangelogConfig = ChangelogConfig(),
     buildTypes: List<BuildType>,
     productFlavors: List<ProductFlavor> = listOf(),
     topBuildFileContent: String? = null,
@@ -104,12 +106,16 @@ internal fun File.createAndroidProject(
         
         buildPublishFoundation {
             outputCommon {
-                baseFileName.set("test-app")
+                baseFileName.set("${outputConfig.baseFileName}")
+                ${outputConfig.useVersionsFromTag?.let { "useVersionsFromTag.set($it)" }.orEmpty()}
+                ${outputConfig.useStubsForTagAsFallback?.let { "useStubsForTagAsFallback.set($it)" }.orEmpty()}
+                ${outputConfig.useDefaultsForVersionsAsFallback?.let { "useDefaultsForVersionsAsFallback.set($it)" }.orEmpty()}
+                ${outputConfig.buildTagPattern?.let { "buildTagPattern.set(\"$it\")" }.orEmpty()}
             }
             changelogCommon {
-                issueNumberPattern.set("TICKET-\\d+")
-                issueUrlPrefix.set("https://jira.example.com/browse/")
-                commitMessageKey.set("[CHANGELOG]")
+                issueNumberPattern.set("${changelogConfig.issueNumberPattern}")
+                issueUrlPrefix.set("${changelogConfig.issueUrlPrefix}")
+                commitMessageKey.set("${changelogConfig.commitMessageKey}")
             }
         }
         """.trimIndent()
@@ -161,4 +167,18 @@ internal data class BuildType(
 internal data class ProductFlavor(
     val name: String,
     val dimension: String
+)
+
+internal data class OutputConfig(
+    val baseFileName: String = "test-app",
+    val useVersionsFromTag: Boolean? = null,
+    val useStubsForTagAsFallback: Boolean? = null,
+    val useDefaultsForVersionsAsFallback: Boolean? = null,
+    val buildTagPattern: String? = null
+)
+
+internal data class ChangelogConfig(
+    val issueNumberPattern: String = "TICKET-\\\\d+",
+    val issueUrlPrefix: String = "https://jira.example.com/browse/",
+    val commitMessageKey: String = "[CHANGELOG]",
 )

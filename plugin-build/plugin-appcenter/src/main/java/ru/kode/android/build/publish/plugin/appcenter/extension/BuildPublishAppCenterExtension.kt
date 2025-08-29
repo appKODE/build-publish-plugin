@@ -155,11 +155,11 @@ abstract class BuildPublishAppCenterExtension
             project: Project,
             input: ExtensionInput,
         ) {
-            val appCenterDistributionConfig = distributionConfig(input.buildVariant.name)
+            val distributionConfig = distributionConfig(input.buildVariant.name)
 
             AppCenterTasksRegistrar.registerDistributionTask(
                 project = project,
-                distributionConfig = appCenterDistributionConfig,
+                distributionConfig = distributionConfig,
                 params =
                     AppCenterDistributionTaskParams(
                         buildVariant = input.buildVariant,

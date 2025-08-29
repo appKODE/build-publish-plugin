@@ -19,6 +19,7 @@ import ru.kode.android.build.publish.plugin.slack.task.distribution.SlackDistrib
 internal const val SEND_SLACK_CHANGELOG_TASK_PREFIX = "sendSlackChangelog"
 
 internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
+internal const val SLACK_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "slackDistributionUploadBundle"
 
 /**
  * Utility object for registering Slack-related Gradle tasks.
@@ -52,7 +53,7 @@ internal object SlackTasksRegistrar {
     }
 
     /**
-     * Registers a task for uploading files to Slack for distribution.
+     * Registers a task for uploading APK to Slack for distribution.
      *
      * The task will only be registered if both `uploadApiTokenFile` and `destinationChannels`
      * are present in the distribution configuration.
@@ -63,19 +64,50 @@ internal object SlackTasksRegistrar {
      *
      * @return A TaskProvider for the registered task, or null if requirements aren't met
      */
-    internal fun registerDistributionTask(
+    internal fun registerApkDistributionTask(
         project: Project,
         distributionConfig: SlackDistributionConfig,
-        params: SlackDistributionTaskParams,
+        params: SlackApkDistributionTaskParams,
     ): TaskProvider<SlackDistributionTask>? {
         return if (
             distributionConfig.uploadApiTokenFile.isPresent &&
             distributionConfig.destinationChannels.isPresent
         ) {
-            project.registerSlackDistributionTask(distributionConfig, params)
+            project.registerApkSlackDistributionTask(distributionConfig, params)
         } else {
             logger.info(
-                "SlackDistributionTask was not created, " +
+                "SlackDistributionTask for APK was not created, " +
+                    "uploadApiTokenFile and uploadChannels are not present",
+            )
+            null
+        }
+    }
+
+    /**
+     * Registers a task for uploading Bundle to Slack for distribution.
+     *
+     * The task will only be registered if both `uploadApiTokenFile` and `destinationChannels`
+     * are present in the distribution configuration.
+     *
+     * @param project The project to register the task in
+     * @param distributionConfig Configuration for the file distribution
+     * @param params Parameters for the distribution task
+     *
+     * @return A TaskProvider for the registered task, or null if requirements aren't met
+     */
+    internal fun registerBundleDistributionTask(
+        project: Project,
+        distributionConfig: SlackDistributionConfig,
+        params: SlackBundleDistributionTaskParams,
+    ): TaskProvider<SlackDistributionTask>? {
+        return if (
+            distributionConfig.uploadApiTokenFile.isPresent &&
+            distributionConfig.destinationChannels.isPresent
+        ) {
+            project.registerBundleSlackDistributionTask(distributionConfig, params)
+        } else {
+            logger.info(
+                "SlackDistributionTask for Bundle was not created, " +
                     "uploadApiTokenFile and uploadChannels are not present",
             )
             null
@@ -120,16 +152,16 @@ private fun Project.registerSendSlackChangelogTask(
 }
 
 /**
- * Registers a task for uploading files to Slack for distribution.
+ * Registers a task for uploading APK to Slack for distribution.
  *
  * @param distributionConfig Configuration for the file distribution
  * @param params Parameters for the distribution task
  *
  * @return A TaskProvider for the registered task
  */
-private fun Project.registerSlackDistributionTask(
+private fun Project.registerApkSlackDistributionTask(
     distributionConfig: SlackDistributionConfig,
-    params: SlackDistributionTaskParams,
+    params: SlackApkDistributionTaskParams,
 ): TaskProvider<SlackDistributionTask> {
     return tasks.register(
         "$SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
@@ -146,6 +178,43 @@ private fun Project.registerSlackDistributionTask(
         it.buildTagFile.set(params.lastBuildTagFile)
         it.baseOutputFileName.set(params.baseFileName)
         it.networkService.set(uploadService)
+    }
+}
+
+/**
+ * Registers a task for uploading Bundle to Slack for distribution.
+ *
+ * @param distributionConfig Configuration for the file distribution
+ * @param params Parameters for the distribution task
+ *
+ * @return A TaskProvider for the registered task
+ */
+private fun Project.registerBundleSlackDistributionTask(
+    distributionConfig: SlackDistributionConfig,
+    params: SlackBundleDistributionTaskParams,
+): TaskProvider<SlackDistributionTask>? {
+    return if (params.bundleOutputFile.isPresent) {
+        tasks.register(
+            "$SLACK_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+            SlackDistributionTask::class.java,
+        ) {
+            val uploadService =
+                extensions
+                    .getByType(SlackServiceExtension::class.java)
+                    .uploadServices
+                    .flatMapByNameOrCommon(params.buildVariant.name)
+
+            it.distributionFile.set(params.bundleOutputFile)
+            it.destinationChannels.set(distributionConfig.destinationChannels)
+            it.buildTagFile.set(params.lastBuildTagFile)
+            it.baseOutputFileName.set(params.baseFileName)
+            it.networkService.set(uploadService)
+        }
+    } else {
+        logger.info(
+            "SlackDistributionTask for Bundle was not created, bundleOutputFile is not present",
+        )
+        null
     }
 }
 
@@ -180,9 +249,9 @@ internal data class SlackChangelogTaskParams(
 )
 
 /**
- * Parameters for configuring a Slack file distribution task.
+ * Parameters for configuring a Slack APK distribution task.
  */
-internal data class SlackDistributionTaskParams(
+internal data class SlackApkDistributionTaskParams(
     /**
      * The build variant this task is associated with
      */
@@ -191,6 +260,28 @@ internal data class SlackDistributionTaskParams(
      * The APK file to distribute
      */
     val apkOutputFile: Provider<RegularFile>,
+    /**
+     * File containing the last build tag for change tracking
+     */
+    val lastBuildTagFile: Provider<RegularFile>,
+    /**
+     * Base name to use for the build in notifications
+     */
+    val baseFileName: Provider<String>,
+)
+
+/**
+ * Parameters for configuring a Slack Bundle distribution task.
+ */
+internal data class SlackBundleDistributionTaskParams(
+    /**
+     * The build variant this task is associated with
+     */
+    val buildVariant: BuildVariant,
+    /**
+     * The Bundle file to distribute
+     */
+    val bundleOutputFile: Provider<RegularFile>,
     /**
      * File containing the last build tag for change tracking
      */
