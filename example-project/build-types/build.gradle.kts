@@ -42,7 +42,7 @@ buildPublishFoundation {
 buildPublishFirebase {
     distribution {
         common {
-            serviceCredentialsFilePath.set("test-test")
+            serviceCredentialsFile.set(File("Test"))
             appId.set("ru.kode.test.app")
             testerGroups("android-testers")
         }

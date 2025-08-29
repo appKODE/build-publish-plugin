@@ -8,10 +8,20 @@ import java.io.FileWriter
 import java.io.IOException
 
 internal fun File.createAndroidProject(
-    outputConfig: OutputConfig = OutputConfig(),
-    changelogConfig: ChangelogConfig = ChangelogConfig(),
     buildTypes: List<BuildType>,
     productFlavors: List<ProductFlavor> = listOf(),
+    foundationConfig: FoundationConfig = FoundationConfig(
+        FoundationConfig.Output(),
+        FoundationConfig.Changelog()
+    ),
+    appCenterConfig: AppCenterConfig? = null,
+    clickUpConfig: ClickUpConfig? = null,
+    confluenceConfig: ConfluenceConfig? = null,
+    firebaseConfig: FirebaseConfig? = null,
+    jiraConfig: JiraConfig? = null,
+    playConfig: PlayConfig? = null,
+    slackConfig: SlackConfig? = null,
+    telegramConfig: TelegramConfig? = null,
     topBuildFileContent: String? = null,
 ) {
     val topSettingsFile = this.getFile("settings.gradle")
@@ -106,16 +116,16 @@ internal fun File.createAndroidProject(
         
         buildPublishFoundation {
             outputCommon {
-                baseFileName.set("${outputConfig.baseFileName}")
-                ${outputConfig.useVersionsFromTag?.let { "useVersionsFromTag.set($it)" }.orEmpty()}
-                ${outputConfig.useStubsForTagAsFallback?.let { "useStubsForTagAsFallback.set($it)" }.orEmpty()}
-                ${outputConfig.useDefaultsForVersionsAsFallback?.let { "useDefaultsForVersionsAsFallback.set($it)" }.orEmpty()}
-                ${outputConfig.buildTagPattern?.let { "buildTagPattern.set(\"$it\")" }.orEmpty()}
+                baseFileName.set("${foundationConfig.output.baseFileName}")
+                ${foundationConfig.output.useVersionsFromTag?.let { "useVersionsFromTag.set($it)" }.orEmpty()}
+                ${foundationConfig.output.useStubsForTagAsFallback?.let { "useStubsForTagAsFallback.set($it)" }.orEmpty()}
+                ${foundationConfig.output.useDefaultsForVersionsAsFallback?.let { "useDefaultsForVersionsAsFallback.set($it)" }.orEmpty()}
+                ${foundationConfig.output.buildTagPattern?.let { "buildTagPattern.set(\"$it\")" }.orEmpty()}
             }
             changelogCommon {
-                issueNumberPattern.set("${changelogConfig.issueNumberPattern}")
-                issueUrlPrefix.set("${changelogConfig.issueUrlPrefix}")
-                commitMessageKey.set("${changelogConfig.commitMessageKey}")
+                issueNumberPattern.set("${foundationConfig.changelog.issueNumberPattern}")
+                issueUrlPrefix.set("${foundationConfig.changelog.issueUrlPrefix}")
+                commitMessageKey.set("${foundationConfig.changelog.commitMessageKey}")
             }
         }
         """.trimIndent()
@@ -169,16 +179,171 @@ internal data class ProductFlavor(
     val dimension: String
 )
 
-internal data class OutputConfig(
-    val baseFileName: String = "test-app",
-    val useVersionsFromTag: Boolean? = null,
-    val useStubsForTagAsFallback: Boolean? = null,
-    val useDefaultsForVersionsAsFallback: Boolean? = null,
-    val buildTagPattern: String? = null
-)
+internal data class FoundationConfig(
+    val output: Output,
+    val changelog: Changelog,
+) {
+    data class Output(
+        val baseFileName: String = "test-app",
+        val useVersionsFromTag: Boolean? = null,
+        val useStubsForTagAsFallback: Boolean? = null,
+        val useDefaultsForVersionsAsFallback: Boolean? = null,
+        val buildTagPattern: String? = null
+    )
 
-internal data class ChangelogConfig(
-    val issueNumberPattern: String = "TICKET-\\\\d+",
-    val issueUrlPrefix: String = "https://jira.example.com/browse/",
-    val commitMessageKey: String = "[CHANGELOG]",
-)
+    data class Changelog(
+        val issueNumberPattern: String = "TICKET-\\\\d+",
+        val issueUrlPrefix: String = "https://jira.example.com/browse/",
+        val commitMessageKey: String = "[CHANGELOG]",
+    )
+}
+
+internal data class AppCenterConfig(
+    val auth: Auth,
+    val distribution: Distribution,
+) {
+    data class Auth(
+        val apiTokenFilePath: String,
+        val ownerName: String,
+    )
+
+    data class Distribution(
+        val appName: String,
+        val testerGroups: List<String>,
+        val maxUploadStatusRequestCount: Int?,
+        val uploadStatusRequestDelayMs: Int?,
+        val uploadStatusRequestDelayCoefficient: Int?
+    )
+}
+
+internal data class ClickUpConfig(
+    val auth: Auth,
+    val automation: Automation,
+) {
+    data class Auth(
+        val apiTokenFilePath: String,
+    )
+
+    data class Automation(
+        val fixVersionPattern: String?,
+        val fixVersionFieldId: String?,
+        val tagName: String?
+    )
+}
+
+internal data class ConfluenceConfig(
+    val auth: Auth,
+    val distribution: Distribution,
+) {
+    data class Auth(
+        val baseUrl: String,
+        val username: String,
+        val password: String,
+    )
+
+    data class Distribution(
+        val pageId: String,
+    )
+}
+
+internal data class FirebaseConfig(
+    val distribution: Distribution,
+) {
+    data class Distribution(
+        val serviceCredentialsFilePath: String,
+        val artifactType: String,
+        val appId: String,
+        val testerGroups: List<String>,
+    )
+}
+
+internal data class JiraConfig(
+    val auth: Auth,
+    val automation: Automation,
+) {
+    data class Auth(
+        val baseUrl: String,
+        val username: String,
+        val password: String,
+    )
+
+    data class Automation(
+        val projectId: String,
+        val labelPattern: String?,
+        val fixVersionPattern: String?,
+        val resolvedStatusTransitionId: String?
+    )
+}
+
+internal data class PlayConfig(
+    val auth: Auth,
+    val distribution: Distribution,
+) {
+    data class Auth(
+        val apiTokenFilePath: String,
+        val appId: String,
+    )
+
+    data class Distribution(
+        val trackId: String,
+        val updatePriority: Int,
+    )
+}
+
+internal data class SlackConfig(
+    val bot: Bot,
+    val changelog: Changelog,
+    val distribution: Distribution,
+) {
+    data class Bot(
+        val webhookUrl: String,
+        val iconUrl: String,
+    )
+
+    data class Changelog(
+        val userMentions: List<String>,
+        val attachmentColor: String,
+    )
+
+    data class Distribution(
+        val uploadApiTokenFilePath: String,
+        val destinationChannels: List<String>,
+    )
+}
+
+internal data class TelegramConfig(
+    val bots: Bots,
+    val changelog: Changelog,
+    val distribution: Distribution,
+) {
+    data class Bots(
+        val bots: List<Bot>,
+    )
+
+    data class Changelog(
+        val userMentions: List<String>,
+        val destinationBots: List<DestinationBot>,
+    )
+
+    data class Distribution(
+        val destinationBots: List<DestinationBot>,
+    )
+
+    data class Bot(
+        val botId: String,
+        val botServerBaseUrl: String?,
+        val username: String?,
+        val password: String?,
+        val chats: List<Chat>
+    )
+
+    data class DestinationBot(
+        val botName: String,
+        val chatNames: String
+    )
+
+    data class Chat(
+        val chatId: String,
+        val topicId: String?,
+    )
+}

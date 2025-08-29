@@ -1,8 +1,10 @@
 package ru.kode.android.build.publish.plugin.firebase.config
 
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 
 /**
  * Configuration class for Firebase App Distribution settings.
@@ -22,8 +24,8 @@ abstract class FirebaseDistributionConfig {
      *
      * Example: `"path/to/service-account.json"`
      */
-    @get:Input
-    abstract val serviceCredentialsFilePath: Property<String>
+    @get:InputFile
+    abstract val serviceCredentialsFile: RegularFileProperty
 
     /**
      * The type of Android application artifact to distribute.

@@ -35,7 +35,6 @@ abstract class SlackDistributionConfig {
      * Channel IDs should be in the format `"#channel-name"` for public channels
      * or `"#private-channel-name"` for private groups.
      */
-    @get:Optional
     @get:Input
     internal abstract val destinationChannels: SetProperty<String>
 

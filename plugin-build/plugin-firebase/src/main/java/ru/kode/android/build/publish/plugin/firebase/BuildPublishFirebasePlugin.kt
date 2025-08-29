@@ -97,8 +97,10 @@ private fun AppDistributionExtension.configure(
 ) {
     val serviceCredentialsFilePath =
         config
-            .serviceCredentialsFilePath
+            .serviceCredentialsFile
             .orNull
+            ?.asFile
+            ?.path
             ?.takeIf { it.isNotBlank() }
     val applicationId =
         config
