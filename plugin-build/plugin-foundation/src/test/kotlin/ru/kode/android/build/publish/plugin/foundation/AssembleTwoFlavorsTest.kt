@@ -7,8 +7,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
-import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.foundation.utils.BuildType
+import ru.kode.android.build.publish.plugin.foundation.utils.FoundationConfig
+import ru.kode.android.build.publish.plugin.foundation.utils.ManifestProperties
 import ru.kode.android.build.publish.plugin.foundation.utils.ProductFlavor
 import ru.kode.android.build.publish.plugin.foundation.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.foundation.utils.addNamed
@@ -16,7 +17,10 @@ import ru.kode.android.build.publish.plugin.foundation.utils.runTask
 import ru.kode.android.build.publish.plugin.foundation.utils.find
 import ru.kode.android.build.publish.plugin.foundation.utils.initGit
 import ru.kode.android.build.publish.plugin.foundation.utils.createAndroidProject
+import ru.kode.android.build.publish.plugin.foundation.utils.currentDate
+import ru.kode.android.build.publish.plugin.foundation.utils.extractManifestProperties
 import ru.kode.android.build.publish.plugin.foundation.utils.getFile
+import ru.kode.android.build.publish.plugin.foundation.utils.printFilesRecursively
 import java.io.File
 import java.io.IOException
 
@@ -32,59 +36,17 @@ class AssembleTwoFlavorsTest {
 
     @Test
     @Throws(IOException::class)
-    fun `assemble creates tag file for flavor and build type combination`() {
-        // Given
-        projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(ProductFlavor("demo", "environment"))
-        )
-
-        val givenTagName = "v1.0.0-demoDebug"
-        val givenCommitMessage = "Initial commit"
-        val givenAssembleTask = "assembleDemoDebug"
-        val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-demoDebug.json")
-
-        // When
-        git.addAllAndCommit(givenCommitMessage)
-        git.tag.addNamed(givenTagName)
-        val result: BuildResult = projectDir.runTask(givenAssembleTask)
-
-        // Then
-        val expectedCommitSha = git.log().last().id
-        val expectedBuildNumber = "0"
-        val expectedBuildVariant = "demoDebug"
-        val expectedTagName = "v1.0.0-demoDebug"
-        val expectedBuildVersion = "1.0"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
-
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
-        )
-        assertEquals(
-            givenTagBuildFile.readText(),
-            expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
-        )
-    }
-
-    @Test
-    @Throws(IOException::class)
     fun `assemble handles multiple flavors and build types correctly`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(
                 ProductFlavor("demo", "environment"),
                 ProductFlavor("pro", "environment")
+            ),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                )
             )
         )
 
@@ -98,16 +60,52 @@ class AssembleTwoFlavorsTest {
         git.tag.addNamed(givenTagName2)
 
         val demoDebugResult = projectDir.runTask("assembleDemoDebug")
-        val demoDebugTagFile = projectDir.getFile("app/build/tag-build-demoDebug.json")
+        val givenDemoDebugTagFile = projectDir.getFile("app/build/tag-build-demoDebug.json")
+        val givenDebugOutputFile = projectDir.getFile("app/build/outputs/apk/demo/debug/autotest-demoDebug-vc0-$currentDate.apk")
+        val givenDebugOutputFileManifestProperties = givenDebugOutputFile.extractManifestProperties()
 
         val proReleaseResult = projectDir.runTask("assembleProRelease")
-        val proReleaseTagFile = projectDir.getFile("app/build/tag-build-proRelease.json")
+        val givenProReleaseTagFile = projectDir.getFile("app/build/tag-build-proRelease.json")
+        val givenReleaseOutputFile = projectDir.getFile("app/build/outputs/apk/pro/release/autotest-proRelease-vc1-$currentDate.apk")
+        val givenReleaseOutputFileManifestProperties = givenReleaseOutputFile.extractManifestProperties()
 
+        projectDir.getFile("app").printFilesRecursively()
+
+        val expectedDemoDebugCommitSha = git.tag.find(givenTagName1).id
+        val expectedDemoDebugTagFile =
+            Tag.Build(
+                name = givenTagName1,
+                commitSha = expectedDemoDebugCommitSha,
+                message = "",
+                buildVersion = "1.0",
+                buildVariant = "demoDebug",
+                buildNumber = 0
+            ).toJson()
+        val expectedProDebugManifestProperties = ManifestProperties(
+            versionCode = "",
+            versionName = "v1.0.0-demoDebug",
+        )
+        assertTrue(
+            demoDebugResult.output.contains("Task :app:getLastTagDemoDebug"),
+            "Task getLastTagDemoDebug should be executed"
+        )
+        assertFalse(
+            demoDebugResult.output.contains("Task :app:getLastTagProRelease"),
+            "Task getLastTagProRelease should not be executed"
+        )
         assertTrue(demoDebugResult.output.contains("BUILD SUCCESSFUL"))
-        assertTrue(demoDebugTagFile.exists())
-
-        assertTrue(proReleaseResult.output.contains("BUILD SUCCESSFUL"))
-        assertTrue(proReleaseTagFile.exists())
+        assertEquals(
+            expectedDemoDebugTagFile.trimMargin(),
+            givenDemoDebugTagFile.readText(),
+            "Wrong tag found"
+        )
+        assertTrue(givenDebugOutputFile.exists(), "Output file not found")
+        assertTrue(givenDebugOutputFile.length() > 0, "Output file is empty")
+        assertEquals(
+            expectedProDebugManifestProperties,
+            givenDebugOutputFileManifestProperties,
+            "Wrong manifest properties"
+        )
 
         val expectedProReleaseCommitSha = git.tag.find(givenTagName2).id
         val expectedProReleaseTagFile =
@@ -119,11 +117,30 @@ class AssembleTwoFlavorsTest {
                 buildVariant = "proRelease",
                 buildNumber = 1
             ).toJson()
-
+        val expectedProReleaseManifestProperties = ManifestProperties(
+            versionCode = "1",
+            versionName = "v1.0.1-proRelease",
+        )
+        assertFalse(
+            proReleaseResult.output.contains("Task :app:getLastTagDemoDebug"),
+            "Task getLastTagDemoDebug should be executed"
+        )
+        assertTrue(
+            proReleaseResult.output.contains("Task :app:getLastTagProRelease"),
+            "Task getLastTagProRelease should not be executed"
+        )
+        assertTrue(proReleaseResult.output.contains("BUILD SUCCESSFUL"))
         assertEquals(
-            proReleaseTagFile.readText(),
             expectedProReleaseTagFile.trimMargin(),
-            "proRelease tag file content mismatch"
+            givenProReleaseTagFile.readText(),
+            "Wrong tag found"
+        )
+        assertTrue(givenReleaseOutputFile.exists(), "Output file not found")
+        assertTrue(givenReleaseOutputFile.length() > 0, "Output file is empty")
+        assertEquals(
+            expectedProReleaseManifestProperties,
+            givenReleaseOutputFileManifestProperties,
+            "Wrong manifest properties"
         )
     }
 
@@ -135,6 +152,11 @@ class AssembleTwoFlavorsTest {
             productFlavors = listOf(
                 ProductFlavor("demo", "environment"),
                 ProductFlavor("free", "tier")
+            ),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                )
             )
         )
 
@@ -143,14 +165,43 @@ class AssembleTwoFlavorsTest {
         val givenAssembleTask = "assembleDemoFreeDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-demoFreeDebug.json")
+        val givenDebugOutputFile = projectDir.getFile("app/build/outputs/apk/demoFree/debug/autotest-demoFreeDebug-vc0-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
-        val expectedCommitSha = git.log().last().id
-        val expectedBuildVariant = "demoFreeDebug"
+        projectDir.getFile("app").printFilesRecursively()
 
+        val givenOutputFileManifestProperties = givenDebugOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.log().last().id
+        val expectedBuildNumber = "0"
+        val expectedBuildVariant = "demoFreeDebug"
+        val expectedTagName = "v1.0.0-demoFreeDebug"
+        val expectedBuildVersion = "1.0"
+
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "",
+            versionName = "v1.0.0-demoFreeDebug",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagDemoFreeDebug"),
+            "Task getLastTagDemoFreeDebug should be executed"
+        )
+        assertFalse(
+            result.output.contains("Task :app:getLastTagDemoFreeRelease"),
+            "Task getLastTagDemoFreeRelease should not be executed"
+        )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build failed"
@@ -159,10 +210,17 @@ class AssembleTwoFlavorsTest {
             givenTagBuildFile.exists(),
             "Tag file not created for multi-flavor build"
         )
-
-        val tagBuild = fromJson(givenTagBuildFile)
-        assertEquals(expectedCommitSha, tagBuild.commitSha)
-        assertEquals(givenTagName, tagBuild.name)
-        assertEquals(expectedBuildVariant, tagBuild.buildVariant)
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Wrong tag found"
+        )
+        assertTrue(givenDebugOutputFile.exists(), "Output file not found")
+        assertTrue(givenDebugOutputFile.length() > 0, "Output file is empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Wrong manifest properties"
+        )
     }
 }

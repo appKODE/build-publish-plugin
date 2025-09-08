@@ -8,12 +8,11 @@ import java.io.FileWriter
 import java.io.IOException
 
 internal fun File.createAndroidProject(
+    compileSdk: Int = 34,
+    targetSdk: Int = 34,
     buildTypes: List<BuildType>,
     productFlavors: List<ProductFlavor> = listOf(),
-    foundationConfig: FoundationConfig = FoundationConfig(
-        FoundationConfig.Output(),
-        FoundationConfig.Changelog()
-    ),
+    foundationConfig: FoundationConfig = FoundationConfig(),
     appCenterConfig: AppCenterConfig? = null,
     clickUpConfig: ClickUpConfig? = null,
     confluenceConfig: ConfluenceConfig? = null,
@@ -87,33 +86,8 @@ internal fun File.createAndroidProject(
             }
             """
         }
-    val appBuildFileContent =
-        """
-        plugins {
-            id 'com.android.application'
-            id 'ru.kode.android.build-publish-novo.foundation'
-        }
-        
-        android {
-            namespace = "ru.kode.test"
 
-            compileSdk 34
-        
-            defaultConfig {
-                applicationId "com.example.build.types.android"
-                minSdk 31
-                targetSdk 34
-                versionCode 1
-                versionName "1.0"
-            }
-            
-            $buildTypesBlock
-            
-            $flavorDimensionsBlock
-            
-            $productFlavorsBlock
-        }
-        
+    val foundationConfigBlock = """
         buildPublishFoundation {
             outputCommon {
                 baseFileName.set("${foundationConfig.output.baseFileName}")
@@ -128,9 +102,94 @@ internal fun File.createAndroidProject(
                 commitMessageKey.set("${foundationConfig.changelog.commitMessageKey}")
             }
         }
+    """
+    val appCenterConfigBlock = appCenterConfig?.let { config ->
+        """
+        buildPublishAppCenter {
+            auth {
+                common {
+                    ownerName.set("${config.auth.ownerName}")
+                    apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
+                }
+            }
+        
+            distribution {
+                common {
+                    appName.set("${config.distribution.appName}")
+                    testerGroups(${config.distribution.testerGroups.joinToString { "\"$it\"" }})
+                    ${config.distribution.maxUploadStatusRequestCount?.let { "maxUploadStatusRequestCount.set(${it})" }}
+                    ${config.distribution.uploadStatusRequestDelayMs?.let { "uploadStatusRequestDelayMs.set(${it})" }}
+                    ${config.distribution.uploadStatusRequestDelayCoefficient?.let { "uploadStatusRequestDelayCoefficient.set(${it})" }}
+                }
+            }
+        }
+    """.trimIndent()
+    }.orEmpty()
+
+    val clickUpConfigBlock = clickUpConfig?.let { config ->
+        """
+        buildPublishClickUp {
+            auth {
+                common {
+                    apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
+                }
+            }
+            automation {
+                common {
+                    ${config.automation.fixVersionPattern?.let { """fixVersionPattern.set("$it")""" }}
+                    ${config.automation.fixVersionFieldId?.let { """fixVersionFieldId.set("$it")""" }}
+                    ${config.automation.tagName?.let { """tagName.set("$it")""" }}
+                }
+            }
+        }
         """.trimIndent()
+    }.orEmpty()
+    val appBuildFileContent =
+        """
+        plugins {
+            id 'com.android.application'
+            id 'ru.kode.android.build-publish-novo.foundation'
+            ${appCenterConfig?.let { """id 'ru.kode.android.build-publish-novo.appcenter'""" }.orEmpty()}
+            ${clickUpConfig?.let { """id 'ru.kode.android.build-publish-novo.clickup'""" }.orEmpty()}
+            ${confluenceConfig?.let { """id 'ru.kode.android.build-publish-novo.confluence'""" }.orEmpty()}
+            ${firebaseConfig?.let { """id 'ru.kode.android.build-publish-novo.firebase'""" }.orEmpty()}
+            ${jiraConfig?.let { """id 'ru.kode.android.build-publish-novo.jira'""" }.orEmpty()}
+            ${playConfig?.let { """id 'ru.kode.android.build-publish-novo.play'""" }.orEmpty()}
+            ${slackConfig?.let { """id 'ru.kode.android.build-publish-novo.slack'""" }.orEmpty()}
+            ${telegramConfig?.let { """id 'ru.kode.android.build-publish-novo.telegram'""" }.orEmpty()}
+        }
+        
+        android {
+            namespace = "ru.kode.test"
+
+            compileSdk $compileSdk
+        
+            defaultConfig {
+                applicationId "com.example.build.types.android"
+                minSdk 31
+                targetSdk $targetSdk
+                versionCode 1
+                versionName "1.0"
+            }
+            
+            $buildTypesBlock
+            
+            $flavorDimensionsBlock
+            
+            $productFlavorsBlock
+        }
+        
+        $foundationConfigBlock
+        
+        $appCenterConfigBlock
+        
+        $clickUpConfigBlock
+        """.trimIndent()
+            .removeEmptyLines()
             .also {
+                println("--- BUILD.GRADLE START ---")
                 println(it)
+                println("--- BUILD.GRADLE END ---")
             }
     writeFile(appBuildFile, appBuildFileContent)
     val androidManifestFileContent = """
@@ -154,6 +213,37 @@ private fun writeFile(
     }
 }
 
+internal fun File.printFilesRecursively(prefix: String = "") {
+    println("--- FILES START ---")
+    printFilesRecursivelyInternal(
+        prefix,
+        filterFile = {
+            val ext = it.extension
+            ext.contains("apk") || ext.contains("json") || ext.contains("aab") },
+        filterDirectory = { it.endsWith("build") || it.path.contains("outputs") }
+    )
+    println("--- FILES END ---")
+}
+
+private fun File.printFilesRecursivelyInternal(
+    prefix: String,
+    filterFile: (File) -> Boolean,
+    filterDirectory: (File) -> Boolean
+): Boolean {
+    if (!this.isDirectory) {
+        println("Not a directory: ${this.path}")
+        return true
+    }
+    this.listFiles()?.forEach { file ->
+        if (file.isFile && filterFile(file)) {
+            println("$prefix${file.path}")
+        } else if (file.isDirectory && filterDirectory(file)) {
+            file.printFilesRecursivelyInternal(prefix, filterFile, filterDirectory)
+        }
+    }
+    return false
+}
+
 internal fun File.getFile(path: String): File {
     val file = File(this, path)
     file.parentFile.mkdirs()
@@ -169,7 +259,6 @@ internal fun File.runTask(task: String): BuildResult {
         .build()
 }
 
-
 internal data class BuildType(
     val name: String
 )
@@ -180,8 +269,8 @@ internal data class ProductFlavor(
 )
 
 internal data class FoundationConfig(
-    val output: Output,
-    val changelog: Changelog,
+    val output: Output = Output(),
+    val changelog: Changelog = Changelog(),
 ) {
     data class Output(
         val baseFileName: String = "test-app",
@@ -346,4 +435,10 @@ internal data class TelegramConfig(
         val chatId: String,
         val topicId: String?,
     )
+}
+
+private fun String.removeEmptyLines(): String {
+    return this.lines()
+        .filter { it.trim().isNotEmpty() }
+        .joinToString("\n")
 }

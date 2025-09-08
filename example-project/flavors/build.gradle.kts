@@ -36,6 +36,11 @@ buildPublishFoundation {
         common {
             baseFileName.set("flavors-example")
         }
+
+        buildType("debug") {
+            baseFileName.set("flavors-example")
+            useVersionsFromTag.set(false)
+        }
     }
     changelog {
         common {

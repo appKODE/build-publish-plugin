@@ -90,14 +90,14 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                     apkOutputFileName = apkOutputFileName,
                                     useVersionsFromTag =
                                         outputConfig.useVersionsFromTag
-                                            .convention(true),
+                                            .orElse(true),
                                     baseFileName = outputConfig.baseFileName,
                                     useDefaultsForVersionsAsFallback =
                                         outputConfig.useDefaultsForVersionsAsFallback
-                                            .convention(true),
+                                            .orElse(true),
                                     useStubsForTagAsFallback =
                                         outputConfig.useStubsForTagAsFallback
-                                            .convention(true),
+                                            .orElse(true),
                                     buildTagPattern = buildTagPattern,
                                 ),
                         )
@@ -172,10 +172,10 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             }
                     }
 
-                    if (lastTagTaskOutput.versionCode != null) {
+                    if (lastTagTaskOutput.versionCode.isPresent) {
                         variantOutput.versionCode.set(lastTagTaskOutput.versionCode)
                     }
-                    if (lastTagTaskOutput.versionName != null) {
+                    if (lastTagTaskOutput.versionName.isPresent) {
                         variantOutput.versionName.set(lastTagTaskOutput.versionName)
                     }
                     variantOutput.outputFileName.set(lastTagTaskOutput.apkOutputFileName)

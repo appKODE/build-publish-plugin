@@ -16,6 +16,7 @@ import ru.kode.android.build.publish.plugin.foundation.utils.find
 import ru.kode.android.build.publish.plugin.foundation.utils.initGit
 import ru.kode.android.build.publish.plugin.foundation.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.foundation.utils.getFile
+import ru.kode.android.build.publish.plugin.foundation.utils.printFilesRecursively
 import java.io.File
 import java.io.IOException
 
@@ -45,6 +46,8 @@ class GetLastTagBuildTypesTest {
         git.tag.addNamed(givenTagName)
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.log().last().id
         val expectedBuildNumber = "0"
@@ -92,6 +95,8 @@ class GetLastTagBuildTypesTest {
         git.tag.addNamed(givenSecondTagName)
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenSecondTagName).id
         val expectedBuildNumber = "1"
@@ -184,6 +189,8 @@ class GetLastTagBuildTypesTest {
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
+        projectDir.getFile("app").printFilesRecursively()
+
         val expectedCommitSha = git.tag.find(givenSecondTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
@@ -228,6 +235,8 @@ class GetLastTagBuildTypesTest {
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
+        projectDir.getFile("app").printFilesRecursively()
+
         val expectedCommitSha = git.tag.find(givenSecondTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
@@ -253,6 +262,7 @@ class GetLastTagBuildTypesTest {
         )
     }
 
+    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
     fun `creates tag file of debug build from multiple tags, different version, same VC, wrong order, different commits, build types only`() {
@@ -275,6 +285,8 @@ class GetLastTagBuildTypesTest {
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
+        projectDir.getFile("app").printFilesRecursively()
+
         val expectedCommitSha = git.tag.find(givenFirstTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
@@ -302,6 +314,7 @@ class GetLastTagBuildTypesTest {
 
     @Test
     @Throws(IOException::class)
+    // TODO: Not sure that when order is wrong, we should return previous one, it looks like we need to throw an error
     fun `creates tag file of debug build from multiple tags, different version, same VC, wrong order, same commit, build types only`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
@@ -318,6 +331,8 @@ class GetLastTagBuildTypesTest {
         git.tag.addNamed(givenSecondTagName)
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenFirstTagName).id
         val expectedBuildNumber = "1"
@@ -344,6 +359,7 @@ class GetLastTagBuildTypesTest {
         )
     }
 
+    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
     fun `creates tag file of debug build from multiple tags with wrong order, different commits, build types only`() {
@@ -365,6 +381,8 @@ class GetLastTagBuildTypesTest {
         git.tag.addNamed(givenSecondTagName)
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenFirstTagName).id
         val expectedBuildNumber = "1"
@@ -410,8 +428,9 @@ class GetLastTagBuildTypesTest {
         git.tag.addNamed(givenTagNameRelease)
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTaskRelease)
-
         projectDir.runTask(givenGetLastTagTaskDebug)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.log().last().id
         val expectedBuildNumber = "0"
@@ -460,8 +479,9 @@ class GetLastTagBuildTypesTest {
         git.tag.addNamed(givenTagNameRelease)
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTaskRelease)
-
         projectDir.runTask(givenGetLastTagTaskDebug)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagNameRelease).id
         val expectedBuildNumber = "0"
@@ -507,8 +527,9 @@ class GetLastTagBuildTypesTest {
         git.tag.addNamed(givenTagNameRelease)
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTaskRelease)
-
         projectDir.runTask(givenGetLastTagTaskDebug)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagNameRelease).id
         val expectedBuildNumber = "0"
@@ -557,8 +578,9 @@ class GetLastTagBuildTypesTest {
         git.tag.addNamed(givenTagNameRelease)
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTaskRelease)
-
         projectDir.runTask(givenGetLastTagTaskDebug)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagNameRelease).id
         val expectedBuildNumber = "0"
@@ -612,6 +634,8 @@ class GetLastTagBuildTypesTest {
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
+        projectDir.getFile("app").printFilesRecursively()
+
         val expectedBuildNumber = "100"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.100-debug"
@@ -657,6 +681,8 @@ class GetLastTagBuildTypesTest {
         git.tag.addNamed(given3TagNameDebug)
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedBuildNumber = "100"
         val expectedBuildVariant = "debug"
@@ -710,6 +736,8 @@ class GetLastTagBuildTypesTest {
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
+        projectDir.getFile("app").printFilesRecursively()
+
         val expectedBuildNumber = "100"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.1.100-debug"
@@ -755,6 +783,8 @@ class GetLastTagBuildTypesTest {
         git.tag.addNamed(given3TagNameDebug)
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedBuildNumber = "100"
         val expectedBuildVariant = "debug"

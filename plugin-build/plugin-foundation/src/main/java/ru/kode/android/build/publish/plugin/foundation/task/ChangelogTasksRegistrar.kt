@@ -3,7 +3,6 @@ package ru.kode.android.build.publish.plugin.foundation.task
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.TaskContainer
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.foundation.task.changelog.GenerateChangelogTask
@@ -36,7 +35,7 @@ internal object ChangelogTasksRegistrar {
         project: Project,
         params: GenerateChangelogTaskParams,
     ): Provider<RegularFile> {
-        return project.tasks.registerGenerateChangelogTask(params)
+        return project.registerGenerateChangelogTask(params)
     }
 }
 
@@ -51,8 +50,8 @@ internal object ChangelogTasksRegistrar {
  *
  * @return A [Provider] that will contain the generated changelog file
  */
-private fun TaskContainer.registerGenerateChangelogTask(params: GenerateChangelogTaskParams): Provider<RegularFile> {
-    return register(
+private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskParams): Provider<RegularFile> {
+    return tasks.register(
         "$GENERATE_CHANGELOG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         GenerateChangelogTask::class.java,
     ) {
@@ -60,7 +59,9 @@ private fun TaskContainer.registerGenerateChangelogTask(params: GenerateChangelo
         it.buildTagPattern.set(params.buildTagPattern)
         it.changelogFile.set(params.changelogFile)
         it.buildTagFile.set(params.lastTagFile)
-    }.flatMap { it.changelogFile }
+    }.map {
+        project.layout.projectDirectory.file(it.outputs.files.singleFile.path)
+    }
 }
 
 /**

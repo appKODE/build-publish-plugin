@@ -17,6 +17,7 @@ import ru.kode.android.build.publish.plugin.foundation.utils.find
 import ru.kode.android.build.publish.plugin.foundation.utils.initGit
 import ru.kode.android.build.publish.plugin.foundation.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.foundation.utils.getFile
+import ru.kode.android.build.publish.plugin.foundation.utils.printFilesRecursively
 import java.io.File
 import java.io.IOException
 
@@ -47,6 +48,8 @@ class GetLastTagOneFlavorTest {
         git.tag.addNamed(givenTagName)
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.log().last().id
         val expectedBuildNumber = "0"
@@ -96,6 +99,8 @@ class GetLastTagOneFlavorTest {
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
+        projectDir.getFile("app").printFilesRecursively()
+
         val expectedCommitSha = git.tag.find(givenSecondTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "googleDebug"
@@ -140,6 +145,8 @@ class GetLastTagOneFlavorTest {
         git.tag.addNamed(givenSecondTagName)
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenSecondTagName).id
         val expectedBuildNumber = "1"
@@ -189,6 +196,8 @@ class GetLastTagOneFlavorTest {
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
+        projectDir.getFile("app").printFilesRecursively()
+
         val expectedCommitSha = git.tag.find(givenSecondTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "googleDebug"
@@ -234,6 +243,8 @@ class GetLastTagOneFlavorTest {
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
+        projectDir.getFile("app").printFilesRecursively()
+
         val expectedCommitSha = git.tag.find(givenSecondTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "googleDebug"
@@ -259,6 +270,7 @@ class GetLastTagOneFlavorTest {
         )
     }
 
+    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
     fun `creates tag file of debug build from multiple tags, different version, same VC, wrong order, different commits, one flavor`() {
@@ -282,6 +294,8 @@ class GetLastTagOneFlavorTest {
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
+        projectDir.getFile("app").printFilesRecursively()
+
         val expectedCommitSha = git.tag.find(givenFirstTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "googleDebug"
@@ -307,6 +321,7 @@ class GetLastTagOneFlavorTest {
         )
     }
 
+    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
     fun `creates tag file of debug build from multiple tags, different version, same VC, wrong order, same commit, one flavor`() {
@@ -327,6 +342,8 @@ class GetLastTagOneFlavorTest {
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
+        projectDir.getFile("app").printFilesRecursively()
+
         val expectedCommitSha = git.tag.find(givenFirstTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "googleDebug"
@@ -352,6 +369,7 @@ class GetLastTagOneFlavorTest {
         )
     }
 
+    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
     fun `creates tag file of debug build from multiple tags with wrong order, different commits, one flavor`() {
@@ -374,6 +392,8 @@ class GetLastTagOneFlavorTest {
         git.tag.addNamed(givenSecondTagName)
 
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenFirstTagName).id
         val expectedBuildNumber = "1"
@@ -420,8 +440,9 @@ class GetLastTagOneFlavorTest {
         git.tag.addNamed(givenTagNameRelease)
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTaskRelease)
-
         projectDir.runTask(givenGetLastTagTaskDebug)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.log().last().id
         val expectedBuildNumber = "0"
@@ -471,8 +492,9 @@ class GetLastTagOneFlavorTest {
         git.tag.addNamed(givenTagNameRelease)
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTaskRelease)
-
         projectDir.runTask(givenGetLastTagTaskDebug)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagNameRelease).id
         val expectedBuildNumber = "0"
@@ -519,8 +541,9 @@ class GetLastTagOneFlavorTest {
         git.tag.addNamed(givenTagNameRelease)
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTaskRelease)
-
         projectDir.runTask(givenGetLastTagTaskDebug)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagNameRelease).id
         val expectedBuildNumber = "0"
@@ -570,8 +593,9 @@ class GetLastTagOneFlavorTest {
         git.tag.addNamed(givenTagNameRelease)
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTaskRelease)
-
         projectDir.runTask(givenGetLastTagTaskDebug)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagNameRelease).id
         val expectedBuildNumber = "0"
@@ -626,6 +650,8 @@ class GetLastTagOneFlavorTest {
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
+        projectDir.getFile("app").printFilesRecursively()
+
         val expectedBuildNumber = "100"
         val expectedBuildVariant = "googleDebug"
         val expectedTagName = "v1.0.100-googleDebug"
@@ -672,6 +698,8 @@ class GetLastTagOneFlavorTest {
         git.tag.addNamed(given3TagNameDebug)
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedBuildNumber = "100"
         val expectedBuildVariant = "googleDebug"
@@ -726,6 +754,8 @@ class GetLastTagOneFlavorTest {
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
+        projectDir.getFile("app").printFilesRecursively()
+
         val expectedBuildNumber = "100"
         val expectedBuildVariant = "googleDebug"
         val expectedTagName = "v1.1.100-googleDebug"
@@ -772,6 +802,8 @@ class GetLastTagOneFlavorTest {
         git.tag.addNamed(given3TagNameDebug)
 
         val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
 
         val expectedBuildNumber = "100"
         val expectedBuildVariant = "googleDebug"

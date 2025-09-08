@@ -56,7 +56,7 @@ abstract class PlayNetworkService
                 parameters.apiTokenFile.zip(parameters.appId) { token, appId ->
                     DefaultPlayPublisher(
                         publisher = createPublisher(token.asFile.inputStream()),
-                        appId = parameters.appId.get(),
+                        appId = appId,
                     )
                 },
             )

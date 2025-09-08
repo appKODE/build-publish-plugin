@@ -71,4 +71,10 @@ tasks.register("setupPluginUploadFromEnvironment") {
 
 tasks.test {
     useJUnitPlatform()
+    testLogging {
+        showStackTraces = true
+        showExceptions = true
+        showCauses = true
+        showStandardStreams = true
+    }
 }
