@@ -9,9 +9,9 @@ import java.io.IOException
 
 internal fun File.createAndroidProject(
     compileSdk: Int = 34,
-    targetSdk: Int = 34,
     buildTypes: List<BuildType>,
     productFlavors: List<ProductFlavor> = listOf(),
+    defaultConfig: DefaultConfig? = DefaultConfig(),
     foundationConfig: FoundationConfig = FoundationConfig(),
     appCenterConfig: AppCenterConfig? = null,
     clickUpConfig: ClickUpConfig? = null,
@@ -87,6 +87,18 @@ internal fun File.createAndroidProject(
             """
         }
 
+    val defaultConfigBlock = defaultConfig?.let { config ->
+        """
+            defaultConfig {
+                applicationId "${config.applicationId}"
+                minSdk ${config.minSdk}
+                targetSdk ${config.targetSdk}
+                
+                ${config.versionCode?.let { "versionCode $it" }.orEmpty()}
+                ${config.versionName?.let { "versionName \"$it\"" }.orEmpty()}
+            }
+        """
+    }
     val foundationConfigBlock = """
         buildPublishFoundation {
             outputCommon {
@@ -164,13 +176,7 @@ internal fun File.createAndroidProject(
 
             compileSdk $compileSdk
         
-            defaultConfig {
-                applicationId "com.example.build.types.android"
-                minSdk 31
-                targetSdk $targetSdk
-                versionCode 1
-                versionName "1.0"
-            }
+            $defaultConfigBlock
             
             $buildTypesBlock
             
@@ -257,6 +263,15 @@ internal fun File.runTask(task: String): BuildResult {
         .withPluginClasspath()
         .forwardOutput()
         .build()
+}
+
+internal fun File.runTaskWithFail(task: String): BuildResult {
+    return GradleRunner.create()
+        .withProjectDir(this)
+        .withArguments(task)
+        .withPluginClasspath()
+        .forwardOutput()
+        .buildAndFail()
 }
 
 internal data class BuildType(
@@ -399,6 +414,14 @@ internal data class SlackConfig(
         val destinationChannels: List<String>,
     )
 }
+
+internal data class DefaultConfig(
+    val applicationId: String = "com.example.build.types.android",
+    val versionCode: Int? = 1,
+    val versionName: String? = "1.0",
+    val minSdk: Int = 31,
+    val targetSdk: Int = 34,
+)
 
 internal data class TelegramConfig(
     val bots: Bots,

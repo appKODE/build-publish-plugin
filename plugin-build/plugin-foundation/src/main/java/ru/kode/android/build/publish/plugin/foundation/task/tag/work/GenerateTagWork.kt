@@ -11,6 +11,9 @@ import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_BUILD_VERSION
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_CODE
+import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_COMMIT_SHA
+import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_COMMIT_MESSAGE
+import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_NAME
 import javax.inject.Inject
 
 /**
@@ -85,9 +88,9 @@ internal abstract class GenerateTagWork
             } else if (useStubsForTagAsFallback) {
                 val stubTag =
                     Tag.Build(
-                        name = buildTagPattern,
-                        commitSha = "STUB COMMIT SHA",
-                        message = "WARNING: Not real tag, do not use it for release",
+                        name = DEFAULT_TAG_NAME.format(buildVariant),
+                        commitSha = DEFAULT_TAG_COMMIT_SHA,
+                        message = DEFAULT_TAG_COMMIT_MESSAGE,
                         buildVersion = DEFAULT_BUILD_VERSION,
                         buildVariant = buildVariant,
                         buildNumber = DEFAULT_VERSION_CODE,

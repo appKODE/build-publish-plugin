@@ -22,6 +22,7 @@ import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorSe
 import ru.kode.android.build.publish.plugin.foundation.task.ChangelogTasksRegistrar
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_NAME
+import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_PATTERN
 import ru.kode.android.build.publish.plugin.foundation.task.GenerateChangelogTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.LastTagTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.PrintLastIncreasedTagTaskParams
@@ -29,7 +30,6 @@ import ru.kode.android.build.publish.plugin.foundation.task.TagTasksRegistrar
 import ru.kode.android.build.publish.plugin.foundation.util.mapToOutputApkFile
 import ru.kode.android.build.publish.plugin.foundation.validate.stopExecutionIfNotSupported
 
-private const val DEFAULT_TAG_PATTERN = ".+\\.(\\d+)-%s"
 private const val EXTENSION_NAME = "buildPublishFoundation"
 
 /**
@@ -77,9 +77,9 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             .getByNameOrRequiredCommon(buildVariant.name)
 
                     val buildTagPattern =
-                        outputConfig.buildTagPattern.orElse(
-                            DEFAULT_TAG_PATTERN.format(buildVariant.name),
-                        )
+                        outputConfig.buildTagPattern
+                            .orElse(DEFAULT_TAG_PATTERN)
+                            .map { it.format(buildVariant.name) }
 
                     val lastTagTaskOutput =
                         TagTasksRegistrar.registerLastTagTask(
@@ -186,7 +186,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
             val outputConfig =
                 buildPublishFoundationExtension.output.getCommon()
                     ?: throw GradleException("output config should be defined")
-            val useDefaultVersionsAsFallback =
+            val useDefaultsForVersionsAsFallback =
                 outputConfig
                     .useDefaultsForVersionsAsFallback
                     .getOrElse(true)
@@ -194,7 +194,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
             project.plugins.all { plugin ->
                 when (plugin) {
                     is AppPlugin -> {
-                        if (useDefaultVersionsAsFallback) {
+                        if (useDefaultsForVersionsAsFallback) {
                             val appExtension = project.extensions.getByType(AppExtension::class.java)
                             appExtension.configure()
                         }

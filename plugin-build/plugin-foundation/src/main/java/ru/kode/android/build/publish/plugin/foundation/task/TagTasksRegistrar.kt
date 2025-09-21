@@ -26,6 +26,14 @@ const val DEFAULT_VERSION_NAME = "$DEFAULT_BUILD_VERSION-dev"
 
 const val DEFAULT_VERSION_CODE = 1
 
+const val DEFAULT_TAG_PATTERN = ".+\\.(\\d+)-%s"
+
+const val DEFAULT_TAG_NAME = "$DEFAULT_BUILD_VERSION-%s"
+
+const val DEFAULT_TAG_COMMIT_SHA = "hardcoded_default_stub_commit_sha"
+
+const val DEFAULT_TAG_COMMIT_MESSAGE = "hardcoded_default_stub_commit_message"
+
 /**
  * Utility object for registering tasks related to Git tag management in the build process.
  *
@@ -72,20 +80,13 @@ internal object TagTasksRegistrar {
             }
 
         val apkOutputFileName = params.useVersionsFromTag.flatMap { useVersionsFromTag ->
-            println("[${project.name}] useVersionsFromTag: $useVersionsFromTag")
             if (useVersionsFromTag) {
                 params.baseFileName.zip(lastBuildTag) { baseFileName, tagBuildFile ->
                     mapToOutputApkFileName(tagBuildFile.asFile, params.apkOutputFileName, baseFileName)
-                        .also {
-                            println("[${project.name}] useVersionsFromTag: true, file: ${it}")
-                        }
                 }
             } else {
                 params.baseFileName.map { baseFileName ->
                     createDefaultOutputFileName(baseFileName, params.apkOutputFileName)
-                        .also {
-                            println("[${project.name}] useVersionsFromTag false file: ${it}")
-                        }
                 }
             }
         }
