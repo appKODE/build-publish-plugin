@@ -2,7 +2,6 @@ package ru.kode.android.build.publish.plugin.foundation
 
 import org.gradle.testkit.runner.BuildResult
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -84,27 +83,27 @@ class AssembleOneFlavorTest {
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagGoogleDebug executed"
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -161,27 +160,27 @@ class AssembleOneFlavorTest {
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagGoogleDebug executed"
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -235,27 +234,27 @@ class AssembleOneFlavorTest {
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagGoogleDebug executed"
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -312,27 +311,27 @@ class AssembleOneFlavorTest {
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagGoogleDebug executed"
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -386,27 +385,27 @@ class AssembleOneFlavorTest {
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagGoogleDebug executed"
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -464,31 +463,27 @@ class AssembleOneFlavorTest {
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagGoogleDebug executed"
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
-        )
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -543,27 +538,27 @@ class AssembleOneFlavorTest {
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagGoogleDebug executed"
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -621,27 +616,27 @@ class AssembleOneFlavorTest {
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagGoogleDebug executed"
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -695,29 +690,29 @@ class AssembleOneFlavorTest {
             versionCode = "",
             versionName = "v1.0.0-googleRelease",
         )
-        assertFalse(
-            releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug not executed"
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+            "Task getLastTagGoogleRelease executed"
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -774,29 +769,29 @@ class AssembleOneFlavorTest {
             versionCode = "",
             versionName = "v1.0.0-googleRelease",
         )
-        assertFalse(
-            releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug not executed"
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+            "Task getLastTagGoogleRelease executed"
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -850,29 +845,29 @@ class AssembleOneFlavorTest {
             versionCode = "",
             versionName = "v1.0.0-googleRelease",
         )
-        assertFalse(
-            releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug not executed"
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+            "Task getLastTagGoogleRelease executed"
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -930,29 +925,29 @@ class AssembleOneFlavorTest {
             versionCode = "",
             versionName = "v1.0.0-googleRelease",
         )
-        assertFalse(
-            releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug not executed"
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+            "Task getLastTagGoogleRelease executed"
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -1014,27 +1009,27 @@ class AssembleOneFlavorTest {
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagGoogleDebug executed"
         )
-        assertFalse(
-            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedResult.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -1090,27 +1085,27 @@ class AssembleOneFlavorTest {
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagGoogleDebug executed"
         )
-        assertFalse(
-            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedResult.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -1172,27 +1167,27 @@ class AssembleOneFlavorTest {
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagGoogleDebug executed"
         )
-        assertFalse(
-            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedResult.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -1248,27 +1243,27 @@ class AssembleOneFlavorTest {
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagGoogleDebug executed"
         )
-        assertFalse(
-            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedResult.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 }

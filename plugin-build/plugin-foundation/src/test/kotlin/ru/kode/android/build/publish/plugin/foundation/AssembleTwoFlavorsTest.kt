@@ -87,24 +87,27 @@ class AssembleTwoFlavorsTest {
         )
         assertTrue(
             demoDebugResult.output.contains("Task :app:getLastTagDemoDebug"),
-            "Task getLastTagDemoDebug should be executed"
+            "Task getLastTagDemoDebug executed"
         )
-        assertFalse(
-            demoDebugResult.output.contains("Task :app:getLastTagProRelease"),
-            "Task getLastTagProRelease should not be executed"
+        assertTrue(
+            !demoDebugResult.output.contains("Task :app:getLastTagProRelease"),
+            "Task getLastTagProRelease not executed"
         )
-        assertTrue(demoDebugResult.output.contains("BUILD SUCCESSFUL"))
+        assertTrue(
+            demoDebugResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeeded"
+        )
         assertEquals(
             expectedDemoDebugTagFile.trimMargin(),
             givenDemoDebugTagFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenDebugOutputFile.exists(), "Output file not found")
-        assertTrue(givenDebugOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenDebugOutputFile.exists(), "Output file exists")
+        assertTrue(givenDebugOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedProDebugManifestProperties,
             givenDebugOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
 
         val expectedProReleaseCommitSha = git.tag.find(givenTagName2).id
@@ -121,26 +124,29 @@ class AssembleTwoFlavorsTest {
             versionCode = "1",
             versionName = "v1.0.1-proRelease",
         )
-        assertFalse(
-            proReleaseResult.output.contains("Task :app:getLastTagDemoDebug"),
-            "Task getLastTagDemoDebug should be executed"
+        assertTrue(
+            !proReleaseResult.output.contains("Task :app:getLastTagDemoDebug"),
+            "Task getLastTagDemoDebug not executed"
         )
         assertTrue(
             proReleaseResult.output.contains("Task :app:getLastTagProRelease"),
-            "Task getLastTagProRelease should not be executed"
+            "Task getLastTagProRelease executed"
         )
-        assertTrue(proReleaseResult.output.contains("BUILD SUCCESSFUL"))
+        assertTrue(
+            proReleaseResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeeded"
+        )
         assertEquals(
             expectedProReleaseTagFile.trimMargin(),
             givenProReleaseTagFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenReleaseOutputFile.exists(), "Output file not found")
-        assertTrue(givenReleaseOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenReleaseOutputFile.exists(), "Output file exists")
+        assertTrue(givenReleaseOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedProReleaseManifestProperties,
             givenReleaseOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -196,31 +202,28 @@ class AssembleTwoFlavorsTest {
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDemoFreeDebug"),
-            "Task getLastTagDemoFreeDebug should be executed"
+            "Task getLastTagDemoFreeDebug executed"
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagDemoFreeRelease"),
-            "Task getLastTagDemoFreeRelease should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagDemoFreeRelease"),
+            "Task getLastTagDemoFreeRelease not executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
-        assertTrue(
-            givenTagBuildFile.exists(),
-            "Tag file not created for multi-flavor build"
-        )
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenDebugOutputFile.exists(), "Output file not found")
-        assertTrue(givenDebugOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenDebugOutputFile.exists(), "Output file exists")
+        assertTrue(givenDebugOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 }

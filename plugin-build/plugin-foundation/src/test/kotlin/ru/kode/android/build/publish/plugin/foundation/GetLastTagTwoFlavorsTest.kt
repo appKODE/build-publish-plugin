@@ -70,12 +70,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
     }
 
@@ -123,12 +123,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
     }
 
@@ -173,12 +173,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
     }
 
@@ -226,12 +226,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
     }
 
@@ -276,12 +276,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
     }
 
@@ -330,12 +330,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
     }
 
@@ -381,12 +381,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
     }
 
@@ -435,12 +435,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
     }
 
@@ -487,12 +487,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
     }
 
@@ -542,12 +542,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
     }
 
@@ -594,12 +594,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
     }
 
@@ -649,12 +649,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
     }
 
@@ -696,7 +696,7 @@ class GetLastTagTwoFlavorsTest {
         val expectedTagName = "v1.0.99-googleDebug"
         val expectedCommitSha = git.tag.find(expectedTagName).id
         val expectedBuildVersion = "1.0"
-        val expectedResult =
+        val expectedTagBuildFile =
             Tag.Build(
                 name = expectedTagName,
                 commitSha = expectedCommitSha,
@@ -707,12 +707,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
-            expectedResult.trimMargin(),
-            "Wrong tag found"
+            expectedTagBuildFile.trimMargin(),
+            "Tags equality"
         )
     }
 
@@ -748,7 +748,7 @@ class GetLastTagTwoFlavorsTest {
         val expectedTagName = "v1.0.99-googleDebug"
         val expectedCommitSha = git.tag.find(expectedTagName).id
         val expectedBuildVersion = "1.0"
-        val expectedResult =
+        val expectedTagBuildFile =
             Tag.Build(
                 name = expectedTagName,
                 commitSha = expectedCommitSha,
@@ -759,12 +759,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
-            expectedResult.trimMargin(),
-            "Wrong tag found"
+            expectedTagBuildFile.trimMargin(),
+            "Tags equality"
         )
     }
 
@@ -806,7 +806,7 @@ class GetLastTagTwoFlavorsTest {
         val expectedTagName = "v1.1.99-googleDebug"
         val expectedCommitSha = git.tag.find(expectedTagName).id
         val expectedBuildVersion = "1.1"
-        val expectedResult =
+        val expectedTagBuildFile =
             Tag.Build(
                 name = expectedTagName,
                 commitSha = expectedCommitSha,
@@ -817,12 +817,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
-            expectedResult.trimMargin(),
-            "Wrong tag found"
+            expectedTagBuildFile.trimMargin(),
+            "Tags equality"
         )
     }
 
@@ -858,7 +858,7 @@ class GetLastTagTwoFlavorsTest {
         val expectedTagName = "v1.1.99-googleDebug"
         val expectedCommitSha = git.tag.find(expectedTagName).id
         val expectedBuildVersion = "1.1"
-        val expectedResult =
+        val expectedTagBuildFile =
             Tag.Build(
                 name = expectedTagName,
                 commitSha = expectedCommitSha,
@@ -869,12 +869,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
-            expectedResult.trimMargin(),
-            "Wrong tag found"
+            expectedTagBuildFile.trimMargin(),
+            "Tags equality"
         )
     }
 }

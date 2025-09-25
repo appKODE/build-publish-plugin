@@ -3,7 +3,6 @@ package ru.kode.android.build.publish.plugin.foundation
 import org.gradle.testkit.runner.BuildResult
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -81,29 +80,29 @@ class AssembleBuildTypesTest {
             versionCode = "",
             versionName = "v1.0.0-debug",
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagDebug executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -157,29 +156,29 @@ class AssembleBuildTypesTest {
             versionCode = "1",
             versionName = "v1.0.1-debug",
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagDebug executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -230,29 +229,29 @@ class AssembleBuildTypesTest {
             versionCode = "1",
             versionName = "v1.0.1-debug",
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagDebug executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -306,29 +305,29 @@ class AssembleBuildTypesTest {
             versionCode = "1",
             versionName = "v1.2.1-debug",
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagDebug executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -379,29 +378,29 @@ class AssembleBuildTypesTest {
             versionCode = "1",
             versionName = "v1.2.1-debug",
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagDebug executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -456,29 +455,29 @@ class AssembleBuildTypesTest {
             versionCode = "1",
             versionName = "v1.2.1-debug",
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagDebug executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -530,29 +529,29 @@ class AssembleBuildTypesTest {
             versionCode = "1",
             versionName = "v1.2.1-debug",
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagDebug executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -607,29 +606,29 @@ class AssembleBuildTypesTest {
             versionCode = "1",
             versionName = "v1.0.1-debug",
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagDebug executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -683,29 +682,29 @@ class AssembleBuildTypesTest {
             versionCode = "",
             versionName = "v1.0.0-release",
         )
-        assertFalse(
-            releaseResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug not executed"
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagRelease executed"
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -762,29 +761,29 @@ class AssembleBuildTypesTest {
             versionCode = "",
             versionName = "v1.0.0-release",
         )
-        assertFalse(
-            releaseResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug not executed"
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagRelease executed"
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -838,29 +837,29 @@ class AssembleBuildTypesTest {
             versionCode = "",
             versionName = "v1.0.0-release",
         )
-        assertFalse(
-            releaseResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug not executed"
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagRelease executed"
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -917,29 +916,29 @@ class AssembleBuildTypesTest {
             versionCode = "",
             versionName = "v1.0.0-release",
         )
-        assertFalse(
-            releaseResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug not executed"
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagRelease executed"
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -998,29 +997,29 @@ class AssembleBuildTypesTest {
             versionCode = "100",
             versionName = "v1.0.100-debug",
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagDebug executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedResult.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -1073,29 +1072,29 @@ class AssembleBuildTypesTest {
             versionCode = "100",
             versionName = "v1.0.100-debug",
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagDebug executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedResult.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -1154,29 +1153,29 @@ class AssembleBuildTypesTest {
             versionCode = "100",
             versionName = "v1.1.100-debug",
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagDebug executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedResult.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 
@@ -1229,29 +1228,29 @@ class AssembleBuildTypesTest {
             versionCode = "100",
             versionName = "v1.1.100-debug",
         )
-        assertFalse(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagDebug should not be executed"
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug should be executed"
+            "Task getLastTagDebug executed"
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build failed"
+            "Build succeeded"
         )
         assertEquals(
             expectedResult.trimMargin(),
             givenTagBuildFile.readText(),
-            "Wrong tag found"
+            "Tags equality"
         )
-        assertTrue(givenOutputFile.exists(), "Output file not found")
-        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Wrong manifest properties"
+            "Manifest properties equality"
         )
     }
 }
