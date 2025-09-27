@@ -11,8 +11,8 @@ import org.gradle.api.tasks.Optional
  * and naming conventions. It's used to customize how build artifacts are named and versioned
  * during the build process.
  */
-interface OutputConfig {
-    val name: String
+abstract class OutputConfig {
+    abstract val name: String
 
     /**
      * The base file name prefix for generated output files.
@@ -22,7 +22,7 @@ interface OutputConfig {
      * Example: `"my-app-android"` would result in files like `my-app-android-debug.apk`
      */
     @get:Input
-    val baseFileName: Property<String>
+    abstract val baseFileName: Property<String>
 
     /**
      * Whether to extract version information from Git tags.
@@ -39,7 +39,7 @@ interface OutputConfig {
      */
     @get:Input
     @get:Optional
-    val useVersionsFromTag: Property<Boolean>
+    abstract val useVersionsFromTag: Property<Boolean>
 
     /**
      * Whether to use stub values when a Git tag is not found.
@@ -51,7 +51,7 @@ interface OutputConfig {
      */
     @get:Input
     @get:Optional
-    val useStubsForTagAsFallback: Property<Boolean>
+    abstract val useStubsForTagAsFallback: Property<Boolean>
 
     /**
      * Whether to use default version values when [useVersionsFromTag] is false.
@@ -63,7 +63,7 @@ interface OutputConfig {
      */
     @get:Input
     @get:Optional
-    val useDefaultsForVersionsAsFallback: Property<Boolean>
+    abstract val useDefaultsForVersionsAsFallback: Property<Boolean>
 
     /**
      * The pattern used to match Git tags for version extraction.
@@ -71,11 +71,24 @@ interface OutputConfig {
      * This pattern is used to filter Git tags when extracting version information.
      * The pattern should follow Java regex syntax.
      *
-     * Example: `"v\\d+\\.\\d+\\.\\d+"` to match tags like v1.2.3
+     * Example: `".+\\.(\\d+)-%s"` to match tags like v1.2.3-debug
      *
      * @see java.util.regex.Pattern
      */
     @get:Input
     @get:Optional
-    val buildTagPattern: Property<String>
+    internal abstract val buildTagPattern: Property<String>
+
+    /**
+     * Configures the pattern used to match Git tags for version extraction.
+     *
+     * @param action The configuration action for [BuildTagPatternBuilder].
+     *
+     * @see java.util.regex.Pattern
+     * @see BuildTagPatternBuilder
+     */
+    fun buildTagPattern(action: BuildTagPatternBuilder.() -> Unit) {
+        val builder = BuildTagPatternBuilder().apply(action)
+        buildTagPattern.set(builder.build())
+    }
 }

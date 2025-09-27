@@ -45,13 +45,82 @@ class FoundationTest {
 
     @Test
     @Throws(IOException::class)
-    fun `build succeed with last tagwhen default config is used and tag exists`() {
+    fun `build succeed with last tag when default config is used and tag exists`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
             foundationConfig = FoundationConfig(
                 output = FoundationConfig.Output(
                     baseFileName = "autotest",
+                )
+            )
+        )
+        val givenTagName = "v1.0.321-googleDebug"
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleGoogleDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc321-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.log().last().id
+        val expectedBuildNumber = "321"
+        val expectedBuildVariant = "googleDebug"
+        val expectedTagName = "v1.0.321-googleDebug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "321",
+            versionName = "v1.0.321-googleDebug",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertEquals(
+            givenTagBuildFile.readText(),
+            expectedTagBuildFile.trimMargin(),
+            "Tags equality"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with last tag when default config is used, tag exists and useVersionsFromTag is enabled`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    useVersionsFromTag = true
                 )
             )
         )
@@ -120,6 +189,68 @@ class FoundationTest {
             foundationConfig = FoundationConfig(
                 output = FoundationConfig.Output(
                     baseFileName = "autotest",
+                )
+            )
+        )
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleGoogleDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc1-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = DEFAULT_TAG_NAME.format("googleDebug"),
+                commitSha = DEFAULT_TAG_COMMIT_SHA,
+                message = DEFAULT_TAG_COMMIT_MESSAGE,
+                buildVersion = DEFAULT_BUILD_VERSION,
+                buildVariant = "googleDebug",
+                buildNumber = DEFAULT_VERSION_CODE,
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = DEFAULT_VERSION_CODE.toString(),
+            versionName = DEFAULT_TAG_NAME.format("googleDebug"),
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertEquals(
+            givenTagBuildFile.readText(),
+            expectedTagBuildFile.trimMargin(),
+            "Tags equality"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with default tag when default config is used, tag not exists and useVersionsFromTag is enabled`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    useVersionsFromTag = true
                 )
             )
         )

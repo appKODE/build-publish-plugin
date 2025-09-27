@@ -106,7 +106,7 @@ internal fun File.createAndroidProject(
                 ${foundationConfig.output.useVersionsFromTag?.let { "useVersionsFromTag.set($it)" }.orEmpty()}
                 ${foundationConfig.output.useStubsForTagAsFallback?.let { "useStubsForTagAsFallback.set($it)" }.orEmpty()}
                 ${foundationConfig.output.useDefaultsForVersionsAsFallback?.let { "useDefaultsForVersionsAsFallback.set($it)" }.orEmpty()}
-                ${foundationConfig.output.buildTagPattern?.let { "buildTagPattern.set(\"$it\")" }.orEmpty()}
+                ${foundationConfig.output.buildTagPatternBuilderFunctions?.let { buildTagPatternBlock(it) }.orEmpty()}
             }
             changelogCommon {
                 issueNumberPattern.set("${foundationConfig.changelog.issueNumberPattern}")
@@ -205,6 +205,14 @@ internal fun File.createAndroidProject(
     writeFile(androidManifestFile, androidManifestFileContent)
 }
 
+private fun buildTagPatternBlock(items: List<String>): String {
+    return """
+            buildTagPattern {
+${items.joinToString(separator = "\n") { "                $it" }}
+            }
+    """
+}
+
 @Throws(IOException::class)
 private fun writeFile(
     destination: File,
@@ -225,7 +233,8 @@ internal fun File.printFilesRecursively(prefix: String = "") {
         prefix,
         filterFile = {
             val ext = it.extension
-            ext.contains("apk") || ext.contains("json") || ext.contains("aab") },
+            ext.contains("apk") || ext.contains("json") || ext.contains("aab")
+        },
         filterDirectory = { it.endsWith("build") || it.path.contains("outputs") }
     )
     println("--- FILES END ---")
@@ -292,7 +301,7 @@ internal data class FoundationConfig(
         val useVersionsFromTag: Boolean? = null,
         val useStubsForTagAsFallback: Boolean? = null,
         val useDefaultsForVersionsAsFallback: Boolean? = null,
-        val buildTagPattern: String? = null
+        val buildTagPatternBuilderFunctions: List<String>? = null
     )
 
     data class Changelog(
