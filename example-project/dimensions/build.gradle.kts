@@ -55,9 +55,9 @@ buildPublishFoundation {
                 literal("cabinet")
                 separator("+")
                 anyBeforeDot()
-                buildNumber()
+                buildVersion()
                 separator("-")
-                buildType()
+                buildVariantName()
             }
         }
     }

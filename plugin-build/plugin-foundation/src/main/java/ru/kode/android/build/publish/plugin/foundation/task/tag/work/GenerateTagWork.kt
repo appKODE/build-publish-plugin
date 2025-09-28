@@ -96,11 +96,15 @@ internal abstract class GenerateTagWork
                         buildNumber = DEFAULT_VERSION_CODE,
                     )
                 tagBuildOutput.writeText(stubTag.toJson())
-                logger.warn("Using stub tag information for build variant '$buildVariant'")
+                logger.warn(
+                    "Using stub tag information for build variant '$buildVariant, " +
+                        "because no matching tag was found using pattern '$buildTagPattern'"
+                )
             } else {
                 val errorMessage =
                     """
-                    |Build tag file not created for '$buildVariant' build variant.
+                    |Build tag file not created for '$buildVariant' build variant 
+                    |and no stub tag was used, because 'useStubsForTagAsFallback' is false.
                     |Possible reasons:
                     |- The pattern '$buildTagPattern' is incorrect
                     |- No matching tag exists in the repository
@@ -117,7 +121,11 @@ internal abstract class GenerateTagWork
                     |4. For more details, run with --info flag
                     """.trimMargin()
 
-                logger.info("Build tag file not created for '$buildVariant' build variant")
+                logger.info(
+                    "Build tag file not found for '$buildVariant' build variant, " +
+                        "because no matching tag was found using pattern '$buildTagPattern' " +
+                        "and no stub tag was used (`useStubsForTagAsFallback` is false)."
+                )
                 throw GradleException(errorMessage)
             }
         }

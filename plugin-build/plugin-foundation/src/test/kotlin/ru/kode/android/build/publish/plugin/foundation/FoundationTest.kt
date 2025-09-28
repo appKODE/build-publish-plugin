@@ -427,7 +427,7 @@ class FoundationTest {
             versionName = DEFAULT_VERSION_NAME,
         )
         assertTrue(
-           !result.output.contains("Task :app:getLastTagGoogleDebug"),
+            !result.output.contains("Task :app:getLastTagGoogleDebug"),
             "Task getLastTagGoogleDebug not executed"
         )
         assertTrue(
@@ -918,6 +918,361 @@ class FoundationTest {
             "Build succeed"
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with used custom build tag pattern and tag exists`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "cabinet", dimension = "default")),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    useVersionsFromTag = true,
+                    buildTagPatternBuilderFunctions = listOf(
+                        "it.literal(\"cabinet\")",
+                        "it.separator(\"+\")",
+                        "it.anyBeforeDot()",
+                        "it.buildVersion()",
+                        "it.separator(\"-\")",
+                        "it.buildVariantName()",
+                    )
+                )
+            )
+        )
+        val givenTagName = "cabinet+v1.0.323-cabinetDebug"
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleCabinetDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/cabinet/debug/autotest-cabinetDebug-vc323-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "323",
+            versionName = "cabinet+v1.0.323-cabinetDebug",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagCabinetDebug"),
+            "Task getLastTagCabinetDebug executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build failed with used custom build tag pattern and tag exists, but used wrong literal pattern`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "cabinet", dimension = "default")),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    useVersionsFromTag = true,
+                    buildTagPatternBuilderFunctions = listOf(
+                        "it.literal(\"(\")",
+                        "it.buildVersion()",
+                        "it.separator(\"-\")",
+                        "it.buildVariantName()",
+                    )
+                )
+            )
+        )
+        val givenTagName = "cabinet+v1.0.323-cabinetDebug"
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleCabinetDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/cabinet/debug/autotest-cabinetDebug-vc1-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName)
+
+        val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagCabinetDebug"),
+            "Task getLastTagCabinetDebug not executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
+        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build failed with used custom build tag pattern and tag exists, but used pattern without buildVariantName`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "cabinet", dimension = "default")),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    useVersionsFromTag = true,
+                    buildTagPatternBuilderFunctions = listOf(
+                        "it.literal(\"cabinet\")",
+                        "it.separator(\"+\")",
+                        "it.anyBeforeDot()",
+                        "it.buildVersion()",
+                        "it.separator(\"-\")",
+                    )
+                )
+            )
+        )
+        val givenTagName = "cabinet+v1.0.323-cabinetDebug"
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleCabinetDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/cabinet/debug/autotest-cabinetDebug-vc323-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName)
+
+        val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagCabinetDebug"),
+            "Task getLastTagCabinetDebug not executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
+        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build failed with used custom build tag pattern and tag exists, but used pattern without buildVersion`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "cabinet", dimension = "default")),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    useVersionsFromTag = true,
+                    buildTagPatternBuilderFunctions = listOf(
+                        "it.literal(\"cabinet\")",
+                        "it.separator(\"+\")",
+                        "it.anyBeforeDot()",
+                        "it.separator(\"-\")",
+                        "it.buildVariantName()",
+                    )
+                )
+            )
+        )
+        val givenTagName = "cabinet+v1.0.323-cabinetDebug"
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleCabinetDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/cabinet/debug/autotest-cabinetDebug-vc323-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName)
+
+        val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagCabinetDebug"),
+            "Task getLastTagCabinetDebug not executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
+        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with used custom build tag pattern and tag exists, but not last with common name`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"), BuildType("release"),
+            ),
+            productFlavors = listOf(
+                ProductFlavor(name = "cabinet", dimension = "default"),
+            ),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    useVersionsFromTag = true,
+                    buildTagPatternBuilderFunctions = listOf(
+                        "it.literal(\"cabinet\")",
+                        "it.separator(\"+\")",
+                        "it.anyBeforeDot()",
+                        "it.buildVersion()",
+                        "it.separator(\"-\")",
+                        "it.buildVariantName()",
+                    )
+                )
+            )
+        )
+        val givenTagName1 = "cabinet+v1.0.322-cabinetDebug"
+        val givenTagName2 = "cabinet+v1.0.323-cabinetDebug"
+        val givenTagName3 = "v1.0.323-cabinetDebug"
+        val givenCommitMessage = "Initial commit"
+        val given2CommitMessage = "Add README 1"
+        val given3CommitMessage = "Add README 2"
+        val givenAssembleTask = "assembleCabinetDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/cabinet/debug/autotest-cabinetDebug-vc323-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+        projectDir.getFile("app/README1.md").writeText("This is test project")
+        git.addAllAndCommit(given2CommitMessage)
+        git.tag.addNamed(givenTagName2)
+        projectDir.getFile("app/README2.md").writeText("This is test project")
+        git.addAllAndCommit(given3CommitMessage)
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "323",
+            versionName = "cabinet+v1.0.323-cabinetDebug",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagCabinetDebug"),
+            "Task getLastTagCabinetDebug executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with used custom build tag pattern and tag exists, but not last with different flavor`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"), BuildType("release"),
+            ),
+            productFlavors = listOf(
+                ProductFlavor(name = "cabinet", dimension = "default"),
+                ProductFlavor(name = "finance", dimension = "default"),
+            ),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    useVersionsFromTag = true,
+                    buildTagPatternBuilderFunctions = listOf(
+                        "it.literal(\"cabinet\")",
+                        "it.separator(\"+\")",
+                        "it.anyBeforeDot()",
+                        "it.buildVersion()",
+                        "it.separator(\"-\")",
+                        "it.buildVariantName()",
+                    )
+                ),
+                buildTypeOutput = "financeDebug" to FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    useVersionsFromTag = true,
+                    buildTagPatternBuilderFunctions = listOf(
+                        "it.literal(\"finance\")",
+                        "it.separator(\"+\")",
+                        "it.anyBeforeDot()",
+                        "it.buildVersion()",
+                        "it.separator(\"-\")",
+                        "it.buildVariantName()",
+                    )
+                ),
+            )
+        )
+        val givenTagName1 = "finance+v1.0.323-financeDebug"
+        val givenTagName2 = "cabinet+v1.0.322-cabinetDebug"
+        val givenTagName3 = "cabinet+v1.0.323-cabinetDebug"
+        val givenCommitMessage = "Initial commit"
+        val given2CommitMessage = "Add README 1"
+        val given3CommitMessage = "Add README 2"
+        val givenAssembleTask = "assembleFinanceDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-financeDebug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/finance/debug/autotest-financeDebug-vc323-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+        projectDir.getFile("app/README1.md").writeText("This is test project")
+        git.addAllAndCommit(given2CommitMessage)
+        git.tag.addNamed(givenTagName2)
+        projectDir.getFile("app/README2.md").writeText("This is test project")
+        git.addAllAndCommit(given3CommitMessage)
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "323",
+            versionName = "finance+v1.0.323-financeDebug",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagFinanceDebug"),
+            "Task getLastTagFinanceDebug executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(

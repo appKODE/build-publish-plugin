@@ -99,14 +99,29 @@ internal fun File.createAndroidProject(
             }
         """
     }
+    val buildTypeOutputBlock = foundationConfig.buildTypeOutput?.let { (name, config) ->
+        """
+                buildType("$name") {
+                    it.baseFileName.set("${foundationConfig.output.baseFileName}")
+                    ${config.useVersionsFromTag?.let { "it.useVersionsFromTag.set($it)" }.orEmpty()}
+                    ${config.useStubsForTagAsFallback?.let { "it.useStubsForTagAsFallback.set($it)" }.orEmpty()}
+                    ${config.useDefaultsForVersionsAsFallback?.let { "it.useDefaultsForVersionsAsFallback.set($it)" }.orEmpty()}
+                    ${config.buildTagPatternBuilderFunctions?.let { buildTagPatternBlock(it) }.orEmpty()}
+                }
+        """
+    }
     val foundationConfigBlock = """
         buildPublishFoundation {
-            outputCommon {
-                baseFileName.set("${foundationConfig.output.baseFileName}")
-                ${foundationConfig.output.useVersionsFromTag?.let { "useVersionsFromTag.set($it)" }.orEmpty()}
-                ${foundationConfig.output.useStubsForTagAsFallback?.let { "useStubsForTagAsFallback.set($it)" }.orEmpty()}
-                ${foundationConfig.output.useDefaultsForVersionsAsFallback?.let { "useDefaultsForVersionsAsFallback.set($it)" }.orEmpty()}
-                ${foundationConfig.output.buildTagPatternBuilderFunctions?.let { buildTagPatternBlock(it) }.orEmpty()}
+            output {
+                common {
+                    it.baseFileName.set("${foundationConfig.output.baseFileName}")
+                    ${foundationConfig.output.useVersionsFromTag?.let { "it.useVersionsFromTag.set($it)" }.orEmpty()}
+                    ${foundationConfig.output.useStubsForTagAsFallback?.let { "it.useStubsForTagAsFallback.set($it)" }.orEmpty()}
+                    ${foundationConfig.output.useDefaultsForVersionsAsFallback?.let { "it.useDefaultsForVersionsAsFallback.set($it)" }.orEmpty()}
+                    ${foundationConfig.output.buildTagPatternBuilderFunctions?.let { buildTagPatternBlock(it) }.orEmpty()}
+                }
+        
+                ${buildTypeOutputBlock.orEmpty()}
             }
             changelogCommon {
                 issueNumberPattern.set("${foundationConfig.changelog.issueNumberPattern}")
@@ -207,9 +222,9 @@ internal fun File.createAndroidProject(
 
 private fun buildTagPatternBlock(items: List<String>): String {
     return """
-            buildTagPattern {
-${items.joinToString(separator = "\n") { "                $it" }}
-            }
+                    it.buildTagPattern {
+${items.joinToString(separator = "\n") { "                      $it" }}
+                    }
     """
 }
 
@@ -294,6 +309,7 @@ internal data class ProductFlavor(
 
 internal data class FoundationConfig(
     val output: Output = Output(),
+    val buildTypeOutput: Pair<String, Output>? = null,
     val changelog: Changelog = Changelog(),
 ) {
     data class Output(
