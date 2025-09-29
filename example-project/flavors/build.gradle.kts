@@ -37,7 +37,7 @@ buildPublishFoundation {
             baseFileName.set("flavors-example")
         }
 
-        buildType("debug") {
+        buildVariant("debug") {
             baseFileName.set("flavors-example")
             useVersionsFromTag.set(false)
         }

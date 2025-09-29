@@ -101,7 +101,7 @@ internal fun File.createAndroidProject(
     }
     val buildTypeOutputBlock = foundationConfig.buildTypeOutput?.let { (name, config) ->
         """
-                buildType("$name") {
+                buildVariant("$name") {
                     it.baseFileName.set("${foundationConfig.output.baseFileName}")
                     ${config.useVersionsFromTag?.let { "it.useVersionsFromTag.set($it)" }.orEmpty()}
                     ${config.useStubsForTagAsFallback?.let { "it.useStubsForTagAsFallback.set($it)" }.orEmpty()}

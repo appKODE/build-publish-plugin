@@ -4,7 +4,7 @@ import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.UnknownDomainObjectException
-import ru.kode.android.build.publish.plugin.core.util.buildType
+import ru.kode.android.build.publish.plugin.core.util.buildVariant
 import ru.kode.android.build.publish.plugin.core.util.common
 
 /**
@@ -40,17 +40,17 @@ class BuildPublishDomainObjectContainer<T>(
     /**
      * Registers a build-type specific configuration.
      *
-     * @param buildType The name of the build type (e.g., "debug", "release")
+     * @param buildVariant The name of the build variant (e.g., "debug", "release", "googleDebug")
      * @param configurationAction The action to configure the build type
      * @return A provider for the registered build type configuration
      *
      * @see common
      */
-    fun buildType(
-        buildType: String,
+    fun buildVariant(
+        buildVariant: String,
         configurationAction: Action<in T>,
     ): NamedDomainObjectProvider<T> {
-        return namedContainer.buildType(buildType, configurationAction)
+        return namedContainer.buildVariant(buildVariant, configurationAction)
     }
 
     /**

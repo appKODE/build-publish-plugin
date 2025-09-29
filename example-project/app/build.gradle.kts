@@ -71,7 +71,7 @@ buildPublishJira {
             credentials.username.set("test_user_default")
             credentials.password.set("test_password_default")
         }
-        buildType("release") {
+        buildVariant("release") {
             baseUrl.set("https://jira.atlassian.com")
             credentials.username.set("test_user_release")
             credentials.password.set("test_password_release")
@@ -99,12 +99,12 @@ buildPublishAppCenter {
             testerGroups("Collaborators")
         }
 
-        buildType("debug") {
+        buildVariant("debug") {
             appName.set("AndroidDebug")
             testerGroups("Collaborators")
         }
 
-        buildType("release") {
+        buildVariant("release") {
             appName.set("AndroidRelease")
             testerGroups("Collaborators")
         }
@@ -119,7 +119,7 @@ buildPublishConfluence {
         }
     }
     distribution {
-        buildType("default") {
+        buildVariant("default") {
             pageId.set("123435")
         }
     }
@@ -172,7 +172,7 @@ buildPublishPrintTag {
         additionalText.set("Additional text common")
     }
     message {
-        buildType("armv8MinApi21AlphaRelease") {
+        buildVariant("armv8MinApi21AlphaRelease") {
             additionalText.set("Additional text Armv8MinApi21AlphaRelease")
         }
     }

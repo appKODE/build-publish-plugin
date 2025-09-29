@@ -49,7 +49,7 @@ buildPublishFoundation {
             baseFileName.set("example-base-project-android")
         }
 
-        buildType("x86MinApi21AlphaDebug") {
+        buildVariant("x86MinApi21AlphaDebug") {
             baseFileName.set("example-base-project-android")
             buildTagPattern {
                 literal("cabinet")

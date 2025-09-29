@@ -25,7 +25,7 @@ buildPublishFoundation {
             baseFileName.set("example-base-project-android")
         }
 
-        buildType("debug") {
+        buildVariant("debug") {
             baseFileName.set("example-base-project-android")
             useVersionsFromTag.set(false)
         }

@@ -5,7 +5,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
-import ru.kode.android.build.publish.plugin.core.util.buildType
+import ru.kode.android.build.publish.plugin.core.util.buildVariant
 import ru.kode.android.build.publish.plugin.core.util.common
 
 /**
@@ -57,32 +57,32 @@ open class BuildPublishConfigurableExtension {
      * Applies build-type specific configuration to a named domain object container.
      *
      * @param T The type of objects in the container
-     * @param buildType The name of the build type (e.g., "debug", "release")
+     * @param buildVariant The name of the variant type (e.g., "debug", "release")
      * @param container The container to configure
      * @param configurationAction The action that configures the build type
      */
-    protected fun <T> buildType(
-        buildType: String,
+    protected fun <T> buildVariant(
+        buildVariant: String,
         container: NamedDomainObjectContainer<T>,
         configurationAction: Action<in T>,
     ) {
-        container.buildType(buildType, configurationAction)
+        container.buildVariant(buildVariant, configurationAction)
     }
 
     /**
      * Applies build-type specific configuration to a base domain container.
      *
      * @param T The type of objects in the container
-     * @param buildType The name of the build type (e.g., "debug", "release")
+     * @param buildVariant The name of the build variant (e.g., "debug", "release")
      * @param container The base domain container to configure
      * @param configurationAction The action that configures the build type
      */
-    protected fun <T> buildType(
-        buildType: String,
+    protected fun <T> buildVariant(
+        buildVariant: String,
         container: BuildPublishDomainObjectContainer<T>,
         configurationAction: Action<in T>,
     ) {
-        container.buildType(buildType, configurationAction)
+        container.buildVariant(buildVariant, configurationAction)
     }
 
     /**
