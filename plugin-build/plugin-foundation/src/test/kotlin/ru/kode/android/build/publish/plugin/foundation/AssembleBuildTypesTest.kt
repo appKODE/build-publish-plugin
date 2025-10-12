@@ -984,7 +984,7 @@ class AssembleBuildTypesTest {
         val expectedTagName = "v1.0.100-debug"
         val expectedCommitSha = git.tag.find(expectedTagName).id
         val expectedBuildVersion = "1.0"
-        val expectedResult =
+        val expectedTagBuildFile =
             Tag.Build(
                 name = expectedTagName,
                 commitSha = expectedCommitSha,
@@ -1010,7 +1010,7 @@ class AssembleBuildTypesTest {
             "Build succeeded"
         )
         assertEquals(
-            expectedResult.trimMargin(),
+            expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
             "Tags equality"
         )
@@ -1059,7 +1059,7 @@ class AssembleBuildTypesTest {
         val expectedTagName = "v1.0.100-debug"
         val expectedCommitSha = git.tag.find(expectedTagName).id
         val expectedBuildVersion = "1.0"
-        val expectedResult =
+        val expectedTagBuildFile =
             Tag.Build(
                 name = expectedTagName,
                 commitSha = expectedCommitSha,
@@ -1085,7 +1085,7 @@ class AssembleBuildTypesTest {
             "Build succeeded"
         )
         assertEquals(
-            expectedResult.trimMargin(),
+            expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
             "Tags equality"
         )
@@ -1140,7 +1140,7 @@ class AssembleBuildTypesTest {
         val expectedTagName = "v1.1.100-debug"
         val expectedCommitSha = git.tag.find(expectedTagName).id
         val expectedBuildVersion = "1.1"
-        val expectedResult =
+        val expectedTagBuildFile =
             Tag.Build(
                 name = expectedTagName,
                 commitSha = expectedCommitSha,
@@ -1166,7 +1166,7 @@ class AssembleBuildTypesTest {
             "Build succeeded"
         )
         assertEquals(
-            expectedResult.trimMargin(),
+            expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
             "Tags equality"
         )
@@ -1215,7 +1215,7 @@ class AssembleBuildTypesTest {
         val expectedTagName = "v1.1.100-debug"
         val expectedCommitSha = git.tag.find(expectedTagName).id
         val expectedBuildVersion = "1.1"
-        val expectedResult =
+        val expectedTagBuildFile =
             Tag.Build(
                 name = expectedTagName,
                 commitSha = expectedCommitSha,
@@ -1241,7 +1241,7 @@ class AssembleBuildTypesTest {
             "Build succeeded"
         )
         assertEquals(
-            expectedResult.trimMargin(),
+            expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
             "Tags equality"
         )

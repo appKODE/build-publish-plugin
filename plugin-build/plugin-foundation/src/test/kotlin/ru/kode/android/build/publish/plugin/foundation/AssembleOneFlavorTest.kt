@@ -245,8 +245,8 @@ class AssembleOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -322,8 +322,8 @@ class AssembleOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -396,8 +396,8 @@ class AssembleOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -474,8 +474,8 @@ class AssembleOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -549,8 +549,8 @@ class AssembleOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -627,8 +627,8 @@ class AssembleOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -782,8 +782,8 @@ class AssembleOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -858,8 +858,8 @@ class AssembleOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -994,7 +994,7 @@ class AssembleOneFlavorTest {
         val expectedTagName = "v1.0.100-googleDebug"
         val expectedCommitSha = git.tag.find(expectedTagName).id
         val expectedBuildVersion = "1.0"
-        val expectedResult =
+        val expectedTagBuildFile =
             Tag.Build(
                 name = expectedTagName,
                 commitSha = expectedCommitSha,
@@ -1021,7 +1021,7 @@ class AssembleOneFlavorTest {
         )
         assertEquals(
             givenTagBuildFile.readText(),
-            expectedResult.trimMargin(),
+            expectedTagBuildFile.trimMargin(),
             "Tags equality"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -1070,7 +1070,7 @@ class AssembleOneFlavorTest {
         val expectedTagName = "v1.0.100-googleDebug"
         val expectedCommitSha = git.tag.find(expectedTagName).id
         val expectedBuildVersion = "1.0"
-        val expectedResult =
+        val expectedTagBuildFile =
             Tag.Build(
                 name = expectedTagName,
                 commitSha = expectedCommitSha,
@@ -1096,8 +1096,8 @@ class AssembleOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
+            expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            expectedResult.trimMargin(),
             "Tags equality"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -1152,7 +1152,7 @@ class AssembleOneFlavorTest {
         val expectedTagName = "v1.1.100-googleDebug"
         val expectedCommitSha = git.tag.find(expectedTagName).id
         val expectedBuildVersion = "1.1"
-        val expectedResult =
+        val expectedTagBuildFile =
             Tag.Build(
                 name = expectedTagName,
                 commitSha = expectedCommitSha,
@@ -1178,8 +1178,8 @@ class AssembleOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
+            expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            expectedResult.trimMargin(),
             "Tags equality"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -1228,7 +1228,7 @@ class AssembleOneFlavorTest {
         val expectedTagName = "v1.1.100-googleDebug"
         val expectedCommitSha = git.tag.find(expectedTagName).id
         val expectedBuildVersion = "1.1"
-        val expectedResult =
+        val expectedTagBuildFile =
             Tag.Build(
                 name = expectedTagName,
                 commitSha = expectedCommitSha,
@@ -1254,8 +1254,8 @@ class AssembleOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
+            expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            expectedResult.trimMargin(),
             "Tags equality"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")

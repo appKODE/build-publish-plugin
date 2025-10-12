@@ -81,7 +81,7 @@ internal abstract class GenerateTagWork
 
             if (buildTag != null) {
                 logger.info(
-                    "last tag ${buildTag.name}, build number ${buildTag.buildNumber} was found, " +
+                    "Last tag '${buildTag.name}' with build number '${buildTag.buildNumber}' was found, " +
                         "and tag build file is generated",
                 )
                 tagBuildOutput.writeText(buildTag.toJson())
@@ -124,7 +124,7 @@ internal abstract class GenerateTagWork
                 logger.info(
                     "Build tag file not found for '$buildVariant' build variant, " +
                         "because no matching tag was found using pattern '$buildTagPattern' " +
-                        "and no stub tag was used (`useStubsForTagAsFallback` is false)."
+                        "and no stub tag wasn't used (`useStubsForTagAsFallback` is false)."
                 )
                 throw GradleException(errorMessage)
             }

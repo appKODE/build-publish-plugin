@@ -82,6 +82,6 @@ class GitRepository(
     ): List<String> {
         return gitCommandExecutor
             .extractMarkedCommitMessages(messageKey, tagRange.asCommitRange())
-            .map { it.replace(Regex("\\s*$messageKey:?\\s*"), "• ") }
+            .map { it.replace(Regex("\\s*$messageKey:?\\s*"), "• ").trim() }
     }
 }

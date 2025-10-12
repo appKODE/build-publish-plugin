@@ -248,7 +248,7 @@ internal fun File.printFilesRecursively(prefix: String = "") {
         prefix,
         filterFile = {
             val ext = it.extension
-            ext.contains("apk") || ext.contains("json") || ext.contains("aab")
+            ext.contains("apk") || ext.contains("json") || ext.contains("aab") || ext.contains("txt")
         },
         filterDirectory = { it.endsWith("build") || it.path.contains("outputs") }
     )
@@ -284,6 +284,15 @@ internal fun File.runTask(task: String): BuildResult {
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(task)
+        .withPluginClasspath()
+        .forwardOutput()
+        .build()
+}
+
+internal fun File.runTasks(vararg task: String): BuildResult {
+    return GradleRunner.create()
+        .withProjectDir(this)
+        .withArguments(*task)
         .withPluginClasspath()
         .forwardOutput()
         .build()

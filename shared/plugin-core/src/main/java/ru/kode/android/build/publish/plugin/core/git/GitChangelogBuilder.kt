@@ -93,7 +93,7 @@ class GitChangelogBuilder(
         val messageBuilder =
             StringBuilder().apply {
                 val annotatedTagMessage = tagRange.currentBuildTag.message
-                if (annotatedTagMessage != null) {
+                if (annotatedTagMessage?.isNotBlank() == true) {
                     appendLine("*$annotatedTagMessage*")
                 }
             }
@@ -104,6 +104,6 @@ class GitChangelogBuilder(
             markedCommitMessagesResolver()
                 .forEach { messageBuilder.appendLine(it) }
         }
-        return messageBuilder.toString().takeIf { it.isNotBlank() }
+        return messageBuilder.toString().takeIf { it.isNotBlank() }?.trim()
     }
 }

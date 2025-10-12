@@ -70,8 +70,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -120,8 +120,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -167,8 +167,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -217,8 +217,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -264,8 +264,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -315,8 +315,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -363,8 +363,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -414,8 +414,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -463,8 +463,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -515,8 +515,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -564,8 +564,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -616,8 +616,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -671,8 +671,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -720,8 +720,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -775,8 +775,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
@@ -824,8 +824,8 @@ class GetLastTagOneFlavorTest {
             "Build succeeded"
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality"
         )
     }
