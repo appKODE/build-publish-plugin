@@ -36,7 +36,7 @@ class GetLastTagBuildTypesTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
-        val givenTagName = "v1.0.0-debug"
+        val givenTagName = "v1.0.1-debug"
         val givenCommitMessage = "Initial commit"
         val givenGetLastTagTask = "getLastTagDebug"
         val git = projectDir.initGit()
@@ -50,9 +50,9 @@ class GetLastTagBuildTypesTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.log().last().id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.0-debug"
+        val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -80,8 +80,8 @@ class GetLastTagBuildTypesTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
-        val givenFirstTagName = "v1.0.0-debug"
-        val givenSecondTagName = "v1.0.1-debug"
+        val givenFirstTagName = "v1.0.1-debug"
+        val givenSecondTagName = "v1.0.2-debug"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
         val givenGetLastTagTask = "getLastTagDebug"
@@ -99,9 +99,9 @@ class GetLastTagBuildTypesTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenSecondTagName).id
-        val expectedBuildNumber = "1"
+        val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.1-debug"
+        val expectedTagName = "v1.0.2-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -129,8 +129,8 @@ class GetLastTagBuildTypesTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
-        val givenFirstTagName = "v1.0.0-debug"
-        val givenSecondTagName = "v1.0.1-debug"
+        val givenFirstTagName = "v1.0.1-debug"
+        val givenSecondTagName = "v1.0.2-debug"
         val givenFirstCommitMessage = "Initial commit"
         val givenGetLastTagTask = "getLastTagDebug"
         val git = projectDir.initGit()
@@ -143,9 +143,9 @@ class GetLastTagBuildTypesTest {
         val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
 
         val expectedCommitSha = git.tag.find(givenSecondTagName).id
-        val expectedBuildNumber = "1"
+        val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.1-debug"
+        val expectedTagName = "v1.0.2-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -366,8 +366,8 @@ class GetLastTagBuildTypesTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
-        val givenFirstTagName = "v1.0.1-debug"
-        val givenSecondTagName = "v1.0.0-debug"
+        val givenFirstTagName = "v1.0.2-debug"
+        val givenSecondTagName = "v1.0.1-debug"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
         val givenGetLastTagTask = "getLastTagDebug"
@@ -385,9 +385,9 @@ class GetLastTagBuildTypesTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenFirstTagName).id
-        val expectedBuildNumber = "1"
+        val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.1-debug"
+        val expectedTagName = "v1.0.2-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -415,8 +415,8 @@ class GetLastTagBuildTypesTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
-        val givenTagNameDebug = "v1.0.0-debug"
-        val givenTagNameRelease = "v1.0.0-release"
+        val givenTagNameDebug = "v1.0.1-debug"
+        val givenTagNameRelease = "v1.0.1-release"
         val givenCommitMessage = "Initial commit"
         val givenGetLastTagTaskRelease = "getLastTagRelease"
         val givenGetLastTagTaskDebug = "getLastTagDebug"
@@ -433,9 +433,9 @@ class GetLastTagBuildTypesTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.log().last().id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "release"
-        val expectedTagName = "v1.0.0-release"
+        val expectedTagName = "v1.0.1-release"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -463,8 +463,8 @@ class GetLastTagBuildTypesTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
-        val givenTagNameDebug = "v1.0.0-debug"
-        val givenTagNameRelease = "v1.0.0-release"
+        val givenTagNameDebug = "v1.0.1-debug"
+        val givenTagNameRelease = "v1.0.1-release"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
         val givenGetLastTagTaskRelease = "getLastTagRelease"
@@ -484,9 +484,9 @@ class GetLastTagBuildTypesTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagNameRelease).id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "release"
-        val expectedTagName = "v1.0.0-release"
+        val expectedTagName = "v1.0.1-release"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -514,8 +514,8 @@ class GetLastTagBuildTypesTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
-        val givenTagNameDebug = "v1.0.1-debug"
-        val givenTagNameRelease = "v1.0.0-release"
+        val givenTagNameDebug = "v1.0.2-debug"
+        val givenTagNameRelease = "v1.0.1-release"
         val givenFirstCommitMessage = "Initial commit"
         val givenGetLastTagTaskRelease = "getLastTagRelease"
         val givenGetLastTagTaskDebug = "getLastTagDebug"
@@ -532,9 +532,9 @@ class GetLastTagBuildTypesTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagNameRelease).id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "release"
-        val expectedTagName = "v1.0.0-release"
+        val expectedTagName = "v1.0.1-release"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -562,8 +562,8 @@ class GetLastTagBuildTypesTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
-        val givenTagNameDebug = "v1.0.1-debug"
-        val givenTagNameRelease = "v1.0.0-release"
+        val givenTagNameDebug = "v1.0.2-debug"
+        val givenTagNameRelease = "v1.0.1-release"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
         val givenGetLastTagTaskRelease = "getLastTagRelease"
@@ -583,9 +583,9 @@ class GetLastTagBuildTypesTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagNameRelease).id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "release"
-        val expectedTagName = "v1.0.0-release"
+        val expectedTagName = "v1.0.1-release"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -613,7 +613,7 @@ class GetLastTagBuildTypesTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
-        val given1TagNameDebug = "v1.0.1-debug"
+        val given1TagNameDebug = "v1.0.2-debug"
         val given2TagNameDebug = "v1.0.99-debug"
         val given3TagNameDebug = "v1.0.100-debug"
         val givenFirstCommitMessage = "Initial commit"
@@ -667,7 +667,7 @@ class GetLastTagBuildTypesTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
-        val given1TagNameDebug = "v1.0.1-debug"
+        val given1TagNameDebug = "v1.0.2-debug"
         val given2TagNameDebug = "v1.0.99-debug"
         val given3TagNameDebug = "v1.0.100-debug"
         val givenCommitMessage = "Initial commit"

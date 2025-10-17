@@ -394,6 +394,188 @@ class FoundationTest {
         )
     }
 
+    // TODO: It should be failed, because it has incorrect order version (?)
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with last tag when different tags in between of android formated tags is used, different build version, correct build number`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("internal"),
+                BuildType("release")
+            ),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                )
+            )
+        )
+        val givenTagName1 = "v1.0.206-internal"
+        val givenTagName2 = "build/3.0.0-4088"
+
+        val givenTagName3 = "v3.0.207-internal"
+        val givenTagName4 = "v2.0.208-internal"
+        val givenTagName5 = "v0.0.209-internal"
+
+        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenAssembleTask = "assembleInternal"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc209-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+        git.tag.addNamed(givenTagName2)
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        git.addAllAndCommit("[pfm] Update pager behaviour")
+        git.tag.addNamed(givenTagName3)
+
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        git.addAllAndCommit("[auth flow]: wrap chat flow component in remember for prevent recomposition")
+        git.tag.addNamed(givenTagName4)
+
+        projectDir.getFile("app/README3.md").writeText("This is test project 3")
+        git.addAllAndCommit("[CEB-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
+        git.tag.addNamed(givenTagName5)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName5).id
+        val expectedBuildNumber = "209"
+        val expectedBuildVariant = "internal"
+        val expectedTagName = "v0.0.209-internal"
+        val expectedBuildVersion = "0.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "209",
+            versionName = "v0.0.209-internal",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagInternal"),
+            "Task getLastTagInternal executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    // TODO: It should be failed, because it has incorrect order version of buuld numbers (?)
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with last tag when different tags in between of android formated tags is used, different build version, wrong build number`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("internal"),
+                BuildType("release")
+            ),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                )
+            )
+        )
+        val givenTagName1 = "v1.0.206-internal"
+        val givenTagName2 = "build/3.0.0-4088"
+
+        val givenTagName3 = "v1.0.207-internal"
+        val givenTagName4 = "v1.0.209-internal"
+        val givenTagName5 = "v1.0.208-internal"
+
+        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenAssembleTask = "assembleInternal"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc209-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+        git.tag.addNamed(givenTagName2)
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        git.addAllAndCommit("[pfm] Update pager behaviour")
+        git.tag.addNamed(givenTagName3)
+
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        git.addAllAndCommit("[auth flow]: wrap chat flow component in remember for prevent recomposition")
+        git.tag.addNamed(givenTagName4)
+
+        projectDir.getFile("app/README3.md").writeText("This is test project 3")
+        git.addAllAndCommit("[CEB-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
+        git.tag.addNamed(givenTagName5)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName4).id
+        val expectedBuildNumber = "209"
+        val expectedBuildVariant = "internal"
+        val expectedTagName = "v1.0.209-internal"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "209",
+            versionName = "v1.0.209-internal",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagInternal"),
+            "Task getLastTagInternal executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
     @Test
     @Throws(IOException::class)
     fun `build succeed with default version when useVersionsFromTag is disabled and tag exists`() {
@@ -1302,12 +1484,12 @@ class FoundationTest {
             )
         )
 
-        val givenTagName = "v1.0.0-debug"
+        val givenTagName = "v1.0.1-debug"
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc0-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1331,9 +1513,9 @@ class FoundationTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenTagName).id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.0-debug"
+        val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -1345,8 +1527,8 @@ class FoundationTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "",
-            versionName = "v1.0.0-debug",
+            versionCode = "1",
+            versionName = "v1.0.1-debug",
         )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -1413,12 +1595,12 @@ class FoundationTest {
             )
         )
 
-        val givenTagName = "v1.0.0-debug"
+        val givenTagName = "v1.0.1-debug"
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc0-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1441,9 +1623,9 @@ class FoundationTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenTagName).id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.0-debug"
+        val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -1455,8 +1637,8 @@ class FoundationTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "",
-            versionName = "v1.0.0-debug",
+            versionCode = "1",
+            versionName = "v1.0.1-debug",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
@@ -1527,11 +1709,11 @@ class FoundationTest {
             )
         )
 
-        val givenTagName = "v1.0.0-debug"
+        val givenTagName = "v1.0.1-debug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc0-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1552,9 +1734,9 @@ class FoundationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagName).id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.0-debug"
+        val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -1617,12 +1799,12 @@ class FoundationTest {
             )
         )
 
-        val givenTagName = "v1.0.0-debug"
+        val givenTagName = "v1.0.1-debug"
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc0-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1646,9 +1828,9 @@ class FoundationTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenTagName).id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.0-debug"
+        val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -1660,8 +1842,8 @@ class FoundationTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "",
-            versionName = "v1.0.0-debug",
+            versionCode = "1",
+            versionName = "v1.0.1-debug",
         )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -1727,12 +1909,12 @@ class FoundationTest {
             )
         )
 
-        val givenTagName = "v1.0.0-debug"
+        val givenTagName = "v1.0.1-debug"
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc0-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1755,9 +1937,9 @@ class FoundationTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenTagName).id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.0-debug"
+        val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -1769,8 +1951,8 @@ class FoundationTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "",
-            versionName = "v1.0.0-debug",
+            versionCode = "1",
+            versionName = "v1.0.1-debug",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
@@ -1840,11 +2022,11 @@ class FoundationTest {
             )
         )
 
-        val givenTagName = "v1.0.0-debug"
+        val givenTagName = "v1.0.1-debug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc0-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1865,9 +2047,9 @@ class FoundationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagName).id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.0-debug"
+        val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -1931,13 +2113,13 @@ class FoundationTest {
             )
         )
 
-        val givenTagName1 = "v1.0.0-debug"
-        val givenTagName2 = "v1.0.1-debug"
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1975,9 +2157,9 @@ class FoundationTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenTagName2).id
-        val expectedBuildNumber = "1"
+        val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.1-debug"
+        val expectedTagName = "v1.0.2-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -1989,8 +2171,8 @@ class FoundationTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-debug",
+            versionCode = "2",
+            versionName = "v1.0.2-debug",
         )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -2057,13 +2239,13 @@ class FoundationTest {
             )
         )
 
-        val givenTagName1 = "v1.0.0-debug"
-        val givenTagName2 = "v1.0.1-debug"
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2099,9 +2281,9 @@ class FoundationTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenTagName2).id
-        val expectedBuildNumber = "1"
+        val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.1-debug"
+        val expectedTagName = "v1.0.2-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -2113,8 +2295,8 @@ class FoundationTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-debug",
+            versionCode = "2",
+            versionName = "v1.0.2-debug",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
@@ -2185,12 +2367,12 @@ class FoundationTest {
             )
         )
 
-        val givenTagName1 = "v1.0.0-debug"
-        val givenTagName2 = "v1.0.1-debug"
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2224,9 +2406,9 @@ class FoundationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagName2).id
-        val expectedBuildNumber = "1"
+        val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.1-debug"
+        val expectedTagName = "v1.0.2-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -2289,13 +2471,13 @@ class FoundationTest {
             )
         )
 
-        val givenTagName1 = "v1.0.0-debug"
-        val givenTagName2 = "v1.0.1-debug"
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2332,9 +2514,9 @@ class FoundationTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenTagName2).id
-        val expectedBuildNumber = "1"
+        val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.1-debug"
+        val expectedTagName = "v1.0.2-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -2346,8 +2528,8 @@ class FoundationTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-debug",
+            versionCode = "2",
+            versionName = "v1.0.2-debug",
         )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -2413,13 +2595,13 @@ class FoundationTest {
             )
         )
 
-        val givenTagName1 = "v1.0.0-debug"
-        val givenTagName2 = "v1.0.1-debug"
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2455,9 +2637,9 @@ class FoundationTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenTagName2).id
-        val expectedBuildNumber = "1"
+        val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.1-debug"
+        val expectedTagName = "v1.0.2-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -2469,8 +2651,8 @@ class FoundationTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-debug",
+            versionCode = "2",
+            versionName = "v1.0.2-debug",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
@@ -2540,12 +2722,12 @@ class FoundationTest {
             )
         )
 
-        val givenTagName1 = "v1.0.0-debug"
-        val givenTagName2 = "v1.0.1-debug"
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2579,9 +2761,9 @@ class FoundationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val expectedCommitSha = git.tag.find(givenTagName2).id
-        val expectedBuildNumber = "1"
+        val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.1-debug"
+        val expectedTagName = "v1.0.2-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(

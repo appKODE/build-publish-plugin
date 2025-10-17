@@ -22,6 +22,7 @@ import ru.kode.android.build.publish.plugin.foundation.utils.currentDate
 import ru.kode.android.build.publish.plugin.foundation.utils.extractManifestProperties
 import ru.kode.android.build.publish.plugin.foundation.utils.getFile
 import ru.kode.android.build.publish.plugin.foundation.utils.printFilesRecursively
+import ru.kode.android.build.publish.plugin.foundation.utils.runTaskWithFail
 import java.io.File
 import java.io.IOException
 
@@ -47,12 +48,12 @@ class AssembleOneFlavorTest {
                 )
             )
         )
-        val givenTagName = "v1.0.0-googleDebug"
+        val givenTagName = "v1.0.1-googleDebug"
         val givenCommitMessage = "Initial commit"
         val givenGetLastTagTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc0-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -64,9 +65,9 @@ class AssembleOneFlavorTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.log().last().id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.0.0-googleDebug"
+        val expectedTagName = "v1.0.1-googleDebug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -78,8 +79,8 @@ class AssembleOneFlavorTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "",
-            versionName = "v1.0.0-googleDebug",
+            versionCode = "1",
+            versionName = "v1.0.1-googleDebug",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -109,6 +110,48 @@ class AssembleOneFlavorTest {
 
     @Test
     @Throws(IOException::class)
+    fun `assemble not creates tag file of debug build from one tag ending with 0, one commit, one flavor`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                )
+            )
+        )
+        val givenTagName = "v1.0.0-googleDebug"
+        val givenCommitMessage = "Initial commit"
+        val givenGetLastTagTask = "assembleGoogleDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc0-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName)
+
+        val result: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        assertTrue(
+            result.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed"
+        )
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
+        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+    }
+
+    @Test
+    @Throws(IOException::class)
     fun `assemble creates tag file of debug build from multiple tags, different commits, one flavor`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -119,14 +162,14 @@ class AssembleOneFlavorTest {
                 )
             )
         )
-        val givenFirstTagName = "v1.0.0-googleDebug"
-        val givenSecondTagName = "v1.0.1-googleDebug"
+        val givenFirstTagName = "v1.0.1-googleDebug"
+        val givenSecondTagName = "v1.0.2-googleDebug"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
         val givenGetLastTagTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc1-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenFirstTagName)
@@ -141,9 +184,9 @@ class AssembleOneFlavorTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenSecondTagName).id
-        val expectedBuildNumber = "1"
+        val expectedBuildNumber = "2"
         val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.0.1-googleDebug"
+        val expectedTagName = "v1.0.2-googleDebug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -155,8 +198,8 @@ class AssembleOneFlavorTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-googleDebug",
+            versionCode = "2",
+            versionName = "v1.0.2-googleDebug",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -196,13 +239,13 @@ class AssembleOneFlavorTest {
                 )
             )
         )
-        val givenFirstTagName = "v1.0.0-googleDebug"
-        val givenSecondTagName = "v1.0.1-googleDebug"
+        val givenFirstTagName = "v1.0.1-googleDebug"
+        val givenSecondTagName = "v1.0.2-googleDebug"
         val givenFirstCommitMessage = "Initial commit"
         val givenGetLastTagTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc1-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenFirstTagName)
@@ -215,9 +258,9 @@ class AssembleOneFlavorTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenSecondTagName).id
-        val expectedBuildNumber = "1"
+        val expectedBuildNumber = "2"
         val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.0.1-googleDebug"
+        val expectedTagName = "v1.0.2-googleDebug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -229,8 +272,8 @@ class AssembleOneFlavorTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-googleDebug",
+            versionCode = "2",
+            versionName = "v1.0.2-googleDebug",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -575,14 +618,14 @@ class AssembleOneFlavorTest {
                 )
             )
         )
-        val givenFirstTagName = "v1.0.1-googleDebug"
-        val givenSecondTagName = "v1.0.0-googleDebug"
+        val givenFirstTagName = "v1.0.2-googleDebug"
+        val givenSecondTagName = "v1.0.1-googleDebug"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
         val givenGetLastTagTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc1-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenFirstTagName)
@@ -597,9 +640,9 @@ class AssembleOneFlavorTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenFirstTagName).id
-        val expectedBuildNumber = "1"
+        val expectedBuildNumber = "2"
         val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.0.1-googleDebug"
+        val expectedTagName = "v1.0.2-googleDebug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -611,8 +654,8 @@ class AssembleOneFlavorTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-googleDebug",
+            versionCode = "2",
+            versionName = "v1.0.2-googleDebug",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -652,14 +695,14 @@ class AssembleOneFlavorTest {
                 )
             )
         )
-        val givenTagNameDebug = "v1.0.0-googleDebug"
-        val givenTagNameRelease = "v1.0.0-googleRelease"
+        val givenTagNameDebug = "v1.0.1-googleDebug"
+        val givenTagNameRelease = "v1.0.1-googleRelease"
         val givenCommitMessage = "Initial commit"
         val givenGetLastTagTaskRelease = "assembleGoogleRelease"
         val givenGetLastTagTaskDebug = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleRelease.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/release/autotest-googleRelease-vc0-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/release/autotest-googleRelease-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagNameDebug)
@@ -673,9 +716,9 @@ class AssembleOneFlavorTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.log().last().id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "googleRelease"
-        val expectedTagName = "v1.0.0-googleRelease"
+        val expectedTagName = "v1.0.1-googleRelease"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -687,8 +730,8 @@ class AssembleOneFlavorTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "",
-            versionName = "v1.0.0-googleRelease",
+            versionCode = "1",
+            versionName = "v1.0.1-googleRelease",
         )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -718,7 +761,132 @@ class AssembleOneFlavorTest {
 
     @Test
     @Throws(IOException::class)
+    fun `assemble not creates tag file of release build from two tags with same version ending with 0, same commit, one flavor`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                )
+            )
+        )
+        val givenTagNameDebug = "v1.0.0-googleDebug"
+        val givenTagNameRelease = "v1.0.0-googleRelease"
+        val givenCommitMessage = "Initial commit"
+        val givenGetLastTagTaskRelease = "assembleGoogleRelease"
+        val givenGetLastTagTaskDebug = "assembleGoogleDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleRelease.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/release/autotest-googleRelease-vc0-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagNameDebug)
+        git.tag.addNamed(givenTagNameRelease)
+
+        val releaseResult: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTaskRelease)
+        projectDir.runTaskWithFail(givenGetLastTagTaskDebug)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug not executed"
+        )
+        assertTrue(
+            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease executed"
+        )
+        assertTrue(
+            releaseResult.output.contains("BUILD FAILED"),
+            "Build failed"
+        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file nit exists")
+    }
+
+    @Test
+    @Throws(IOException::class)
     fun `assemble creates tag file of release build from two tags with same version, different commits, one flavor`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                )
+            )
+        )
+        val givenTagNameDebug = "v1.0.1-googleDebug"
+        val givenTagNameRelease = "v1.0.1-googleRelease"
+        val givenFirstCommitMessage = "Initial commit"
+        val givenSecondCommitMessage = "Add README"
+        val givenGetLastTagTaskRelease = "assembleGoogleRelease"
+        val givenGetLastTagTaskDebug = "assembleGoogleDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleRelease.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/release/autotest-googleRelease-vc1-$currentDate.apk")
+
+        git.addAllAndCommit(givenFirstCommitMessage)
+        git.tag.addNamed(givenTagNameDebug)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenSecondCommitMessage)
+        git.tag.addNamed(givenTagNameRelease)
+
+        val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTaskRelease)
+        projectDir.runTask(givenGetLastTagTaskDebug)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagNameRelease).id
+        val expectedBuildNumber = "1"
+        val expectedBuildVariant = "googleRelease"
+        val expectedTagName = "v1.0.1-googleRelease"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "1",
+            versionName = "v1.0.1-googleRelease",
+        )
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug not executed"
+        )
+        assertTrue(
+            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease executed"
+        )
+        assertTrue(
+            releaseResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeeded"
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `assemble not creates tag file of release build from two tags with same version ending with 0, different commits, one flavor`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
@@ -744,31 +912,11 @@ class AssembleOneFlavorTest {
         git.addAllAndCommit(givenSecondCommitMessage)
         git.tag.addNamed(givenTagNameRelease)
 
-        val releaseResult: BuildResult = projectDir.runTask(givenGetLastTagTaskRelease)
-        projectDir.runTask(givenGetLastTagTaskDebug)
+        val releaseResult: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTaskRelease)
+        projectDir.runTaskWithFail(givenGetLastTagTaskDebug)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
-
-        val expectedCommitSha = git.tag.find(givenTagNameRelease).id
-        val expectedBuildNumber = "0"
-        val expectedBuildVariant = "googleRelease"
-        val expectedTagName = "v1.0.0-googleRelease"
-        val expectedBuildVersion = "1.0"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "",
-            versionName = "v1.0.0-googleRelease",
-        )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
             "Task getLastTagGoogleDebug not executed"
@@ -778,21 +926,11 @@ class AssembleOneFlavorTest {
             "Task getLastTagGoogleRelease executed"
         )
         assertTrue(
-            releaseResult.output.contains("BUILD SUCCESSFUL"),
+            releaseResult.output.contains("BUILD FAILED"),
             "Build succeeded"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
-        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
-        assertEquals(
-            expectedManifestProperties,
-            givenOutputFileManifestProperties,
-            "Manifest properties equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
     @Test
@@ -807,14 +945,14 @@ class AssembleOneFlavorTest {
                 )
             )
         )
-        val givenTagNameDebug = "v1.0.1-googleDebug"
-        val givenTagNameRelease = "v1.0.0-googleRelease"
+        val givenTagNameDebug = "v1.0.2-googleDebug"
+        val givenTagNameRelease = "v1.0.1-googleRelease"
         val givenFirstCommitMessage = "Initial commit"
         val givenGetLastTagTaskRelease = "assembleGoogleRelease"
         val givenGetLastTagTaskDebug = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleRelease.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/release/autotest-googleRelease-vc0-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/release/autotest-googleRelease-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenTagNameDebug)
@@ -828,9 +966,9 @@ class AssembleOneFlavorTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenTagNameRelease).id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "googleRelease"
-        val expectedTagName = "v1.0.0-googleRelease"
+        val expectedTagName = "v1.0.1-googleRelease"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -842,8 +980,8 @@ class AssembleOneFlavorTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "",
-            versionName = "v1.0.0-googleRelease",
+            versionCode = "1",
+            versionName = "v1.0.1-googleRelease",
         )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -883,15 +1021,15 @@ class AssembleOneFlavorTest {
                 )
             )
         )
-        val givenTagNameDebug = "v1.0.1-googleDebug"
-        val givenTagNameRelease = "v1.0.0-googleRelease"
+        val givenTagNameDebug = "v1.0.2-googleDebug"
+        val givenTagNameRelease = "v1.0.1-googleRelease"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
         val givenGetLastTagTaskRelease = "assembleGoogleRelease"
         val givenGetLastTagTaskDebug = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleRelease.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/release/autotest-googleRelease-vc0-$currentDate.apk")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/release/autotest-googleRelease-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenTagNameDebug)
@@ -908,9 +1046,9 @@ class AssembleOneFlavorTest {
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedCommitSha = git.tag.find(givenTagNameRelease).id
-        val expectedBuildNumber = "0"
+        val expectedBuildNumber = "1"
         val expectedBuildVariant = "googleRelease"
-        val expectedTagName = "v1.0.0-googleRelease"
+        val expectedTagName = "v1.0.1-googleRelease"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -922,8 +1060,8 @@ class AssembleOneFlavorTest {
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
         val expectedManifestProperties = ManifestProperties(
-            versionCode = "",
-            versionName = "v1.0.0-googleRelease",
+            versionCode = "1",
+            versionName = "v1.0.1-googleRelease",
         )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -963,7 +1101,7 @@ class AssembleOneFlavorTest {
                 )
             )
         )
-        val given1TagNameDebug = "v1.0.1-googleDebug"
+        val given1TagNameDebug = "v1.0.2-googleDebug"
         val given2TagNameDebug = "v1.0.99-googleDebug"
         val given3TagNameDebug = "v1.0.100-googleDebug"
         val givenFirstCommitMessage = "Initial commit"
@@ -1045,7 +1183,7 @@ class AssembleOneFlavorTest {
                 )
             )
         )
-        val given1TagNameDebug = "v1.0.1-googleDebug"
+        val given1TagNameDebug = "v1.0.2-googleDebug"
         val given2TagNameDebug = "v1.0.99-googleDebug"
         val given3TagNameDebug = "v1.0.100-googleDebug"
         val givenCommitMessage = "Initial commit"

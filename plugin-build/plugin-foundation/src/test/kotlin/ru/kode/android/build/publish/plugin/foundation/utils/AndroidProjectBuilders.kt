@@ -301,7 +301,7 @@ internal fun File.runTasks(vararg task: String): BuildResult {
 internal fun File.runTaskWithFail(task: String): BuildResult {
     return GradleRunner.create()
         .withProjectDir(this)
-        .withArguments(task)
+        .withArguments(task, "--info")
         .withPluginClasspath()
         .forwardOutput()
         .buildAndFail()
