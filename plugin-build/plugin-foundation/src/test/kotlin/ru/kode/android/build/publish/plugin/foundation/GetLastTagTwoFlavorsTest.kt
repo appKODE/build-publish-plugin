@@ -285,7 +285,6 @@ class GetLastTagTwoFlavorsTest {
         )
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
     fun `creates tag file of debug build from multiple tags, different version, same VC, wrong order, different commits, two flavors`() {
@@ -339,7 +338,6 @@ class GetLastTagTwoFlavorsTest {
         )
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
     fun `creates tag file of debug build from multiple tags, different version, same VC, wrong order, same commit, two flavors`() {
@@ -390,7 +388,6 @@ class GetLastTagTwoFlavorsTest {
         )
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
     fun `creates tag file of debug build from multiple tags with wrong order, different commits, two flavors`() {

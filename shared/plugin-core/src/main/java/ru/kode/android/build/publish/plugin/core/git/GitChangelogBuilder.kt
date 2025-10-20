@@ -20,53 +20,35 @@ class GitChangelogBuilder(
     private val logger: Logger?,
 ) {
     /**
-     * Builds a changelog for a specific build tag.
+     * Builds a changelog string for a given build tag by determining the tag range and collecting
+     * commit messages between the tags.
      *
-     * This method generates a changelog by extracting commit messages that contain the specified
-     * [messageKey] from the Git history between the current build tag and the previous one.
+     * This function first attempts to find a [TagRange] between the specified [buildTag] and the
+     * previous matching build tag using [buildTagPattern]. If no valid tag range is found, a warning
+     * is logged and `null` is returned.
      *
-     * @param messageKey The key to search for in commit messages (e.g., "CHANGELOG")
-     * @param buildTag The build tag to generate the changelog for
-     * @param buildTagPattern Regex pattern used to match build tags (e.g., ".*\\.(\\d+)-%s")
-     * @param defaultValueSupplier Optional supplier for a default changelog when no commits are found
+     * If a valid tag range is found, it calls [buildChangelog] using the commit messages associated
+     * with the provided [messageKey] within that range. If no changelog content is generated, it
+     * optionally uses [defaultValueSupplier] to provide a fallback value.
      *
-     * @return The formatted changelog, or null if no relevant commits or tags are found
-     * @throws IllegalArgumentException If the build tag pattern is invalid
+     * @param messageKey a key used to identify which commit messages to include in the changelog.
+     * @param buildTag the build tag for which the changelog is being generated.
+     * @param buildTagPattern the pattern used to find related build tags for determining the tag range.
+     * @param defaultValueSupplier an optional function that supplies a default changelog string
+     *        when no changelog can be built; receives the [TagRange] as input.
      *
-     * @see Tag.Build For information about build tags
+     * @return the generated changelog string, the value from [defaultValueSupplier] if provided,
+     *         or `null` if no tag range could be determined or no changelog could be built.
      */
     @Suppress("ReturnCount")
-    fun buildForBuildTag(
+    fun buildForTag(
         messageKey: String,
         buildTag: Tag.Build,
         buildTagPattern: String,
         defaultValueSupplier: ((TagRange) -> String?)? = null,
     ): String? {
-        val buildVariant = buildTag.buildVariant
-        return buildForBuildVariant(messageKey, buildVariant, buildTagPattern, defaultValueSupplier)
-    }
-
-    /**
-     * Builds a changelog for a specific build variant.
-     *
-     * This internal method finds the appropriate tags for the build variant and generates
-     * a changelog from the commit messages between them.
-     *
-     * @param messageKey The key to search for in commit messages
-     * @param buildVariant The build variant to generate the changelog for (e.g., "debug", "release")
-     * @param buildTagPattern Regex pattern used to match build tags
-     * @param defaultValueSupplier Optional supplier for a default changelog when no commits are found
-     *
-     * @return The formatted changelog, or null if no relevant commits or tags are found
-     */
-    private fun buildForBuildVariant(
-        messageKey: String,
-        buildVariant: String,
-        buildTagPattern: String,
-        defaultValueSupplier: ((TagRange) -> String?)? = null,
-    ): String? {
         val tagRange =
-            gitRepository.findTagRange(buildVariant, buildTagPattern)
+            gitRepository.findTagRange(buildTag, buildTagPattern)
                 .also { if (it == null) logger?.warn("failed to build a changelog: no build tags") }
                 ?: return null
         return buildChangelog(

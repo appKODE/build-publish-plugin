@@ -26,6 +26,10 @@ internal fun TagService.addNamed(name: String) {
     this.add(mapOf("name" to name))
 }
 
+internal fun TagService.addNamedWithMessage(name: String, message: String) {
+    this.add(mapOf("name" to name, "message" to message))
+}
+
 internal fun TagService.find(expectedTagName: String): Commit {
     return this.list().find { it.name == expectedTagName }!!.commit
 }

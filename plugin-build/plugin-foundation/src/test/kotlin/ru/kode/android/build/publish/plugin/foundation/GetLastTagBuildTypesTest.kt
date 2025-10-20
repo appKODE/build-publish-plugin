@@ -17,6 +17,7 @@ import ru.kode.android.build.publish.plugin.foundation.utils.initGit
 import ru.kode.android.build.publish.plugin.foundation.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.foundation.utils.getFile
 import ru.kode.android.build.publish.plugin.foundation.utils.printFilesRecursively
+import ru.kode.android.build.publish.plugin.foundation.utils.runTaskWithFail
 import java.io.File
 import java.io.IOException
 
@@ -169,7 +170,7 @@ class GetLastTagBuildTypesTest {
 
     @Test
     @Throws(IOException::class)
-    fun `creates tag file of debug build from multiple tags, different version, same VC, different commits, build types only`() {
+    fun `not creates tag file of debug build from multiple tags, different version, same VC, different commits, build types only`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
@@ -187,38 +188,20 @@ class GetLastTagBuildTypesTest {
         git.addAllAndCommit(givenSecondCommitMessage)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedCommitSha = git.tag.find(givenSecondTagName).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.2.1-debug"
-        val expectedBuildVersion = "1.2"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
     }
 
     @Test
     @Throws(IOException::class)
-    fun `creates tag file of debug build from multiple tags, different version, same VC, same commit, build types only`() {
+    fun `not creates tag file of debug build from multiple tags, different version, same VC, same commit, build types only`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
@@ -233,39 +216,20 @@ class GetLastTagBuildTypesTest {
         git.tag.addNamed(givenFirstTagName)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedCommitSha = git.tag.find(givenSecondTagName).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.2.1-debug"
-        val expectedBuildVersion = "1.2"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
-    fun `creates tag file of debug build from multiple tags, different version, same VC, wrong order, different commits, build types only`() {
+    fun `not creates tag file of debug build from multiple tags, different version, same VC, wrong order, different commits, build types only`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
@@ -283,39 +247,20 @@ class GetLastTagBuildTypesTest {
         git.addAllAndCommit(givenSecondCommitMessage)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedCommitSha = git.tag.find(givenFirstTagName).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.2.1-debug"
-        val expectedBuildVersion = "1.2"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(),"Tag file not exists")
     }
 
     @Test
     @Throws(IOException::class)
-    // TODO: Not sure that when order is wrong, we should return previous one, it looks like we need to throw an error
-    fun `creates tag file of debug build from multiple tags, different version, same VC, wrong order, same commit, build types only`() {
+    fun `not creates tag file of debug build from multiple tags, different version, same VC, wrong order, same commit, build types only`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release"))
         )
@@ -330,36 +275,17 @@ class GetLastTagBuildTypesTest {
         git.tag.addNamed(givenFirstTagName)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedCommitSha = git.tag.find(givenFirstTagName).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.2.1-debug"
-        val expectedBuildVersion = "1.2"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not found")
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
     fun `creates tag file of debug build from multiple tags with wrong order, different commits, build types only`() {
@@ -380,33 +306,15 @@ class GetLastTagBuildTypesTest {
         git.addAllAndCommit(givenSecondCommitMessage)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedCommitSha = git.tag.find(givenFirstTagName).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.2-debug"
-        val expectedBuildVersion = "1.0"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
     }
 
     @Test

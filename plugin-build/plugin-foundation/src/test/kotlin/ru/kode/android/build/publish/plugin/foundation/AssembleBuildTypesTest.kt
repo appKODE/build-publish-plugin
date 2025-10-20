@@ -298,7 +298,7 @@ class AssembleBuildTypesTest {
 
     @Test
     @Throws(IOException::class)
-    fun `assemble creates tag file of debug build from multiple tags, different version, same VC, different commits, build types only`() {
+    fun `assemble not creates tag file of debug build from multiple tags, different version, same VC, different commits, build types only`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             foundationConfig = FoundationConfig(
@@ -322,30 +322,10 @@ class AssembleBuildTypesTest {
         git.addAllAndCommit(givenSecondCommitMessage)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
-
-        val expectedCommitSha = git.tag.find(givenSecondTagName).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.2.1-debug"
-        val expectedBuildVersion = "1.2"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.2.1-debug",
-        )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed"
@@ -355,21 +335,11 @@ class AssembleBuildTypesTest {
             "Task getLastTagDebug executed"
         )
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
-        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
-        assertEquals(
-            expectedManifestProperties,
-            givenOutputFileManifestProperties,
-            "Manifest properties equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
     @Test
@@ -420,7 +390,7 @@ class AssembleBuildTypesTest {
 
     @Test
     @Throws(IOException::class)
-    fun `assemble creates tag file of debug build from multiple tags, different version, same VC, same commit, build types only`() {
+    fun `assemble not creates tag file of debug build from multiple tags, different version, same VC, same commit, build types only`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             foundationConfig = FoundationConfig(
@@ -441,30 +411,10 @@ class AssembleBuildTypesTest {
         git.tag.addNamed(givenFirstTagName)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
-
-        val expectedCommitSha = git.tag.find(givenSecondTagName).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.2.1-debug"
-        val expectedBuildVersion = "1.2"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.2.1-debug",
-        )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed"
@@ -474,21 +424,11 @@ class AssembleBuildTypesTest {
             "Task getLastTagDebug executed"
         )
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
-        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
-        assertEquals(
-            expectedManifestProperties,
-            givenOutputFileManifestProperties,
-            "Manifest properties equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
     @Test
@@ -534,10 +474,9 @@ class AssembleBuildTypesTest {
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
-    fun `assemble creates tag file of debug build from multiple tags, different version, same VC, wrong order, different commits, build types only`() {
+    fun `assemble not creates tag file of debug build from multiple tags, different version, same VC, wrong order, different commits, build types only`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             foundationConfig = FoundationConfig(
@@ -561,30 +500,10 @@ class AssembleBuildTypesTest {
         git.addAllAndCommit(givenSecondCommitMessage)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
-
-        val expectedCommitSha = git.tag.find(givenFirstTagName).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.2.1-debug"
-        val expectedBuildVersion = "1.2"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.2.1-debug",
-        )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed"
@@ -594,24 +513,13 @@ class AssembleBuildTypesTest {
             "Task getLastTagDebug executed"
         )
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
-        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
-        assertEquals(
-            expectedManifestProperties,
-            givenOutputFileManifestProperties,
-            "Manifest properties equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
     fun `assemble not creates tag file of debug build from multiple tags ending with 0, different version, same VC, wrong order, different commits, build types only`() {
@@ -658,10 +566,9 @@ class AssembleBuildTypesTest {
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
-    fun `assemble creates tag file of debug build from multiple tags, different version, same VC, wrong order, same commit, build types only`() {
+    fun `assemble not creates tag file of debug build from multiple tags, different version, same VC, wrong order, same commit, build types only`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             foundationConfig = FoundationConfig(
@@ -682,30 +589,10 @@ class AssembleBuildTypesTest {
         git.tag.addNamed(givenFirstTagName)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
-
-        val expectedCommitSha = git.tag.find(givenFirstTagName).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.2.1-debug"
-        val expectedBuildVersion = "1.2"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.2.1-debug",
-        )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed"
@@ -715,24 +602,13 @@ class AssembleBuildTypesTest {
             "Task getLastTagDebug executed"
         )
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
-        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
-        assertEquals(
-            expectedManifestProperties,
-            givenOutputFileManifestProperties,
-            "Manifest properties equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
     fun `assemble not creates tag file of debug build from multiple tags ending with 0, different version, same VC, wrong order, same commit, build types only`() {
@@ -776,10 +652,9 @@ class AssembleBuildTypesTest {
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
-    fun `assemble creates tag file of debug build from multiple tags with wrong order, different commits, build types only`() {
+    fun `assemble not creates tag file of debug build from multiple tags with wrong order, different commits, build types only`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             foundationConfig = FoundationConfig(
@@ -803,30 +678,10 @@ class AssembleBuildTypesTest {
         git.addAllAndCommit(givenSecondCommitMessage)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
-
-        val expectedCommitSha = git.tag.find(givenFirstTagName).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.2-debug"
-        val expectedBuildVersion = "1.0"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "2",
-            versionName = "v1.0.2-debug",
-        )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed"
@@ -836,21 +691,11 @@ class AssembleBuildTypesTest {
             "Task getLastTagDebug executed"
         )
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
-        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
-        assertEquals(
-            expectedManifestProperties,
-            givenOutputFileManifestProperties,
-            "Manifest properties equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
     @Test

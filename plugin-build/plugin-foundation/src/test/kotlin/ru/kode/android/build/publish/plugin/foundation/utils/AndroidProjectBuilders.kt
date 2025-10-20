@@ -283,7 +283,7 @@ internal fun File.getFile(path: String): File {
 internal fun File.runTask(task: String): BuildResult {
     return GradleRunner.create()
         .withProjectDir(this)
-        .withArguments(task)
+        .withArguments(task, "--info")
         .withPluginClasspath()
         .forwardOutput()
         .build()
@@ -292,7 +292,7 @@ internal fun File.runTask(task: String): BuildResult {
 internal fun File.runTasks(vararg task: String): BuildResult {
     return GradleRunner.create()
         .withProjectDir(this)
-        .withArguments(*task)
+        .withArguments(*task, "--info")
         .withPluginClasspath()
         .forwardOutput()
         .build()

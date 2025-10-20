@@ -303,7 +303,7 @@ class AssembleOneFlavorTest {
 
     @Test
     @Throws(IOException::class)
-    fun `assemble creates tag file of debug build from multiple tags, different version, same VC, different commits, one flavor`() {
+    fun `assemble not creates tag file of debug build from multiple tags, different version, same VC, different commits, one flavor`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
@@ -328,30 +328,10 @@ class AssembleOneFlavorTest {
         git.addAllAndCommit(givenSecondCommitMessage)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
-
-        val expectedCommitSha = git.tag.find(givenSecondTagName).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.2.1-googleDebug"
-        val expectedBuildVersion = "1.2"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.2.1-googleDebug",
-        )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
             "Task getLastTagGoogleDebug executed"
@@ -361,26 +341,16 @@ class AssembleOneFlavorTest {
             "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
-        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
-        assertEquals(
-            expectedManifestProperties,
-            givenOutputFileManifestProperties,
-            "Manifest properties equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
     @Test
     @Throws(IOException::class)
-    fun `assemble creates tag file of debug build from multiple tags, different version, same VC, same commit, one flavor`() {
+    fun `assemble not creates tag file of debug build from multiple tags, different version, same VC, same commit, one flavor`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
@@ -402,30 +372,10 @@ class AssembleOneFlavorTest {
         git.tag.addNamed(givenFirstTagName)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
-
-        val expectedCommitSha = git.tag.find(givenSecondTagName).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.2.1-googleDebug"
-        val expectedBuildVersion = "1.2"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.2.1-googleDebug",
-        )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
             "Task getLastTagGoogleDebug executed"
@@ -435,27 +385,16 @@ class AssembleOneFlavorTest {
             "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
-        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
-        assertEquals(
-            expectedManifestProperties,
-            givenOutputFileManifestProperties,
-            "Manifest properties equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
-    fun `assemble creates tag file of debug build from multiple tags, different version, same VC, wrong order, different commits, one flavor`() {
+    fun `assemble not creates tag file of debug build from multiple tags, different version, same VC, wrong order, different commits, one flavor`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
@@ -480,30 +419,10 @@ class AssembleOneFlavorTest {
         git.addAllAndCommit(givenSecondCommitMessage)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
-
-        val expectedCommitSha = git.tag.find(givenFirstTagName).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.2.1-googleDebug"
-        val expectedBuildVersion = "1.2"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.2.1-googleDebug",
-        )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
             "Task getLastTagGoogleDebug executed"
@@ -513,27 +432,16 @@ class AssembleOneFlavorTest {
             "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
-        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
-        assertEquals(
-            expectedManifestProperties,
-            givenOutputFileManifestProperties,
-            "Manifest properties equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
-    fun `assemble creates tag file of debug build from multiple tags, different version, same VC, wrong order, same commit, one flavor`() {
+    fun `assemble not creates tag file of debug build from multiple tags, different version, same VC, wrong order, same commit, one flavor`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
@@ -555,30 +463,10 @@ class AssembleOneFlavorTest {
         git.tag.addNamed(givenFirstTagName)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
-
-        val expectedCommitSha = git.tag.find(givenFirstTagName).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.2.1-googleDebug"
-        val expectedBuildVersion = "1.2"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.2.1-googleDebug",
-        )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
             "Task getLastTagGoogleDebug executed"
@@ -588,24 +476,13 @@ class AssembleOneFlavorTest {
             "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
-        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
-        assertEquals(
-            expectedManifestProperties,
-            givenOutputFileManifestProperties,
-            "Manifest properties equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
-    // TODO: Maybe when it has wrong order, it should fail
     @Test
     @Throws(IOException::class)
     fun `assemble creates tag file of debug build from multiple tags with wrong order, different commits, one flavor`() {
@@ -633,30 +510,10 @@ class AssembleOneFlavorTest {
         git.addAllAndCommit(givenSecondCommitMessage)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+        val result: BuildResult = projectDir.runTaskWithFail(givenGetLastTagTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
-
-        val expectedCommitSha = git.tag.find(givenFirstTagName).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.0.2-googleDebug"
-        val expectedBuildVersion = "1.0"
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
-            ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "2",
-            versionName = "v1.0.2-googleDebug",
-        )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
             "Task getLastTagGoogleDebug executed"
@@ -666,21 +523,11 @@ class AssembleOneFlavorTest {
             "Task getLastTagGoogleRelease not executed"
         )
         assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            result.output.contains("BUILD FAILED"),
+            "Build failed"
         )
-        assertEquals(
-            expectedTagBuildFile.trimMargin(),
-            givenTagBuildFile.readText(),
-            "Tags equality"
-        )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
-        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
-        assertEquals(
-            expectedManifestProperties,
-            givenOutputFileManifestProperties,
-            "Manifest properties equality"
-        )
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
     @Test

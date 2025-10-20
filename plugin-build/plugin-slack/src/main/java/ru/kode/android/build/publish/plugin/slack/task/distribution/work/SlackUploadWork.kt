@@ -7,7 +7,7 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.util.UploadStreamTimeoutException
-import ru.kode.android.build.publish.plugin.core.zip.zipFiles
+import ru.kode.android.build.publish.plugin.core.zip.zipAllInto
 import ru.kode.android.build.publish.plugin.slack.service.upload.SlackUploadService
 import java.io.File
 
@@ -62,7 +62,7 @@ internal abstract class SlackUploadWork : WorkAction<SlackUploadParameters> {
         val uploader = parameters.networkService.get()
         val distributionFile = parameters.distributionFile.asFile.get()
         val zippedDistributionFile =
-            listOf(distributionFile).zipFiles(
+            listOf(distributionFile).zipAllInto(
                 File(
                     distributionFile.toString()
                         .replace(".${distributionFile.extension}", ".zip"),

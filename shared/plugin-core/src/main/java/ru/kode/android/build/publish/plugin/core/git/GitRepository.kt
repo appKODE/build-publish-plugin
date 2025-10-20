@@ -16,32 +16,36 @@ import ru.kode.android.build.publish.plugin.core.enity.TagRange
 class GitRepository(
     private val gitCommandExecutor: GitCommandExecutor,
 ) {
+
     /**
-     * Finds the current and previous build tags for a given build variant.
+     * Finds the range between the given [buildTag] and the previous matching build tag.
      *
-     * This method searches for tags matching the provided pattern and returns a [TagRange] containing
-     * the most recent tag and optionally the previous tag. This is typically used to determine the
-     * range of commits to include in a changelog.
+     * This function uses the provided [buildTagPattern] to create a [Regex] used to
+     * identify related build tags. It then delegates to [gitCommandExecutor.findTagRange]
+     * to locate the current and previous build tags that match the pattern.
      *
-     * @param buildVariant The build variant to find tags for (e.g., "debug", "release")
-     * @param buildTagPattern Regex pattern used to match build tags
+     * If a previous build tag is found, it returns a [TagRange] containing both the
+     * current and previous tags. If no previous tag exists, the [previousBuildTag] in
+     * the returned [TagRange] will be `null`. If no matching tags are found at all,
+     * this function returns `null`.
      *
-     * @return A [TagRange] containing the current and previous build tags, or null if no tags are found
-     * @throws IllegalArgumentException If the build tag pattern is invalid
-     * @see TagRange For information about the returned range structure
+     * @param buildTag the current build tag serving as the upper bound of the tag range.
+     * @param buildTagPattern the regex pattern used to find related build tags in the repository.
+     *
+     * @return a [TagRange] representing the range between [buildTag] and its previous matching tag,
+     *         or `null` if no matching tags could be found.
      */
     fun findTagRange(
-        buildVariant: String,
+        buildTag: Tag.Build,
         buildTagPattern: String,
     ): TagRange? {
         val buildTagRegex = Regex(buildTagPattern)
-        return gitCommandExecutor.findBuildTags(buildTagRegex, limitResultCount = 2)
+        return gitCommandExecutor.findTagRange(buildTag, buildTagRegex)
             ?.let { tags ->
-                val currentBuildTag = tags.first()
                 val previousBuildTag = tags.getOrNull(1)
                 TagRange(
-                    currentBuildTag = Tag.Build(currentBuildTag, buildVariant),
-                    previousBuildTag = previousBuildTag?.let { Tag.Build(it, buildVariant) },
+                    currentBuildTag = buildTag,
+                    previousBuildTag = previousBuildTag,
                 )
             }
     }

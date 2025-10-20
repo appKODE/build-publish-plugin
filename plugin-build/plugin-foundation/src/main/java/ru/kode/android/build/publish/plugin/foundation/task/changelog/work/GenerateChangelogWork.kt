@@ -69,13 +69,13 @@ internal abstract class GenerateChangelogWork
             val changelog =
                 parameters.gitExecutorService.get()
                     .gitChangelogBuilder
-                    .buildForBuildTag(
+                    .buildForTag(
                         messageKey,
                         currentBuildTag,
                         buildTagPattern,
                         defaultValueSupplier = { tagRange ->
                             val previousBuildName = tagRange.previousBuildTag?.name?.let { "($it)" } ?: ""
-                            "No changes compared to the previous build $previousBuildName"
+                            "No changes compared to the previous build $previousBuildName".trim()
                         },
                     )
             val changelogOutput = parameters.changelogFile.asFile.get()
