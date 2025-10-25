@@ -6,6 +6,7 @@ import org.gradle.api.GradleException
 private const val BUILD_VERSION_REGEX_PART = "(\\d+)"
 private const val BUILD_VARIANT_NAME_REGEX_PART = "%s"
 private const val ANY_BEFORE_DOT_REGEX_PART = ".+\\."
+private const val ANY_OPTIONAL_SYMBOLS_PART = "([A-Za-z0-9]+)?"
 
 /**
  * Builder for constructing a regular expression pattern for matching build tags.
@@ -20,7 +21,7 @@ class BuildTagPatternBuilder {
 
     /**
      * Adds a literal string (not escaped)
-     * */
+     */
     fun literal(value: String): BuildTagPatternBuilder {
         parts += value
         return this
@@ -28,15 +29,23 @@ class BuildTagPatternBuilder {
 
     /**
      * Adds a separator (escaped for regex), e.g. "-", "_", "+" and etc.
-     * */
+     */
     fun separator(value: String): BuildTagPatternBuilder {
         parts += Regex.escape(value)
         return this
     }
 
     /**
+     * Adds an optional separator (escaped for regex), e.g. "-", "_", "+" and etc.
+     */
+    fun optionalSeparator(value: String): BuildTagPatternBuilder {
+        parts += "(${Regex.escape(value)})?"
+        return this
+    }
+
+    /**
      * Captures a numeric build version: (\d+)
-     * */
+     */
     fun buildVersion(): BuildTagPatternBuilder {
         parts += BUILD_VERSION_REGEX_PART
         return this
@@ -44,7 +53,7 @@ class BuildTagPatternBuilder {
 
     /**
      * Inserts a build variant name placeholder: %s
-     * */
+     */
     fun buildVariantName(): BuildTagPatternBuilder {
         parts += BUILD_VARIANT_NAME_REGEX_PART
         return this
@@ -52,15 +61,23 @@ class BuildTagPatternBuilder {
 
     /**
      * Matches any text ending with a dot: .+\.
-     * */
+     */
     fun anyBeforeDot(): BuildTagPatternBuilder {
         parts += ANY_BEFORE_DOT_REGEX_PART
         return this
     }
 
     /**
+     * Matches a sequence of optional alphanumeric characters (like "androidAuto" or "tv").
+     */
+    fun anyOptionalSymbols(): BuildTagPatternBuilder {
+        parts += ANY_OPTIONAL_SYMBOLS_PART
+        return this
+    }
+
+    /**
      * Builds the final regex template with validation
-     * */
+     */
     fun build(): String {
         val template = parts.joinToString("")
 

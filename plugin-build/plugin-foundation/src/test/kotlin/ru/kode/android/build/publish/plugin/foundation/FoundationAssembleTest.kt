@@ -393,7 +393,531 @@ class FoundationAssembleTest {
         )
     }
 
-    // TODO: It should be failed, because it has incorrect order version (?)
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with previous tag when postfix applied tags at the end of android formated tags is used`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("internal"),
+                BuildType("release")
+            ),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                )
+            )
+        )
+        val givenTagName1 = "v1.0.0-release"
+
+        val givenTagName2 = "v1.0.1-release"
+        val givenTagName3 = "v1.0.2-release-androidAuto"
+
+        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenAssembleTask = "assembleRelease"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/autotest-release-vc1-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        git.addAllAndCommit("[pfm] Update pager behaviour")
+        git.tag.addNamed(givenTagName2)
+
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        git.addAllAndCommit("[auth flow]: wrap chat flow component in remember for prevent recomposition")
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedBuildNumber = "1"
+        val expectedBuildVariant = "release"
+        val expectedTagName = "v1.0.1-release"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "1",
+            versionName = "v1.0.1-release",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with previous tag when postfix applied tags at the end of android formated tags is used, same commit`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("internal"),
+                BuildType("release")
+            ),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                )
+            )
+        )
+        val givenTagName1 = "v1.0.0-release"
+
+        val givenTagName2 = "v1.0.1-release"
+        val givenTagName3 = "v1.0.2-release-androidAuto"
+
+        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenAssembleTask = "assembleRelease"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/autotest-release-vc1-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        git.addAllAndCommit("[pfm] Update pager behaviour")
+        git.tag.addNamed(givenTagName2)
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedBuildNumber = "1"
+        val expectedBuildVariant = "release"
+        val expectedTagName = "v1.0.1-release"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "1",
+            versionName = "v1.0.1-release",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with last tag when postfix applied tags at the end of android formated tags is used and custom pattern used`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("internal"),
+                BuildType("release")
+            ),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    buildTagPatternBuilderFunctions = listOf(
+                        "it.anyBeforeDot()",
+                        "it.buildVersion()",
+                        "it.separator(\"-\")",
+                        "it.buildVariantName()",
+                        "it.optionalSeparator(\"-\")",
+                        "it.anyOptionalSymbols()",
+                    )
+                ),
+            )
+        )
+        val givenTagName1 = "v1.0.0-release"
+
+        val givenTagName2 = "v1.0.1-release"
+        val givenTagName3 = "v1.0.2-release-androidAuto"
+
+        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenAssembleTask = "assembleRelease"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/autotest-release-vc2-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        git.addAllAndCommit("[pfm] Update pager behaviour")
+        git.tag.addNamed(givenTagName2)
+
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        git.addAllAndCommit("[auth flow]: wrap chat flow component in remember for prevent recomposition")
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName3).id
+        val expectedBuildNumber = "2"
+        val expectedBuildVariant = "release"
+        val expectedTagName = "v1.0.2-release-androidAuto"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "2",
+            versionName = "v1.0.2-release-androidAuto",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with last tag when postfix applied tags at the end of android formated tags is used and custom pattern used, same commit`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("internal"),
+                BuildType("release")
+            ),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    buildTagPatternBuilderFunctions = listOf(
+                        "it.anyBeforeDot()",
+                        "it.buildVersion()",
+                        "it.separator(\"-\")",
+                        "it.buildVariantName()",
+                        "it.optionalSeparator(\"-\")",
+                        "it.anyOptionalSymbols()",
+                    )
+                ),
+            )
+        )
+        val givenTagName1 = "v1.0.0-release"
+
+        val givenTagName2 = "v1.0.1-release"
+        val givenTagName3 = "v1.0.2-release-androidAuto"
+
+        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenAssembleTask = "assembleRelease"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/autotest-release-vc2-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        git.addAllAndCommit("[pfm] Update pager behaviour")
+        git.tag.addNamed(givenTagName2)
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName3).id
+        val expectedBuildNumber = "2"
+        val expectedBuildVariant = "release"
+        val expectedTagName = "v1.0.2-release-androidAuto"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "2",
+            versionName = "v1.0.2-release-androidAuto",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with last tag when postfix applied tags in between of android formated tags is used and custom pattern used`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("internal"),
+                BuildType("release")
+            ),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    buildTagPatternBuilderFunctions = listOf(
+                        "it.anyBeforeDot()",
+                        "it.buildVersion()",
+                        "it.separator(\"-\")",
+                        "it.buildVariantName()",
+                        "it.optionalSeparator(\"-\")",
+                        "it.anyOptionalSymbols()",
+                    )
+                ),
+            )
+        )
+        val givenTagName1 = "v1.0.0-release"
+
+        val givenTagName2 = "v1.0.1-release-androidAuto"
+        val givenTagName3 = "v1.0.2-release"
+
+        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenAssembleTask = "assembleRelease"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/autotest-release-vc2-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        git.addAllAndCommit("[pfm] Update pager behaviour")
+        git.tag.addNamed(givenTagName2)
+
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        git.addAllAndCommit("[auth flow]: wrap chat flow component in remember for prevent recomposition")
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName3).id
+        val expectedBuildNumber = "2"
+        val expectedBuildVariant = "release"
+        val expectedTagName = "v1.0.2-release"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "2",
+            versionName = "v1.0.2-release",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with last tag when postfix applied tags in between of android formated tags is used and custom pattern used, same commit`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("internal"),
+                BuildType("release")
+            ),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                    buildTagPatternBuilderFunctions = listOf(
+                        "it.anyBeforeDot()",
+                        "it.buildVersion()",
+                        "it.separator(\"-\")",
+                        "it.buildVariantName()",
+                        "it.optionalSeparator(\"-\")",
+                        "it.anyOptionalSymbols()",
+                    )
+                ),
+            )
+        )
+        val givenTagName1 = "v1.0.0-release"
+
+        val givenTagName2 = "v1.0.1-release-androidAuto"
+        val givenTagName3 = "v1.0.2-release"
+
+        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenAssembleTask = "assembleRelease"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/autotest-release-vc2-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+
+        git.addAllAndCommit("[pfm] Update pager behaviour")
+        git.tag.addNamed(givenTagName2)
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName3).id
+        val expectedBuildNumber = "2"
+        val expectedBuildVariant = "release"
+        val expectedTagName = "v1.0.2-release"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "2",
+            versionName = "v1.0.2-release",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed"
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
     @Test
     @Throws(IOException::class)
     fun `build succeed with last build number tag when different tags in between of android formated tags is used, different build version, correct build number order`() {
