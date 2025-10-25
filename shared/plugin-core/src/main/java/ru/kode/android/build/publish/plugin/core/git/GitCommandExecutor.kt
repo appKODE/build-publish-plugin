@@ -6,9 +6,9 @@ import org.gradle.api.GradleException
 import org.gradle.internal.cc.base.logger
 import ru.kode.android.build.publish.plugin.core.enity.CommitRange
 import ru.kode.android.build.publish.plugin.core.enity.Tag
-import org.ajoberstar.grgit.Tag as GrgitTag
 import ru.kode.android.build.publish.plugin.core.util.getBuildNumber
 import ru.kode.android.build.publish.plugin.core.util.getCommitsByRange
+import org.ajoberstar.grgit.Tag as GrgitTag
 
 /**
  * Executes Git commands and provides high-level Git operations.
@@ -132,9 +132,7 @@ class GitCommandExecutor(
      *
      * @return a sorted list of [GrgitTag] objects matching the given regex.
      */
-    private fun findTagsByRegex(
-        buildTagRegex: Regex,
-    ): List<GrgitTag> {
+    private fun findTagsByRegex(buildTagRegex: Regex): List<GrgitTag> {
         val commitsLog = grgit.log()
         val tagsList = grgit.tag.list()
 
@@ -142,18 +140,18 @@ class GitCommandExecutor(
             .also { tags ->
                 logger.info(
                     """
-                        [FIND TAGS BY REGEX] Tags original list:
-                            ${tags.joinToString { tag -> "${tag.name} (datetime: ${tag.dateTime})" }}
-                    """.trimIndent()
+                    [FIND TAGS BY REGEX] Tags original list:
+                        ${tags.joinToString { tag -> "${tag.name} (datetime: ${tag.dateTime})" }}
+                    """.trimIndent(),
                 )
             }
             .filter { tag -> tag.name.matches(buildTagRegex) }
             .also { tags ->
                 logger.info(
                     """
-                        [FIND TAGS BY REGEX] Tags after filter by regex ($buildTagRegex): 
-                            ${tags.joinToString { it.name }}
-                    """.trimIndent()
+                    [FIND TAGS BY REGEX] Tags after filter by regex ($buildTagRegex): 
+                        ${tags.joinToString { it.name }}
+                    """.trimIndent(),
                 )
             }
             .sortedWith(
@@ -162,14 +160,14 @@ class GitCommandExecutor(
                     if (index >= 0) -index else Int.MIN_VALUE
                 }.thenByDescending { tag ->
                     tag.getBuildNumber(buildTagRegex)
-                }
+                },
             )
             .also { tags ->
                 logger.info(
                     """
-                        [FIND TAGS BY REGEX] Tags after descending sorting by date and build number: 
-                            ${tags.joinToString { "${it.name} / ${it.commit.id}" }}
-                    """.trimIndent()
+                    [FIND TAGS BY REGEX] Tags after descending sorting by date and build number: 
+                        ${tags.joinToString { "${it.name} / ${it.commit.id}" }}
+                    """.trimIndent(),
                 )
             }
     }
@@ -200,40 +198,42 @@ class GitCommandExecutor(
 
         logger.info("[FIND TAGS BY RANGE] Start search from tag ${startTag.name}")
 
-        val filteredAndSortedTags = tagsList
-            .filter { it.name.matches(buildTagRegex) }
-            .sortedWith(
-                compareByDescending<GrgitTag> { tag ->
-                    val index = commitsLog.indexOfFirst { it.id == tag.commit.id }
-                    if (index >= 0) -index else Int.MIN_VALUE
-                }.thenByDescending { tag ->
-                    tag.getBuildNumber(buildTagRegex)
-                }
-            )
-            .distinctBy { it.commit.id }
+        val filteredAndSortedTags =
+            tagsList
+                .filter { it.name.matches(buildTagRegex) }
+                .sortedWith(
+                    compareByDescending<GrgitTag> { tag ->
+                        val index = commitsLog.indexOfFirst { it.id == tag.commit.id }
+                        if (index >= 0) -index else Int.MIN_VALUE
+                    }.thenByDescending { tag ->
+                        tag.getBuildNumber(buildTagRegex)
+                    },
+                )
+                .distinctBy { it.commit.id }
 
         val startIndex = filteredAndSortedTags.indexOfFirst { it.commit.id == startTag.commitSha }
         if (startIndex < 0) {
             val availableTagNames = filteredAndSortedTags.joinToString { it.name }
             throw GradleException(
                 """
-                    ❌ Could not find the provided build tag '${startTag.name}' in the git history.
-        
-                    Details:
-                      - Provided tag commit SHA: ${startTag.commitSha}
-                      - Regex filter used: $buildTagRegex
-                      - Available tags after filtering: [$availableTagNames]
-                """.trimIndent()
+                ❌ Could not find the provided build tag '${startTag.name}' in the git history.
+                
+                Details:
+                  - Provided tag commit SHA: ${startTag.commitSha}
+                  - Regex filter used: $buildTagRegex
+                  - Available tags after filtering: [$availableTagNames]
+                """.trimIndent(),
             )
         }
 
-        val lastTwoTags = filteredAndSortedTags.subList(
-            startIndex,
-            minOf(startIndex + 2, filteredAndSortedTags.size)
-        )
+        val lastTwoTags =
+            filteredAndSortedTags.subList(
+                startIndex,
+                minOf(startIndex + 2, filteredAndSortedTags.size),
+            )
 
         logger.info(
-            "[FIND TAGS BY RANGE] Found tags: ${lastTwoTags.joinToString { it.name }}"
+            "[FIND TAGS BY RANGE] Found tags: ${lastTwoTags.joinToString { it.name }}",
         )
 
         return lastTwoTags
@@ -262,7 +262,10 @@ class GitCommandExecutor(
      *  - The previous tag’s build number is equal to or greater than the last tag’s build number.
      * ```
      */
-    private fun validateTags(tags: List<GrgitTag>, buildTagRegex: Regex) {
+    private fun validateTags(
+        tags: List<GrgitTag>,
+        buildTagRegex: Regex,
+    ) {
         tags.zipWithNext()
             .forEach { (lastTag, previousTag) ->
                 val lastTagCommit = findCommit(lastTag.commit.id)
@@ -270,25 +273,26 @@ class GitCommandExecutor(
                 val lastTagBuildNumber = lastTag.getBuildNumber(buildTagRegex)
                 val previousTagBuildNumber = previousTag.getBuildNumber(buildTagRegex)
 
-                if (previousTagCommit.dateTime.isAfter(lastTagCommit.dateTime)
-                    || previousTagBuildNumber >= lastTagBuildNumber) {
+                if (previousTagCommit.dateTime.isAfter(lastTagCommit.dateTime) ||
+                    previousTagBuildNumber >= lastTagBuildNumber
+                ) {
                     throw GradleException(
                         """
-                            Cannot return tag, because incorrect tag order detected!
-                            Potential reasons:
-                             - Previous tag datetime is after last tag commit datetime
-                             - Previous tag build number the same or greater than last tag build number
-                            
-                            Details.
-                              Last tag = ${lastTag.name}:
-                                - commit ${lastTag.commit.id};
-                                - date ${lastTagCommit.dateTime};
-                                - build number $lastTagBuildNumber.
-                              Previous tag = ${previousTag.name}:
-                                - commit ${previousTag.commit.id};
-                                - date ${previousTagCommit.dateTime};
-                                - build number $previousTagBuildNumber.
-                    """.trimIndent()
+                        Cannot return tag, because incorrect tag order detected!
+                        Potential reasons:
+                         - Previous tag datetime is after last tag commit datetime
+                         - Previous tag build number the same or greater than last tag build number
+                        
+                        Details.
+                          Last tag = ${lastTag.name}:
+                            - commit ${lastTag.commit.id};
+                            - date ${lastTagCommit.dateTime};
+                            - build number $lastTagBuildNumber.
+                          Previous tag = ${previousTag.name}:
+                            - commit ${previousTag.commit.id};
+                            - date ${previousTagCommit.dateTime};
+                            - build number $previousTagBuildNumber.
+                        """.trimIndent(),
                     )
                 }
             }

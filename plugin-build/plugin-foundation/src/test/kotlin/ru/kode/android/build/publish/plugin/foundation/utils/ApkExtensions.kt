@@ -14,12 +14,13 @@ private val apkanalyzerPath
     get() = File(sdkPath, "cmdline-tools/latest/bin/apkanalyzer").absolutePath
 
 internal fun File.extractManifestProperties(): ManifestProperties {
-    val manifestOutput = ProcessBuilder()
-        .command(apkanalyzerPath, "manifest", "print", this.absolutePath)
-        .start()
-        .inputStream
-        .bufferedReader()
-        .readText()
+    val manifestOutput =
+        ProcessBuilder()
+            .command(apkanalyzerPath, "manifest", "print", this.absolutePath)
+            .start()
+            .inputStream
+            .bufferedReader()
+            .readText()
 
     println("--- MANIFEST START ---")
     println(manifestOutput)

@@ -8,20 +8,20 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
-import ru.kode.android.build.publish.plugin.foundation.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.foundation.utils.BuildType
 import ru.kode.android.build.publish.plugin.foundation.utils.FoundationConfig
 import ru.kode.android.build.publish.plugin.foundation.utils.ManifestProperties
 import ru.kode.android.build.publish.plugin.foundation.utils.ProductFlavor
+import ru.kode.android.build.publish.plugin.foundation.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.foundation.utils.addNamed
-import ru.kode.android.build.publish.plugin.foundation.utils.runTask
-import ru.kode.android.build.publish.plugin.foundation.utils.find
-import ru.kode.android.build.publish.plugin.foundation.utils.initGit
 import ru.kode.android.build.publish.plugin.foundation.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.foundation.utils.currentDate
 import ru.kode.android.build.publish.plugin.foundation.utils.extractManifestProperties
+import ru.kode.android.build.publish.plugin.foundation.utils.find
 import ru.kode.android.build.publish.plugin.foundation.utils.getFile
+import ru.kode.android.build.publish.plugin.foundation.utils.initGit
 import ru.kode.android.build.publish.plugin.foundation.utils.printFilesRecursively
+import ru.kode.android.build.publish.plugin.foundation.utils.runTask
 import ru.kode.android.build.publish.plugin.foundation.utils.runTaskWithFail
 import java.io.File
 import java.io.IOException
@@ -42,11 +42,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenTagName = "v1.0.1-googleDebug"
         val givenCommitMessage = "Initial commit"
@@ -78,33 +80,34 @@ class AssembleOneFlavorTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-googleDebug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-googleDebug",
+            )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -114,11 +117,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenTagName = "v1.0.0-googleDebug"
         val givenCommitMessage = "Initial commit"
@@ -136,15 +141,15 @@ class AssembleOneFlavorTest {
 
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),
-            "Build failed"
+            "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
@@ -156,11 +161,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenFirstTagName = "v1.0.1-googleDebug"
         val givenSecondTagName = "v1.0.2-googleDebug"
@@ -197,33 +204,34 @@ class AssembleOneFlavorTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "2",
-            versionName = "v1.0.2-googleDebug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "2",
+                versionName = "v1.0.2-googleDebug",
+            )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Tags equality"
+            "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -233,11 +241,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenFirstTagName = "v1.0.1-googleDebug"
         val givenSecondTagName = "v1.0.2-googleDebug"
@@ -271,33 +281,34 @@ class AssembleOneFlavorTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "2",
-            versionName = "v1.0.2-googleDebug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "2",
+                versionName = "v1.0.2-googleDebug",
+            )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -307,11 +318,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenFirstTagName = "v1.0.1-googleDebug"
         val givenSecondTagName = "v1.2.1-googleDebug"
@@ -334,15 +347,15 @@ class AssembleOneFlavorTest {
 
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),
-            "Build failed"
+            "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
@@ -354,11 +367,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenFirstTagName = "v1.0.1-googleDebug"
         val givenSecondTagName = "v1.2.1-googleDebug"
@@ -378,15 +393,15 @@ class AssembleOneFlavorTest {
 
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),
-            "Build failed"
+            "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
@@ -398,11 +413,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenFirstTagName = "v1.2.1-googleDebug"
         val givenSecondTagName = "v1.0.1-googleDebug"
@@ -425,15 +442,15 @@ class AssembleOneFlavorTest {
 
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),
-            "Build failed"
+            "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
@@ -445,11 +462,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenFirstTagName = "v1.2.1-googleDebug"
         val givenSecondTagName = "v1.0.1-googleDebug"
@@ -469,15 +488,15 @@ class AssembleOneFlavorTest {
 
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),
-            "Build failed"
+            "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
@@ -489,11 +508,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenFirstTagName = "v1.0.2-googleDebug"
         val givenSecondTagName = "v1.0.1-googleDebug"
@@ -516,15 +537,15 @@ class AssembleOneFlavorTest {
 
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !result.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),
-            "Build failed"
+            "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
@@ -536,11 +557,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenTagNameDebug = "v1.0.1-googleDebug"
         val givenTagNameRelease = "v1.0.1-googleRelease"
@@ -576,33 +599,34 @@ class AssembleOneFlavorTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-googleRelease",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-googleRelease",
+            )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed"
+            "Task getLastTagGoogleDebug not executed",
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease executed"
+            "Task getLastTagGoogleRelease executed",
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Tags equality"
+            "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -612,11 +636,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenTagNameDebug = "v1.0.0-googleDebug"
         val givenTagNameRelease = "v1.0.0-googleRelease"
@@ -638,15 +664,15 @@ class AssembleOneFlavorTest {
 
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed"
+            "Task getLastTagGoogleDebug not executed",
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease executed"
+            "Task getLastTagGoogleRelease executed",
         )
         assertTrue(
             releaseResult.output.contains("BUILD FAILED"),
-            "Build failed"
+            "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
         assertTrue(!givenOutputFile.exists(), "Output file nit exists")
@@ -658,11 +684,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenTagNameDebug = "v1.0.1-googleDebug"
         val givenTagNameRelease = "v1.0.1-googleRelease"
@@ -701,33 +729,34 @@ class AssembleOneFlavorTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-googleRelease",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-googleRelease",
+            )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed"
+            "Task getLastTagGoogleDebug not executed",
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease executed"
+            "Task getLastTagGoogleRelease executed",
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -737,11 +766,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenTagNameDebug = "v1.0.0-googleDebug"
         val givenTagNameRelease = "v1.0.0-googleRelease"
@@ -766,15 +797,15 @@ class AssembleOneFlavorTest {
 
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed"
+            "Task getLastTagGoogleDebug not executed",
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease executed"
+            "Task getLastTagGoogleRelease executed",
         )
         assertTrue(
             releaseResult.output.contains("BUILD FAILED"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
@@ -786,11 +817,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenTagNameDebug = "v1.0.2-googleDebug"
         val givenTagNameRelease = "v1.0.1-googleRelease"
@@ -826,33 +859,34 @@ class AssembleOneFlavorTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-googleRelease",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-googleRelease",
+            )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed"
+            "Task getLastTagGoogleDebug not executed",
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease executed"
+            "Task getLastTagGoogleRelease executed",
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -862,11 +896,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val givenTagNameDebug = "v1.0.2-googleDebug"
         val givenTagNameRelease = "v1.0.1-googleRelease"
@@ -906,33 +942,34 @@ class AssembleOneFlavorTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-googleRelease",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-googleRelease",
+            )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed"
+            "Task getLastTagGoogleDebug not executed",
         )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease executed"
+            "Task getLastTagGoogleRelease executed",
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Tags equality"
+            "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -942,11 +979,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val given1TagNameDebug = "v1.0.2-googleDebug"
         val given2TagNameDebug = "v1.0.99-googleDebug"
@@ -988,33 +1027,34 @@ class AssembleOneFlavorTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "100",
-            versionName = "v1.0.100-googleDebug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "100",
+                versionName = "v1.0.100-googleDebug",
+            )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
-            "Tags equality"
+            "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -1024,11 +1064,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val given1TagNameDebug = "v1.0.2-googleDebug"
         val given2TagNameDebug = "v1.0.99-googleDebug"
@@ -1064,33 +1106,34 @@ class AssembleOneFlavorTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "100",
-            versionName = "v1.0.100-googleDebug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "100",
+                versionName = "v1.0.100-googleDebug",
+            )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -1100,11 +1143,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val given1TagNameDebug = "v1.1.1-googleDebug"
         val given2TagNameDebug = "v1.1.99-googleDebug"
@@ -1146,33 +1191,34 @@ class AssembleOneFlavorTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "100",
-            versionName = "v1.1.100-googleDebug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "100",
+                versionName = "v1.1.100-googleDebug",
+            )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -1182,11 +1228,13 @@ class AssembleOneFlavorTest {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
         )
         val given1TagNameDebug = "v1.1.1-googleDebug"
         val given2TagNameDebug = "v1.1.99-googleDebug"
@@ -1222,33 +1270,34 @@ class AssembleOneFlavorTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "100",
-            versionName = "v1.1.100-googleDebug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "100",
+                versionName = "v1.1.100-googleDebug",
+            )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed"
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed"
+            "Task getLastTagGoogleRelease not executed",
         )
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 }

@@ -11,12 +11,12 @@ import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.foundation.utils.BuildType
 import ru.kode.android.build.publish.plugin.foundation.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.foundation.utils.addNamed
-import ru.kode.android.build.publish.plugin.foundation.utils.runTask
-import ru.kode.android.build.publish.plugin.foundation.utils.find
-import ru.kode.android.build.publish.plugin.foundation.utils.initGit
 import ru.kode.android.build.publish.plugin.foundation.utils.createAndroidProject
+import ru.kode.android.build.publish.plugin.foundation.utils.find
 import ru.kode.android.build.publish.plugin.foundation.utils.getFile
+import ru.kode.android.build.publish.plugin.foundation.utils.initGit
 import ru.kode.android.build.publish.plugin.foundation.utils.printFilesRecursively
+import ru.kode.android.build.publish.plugin.foundation.utils.runTask
 import ru.kode.android.build.publish.plugin.foundation.utils.runTaskWithFail
 import java.io.File
 import java.io.IOException
@@ -35,7 +35,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `creates tag file of debug build from one tag, one commit, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val givenTagName = "v1.0.1-debug"
         val givenCommitMessage = "Initial commit"
@@ -66,12 +66,12 @@ class GetLastTagBuildTypesTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -79,7 +79,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `creates tag file of debug build from multiple tags, different commits, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val givenFirstTagName = "v1.0.1-debug"
         val givenSecondTagName = "v1.0.2-debug"
@@ -115,12 +115,12 @@ class GetLastTagBuildTypesTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -128,7 +128,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `creates tag file of debug build from multiple tags, same commit, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val givenFirstTagName = "v1.0.1-debug"
         val givenSecondTagName = "v1.0.2-debug"
@@ -159,12 +159,12 @@ class GetLastTagBuildTypesTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -172,7 +172,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `not creates tag file of debug build from multiple tags, different version, same VC, different commits, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val givenFirstTagName = "v1.0.1-debug"
         val givenSecondTagName = "v1.2.1-debug"
@@ -194,7 +194,7 @@ class GetLastTagBuildTypesTest {
 
         assertTrue(
             result.output.contains("BUILD FAILED"),
-            "Build failed"
+            "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
     }
@@ -203,7 +203,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `not creates tag file of debug build from multiple tags, different version, same VC, same commit, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val givenFirstTagName = "v1.0.1-debug"
         val givenSecondTagName = "v1.2.1-debug"
@@ -222,7 +222,7 @@ class GetLastTagBuildTypesTest {
 
         assertTrue(
             result.output.contains("BUILD FAILED"),
-            "Build failed"
+            "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
     }
@@ -231,7 +231,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `not creates tag file of debug build from multiple tags, different version, same VC, wrong order, different commits, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val givenFirstTagName = "v1.2.1-debug"
         val givenSecondTagName = "v1.0.1-debug"
@@ -253,16 +253,16 @@ class GetLastTagBuildTypesTest {
 
         assertTrue(
             result.output.contains("BUILD FAILED"),
-            "Build failed"
+            "Build failed",
         )
-        assertTrue(!givenTagBuildFile.exists(),"Tag file not exists")
+        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
     }
 
     @Test
     @Throws(IOException::class)
     fun `not creates tag file of debug build from multiple tags, different version, same VC, wrong order, same commit, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val givenFirstTagName = "v1.2.1-debug"
         val givenSecondTagName = "v1.0.1-debug"
@@ -281,7 +281,7 @@ class GetLastTagBuildTypesTest {
 
         assertTrue(
             result.output.contains("BUILD FAILED"),
-            "Build failed"
+            "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not found")
     }
@@ -290,7 +290,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `creates tag file of debug build from multiple tags with wrong order, different commits, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val givenFirstTagName = "v1.0.2-debug"
         val givenSecondTagName = "v1.0.1-debug"
@@ -312,7 +312,7 @@ class GetLastTagBuildTypesTest {
 
         assertTrue(
             result.output.contains("BUILD FAILED"),
-            "Build failed"
+            "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
     }
@@ -321,7 +321,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `creates tag file of release build from two tags with same version, same commit, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val givenTagNameDebug = "v1.0.1-debug"
         val givenTagNameRelease = "v1.0.1-release"
@@ -356,12 +356,12 @@ class GetLastTagBuildTypesTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -369,7 +369,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `creates tag file of release build from two tags with same version, different commits, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val givenTagNameDebug = "v1.0.1-debug"
         val givenTagNameRelease = "v1.0.1-release"
@@ -407,12 +407,12 @@ class GetLastTagBuildTypesTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -420,7 +420,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `creates tag file of release build from two tags with different VC, same commit, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val givenTagNameDebug = "v1.0.2-debug"
         val givenTagNameRelease = "v1.0.1-release"
@@ -455,12 +455,12 @@ class GetLastTagBuildTypesTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -468,7 +468,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `creates tag file of release build from two tags with different VC, different commits, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val givenTagNameDebug = "v1.0.2-debug"
         val givenTagNameRelease = "v1.0.1-release"
@@ -506,12 +506,12 @@ class GetLastTagBuildTypesTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -519,7 +519,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `creates tag file of debug build from three tags with different VC, where first numbers are equal, different commits, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val given1TagNameDebug = "v1.0.2-debug"
         val given2TagNameDebug = "v1.0.99-debug"
@@ -560,12 +560,12 @@ class GetLastTagBuildTypesTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -573,7 +573,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `creates tag file of debug build from three tags with different VC, where first numbers are equal, same commit, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val given1TagNameDebug = "v1.0.2-debug"
         val given2TagNameDebug = "v1.0.99-debug"
@@ -608,12 +608,12 @@ class GetLastTagBuildTypesTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -621,7 +621,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `creates tag file of debug build from three tags with different VC, where first 2 numbers are equal, different commits, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val given1TagNameDebug = "v1.1.1-debug"
         val given2TagNameDebug = "v1.1.99-debug"
@@ -662,12 +662,12 @@ class GetLastTagBuildTypesTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -675,7 +675,7 @@ class GetLastTagBuildTypesTest {
     @Throws(IOException::class)
     fun `creates tag file of debug build from three tags with different VC, where first 2 numbers are equal, same commit, build types only`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release"))
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
         )
         val given1TagNameDebug = "v1.1.1-debug"
         val given2TagNameDebug = "v1.1.99-debug"
@@ -710,12 +710,12 @@ class GetLastTagBuildTypesTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 }

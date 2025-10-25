@@ -20,9 +20,9 @@ import ru.kode.android.build.publish.plugin.core.util.getCommon
 import ru.kode.android.build.publish.plugin.foundation.extension.BuildPublishFoundationExtension
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServicePlugin
 import ru.kode.android.build.publish.plugin.foundation.task.ChangelogTasksRegistrar
+import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_PATTERN
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_NAME
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_PATTERN
 import ru.kode.android.build.publish.plugin.foundation.task.GenerateChangelogTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.LastTagTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.PrintLastIncreasedTagTaskParams

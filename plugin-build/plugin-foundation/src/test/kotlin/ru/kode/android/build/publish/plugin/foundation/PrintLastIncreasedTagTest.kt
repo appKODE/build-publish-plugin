@@ -64,20 +64,20 @@ class PrintLastIncreasedTagTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             result.output.contains("v1.1.2-debug"),
-            "Contains increased build number tag"
+            "Contains increased build number tag",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -116,20 +116,20 @@ class PrintLastIncreasedTagTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             result.output.contains("v0.1.2-debug"),
-            "Contains increased build number tag"
+            "Contains increased build number tag",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -168,20 +168,20 @@ class PrintLastIncreasedTagTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             result.output.contains("v1.0.2-debug"),
-            "Contains increased build number tag"
+            "Contains increased build number tag",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -220,20 +220,20 @@ class PrintLastIncreasedTagTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             result.output.contains("v0.0.2-debug"),
-            "Contains increased build number tag"
+            "Contains increased build number tag",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -272,20 +272,20 @@ class PrintLastIncreasedTagTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             result.output.contains("v0.0.1.2-debug"),
-            "Contains increased build number tag"
+            "Contains increased build number tag",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 }

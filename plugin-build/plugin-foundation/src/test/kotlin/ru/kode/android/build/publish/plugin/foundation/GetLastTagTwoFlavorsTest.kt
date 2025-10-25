@@ -8,16 +8,16 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
-import ru.kode.android.build.publish.plugin.foundation.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.foundation.utils.BuildType
 import ru.kode.android.build.publish.plugin.foundation.utils.ProductFlavor
+import ru.kode.android.build.publish.plugin.foundation.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.foundation.utils.addNamed
-import ru.kode.android.build.publish.plugin.foundation.utils.runTask
-import ru.kode.android.build.publish.plugin.foundation.utils.find
-import ru.kode.android.build.publish.plugin.foundation.utils.initGit
 import ru.kode.android.build.publish.plugin.foundation.utils.createAndroidProject
+import ru.kode.android.build.publish.plugin.foundation.utils.find
 import ru.kode.android.build.publish.plugin.foundation.utils.getFile
+import ru.kode.android.build.publish.plugin.foundation.utils.initGit
 import ru.kode.android.build.publish.plugin.foundation.utils.printFilesRecursively
+import ru.kode.android.build.publish.plugin.foundation.utils.runTask
 import java.io.File
 import java.io.IOException
 
@@ -36,10 +36,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of debug build from one tag, one commit, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val givenTagName = "v1.0.1-kodeDebug"
         val givenCommitMessage = "Initial commit"
@@ -70,12 +71,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -84,10 +85,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of debug build from multiple tags, different commits, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val givenFirstTagName = "v1.0.1-kodeDebug"
         val givenSecondTagName = "v1.0.2-googleDebug"
@@ -123,12 +125,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -137,10 +139,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of debug build from multiple tags, same commit, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val givenFirstTagName = "v1.0.1-googleDebug"
         val givenSecondTagName = "v1.0.2-kodeDebug"
@@ -173,12 +176,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -187,10 +190,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of debug build from multiple tags, different version, same VC, different commits, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val givenFirstTagName = "v1.0.2-googleDebug"
         val givenSecondTagName = "v1.2.1-kodeDebug"
@@ -226,12 +230,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -240,10 +244,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of debug build from multiple tags, different version, same VC, same commit, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val givenFirstTagName = "v1.0.2-googleDebug"
         val givenSecondTagName = "v1.2.1-kodeDebug"
@@ -276,12 +281,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -290,10 +295,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of debug build from multiple tags, different version, same VC, wrong order, different commits, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val givenFirstTagName = "v1.2.1-googleDebug"
         val givenSecondTagName = "v1.0.2-kodeDebug"
@@ -329,12 +335,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -343,10 +349,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of debug build from multiple tags, different version, same VC, wrong order, same commit, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val givenFirstTagName = "v1.2.1-googleDebug"
         val givenSecondTagName = "v1.0.2-kodeDebug"
@@ -379,12 +386,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -393,10 +400,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of debug build from multiple tags with wrong order, different commits, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val givenFirstTagName = "v1.0.2-googleDebug"
         val givenSecondTagName = "v1.0.1-kodeDebug"
@@ -432,12 +440,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -446,10 +454,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of release build from two tags with same version, same commit, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val givenTagNameDebug = "v1.0.1-googleDebug"
         val givenTagNameRelease = "v1.0.1-kodeRelease"
@@ -484,12 +493,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -498,10 +507,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of release build from two tags with same version, different commits, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val givenTagNameDebug = "v1.0.1-googleDebug"
         val givenTagNameRelease = "v1.0.1-kodeRelease"
@@ -539,12 +549,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -553,10 +563,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of release build from two tags with different VC, same commit, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val givenTagNameDebug = "v1.0.2-googleDebug"
         val givenTagNameRelease = "v1.0.1-kodeRelease"
@@ -591,12 +602,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -605,10 +616,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of release build from two tags with different VC, different commits, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val givenTagNameDebug = "v1.0.2-googleDebug"
         val givenTagNameRelease = "v1.0.1-kodeRelease"
@@ -646,12 +658,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -660,10 +672,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of debug build from three tags with different VC, where first numbers are equal, different commits, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val given1TagNameDebug = "v1.0.2-googleDebug"
         val given2TagNameDebug = "v1.0.99-googleDebug"
@@ -704,12 +717,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -718,10 +731,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of debug build from three tags with different VC, where first numbers are equal, same commit, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val given1TagNameDebug = "v1.0.2-googleDebug"
         val given2TagNameDebug = "v1.0.99-googleDebug"
@@ -756,12 +770,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -770,10 +784,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of debug build from three tags with different VC, where first 2 numbers are equal, different commits, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val given1TagNameDebug = "v1.1.1-googleDebug"
         val given2TagNameDebug = "v1.1.99-googleDebug"
@@ -814,12 +829,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 
@@ -828,10 +843,11 @@ class GetLastTagTwoFlavorsTest {
     fun `creates tag file of debug build from three tags with different VC, where first 2 numbers are equal, same commit, two flavors`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            productFlavors = listOf(
-                ProductFlavor(name = "google", dimension = "default"),
-                ProductFlavor(name = "kode", dimension = "default"),
-            )
+            productFlavors =
+                listOf(
+                    ProductFlavor(name = "google", dimension = "default"),
+                    ProductFlavor(name = "kode", dimension = "default"),
+                ),
         )
         val given1TagNameDebug = "v1.1.1-googleDebug"
         val given2TagNameDebug = "v1.1.99-googleDebug"
@@ -866,12 +882,12 @@ class GetLastTagTwoFlavorsTest {
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded"
+            "Build succeeded",
         )
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
     }
 }

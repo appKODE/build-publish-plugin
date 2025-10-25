@@ -11,6 +11,7 @@ import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomai
 
 const val COMMON_CONTAINER_NAME = "default"
 
+@Suppress("TooGenericExceptionCaught") // Need to catch all exceptions
 inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrRequiredCommon(
     name: String,
     defaultName: String = COMMON_CONTAINER_NAME,
@@ -22,7 +23,7 @@ inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrRequiredCommon(
             "Required $name or $defaultName configuration not found. " +
                 "This can happen if the configuration was not registered or if the name is incorrect. " +
                 "Make sure that there is no errors in the build script. " +
-                ex
+                ex,
         )
     }
 }
@@ -34,6 +35,7 @@ inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrNullableCommon(
     return findByName(name) ?: findByName(defaultName)
 }
 
+@Suppress("TooGenericExceptionCaught") // Need to catch all exceptions
 inline fun <reified T> BuildPublishDomainObjectContainer<T>.getByNameOrRequiredCommon(
     name: String,
     defaultName: String = COMMON_CONTAINER_NAME,
@@ -45,7 +47,7 @@ inline fun <reified T> BuildPublishDomainObjectContainer<T>.getByNameOrRequiredC
             "Required $name or $defaultName configuration not found. " +
                 "This can happen if the configuration was not registered or if the name is incorrect. " +
                 "Make sure that there is no errors in the build script. " +
-                ex
+                ex,
         )
     }
 }
@@ -57,22 +59,16 @@ inline fun <reified T> BuildPublishDomainObjectContainer<T>.getByNameOrNullableC
     return findByName(name) ?: findByName(defaultName)
 }
 
-inline fun <reified T> NamedDomainObjectContainer<T>.getCommon(
-    defaultName: String = COMMON_CONTAINER_NAME
-): T? {
+inline fun <reified T> NamedDomainObjectContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
     return findByName(defaultName)
 }
 
-inline fun <reified T> BuildPublishDomainObjectContainer<T>.getCommon(
-    defaultName: String = COMMON_CONTAINER_NAME
-): T? {
+inline fun <reified T> BuildPublishDomainObjectContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
     return findByName(defaultName)
 }
 
 @Throws(InvalidUserDataException::class)
-fun <T> NamedDomainObjectContainer<T>.common(
-    configurationAction: Action<in T>
-): NamedDomainObjectProvider<T> {
+fun <T> NamedDomainObjectContainer<T>.common(configurationAction: Action<in T>): NamedDomainObjectProvider<T> {
     return this.register(COMMON_CONTAINER_NAME, configurationAction)
 }
 
@@ -94,7 +90,7 @@ inline fun <reified T> Provider<Map<String, Provider<T>>>.flatMapByNameOrCommon(
             ?: throw GradleException(
                 "Required $name or $defaultName configuration not found. " +
                     "This can happen if the configuration was not registered or if the name is incorrect. " +
-                    "Make sure that there is no errors in the build script. "
+                    "Make sure that there is no errors in the build script. ",
             )
     }
 }

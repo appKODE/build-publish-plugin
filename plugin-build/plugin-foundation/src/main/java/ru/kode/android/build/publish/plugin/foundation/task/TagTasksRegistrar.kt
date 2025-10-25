@@ -68,43 +68,52 @@ internal object TagTasksRegistrar {
         params: LastTagTaskParams,
     ): LastTagTaskOutput {
         val lastBuildTag = project.registerGetLastTagTask(params)
-        val versionCode = params.useVersionsFromTag
-            .zip(params.useDefaultsForVersionsAsFallback) { useVersionsFromTag, useDefaultVersionsAsFallback ->
-                useVersionsFromTag to useDefaultVersionsAsFallback
-            }.flatMap { (useVersionsFromTag, useDefaultVersionsAsFallback) ->
-                when {
-                    useVersionsFromTag -> lastBuildTag.map { mapToVersionCode(it.asFile) }
-                    useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_CODE }
-                    else -> project.provider { null }
+        val versionCode =
+            params.useVersionsFromTag
+                .zip(
+                    params.useDefaultsForVersionsAsFallback,
+                ) { useVersionsFromTag, useDefaultVersionsAsFallback ->
+                    useVersionsFromTag to useDefaultVersionsAsFallback
                 }
-            }
-
-        val apkOutputFileName = params.useVersionsFromTag.flatMap { useVersionsFromTag ->
-            if (useVersionsFromTag) {
-                params.baseFileName.zip(lastBuildTag) { baseFileName, tagBuildFile ->
-                    mapToOutputApkFileName(tagBuildFile.asFile, params.apkOutputFileName, baseFileName)
-                }
-            } else {
-                params.baseFileName.map { baseFileName ->
-                    createDefaultOutputFileName(baseFileName, params.apkOutputFileName)
-                }
-            }
-        }
-        val versionName = params.useVersionsFromTag
-            .zip(params.useDefaultsForVersionsAsFallback) { useVersionsFromTag, useDefaultVersionsAsFallback ->
-                useVersionsFromTag to useDefaultVersionsAsFallback
-            }.flatMap { (useVersionsFromTag, useDefaultVersionsAsFallback) ->
-                when {
-                    useVersionsFromTag -> {
-                        lastBuildTag.map { tagBuildFile ->
-                            mapToVersionName(tagBuildFile.asFile, params.buildVariant)
-                        }
+                .flatMap { (useVersionsFromTag, useDefaultVersionsAsFallback) ->
+                    when {
+                        useVersionsFromTag -> lastBuildTag.map { mapToVersionCode(it.asFile) }
+                        useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_CODE }
+                        else -> project.provider { null }
                     }
+                }
 
-                    useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_NAME }
-                    else -> project.provider { null }
+        val apkOutputFileName =
+            params.useVersionsFromTag.flatMap { useVersionsFromTag ->
+                if (useVersionsFromTag) {
+                    params.baseFileName.zip(lastBuildTag) { baseFileName, tagBuildFile ->
+                        mapToOutputApkFileName(tagBuildFile.asFile, params.apkOutputFileName, baseFileName)
+                    }
+                } else {
+                    params.baseFileName.map { baseFileName ->
+                        createDefaultOutputFileName(baseFileName, params.apkOutputFileName)
+                    }
                 }
             }
+        val versionName =
+            params.useVersionsFromTag
+                .zip(
+                    params.useDefaultsForVersionsAsFallback,
+                ) { useVersionsFromTag, useDefaultVersionsAsFallback ->
+                    useVersionsFromTag to useDefaultVersionsAsFallback
+                }
+                .flatMap { (useVersionsFromTag, useDefaultVersionsAsFallback) ->
+                    when {
+                        useVersionsFromTag -> {
+                            lastBuildTag.map { tagBuildFile ->
+                                mapToVersionName(tagBuildFile.asFile, params.buildVariant)
+                            }
+                        }
+
+                        useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_NAME }
+                        else -> project.provider { null }
+                    }
+                }
 
         return LastTagTaskOutput(
             versionName = versionName,

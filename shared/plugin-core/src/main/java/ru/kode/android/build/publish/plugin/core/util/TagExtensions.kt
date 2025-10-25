@@ -3,9 +3,9 @@ package ru.kode.android.build.publish.plugin.core.util
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
 import org.gradle.api.logging.Logging
-import org.ajoberstar.grgit.Tag as GrgitTag
 import ru.kode.android.build.publish.plugin.core.enity.CommitRange
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import org.ajoberstar.grgit.Tag as GrgitTag
 
 private const val UNKNOWN_COMMIT_INDEX = -1
 
@@ -68,5 +68,7 @@ fun Tag.getBuildNumber(regex: Regex): Int {
 private fun String.extractIntBy(regex: Regex): Int {
     return regex.find(this)?.groupValues
         ?.also { logger.info("* Tag ($this) parts by regex ($regex): ${it.joinToString()}") }
-        ?.get(1)?.toIntOrNull() ?: 0
+        ?.get(1)
+        ?.toIntOrNull()
+        ?: 0
 }

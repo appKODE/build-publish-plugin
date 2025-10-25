@@ -16,7 +16,6 @@ import ru.kode.android.build.publish.plugin.core.enity.TagRange
 class GitRepository(
     private val gitCommandExecutor: GitCommandExecutor,
 ) {
-
     /**
      * Finds the range between the given [buildTag] and the previous matching build tag.
      *

@@ -36,6 +36,22 @@ jobs:
         with:
           java-version: '17'
       - name: Run Gradle tasks
+        id: gradle_run
         run: ./gradlew preMerge --continue
+        continue-on-error: true
+      - name: Upload Gradle Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ matrix.os }}
+          path: |
+            **/build/reports/tests/test/
+            **/build/reports/problems/
+          if-no-files-found: warn
       - name: Stop Gradle
         run: ./gradlew --stop
+      - name: Fail if gradle tasks failed
+        if: steps.gradle_run.outcome != 'success'
+        run: |
+          echo "❌ Some Gradle tasks failed. Check the uploaded reports for details."
+          exit 1

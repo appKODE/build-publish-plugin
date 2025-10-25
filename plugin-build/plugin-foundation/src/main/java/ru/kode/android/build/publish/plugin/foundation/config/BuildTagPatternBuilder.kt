@@ -1,7 +1,7 @@
 package ru.kode.android.build.publish.plugin.foundation.config
 
-import java.util.regex.Pattern
 import org.gradle.api.GradleException
+import java.util.regex.Pattern
 
 private const val BUILD_VERSION_REGEX_PART = "(\\d+)"
 private const val BUILD_VARIANT_NAME_REGEX_PART = "%s"
@@ -78,18 +78,19 @@ class BuildTagPatternBuilder {
     /**
      * Builds the final regex template with validation
      */
+    @Suppress("TooGenericExceptionCaught", "ThrowsCount") // Need to handle all exceptions
     fun build(): String {
         val template = parts.joinToString("")
 
         if (!template.contains(BUILD_VERSION_REGEX_PART)) {
             throw GradleException(
-                "Tag pattern must contain a build version group (e.g. $BUILD_VERSION_REGEX_PART)"
+                "Tag pattern must contain a build version group (e.g. $BUILD_VERSION_REGEX_PART)",
             )
         }
 
         if (!template.contains(BUILD_VARIANT_NAME_REGEX_PART)) {
             throw GradleException(
-                "Tag pattern must contain a build variant name group $BUILD_VARIANT_NAME_REGEX_PART"
+                "Tag pattern must contain a build variant name group $BUILD_VARIANT_NAME_REGEX_PART",
             )
         }
 

@@ -12,9 +12,9 @@ import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackDistributionConfig
-import ru.kode.android.build.publish.plugin.slack.task.SlackChangelogTaskParams
 import ru.kode.android.build.publish.plugin.slack.task.SlackApkDistributionTaskParams
 import ru.kode.android.build.publish.plugin.slack.task.SlackBundleDistributionTaskParams
+import ru.kode.android.build.publish.plugin.slack.task.SlackChangelogTaskParams
 import ru.kode.android.build.publish.plugin.slack.task.SlackTasksRegistrar
 import javax.inject.Inject
 

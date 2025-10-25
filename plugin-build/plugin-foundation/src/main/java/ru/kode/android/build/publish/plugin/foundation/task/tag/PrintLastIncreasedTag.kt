@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import  ru.kode.android.build.publish.plugin.core.util.replaceLast
+import ru.kode.android.build.publish.plugin.core.util.replaceLast
 
 /**
  * A Gradle task that prints the next incremented build tag based on the last build tag.

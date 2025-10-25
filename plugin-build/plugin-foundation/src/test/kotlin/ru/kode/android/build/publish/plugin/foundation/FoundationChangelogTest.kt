@@ -10,21 +10,21 @@ import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.foundation.utils.BuildType
 import ru.kode.android.build.publish.plugin.foundation.utils.FoundationConfig
+import ru.kode.android.build.publish.plugin.foundation.utils.ManifestProperties
 import ru.kode.android.build.publish.plugin.foundation.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.foundation.utils.addNamed
+import ru.kode.android.build.publish.plugin.foundation.utils.addNamedWithMessage
 import ru.kode.android.build.publish.plugin.foundation.utils.createAndroidProject
+import ru.kode.android.build.publish.plugin.foundation.utils.currentDate
+import ru.kode.android.build.publish.plugin.foundation.utils.extractManifestProperties
+import ru.kode.android.build.publish.plugin.foundation.utils.find
 import ru.kode.android.build.publish.plugin.foundation.utils.getFile
 import ru.kode.android.build.publish.plugin.foundation.utils.initGit
+import ru.kode.android.build.publish.plugin.foundation.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.foundation.utils.runTask
 import ru.kode.android.build.publish.plugin.foundation.utils.runTasks
-import ru.kode.android.build.publish.plugin.foundation.utils.extractManifestProperties
-import ru.kode.android.build.publish.plugin.foundation.utils.ManifestProperties
-import ru.kode.android.build.publish.plugin.foundation.utils.currentDate
-import ru.kode.android.build.publish.plugin.foundation.utils.printFilesRecursively
 import java.io.File
 import java.io.IOException
-import ru.kode.android.build.publish.plugin.foundation.utils.addNamedWithMessage
-import ru.kode.android.build.publish.plugin.foundation.utils.find
 
 class FoundationChangelogTest {
     @TempDir
@@ -40,19 +40,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble if all commits exists and not formed using message key with one tag`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName = "v1.0.1-debug"
@@ -97,51 +102,53 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-debug",
+            )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             No changes compared to the previous build
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -149,19 +156,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble if all commits exists and not formed using message key with one described tag`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName = "v1.0.1-debug"
@@ -207,51 +219,53 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-debug",
+            )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             *First tag and build*
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -259,19 +273,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble if all commits exists and formed using message key with one tag`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName = "v1.0.1-debug"
@@ -316,53 +335,55 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-debug",
+            )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
             • [auth flow]: wrap chat flow component in remember for prevent recomposition
             • Update pager behaviour
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -370,19 +391,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble if all commits exists and formed using message key with one described tag`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName = "v1.0.1-debug"
@@ -428,54 +454,56 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-debug",
+            )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             *First release build*
             • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
             • [auth flow]: wrap chat flow component in remember for prevent recomposition
             • Update pager behaviour
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -483,19 +511,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble simultaneously if all commits exists and formed using message key with one tag`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName = "v1.0.1-debug"
@@ -539,56 +572,58 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-debug",
+            )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             result.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertEquals(
             result.output
                 .split("\n")
                 .filter {
-                    it.contains("Task :app:getLastTagDebug")
-                        || it.contains("Task :app:generateChangelogDebug")
+                    it.contains("Task :app:getLastTagDebug") ||
+                        it.contains("Task :app:generateChangelogDebug")
                 }
                 .size,
             2,
-            "Each task executed without duplications"
+            "Each task executed without duplications",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
             • [auth flow]: wrap chat flow component in remember for prevent recomposition
             • Update pager behaviour
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -597,19 +632,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and formed using message key with one tag`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName = "v1.0.1-debug"
@@ -653,32 +693,33 @@ class FoundationChangelogTest {
 
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
             • [auth flow]: wrap chat flow component in remember for prevent recomposition
             • Update pager behaviour
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
@@ -687,19 +728,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble if all commits exists and partially formed using message key with one tag`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName = "v1.0.1-debug"
@@ -744,52 +790,54 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-debug",
+            )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
             • Update pager behaviour
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -797,19 +845,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble simultaneously if all commits exists and partially formed using message key with one tag`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName = "v1.0.1-debug"
@@ -853,55 +906,57 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "1",
-            versionName = "v1.0.1-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-debug",
+            )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             result.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertEquals(
             result.output
                 .split("\n")
                 .filter {
-                    it.contains("Task :app:getLastTagDebug")
-                        || it.contains("Task :app:generateChangelogDebug")
+                    it.contains("Task :app:getLastTagDebug") ||
+                        it.contains("Task :app:generateChangelogDebug")
                 }
                 .size,
             2,
-            "Each task executed without duplications"
+            "Each task executed without duplications",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
             • Update pager behaviour
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -910,19 +965,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and partially formed using message key with one tag`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName = "v1.0.1-debug"
@@ -966,31 +1026,32 @@ class FoundationChangelogTest {
 
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
             • Update pager behaviour
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
@@ -999,19 +1060,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble if all commits exists and formed using message key with 2 tags`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName1 = "v1.0.1-debug"
@@ -1049,7 +1115,6 @@ class FoundationChangelogTest {
         git.addAllAndCommit(changelogMessage6)
         git.tag.addNamed(givenTagName2)
 
-
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
@@ -1071,53 +1136,55 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "2",
-            versionName = "v1.0.2-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "2",
+                versionName = "v1.0.2-debug",
+            )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [android] Add logic to open accounts
             • [profile flow]: Add Compose screen with VM logic
             • Add readme file
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -1125,19 +1192,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble if all commits exists and formed using message key with 2 described tags`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName1 = "v1.0.1-debug"
@@ -1176,7 +1248,6 @@ class FoundationChangelogTest {
         git.addAllAndCommit(changelogMessage6)
         git.tag.addNamedWithMessage(givenTagName2, givenTagMessage2)
 
-
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
@@ -1198,54 +1269,56 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "2",
-            versionName = "v1.0.2-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "2",
+                versionName = "v1.0.2-debug",
+            )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             *Add second build*
             • (TICKET-1815) [android] Add logic to open accounts
             • [profile flow]: Add Compose screen with VM logic
             • Add readme file
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -1253,19 +1326,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble if all commits exists and not formed using message key with 2 tags`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName1 = "v1.0.1-debug"
@@ -1303,7 +1381,6 @@ class FoundationChangelogTest {
         git.addAllAndCommit(changelogMessage6)
         git.tag.addNamed(givenTagName2)
 
-
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
@@ -1325,51 +1402,53 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "2",
-            versionName = "v1.0.2-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "2",
+                versionName = "v1.0.2-debug",
+            )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             No changes compared to the previous build (v1.0.1-debug)
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -1377,19 +1456,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble simultaneously if all commits exists and formed using message key with 2 tags`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName1 = "v1.0.1-debug"
@@ -1447,56 +1531,58 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "2",
-            versionName = "v1.0.2-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "2",
+                versionName = "v1.0.2-debug",
+            )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             result.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertEquals(
             result.output
                 .split("\n")
                 .filter {
-                    it.contains("Task :app:getLastTagDebug")
-                        || it.contains("Task :app:generateChangelogDebug")
+                    it.contains("Task :app:getLastTagDebug") ||
+                        it.contains("Task :app:generateChangelogDebug")
                 }
                 .size,
             2,
-            "Each task executed without duplications"
+            "Each task executed without duplications",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [android] Add logic to open accounts
             • [profile flow]: Add Compose screen with VM logic
             • Add readme file
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -1505,19 +1591,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and formed using message key with 2 tags`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName1 = "v1.0.1-debug"
@@ -1575,32 +1666,33 @@ class FoundationChangelogTest {
 
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [android] Add logic to open accounts
             • [profile flow]: Add Compose screen with VM logic
             • Add readme file
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
@@ -1609,19 +1701,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble if all commits exists and partially formed using message key with 2 tags`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName1 = "v1.0.1-debug"
@@ -1680,52 +1777,54 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "2",
-            versionName = "v1.0.2-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "2",
+                versionName = "v1.0.2-debug",
+            )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [android] Add logic to open accounts
             • Add readme file
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -1733,19 +1832,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog after assemble simultaneously if all commits exists and partially formed using message key with 2 tags`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName1 = "v1.0.1-debug"
@@ -1803,55 +1907,57 @@ class FoundationChangelogTest {
                 buildVariant = expectedBuildVariant,
                 buildNumber = expectedBuildNumber.toInt(),
             ).toJson()
-        val expectedManifestProperties = ManifestProperties(
-            versionCode = "2",
-            versionName = "v1.0.2-debug",
-        )
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "2",
+                versionName = "v1.0.2-debug",
+            )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             result.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertEquals(
             result.output
                 .split("\n")
                 .filter {
-                    it.contains("Task :app:getLastTagDebug")
-                        || it.contains("Task :app:generateChangelogDebug")
+                    it.contains("Task :app:getLastTagDebug") ||
+                        it.contains("Task :app:generateChangelogDebug")
                 }
                 .size,
             2,
-            "Each task executed without duplications"
+            "Each task executed without duplications",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [android] Add logic to open accounts
             • Add readme file
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
             expectedManifestProperties,
             givenOutputFileManifestProperties,
-            "Manifest properties equality"
+            "Manifest properties equality",
         )
     }
 
@@ -1860,19 +1966,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and partially formed using message key with 2 tags`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName1 = "v1.0.1-debug"
@@ -1930,31 +2041,32 @@ class FoundationChangelogTest {
 
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [android] Add logic to open accounts
             • Add readme file
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
@@ -1964,19 +2076,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and partially formed using message key with 3 tags, some of them on the same commit`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName1 = "v1.0.1-debug"
@@ -2036,31 +2153,32 @@ class FoundationChangelogTest {
 
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [android] Add logic to open accounts
             • Add readme file
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
@@ -2070,19 +2188,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and partially formed using message key with 3 described tags, all of them on the some commit`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName1 = "v1.0.1-debug"
@@ -2145,34 +2268,35 @@ class FoundationChangelogTest {
 
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             *Third build*
             • (TICKET-1815) [android] Add logic to open accounts
             • Add readme file
             • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
             • Update pager behaviour
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
@@ -2182,19 +2306,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and partially formed using message key with 3 tags, all of them on the some commit`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName1 = "v1.0.1-debug"
@@ -2254,33 +2383,34 @@ class FoundationChangelogTest {
 
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             • (TICKET-1815) [android] Add logic to open accounts
             • Add readme file
             • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
             • Update pager behaviour
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
@@ -2290,19 +2420,24 @@ class FoundationChangelogTest {
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and partially formed using message key with 3 described tags, some of them on the same commit`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"), BuildType("release"),
-            ),
-            foundationConfig = FoundationConfig(
-                output = FoundationConfig.Output(
-                    baseFileName = "autotest",
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
                 ),
-                changelog = FoundationConfig.Changelog(
-                    issueNumberPattern = "TICKET-\\\\d+",
-                    issueUrlPrefix = "https://jira.example.com/browse/",
-                    commitMessageKey = "CHANGELOG",
-                )
-            )
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHANGELOG",
+                        ),
+                ),
         )
 
         val givenTagName1 = "v1.0.1-debug"
@@ -2365,34 +2500,34 @@ class FoundationChangelogTest {
 
         assertTrue(
             changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed"
+            "Task getLastTagDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed"
+            "Task generateChangelogDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed"
+            "Build succeed",
         )
 
-        val expectedChangelogFile = """
+        val expectedChangelogFile =
+            """
             *Third build*
             • (TICKET-1815) [android] Add logic to open accounts
             • Add readme file
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
-            "Tags equality"
+            "Tags equality",
         )
         assertEquals(
             expectedChangelogFile,
             givenChangelogFile.readText(),
-            "Changelogs equality"
+            "Changelogs equality",
         )
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
-
 }

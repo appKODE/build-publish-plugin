@@ -51,44 +51,48 @@ internal fun File.createAndroidProject(
         include ':app'
         """.trimIndent()
     writeFile(topSettingsFile, topSettingsFileContent)
-    val buildTypesBlock = buildTypes
-        .joinToString(separator = "\n") {
-            """
+    val buildTypesBlock =
+        buildTypes
+            .joinToString(separator = "\n") {
+                """
                 ${it.name} 
             """
-        }
-        .let {
-            """
+            }
+            .let {
+                """
             buildTypes {
             $it
             }
             """
-        }
-    val flavorDimensionsBlock = productFlavors
-        .mapTo(mutableSetOf()) { it.dimension }
-        .joinToString { "\"$it\"" }
-        .takeIf { it.isNotEmpty() }
-        ?.let {
-            "flavorDimensions += [$it]"
-        }
-        .orEmpty()
-    val productFlavorsBlock = productFlavors
-        .joinToString(separator = "\n") {
-            """
+            }
+    val flavorDimensionsBlock =
+        productFlavors
+            .mapTo(mutableSetOf()) { it.dimension }
+            .joinToString { "\"$it\"" }
+            .takeIf { it.isNotEmpty() }
+            ?.let {
+                "flavorDimensions += [$it]"
+            }
+            .orEmpty()
+    val productFlavorsBlock =
+        productFlavors
+            .joinToString(separator = "\n") {
+                """
                 create("${it.name}") {
                     dimension = "${it.dimension}"
                 }
             """
-        }.let {
-            """
+            }.let {
+                """
             productFlavors {
             $it
             }
             """
-        }
+            }
 
-    val defaultConfigBlock = defaultConfig?.let { config ->
-        """
+    val defaultConfigBlock =
+        defaultConfig?.let { config ->
+            """
             defaultConfig {
                 applicationId "${config.applicationId}"
                 minSdk ${config.minSdk}
@@ -98,9 +102,10 @@ internal fun File.createAndroidProject(
                 ${config.versionName?.let { "versionName \"$it\"" }.orEmpty()}
             }
         """
-    }
-    val buildTypeOutputBlock = foundationConfig.buildTypeOutput?.let { (name, config) ->
-        """
+        }
+    val buildTypeOutputBlock =
+        foundationConfig.buildTypeOutput?.let { (name, config) ->
+            """
                 buildVariant("$name") {
                     it.baseFileName.set("${foundationConfig.output.baseFileName}")
                     ${config.useVersionsFromTag?.let { "it.useVersionsFromTag.set($it)" }.orEmpty()}
@@ -109,7 +114,7 @@ internal fun File.createAndroidProject(
                     ${config.buildTagPatternBuilderFunctions?.let { buildTagPatternBlock(it) }.orEmpty()}
                 }
         """
-    }
+        }
     val foundationConfigBlock = """
         buildPublishFoundation {
             output {
@@ -130,47 +135,49 @@ internal fun File.createAndroidProject(
             }
         }
     """
-    val appCenterConfigBlock = appCenterConfig?.let { config ->
-        """
-        buildPublishAppCenter {
-            auth {
-                common {
-                    ownerName.set("${config.auth.ownerName}")
-                    apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
+    val appCenterConfigBlock =
+        appCenterConfig?.let { config ->
+            """
+            buildPublishAppCenter {
+                auth {
+                    common {
+                        ownerName.set("${config.auth.ownerName}")
+                        apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
+                    }
+                }
+            
+                distribution {
+                    common {
+                        appName.set("${config.distribution.appName}")
+                        testerGroups(${config.distribution.testerGroups.joinToString { "\"$it\"" }})
+                        ${config.distribution.maxUploadStatusRequestCount?.let { "maxUploadStatusRequestCount.set($it)" }}
+                        ${config.distribution.uploadStatusRequestDelayMs?.let { "uploadStatusRequestDelayMs.set($it)" }}
+                        ${config.distribution.uploadStatusRequestDelayCoefficient?.let { "uploadStatusRequestDelayCoefficient.set($it)" }}
+                    }
                 }
             }
-        
-            distribution {
-                common {
-                    appName.set("${config.distribution.appName}")
-                    testerGroups(${config.distribution.testerGroups.joinToString { "\"$it\"" }})
-                    ${config.distribution.maxUploadStatusRequestCount?.let { "maxUploadStatusRequestCount.set(${it})" }}
-                    ${config.distribution.uploadStatusRequestDelayMs?.let { "uploadStatusRequestDelayMs.set(${it})" }}
-                    ${config.distribution.uploadStatusRequestDelayCoefficient?.let { "uploadStatusRequestDelayCoefficient.set(${it})" }}
-                }
-            }
-        }
-    """.trimIndent()
-    }.orEmpty()
+            """.trimIndent()
+        }.orEmpty()
 
-    val clickUpConfigBlock = clickUpConfig?.let { config ->
-        """
-        buildPublishClickUp {
-            auth {
-                common {
-                    apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
+    val clickUpConfigBlock =
+        clickUpConfig?.let { config ->
+            """
+            buildPublishClickUp {
+                auth {
+                    common {
+                        apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
+                    }
+                }
+                automation {
+                    common {
+                        ${config.automation.fixVersionPattern?.let { """fixVersionPattern.set("$it")""" }}
+                        ${config.automation.fixVersionFieldId?.let { """fixVersionFieldId.set("$it")""" }}
+                        ${config.automation.tagName?.let { """tagName.set("$it")""" }}
+                    }
                 }
             }
-            automation {
-                common {
-                    ${config.automation.fixVersionPattern?.let { """fixVersionPattern.set("$it")""" }}
-                    ${config.automation.fixVersionFieldId?.let { """fixVersionFieldId.set("$it")""" }}
-                    ${config.automation.tagName?.let { """tagName.set("$it")""" }}
-                }
-            }
-        }
-        """.trimIndent()
-    }.orEmpty()
+            """.trimIndent()
+        }.orEmpty()
     val appBuildFileContent =
         """
         plugins {
@@ -213,10 +220,11 @@ internal fun File.createAndroidProject(
                 println("--- BUILD.GRADLE END ---")
             }
     writeFile(appBuildFile, appBuildFileContent)
-    val androidManifestFileContent = """
+    val androidManifestFileContent =
+        """
         <?xml version="1.0" encoding="utf-8"?>
         <manifest />
-    """.trimIndent()
+        """.trimIndent()
     writeFile(androidManifestFile, androidManifestFileContent)
 }
 
@@ -250,7 +258,7 @@ internal fun File.printFilesRecursively(prefix: String = "") {
             val ext = it.extension
             ext.contains("apk") || ext.contains("json") || ext.contains("aab") || ext.contains("txt")
         },
-        filterDirectory = { it.endsWith("build") || it.path.contains("outputs") }
+        filterDirectory = { it.endsWith("build") || it.path.contains("outputs") },
     )
     println("--- FILES END ---")
 }
@@ -258,7 +266,7 @@ internal fun File.printFilesRecursively(prefix: String = "") {
 private fun File.printFilesRecursivelyInternal(
     prefix: String,
     filterFile: (File) -> Boolean,
-    filterDirectory: (File) -> Boolean
+    filterDirectory: (File) -> Boolean,
 ): Boolean {
     if (!this.isDirectory) {
         println("Not a directory: ${this.path}")
@@ -308,12 +316,12 @@ internal fun File.runTaskWithFail(task: String): BuildResult {
 }
 
 internal data class BuildType(
-    val name: String
+    val name: String,
 )
 
 internal data class ProductFlavor(
     val name: String,
-    val dimension: String
+    val dimension: String,
 )
 
 internal data class FoundationConfig(
@@ -326,7 +334,7 @@ internal data class FoundationConfig(
         val useVersionsFromTag: Boolean? = null,
         val useStubsForTagAsFallback: Boolean? = null,
         val useDefaultsForVersionsAsFallback: Boolean? = null,
-        val buildTagPatternBuilderFunctions: List<String>? = null
+        val buildTagPatternBuilderFunctions: List<String>? = null,
     )
 
     data class Changelog(
@@ -350,7 +358,7 @@ internal data class AppCenterConfig(
         val testerGroups: List<String>,
         val maxUploadStatusRequestCount: Int?,
         val uploadStatusRequestDelayMs: Int?,
-        val uploadStatusRequestDelayCoefficient: Int?
+        val uploadStatusRequestDelayCoefficient: Int?,
     )
 }
 
@@ -365,7 +373,7 @@ internal data class ClickUpConfig(
     data class Automation(
         val fixVersionPattern: String?,
         val fixVersionFieldId: String?,
-        val tagName: String?
+        val tagName: String?,
     )
 }
 
@@ -409,7 +417,7 @@ internal data class JiraConfig(
         val projectId: String,
         val labelPattern: String?,
         val fixVersionPattern: String?,
-        val resolvedStatusTransitionId: String?
+        val resolvedStatusTransitionId: String?,
     )
 }
 
@@ -480,12 +488,12 @@ internal data class TelegramConfig(
         val botServerBaseUrl: String?,
         val username: String?,
         val password: String?,
-        val chats: List<Chat>
+        val chats: List<Chat>,
     )
 
     data class DestinationBot(
         val botName: String,
-        val chatNames: String
+        val chatNames: String,
     )
 
     data class Chat(

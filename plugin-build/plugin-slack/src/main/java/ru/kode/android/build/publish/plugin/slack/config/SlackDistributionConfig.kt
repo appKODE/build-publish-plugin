@@ -4,7 +4,6 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Optional
 
 /**
  * Configuration class for Slack file distribution settings.

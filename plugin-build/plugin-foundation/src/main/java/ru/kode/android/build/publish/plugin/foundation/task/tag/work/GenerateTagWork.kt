@@ -10,10 +10,10 @@ import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_BUILD_VERSION
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_CODE
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_COMMIT_SHA
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_COMMIT_MESSAGE
+import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_COMMIT_SHA
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_NAME
+import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_CODE
 import javax.inject.Inject
 
 /**
@@ -86,7 +86,7 @@ internal abstract class GenerateTagWork
                 buildTag != null && isTagValid -> {
                     logger.info(
                         "Valid build tag '${buildTag.name}' found for '$buildVariant' " +
-                            "(build number: ${buildTag.buildNumber}). Generating tag build file..."
+                            "(build number: ${buildTag.buildNumber}). Generating tag build file...",
                     )
                     tagBuildOutput.writeText(buildTag.toJson())
                 }
@@ -111,24 +111,25 @@ internal abstract class GenerateTagWork
 
                     logger.error(
                         "Invalid build tag '${buildTag.name}' for '$buildVariant' — " +
-                            "build number (${buildTag.buildNumber}) < expected minimum ($DEFAULT_VERSION_CODE)."
+                            "build number (${buildTag.buildNumber}) < expected minimum ($DEFAULT_VERSION_CODE).",
                     )
                     throw GradleException(errorMessage)
                 }
 
                 useStubsForTagAsFallback -> {
-                    val stubTag = Tag.Build(
-                        name = DEFAULT_TAG_NAME.format(buildVariant),
-                        commitSha = DEFAULT_TAG_COMMIT_SHA,
-                        message = DEFAULT_TAG_COMMIT_MESSAGE,
-                        buildVersion = DEFAULT_BUILD_VERSION,
-                        buildVariant = buildVariant,
-                        buildNumber = DEFAULT_VERSION_CODE,
-                    )
+                    val stubTag =
+                        Tag.Build(
+                            name = DEFAULT_TAG_NAME.format(buildVariant),
+                            commitSha = DEFAULT_TAG_COMMIT_SHA,
+                            message = DEFAULT_TAG_COMMIT_MESSAGE,
+                            buildVersion = DEFAULT_BUILD_VERSION,
+                            buildVariant = buildVariant,
+                            buildNumber = DEFAULT_VERSION_CODE,
+                        )
                     tagBuildOutput.writeText(stubTag.toJson())
                     logger.warn(
                         "Using stub tag for build variant '$buildVariant' " +
-                            "because no valid tag was found using pattern '$buildTagPattern'."
+                            "because no valid tag was found using pattern '$buildTagPattern'.",
                     )
                 }
 
@@ -156,7 +157,7 @@ internal abstract class GenerateTagWork
 
                     logger.error(
                         "No build tag found for '$buildVariant' using pattern '$buildTagPattern'. " +
-                            "Stub tag generation disabled (`useStubsForTagAsFallback` = false)."
+                            "Stub tag generation disabled (`useStubsForTagAsFallback` = false).",
                     )
                     throw GradleException(errorMessage)
                 }

@@ -12,9 +12,9 @@ import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotsConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramDistributionConfig
-import ru.kode.android.build.publish.plugin.telegram.task.TelegramChangelogTaskParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramApkDistributionTaskParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramBundleDistributionTaskParams
+import ru.kode.android.build.publish.plugin.telegram.task.TelegramChangelogTaskParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramTasksRegistrar
 import javax.inject.Inject
 

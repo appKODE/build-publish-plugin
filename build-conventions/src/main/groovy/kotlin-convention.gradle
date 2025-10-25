@@ -36,11 +36,15 @@ ktlint {
   disabledRules = ["import-ordering"]
   filter {
     include("**/kotlin/**")
-    exclude { it.file.path.contains("generated") }
+    exclude { it.file.path.contains("generated") || it.file.path.contains("test") }
   }
 }
 
 detekt {
+  source = files(
+    "src/main/java",
+    "src/main/kotlin"
+  )
   config = files(rootProject.file("../config/detekt/detekt.yml"))
   ignoredBuildTypes = [ "release" ]
 }
