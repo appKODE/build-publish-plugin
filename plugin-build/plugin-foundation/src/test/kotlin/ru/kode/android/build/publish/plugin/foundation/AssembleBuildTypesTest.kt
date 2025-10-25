@@ -108,6 +108,77 @@ class AssembleBuildTypesTest {
 
     @Test
     @Throws(IOException::class)
+    fun `assemble creates tag file of debug build from one tag with patch version, one commit, build types only`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            foundationConfig = FoundationConfig(
+                output = FoundationConfig.Output(
+                    baseFileName = "autotest",
+                )
+            )
+        )
+        val givenTagName = "v1.0.0.1-debug"
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.log().last().id
+        val expectedBuildNumber = "1"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.0.1-debug"
+        val expectedBuildVersion = "1.0.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties = ManifestProperties(
+            versionCode = "1",
+            versionName = "v1.0.0.1-debug",
+        )
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed"
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed"
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeeded"
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality"
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
     fun `assemble not creates tag file of debug build from one ending with 0 tag, one commit, build types only`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),

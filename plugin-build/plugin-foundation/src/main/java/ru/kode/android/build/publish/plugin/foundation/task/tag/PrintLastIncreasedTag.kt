@@ -8,6 +8,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import  ru.kode.android.build.publish.plugin.core.util.replaceLast
 
 /**
  * A Gradle task that prints the next incremented build tag based on the last build tag.
@@ -61,7 +62,7 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
         val lastBuildTag = fromJson(buildTagFile.asFile.get())
         val currentBuildNumber = lastBuildTag.buildNumber.toString()
         val increasedBuildNumber = lastBuildTag.buildNumber.inc().toString()
-        val nextBuildTag = lastBuildTag.name.replaceFirst(currentBuildNumber, increasedBuildNumber)
+        val nextBuildTag = lastBuildTag.name.replaceLast(currentBuildNumber, increasedBuildNumber)
         print(nextBuildTag)
     }
 }
