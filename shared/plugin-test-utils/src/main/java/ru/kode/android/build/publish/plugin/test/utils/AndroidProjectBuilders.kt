@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.foundation.utils
+package ru.kode.android.build.publish.plugin.test.utils
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
@@ -7,7 +7,7 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 
-internal fun File.createAndroidProject(
+fun File.createAndroidProject(
     compileSdk: Int = 34,
     buildTypes: List<BuildType>,
     productFlavors: List<ProductFlavor> = listOf(),
@@ -250,7 +250,7 @@ private fun writeFile(
     }
 }
 
-internal fun File.printFilesRecursively(prefix: String = "") {
+fun File.printFilesRecursively(prefix: String = "") {
     println("--- FILES START ---")
     printFilesRecursivelyInternal(
         prefix,
@@ -282,13 +282,13 @@ private fun File.printFilesRecursivelyInternal(
     return false
 }
 
-internal fun File.getFile(path: String): File {
+fun File.getFile(path: String): File {
     val file = File(this, path)
     file.parentFile.mkdirs()
     return file
 }
 
-internal fun File.runTask(task: String): BuildResult {
+fun File.runTask(task: String): BuildResult {
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(task, "--info")
@@ -297,7 +297,7 @@ internal fun File.runTask(task: String): BuildResult {
         .build()
 }
 
-internal fun File.runTasks(vararg task: String): BuildResult {
+fun File.runTasks(vararg task: String): BuildResult {
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(*task, "--info")
@@ -306,7 +306,7 @@ internal fun File.runTasks(vararg task: String): BuildResult {
         .build()
 }
 
-internal fun File.runTaskWithFail(task: String): BuildResult {
+fun File.runTaskWithFail(task: String): BuildResult {
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(task, "--info")
@@ -315,16 +315,16 @@ internal fun File.runTaskWithFail(task: String): BuildResult {
         .buildAndFail()
 }
 
-internal data class BuildType(
+data class BuildType(
     val name: String,
 )
 
-internal data class ProductFlavor(
+data class ProductFlavor(
     val name: String,
     val dimension: String,
 )
 
-internal data class FoundationConfig(
+data class FoundationConfig(
     val output: Output = Output(),
     val buildTypeOutput: Pair<String, Output>? = null,
     val changelog: Changelog = Changelog(),
@@ -344,7 +344,7 @@ internal data class FoundationConfig(
     )
 }
 
-internal data class AppCenterConfig(
+data class AppCenterConfig(
     val auth: Auth,
     val distribution: Distribution,
 ) {
@@ -362,7 +362,7 @@ internal data class AppCenterConfig(
     )
 }
 
-internal data class ClickUpConfig(
+data class ClickUpConfig(
     val auth: Auth,
     val automation: Automation,
 ) {
@@ -377,7 +377,7 @@ internal data class ClickUpConfig(
     )
 }
 
-internal data class ConfluenceConfig(
+data class ConfluenceConfig(
     val auth: Auth,
     val distribution: Distribution,
 ) {
@@ -392,7 +392,7 @@ internal data class ConfluenceConfig(
     )
 }
 
-internal data class FirebaseConfig(
+data class FirebaseConfig(
     val distribution: Distribution,
 ) {
     data class Distribution(
@@ -403,7 +403,7 @@ internal data class FirebaseConfig(
     )
 }
 
-internal data class JiraConfig(
+data class JiraConfig(
     val auth: Auth,
     val automation: Automation,
 ) {
@@ -421,7 +421,7 @@ internal data class JiraConfig(
     )
 }
 
-internal data class PlayConfig(
+data class PlayConfig(
     val auth: Auth,
     val distribution: Distribution,
 ) {
@@ -436,7 +436,7 @@ internal data class PlayConfig(
     )
 }
 
-internal data class SlackConfig(
+data class SlackConfig(
     val bot: Bot,
     val changelog: Changelog,
     val distribution: Distribution,
@@ -457,7 +457,7 @@ internal data class SlackConfig(
     )
 }
 
-internal data class DefaultConfig(
+data class DefaultConfig(
     val applicationId: String = "com.example.build.types.android",
     val versionCode: Int? = 1,
     val versionName: String? = "1.0",
@@ -465,7 +465,7 @@ internal data class DefaultConfig(
     val targetSdk: Int = 34,
 )
 
-internal data class TelegramConfig(
+data class TelegramConfig(
     val bots: Bots,
     val changelog: Changelog,
     val distribution: Distribution,

@@ -1,10 +1,10 @@
-package ru.kode.android.build.publish.plugin.foundation.utils
+package ru.kode.android.build.publish.plugin.test.utils
 
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-internal val currentDate
+val currentDate
     get() = LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy"))
 
 private val sdkPath
@@ -23,7 +23,7 @@ private val apkanalyzerPath: String
 private fun isWindows(): Boolean =
     System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
 
-internal fun File.extractManifestProperties(): ManifestProperties {
+fun File.extractManifestProperties(): ManifestProperties {
     val manifestOutput =
         ProcessBuilder()
             .command(apkanalyzerPath, "manifest", "print", this.absolutePath)
@@ -47,7 +47,7 @@ internal fun File.extractManifestProperties(): ManifestProperties {
     )
 }
 
-internal data class ManifestProperties(
+data class ManifestProperties(
     val versionCode: String,
     val versionName: String,
 )

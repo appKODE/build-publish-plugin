@@ -14,6 +14,7 @@ dependencies {
     implementation(libs.grgitGradle)
 
     testImplementation(gradleTestKit())
+    testImplementation("ru.kode.android:plugin-test-utils")
     testImplementation(platform(libs.junitBom))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
