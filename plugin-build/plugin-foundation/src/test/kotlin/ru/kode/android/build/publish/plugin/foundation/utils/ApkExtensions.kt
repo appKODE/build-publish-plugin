@@ -10,8 +10,18 @@ internal val currentDate
 private val sdkPath
     get() = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
 
-private val apkanalyzerPath
-    get() = File(sdkPath, "cmdline-tools/latest/bin/apkanalyzer").absolutePath
+private val apkanalyzerPath: String
+    get() {
+        val sdk = sdkPath ?: error("ANDROID_HOME or ANDROID_SDK_ROOT not set")
+        val buildToolsDir = File(sdk, "build-tools")
+        val buildToolsVersion = buildToolsDir.listFiles()?.maxByOrNull { it.name }
+        val candidate = buildToolsVersion?.resolve(if (isWindows()) "apkanalyzer.bat" else "apkanalyzer")
+        if (candidate?.exists() == true) return candidate.absolutePath
+        return File(sdk, "cmdline-tools/latest/bin/${if (isWindows()) "apkanalyzer.bat" else "apkanalyzer"}").absolutePath
+    }
+
+private fun isWindows(): Boolean =
+    System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
 
 internal fun File.extractManifestProperties(): ManifestProperties {
     val manifestOutput =
