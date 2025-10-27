@@ -130,7 +130,7 @@ class FoundationChangelogTest {
 
         val expectedChangelogFile =
             """
-            No changes compared to the previous build
+            No changes detected since the start of the repository.
             """.trimIndent()
 
         assertEquals(
@@ -366,6 +366,597 @@ class FoundationChangelogTest {
             • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
             • [auth flow]: wrap chat flow component in remember for prevent recomposition
             • Update pager behaviour
+            """.trimIndent()
+
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+        assertEquals(
+            expectedChangelogFile,
+            givenChangelogFile.readText(),
+            "Changelogs equality",
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `generate changelog after assemble if all commits exists and formed using message key with one tag, custom commit message kay`() {
+        projectDir.createAndroidProject(
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHN",
+                        ),
+                ),
+        )
+
+        val givenTagName = "v1.0.1-debug"
+        val givenAssembleTask = "assembleDebug"
+        val givenChangelogTask = "generateChangelogDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        val changelogMessage1 = "CHN: Update pager behaviour"
+        git.addAllAndCommit(changelogMessage1)
+
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        val changelogMessage2 = "CHN: [auth flow]: wrap chat flow component in remember for prevent recomposition"
+        git.addAllAndCommit(changelogMessage2)
+
+        projectDir.getFile("app/README3.md").writeText("This is test project 3")
+        val changelogMessage3 = "CHN: (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов"
+        git.addAllAndCommit(changelogMessage3)
+        git.tag.addNamed(givenTagName)
+
+        val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
+        val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedBuildNumber = "1"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.1-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-debug",
+            )
+        assertTrue(
+            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+        assertTrue(
+            changelogResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            changelogResult.output.contains("Task :app:generateChangelogDebug"),
+            "Task generateChangelogDebug executed",
+        )
+        assertTrue(
+            changelogResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+
+        val expectedChangelogFile =
+            """
+            • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
+            • [auth flow]: wrap chat flow component in remember for prevent recomposition
+            • Update pager behaviour
+            """.trimIndent()
+
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+        assertEquals(
+            expectedChangelogFile,
+            givenChangelogFile.readText(),
+            "Changelogs equality",
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `generate changelog after assemble if all commits exists and formed using message key with one tag, custom commit message kay, no space`() {
+        projectDir.createAndroidProject(
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHN",
+                        ),
+                ),
+        )
+
+        val givenTagName = "v1.0.1-debug"
+        val givenAssembleTask = "assembleDebug"
+        val givenChangelogTask = "generateChangelogDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        val changelogMessage1 = "CHN:Update pager behaviour"
+        git.addAllAndCommit(changelogMessage1)
+
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        val changelogMessage2 = "CHN:[auth flow]: wrap chat flow component in remember for prevent recomposition"
+        git.addAllAndCommit(changelogMessage2)
+
+        projectDir.getFile("app/README3.md").writeText("This is test project 3")
+        val changelogMessage3 = "CHN:(TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов"
+        git.addAllAndCommit(changelogMessage3)
+        git.tag.addNamed(givenTagName)
+
+        val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
+        val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedBuildNumber = "1"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.1-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-debug",
+            )
+        assertTrue(
+            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+        assertTrue(
+            changelogResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            changelogResult.output.contains("Task :app:generateChangelogDebug"),
+            "Task generateChangelogDebug executed",
+        )
+        assertTrue(
+            changelogResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+
+        val expectedChangelogFile =
+            """
+            • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
+            • [auth flow]: wrap chat flow component in remember for prevent recomposition
+            • Update pager behaviour
+            """.trimIndent()
+
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+        assertEquals(
+            expectedChangelogFile,
+            givenChangelogFile.readText(),
+            "Changelogs equality",
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `generate changelog after assemble if all commits exists and formed using message key with one tag, custom commit message kay, no space and symbol`() {
+        projectDir.createAndroidProject(
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHN",
+                        ),
+                ),
+        )
+
+        val givenTagName = "v1.0.1-debug"
+        val givenAssembleTask = "assembleDebug"
+        val givenChangelogTask = "generateChangelogDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        val changelogMessage1 = "CHNUpdate pager behaviour"
+        git.addAllAndCommit(changelogMessage1)
+
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        val changelogMessage2 = "CHN[auth flow]: wrap chat flow component in remember for prevent recomposition"
+        git.addAllAndCommit(changelogMessage2)
+
+        projectDir.getFile("app/README3.md").writeText("This is test project 3")
+        val changelogMessage3 = "CHN(TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов"
+        git.addAllAndCommit(changelogMessage3)
+        git.tag.addNamed(givenTagName)
+
+        val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
+        val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedBuildNumber = "1"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.1-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-debug",
+            )
+        assertTrue(
+            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+        assertTrue(
+            changelogResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            changelogResult.output.contains("Task :app:generateChangelogDebug"),
+            "Task generateChangelogDebug executed",
+        )
+        assertTrue(
+            changelogResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+
+        val expectedChangelogFile =
+            """
+            • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
+            • [auth flow]: wrap chat flow component in remember for prevent recomposition
+            • Update pager behaviour
+            """.trimIndent()
+
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+        assertEquals(
+            expectedChangelogFile,
+            givenChangelogFile.readText(),
+            "Changelogs equality",
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `generate changelog after assemble if all commits exists and formed using message key with one tag, custom commit message kay, no space and symbol, not start`() {
+        projectDir.createAndroidProject(
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "CHN",
+                        ),
+                ),
+        )
+
+        val givenTagName = "v1.0.1-debug"
+        val givenAssembleTask = "assembleDebug"
+        val givenChangelogTask = "generateChangelogDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        val changelogMessage1 = "Update pager behaviour. CHN"
+        git.addAllAndCommit(changelogMessage1)
+
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        val changelogMessage2 = "[auth flow]: wrap chat flow component in remember for prevent recomposition. CHN"
+        git.addAllAndCommit(changelogMessage2)
+
+        projectDir.getFile("app/README3.md").writeText("This is test project 3")
+        val changelogMessage3 = "(TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов. CHN"
+        git.addAllAndCommit(changelogMessage3)
+        git.tag.addNamed(givenTagName)
+
+        val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
+        val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedBuildNumber = "1"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.1-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-debug",
+            )
+        assertTrue(
+            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+        assertTrue(
+            changelogResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            changelogResult.output.contains("Task :app:generateChangelogDebug"),
+            "Task generateChangelogDebug executed",
+        )
+        assertTrue(
+            changelogResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+
+        val expectedChangelogFile =
+            """
+            • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов.
+            • [auth flow]: wrap chat flow component in remember for prevent recomposition.
+            • Update pager behaviour.
+            """.trimIndent()
+
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+        assertEquals(
+            expectedChangelogFile,
+            givenChangelogFile.readText(),
+            "Changelogs equality",
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `generate changelog after assemble if all commits exists and formed using message key with one tag, custom commit message kay, no space and symbol, include message key`() {
+        projectDir.createAndroidProject(
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TICKET-\\\\d+",
+                            issueUrlPrefix = "https://jira.example.com/browse/",
+                            commitMessageKey = "TICKET",
+                            excludeMessageKey = false
+                        ),
+                ),
+        )
+
+        val givenTagName = "v1.0.1-debug"
+        val givenAssembleTask = "assembleDebug"
+        val givenChangelogTask = "generateChangelogDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        val changelogMessage1 = "[TICKET-1111] Update pager behaviour"
+        git.addAllAndCommit(changelogMessage1)
+
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        val changelogMessage2 = "[TICKET-3333][auth flow]: wrap chat flow component in remember for prevent recomposition"
+        git.addAllAndCommit(changelogMessage2)
+
+        projectDir.getFile("app/README3.md").writeText("This is test project 3")
+        val changelogMessage3 = "(TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов"
+        git.addAllAndCommit(changelogMessage3)
+        git.tag.addNamed(givenTagName)
+
+        val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
+        val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedBuildNumber = "1"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.1-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "v1.0.1-debug",
+            )
+        assertTrue(
+            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+        assertTrue(
+            changelogResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            changelogResult.output.contains("Task :app:generateChangelogDebug"),
+            "Task generateChangelogDebug executed",
+        )
+        assertTrue(
+            changelogResult.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+
+        val expectedChangelogFile =
+            """
+            • (TICKET-1815) [ios] Открытие вклада. При переходе в форму с экрана продуктов
+            • [TICKET-3333][auth flow]: wrap chat flow component in remember for prevent recomposition
+            • [TICKET-1111] Update pager behaviour
             """.trimIndent()
 
         assertEquals(
@@ -1430,7 +2021,7 @@ class FoundationChangelogTest {
 
         val expectedChangelogFile =
             """
-            No changes compared to the previous build (v1.0.1-debug)
+            No changes detected since previous build (v1.0.1-debug).
             """.trimIndent()
 
         assertEquals(

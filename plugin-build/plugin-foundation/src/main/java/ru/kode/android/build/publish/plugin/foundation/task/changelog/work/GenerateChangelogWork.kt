@@ -22,6 +22,12 @@ internal interface GenerateChangelogParameters : WorkParameters {
     val commitMessageKey: Property<String>
 
     /**
+     * Indicates whether the [commitMessageKey] should be removed from commit messages
+     * in the generated changelog output.
+     */
+    val excludeMessageKey: Property<Boolean>
+
+    /**
      * The pattern used to match Git tags for versioning
      */
     val buildTagPattern: Property<String>
@@ -63,6 +69,7 @@ internal abstract class GenerateChangelogWork
 
         override fun execute() {
             val messageKey = parameters.commitMessageKey.get()
+            val excludeMessageKey = parameters.excludeMessageKey.get()
             val buildTagPattern = parameters.buildTagPattern.get()
             val currentBuildTag = fromJson(parameters.tagBuildFile.asFile.get())
 
@@ -71,11 +78,18 @@ internal abstract class GenerateChangelogWork
                     .gitChangelogBuilder
                     .buildForTag(
                         messageKey,
+                        excludeMessageKey,
                         currentBuildTag,
                         buildTagPattern,
                         defaultValueSupplier = { tagRange ->
-                            val previousBuildName = tagRange.previousBuildTag?.name?.let { "($it)" } ?: ""
-                            "No changes compared to the previous build $previousBuildName".trim()
+                            val previousBuildName =
+                                tagRange.previousBuildTag?.name
+                                    ?.let { "($it)" }
+                            if (previousBuildName != null) {
+                                "No changes detected since previous build $previousBuildName."
+                            } else {
+                                "No changes detected since the start of the repository."
+                            }.trim()
                         },
                     )
             val changelogOutput = parameters.changelogFile.asFile.get()

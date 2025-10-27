@@ -15,9 +15,14 @@ private val apkanalyzerPath: String
         val sdk = sdkPath ?: error("ANDROID_HOME or ANDROID_SDK_ROOT not set")
         val buildToolsDir = File(sdk, "build-tools")
         val buildToolsVersion = buildToolsDir.listFiles()?.maxByOrNull { it.name }
-        val candidate = buildToolsVersion?.resolve(if (isWindows()) "apkanalyzer.bat" else "apkanalyzer")
-        if (candidate?.exists() == true) return candidate.absolutePath
-        return File(sdk, "cmdline-tools/latest/bin/${if (isWindows()) "apkanalyzer.bat" else "apkanalyzer"}").absolutePath
+        val fileName = if (isWindows()) "apkanalyzer.bat" else "apkanalyzer"
+        val candidate = buildToolsVersion?.resolve(fileName)
+        return if (candidate?.exists() == true) {
+            candidate.absolutePath
+        } else {
+            val filePath = "cmdline-tools/latest/bin/$fileName"
+            File(sdk, filePath).absolutePath
+        }
     }
 
 private fun isWindows(): Boolean =

@@ -27,13 +27,21 @@ class GitChangelogBuilder(
      * previous matching build tag using [buildTagPattern]. If no valid tag range is found, a warning
      * is logged and `null` is returned.
      *
-     * If a valid tag range is found, it calls [buildChangelog] using the commit messages associated
-     * with the provided [messageKey] within that range. If no changelog content is generated, it
-     * optionally uses [defaultValueSupplier] to provide a fallback value.
+     * If a valid tag range is found, it collects commit messages within that range and filters them
+     * using the provided [messageKey]. The resulting commits are then passed to [buildChangelog] to
+     * generate the changelog content.
      *
-     * @param messageKey a key used to identify which commit messages to include in the changelog.
+     * If [excludeKey] is `true`, occurrences of the [messageKey] (for example `[changelog]`) are
+     * stripped from commit messages in the generated changelog output. If `false`, the key remains
+     * visible in the resulting changelog.
+     *
+     * If no changelog content is generated, and [defaultValueSupplier] is provided, the supplier is
+     * invoked to provide a fallback changelog string.
+     *
+     * @param messageKey the key used to identify which commit messages to include in the changelog.
+     * @param excludeKey whether to remove the [messageKey] from commit messages in the generated changelog.
      * @param buildTag the build tag for which the changelog is being generated.
-     * @param buildTagPattern the pattern used to find related build tags for determining the tag range.
+     * @param buildTagPattern the pattern used to find related build tags and determine the tag range.
      * @param defaultValueSupplier an optional function that supplies a default changelog string
      *        when no changelog can be built; receives the [TagRange] as input.
      *
@@ -43,6 +51,7 @@ class GitChangelogBuilder(
     @Suppress("ReturnCount")
     fun buildForTag(
         messageKey: String,
+        excludeKey: Boolean,
         buildTag: Tag.Build,
         buildTagPattern: String,
         defaultValueSupplier: ((TagRange) -> String?)? = null,
@@ -53,7 +62,7 @@ class GitChangelogBuilder(
                 ?: return null
         return buildChangelog(
             tagRange,
-            { gitRepository.markedCommitMessages(messageKey, tagRange) },
+            { gitRepository.markedCommitMessages(messageKey, excludeKey, tagRange) },
         ) ?: defaultValueSupplier?.invoke(tagRange)
     }
 

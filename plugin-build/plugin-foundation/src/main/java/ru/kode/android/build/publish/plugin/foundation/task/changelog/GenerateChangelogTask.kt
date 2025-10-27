@@ -80,6 +80,37 @@ abstract class GenerateChangelogTask
         abstract val commitMessageKey: Property<String>
 
         /**
+         * Whether to remove the [commitMessageKey] from commit messages in the generated changelog.
+         *
+         * When enabled (`true`), the [commitMessageKey] (for example `[changelog]`)
+         * will be stripped from commit messages before writing them to the changelog.
+         * When disabled (`false`), the key remains visible in the generated changelog output.
+         *
+         * This allows using a marker key to identify relevant commits without exposing
+         * that internal tag in the final changelog.
+         *
+         * Example:
+         * - `commitMessageKey = "[changelog]"`
+         * - `excludeMessageKey = true`
+         *
+         * Commit message:
+         * ```
+         * [changelog] Fix crash on startup
+         * ```
+         * will appear as:
+         * ```
+         * Fix crash on startup
+         * ```
+         * in the generated changelog.
+         */
+        @get:Input
+        @get:Option(
+            option = "excludeMessageKey",
+            description = "Exclude key from changelog or not",
+        )
+        abstract val excludeMessageKey: Property<Boolean>
+
+        /**
          * The pattern used to match Git tags for versioning.
          *
          * This pattern is used to identify relevant tags when generating the changelog.
@@ -123,6 +154,7 @@ abstract class GenerateChangelogTask
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(GenerateChangelogWork::class.java) { parameters ->
                 parameters.commitMessageKey.set(commitMessageKey)
+                parameters.excludeMessageKey.set(excludeMessageKey)
                 parameters.buildTagPattern.set(buildTagPattern)
                 parameters.tagBuildFile.set(buildTagFile)
                 parameters.changelogFile.set(changelogFile)

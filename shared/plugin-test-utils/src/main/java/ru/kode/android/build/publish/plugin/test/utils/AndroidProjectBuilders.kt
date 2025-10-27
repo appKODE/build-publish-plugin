@@ -7,6 +7,7 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 
+@Suppress("LongMethod", "CyclomaticComplexMethod", "CascadingCallWrapping")
 fun File.createAndroidProject(
     compileSdk: Int = 34,
     buildTypes: List<BuildType>,
@@ -132,6 +133,7 @@ fun File.createAndroidProject(
                 issueNumberPattern.set("${foundationConfig.changelog.issueNumberPattern}")
                 issueUrlPrefix.set("${foundationConfig.changelog.issueUrlPrefix}")
                 commitMessageKey.set("${foundationConfig.changelog.commitMessageKey}")
+                excludeMessageKey.set(${foundationConfig.changelog.excludeMessageKey})
             }
         }
     """
@@ -341,6 +343,7 @@ data class FoundationConfig(
         val issueNumberPattern: String = "TICKET-\\\\d+",
         val issueUrlPrefix: String = "https://jira.example.com/browse/",
         val commitMessageKey: String = "[CHANGELOG]",
+        val excludeMessageKey: Boolean = true,
     )
 }
 

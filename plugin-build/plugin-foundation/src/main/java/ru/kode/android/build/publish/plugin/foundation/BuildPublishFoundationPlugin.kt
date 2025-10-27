@@ -128,6 +128,9 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 params =
                                     GenerateChangelogTaskParams(
                                         commitMessageKey = changelogConfig.commitMessageKey,
+                                        excludeMessageKey =
+                                            changelogConfig.excludeMessageKey
+                                                .orElse(true),
                                         buildTagPattern = buildTagPattern,
                                         buildVariant = buildVariant,
                                         changelogFile = project.changelogDirectory(),

@@ -3,6 +3,8 @@ package ru.kode.android.build.publish.plugin.core.git
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.enity.TagRange
 
+private const val DOT_PREFIX = "•"
+
 /**
  * Provides high-level Git repository operations for build and publish workflows.
  *
@@ -70,21 +72,38 @@ class GitRepository(
     /**
      * Extracts and formats commit messages containing a specific key within a tag range.
      *
-     * This method finds all commits between two tags, extracts lines containing the specified key,
-     * and formats them with bullet points. This is typically used to generate changelog entries.
+     * This method retrieves all commits between two tags defined by [tagRange],
+     * filters those that contain the specified [messageKey], and formats each
+     * matching commit message as a bullet point for inclusion in a changelog.
      *
-     * @param messageKey The key to search for in commit messages (e.g., "CHANGELOG")
-     * @param tagRange The range of tags to search between
+     * If [excludeKey] is `true`, occurrences of the [messageKey] (for example `[CHANGELOG]`)
+     * are removed from the commit messages before formatting. When `false`, the key remains
+     * visible in the resulting messages.
      *
-     * @return A list of formatted commit messages, each prefixed with a bullet point
-     * @throws IllegalArgumentException If the tag range is invalid
+     * This function is typically used to prepare human-readable changelog entries
+     * from the commit history.
+     *
+     * @param messageKey the key used to identify relevant commit messages (e.g., `"CHANGELOG"`).
+     * @param excludeKey whether to remove the [messageKey] from the commit messages in the output.
+     * @param tagRange the range of tags within which commits are analyzed.
+     *
+     * @return a list of formatted commit messages, each prefixed with a bullet point.
+     * @throws IllegalArgumentException if the provided [tagRange] is invalid.
      */
     fun markedCommitMessages(
         messageKey: String,
+        excludeKey: Boolean,
         tagRange: TagRange,
     ): List<String> {
         return gitCommandExecutor
             .extractMarkedCommitMessages(messageKey, tagRange.asCommitRange())
-            .map { it.replace(Regex("\\s*$messageKey:?\\s*"), "• ").trim() }
+            .map { message ->
+                if (excludeKey) {
+                    val cleanMessage = message.replace(Regex("\\s*$messageKey:?\\s*"), "").trim()
+                    "$DOT_PREFIX $cleanMessage".trim()
+                } else {
+                    "$DOT_PREFIX $message".trim()
+                }
+            }
     }
 }

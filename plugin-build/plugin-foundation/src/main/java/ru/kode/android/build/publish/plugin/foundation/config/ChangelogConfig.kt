@@ -2,6 +2,7 @@ package ru.kode.android.build.publish.plugin.foundation.config
 
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 /**
  * Configuration interface for changelog generation settings.
@@ -53,4 +54,30 @@ interface ChangelogConfig {
      */
     @get:Input
     val commitMessageKey: Property<String>
+
+    /**
+     * If `true`, remove the configured [commitMessageKey] from commit messages
+     * when generating the changelog.
+     *
+     * The [commitMessageKey] is looked up in each commit message to decide which commits are relevant
+     * for the changelog. When this property is enabled (`true`) or unset,
+     * occurrences of the key will be stripped from the commit message text
+     * in the generated changelog output. When disabled (`false`),
+     * the key is left intact in the commit messages.
+     *
+     * This is useful to avoid showing internal markers (for example `[CHANGELOG]` or `[SKIP]`) in the
+     * final changelog while still using them to identify relevant commits.
+     *
+     * Example:
+     * - `commitMessageKey = "CHANGELOG"`
+     * - `excludeMessageKey = true`
+     *
+     * A commit message like `"[CHANGELOG] Fix crash on start"` will appear as `"Fix crash on start"`
+     * in the generated changelog.
+     *
+     * Default: `true`
+     */
+    @get:Input
+    @get:Optional
+    val excludeMessageKey: Property<Boolean>
 }

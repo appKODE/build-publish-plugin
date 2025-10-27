@@ -56,6 +56,7 @@ private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskP
         GenerateChangelogTask::class.java,
     ) {
         it.commitMessageKey.set(params.commitMessageKey)
+        it.excludeMessageKey.set(params.excludeMessageKey)
         it.buildTagPattern.set(params.buildTagPattern)
         it.changelogFile.set(params.changelogFile)
         it.buildTagFile.set(params.lastTagFile)
@@ -72,6 +73,11 @@ internal data class GenerateChangelogTaskParams(
      * Provider for the key used to filter relevant commit messages
      */
     val commitMessageKey: Provider<String>,
+    /**
+     * Provider indicating whether the [commitMessageKey] should be removed from commit messages
+     * in the generated changelog.
+     */
+    val excludeMessageKey: Provider<Boolean>,
     /**
      * Provider for the pattern to match build tags against
      */
