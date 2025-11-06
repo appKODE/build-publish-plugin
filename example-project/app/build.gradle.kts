@@ -6,6 +6,7 @@ plugins {
     id("ru.kode.android.build-publish-novo.confluence")
     id("ru.kode.android.build-publish-novo.telegram")
     id("ru.kode.android.build-publish-novo.clickup")
+    id("ru.kode.android.build-publish-novo.slack")
     id("ru.kode.android.build-publish-example.print-tag")
 }
 
@@ -163,6 +164,17 @@ buildPublishClickUp {
             fixVersionPattern = "fix_%2\$s_%1\$s"
             fixVersionFieldId = "01234567qwerty"
             tagName = "test_tag_name"
+        }
+    }
+}
+
+buildPublishSlack {
+    distribution {
+        common {
+            uploadApiTokenFile.set(File("slack-token.txt"))
+            destinationChannel("builds")
+            userMentions("@here", "@channel")
+            // distributionDescription("RC v1.3.1990") // Optional: defaults to GitLab tag name
         }
     }
 }

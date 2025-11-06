@@ -38,17 +38,32 @@ internal interface SlackUploadParameters : WorkParameters {
     val destinationChannels: SetProperty<String>
 
     /**
+     * Changelog content to be formatted as rich text
+     */
+    val changelog: Property<String>
+
+    /**
+     * Set of user mentions to be included in the message
+     */
+    val userMentions: SetProperty<String>
+
+    /**
+     * Version string to display in the message
+     */
+    val distributionDescription: Property<String>
+
+    /**
      * The Slack upload service to use for the file upload
      */
     val networkService: Property<SlackUploadService>
 }
 
 /**
- * A Gradle work action that handles file uploads to Slack in a background thread.
+ * A Gradle work action that handles file uploads to Slack in a background thread with changelog.
  *
  * This work action is responsible for:
  * - Zipping the distribution file if needed
- * - Uploading the file to Slack using the provided service
+ * - Uploading the file to Slack using the provided service with rich text changelog
  * - Handling upload timeouts and errors
  * - Logging the upload status
  *
@@ -70,10 +85,13 @@ internal abstract class SlackUploadWork : WorkAction<SlackUploadParameters> {
             )
         try {
             uploader.upload(
-                parameters.baseOutputFileName.get(),
-                parameters.buildName.get(),
-                zippedDistributionFile,
-                parameters.destinationChannels.get(),
+                baseOutputFileName = parameters.baseOutputFileName.get(),
+                buildName = parameters.buildName.get(),
+                file = zippedDistributionFile,
+                channels = parameters.destinationChannels.get(),
+                changelog = parameters.changelog.orNull,
+                userMentions = parameters.userMentions.get(),
+                description = parameters.distributionDescription.orNull,
             )
         } catch (ex: UploadStreamTimeoutException) {
             logger.error(

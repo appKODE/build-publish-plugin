@@ -9,50 +9,25 @@ import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfi
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
-import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
-import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackDistributionConfig
 import ru.kode.android.build.publish.plugin.slack.task.SlackApkDistributionTaskParams
 import ru.kode.android.build.publish.plugin.slack.task.SlackBundleDistributionTaskParams
-import ru.kode.android.build.publish.plugin.slack.task.SlackChangelogTaskParams
 import ru.kode.android.build.publish.plugin.slack.task.SlackTasksRegistrar
 import javax.inject.Inject
 
 /**
  * Main extension class for configuring Slack integration in the build-publish plugin.
  *
- * This extension provides configuration options for Slack notifications and file uploads
+ * This extension provides configuration options for Slack file uploads
  * as part of the Android build and publish process. It allows configuration of:
- * - Bot configurations (authentication and connection details)
- * - Changelog notifications (sending release notes to Slack)
- * - Distribution uploads (sharing APK files via Slack)
+ * - Distribution uploads (sharing APK files via Slack with rich text changelog)
  *
- * @see SlackBotConfig For bot configuration options
- * @see SlackChangelogConfig For changelog notification options
  * @see SlackDistributionConfig For file distribution options
  */
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishSlackExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
-        /**
-         * Container for bot configurations, keyed by build type.
-         *
-         * This internal property holds all the bot configurations for different build types.
-         * Use the [bot] and [botCommon] methods to configure these settings in your build script.
-         */
-        internal val bot: NamedDomainObjectContainer<SlackBotConfig> =
-            objectFactory.domainObjectContainer(SlackBotConfig::class.java)
-
-        /**
-         * Container for changelog configurations, keyed by build type.
-         *
-         * This internal property holds all the changelog configurations for different build types.
-         * Use the [changelog] and [changelogCommon] methods to configure these settings in your build script.
-         */
-        internal val changelog: NamedDomainObjectContainer<SlackChangelogConfig> =
-            objectFactory.domainObjectContainer(SlackChangelogConfig::class.java)
-
         /**
          * Container for distribution configurations, keyed by build type.
          *
@@ -61,38 +36,6 @@ abstract class BuildPublishSlackExtension
          */
         internal val distribution: NamedDomainObjectContainer<SlackDistributionConfig> =
             objectFactory.domainObjectContainer(SlackDistributionConfig::class.java)
-
-        /**
-         * Retrieves a required bot configuration for the specified build variant.
-         * @throws UnknownDomainObjectException if no configuration exists for the build variant
-         */
-        val botConfig: (buildName: String) -> SlackBotConfig = { buildName ->
-            bot.getByNameOrRequiredCommon(buildName)
-        }
-
-        /**
-         * Retrieves an optional bot configuration for the specified build variant.
-         * @return The bot configuration or null if not found
-         */
-        val botConfigOrNull: (buildName: String) -> SlackBotConfig? = { buildName ->
-            bot.getByNameOrNullableCommon(buildName)
-        }
-
-        /**
-         * Retrieves a required changelog configuration for the specified build variant.
-         * @throws UnknownDomainObjectException if no configuration exists for the build variant
-         */
-        val changelogConfig: (buildName: String) -> SlackChangelogConfig = { buildName ->
-            changelog.getByNameOrRequiredCommon(buildName)
-        }
-
-        /**
-         * Retrieves an optional changelog configuration for the specified build variant.
-         * @return The changelog configuration or null if not found
-         */
-        val changelogConfigOrNull: (buildName: String) -> SlackChangelogConfig? = { buildName ->
-            changelog.getByNameOrNullableCommon(buildName)
-        }
 
         /**
          * Retrieves a required distribution configuration for the specified build variant.
@@ -111,28 +54,6 @@ abstract class BuildPublishSlackExtension
         }
 
         /**
-         * Configures bot settings for specific build variants.
-         *
-         * @param configurationAction The action to configure the bot settings
-         * @see SlackBotConfig For available configuration options
-         */
-        fun bot(configurationAction: Action<BuildPublishDomainObjectContainer<SlackBotConfig>>) {
-            val container = BuildPublishDomainObjectContainer(bot)
-            configurationAction.execute(container)
-        }
-
-        /**
-         * Configures changelog notifications for specific build variants.
-         *
-         * @param configurationAction The action to configure the changelog settings
-         * @see SlackChangelogConfig For available configuration options
-         */
-        fun changelog(configurationAction: Action<BuildPublishDomainObjectContainer<SlackChangelogConfig>>) {
-            val container = BuildPublishDomainObjectContainer(changelog)
-            configurationAction.execute(container)
-        }
-
-        /**
          * Configures file distribution settings for specific build variants.
          *
          * @param configurationAction The action to configure the distribution settings
@@ -141,26 +62,6 @@ abstract class BuildPublishSlackExtension
         fun distribution(configurationAction: Action<BuildPublishDomainObjectContainer<SlackDistributionConfig>>) {
             val container = BuildPublishDomainObjectContainer(distribution)
             configurationAction.execute(container)
-        }
-
-        /**
-         * Configures common bot settings that apply to all build variants.
-         * These settings can be overridden by variant-specific configurations.
-         *
-         * @param configurationAction The action to configure the common bot settings
-         */
-        fun botCommon(configurationAction: Action<SlackBotConfig>) {
-            common(bot, configurationAction)
-        }
-
-        /**
-         * Configures common changelog settings that apply to all build variants.
-         * These settings can be overridden by variant-specific configurations.
-         *
-         * @param configurationAction The action to configure the common changelog settings
-         */
-        fun changelogCommon(configurationAction: Action<SlackChangelogConfig>) {
-            common(changelog, configurationAction)
         }
 
         /**
@@ -187,26 +88,7 @@ abstract class BuildPublishSlackExtension
             project: Project,
             input: ExtensionInput,
         ) {
-            val botConfig = botConfig(input.buildVariant.name)
-            val changelogConfig = changelogConfigOrNull(input.buildVariant.name)
             val distributionConfig = distributionConfigOrNull(input.buildVariant.name)
-
-            if (changelogConfig != null) {
-                SlackTasksRegistrar.registerChangelogTask(
-                    project = project,
-                    botConfig = botConfig,
-                    changelogConfig = changelogConfig,
-                    params =
-                        SlackChangelogTaskParams(
-                            baseFileName = input.output.baseFileName,
-                            issueNumberPattern = input.changelog.issueNumberPattern,
-                            issueUrlPrefix = input.changelog.issueUrlPrefix,
-                            buildVariant = input.buildVariant,
-                            changelogFile = input.changelog.file,
-                            lastBuildTagFile = input.output.lastBuildTagFile,
-                        ),
-                )
-            }
 
             if (distributionConfig != null) {
                 SlackTasksRegistrar.registerApkDistributionTask(
@@ -218,6 +100,7 @@ abstract class BuildPublishSlackExtension
                             buildVariant = input.buildVariant,
                             lastBuildTagFile = input.output.lastBuildTagFile,
                             apkOutputFile = input.output.apkFile,
+                            changelogFile = input.changelog.file,
                         ),
                 )
 
@@ -230,6 +113,7 @@ abstract class BuildPublishSlackExtension
                             buildVariant = input.buildVariant,
                             lastBuildTagFile = input.output.lastBuildTagFile,
                             bundleOutputFile = input.output.bundleFile,
+                            changelogFile = input.changelog.file,
                         ),
                 )
             }

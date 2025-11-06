@@ -7,6 +7,6 @@ import com.squareup.moshi.JsonClass
 internal data class SlackGetUploadUrlResponse(
     override val ok: Boolean,
     override val error: String?,
-    @Json(name = "upload_url") val uploadUrl: String?,
-    @Json(name = "file_id") val fileId: String?,
+    @param:Json(name = "upload_url") val uploadUrl: String?,
+    @param:Json(name = "file_id") val fileId: String?,
 ) : BaseSlackResponse

@@ -11,11 +11,9 @@ import ru.kode.android.build.publish.plugin.slack.extension.BuildPublishSlackExt
 import ru.kode.android.build.publish.plugin.slack.service.SlackServiceExtension
 import ru.kode.android.build.publish.plugin.slack.service.network.SlackNetworkService
 import ru.kode.android.build.publish.plugin.slack.service.upload.SlackUploadService
-import ru.kode.android.build.publish.plugin.slack.service.webhook.SlackWebhookService
 
 private const val EXTENSION_NAME = "buildPublishSlack"
 private const val NETWORK_SERVICE_NAME = "slackNetworkService"
-private const val WEBHOOK_SERVICE_NAME = "slackWebhookService"
 private const val UPLOAD_SERVICE_NAME = "slackUploadService"
 private const val SERVICE_EXTENSION_NAME = "slackServiceExtension"
 
@@ -23,12 +21,11 @@ private const val SERVICE_EXTENSION_NAME = "slackServiceExtension"
  * A Gradle plugin that provides Slack integration for build publishing.
  *
  * This plugin enables:
- * - Sending build notifications to Slack channels
- * - Uploading build artifacts to Slack
+ * - Uploading build artifacts to Slack with rich text changelog
  * - Configuring multiple Slack workspaces and channels
- * - Customizing notification messages and channels
+ * - Customizing notification messages with user mentions and version info
  *
- * It sets up the necessary services for Slack webhook and file upload functionality,
+ * It sets up the necessary services for Slack file upload functionality,
  * and provides extensions for build scripts to configure Slack integration.
  */
 abstract class BuildPublishSlackPlugin : Plugin<Project> {
@@ -47,24 +44,6 @@ abstract class BuildPublishSlackPlugin : Plugin<Project> {
             )
 
         androidExtension.finalizeDsl {
-            val webhookServices: Provider<Map<String, Provider<SlackWebhookService>>> =
-                project.provider {
-                    extension.bot.fold(mapOf()) { acc, authConfig ->
-                        val webhookService =
-                            project.gradle.sharedServices.registerIfAbsent(
-                                project.serviceName(WEBHOOK_SERVICE_NAME, authConfig.name),
-                                SlackWebhookService::class.java,
-                                {
-                                    it.maxParallelUsages.set(1)
-                                    it.parameters.webhookUrl.set(authConfig.webhookUrl)
-                                    it.parameters.networkService.set(networkService)
-                                },
-                            )
-                        acc.toMutableMap().apply {
-                            put(authConfig.name, webhookService)
-                        }
-                    }
-                }
             val uploadServices: Provider<Map<String, Provider<SlackUploadService>>> =
                 project.provider {
                     extension.distribution.fold(mapOf()) { acc, authConfig ->
@@ -86,7 +65,6 @@ abstract class BuildPublishSlackPlugin : Plugin<Project> {
             project.extensions.create(
                 SERVICE_EXTENSION_NAME,
                 SlackServiceExtension::class.java,
-                webhookServices,
                 uploadServices,
             )
         }

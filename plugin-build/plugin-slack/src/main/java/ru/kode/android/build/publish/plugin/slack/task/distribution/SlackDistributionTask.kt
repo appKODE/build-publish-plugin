@@ -8,6 +8,7 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
@@ -15,15 +16,17 @@ import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.slack.service.upload.SlackUploadService
 import ru.kode.android.build.publish.plugin.slack.task.distribution.work.SlackUploadWork
+import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 
 /**
- * A Gradle task that handles uploading build artifacts to Slack for distribution.
+ * A Gradle task that handles uploading build artifacts to Slack for distribution with changelog.
  *
  * This task is responsible for:
  * - Uploading APK or bundle files to Slack
- * - Sharing the uploaded files in specified channels
+ * - Sharing the uploaded files in specified channels with changelog
  * - Tracking build information using build tags
+ * - Formatting changelog as rich text blocks with user mentions and version info
  */
 abstract class SlackDistributionTask
     @Inject
@@ -97,24 +100,67 @@ abstract class SlackDistributionTask
         abstract val destinationChannels: SetProperty<String>
 
         /**
-         * Executes the file upload to Slack.
+         * The changelog file property points to the file containing changelog content.
+         * This will be formatted as a rich text bulleted list in the Slack message.
+         */
+        @get:Optional
+        @get:InputFile
+        @get:Option(
+            option = "changelogFile",
+            description = "File containing changelog content",
+        )
+        abstract val changelogFile: RegularFileProperty
+
+        /**
+         * Set of user mentions to be included in the changelog message.
+         */
+        @get:Optional
+        @get:Input
+        @get:Option(
+            option = "userMentions",
+            description = "List of user mentions for Slack",
+        )
+        abstract val userMentions: SetProperty<String>
+
+        /**
+         * Description string to display in the changelog message.
+         */
+        @get:Optional
+        @get:Input
+        @get:Option(
+            option = "description",
+            description = "description string to display",
+        )
+        abstract val distributionDescription: Property<String>
+
+        /**
+         * Executes the file upload to Slack with changelog.
          *
          * This method:
          * 1. Reads the build tag information
-         * 2. Submits the upload work to a worker thread
-         * 3. Configures the work with all necessary parameters
+         * 2. Reads the changelog file content
+         * 3. Submits the upload work to a worker thread
+         * 4. Configures the work with all necessary parameters including changelog
          *
          * The actual upload is performed asynchronously by a Gradle worker.
          */
         @TaskAction
         fun upload() {
             val currentBuildTag = fromJson(buildTagFile.asFile.get())
+            val changelog =
+                changelogFile.orNull
+                    ?.asFile
+                    ?.takeIf { it.exists() && it.isFile }
+                    ?.readText(StandardCharsets.UTF_8)
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(SlackUploadWork::class.java) { parameters ->
                 parameters.distributionFile.set(distributionFile)
                 parameters.destinationChannels.set(destinationChannels)
                 parameters.buildName.set(currentBuildTag.name)
                 parameters.baseOutputFileName.set(baseOutputFileName)
+                parameters.changelog.set(changelog)
+                parameters.userMentions.set(userMentions)
+                parameters.distributionDescription.set(distributionDescription)
                 parameters.networkService.set(networkService)
             }
         }

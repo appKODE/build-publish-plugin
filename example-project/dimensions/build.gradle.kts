@@ -81,20 +81,10 @@ buildPublishFirebase {
 }
 
 buildPublishSlack {
-    bot {
+    distribution {
         common {
-            webhookUrl.set("https://hooks.slack.com/services/111111111/AAAAAAA/DDDDDDD")
-            iconUrl.set("https://i.imgur.com/HQTF5FK.png")
+            uploadApiTokenFile.set(File("Test"))
+            destinationChannel("builds")
         }
-    }
-    changelog {
-        common {
-            userMentions("@aa", "@bb", "@cc")
-            attachmentColor.set("#ffffff")
-        }
-    }
-    distributionCommon {
-        uploadApiTokenFile.set(File("Test"))
-        destinationChannel("builds")
     }
 }

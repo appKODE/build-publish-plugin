@@ -39,6 +39,6 @@ internal interface SlackUploadApi {
         @Header("Authorization") authorisation: String,
         @Field("files") files: String,
         @Field("channels") channels: String,
-        @Field("initial_comment") initialComment: String?,
+        @Field("blocks") blocks: String?,
     ): Call<SlackCompleteUploadUrlResponse>
 }

@@ -9,9 +9,11 @@ for example `v1.0.666-debug` or `v1.0.666-release`.
 
 Several different tasks will be created for each build type and flavor. But the main ones are:
 1. `processBuildPublish<build_type>` (for example, `processBuildPublishDebug`) - prepare a changelog between 2 last tags, 
-   send apk to Firebase App Distribution and send a changelog to Slack and/or Telegram (if configured)
+   send apk to Firebase App Distribution and send a changelog to Telegram (if configured)
 2. `sendChangelog<build_type>` (for example, `sendChangelogDebug`) - just prepare a changelog between 2 last tags 
-   and send it to Slack and/or Telegram (if configured)
+   and send it to Telegram (if configured)
+3. `slackDistributionUpload<build_type>` (for example, `slackDistributionUploadDebug`) - upload build artifacts to Slack
+      with rich text changelog messages including user mentions and version information
 
 ## How to apply
 
@@ -126,32 +128,27 @@ buildPublish {
             "@serega",
         )
     )
+}
+```
+**Slack Configuration:**
 
+```kotlin
+buildPublishSlack {
     /**
-     * Config for Slack changelog sender
+     * Config for Slack file distribution with changelog
      *
      * For example:
-     *  webhook_url: "https://hooks.slack.com/services/111111111/AAAAAAA/DDDDDDD"
-     *  icon_url: "https://i.imgur.com/HQTF5FK.png"
+     *  uploadApiTokenFile: File containing Slack API token with files:write scope
+     *  destinationChannel: Slack channel where files will be uploaded
+     *  userMentions: List of users to mention in the message
+     *  distributionDescription: Optional custom description (defaults to GitLab tag name)
      */
-    slackConfig.set(
-        mapOf(
-            "webhook_url" to "https://hooks.slack.com/services/111111111/AAAAAAA/DDDDDDD",
-            "icon_url" to "https://i.imgur.com/HQTF5FK.png",
-        )
-    )
-
-    /**
-     * List of mentioning users for Slack, can be empty or null
-     * For example: ["@aa", "@bb", "@ccc"]
-     */
-    slackUserMentions.set(
-        setOf(
-            "@aa",
-            "@bb",
-            "@cc"
-        )
-    )
+    distributionCommon {
+        uploadApiTokenFile.set(File("path/to/slack-token.txt"))
+        destinationChannel("builds")
+        userMentions("@here", "@channel")
+        // distributionDescription("RC v1.3.1990") // Optional: defaults to GitLab tag name
+    }
 }
 ```
 In the output plugin will set `versionName and versionCode` and create tasks to publish and send changelogs

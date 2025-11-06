@@ -9,14 +9,9 @@ import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
-import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
-import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackDistributionConfig
 import ru.kode.android.build.publish.plugin.slack.service.SlackServiceExtension
-import ru.kode.android.build.publish.plugin.slack.task.changelog.SendSlackChangelogTask
 import ru.kode.android.build.publish.plugin.slack.task.distribution.SlackDistributionTask
-
-internal const val SEND_SLACK_CHANGELOG_TASK_PREFIX = "sendSlackChangelog"
 
 internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
 internal const val SLACK_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "slackDistributionUploadBundle"
@@ -24,9 +19,8 @@ internal const val SLACK_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "slackDistribu
 /**
  * Utility object for registering Slack-related Gradle tasks.
  *
- * This object provides methods to register different types of Slack tasks:
- * - Changelog notification tasks
- * - File distribution upload tasks
+ * This object provides methods to register file distribution upload tasks
+ * that upload build artifacts to Slack with rich text changelog.
  *
  * It handles task creation and configuration based on the provided parameters and build variants.
  */
@@ -34,22 +28,12 @@ internal object SlackTasksRegistrar {
     private val logger: Logger = Logging.getLogger(this::class.java)
 
     /**
-     * Registers a task for sending changelog notifications to Slack.
-     *
-     * @param project The project to register the task in
-     * @param botConfig Configuration for the Slack bot
-     * @param changelogConfig Configuration for the changelog message
-     * @param params Parameters for the changelog task
-     *
-     * @return A TaskProvider for the registered task
+     * Checks if the distribution configuration is valid for task registration.
      */
-    internal fun registerChangelogTask(
-        project: Project,
-        botConfig: SlackBotConfig,
-        changelogConfig: SlackChangelogConfig,
-        params: SlackChangelogTaskParams,
-    ): TaskProvider<SendSlackChangelogTask> {
-        return project.registerSendSlackChangelogTask(botConfig, changelogConfig, params)
+    private fun SlackDistributionConfig.isValidForRegistration(): Boolean {
+        return uploadApiTokenFile.isPresent &&
+            destinationChannels.isPresent &&
+            destinationChannels.get().isNotEmpty()
     }
 
     /**
@@ -69,15 +53,12 @@ internal object SlackTasksRegistrar {
         distributionConfig: SlackDistributionConfig,
         params: SlackApkDistributionTaskParams,
     ): TaskProvider<SlackDistributionTask>? {
-        return if (
-            distributionConfig.uploadApiTokenFile.isPresent &&
-            distributionConfig.destinationChannels.isPresent
-        ) {
+        return if (distributionConfig.isValidForRegistration()) {
             project.registerApkSlackDistributionTask(distributionConfig, params)
         } else {
             logger.info(
                 "SlackDistributionTask for APK was not created, " +
-                    "uploadApiTokenFile and uploadChannels are not present",
+                    "uploadApiTokenFile and destinationChannels are not present or empty",
             )
             null
         }
@@ -100,15 +81,12 @@ internal object SlackTasksRegistrar {
         distributionConfig: SlackDistributionConfig,
         params: SlackBundleDistributionTaskParams,
     ): TaskProvider<SlackDistributionTask>? {
-        return if (
-            distributionConfig.uploadApiTokenFile.isPresent &&
-            distributionConfig.destinationChannels.isPresent
-        ) {
+        return if (distributionConfig.isValidForRegistration()) {
             project.registerBundleSlackDistributionTask(distributionConfig, params)
         } else {
             logger.info(
                 "SlackDistributionTask for Bundle was not created, " +
-                    "uploadApiTokenFile and uploadChannels are not present",
+                    "uploadApiTokenFile and destinationChannels are not present or empty",
             )
             null
         }
@@ -116,38 +94,22 @@ internal object SlackTasksRegistrar {
 }
 
 /**
- * Registers a task for sending changelog notifications to Slack.
- *
- * @param botConfig Configuration for the Slack bot
- * @param changelogConfig Configuration for the changelog message
- * @param params Parameters for the changelog task
- *
- * @return A TaskProvider for the registered task
+ * Sets up dependency on GenerateChangelogTask if it exists.
+ * GenerateChangelogTask is only registered if changelog is configured in foundation plugin.
  */
-private fun Project.registerSendSlackChangelogTask(
-    botConfig: SlackBotConfig,
-    changelogConfig: SlackChangelogConfig,
-    params: SlackChangelogTaskParams,
-): TaskProvider<SendSlackChangelogTask> {
-    return tasks.register(
-        "$SEND_SLACK_CHANGELOG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
-        SendSlackChangelogTask::class.java,
-    ) {
-        val webhookService =
-            extensions
-                .getByType(SlackServiceExtension::class.java)
-                .webhookServices
-                .flatMapByNameOrCommon(params.buildVariant.name)
-
-        it.changelogFile.set(params.changelogFile)
-        it.buildTagFile.set(params.lastBuildTagFile)
-        it.issueUrlPrefix.set(params.issueUrlPrefix)
-        it.issueNumberPattern.set(params.issueNumberPattern)
-        it.baseOutputFileName.set(params.baseFileName)
-        it.iconUrl.set(botConfig.iconUrl)
-        it.userMentions.set(changelogConfig.userMentions)
-        it.attachmentColor.set(changelogConfig.attachmentColor)
-        it.networkService.set(webhookService)
+private fun setupChangelogTaskDependency(
+    project: Project,
+    taskProvider: TaskProvider<SlackDistributionTask>,
+    buildVariant: BuildVariant,
+) {
+    project.afterEvaluate {
+        // GenerateChangelogTask naming convention: "generateChangelog" + buildVariant name
+        val changelogTaskName = "generateChangelog${buildVariant.capitalizedName()}"
+        project.tasks.findByName(changelogTaskName)?.let { changelogTask ->
+            taskProvider.configure { task ->
+                task.dependsOn(changelogTask)
+            }
+        }
     }
 }
 
@@ -163,22 +125,28 @@ private fun Project.registerApkSlackDistributionTask(
     distributionConfig: SlackDistributionConfig,
     params: SlackApkDistributionTaskParams,
 ): TaskProvider<SlackDistributionTask> {
-    return tasks.register(
-        "$SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
-        SlackDistributionTask::class.java,
-    ) {
-        val uploadService =
-            extensions
-                .getByType(SlackServiceExtension::class.java)
-                .uploadServices
-                .flatMapByNameOrCommon(params.buildVariant.name)
+    val taskProvider =
+        tasks.register(
+            "$SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+            SlackDistributionTask::class.java,
+        ) {
+            val uploadService =
+                extensions
+                    .getByType(SlackServiceExtension::class.java)
+                    .uploadServices
+                    .flatMapByNameOrCommon(params.buildVariant.name)
 
-        it.distributionFile.set(params.apkOutputFile)
-        it.destinationChannels.set(distributionConfig.destinationChannels)
-        it.buildTagFile.set(params.lastBuildTagFile)
-        it.baseOutputFileName.set(params.baseFileName)
-        it.networkService.set(uploadService)
-    }
+            it.distributionFile.set(params.apkOutputFile)
+            it.destinationChannels.set(distributionConfig.destinationChannels)
+            it.buildTagFile.set(params.lastBuildTagFile)
+            it.baseOutputFileName.set(params.baseFileName)
+            it.changelogFile.set(params.changelogFile)
+            it.userMentions.set(distributionConfig.userMentions)
+            it.distributionDescription.set(distributionConfig.distributionDescription)
+            it.networkService.set(uploadService)
+        }
+    setupChangelogTaskDependency(project, taskProvider, params.buildVariant)
+    return taskProvider
 }
 
 /**
@@ -194,59 +162,35 @@ private fun Project.registerBundleSlackDistributionTask(
     params: SlackBundleDistributionTaskParams,
 ): TaskProvider<SlackDistributionTask>? {
     return if (params.bundleOutputFile.isPresent) {
-        tasks.register(
-            "$SLACK_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
-            SlackDistributionTask::class.java,
-        ) {
-            val uploadService =
-                extensions
-                    .getByType(SlackServiceExtension::class.java)
-                    .uploadServices
-                    .flatMapByNameOrCommon(params.buildVariant.name)
+        val taskProvider =
+            tasks.register(
+                "$SLACK_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+                SlackDistributionTask::class.java,
+            ) {
+                val uploadService =
+                    extensions
+                        .getByType(SlackServiceExtension::class.java)
+                        .uploadServices
+                        .flatMapByNameOrCommon(params.buildVariant.name)
 
-            it.distributionFile.set(params.bundleOutputFile)
-            it.destinationChannels.set(distributionConfig.destinationChannels)
-            it.buildTagFile.set(params.lastBuildTagFile)
-            it.baseOutputFileName.set(params.baseFileName)
-            it.networkService.set(uploadService)
-        }
+                it.distributionFile.set(params.bundleOutputFile)
+                it.destinationChannels.set(distributionConfig.destinationChannels)
+                it.buildTagFile.set(params.lastBuildTagFile)
+                it.baseOutputFileName.set(params.baseFileName)
+                it.changelogFile.set(params.changelogFile)
+                it.userMentions.set(distributionConfig.userMentions)
+                it.distributionDescription.set(distributionConfig.distributionDescription)
+                it.networkService.set(uploadService)
+            }
+        setupChangelogTaskDependency(project, taskProvider, params.buildVariant)
+        return taskProvider
     } else {
         logger.info(
             "SlackDistributionTask for Bundle was not created, bundleOutputFile is not present",
         )
-        null
+        return null
     }
 }
-
-/**
- * Parameters for configuring a Slack changelog notification task.
- */
-internal data class SlackChangelogTaskParams(
-    /**
-     * The build variant this task is associated with
-     */
-    val buildVariant: BuildVariant,
-    /**
-     * The file containing the changelog to send
-     */
-    val changelogFile: Provider<RegularFile>,
-    /**
-     * File containing the last build tag for change tracking
-     */
-    val lastBuildTagFile: Provider<RegularFile>,
-    /**
-     * Base URL for issue links
-     */
-    val issueUrlPrefix: Provider<String>,
-    /**
-     * Regex pattern for matching issue numbers in commit messages
-     */
-    val issueNumberPattern: Provider<String>,
-    /**
-     * Base name to use for the build in notifications
-     */
-    val baseFileName: Provider<String>,
-)
 
 /**
  * Parameters for configuring a Slack APK distribution task.
@@ -268,6 +212,10 @@ internal data class SlackApkDistributionTaskParams(
      * Base name to use for the build in notifications
      */
     val baseFileName: Provider<String>,
+    /**
+     * File containing changelog content
+     */
+    val changelogFile: Provider<RegularFile>,
 )
 
 /**
@@ -290,4 +238,8 @@ internal data class SlackBundleDistributionTaskParams(
      * Base name to use for the build in notifications
      */
     val baseFileName: Provider<String>,
+    /**
+     * File containing changelog content
+     */
+    val changelogFile: Provider<RegularFile>,
 )
