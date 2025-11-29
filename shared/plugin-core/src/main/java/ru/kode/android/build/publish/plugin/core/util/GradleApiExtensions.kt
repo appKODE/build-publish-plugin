@@ -20,7 +20,7 @@ inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrRequiredCommon(
         findByName(name) ?: getByName(defaultName)
     } catch (ex: Throwable) {
         throw GradleException(
-            "Required $name or $defaultName configuration not found. " +
+            "Required `$name` or `$defaultName` configuration not found. " +
                 "This can happen if the configuration was not registered or if the name is incorrect. " +
                 "Make sure that there is no errors in the build script. " +
                 ex,
@@ -44,7 +44,7 @@ inline fun <reified T> BuildPublishDomainObjectContainer<T>.getByNameOrRequiredC
         findByName(name) ?: getByName(defaultName)
     } catch (ex: Exception) {
         throw GradleException(
-            "Required $name or $defaultName configuration not found. " +
+            "Required `$name` or `$defaultName` configuration not found. " +
                 "This can happen if the configuration was not registered or if the name is incorrect. " +
                 "Make sure that there is no errors in the build script. " +
                 ex,
@@ -88,9 +88,10 @@ inline fun <reified T> Provider<Map<String, Provider<T>>>.flatMapByNameOrCommon(
         providers[name]
             ?: providers[defaultName]
             ?: throw GradleException(
-                "Required $name or $defaultName configuration not found. " +
+                "Required `$name` or `$defaultName` configuration not found. " +
                     "This can happen if the configuration was not registered or if the name is incorrect. " +
                     "Make sure that there is no errors in the build script. ",
+                IllegalStateException("Provider map keys: ${providers.keys}")
             )
     }
 }

@@ -62,9 +62,11 @@ abstract class JiraNetworkService
         internal abstract val apiProperty: Property<JiraApi>
 
         init {
+            val username = parameters.credentials.flatMap { it.username }
+            val password = parameters.credentials.flatMap { it.password }
             okHttpClientProperty.set(
-                parameters.credentials.flatMap { it.username }
-                    .zip(parameters.credentials.flatMap { it.password }) { username, password ->
+                username
+                    .zip(password) { username, password ->
                         OkHttpClient.Builder()
                             .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                             .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)

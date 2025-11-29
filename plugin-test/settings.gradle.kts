@@ -1,0 +1,44 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+        mavenCentral()
+        google()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        google()
+    }
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
+    }
+}
+
+rootProject.name = ("ru.kode.android.build.publish.plugin-test")
+
+include("foundation")
+include("jira")
+include("utils")
+includeBuild("../plugin-build") {
+    dependencySubstitution {
+        substitute(module("ru.kode.android:plugin-foundation"))
+            .using(project(":pugin-foundation"))
+        substitute(module("ru.kode.android:plugin-jira"))
+            .using(project(":pugin-jira"))
+    }
+}
+
+includeBuild("../build-conventions")
+includeBuild("../shared") {
+    dependencySubstitution {
+        substitute(module("ru.kode.android:plugin-core"))
+            .using(project(":pugin-core"))
+    }
+}

@@ -1,0 +1,58 @@
+import java.util.Properties
+
+plugins {
+    id("kotlin-convention")
+    id("java-gradle-plugin")
+    id("com.google.devtools.ksp")
+}
+
+dependencies {
+    implementation("ru.kode.android:plugin-foundation")
+    implementation("ru.kode.android:plugin-jira")
+
+    testImplementation("ru.kode.android:plugin-core")
+    testImplementation(project(":utils"))
+
+    testImplementation(gradleApi())
+    testImplementation(libs.agp)
+    testImplementation(libs.grgitCore)
+    testImplementation(libs.grgitGradle)
+
+    testImplementation(gradleTestKit())
+    testImplementation(platform(libs.junitBom))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    // https://jira.kode.ru/browse/AT-290
+    // https://jira.kode.ru/browse/AT-289
+    // https://jira.kode.ru/browse/AT-291
+    doFirst {
+        systemProperty("JIRA_BASE_URL", project.getEnvOrProperty("JIRA_BASE_URL"))
+        systemProperty("JIRA_USER_NAME", project.getEnvOrProperty("JIRA_USER_NAME"))
+        systemProperty("JIRA_USER_PASSWORD", project.getEnvOrProperty("JIRA_USER_PASSWORD"))
+        systemProperty("JIRA_PROJECT_ID", project.getEnvOrProperty("JIRA_PROJECT_ID"))
+    }
+
+    useJUnitPlatform()
+    testLogging {
+        showStackTraces = true
+        showExceptions = true
+        showCauses = true
+        showStandardStreams = true
+    }
+}
+
+
+private fun Project.getEnvOrProperty(name: String): String {
+    System.getenv(name)?.let { return it }
+
+    val props = Properties()
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        props.load(file.inputStream())
+        props.getProperty(name)?.let { return it }
+    }
+    return "not_denined_stub"
+}

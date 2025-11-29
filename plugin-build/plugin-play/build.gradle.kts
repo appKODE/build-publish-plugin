@@ -13,10 +13,6 @@ dependencies {
     implementation(libs.google.auth)
     implementation(libs.agp)
 
-    testImplementation(gradleTestKit())
-    testImplementation(platform(libs.junitBom))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-
     ksp(libs.moshiCodgen)
 }
 

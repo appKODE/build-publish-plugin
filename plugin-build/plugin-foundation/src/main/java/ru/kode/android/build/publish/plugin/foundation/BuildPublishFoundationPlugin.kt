@@ -10,6 +10,8 @@ import com.android.build.gradle.AppPlugin
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
@@ -46,6 +48,9 @@ private const val EXTENSION_NAME = "buildPublishFoundation"
  * for version management and changelog generation based on Git history.
  */
 abstract class BuildPublishFoundationPlugin : Plugin<Project> {
+
+    private val logger: Logger = Logging.getLogger(this::class.java)
+
     override fun apply(project: Project) {
         project.stopExecutionIfNotSupported()
 
@@ -147,6 +152,8 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 project.extensions.getByName(schema.name) as BuildPublishConfigurableExtension
                             }
                             .onEach { extension ->
+                                logger.info("Configure $extension in core")
+
                                 extension.configure(
                                     project = project,
                                     input =

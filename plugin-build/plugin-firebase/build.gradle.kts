@@ -17,10 +17,6 @@ dependencies {
     implementation(libs.agp)
     implementation(libs.firebaseAppdistribution)
 
-    testImplementation(gradleTestKit())
-    testImplementation(platform(libs.junitBom))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-
     ksp(libs.moshiCodgen)
 }
 

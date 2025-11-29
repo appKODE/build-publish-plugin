@@ -56,6 +56,9 @@ buildPublishTelegram {
         common {
             bot("buildPublisher") {
                 botId.set("TELEGRAM_BUILD_BOT_ID")
+                botServerBaseUrl.set("https://google.com")
+                botServerAuth.username.set("user")
+                botServerAuth.password.set("password")
 
                 chat("builds") {
                     chatId.set("CHAT_ID")
@@ -79,6 +82,7 @@ buildPublishTelegram {
 buildPublishConfluence {
     auth {
         common {
+            baseUrl.set("wiki")
             credentials.username.set("@username")
             credentials.password.set("@password")
         }

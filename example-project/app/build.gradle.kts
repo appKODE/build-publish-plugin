@@ -6,6 +6,7 @@ plugins {
     id("ru.kode.android.build-publish-novo.confluence")
     id("ru.kode.android.build-publish-novo.telegram")
     id("ru.kode.android.build-publish-novo.clickup")
+    id("ru.kode.android.build-publish-novo.play")
     id("ru.kode.android.build-publish-example.print-tag")
 }
 
@@ -144,11 +145,20 @@ buildPublishTelegram {
     changelog {
         common {
             userMentions("@ivan", "@roman", "@serega")
+
             destinationBot {
                 botName = "buildPublish"
                 chatNames("test_chat_A")
             }
         }
+    }
+    distribution {
+       common {
+           destinationBot {
+               botName = "buildPublish"
+               chatNames("test_chat_B")
+           }
+       }
     }
 }
 
@@ -174,6 +184,22 @@ buildPublishPrintTag {
     message {
         buildVariant("armv8MinApi21AlphaRelease") {
             additionalText.set("Additional text Armv8MinApi21AlphaRelease")
+        }
+    }
+}
+
+buildPublishPlay {
+    auth {
+        common {
+            apiTokenFile.set(File("android-team-kode.ru"))
+            appId.set("test")
+        }
+    }
+
+    distribution {
+        common {
+            trackId.set("Android")
+            updatePriority.set(111)
         }
     }
 }

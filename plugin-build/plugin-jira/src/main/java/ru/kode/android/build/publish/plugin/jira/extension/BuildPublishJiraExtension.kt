@@ -3,7 +3,10 @@ package ru.kode.android.build.publish.plugin.jira.extension
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
+import org.gradle.internal.cc.base.logger
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
@@ -29,7 +32,10 @@ import javax.inject.Inject
 abstract class BuildPublishJiraExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
-        /**
+
+        private val logger: Logger = Logging.getLogger(this::class.java)
+
+         /**
          * Container for Jira authentication configurations.
          *
          * Each configuration defines how to authenticate with a Jira instance.
@@ -142,6 +148,10 @@ abstract class BuildPublishJiraExtension
             project: Project,
             input: ExtensionInput,
         ) {
+
+            logger.info("Jira automation config ${automation.asMap}")
+            logger.info("Jira auth config ${auth.asMap}")
+
             val automationConfig = automationConfig(input.buildVariant.name)
 
             JiraTasksRegistrar.registerAutomationTask(

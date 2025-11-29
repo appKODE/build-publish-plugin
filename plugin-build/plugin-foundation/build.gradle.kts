@@ -12,12 +12,6 @@ dependencies {
     implementation(libs.agp)
     implementation(libs.grgitCore)
     implementation(libs.grgitGradle)
-
-    testImplementation(gradleTestKit())
-    testImplementation("ru.kode.android:plugin-test-utils")
-    testImplementation(platform(libs.junitBom))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 gradlePlugin {
@@ -67,15 +61,5 @@ tasks.register("setupPluginUploadFromEnvironment") {
 
         System.setProperty("gradle.publish.key", key)
         System.setProperty("gradle.publish.secret", secret)
-    }
-}
-
-tasks.test {
-    useJUnitPlatform()
-    testLogging {
-        showStackTraces = true
-        showExceptions = true
-        showCauses = true
-        showStandardStreams = true
     }
 }

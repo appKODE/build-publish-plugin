@@ -21,5 +21,4 @@ dependencyResolutionManagement {
 }
 
 include(":plugin-core")
-include(":plugin-test-utils")
 includeBuild("../build-conventions")
