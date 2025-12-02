@@ -12,6 +12,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
@@ -19,6 +20,8 @@ import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.core.util.getCommon
+import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
+import ru.kode.android.build.publish.plugin.foundation.config.OutputConfig
 import ru.kode.android.build.publish.plugin.foundation.extension.BuildPublishFoundationExtension
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServicePlugin
 import ru.kode.android.build.publish.plugin.foundation.task.ChangelogTasksRegistrar
@@ -65,26 +68,39 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
 
         androidExtension.onVariants(
             callback = { variant ->
+                val variantName = variant.name
+                val buildVariant = BuildVariant(
+                    variantName,
+                    variant.flavorName,
+                    variant.buildType
+                )
+
                 val variantOutput =
                     variant.outputs
-                        .find { it is VariantOutputImpl && it.fullName == variant.name }
+                        .find { it is VariantOutputImpl && it.fullName == variantName }
                         as? VariantOutputImpl
 
                 if (variantOutput != null) {
-                    val buildVariant = BuildVariant(variant.name, variant.flavorName, variant.buildType)
+                    // It's safe to call `.get()` here because `variantOutput.outputFileName` is already
+                    // resolved by Gradle during the variant configuration phase. We are not creating a new
+                    // lazy Provider, just accessing the current value. This avoids a circular dependency
+                    // that would occur if we tried to build a flatMap/zip based on itself.
                     val apkOutputFileName = variantOutput.outputFileName.get()
 
                     val bundleFile = variant.artifacts.get(SingleArtifact.BUNDLE)
 
-                    val outputConfig =
-                        buildPublishFoundationExtension
-                            .output
-                            .getByNameOrRequiredCommon(buildVariant.name)
+                    val outputConfigProvider: Provider<OutputConfig> =
+                        project.providers.provider {
+                            buildPublishFoundationExtension
+                                .output
+                                .getByNameOrRequiredCommon(buildVariant.name)
+                        }
 
-                    val buildTagPattern =
+                    val buildTagPattern = outputConfigProvider.flatMap { outputConfig ->
                         outputConfig.buildTagPattern
                             .orElse(DEFAULT_TAG_PATTERN)
                             .map { it.format(buildVariant.name) }
+                    }
 
                     val lastTagTaskOutput =
                         TagTasksRegistrar.registerLastTagTask(
@@ -92,16 +108,21 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             params =
                                 LastTagTaskParams(
                                     buildVariant = buildVariant,
-                                    apkOutputFileName = apkOutputFileName,
-                                    useVersionsFromTag =
-                                        outputConfig.useVersionsFromTag
-                                            .orElse(true),
-                                    baseFileName = outputConfig.baseFileName,
+                                    apkOutputFileName = project.providers.provider {
+                                        apkOutputFileName
+                                    },
+                                    useVersionsFromTag = outputConfigProvider
+                                        .flatMap { it.useVersionsFromTag }
+                                        .orElse(true),
+                                    baseFileName = outputConfigProvider
+                                        .flatMap { it.baseFileName },
                                     useDefaultsForVersionsAsFallback =
-                                        outputConfig.useDefaultsForVersionsAsFallback
+                                        outputConfigProvider
+                                            .flatMap { it.useDefaultsForVersionsAsFallback }
                                             .orElse(true),
                                     useStubsForTagAsFallback =
-                                        outputConfig.useStubsForTagAsFallback
+                                        outputConfigProvider
+                                            .flatMap { it.useStubsForTagAsFallback }
                                             .orElse(true),
                                     buildTagPattern = buildTagPattern,
                                 ),
@@ -116,71 +137,92 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             ),
                     )
 
-                    val changelogConfig =
-                        buildPublishFoundationExtension
-                            .changelog
-                            .getByNameOrNullableCommon(buildVariant.name)
 
-                    if (changelogConfig != null) {
-                        val apkOutputFile =
-                            lastTagTaskOutput.apkOutputFileName.flatMap { fileName ->
-                                project.mapToOutputApkFile(buildVariant, fileName)
-                            }
+                    val changelogConfigProvider: Provider<ChangelogConfig?> =
+                        project.providers.provider {
+                            buildPublishFoundationExtension
+                                .changelog
+                                .getByNameOrNullableCommon(buildVariant.name)
+                        }
 
-                        val changelogFile =
-                            ChangelogTasksRegistrar.registerGenerateChangelogTask(
+                    val apkOutputFile =
+                        lastTagTaskOutput.apkOutputFileName.flatMap { fileName ->
+                            project.mapToOutputApkFile(buildVariant, fileName)
+                        }
+
+                    val changelogFile =
+                        ChangelogTasksRegistrar.registerGenerateChangelogTask(
+                            project = project,
+                            params =
+                                GenerateChangelogTaskParams(
+                                    commitMessageKey = changelogConfigProvider
+                                        .flatMap {
+                                            it?.commitMessageKey
+                                                ?: project.providers.provider { null }
+                                        },
+                                    excludeMessageKey = changelogConfigProvider.flatMap {
+                                        if (it != null) {
+                                            it.excludeMessageKey
+                                                .orElse(true)
+                                        } else {
+                                            project.providers.provider { null }
+                                        }
+                                    },
+                                    buildTagPattern = buildTagPattern,
+                                    buildVariant = buildVariant,
+                                    changelogFile = project.changelogDirectory(),
+                                    lastTagFile = lastTagTaskOutput.lastBuildTagFile,
+                                ),
+                        )
+
+                    project.extensions.extensionsSchema
+                        .filter { schema ->
+                            val extensionType: Class<*> = schema.publicType.concreteClass
+                            BuildPublishConfigurableExtension::class.java.isAssignableFrom(extensionType)
+                        }
+                        .map { schema ->
+                            project.extensions.getByName(schema.name) as BuildPublishConfigurableExtension
+                        }
+                        .onEach { extension ->
+                            logger.info("Configure $extension in core")
+
+                            extension.configure(
                                 project = project,
-                                params =
-                                    GenerateChangelogTaskParams(
-                                        commitMessageKey = changelogConfig.commitMessageKey,
-                                        excludeMessageKey =
-                                            changelogConfig.excludeMessageKey
-                                                .orElse(true),
-                                        buildTagPattern = buildTagPattern,
+                                input =
+                                    ExtensionInput(
+                                        changelog =
+                                            ExtensionInput.Changelog(
+                                                issueNumberPattern = changelogConfigProvider.flatMap {
+                                                    it?.issueNumberPattern
+                                                        ?: project.providers.provider { null }
+                                                },
+                                                issueUrlPrefix = changelogConfigProvider.flatMap {
+                                                    it?.issueUrlPrefix
+                                                        ?: project.providers.provider { null }
+                                                },
+                                                commitMessageKey = changelogConfigProvider.flatMap {
+                                                    it?.commitMessageKey
+                                                        ?: project.providers.provider { null }
+                                                },
+                                                file = changelogFile,
+                                            ),
+                                        output =
+                                            ExtensionInput.Output(
+                                                baseFileName = outputConfigProvider
+                                                    .flatMap { it.baseFileName },
+                                                buildTagPattern = outputConfigProvider
+                                                    .flatMap { it.buildTagPattern },
+                                                lastBuildTagFile = lastTagTaskOutput.lastBuildTagFile,
+                                                versionName = lastTagTaskOutput.versionName,
+                                                versionCode = lastTagTaskOutput.versionCode,
+                                                apkFileName = lastTagTaskOutput.apkOutputFileName,
+                                                apkFile = apkOutputFile,
+                                                bundleFile = bundleFile,
+                                            ),
                                         buildVariant = buildVariant,
-                                        changelogFile = project.changelogDirectory(),
-                                        lastTagFile = lastTagTaskOutput.lastBuildTagFile,
                                     ),
                             )
-
-                        project.extensions.extensionsSchema
-                            .filter { schema ->
-                                val extensionType: Class<*> = schema.publicType.concreteClass
-                                BuildPublishConfigurableExtension::class.java.isAssignableFrom(extensionType)
-                            }
-                            .map { schema ->
-                                project.extensions.getByName(schema.name) as BuildPublishConfigurableExtension
-                            }
-                            .onEach { extension ->
-                                logger.info("Configure $extension in core")
-
-                                extension.configure(
-                                    project = project,
-                                    input =
-                                        ExtensionInput(
-                                            changelog =
-                                                ExtensionInput.Changelog(
-                                                    issueNumberPattern = changelogConfig.issueNumberPattern,
-                                                    issueUrlPrefix = changelogConfig.issueUrlPrefix,
-                                                    commitMessageKey = changelogConfig.commitMessageKey,
-                                                    file = changelogFile,
-                                                ),
-                                            output =
-                                                ExtensionInput.Output(
-                                                    baseFileName = outputConfig.baseFileName,
-                                                    buildTagPattern = outputConfig.buildTagPattern,
-                                                    lastBuildTagFile = lastTagTaskOutput.lastBuildTagFile,
-                                                    versionName = lastTagTaskOutput.versionName,
-                                                    versionCode = lastTagTaskOutput.versionCode,
-                                                    apkFileName = lastTagTaskOutput.apkOutputFileName,
-                                                    apkFile = apkOutputFile,
-                                                    bundleFile = bundleFile,
-                                                ),
-                                            buildVariant = buildVariant,
-                                        ),
-                                )
-                            }
-                    }
+                        }
 
                     if (lastTagTaskOutput.versionCode.isPresent) {
                         variantOutput.versionCode.set(lastTagTaskOutput.versionCode)

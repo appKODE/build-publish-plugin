@@ -3,26 +3,57 @@ package ru.kode.android.build.publish.plugin.core.util
 import retrofit2.Call
 import retrofit2.Response
 
-fun <T> Call<T>.executeOrThrow() = execute().bodyOrThrow()!!
+inline fun <reified T : Any> Call<T>.executeWithResult() = execute().toResult().map { it as T }
 
-fun <T> Call<T>.executeOptionalOrThrow() = execute().bodyOrThrow()
+fun Call<Unit>.executeNoResult() = execute().toResult().map { }
 
-fun <T> Response<T>.bodyOrThrow() = successOrThrow()
-
-fun <T> Response<T>.successOrThrow() =
-    if (isSuccessful) {
-        body()
+inline fun <reified T : Any?> Response<T>.toResult(): Result<T?> {
+    return if (isSuccessful) {
+        val value = body()
+        Result.success(value)
     } else {
-        val reason = errorBody()?.string()
-        if (reason == "stream timeout") {
-            throw UploadStreamTimeoutException()
-        } else {
-            throw UploadException(
-                "Upload error, code=${code()}, reason=$reason",
-            )
-        }
+        mapError<T>()
     }
+}
 
-class UploadStreamTimeoutException : Throwable()
+inline fun <reified T : Any?> Response<T>.mapError(): Result<T?> {
+    val reason = errorBody()?.string()
+    return if (reason?.contains("stream timeout") == true) {
+        Result
+            .failure(
+                RequestError.UploadTimeout(
+                    code = code(),
+                    reason = reason
+                )
+            )
+    } else {
+        Result
+            .failure(
+                RequestError.Unknown(
+                    code = code(),
+                    reason = reason
+                )
+            )
+    }
+}
 
-class UploadException(override val message: String) : Throwable(message)
+sealed class RequestError : Throwable() {
+    abstract val code: Int
+    abstract val reason: String?
+
+    data class Unknown(
+        override val code: Int,
+        override val reason: String?
+    ) : RequestError()
+
+
+    data class UploadTimeout(
+        override val code: Int,
+        override val reason: String?
+    ) : RequestError()
+
+}
+
+data class UploadError(
+    override val message: String
+) : Throwable(message)

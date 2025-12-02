@@ -21,9 +21,10 @@ import ru.kode.android.build.publish.plugin.appcenter.task.distribution.entity.G
 import ru.kode.android.build.publish.plugin.appcenter.task.distribution.entity.PrepareReleaseRequest
 import ru.kode.android.build.publish.plugin.appcenter.task.distribution.entity.PrepareResponse
 import ru.kode.android.build.publish.plugin.appcenter.task.distribution.entity.SendMetaDataResponse
-import ru.kode.android.build.publish.plugin.core.util.UploadException
+import ru.kode.android.build.publish.plugin.core.util.UploadError
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
-import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
+import ru.kode.android.build.publish.plugin.core.util.executeWithResult
+import ru.kode.android.build.publish.plugin.core.util.executeNoResult
 import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -145,7 +146,9 @@ abstract class AppCenterNetworkService
             buildNumber: String,
         ): PrepareResponse {
             val request = PrepareReleaseRequest(buildVersion, buildNumber)
-            return api.prepareRelease(ownerName, appName, request).executeOrThrow()
+            return api.prepareRelease(ownerName, appName, request)
+                .executeWithResult()
+                .getOrThrow()
         }
 
         /**
@@ -155,7 +158,7 @@ abstract class AppCenterNetworkService
          * @param packageAssetId Package asset identifier received from prepareRelease.
          * @param encodedToken Encoded upload token for authorization.
          * @return Metadata response including chunk info for file upload.
-         * @throws UploadException if the response status is not success.
+         * @throws UploadError if the response status is not success.
          */
         internal fun sendMetaData(
             apkFile: File,
@@ -170,9 +173,10 @@ abstract class AppCenterNetworkService
                     fileSize = apkFile.length(),
                     encodedToken = encodedToken,
                     contentType = contentType,
-                ).executeOrThrow()
-            if (response.status_code != "Success") {
-                throw UploadException("send meta data terminated with ${response.status_code}")
+                ).executeWithResult()
+                    .getOrNull()
+            if (response?.status_code != "Success") {
+                throw UploadError("send meta data terminated with ${response?.status_code}")
             }
             return response
         }
@@ -192,9 +196,9 @@ abstract class AppCenterNetworkService
             chunkNumber: Int,
             request: ChunkRequestBody,
         ) {
-            return uploadApi
+            uploadApi
                 .uploadChunk(packageAssetId, encodedToken, chunkNumber, request)
-                .executeOrThrow()
+                .executeNoResult()
         }
 
         /**
@@ -209,7 +213,7 @@ abstract class AppCenterNetworkService
         ) {
             uploadApi
                 .sendUploadIsFinished(packageAssetId, encodedToken)
-                .executeOrThrow()
+                .executeNoResult()
         }
 
         /**
@@ -219,7 +223,7 @@ abstract class AppCenterNetworkService
          */
         internal fun commit(preparedUploadId: String) {
             api.commit(ownerName, appName, preparedUploadId, CommitRequest(preparedUploadId))
-                .executeOrThrow()
+                .executeNoResult()
         }
 
         /**
@@ -248,7 +252,9 @@ abstract class AppCenterNetworkService
         }
 
         private fun getUpload(preparedUploadId: String): GetUploadResponse {
-            return api.getUpload(ownerName, appName, preparedUploadId).executeOrThrow()
+            return api.getUpload(ownerName, appName, preparedUploadId)
+                .executeWithResult()
+                .getOrThrow()
         }
 
         /**
@@ -268,7 +274,7 @@ abstract class AppCenterNetworkService
                     destinations = distributionGroups.map { DistributeRequest.Destination(it) },
                     release_notes = releaseNotes,
                 )
-            api.distribute(ownerName, appName, releaseId, request).executeOrThrow()
+            api.distribute(ownerName, appName, releaseId, request).executeNoResult()
         }
 
         companion object {

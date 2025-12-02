@@ -15,7 +15,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.core.util.createPartFromString
-import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
+import ru.kode.android.build.publish.plugin.core.util.executeWithResult
+import ru.kode.android.build.publish.plugin.core.util.executeNoResult
 import ru.kode.android.build.publish.plugin.telegram.config.DestinationBot
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotConfig
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.api.TelegramWebhookSenderApi
@@ -154,7 +155,7 @@ abstract class TelegramNetworkService
                             ?.let { Credentials.basic(it.username, it.password) }
                     senderApi
                         .send(authorization, webhookUrl)
-                        .executeOrThrow()
+                        .executeNoResult()
                 }
         }
 
@@ -203,7 +204,8 @@ abstract class TelegramNetworkService
                             ?.let { Credentials.basic(it.username, it.password) }
                     distributionApi
                         .upload(authorization, webhookUrl, params, filePart)
-                        .executeOrThrow()
+                        .executeWithResult()
+                        .getOrThrow()
                 }
         }
     }

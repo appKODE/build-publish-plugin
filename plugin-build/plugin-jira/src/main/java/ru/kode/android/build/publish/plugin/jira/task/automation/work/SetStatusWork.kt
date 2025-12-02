@@ -5,8 +5,8 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.core.util.UploadException
-import ru.kode.android.build.publish.plugin.jira.service.network.JiraNetworkService
+import ru.kode.android.build.publish.plugin.core.util.UploadError
+import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 
 /**
  * Parameters for the [SetStatusWork] work action.
@@ -28,7 +28,7 @@ internal interface SetStatusParameters : WorkParameters {
     /**
      * The network service used to communicate with the Jira API
      */
-    val networkService: Property<JiraNetworkService>
+    val networkService: Property<JiraService>
 }
 
 /**
@@ -36,7 +36,7 @@ internal interface SetStatusParameters : WorkParameters {
  *
  * This work action is responsible for:
  * 1. Taking a set of Jira issue keys and a target status transition ID
- * 2. Attempting to update each issue's status using the provided [JiraNetworkService]
+ * 2. Attempting to update each issue's status using the provided [JiraService]
  * 3. Gracefully handling and logging any failures without failing the entire build
  *
  * Failures to update individual issues are logged but don't prevent other issues from being processed.
@@ -45,7 +45,7 @@ internal interface SetStatusParameters : WorkParameters {
  * - Network errors and API failures are caught and logged at INFO level
  * - The work continues processing remaining issues even if some fail
  *
- * @see [JiraNetworkService.setStatus] for the actual API call implementation
+ * @see [JiraService.setStatus] for the actual API call implementation
  */
 internal abstract class SetStatusWork : WorkAction<SetStatusParameters> {
     private val logger = Logging.getLogger(this::class.java)
@@ -56,7 +56,7 @@ internal abstract class SetStatusWork : WorkAction<SetStatusParameters> {
         issues.forEach { issue ->
             try {
                 service.setStatus(issue, parameters.statusTransitionId.get())
-            } catch (ex: UploadException) {
+            } catch (ex: UploadError) {
                 logger.info("Failed to update status for issue $issue. Error: ${ex.message}", ex)
             }
         }

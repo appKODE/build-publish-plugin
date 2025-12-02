@@ -6,7 +6,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.core.util.UploadStreamTimeoutException
+import ru.kode.android.build.publish.plugin.core.util.RequestError
 import ru.kode.android.build.publish.plugin.telegram.config.DestinationBot
 import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
 
@@ -41,7 +41,7 @@ internal interface TelegramUploadParameters : WorkParameters {
  * to offload potentially long-running upload operations to a separate thread.
  *
  * ## Error Handling
- * - Catches and logs [UploadStreamTimeoutException] specifically, as these might occur
+ * - Catches and logs [RequestError.UploadTimeout] specifically, as these might occur
  *   even when the upload was successful on Telegram's side.
  * - Other exceptions will bubble up and be handled by Gradle's task execution framework.
  *
@@ -59,7 +59,7 @@ internal abstract class TelegramUploadWork : WorkAction<TelegramUploadParameters
                 parameters.distributionFile.asFile.get(),
                 parameters.destinationBots.get(),
             )
-        } catch (ex: UploadStreamTimeoutException) {
+        } catch (ex: RequestError.UploadTimeout) {
             logger.error(
                 "Telegram upload failed with timeout exception, " +
                     "but the file was probably uploaded successfully. " +

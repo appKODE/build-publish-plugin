@@ -14,7 +14,7 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.jira.service.network.JiraNetworkService
+import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddFixVersionWork
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddLabelWork
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.SetStatusWork
@@ -30,7 +30,7 @@ import javax.inject.Inject
  *    - Set a fix version based on the build tag
  *    - Transition the issue to a resolved status
  *
- * @see JiraNetworkService For the underlying Jira API communication
+ * @see JiraService For the underlying Jira API communication
  * @see JiraTasksRegistrar For how this task is registered and configured
  */
 abstract class JiraAutomationTask
@@ -49,7 +49,7 @@ abstract class JiraAutomationTask
          * This is an internal property that's automatically wired up by the plugin.
          */
         @get:Internal
-        abstract val networkService: Property<JiraNetworkService>
+        abstract val service: Property<JiraService>
 
         /**
          * JSON file containing information about the current build tag.
@@ -176,7 +176,7 @@ abstract class JiraAutomationTask
                 submit(SetStatusWork::class.java) { parameters ->
                     parameters.issues.set(issues)
                     parameters.statusTransitionId.set(resolvedStatusTransitionId)
-                    parameters.networkService.set(networkService)
+                    parameters.networkService.set(service)
                 }
             }
         }
@@ -206,7 +206,7 @@ abstract class JiraAutomationTask
                     parameters.issues.set(issues)
                     parameters.version.set(version)
                     parameters.projectId.set(projectId)
-                    parameters.networkService.set(networkService)
+                    parameters.service.set(service)
                 }
             }
         }
@@ -235,7 +235,7 @@ abstract class JiraAutomationTask
                 submit(AddLabelWork::class.java) { parameters ->
                     parameters.issues.set(issues)
                     parameters.label.set(label)
-                    parameters.networkService.set(networkService)
+                    parameters.service.set(service)
                 }
             }
         }

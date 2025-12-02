@@ -6,7 +6,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
-import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
+import ru.kode.android.build.publish.plugin.core.util.executeNoResult
 import ru.kode.android.build.publish.plugin.slack.service.network.SlackNetworkService
 import ru.kode.android.build.publish.plugin.slack.service.upload.SlackUploadService
 import ru.kode.android.build.publish.plugin.slack.task.changelog.api.SlackApi
@@ -118,7 +118,7 @@ abstract class SlackWebhookService
                         },
                 )
             logger.info("sending $changelogBody to $webhookUrl")
-            api.send(webhookUrl, changelogBody).executeOrThrow()
+            api.send(webhookUrl, changelogBody).executeNoResult()
         }
 
         /**

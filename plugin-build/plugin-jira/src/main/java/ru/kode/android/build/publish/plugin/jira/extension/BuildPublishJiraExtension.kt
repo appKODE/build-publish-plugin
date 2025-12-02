@@ -1,12 +1,12 @@
 package ru.kode.android.build.publish.plugin.jira.extension
 
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
-import org.gradle.internal.cc.base.logger
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
@@ -101,7 +101,10 @@ abstract class BuildPublishJiraExtension
          * @param configurationAction The configuration action to apply to the auth container
          * @see JiraAuthConfig For available configuration options
          */
-        fun auth(configurationAction: Action<BuildPublishDomainObjectContainer<JiraAuthConfig>>) {
+        fun auth(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<BuildPublishDomainObjectContainer<JiraAuthConfig>>
+        ) {
             val container = BuildPublishDomainObjectContainer(auth)
             configurationAction.execute(container)
         }
@@ -112,7 +115,10 @@ abstract class BuildPublishJiraExtension
          * @param configurationAction The configuration action to apply to the automation container
          * @see JiraAutomationConfig For available configuration options
          */
-        fun automation(configurationAction: Action<BuildPublishDomainObjectContainer<JiraAutomationConfig>>) {
+        fun automation(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<BuildPublishDomainObjectContainer<JiraAutomationConfig>>
+        ) {
             val container = BuildPublishDomainObjectContainer(automation)
             configurationAction.execute(container)
         }

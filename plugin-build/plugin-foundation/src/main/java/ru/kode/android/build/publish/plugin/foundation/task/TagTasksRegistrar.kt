@@ -83,18 +83,21 @@ internal object TagTasksRegistrar {
                     }
                 }
 
-        val apkOutputFileName =
+        val apkOutputFileName: Provider<String> = params.apkOutputFileName.flatMap { apkOutput ->
             params.useVersionsFromTag.flatMap { useVersionsFromTag ->
                 if (useVersionsFromTag) {
-                    params.baseFileName.zip(lastBuildTag) { baseFileName, tagBuildFile ->
-                        mapToOutputApkFileName(tagBuildFile.asFile, params.apkOutputFileName, baseFileName)
-                    }
+                    params.baseFileName
+                        .zip(lastBuildTag) { baseFileName, tagBuildFile -> baseFileName to tagBuildFile }
+                        .map { (baseFileName, tagBuildFile) ->
+                            mapToOutputApkFileName(tagBuildFile.asFile, apkOutput, baseFileName)
+                        }
                 } else {
                     params.baseFileName.map { baseFileName ->
-                        createDefaultOutputFileName(baseFileName, params.apkOutputFileName)
+                        createDefaultOutputFileName(baseFileName, apkOutput)
                     }
                 }
             }
+        }
         val versionName =
             params.useVersionsFromTag
                 .zip(
@@ -321,7 +324,7 @@ internal data class LastTagTaskParams(
     /**
      * The base name for the output APK file
      */
-    val apkOutputFileName: String,
+    val apkOutputFileName: Provider<String>,
     /**
      * Whether to use versions from the Git tag
      */

@@ -180,7 +180,7 @@ fun File.createAndroidProject(
             buildPublishClickUp {
                 auth {
                     common {
-                        apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
+                        it.apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
                     }
                 }
                 
@@ -201,9 +201,9 @@ fun File.createAndroidProject(
             buildPublishConfluence {
                 auth {
                     common {
-                         baseUrl.set("${config.auth.baseUrl}")
-                        credentials.username.set("${config.auth.username}")
-                        credentials.password.set("${config.auth.password}")
+                        it.baseUrl.set("${config.auth.baseUrl}")
+                        it.credentials.username.set("${config.auth.username}")
+                        it.credentials.password.set("${config.auth.password}")
                     }
                 }
                 
@@ -238,9 +238,9 @@ fun File.createAndroidProject(
         buildPublishJira {
             auth {
                 common {
-                    baseUrl.set("${config.auth.baseUrl}")
-                    credentials.username.set("${config.auth.username}")
-                    credentials.password.set("${config.auth.password}")
+                    it.baseUrl.set("${config.auth.baseUrl}")
+                    it.credentials.username.set("${config.auth.username}")
+                    it.credentials.password.set("${config.auth.password}")
                 }
             }
                 
@@ -349,10 +349,10 @@ fun File.createAndroidProject(
             
             $productFlavorsBlock
         }
+                
+        $foundationConfigBlock
         
         $jiraConfigBlock
-        
-        $foundationConfigBlock
         
         $appCenterConfigBlock
         
@@ -388,10 +388,10 @@ private fun jiraAutomationBlock(config: JiraConfig.Automation): String {
     return """
             automation {
                 common {
-                    projectId.set(${config.projectId})
-                    ${config.fixVersionPattern?.let { """fixVersionPattern.set("$it")""" }.orEmpty()}
-                    ${config.labelPattern?.let { """labelPattern.set("$it")""" }.orEmpty()}
-                    ${config.resolvedStatusTransitionId?.let { """resolvedStatusTransitionId.set("$it")""" }.orEmpty()}
+                    it.projectId.set(${config.projectId})
+                    ${config.fixVersionPattern?.let { """it.fixVersionPattern.set("$it")""" }.orEmpty()}
+                    ${config.labelPattern?.let { """it.labelPattern.set("$it")""" }.orEmpty()}
+                    ${config.resolvedStatusTransitionId?.let { """it.resolvedStatusTransitionId.set("$it")""" }.orEmpty()}
                 }
             }
     """
@@ -546,7 +546,7 @@ data class FoundationConfig(
     data class Changelog(
         val issueNumberPattern: String = "TICKET-\\\\d+",
         val issueUrlPrefix: String = "https://jira.example.com/browse/",
-        val commitMessageKey: String = "[CHANGELOG]",
+        val commitMessageKey: String = "CHANGELOG",
         val excludeMessageKey: Boolean = true,
     )
 }

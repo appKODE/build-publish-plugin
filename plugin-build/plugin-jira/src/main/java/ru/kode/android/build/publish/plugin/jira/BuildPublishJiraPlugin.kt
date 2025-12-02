@@ -13,10 +13,10 @@ import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 import ru.kode.android.build.publish.plugin.jira.extension.BuildPublishJiraExtension
 import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
-import ru.kode.android.build.publish.plugin.jira.service.network.JiraNetworkService
+import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 
 private const val EXTENSION_NAME = "buildPublishJira"
-private const val NETWORK_SERVICE_NAME = "jiraNetworkService"
+const val NETWORK_SERVICE_NAME = "jiraNetworkService"
 private const val NETWORK_SERVICE_EXTENSION_NAME = "jiraNetworkServiceExtension"
 
 /**
@@ -28,54 +28,73 @@ private const val NETWORK_SERVICE_EXTENSION_NAME = "jiraNetworkServiceExtension"
  * - Validating Jira issue statuses before release
  * - Automating release notes generation from Jira issues
  *
- * @see JiraNetworkService For the underlying network communication
+ * @see JiraService For the underlying network communication
  * @see BuildPublishJiraExtension For configuration options
  */
 abstract class BuildPublishJiraPlugin : Plugin<Project> {
+
     private val logger: Logger = Logging.getLogger(this::class.java)
 
     override fun apply(project: Project) {
+
         val extension =
-            project.extensions
-                .create(EXTENSION_NAME, BuildPublishJiraExtension::class.java)
+            project.extensions.create(EXTENSION_NAME, BuildPublishJiraExtension::class.java)
+
+        val servicesProperty =
+            project.objects.mapProperty(
+                String::class.java,
+                Provider::class.java
+            )
+
+        servicesProperty.set(emptyMap())
+
+        project.extensions.create(
+            NETWORK_SERVICE_EXTENSION_NAME,
+            JiraServiceExtension::class.java,
+            servicesProperty
+        )
+
+        logger.info("JiraServiceExtension created (empty)")
+
+        if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
+            throw StopExecutionException(
+                "Must only be used with BuildPublishFoundationPlugin. " +
+                    "Please apply 'ru.kode.android.build-publish-novo.foundation'."
+            )
+        }
 
         val androidExtension =
             project.extensions
                 .getByType(ApplicationAndroidComponentsExtension::class.java)
 
-        if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
-            throw StopExecutionException(
-                "Must only be used with BuildPublishFoundationPlugin." +
-                    " Please apply the 'ru.kode.android.build-publish-novo.foundation' plugin.",
-            )
-        }
-
         androidExtension.finalizeDsl {
-            val services: Provider<Map<String, Provider<JiraNetworkService>>> =
-                project.provider {
+            if (extension.auth.isEmpty()) {
+                logger.info("Jira: no auth configs — leaving service map empty")
+                return@finalizeDsl
+            }
 
-                    extension.auth.fold(mapOf()) { acc, authConfig ->
-                        val service =
-                            project.gradle.sharedServices.registerIfAbsent(
-                                project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),
-                                JiraNetworkService::class.java,
-                                {
-                                    it.maxParallelUsages.set(1)
-                                    it.parameters.credentials.set(authConfig.credentials)
-                                    it.parameters.baseUrl.set(authConfig.baseUrl)
-                                },
-                            )
-                        acc.toMutableMap().apply {
-                            put(authConfig.name, service)
-                        }
-                    }
+            logger.info("Jira: registering services...")
+
+            val serviceMap = extension.auth.associate { authConfig ->
+                val name = authConfig.name
+                val registered = project.gradle.sharedServices.registerIfAbsent(
+                    project.serviceName(NETWORK_SERVICE_NAME, name),
+                    JiraService::class.java
+                ) {
+                    it.maxParallelUsages.set(1)
+                    it.parameters.credentials.set(authConfig.credentials)
+                    it.parameters.baseUrl.set(authConfig.baseUrl)
                 }
-            project.extensions.create(
-                NETWORK_SERVICE_EXTENSION_NAME,
-                JiraServiceExtension::class.java,
-                services,
+                name to registered
+            }
+
+            logger.info("Jira services created: ${serviceMap.keys}")
+
+            servicesProperty.set(serviceMap)
+
+            logger.info(
+                "Jira plugin finalizeDsl: auth=${extension.auth.names}; automation=${extension.automation.names}"
             )
-            logger.info("Jira plugin executed: auth=${extension.auth.asMap}; automation=${extension.automation.asMap}")
         }
     }
 }

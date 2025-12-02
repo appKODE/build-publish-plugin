@@ -96,6 +96,20 @@ inline fun <reified T> Provider<Map<String, Provider<T>>>.flatMapByNameOrCommon(
     }
 }
 
+inline fun <reified T> Map<String, Provider<T>>.getByNameOrCommon(
+    name: String,
+    defaultName: String = COMMON_CONTAINER_NAME,
+): Provider<T> {
+    return this[name]
+        ?: this[defaultName]
+        ?: throw GradleException(
+            "Required `$name` or `$defaultName` configuration not found. " +
+                "This can happen if the configuration was not registered or if the name is incorrect. " +
+                "Make sure that there is no errors in the build script. ",
+            IllegalStateException("Provider map keys: ${this.keys}")
+        )
+}
+
 fun Project.serviceName(
     serviceName: String,
     postfix: String? = null,

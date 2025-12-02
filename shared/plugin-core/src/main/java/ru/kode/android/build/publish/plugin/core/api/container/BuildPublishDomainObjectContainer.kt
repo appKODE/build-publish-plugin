@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.core.api.container
 
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.NamedDomainObjectProvider
@@ -33,7 +34,10 @@ class BuildPublishDomainObjectContainer<T>(
      * @param configurationAction The action to configure the common settings
      * @return A provider for the registered configuration
      */
-    fun common(configurationAction: Action<in T>): NamedDomainObjectProvider<T> {
+    fun common(
+        @DelegatesTo.Target
+        configurationAction: Action<in T>
+    ): NamedDomainObjectProvider<T> {
         return namedContainer.common(configurationAction)
     }
 
@@ -48,6 +52,7 @@ class BuildPublishDomainObjectContainer<T>(
      */
     fun buildVariant(
         buildVariant: String,
+        @DelegatesTo.Target
         configurationAction: Action<in T>,
     ): NamedDomainObjectProvider<T> {
         return namedContainer.buildVariant(buildVariant, configurationAction)

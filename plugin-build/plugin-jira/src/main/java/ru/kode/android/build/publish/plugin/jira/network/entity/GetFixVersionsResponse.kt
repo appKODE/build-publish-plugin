@@ -1,27 +1,23 @@
-package ru.kode.android.build.publish.plugin.jira.task.automation.entity
+package ru.kode.android.build.publish.plugin.jira.network.entity
 
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 @Suppress("ConstructorParameterNaming") // network model
-internal data class AddFixVersionRequest(
-    val update: Update,
+internal data class GetFixVersionsResponse(
+    val fields: Fields,
 ) {
     @JsonClass(generateAdapter = true)
     @Suppress("ConstructorParameterNaming") // network model
-    data class Update(
+    data class Fields(
         val fixVersions: List<FixVersion>,
     )
 
     @JsonClass(generateAdapter = true)
     @Suppress("ConstructorParameterNaming") // network model
     data class FixVersion(
-        val add: Description,
-    ) {
-        @JsonClass(generateAdapter = true)
-        @Suppress("ConstructorParameterNaming") // network model
-        data class Description(
-            val name: String,
-        )
-    }
+        val id: String,
+        val name: String,
+        val self: String,
+    )
 }

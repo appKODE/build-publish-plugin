@@ -15,7 +15,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.kode.android.build.publish.plugin.clickup.task.automation.api.ClickUpApi
 import ru.kode.android.build.publish.plugin.clickup.task.automation.entity.AddFieldToTaskRequest
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
-import ru.kode.android.build.publish.plugin.core.util.executeOptionalOrThrow
+import ru.kode.android.build.publish.plugin.core.util.executeNoResult
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -100,7 +100,7 @@ abstract class ClickUpNetworkService
             taskId: String,
             tagName: String,
         ) {
-            api.addTagToTask(taskId, tagName).executeOptionalOrThrow()
+            api.addTagToTask(taskId, tagName).executeNoResult()
         }
 
         /**
@@ -119,7 +119,7 @@ abstract class ClickUpNetworkService
             fieldValue: String,
         ) {
             val request = AddFieldToTaskRequest(value = fieldValue)
-            api.addFieldToTask(taskId, fieldId, request).executeOptionalOrThrow()
+            api.addFieldToTask(taskId, fieldId, request).executeNoResult()
         }
 
         companion object {

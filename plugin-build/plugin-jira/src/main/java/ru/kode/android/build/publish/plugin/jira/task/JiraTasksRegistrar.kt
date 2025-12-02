@@ -6,7 +6,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
 import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
 import ru.kode.android.build.publish.plugin.jira.task.automation.JiraAutomationTask
@@ -68,11 +68,12 @@ private fun Project.registerJiraTasks(
         automationConfig.fixVersionPattern.isPresent ||
         automationConfig.resolvedStatusTransitionId.isPresent
     ) {
-        val networkService =
+        val service =
             project.extensions
                 .getByType(JiraServiceExtension::class.java)
-                .networkServices
-                .flatMapByNameOrCommon(params.buildVariant.name)
+                .services
+                .get()
+                .getByNameOrCommon(params.buildVariant.name)
 
         tasks.register(
             "$JIRA_AUTOMATION_TASK${params.buildVariant.capitalizedName()}",
@@ -83,9 +84,11 @@ private fun Project.registerJiraTasks(
             it.issueNumberPattern.set(params.issueNumberPattern)
             it.projectId.set(automationConfig.projectId)
             it.labelPattern.set(automationConfig.labelPattern)
-            it.networkService.set(networkService)
+            it.service.set(service)
             it.fixVersionPattern.set(automationConfig.fixVersionPattern)
             it.resolvedStatusTransitionId.set(automationConfig.resolvedStatusTransitionId)
+
+            it.usesService(service)
         }
     } else {
         null

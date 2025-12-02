@@ -4,7 +4,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.jira.service.network.JiraNetworkService
+import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 
 /**
  * Parameters for the [AddFixVersionWork] work action.
@@ -31,7 +31,7 @@ internal interface AddFixVersionParameters : WorkParameters {
     /**
      * The network service used to communicate with the Jira API
      */
-    val networkService: Property<JiraNetworkService>
+    val service: Property<JiraService>
 }
 
 /**
@@ -45,13 +45,13 @@ internal interface AddFixVersionParameters : WorkParameters {
  * fix version additions fail. All operations are performed sequentially, and the first
  * failure will stop further processing.
  *
- * @see [JiraNetworkService.createVersion] for version creation implementation
- * @see [JiraNetworkService.addFixVersion] for adding fix version implementation
+ * @see [JiraService.createVersion] for version creation implementation
+ * @see [JiraService.addFixVersion] for adding fix version implementation
  */
 @Suppress("SwallowedException") // Exceptions are handled by the JiraNetworkService
 internal abstract class AddFixVersionWork : WorkAction<AddFixVersionParameters> {
     override fun execute() {
-        val service = parameters.networkService.get()
+        val service = parameters.service.get()
         val issues = parameters.issues.get()
         val version = parameters.version.get()
         val projectId = parameters.projectId.get()

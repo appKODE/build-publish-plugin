@@ -8,9 +8,9 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import ru.kode.android.build.publish.plugin.core.util.UploadException
+import ru.kode.android.build.publish.plugin.core.util.UploadError
 import ru.kode.android.build.publish.plugin.core.util.createPartFromString
-import ru.kode.android.build.publish.plugin.core.util.executeOrThrow
+import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 import ru.kode.android.build.publish.plugin.slack.service.network.SlackNetworkService
 import ru.kode.android.build.publish.plugin.slack.task.distribution.api.SlackUploadApi
 import ru.kode.android.build.publish.plugin.slack.task.distribution.entity.UploadingFileRequest
@@ -77,7 +77,7 @@ abstract class SlackUploadService
          * @param file The file to upload
          * @param channels Set of channel IDs or names where the file should be shared
          *
-         * @throws UploadException if any step of the upload process fails
+         * @throws UploadError if any step of the upload process fails
          */
         fun upload(
             baseOutputFileName: String,
@@ -92,7 +92,8 @@ abstract class SlackUploadService
                         fileName = file.name,
                         length = file.length(),
                     )
-                    .executeOrThrow()
+                    .executeWithResult()
+                    .getOrThrow()
 
             if (getUrlResponse.ok) {
                 val url = requireNotNull(getUrlResponse.uploadUrl)
@@ -110,17 +111,21 @@ abstract class SlackUploadService
                         fileName = createPartFromString(file.name),
                         filePart = filePart,
                     )
-                    .executeOrThrow()
+                    .executeWithResult()
+                    .getOrThrow()
                 val filesAdapter = moshi.adapter<List<UploadingFileRequest>>()
                 val files = filesAdapter.toJson(listOf(UploadingFileRequest(fileId, file.name)))
-                uploadApi.completeUploading(
-                    authorisation = getAuthorisationHeader(token),
-                    files = files,
-                    channels = channels.joinToString(),
-                    initialComment = "$baseOutputFileName $buildName",
-                ).executeOrThrow()
+                uploadApi
+                    .completeUploading(
+                        authorisation = getAuthorisationHeader(token),
+                        files = files,
+                        channels = channels.joinToString(),
+                        initialComment = "$baseOutputFileName $buildName",
+                    )
+                    .executeWithResult()
+                    .getOrThrow()
             } else {
-                throw UploadException(requireNotNull(getUrlResponse.error))
+                throw UploadError(requireNotNull(getUrlResponse.error))
             }
         }
     }

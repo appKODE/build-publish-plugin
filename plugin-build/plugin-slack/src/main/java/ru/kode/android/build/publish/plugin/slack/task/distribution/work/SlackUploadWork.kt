@@ -6,7 +6,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.core.util.UploadStreamTimeoutException
+import ru.kode.android.build.publish.plugin.core.util.RequestError
 import ru.kode.android.build.publish.plugin.core.zip.zipAllInto
 import ru.kode.android.build.publish.plugin.slack.service.upload.SlackUploadService
 import java.io.File
@@ -75,7 +75,7 @@ internal abstract class SlackUploadWork : WorkAction<SlackUploadParameters> {
                 zippedDistributionFile,
                 parameters.destinationChannels.get(),
             )
-        } catch (ex: UploadStreamTimeoutException) {
+        } catch (ex: RequestError.UploadTimeout) {
             logger.error(
                 "slack upload failed with timeout exception, " +
                     "but probably uploaded, " +

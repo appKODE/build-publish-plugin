@@ -4,7 +4,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.jira.service.network.JiraNetworkService
+import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 
 /**
  * Parameters for the [AddLabelWork] work action.
@@ -24,9 +24,9 @@ internal interface AddLabelParameters : WorkParameters {
     val label: Property<String>
 
     /**
-     * The network service used to communicate with the Jira API
+     * The service used to communicate with the Jira
      */
-    val networkService: Property<JiraNetworkService>
+    val service: Property<JiraService>
 }
 
 /**
@@ -34,16 +34,16 @@ internal interface AddLabelParameters : WorkParameters {
  *
  * This work action is responsible for:
  * 1. Taking a set of Jira issue keys and a label to add
- * 2. Adding the specified label to each issue using the provided [JiraNetworkService]
+ * 2. Adding the specified label to each issue using the provided [JiraService]
  *
  * Note: This work action will fail if any of the label additions fail. All operations are
  * performed sequentially, and the first failure will stop further processing.
  *
- * @see [JiraNetworkService.addLabel] for the actual API call implementation
+ * @see [JiraService.addLabel] for the actual API call implementation
  */
 internal abstract class AddLabelWork : WorkAction<AddLabelParameters> {
     override fun execute() {
-        val service = parameters.networkService.get()
+        val service = parameters.service.get()
         val issues = parameters.issues.get()
         val label = parameters.label.get()
 
