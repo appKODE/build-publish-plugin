@@ -3,11 +3,10 @@ package ru.kode.android.build.publish.plugin.telegram.task.distribution.work
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.util.RequestError
-import ru.kode.android.build.publish.plugin.telegram.controller.entity.DestinationTelegramBot
+import ru.kode.android.build.publish.plugin.telegram.controller.mappers.destinationTelegramBotsFromJson
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 
 /**
@@ -25,7 +24,7 @@ internal interface TelegramUploadParameters : WorkParameters {
     /**
      * Set of Telegram bot configurations and their destination chats
      */
-    val destinationBots: SetProperty<DestinationTelegramBot>
+    val destinationBots: Property<String>
 
     /**
      * The network service instance for handling Telegram API communication
@@ -57,7 +56,7 @@ internal abstract class TelegramUploadWork : WorkAction<TelegramUploadParameters
         try {
             service.upload(
                 parameters.distributionFile.asFile.get(),
-                parameters.destinationBots.get().toList(),
+                destinationBots = parameters.destinationBots.map { destinationTelegramBotsFromJson(it) }.get()
             )
         } catch (ex: RequestError.UploadTimeout) {
             logger.error(

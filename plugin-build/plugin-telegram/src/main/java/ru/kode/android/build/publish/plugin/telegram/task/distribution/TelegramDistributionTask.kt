@@ -14,6 +14,7 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.telegram.config.DestinationTelegramBotConfig
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
+import ru.kode.android.build.publish.plugin.telegram.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.work.TelegramUploadWork
 import javax.inject.Inject
@@ -33,6 +34,7 @@ abstract class TelegramDistributionTask
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
+
         init {
             description = "Task to send APK/bundle to Telegram"
             group = BasePlugin.BUILD_GROUP
@@ -86,7 +88,7 @@ abstract class TelegramDistributionTask
             workQueue.submit(TelegramUploadWork::class.java) { parameters ->
                 parameters.distributionFile.set(distributionFile)
                 parameters.service.set(service)
-                parameters.destinationBots.set(destinationBots.map { it.mapToEntity() })
+                parameters.destinationBots.set(destinationBots.map { it.mapToEntity().toJson() })
             }
         }
     }

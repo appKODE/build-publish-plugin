@@ -25,7 +25,7 @@ private const val SEND_MESSAGE_TO_TOPIC_WEB_HOOK =
     "%s/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2" +
         "&disable_web_page_preview=true"
 private const val GET_MESSAGE_IN_CHAT_WEB_HOOK = "%s/bot%s/getUpdates"
-private const val SEND_DOCUMENT_WEB_HOOK = "https://%s/bot%s/sendDocument"
+private const val SEND_DOCUMENT_WEB_HOOK = "%s/bot%s/sendDocument"
 private const val MESSAGE_MAX_LENGTH = 4096
 private const val ESCAPED_CHARACTERS =
     "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]|-"

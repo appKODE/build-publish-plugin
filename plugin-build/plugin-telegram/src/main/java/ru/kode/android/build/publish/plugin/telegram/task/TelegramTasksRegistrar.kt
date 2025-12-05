@@ -174,6 +174,7 @@ private fun Project.registerSendTelegramChangelogTask(
         it.destinationBots.set(changelogConfig.destinationBots)
         it.service.set(service)
 
+        it.dependsOn(params.changelogFile)
         it.usesService(service)
     }
 }
@@ -217,6 +218,7 @@ private fun Project.registerTelegramUploadTask(
         it.destinationBots.set(distributionConfig.destinationBots)
         it.service.set(service)
 
+        it.dependsOn(params.apkOutputFile)
         it.usesService(service)
     }
 }
@@ -260,6 +262,7 @@ private fun Project.registerTelegramBundleUploadTask(
             it.destinationBots.set(distributionConfig.destinationBots)
             it.service.set(service)
 
+            it.dependsOn(params.bundleOutputFile)
             it.usesService(service)
         }
     } else {

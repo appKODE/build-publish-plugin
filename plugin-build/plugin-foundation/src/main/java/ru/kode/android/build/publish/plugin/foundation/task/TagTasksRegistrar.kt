@@ -8,6 +8,7 @@ import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
+import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.PrintLastIncreasedTag
 import java.io.File
@@ -15,6 +16,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 internal const val PRINT_LAST_INCREASED_TAG_TASK_PREFIX = "printLastIncreasedTag"
+internal const val RENAME_APK_TASK_PREFIX = "renameApk"
+internal const val ASSEMBLE_TASK_PREFIX = "assemble"
 
 internal const val GET_LAST_TAG_TASK_PREFIX = "getLastTag"
 
@@ -140,6 +143,38 @@ internal object TagTasksRegistrar {
     ): TaskProvider<PrintLastIncreasedTag> {
         return project.tasks.registerPrintLastIncreasedTagTask(params)
     }
+
+    internal fun registerRenameApkTask(
+        project: Project,
+        params: RenameApkTaskParams,
+    ): TaskProvider<RenameApkTask> {
+        return project.registerRenameApkTask(params)
+    }
+}
+
+@Suppress("MaxLineLength")
+private fun Project.registerRenameApkTask(
+    params: RenameApkTaskParams,
+): TaskProvider<RenameApkTask> {
+    val variant = params.buildVariant
+    val renamedApkFile = project.layout.buildDirectory.file(
+        params.apkOutputFileName.map {
+            "renamed/${params.buildVariant.name}/${it}"
+        }
+    )
+    val assembleTask = project.tasks.named {
+        it.contains("$ASSEMBLE_TASK_PREFIX${variant.capitalizedName()}")
+    }
+
+    val taskName = "$RENAME_APK_TASK_PREFIX${variant.capitalizedName()}"
+    return tasks.register(taskName, RenameApkTask::class.java) { task ->
+
+        task.inputApkFile.set(params.inputApk)
+        task.renamedApkFile.set(renamedApkFile)
+
+        task.dependsOn(params.apkOutputFileName)
+        task.dependsOn(assembleTask)
+    }
 }
 
 /**
@@ -153,16 +188,15 @@ internal object TagTasksRegistrar {
  * @return A [Provider] for the generated JSON file containing the last tag information
  */
 private fun Project.registerGetLastTagTask(params: LastTagTaskParams): Provider<RegularFile> {
+    val variant = params.buildVariant
     val tagBuildFile =
         project.layout.buildDirectory
-            .file("tag-build-${params.buildVariant.name}.json")
+            .file("tag-build-${variant.name}.json")
 
-    return tasks.register(
-        "$GET_LAST_TAG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
-        GetLastTagTask::class.java,
-    ) { task ->
+    val taskName = "$GET_LAST_TAG_TASK_PREFIX${variant.capitalizedName()}"
+    return tasks.register(taskName, GetLastTagTask::class.java) { task ->
         task.tagBuildFile.set(tagBuildFile)
-        task.buildVariantName.set(params.buildVariant.name)
+        task.buildVariantName.set(variant.name)
         task.buildTagPattern.set(params.buildTagPattern)
         task.useStubsForTagAsFallback.set(params.useStubsForTagAsFallback)
     }.map {
@@ -182,10 +216,8 @@ private fun Project.registerGetLastTagTask(params: LastTagTaskParams): Provider<
  */
 @Suppress("MaxLineLength") // One parameter function
 private fun TaskContainer.registerPrintLastIncreasedTagTask(params: PrintLastIncreasedTagTaskParams): TaskProvider<PrintLastIncreasedTag> {
-    return register(
-        "$PRINT_LAST_INCREASED_TAG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
-        PrintLastIncreasedTag::class.java,
-    ) { task ->
+    val taskName = "$PRINT_LAST_INCREASED_TAG_TASK_PREFIX${params.buildVariant.capitalizedName()}"
+    return register(taskName, PrintLastIncreasedTag::class.java) { task ->
         task.buildTagFile.set(params.lastBuildTagFile)
     }
 }
@@ -359,4 +391,13 @@ internal data class PrintLastIncreasedTagTaskParams(
      * Provider for the file containing the last build tag information
      */
     val lastBuildTagFile: Provider<RegularFile>,
+)
+
+/**
+ * Parameters for RenameApkTask.
+ */
+internal data class RenameApkTaskParams(
+    val buildVariant: BuildVariant,
+    val inputApk: Provider<RegularFile>,
+    val apkOutputFileName: Provider<String>,
 )

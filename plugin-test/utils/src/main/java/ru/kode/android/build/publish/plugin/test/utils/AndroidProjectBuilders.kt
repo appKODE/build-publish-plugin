@@ -409,7 +409,7 @@ private fun telegramDistributionBlock(distribution: TelegramConfig.Distribution)
     return """
                         distribution {
                            common {
-                               ${distribution.destinationBots.map { telegramDestinationBotBlock(it) }}
+                               ${distribution.destinationBots.joinToString("\n") { telegramDestinationBotBlock(it) }}
                            } 
                         }
     """
@@ -501,7 +501,7 @@ fun File.printFilesRecursively(prefix: String = "") {
             val ext = it.extension
             ext.contains("apk") || ext.contains("json") || ext.contains("aab") || ext.contains("txt")
         },
-        filterDirectory = { it.endsWith("build") || it.path.contains("outputs") },
+        filterDirectory = { it.endsWith("build") || it.path.contains("outputs") || it.path.contains("renamed") },
     )
     println("--- FILES END ---")
 }

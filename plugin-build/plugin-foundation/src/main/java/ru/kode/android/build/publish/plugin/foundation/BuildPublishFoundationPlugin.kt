@@ -31,8 +31,8 @@ import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_NAME
 import ru.kode.android.build.publish.plugin.foundation.task.GenerateChangelogTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.LastTagTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.PrintLastIncreasedTagTaskParams
+import ru.kode.android.build.publish.plugin.foundation.task.RenameApkTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.TagTasksRegistrar
-import ru.kode.android.build.publish.plugin.foundation.util.mapToOutputApkFile
 import ru.kode.android.build.publish.plugin.foundation.validate.stopExecutionIfNotSupported
 
 private const val EXTENSION_NAME = "buildPublishFoundation"
@@ -81,13 +81,36 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                         as? VariantOutputImpl
 
                 if (variantOutput != null) {
-                    // It's safe to call `.get()` here because `variantOutput.outputFileName` is already
-                    // resolved by Gradle during the variant configuration phase. We are not creating a new
-                    // lazy Provider, just accessing the current value. This avoids a circular dependency
-                    // that would occur if we tried to build a flatMap/zip based on itself.
-                    val apkOutputFileName = variantOutput.outputFileName.get()
-
                     val bundleFile = variant.artifacts.get(SingleArtifact.BUNDLE)
+                    val apkFile = variant.artifacts.get(SingleArtifact.APK).flatMap { directory ->
+                        val apk = directory.asFile
+                            .listFiles()
+                            ?.firstOrNull {
+                                val buildTypeName = buildVariant.buildTypeName
+                                val flavorName = buildVariant.flavorName
+                                when {
+                                    buildTypeName != null && flavorName != null -> {
+                                        it.extension == "apk" &&
+                                            it.path.contains(buildTypeName) &&
+                                            it.path.contains(flavorName)
+                                    }
+                                    buildTypeName != null && flavorName == null -> {
+                                        it.extension == "apk" &&
+                                            it.path.contains(buildTypeName)
+                                    }
+                                    flavorName != null -> {
+                                        it.extension == "apk" &&
+                                            it.path.contains(flavorName)
+                                    }
+                                    else -> {
+                                        it.extension == "apk"
+                                    }
+                                }
+                            }
+                            ?: throw IllegalStateException("APK file not found inside ${directory.asFile} with buildVariant=$buildVariant")
+
+                        project.layout.file(project.provider { apk })
+                    }
 
                     val outputConfigProvider: Provider<OutputConfig> =
                         project.providers.provider {
@@ -108,9 +131,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             params =
                                 LastTagTaskParams(
                                     buildVariant = buildVariant,
-                                    apkOutputFileName = project.providers.provider {
-                                        apkOutputFileName
-                                    },
+                                    apkOutputFileName = variantOutput.outputFileName,
                                     useVersionsFromTag = outputConfigProvider
                                         .flatMap { it.useVersionsFromTag }
                                         .orElse(true),
@@ -128,6 +149,15 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 ),
                         )
 
+                    val renameTaskProvider = TagTasksRegistrar.registerRenameApkTask(
+                        project,
+                        RenameApkTaskParams(
+                            buildVariant = buildVariant,
+                            inputApk = apkFile,
+                            apkOutputFileName = lastTagTaskOutput.apkOutputFileName
+                        )
+                    )
+
                     TagTasksRegistrar.registerPrintLastIncreasedTagTask(
                         project = project,
                         params =
@@ -137,7 +167,6 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             ),
                     )
 
-
                     val changelogConfigProvider: Provider<ChangelogConfig?> =
                         project.providers.provider {
                             buildPublishFoundationExtension
@@ -145,10 +174,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 .getByNameOrNullableCommon(buildVariant.name)
                         }
 
-                    val apkOutputFile =
-                        lastTagTaskOutput.apkOutputFileName.flatMap { fileName ->
-                            project.mapToOutputApkFile(buildVariant, fileName)
-                        }
+                    val apkOutputFile = renameTaskProvider.flatMap { it.renamedApkFile }
 
                     val changelogFile =
                         ChangelogTasksRegistrar.registerGenerateChangelogTask(
@@ -223,14 +249,6 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                     ),
                             )
                         }
-
-                    if (lastTagTaskOutput.versionCode.isPresent) {
-                        variantOutput.versionCode.set(lastTagTaskOutput.versionCode)
-                    }
-                    if (lastTagTaskOutput.versionName.isPresent) {
-                        variantOutput.versionName.set(lastTagTaskOutput.versionName)
-                    }
-                    variantOutput.outputFileName.set(lastTagTaskOutput.apkOutputFileName)
                 }
             },
         )
