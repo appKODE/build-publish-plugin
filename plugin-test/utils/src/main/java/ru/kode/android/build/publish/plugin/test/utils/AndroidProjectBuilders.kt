@@ -300,23 +300,9 @@ fun File.createAndroidProject(
         telegramConfig?.let { config ->
             """
             buildPublishTelegram {
-                bots {
-                    common {
-                        ${config.bots.bots.forEach { telegramBotBlock(it) }}
-                    }
-                }
-                changelog {
-                    common {
-                        userMentions(${config.changelog.userMentions.joinToString { "\"$it\"" }})
-                        
-                        ${config.changelog.destinationBots.forEach { telegramDestinationBotBlock(it) }}
-                    }
-                }
-                distribution {
-                   common {
-                       ${config.distribution.destinationBots.forEach { telegramDestinationBotBlock(it) }}
-                   } 
-                }
+                ${config.bots.bots.takeIf { it.isNotEmpty() }?.let { telegramBotsBlock(it) }.orEmpty()}
+                ${config.changelog?.let { telegramChangelogBlock(it) }.orEmpty()}
+                ${config.distribution?.let { telegramDistributionBlock(it) }.orEmpty()}
             }
             """.trimIndent()
         }.orEmpty()
@@ -384,48 +370,80 @@ fun File.createAndroidProject(
     writeFile(androidManifestFile, androidManifestFileContent)
 }
 
-private fun jiraAutomationBlock(config: JiraConfig.Automation): String {
+private fun jiraAutomationBlock(automation: JiraConfig.Automation): String {
     return """
             automation {
                 common {
-                    it.projectId.set(${config.projectId})
-                    ${config.fixVersionPattern?.let { """it.fixVersionPattern.set("$it")""" }.orEmpty()}
-                    ${config.labelPattern?.let { """it.labelPattern.set("$it")""" }.orEmpty()}
-                    ${config.resolvedStatusTransitionId?.let { """it.resolvedStatusTransitionId.set("$it")""" }.orEmpty()}
+                    it.projectId.set(${automation.projectId})
+                    ${automation.fixVersionPattern?.let { """it.fixVersionPattern.set("$it")""" }.orEmpty()}
+                    ${automation.labelPattern?.let { """it.labelPattern.set("$it")""" }.orEmpty()}
+                    ${automation.resolvedStatusTransitionId?.let { """it.resolvedStatusTransitionId.set("$it")""" }.orEmpty()}
                 }
             }
     """
 }
 
+private fun telegramChangelogBlock(changelog: TelegramConfig.Changelog): String {
+    return """
+                        changelog {
+                            common {
+                                it.userMentions(${changelog.userMentions.joinToString { "\"$it\"" }})
+                                
+                                ${changelog.destinationBots.joinToString(separator = "\n") { telegramDestinationBotBlock(it) }}
+                            }
+                        }
+    """
+}
+
+private fun telegramBotsBlock(bots: List<TelegramConfig.Bot>): String {
+    return """
+                        bots {
+                            common {
+                                ${bots.joinToString("\n") { telegramBotBlock(it) }}
+                            }
+                        }
+    """
+}
+
+private fun telegramDistributionBlock(distribution: TelegramConfig.Distribution): String {
+    return """
+                        distribution {
+                           common {
+                               ${distribution.destinationBots.map { telegramDestinationBotBlock(it) }}
+                           } 
+                        }
+    """
+}
+
 private fun telegramBotBlock(bot: TelegramConfig.Bot): String {
     return """     
-                    bot("${bot.botName}") {
-                        botId.set("${bot.botId}")
-                        ${bot.botServerBaseUrl?.let { """botServerBaseUrl.set("$it")""" }.orEmpty()}
-                        ${bot.botServerUsername?.let { """botServerAuth.username.set("$it")""" }.orEmpty()}
-                        ${bot.botServerPassword?.let { """botServerAuth.password.set("$it")""" }.orEmpty()}
-                        
-                        ${bot.chats.forEach { telegramBotChatBlock(it) }}
-                    }
-    """.trimIndent()
+                                it.bot("${bot.botName}") {
+                                    botId.set("${bot.botId}")
+                                    ${bot.botServerBaseUrl?.let { """botServerBaseUrl.set("$it")""" }.orEmpty()}
+                                    ${bot.botServerUsername?.let { """botServerAuth.username.set("$it")""" }.orEmpty()}
+                                    ${bot.botServerPassword?.let { """botServerAuth.password.set("$it")""" }.orEmpty()}
+                                    
+                                    ${bot.chats.joinToString(separator = "\n") { telegramBotChatBlock(it) }}
+                                }
+    """
 }
 
 private fun telegramBotChatBlock(chat: TelegramConfig.Chat): String {
     return """
-                        chat("${chat.chatName}") {
-                            chatId = "${chat.chatId}"
-                            topicId = "${chat.topicId}"
-                        }
-    """.trimIndent()
+                                    chat("${chat.chatName}") {
+                                        chatId = "${chat.chatId}"
+                                        ${chat.topicId?.let { "topicId = \"$it\"" }.orEmpty()}
+                                    }
+    """
 }
 
 private fun telegramDestinationBotBlock(destinationBot: TelegramConfig.DestinationBot): String {
     return """
-                        destinationBot {
-                            botName = "${destinationBot.botName}"
-                            chatNames(${destinationBot.chatNames.joinToString { "\"$it\"" }})
-                        }
-    """.trimIndent()
+                                it.destinationBot {
+                                    botName = "${destinationBot.botName}"
+                                    chatNames(${destinationBot.chatNames.joinToString { "\"$it\"" }})
+                                }
+    """
 }
 
 private fun buildTagPatternBlock(items: List<String>): String {
@@ -494,28 +512,56 @@ fun File.getFile(path: String): File {
     return file
 }
 
-fun File.runTask(task: String): BuildResult {
+fun File.runTask(
+    task: String,
+    systemProperties: Map<String, String> = emptyMap()
+): BuildResult {
+    val args = mutableListOf(task).apply {
+        add("--info")
+        add("--stacktrace")
+        systemProperties.forEach { (key, value) ->
+            add("-D$key=$value")
+        }
+    }
     return GradleRunner.create()
         .withProjectDir(this)
-        .withArguments(task, "--info", "--stacktrace")
+        .withArguments(args)
         .withPluginClasspath()
         .forwardOutput()
         .build()
 }
 
-fun File.runTasks(vararg task: String): BuildResult {
+fun File.runTasks(
+    vararg tasks: String,
+    systemProperties: Map<String, String> = emptyMap()
+): BuildResult {
+    val args = tasks.toMutableList().apply {
+        add("--info")
+        add("--stacktrace")
+        systemProperties.forEach { (key, value) ->
+            add("-D$key=$value")
+        }
+    }
     return GradleRunner.create()
         .withProjectDir(this)
-        .withArguments(*task, "--info", "--stacktrace")
+        .withArguments(args)
         .withPluginClasspath()
         .forwardOutput()
         .build()
 }
 
-fun File.runTaskWithFail(task: String): BuildResult {
+fun File.runTaskWithFail(
+    task: String,
+    systemProperties: Map<String, String> = emptyMap()
+): BuildResult {
+    val args = mutableListOf(task, "--info").apply {
+        systemProperties.forEach { (key, value) ->
+            add("-D$key=$value")
+        }
+    }
     return GradleRunner.create()
         .withProjectDir(this)
-        .withArguments(task, "--info")
+        .withArguments(args)
         .withPluginClasspath()
         .forwardOutput()
         .buildAndFail()
@@ -674,8 +720,8 @@ data class DefaultConfig(
 
 data class TelegramConfig(
     val bots: Bots,
-    val changelog: Changelog,
-    val distribution: Distribution,
+    val changelog: Changelog?,
+    val distribution: Distribution?,
 ) {
     data class Bots(
         val bots: List<Bot>,

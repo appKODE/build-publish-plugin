@@ -7,8 +7,8 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.util.RequestError
-import ru.kode.android.build.publish.plugin.telegram.config.DestinationBot
-import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
+import ru.kode.android.build.publish.plugin.telegram.controller.entity.DestinationTelegramBot
+import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 
 /**
  * Parameters required for the [TelegramUploadWork] task.
@@ -23,14 +23,14 @@ internal interface TelegramUploadParameters : WorkParameters {
     val distributionFile: RegularFileProperty
 
     /**
-     * The network service instance for handling Telegram API communication
-     */
-    val networkService: Property<TelegramNetworkService>
-
-    /**
      * Set of Telegram bot configurations and their destination chats
      */
-    val destinationBots: SetProperty<DestinationBot>
+    val destinationBots: SetProperty<DestinationTelegramBot>
+
+    /**
+     * The network service instance for handling Telegram API communication
+     */
+    val service: Property<TelegramService>
 }
 
 /**
@@ -46,18 +46,18 @@ internal interface TelegramUploadParameters : WorkParameters {
  * - Other exceptions will bubble up and be handled by Gradle's task execution framework.
  *
  * @see TelegramDistributionTask The task that creates and submits this work
- * @see TelegramNetworkService The service that performs the actual network communication
+ * @see TelegramService The service that performs the actual network communication
  */
 internal abstract class TelegramUploadWork : WorkAction<TelegramUploadParameters> {
     private val logger = Logging.getLogger(this::class.java)
 
     @Suppress("SwallowedException")
     override fun execute() {
-        val service = parameters.networkService.get()
+        val service = parameters.service.get()
         try {
             service.upload(
                 parameters.distributionFile.asFile.get(),
-                parameters.destinationBots.get(),
+                parameters.destinationBots.get().toList(),
             )
         } catch (ex: RequestError.UploadTimeout) {
             logger.error(

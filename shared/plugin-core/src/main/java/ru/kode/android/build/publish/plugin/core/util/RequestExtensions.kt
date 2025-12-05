@@ -3,9 +3,13 @@ package ru.kode.android.build.publish.plugin.core.util
 import retrofit2.Call
 import retrofit2.Response
 
-inline fun <reified T : Any> Call<T>.executeWithResult() = execute().toResult().map { it as T }
+inline fun <reified T : Any> Call<T>.executeWithResult(): Result<T> {
+    return execute().toResult().map { it as T }
+}
 
-fun Call<Unit>.executeNoResult() = execute().toResult().map { }
+fun Call<Unit>.executeNoResult(): Result<Unit> {
+    return execute().toResult().map { }
+}
 
 inline fun <reified T : Any?> Response<T>.toResult(): Result<T?> {
     return if (isSuccessful) {

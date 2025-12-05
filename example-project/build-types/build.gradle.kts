@@ -53,11 +53,9 @@ buildPublishTelegram {
     bots {
         common {
             bot("buildPublish") {
-                common {
-                    botId.set("313123131231")
-                    chat("builds") {
-                        chatId.set("-00000000")
-                    }
+                botId.set("313123131231")
+                chat("builds") {
+                    chatId.set("-00000000")
                 }
             }
         }

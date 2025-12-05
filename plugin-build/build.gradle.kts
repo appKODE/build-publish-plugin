@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.publish) apply false
     alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.serialization) apply false
 }
 
 allprojects {

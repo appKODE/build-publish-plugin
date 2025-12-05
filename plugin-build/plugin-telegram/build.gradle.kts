@@ -3,6 +3,7 @@ plugins {
     id("java-gradle-plugin")
     id("com.gradle.plugin-publish")
     id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 dependencies {
@@ -11,12 +12,10 @@ dependencies {
     implementation(gradleApi())
     implementation(libs.okhttp)
     implementation(libs.okhttpLogging)
-    implementation(libs.moshi)
     implementation(libs.retrofit)
-    implementation(libs.retrofitMoshi)
+    implementation(libs.retrofitSerialization)
     implementation(libs.agp)
-
-    ksp(libs.moshiCodgen)
+    implementation(libs.serializationJson)
 }
 
 gradlePlugin {

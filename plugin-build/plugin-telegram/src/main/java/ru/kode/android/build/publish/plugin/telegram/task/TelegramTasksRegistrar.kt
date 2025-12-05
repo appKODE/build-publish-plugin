@@ -8,7 +8,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramDistributionConfig
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExtension
@@ -158,11 +158,12 @@ private fun Project.registerSendTelegramChangelogTask(
         "$SEND_TELEGRAM_CHANGELOG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         SendTelegramChangelogTask::class.java,
     ) {
-        val networkService =
+        val service =
             project.extensions
                 .getByType(TelegramServiceExtension::class.java)
-                .networkServices
-                .flatMapByNameOrCommon(params.buildVariant.name)
+                .services
+                .get()
+                .getByNameOrCommon(params.buildVariant.name)
 
         it.changelogFile.set(params.changelogFile)
         it.buildTagFile.set(params.lastBuildTagFile)
@@ -171,7 +172,9 @@ private fun Project.registerSendTelegramChangelogTask(
         it.baseOutputFileName.set(params.baseFileName)
         it.userMentions.set(changelogConfig.userMentions)
         it.destinationBots.set(changelogConfig.destinationBots)
-        it.networkService.set(networkService)
+        it.service.set(service)
+
+        it.usesService(service)
     }
 }
 
@@ -203,15 +206,18 @@ private fun Project.registerTelegramUploadTask(
         "$TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         TelegramDistributionTask::class.java,
     ) {
-        val networkService =
+        val service =
             project.extensions
                 .getByType(TelegramServiceExtension::class.java)
-                .networkServices
-                .flatMapByNameOrCommon(params.buildVariant.name)
+                .services
+                .get()
+                .getByNameOrCommon(params.buildVariant.name)
 
         it.distributionFile.set(params.apkOutputFile)
         it.destinationBots.set(distributionConfig.destinationBots)
-        it.networkService.set(networkService)
+        it.service.set(service)
+
+        it.usesService(service)
     }
 }
 
@@ -243,15 +249,18 @@ private fun Project.registerTelegramBundleUploadTask(
             "$TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
             TelegramDistributionTask::class.java,
         ) {
-            val networkService =
+            val service =
                 project.extensions
                     .getByType(TelegramServiceExtension::class.java)
-                    .networkServices
-                    .flatMapByNameOrCommon(params.buildVariant.name)
+                    .services
+                    .get()
+                    .getByNameOrCommon(params.buildVariant.name)
 
             it.distributionFile.set(params.bundleOutputFile)
             it.destinationBots.set(distributionConfig.destinationBots)
-            it.networkService.set(networkService)
+            it.service.set(service)
+
+            it.usesService(service)
         }
     } else {
         logger.info(

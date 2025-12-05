@@ -13,27 +13,38 @@ import java.net.ProxySelector
 import java.net.SocketAddress
 import java.net.URI
 
+private fun getProxyProperty(key: String): String? =
+    System.getenv(key) ?: System.getProperty(key)
+
 private val logger = Logging.getLogger("HttpClientExtensions")
 
 @Suppress("ComplexCondition") // Just checking for all proxy properties
 fun OkHttpClient.Builder.addProxyIfAvailable(): OkHttpClient.Builder {
     return this
+        .addNetworkInterceptor { chain ->
+            val request = chain.request()
+            val proxy = chain.connection()?.route()?.proxy ?: Proxy.NO_PROXY
+            logger.info("Requesting via proxy $proxy: ${request.url}")
+            chain.proceed(request)
+        }
         .proxySelector(DynamicProxySelector())
         .proxyAuthenticator { _, response ->
             val url = response.request.url
+
             val proxyUser =
                 if (url.scheme == "https") {
-                    System.getProperty("https.proxyUser")
+                    getProxyProperty("https.proxyUser")
                 } else {
-                    System.getProperty("http.proxyUser")
+                    getProxyProperty("http.proxyUser")
                 }
             val proxyPassword =
                 if (url.scheme == "https") {
-                    System.getProperty("https.proxyPassword")
+                    getProxyProperty("https.proxyPassword")
                 } else {
-                    System.getProperty("http.proxyPassword")
+                    getProxyProperty("http.proxyPassword")
                 }
             val credentials = Credentials.basic(proxyUser!!, proxyPassword!!)
+            logger.info("Apply proxy authorization")
             response.request.newBuilder()
                 .header("Proxy-Authorization", credentials)
                 .build()
@@ -44,21 +55,21 @@ private class DynamicProxySelector : ProxySelector() {
     override fun select(uri: URI?): List<Proxy> {
         val proxyHost =
             if (uri?.scheme == "https") {
-                System.getProperty("https.proxyHost")
+                getProxyProperty("https.proxyHost")
             } else {
-                System.getProperty("http.proxyHost")
+                getProxyProperty("http.proxyHost")
             }
         val proxyPort =
             if (uri?.scheme == "https") {
-                System.getProperty("https.proxyPort")
+                getProxyProperty("https.proxyPort")
             } else {
-                System.getProperty("http.proxyPort")
+                getProxyProperty("http.proxyPort")
             }
         val nonProxyHosts =
             if (uri?.scheme == "https") {
-                System.getProperty("https.nonProxyHosts")
+                getProxyProperty("https.nonProxyHosts")
             } else {
-                System.getProperty("http.nonProxyHosts")
+                getProxyProperty("http.nonProxyHosts")
             }
 
         if (proxyHost != null && proxyPort != null) {
@@ -67,6 +78,7 @@ private class DynamicProxySelector : ProxySelector() {
                 return listOf(Proxy.NO_PROXY)
             }
             val proxyAddress = InetSocketAddress.createUnresolved(proxyHost, proxyPort.toInt())
+            logger.info("Return and apply proxy: url=$uri; proxy address=$proxyAddress")
             return listOf(Proxy(Proxy.Type.HTTP, proxyAddress))
         }
         return listOf(Proxy.NO_PROXY)

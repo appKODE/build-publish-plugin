@@ -15,7 +15,7 @@ import javax.inject.Inject
  * @see TelegramBotsConfig For defining available bots
  * @see TelegramBotConfig For bot configuration details
  */
-abstract class DestinationBot
+abstract class DestinationTelegramBotConfig
     @Inject
     constructor() {
         /**

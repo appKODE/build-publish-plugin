@@ -2,6 +2,7 @@ package ru.kode.android.build.publish.plugin.jira.extension
 
 import groovy.lang.DelegatesTo
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
@@ -155,10 +156,23 @@ abstract class BuildPublishJiraExtension
             input: ExtensionInput,
         ) {
 
-            logger.info("Jira automation config ${automation.asMap}")
-            logger.info("Jira auth config ${auth.asMap}")
+            val variantName = input.buildVariant.name
 
-            val automationConfig = automationConfig(input.buildVariant.name)
+            if (auth.isEmpty()) {
+                throw GradleException(
+                    "Need to provide Auth config for $variantName or common. " +
+                    "It's required to run Jira plugin. " +
+                    "Please check that you have 'auth' block in your build script " +
+                    "and that it's not empty. "
+                )
+            }
+
+            val automationConfig = automationConfigOrNull(variantName)
+                ?: throw GradleException(
+                    "Need to provide Automation config for $variantName or common. " +
+                    "Please check that you have 'automation' block in your build script " +
+                    "and that it's not empty. "
+                )
 
             JiraTasksRegistrar.registerAutomationTask(
                 project = project,

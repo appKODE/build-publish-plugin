@@ -5,8 +5,8 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.telegram.config.DestinationBot
-import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
+import ru.kode.android.build.publish.plugin.telegram.controller.mappers.destinationTelegramBotsFromJson
+import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 import javax.inject.Inject
 
 /**
@@ -34,29 +34,34 @@ internal interface SendTelegramChangelogParameters : WorkParameters {
     /**
      * Optional user mentions to be included in the message
      */
-    val userMentions: Property<String>
+    val userMentions: SetProperty<String>
 
     /**
-     * String containing characters that need to be escaped in Telegram messages
+     * The URL prefix for issue tracker links.
      */
-    val escapedCharacters: Property<String>
+    val issueUrlPrefix: Property<String>
 
     /**
-     * The network service for sending messages to Telegram
+     * The regular expression pattern used to identify issue references in the changelog text.
      */
-    val networkService: Property<TelegramNetworkService>
+    val issueNumberPattern: Property<String>
 
     /**
      * Set of Telegram bot configurations and their destination chats
      */
-    val destinationBots: SetProperty<DestinationBot>
+    val destinationBots: Property<String>
+
+    /**
+     * The network service for sending messages to Telegram
+     */
+    val service: Property<TelegramService>
 }
 
 /**
  * A Gradle work action that handles sending changelog messages to Telegram.
  *
  * This class implements [WorkAction] to perform the changelog sending asynchronously
- * using Gradle's Worker API. It's designed to be used by [SendTelegramChangelogTask]
+ * using Gradle's Worker API. It's designed to be used by [ru.kode.android.build.publish.plugin.telegram.task.changelog.SendTelegramChangelogTask]
  * to offload potentially long-running network operations to a separate thread.
  *
  * The message format is as follows:
@@ -68,8 +73,8 @@ internal interface SendTelegramChangelogParameters : WorkParameters {
  * - Added new feature
  * ```
  *
- * @see SendTelegramChangelogTask The task that creates and submits this work
- * @see TelegramNetworkService The service that performs the actual network communication
+ * @see ru.kode.android.build.publish.plugin.telegram.task.changelog.SendTelegramChangelogTask The task that creates and submits this work
+ * @see TelegramService The service that performs the actual network communication
  */
 internal abstract class SendTelegramChangelogWork
     @Inject
@@ -77,33 +82,22 @@ internal abstract class SendTelegramChangelogWork
         private val logger = Logging.getLogger(this::class.java)
 
         override fun execute() {
-            val service = parameters.networkService.get()
+            val service = parameters.service.get()
 
             val baseOutputFileName = parameters.baseOutputFileName.get()
             val buildName = parameters.buildName.get()
-            val tgUserMentions = parameters.userMentions.get()
+            val userMentions = parameters.userMentions.orNull?.toList()
 
-            val escapedHeader =
-                "$baseOutputFileName $buildName"
-                    .replace(parameters.escapedCharacters.get().toRegex()) { result -> "\\${result.value}" }
+            val header = "$baseOutputFileName $buildName"
 
-            val boldHeader = "*$escapedHeader*"
-
-            val message =
-                buildString {
-                    append(boldHeader)
-                    appendLine()
-                    append(tgUserMentions)
-                    appendLine()
-                    appendLine()
-                    append(parameters.changelog.get())
-                }.formatChangelog()
-
-            service.send(message, parameters.destinationBots.get())
+            service.send(
+                changelog = parameters.changelog.get(),
+                header = header,
+                userMentions = userMentions,
+                issueUrlPrefix = parameters.issueUrlPrefix.get(),
+                issueNumberPattern = parameters.issueNumberPattern.get(),
+                destinationBots = parameters.destinationBots.map { destinationTelegramBotsFromJson(it) }.get()
+            )
             logger.info("Changelog successfully sent to Telegram")
         }
     }
-
-private fun String.formatChangelog(): String {
-    return this.replace(Regex("(\r\n|\r|\n)"), "\n")
-}

@@ -1,0 +1,296 @@
+package ru.kode.android.build.publish.plugin.telegram.controller
+
+import okhttp3.Credentials
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
+import ru.kode.android.build.publish.plugin.core.util.createPartFromString
+import ru.kode.android.build.publish.plugin.core.util.executeNoResult
+import ru.kode.android.build.publish.plugin.core.util.executeWithResult
+import ru.kode.android.build.publish.plugin.telegram.controller.entity.ChatSpecificTelegramBot
+import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramLastMessage
+import ru.kode.android.build.publish.plugin.telegram.network.api.TelegramDistributionApi
+import ru.kode.android.build.publish.plugin.telegram.network.api.TelegramWebhookApi
+import ru.kode.android.build.publish.plugin.telegram.network.entity.TelegramMessage
+import java.io.File
+import java.net.URLEncoder
+import kotlin.collections.orEmpty
+import kotlin.sequences.forEach
+import kotlin.text.toRegex
+
+private const val SEND_MESSAGE_TO_CHAT_WEB_HOOK =
+    "%s/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2&disable_web_page_preview=true"
+private const val SEND_MESSAGE_TO_TOPIC_WEB_HOOK =
+    "%s/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2" +
+        "&disable_web_page_preview=true"
+private const val GET_MESSAGE_IN_CHAT_WEB_HOOK = "%s/bot%s/getUpdates"
+private const val SEND_DOCUMENT_WEB_HOOK = "https://%s/bot%s/sendDocument"
+private const val MESSAGE_MAX_LENGTH = 4096
+private const val ESCAPED_CHARACTERS =
+    "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]|-"
+
+internal class TelegramControllerImpl(
+    private val webhookApi: TelegramWebhookApi,
+    private val distributionApi: TelegramDistributionApi,
+) : TelegramController {
+
+    private val logger: Logger = Logging.getLogger(this::class.java)
+
+    override fun send(
+        message: String,
+        header: String,
+        userMentions: List<String>?,
+        issueUrlPrefix: String,
+        issueNumberPattern: String,
+        bots: List<ChatSpecificTelegramBot>,
+    ) {
+
+        val messageWithIssuesLinks = message.formatIssues(
+            ESCAPED_CHARACTERS,
+            issueUrlPrefix,
+            issueNumberPattern,
+        )
+
+        val escapedUserMentions =
+            userMentions.orEmpty()
+                .joinToString(", ")
+                .escapeCharacters(ESCAPED_CHARACTERS)
+
+        val escapedHeader = header
+            .replace(ESCAPED_CHARACTERS.toRegex()) { result -> "\\${result.value}" }
+
+        messageWithIssuesLinks
+            .chunked(MESSAGE_MAX_LENGTH)
+            .forEach { messageChunk ->
+                val richMessageChunk =
+                    buildString {
+                        append("*$escapedHeader*")
+                        appendLine()
+                        append(escapedUserMentions)
+                        appendLine()
+                        appendLine()
+                        append(messageChunk)
+                    }.formatMessage()
+                sendMessage(richMessageChunk, bots)
+            }
+    }
+
+    /**
+     * Uploads a file to the specified Telegram chats using the configured bots.
+     *
+     * This method sends a file to one or more Telegram chats using the specified bots.
+     * The file will be sent as a document, and a caption can be included.
+     *
+     * @param file The file to upload
+     * @param destinationBots Set of destination bots and their respective chat configurations
+     *
+     * @throws IllegalStateException If no matching bot configuration is found
+     * @throws IOException If there's a network error or the file cannot be read
+     *
+     * @see sendMessage For sending text messages without file attachments
+     */
+    override fun upload(
+        file: File,
+        bots: List<ChatSpecificTelegramBot>,
+    ) {
+        bots.forEach { bot ->
+            val webhookUrl = SEND_DOCUMENT_WEB_HOOK.format(bot.serverBaseUrl, bot.id)
+            val filePart =
+                MultipartBody.Part.createFormData(
+                    "document",
+                    file.name,
+                    file.asRequestBody(),
+                )
+            val topicId = bot.topicId
+            val params =
+                if (topicId != null) {
+                    hashMapOf(
+                        "message_thread_id" to createPartFromString(topicId),
+                        "chat_id" to createPartFromString(bot.chatId),
+                    )
+                } else {
+                    hashMapOf(
+                        "chat_id" to createPartFromString(bot.chatId),
+                    )
+                }
+            logger.info("upload file to ${bot.name} by $webhookUrl")
+            val authorization =
+                bot.basicAuth
+                    ?.let { Credentials.basic(it.username, it.password) }
+            distributionApi
+                .upload(authorization, webhookUrl, params, filePart)
+                .executeWithResult()
+                .getOrThrow()
+        }
+    }
+
+    /**
+     * Retrieves the last message from the specified Telegram chat.
+     *
+     * This method fetches the last message from the specified Telegram chat.
+     *
+     * @param bot The [ChatSpecificTelegramBot] configuration.
+     * @return The last [TelegramMessage] if available, otherwise null.
+     */
+    override fun getLastMessage(bot: ChatSpecificTelegramBot): TelegramLastMessage? {
+        val webhookUrl = GET_MESSAGE_IN_CHAT_WEB_HOOK.format(
+            bot.serverBaseUrl,
+            bot.id
+        )
+
+        val authorization =
+            bot.basicAuth
+                ?.let { Credentials.basic(it.username, it.password) }
+
+        val response = webhookApi
+            .getUpdates(authorization, webhookUrl)
+            .execute()
+            .body()
+
+        logger.info("getting message from ${bot.name} by $webhookUrl")
+
+        return response
+            ?.result
+            ?.mapNotNull { it.channel_post ?: it.edited_message ?: it.message }
+            ?.filter { it.chat.id.toString() == bot.chatId }
+            ?.maxByOrNull { it.date }
+            ?.takeIf { it.text != null }
+            ?.let { TelegramLastMessage(text = it.text!!) }
+    }
+
+    /**
+     * Sends a text message to the specified Telegram chats using the configured bots.
+     *
+     * This method sends a Markdown-formatted message to one or more Telegram chats
+     * using the specified bots. The message will be properly escaped for Telegram's
+     * MarkdownV2 format.
+     *
+     * @param message The message to send (supports MarkdownV2 formatting)
+     * @param destinationBots Set of destination bots and their respective chat configurations
+     *
+     * @throws IllegalStateException If no matching bot configuration is found
+     * @throws IOException If there's a network error while sending the message
+     *
+     * @see upload For sending files instead of text messages
+     */
+    private fun sendMessage(
+        message: String,
+        bots: List<ChatSpecificTelegramBot>,
+    ) {
+        bots.forEach { bot ->
+            val topicId = bot.topicId
+            val webhookUrl =
+                if (topicId.isNullOrEmpty()) {
+                    SEND_MESSAGE_TO_CHAT_WEB_HOOK.format(
+                        bot.serverBaseUrl,
+                        bot.id,
+                        bot.chatId,
+                        URLEncoder.encode(message, "utf-8"),
+                    )
+                } else {
+                    SEND_MESSAGE_TO_TOPIC_WEB_HOOK.format(
+                        bot.serverBaseUrl,
+                        bot.id,
+                        bot.chatId,
+                        topicId,
+                        URLEncoder.encode(message, "utf-8"),
+                    )
+                }
+            logger.info("sending message to ${bot.name} by $webhookUrl")
+
+            val authorization =
+                bot.basicAuth
+                    ?.let { Credentials.basic(it.username, it.password) }
+            webhookApi
+                .send(authorization, webhookUrl)
+                .executeNoResult()
+                .getOrThrow()
+        }
+    }
+}
+
+/**
+ * Formats issue references in the message and escapes special characters.
+ *
+ * This method performs two main transformations:
+ * 1. Converts issue references (e.g., #123) to clickable links using the configured URL pattern
+ * 2. Escapes special characters that have special meaning in Telegram's MarkdownV2 format
+ *
+ * Example:
+ * - Input: "Fixed issue #123"
+ * - Output: "Fixed issue [#123](https://issuetracker.example.com/issue/123)"
+ *
+ * @param escapedCharacters Regex pattern of characters that need to be escaped
+ * @return The formatted and escaped message text, ready to be sent to Telegram
+ *
+ * @see <a href="https://core.telegram.org/bots/api#markdownv2-style">Telegram MarkdownV2 Format</a>
+ */
+private fun String.formatIssues(
+    escapedCharacters: String,
+    issueUrlPrefix: String,
+    issueNumberPattern: String
+): String {
+    println("formatIssues: escapedCharacters=$escapedCharacters; issueUrlPrefix=$issueUrlPrefix; issueNumberPattern$issueNumberPattern")
+    val issueRegexp = issueNumberPattern.toRegex()
+    val matchResults = issueRegexp.findAll(this).distinctBy { it.value }
+    var out = this.escapeCharacters(escapedCharacters)
+
+    matchResults.forEach { matchResult ->
+        val formattedResult = matchResult.value.escapeCharacters(escapedCharacters)
+        val url = (issueUrlPrefix + matchResult.value).escapeCharacters(escapedCharacters)
+        val issueId = matchResult.value.escapeCharacters(escapedCharacters)
+        val link = "[$issueId]($url)"
+        out = out.replace(formattedResult, link)
+    }
+    return out
+}
+
+/**
+ * Splits a string into chunks of specified length, respecting word boundaries.
+ *
+ * This method ensures that the message is split in a way that maintains readability:
+ * 1. First tries to split on the specified delimiter (default: newline)
+ * 2. If a single line is still too long, falls back to splitting on spaces
+ * 3. If a single word is too long, it will be split at the exact character limit
+ *
+ * @param chunkLength Maximum length of each chunk (in UTF-16 code units)
+ * @param delimiter Character to prefer for splitting (defaults to newline)
+ * @return List of string chunks, each within the specified length limit
+ *
+ * @throws IllegalArgumentException If chunkLength is less than or equal to 0
+ */
+private fun String.chunked(
+    chunkLength: Int,
+    delimiter: Char = '\n',
+): List<String> {
+    val result = mutableListOf<String>()
+    var currentIndex = 0
+    while (currentIndex < this.length) {
+        var nextNewlineIndex = currentIndex
+        var tempNewlineIndex = currentIndex
+        while (tempNewlineIndex < (currentIndex + chunkLength)) {
+            tempNewlineIndex = this.indexOf(delimiter, tempNewlineIndex + 1)
+            if (tempNewlineIndex == -1) {
+                val chunk = this.substring(currentIndex, nextNewlineIndex)
+                result.add(chunk)
+                return result
+            }
+            if (tempNewlineIndex <= (currentIndex + chunkLength)) {
+                nextNewlineIndex = tempNewlineIndex
+            }
+        }
+        val chunk = this.substring(currentIndex, nextNewlineIndex)
+        result.add(chunk)
+        currentIndex = nextNewlineIndex
+    }
+    return result
+}
+
+private fun String.formatMessage(): String {
+    return this.replace(Regex("(\r\n|\r|\n)"), "\n")
+}
+
+private fun String.escapeCharacters(escapedCharacters: String): String {
+    return this.replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
+}

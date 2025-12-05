@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 private const val HTTP_CONNECT_TIMEOUT_SECONDS = 30L
 
 internal object JiraClientFactory {
-    private val logger: Logger = Logging.getLogger(JiraClientFactory::class.java)
+    private val logger: Logger = Logging.getLogger(this::class.java)
 
     fun build(username: String, password: String): OkHttpClient {
         return OkHttpClient.Builder()

@@ -13,7 +13,7 @@ import javax.inject.Inject
  * including user mentions and destination bot configurations.
  *
  * @see TelegramBotConfig For bot configuration details
- * @see DestinationBot For destination bot configuration
+ * @see DestinationTelegramBotConfig For destination bot configuration
  */
 abstract class TelegramChangelogConfig
     @Inject
@@ -48,7 +48,7 @@ abstract class TelegramChangelogConfig
          * add new destinations instead of modifying this directly.
          */
         @get:Input
-        internal abstract val destinationBots: SetProperty<DestinationBot>
+        internal abstract val destinationBots: SetProperty<DestinationTelegramBotConfig>
 
         /**
          * Adds a single user mention to the list of user mentions.
@@ -72,16 +72,16 @@ abstract class TelegramChangelogConfig
         /**
          * Configures a destination bot for sending changelog notifications.
          *
-         * This method creates a new [DestinationBot] configuration and applies
+         * This method creates a new [DestinationTelegramBotConfig] configuration and applies
          * the provided action to it. The configured bot and chat must exist
          * in the main Telegram configuration.
          *
-         * @param action A configuration block that will be applied to a new [DestinationBot] instance.
+         * @param action A configuration block that will be applied to a new [DestinationTelegramBotConfig] instance.
          *
-         * @see DestinationBot For available configuration options
+         * @see DestinationTelegramBotConfig For available configuration options
          */
-        fun destinationBot(action: Action<DestinationBot>) {
-            val destinationBot = objects.newInstance(DestinationBot::class.java)
+        fun destinationBot(action: Action<DestinationTelegramBotConfig>) {
+            val destinationBot = objects.newInstance(DestinationTelegramBotConfig::class.java)
             action.execute(destinationBot)
             destinationBots.add(destinationBot)
         }

@@ -12,8 +12,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.telegram.config.DestinationBot
-import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
+import ru.kode.android.build.publish.plugin.telegram.config.DestinationTelegramBotConfig
+import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
+import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.work.TelegramUploadWork
 import javax.inject.Inject
 
@@ -42,7 +43,7 @@ abstract class TelegramDistributionTask
          * This is marked as @Internal as it's not part of the task's input/output.
          */
         @get:Internal
-        abstract val networkService: Property<TelegramNetworkService>
+        abstract val service: Property<TelegramService>
 
         /**
          * The APK/bundle file to be distributed.
@@ -60,7 +61,7 @@ abstract class TelegramDistributionTask
         /**
          * Set of configured Telegram bots and their destination chats.
          *
-         * Each [DestinationBot] contains the bot and chat names where the file should be sent.
+         * Each [DestinationTelegramBotConfig] contains the bot and chat names where the file should be sent.
          * The task will send the file to all specified destinations.
          */
         @get:Input
@@ -68,7 +69,7 @@ abstract class TelegramDistributionTask
             option = "destinationBots",
             description = "List of Telegram bot configurations for distribution",
         )
-        abstract val destinationBots: SetProperty<DestinationBot>
+        abstract val destinationBots: SetProperty<DestinationTelegramBotConfig>
 
         /**
          * Task action that handles the APK/bundle upload to Telegram.
@@ -84,8 +85,8 @@ abstract class TelegramDistributionTask
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(TelegramUploadWork::class.java) { parameters ->
                 parameters.distributionFile.set(distributionFile)
-                parameters.networkService.set(networkService)
-                parameters.destinationBots.set(destinationBots)
+                parameters.service.set(service)
+                parameters.destinationBots.set(destinationBots.map { it.mapToEntity() })
             }
         }
     }

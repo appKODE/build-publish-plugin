@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'com.google.firebase.appdistribution'
     id 'ru.kode.android.build-publish-novo.foundation'
+    id 'ru.kode.android.build-publish-novo.telegram'
 }
 
 android {
@@ -33,5 +34,27 @@ buildPublishFoundation {
         issueNumberPattern = "BASE-\\d+"
         issueUrlPrefix = "https://jira.exmaple.ru/browse/"
         commitMessageKey = "CHANGELOG"
+    }
+}
+
+buildPublishTelegram {
+    bots {
+        common {
+            it.bot("ChangelogBot") {
+                botId.set("test")
+                chat("ChangelogTest") {
+                    chatId = "testid"
+                }
+            }
+        }
+    }
+    changelog {
+        common {
+            it.userMentions("@user1", '@user2')
+            it.destinationBot {
+                botName = "ChangelogBot"
+                chatNames("ChangelogTest")
+            }
+        }
     }
 }

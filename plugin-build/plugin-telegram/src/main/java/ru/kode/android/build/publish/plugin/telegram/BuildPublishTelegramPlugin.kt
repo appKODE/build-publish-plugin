@@ -5,11 +5,14 @@ package ru.kode.android.build.publish.plugin.telegram
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.util.serviceName
+import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
+import ru.kode.android.build.publish.plugin.telegram.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.telegram.extension.BuildPublishTelegramExtension
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExtension
-import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
+import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 
 private const val EXTENSION_NAME = "buildPublishTelegram"
 private const val NETWORK_SERVICE_NAME = "telegramNetworkService"
@@ -23,38 +26,56 @@ private const val NETWORK_SERVICE_EXTENSION_NAME = "telegramNetworkServiceExtens
  * build system and can be configured to send messages at different stages of the build process.
  *
  * @see BuildPublishTelegramExtension For available configuration options
- * @see TelegramNetworkService For the underlying network service implementation
+ * @see TelegramService For the underlying network service implementation
  */
 abstract class BuildPublishTelegramPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
-        val extension = project.extensions.create(EXTENSION_NAME, BuildPublishTelegramExtension::class.java)
 
-        val androidExtension =
-            project.extensions
-                .getByType(ApplicationAndroidComponentsExtension::class.java)
+    private val logger = Logging.getLogger(this::class.java)
+
+    override fun apply(project: Project) {
+        val extension =
+            project.extensions.create(EXTENSION_NAME, BuildPublishTelegramExtension::class.java)
+
+        val servicesProperty =
+            project.objects.mapProperty(
+                String::class.java,
+                Provider::class.java
+            )
+        servicesProperty.set(emptyMap())
+
+        project.extensions.create(
+            NETWORK_SERVICE_EXTENSION_NAME,
+            TelegramServiceExtension::class.java,
+            servicesProperty
+        )
+
+        logger.info("TelegramServiceExtension created (empty)")
+
+        val androidExtension = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
-            val services: Provider<Map<String, Provider<TelegramNetworkService>>> =
-                project.provider {
-                    extension.bots.fold(mapOf()) { acc, authConfig ->
-                        val service =
-                            project.gradle.sharedServices.registerIfAbsent(
-                                project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),
-                                TelegramNetworkService::class.java,
-                            ) {
-                                it.maxParallelUsages.set(1)
-                                it.parameters.bots.set(authConfig.bots.toList())
-                            }
-                        acc.toMutableMap().apply {
-                            put(authConfig.name, service)
-                        }
-                    }
+            if (extension.bots.isEmpty()) {
+                logger.info("Telegram: no bots configured — leaving service map empty")
+                return@finalizeDsl
+            }
+
+            logger.info("Telegram: registering services...")
+
+            val serviceMap = extension.bots.associate { botConfig ->
+                val name = botConfig.name
+                val service = project.gradle.sharedServices.registerIfAbsent(
+                    project.serviceName(NETWORK_SERVICE_NAME, name),
+                    TelegramService::class.java
+                ) {
+                    it.maxParallelUsages.set(1)
+                    it.parameters.bots.set(botConfig.bots.map { it.mapToEntity().toJson() })
                 }
-            project.extensions.create(
-                NETWORK_SERVICE_EXTENSION_NAME,
-                TelegramServiceExtension::class.java,
-                services,
-            )
+                name to service
+            }
+
+            logger.info("Telegram services created: ${serviceMap.keys}")
+
+            servicesProperty.set(serviceMap)
         }
     }
 }

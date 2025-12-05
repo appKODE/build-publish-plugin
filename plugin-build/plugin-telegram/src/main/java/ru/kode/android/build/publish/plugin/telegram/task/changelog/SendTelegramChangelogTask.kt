@@ -2,6 +2,8 @@ package ru.kode.android.build.publish.plugin.telegram.task.changelog
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
@@ -13,15 +15,13 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.telegram.config.DestinationBot
-import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
+import ru.kode.android.build.publish.plugin.telegram.config.DestinationTelegramBotConfig
+import ru.kode.android.build.publish.plugin.telegram.controller.entity.DestinationTelegramBot
+import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
+import ru.kode.android.build.publish.plugin.telegram.controller.mappers.toJson
+import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.work.SendTelegramChangelogWork
 import javax.inject.Inject
-
-private const val MESSAGE_MAX_LENGTH = 4096
-
-private const val ESCAPED_CHARACTERS =
-    "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]|-"
 
 /**
  * A Gradle task that sends changelog notifications to Telegram.
@@ -38,7 +38,7 @@ private const val ESCAPED_CHARACTERS =
  * - Sends notifications asynchronously using Gradle's worker API
  * - Supports multiple destination chats and bots
  *
- * @see TelegramNetworkService For the underlying network communication
+ * @see TelegramService For the underlying network communication
  * @see SendTelegramChangelogWork For the actual work implementation
  */
 abstract class SendTelegramChangelogTask
@@ -46,6 +46,9 @@ abstract class SendTelegramChangelogTask
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
+
+        private val logger: Logger = Logging.getLogger(this::class.java)
+
         init {
             description = "Task to send changelog for Telegram"
             group = BasePlugin.BUILD_GROUP
@@ -58,10 +61,10 @@ abstract class SendTelegramChangelogTask
          * This property is internal and should not be directly accessed by other plugins. Rather, it is
          * injected by Gradle when the task is created and configured.
          *
-         * @see TelegramNetworkService For the actual network service implementation
+         * @see TelegramService For the actual network service implementation
          */
         @get:Internal
-        abstract val networkService: Property<TelegramNetworkService>
+        abstract val service: Property<TelegramService>
 
         /**
          * The changelog file property contains the path to the file containing the changelog text to be sent.
@@ -146,7 +149,7 @@ abstract class SendTelegramChangelogTask
         /**
          * The destination bots property defines which Telegram bots and chats should receive the changelog.
          *
-         * This set contains [DestinationBot] objects, each specifying a bot configuration and the
+         * This set contains [DestinationTelegramBotConfig] objects, each specifying a bot configuration and the
          * list of chat names where the message should be sent.
          */
         @get:Input
@@ -154,7 +157,7 @@ abstract class SendTelegramChangelogTask
             option = "destinationBots",
             description = "Bots which be used to post changelog",
         )
-        abstract val destinationBots: SetProperty<DestinationBot>
+        abstract val destinationBots: SetProperty<DestinationTelegramBotConfig>
 
         /**
          * Executes the changelog sending process.
@@ -184,144 +187,22 @@ abstract class SendTelegramChangelogTask
             val changelog = changelogFile.orNull?.asFile?.readText()
             if (changelog.isNullOrEmpty()) {
                 logger.error(
-                    "[sendChangelog] changelog file not found, is empty or error occurred",
+                    "Failed to read the changelog file at ${changelogFile.asFile.get().absolutePath}. " +
+                    "The file either does not exist or is empty.",
                 )
             } else {
-                val changelogWithIssues = changelog.formatIssues(ESCAPED_CHARACTERS)
-                val userMentions =
-                    userMentions.orNull.orEmpty()
-                        .joinToString(", ")
-                        .escapeCharacters(ESCAPED_CHARACTERS)
-
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
-                if (changelogWithIssues.length > MESSAGE_MAX_LENGTH) {
-                    changelogWithIssues
-                        .chunked(MESSAGE_MAX_LENGTH)
-                        .forEach { chunk ->
-                            sendChangelogInternal(
-                                workQueue = workQueue,
-                                userMentions = userMentions,
-                                changelog = chunk.formatIssues(ESCAPED_CHARACTERS),
-                                currentBuildTagName = currentBuildTag.name,
-                            )
-                        }
-                } else {
-                    sendChangelogInternal(
-                        workQueue = workQueue,
-                        userMentions = userMentions,
-                        changelog = changelogWithIssues,
-                        currentBuildTagName = currentBuildTag.name,
-                    )
+                workQueue.submit(SendTelegramChangelogWork::class.java) { parameters ->
+                    parameters.baseOutputFileName.set(baseOutputFileName)
+                    parameters.buildName.set(currentBuildTag.name)
+                    parameters.changelog.set(changelog)
+                    parameters.userMentions.set(userMentions)
+                    parameters.destinationBots.set(destinationBots.map { it.mapToEntity().toJson() })
+                    parameters.service.set(service)
+                    parameters.issueUrlPrefix.set(issueUrlPrefix)
+                    parameters.issueNumberPattern.set(issueNumberPattern)
                 }
             }
-        }
-
-        /**
-         * Sends a single chunk of the changelog to Telegram.
-         *
-         * This method creates and submits a work item to the provided work queue for
-         * asynchronous processing. The actual sending happens in a background thread.
-         *
-         * @param workQueue The Gradle work queue to submit the task to
-         * @param userMentions Formatted string of user mentions (e.g., "@user1 @user2")
-         * @param changelog The changelog text to send (already formatted and escaped)
-         * @param currentBuildTagName Name of the current build tag (for logging and context)
-         *
-         * @see SendTelegramChangelogWork For the actual work implementation
-         */
-        private fun sendChangelogInternal(
-            workQueue: WorkQueue,
-            userMentions: String,
-            changelog: String,
-            currentBuildTagName: String,
-        ) {
-            workQueue.submit(SendTelegramChangelogWork::class.java) { parameters ->
-                parameters.baseOutputFileName.set(baseOutputFileName)
-                parameters.buildName.set(currentBuildTagName)
-                parameters.changelog.set(changelog)
-                parameters.userMentions.set(userMentions)
-                parameters.escapedCharacters.set(ESCAPED_CHARACTERS)
-                parameters.networkService.set(networkService)
-                parameters.destinationBots.set(destinationBots)
-            }
-        }
-
-        /**
-         * Formats issue references in the changelog text and escapes special characters.
-         *
-         * This method performs two main transformations:
-         * 1. Converts issue references (e.g., #123) to clickable links using the configured URL pattern
-         * 2. Escapes special characters that have special meaning in Telegram's MarkdownV2 format
-         *
-         * Example:
-         * - Input: "Fixed issue #123"
-         * - Output: "Fixed issue [#123](https://issuetracker.example.com/issue/123)"
-         *
-         * @param escapedCharacters Regex pattern of characters that need to be escaped
-         * @return The formatted and escaped changelog text, ready to be sent to Telegram
-         *
-         * @see <a href="https://core.telegram.org/bots/api#markdownv2-style">Telegram MarkdownV2 Format</a>
-         */
-        private fun String.formatIssues(escapedCharacters: String): String {
-            val issueUrlPrefix = issueUrlPrefix.get()
-            val issueNumberPattern = issueNumberPattern.get()
-            val issueRegexp = issueNumberPattern.toRegex()
-
-            val matchResults = issueRegexp.findAll(this).distinctBy { it.value }
-            var out = this.escapeCharacters(escapedCharacters)
-
-            matchResults.forEach { matchResult ->
-                val formattedResult = matchResult.value.escapeCharacters(escapedCharacters)
-                val url = (issueUrlPrefix + matchResult.value).escapeCharacters(escapedCharacters)
-                val issueId = matchResult.value.escapeCharacters(escapedCharacters)
-                val link = "[$issueId]($url)"
-                out = out.replace(formattedResult, link)
-            }
-            return out
-        }
-
-        /**
-         * Splits a string into chunks of specified length, respecting word boundaries.
-         *
-         * This method ensures that the message is split in a way that maintains readability:
-         * 1. First tries to split on the specified delimiter (default: newline)
-         * 2. If a single line is still too long, falls back to splitting on spaces
-         * 3. If a single word is too long, it will be split at the exact character limit
-         *
-         * @param chunkLength Maximum length of each chunk (in UTF-16 code units)
-         * @param delimiter Character to prefer for splitting (defaults to newline)
-         * @return List of string chunks, each within the specified length limit
-         *
-         * @throws IllegalArgumentException If chunkLength is less than or equal to 0
-         */
-        private fun String.chunked(
-            chunkLength: Int,
-            delimiter: Char = '\n',
-        ): List<String> {
-            val result = mutableListOf<String>()
-            var currentIndex = 0
-            while (currentIndex < this.length) {
-                var nextNewlineIndex = currentIndex
-                var tempNewlineIndex = currentIndex
-                while (tempNewlineIndex < (currentIndex + chunkLength)) {
-                    tempNewlineIndex = this.indexOf(delimiter, tempNewlineIndex + 1)
-                    if (tempNewlineIndex == -1) {
-                        val chunk = this.substring(currentIndex, nextNewlineIndex)
-                        result.add(chunk)
-                        return result
-                    }
-                    if (tempNewlineIndex <= (currentIndex + chunkLength)) {
-                        nextNewlineIndex = tempNewlineIndex
-                    }
-                }
-                val chunk = this.substring(currentIndex, nextNewlineIndex)
-                result.add(chunk)
-                currentIndex = nextNewlineIndex
-            }
-            return result
         }
     }
 
-private fun String.escapeCharacters(escapedCharacters: String): String {
-    return this.replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
-}

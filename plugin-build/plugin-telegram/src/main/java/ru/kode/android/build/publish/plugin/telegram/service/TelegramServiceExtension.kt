@@ -1,7 +1,6 @@
 package ru.kode.android.build.publish.plugin.telegram.service
 
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNetworkService
 
 /**
  * Extension class that provides access to Telegram network services.
@@ -10,7 +9,7 @@ import ru.kode.android.build.publish.plugin.telegram.service.network.TelegramNet
  * configured Telegram network services. It acts as a bridge between the plugin's
  * configuration and the actual network service implementations.
  *
- * @see TelegramNetworkService For the actual network service implementation
+ * @see TelegramService For the actual network service implementation
  * @see BuildPublishTelegramExtension For the main plugin extension that uses this class
  */
 abstract class TelegramServiceExtension(
@@ -19,5 +18,5 @@ abstract class TelegramServiceExtension(
      * where the key is the bot name and the value is a provider
      * of the corresponding network service.
      */
-    val networkServices: Provider<Map<String, Provider<TelegramNetworkService>>>,
+    val services: Provider<Map<String, Provider<TelegramService>>>,
 )
