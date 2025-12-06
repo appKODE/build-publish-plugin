@@ -16,6 +16,7 @@ import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.util.APK_FILE_EXTENSION
 import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
@@ -33,6 +34,7 @@ import ru.kode.android.build.publish.plugin.foundation.task.LastTagTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.PrintLastIncreasedTagTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.RenameApkTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.TagTasksRegistrar
+import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
 import ru.kode.android.build.publish.plugin.foundation.validate.stopExecutionIfNotSupported
 
 private const val EXTENSION_NAME = "buildPublishFoundation"
@@ -62,9 +64,11 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
         val buildPublishFoundationExtension =
             project.extensions
                 .create(EXTENSION_NAME, BuildPublishFoundationExtension::class.java)
+
         val androidExtension =
             project.extensions
                 .getByType(ApplicationAndroidComponentsExtension::class.java)
+
 
         androidExtension.onVariants(
             callback = { variant ->
@@ -81,37 +85,6 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                         as? VariantOutputImpl
 
                 if (variantOutput != null) {
-                    val bundleFile = variant.artifacts.get(SingleArtifact.BUNDLE)
-                    val apkFile = variant.artifacts.get(SingleArtifact.APK).flatMap { directory ->
-                        val apk = directory.asFile
-                            .listFiles()
-                            ?.firstOrNull {
-                                val buildTypeName = buildVariant.buildTypeName
-                                val flavorName = buildVariant.flavorName
-                                when {
-                                    buildTypeName != null && flavorName != null -> {
-                                        it.extension == "apk" &&
-                                            it.path.contains(buildTypeName) &&
-                                            it.path.contains(flavorName)
-                                    }
-                                    buildTypeName != null && flavorName == null -> {
-                                        it.extension == "apk" &&
-                                            it.path.contains(buildTypeName)
-                                    }
-                                    flavorName != null -> {
-                                        it.extension == "apk" &&
-                                            it.path.contains(flavorName)
-                                    }
-                                    else -> {
-                                        it.extension == "apk"
-                                    }
-                                }
-                            }
-                            ?: throw IllegalStateException("APK file not found inside ${directory.asFile} with buildVariant=$buildVariant")
-
-                        project.layout.file(project.provider { apk })
-                    }
-
                     val outputConfigProvider: Provider<OutputConfig> =
                         project.providers.provider {
                             buildPublishFoundationExtension
@@ -149,14 +122,27 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 ),
                         )
 
-                    val renameTaskProvider = TagTasksRegistrar.registerRenameApkTask(
+                    val apkDirProvider = variant.artifacts.get(SingleArtifact.APK)
+
+                    val renameApkTaskProvider = TagTasksRegistrar.registerRenameApkTask(
                         project,
                         RenameApkTaskParams(
+                            inputDir = apkDirProvider,
                             buildVariant = buildVariant,
-                            inputApk = apkFile,
-                            apkOutputFileName = lastTagTaskOutput.apkOutputFileName
+                            outputFileName = lastTagTaskOutput.apkOutputFileName
                         )
                     )
+
+                    val renameTransformationRequest = variant.artifacts.use(renameApkTaskProvider)
+                        .wiredWithDirectories(
+                            RenameApkTask::inputDir,
+                            RenameApkTask::outputDir
+                        )
+                        .toTransformMany(SingleArtifact.APK)
+
+                    renameApkTaskProvider.configure { it.transformationRequest.set(renameTransformationRequest) }
+
+                    val bundleFileProvider = variant.artifacts.get(SingleArtifact.BUNDLE)
 
                     TagTasksRegistrar.registerPrintLastIncreasedTagTask(
                         project = project,
@@ -174,7 +160,16 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 .getByNameOrNullableCommon(buildVariant.name)
                         }
 
-                    val apkOutputFile = renameTaskProvider.flatMap { it.renamedApkFile }
+                    val apkOutputFileProvider = renameApkTaskProvider
+                        .flatMap { it.outputDir }
+                        .flatMap { directory ->
+                            val apk = directory.asFile
+                                .listFiles()
+                                ?.singleOrNull { it.extension == APK_FILE_EXTENSION }
+                                ?: throw IllegalStateException("No apk with extension '${APK_FILE_EXTENSION}' found in directory ${directory.asFile.absolutePath}")
+
+                            project.layout.file(project.provider { apk })
+                        }
 
                     val changelogFile =
                         ChangelogTasksRegistrar.registerGenerateChangelogTask(
@@ -242,13 +237,19 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                                 versionName = lastTagTaskOutput.versionName,
                                                 versionCode = lastTagTaskOutput.versionCode,
                                                 apkFileName = lastTagTaskOutput.apkOutputFileName,
-                                                apkFile = apkOutputFile,
-                                                bundleFile = bundleFile,
+                                                apkFile = apkOutputFileProvider,
+                                                bundleFile = bundleFileProvider,
                                             ),
                                         buildVariant = buildVariant,
                                     ),
                             )
                         }
+                    if (lastTagTaskOutput.versionCode.isPresent) {
+                        variantOutput.versionCode.set(lastTagTaskOutput.versionCode)
+                    }
+                    if (lastTagTaskOutput.versionName.isPresent) {
+                        variantOutput.versionName.set(lastTagTaskOutput.versionName)
+                    }
                 }
             },
         )

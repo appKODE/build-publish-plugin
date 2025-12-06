@@ -14,6 +14,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.core.util.BUNDLE_FILE_EXTENSION
 import ru.kode.android.build.publish.plugin.play.service.network.PlayNetworkService
 import ru.kode.android.build.publish.plugin.play.task.distribution.work.PlayUploadWork
 import javax.inject.Inject
@@ -129,7 +130,7 @@ abstract class PlayDistributionTask
         @TaskAction
         fun upload() {
             val distributionFile = distributionFile.asFile.get()
-            if (distributionFile.extension != "aab") {
+            if (distributionFile.extension != BUNDLE_FILE_EXTENSION) {
                 throw GradleException(
                     "file ${distributionFile.path} is not bundle, not possible to deploy it to Google Play",
                 )

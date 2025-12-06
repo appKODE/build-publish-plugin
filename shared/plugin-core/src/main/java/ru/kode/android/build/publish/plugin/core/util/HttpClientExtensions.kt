@@ -13,9 +13,6 @@ import java.net.ProxySelector
 import java.net.SocketAddress
 import java.net.URI
 
-private fun getProxyProperty(key: String): String? =
-    System.getenv(key) ?: System.getProperty(key)
-
 private val logger = Logging.getLogger("HttpClientExtensions")
 
 @Suppress("ComplexCondition") // Just checking for all proxy properties
@@ -33,15 +30,15 @@ fun OkHttpClient.Builder.addProxyIfAvailable(): OkHttpClient.Builder {
 
             val proxyUser =
                 if (url.scheme == "https") {
-                    getProxyProperty("https.proxyUser")
+                    getEnvOrProperty("https.proxyUser")
                 } else {
-                    getProxyProperty("http.proxyUser")
+                    getEnvOrProperty("http.proxyUser")
                 }
             val proxyPassword =
                 if (url.scheme == "https") {
-                    getProxyProperty("https.proxyPassword")
+                    getEnvOrProperty("https.proxyPassword")
                 } else {
-                    getProxyProperty("http.proxyPassword")
+                    getEnvOrProperty("http.proxyPassword")
                 }
             val credentials = Credentials.basic(proxyUser!!, proxyPassword!!)
             logger.info("Apply proxy authorization")
@@ -55,21 +52,21 @@ private class DynamicProxySelector : ProxySelector() {
     override fun select(uri: URI?): List<Proxy> {
         val proxyHost =
             if (uri?.scheme == "https") {
-                getProxyProperty("https.proxyHost")
+                getEnvOrProperty("https.proxyHost")
             } else {
-                getProxyProperty("http.proxyHost")
+                getEnvOrProperty("http.proxyHost")
             }
         val proxyPort =
             if (uri?.scheme == "https") {
-                getProxyProperty("https.proxyPort")
+                getEnvOrProperty("https.proxyPort")
             } else {
-                getProxyProperty("http.proxyPort")
+                getEnvOrProperty("http.proxyPort")
             }
         val nonProxyHosts =
             if (uri?.scheme == "https") {
-                getProxyProperty("https.nonProxyHosts")
+                getEnvOrProperty("https.nonProxyHosts")
             } else {
-                getProxyProperty("http.nonProxyHosts")
+                getEnvOrProperty("http.nonProxyHosts")
             }
 
         if (proxyHost != null && proxyPort != null) {
@@ -91,6 +88,10 @@ private class DynamicProxySelector : ProxySelector() {
     ) {
         logger.error("Proxy connection failed for $uri", error)
     }
+}
+
+private fun getEnvOrProperty(key: String): String? {
+    return System.getenv(key) ?: System.getProperty(key)
 }
 
 fun createPartFromString(value: String): RequestBody {

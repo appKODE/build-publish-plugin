@@ -12,6 +12,7 @@ import com.google.api.services.androidpublisher.model.DeobfuscationFilesUploadRe
 import com.google.api.services.androidpublisher.model.ExpansionFile
 import com.google.api.services.androidpublisher.model.InAppProduct
 import com.google.api.services.androidpublisher.model.Track
+import ru.kode.android.build.publish.plugin.core.util.APK_FILE_EXTENSION
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -100,7 +101,7 @@ internal class DefaultPlayPublisher(
     ): Apk {
         val content = FileContent(MIME_TYPE_APK, apkFile)
         return publisher.edits().apks().upload(appId, editId, content)
-            .trackUploadProgress("APK", apkFile)
+            .trackUploadProgress(APK_FILE_EXTENSION.uppercase(), apkFile)
             .execute()
     }
 
@@ -149,7 +150,7 @@ internal class DefaultPlayPublisher(
         val apk =
             publisher.internalappsharingartifacts()
                 .uploadapk(appId, FileContent(MIME_TYPE_APK, apkFile))
-                .trackUploadProgress("APK", apkFile)
+                .trackUploadProgress(APK_FILE_EXTENSION.uppercase(), apkFile)
                 .execute()
 
         return UploadInternalSharingArtifactResponse(apk.toPrettyString(), apk.downloadUrl)

@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.foundation.task
 
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskContainer
@@ -17,7 +18,6 @@ import java.time.format.DateTimeFormatter
 
 internal const val PRINT_LAST_INCREASED_TAG_TASK_PREFIX = "printLastIncreasedTag"
 internal const val RENAME_APK_TASK_PREFIX = "renameApk"
-internal const val ASSEMBLE_TASK_PREFIX = "assemble"
 
 internal const val GET_LAST_TAG_TASK_PREFIX = "getLastTag"
 
@@ -157,23 +157,10 @@ private fun Project.registerRenameApkTask(
     params: RenameApkTaskParams,
 ): TaskProvider<RenameApkTask> {
     val variant = params.buildVariant
-    val renamedApkFile = project.layout.buildDirectory.file(
-        params.apkOutputFileName.map {
-            "renamed/${params.buildVariant.name}/${it}"
-        }
-    )
-    val assembleTask = project.tasks.named {
-        it.contains("$ASSEMBLE_TASK_PREFIX${variant.capitalizedName()}")
-    }
-
     val taskName = "$RENAME_APK_TASK_PREFIX${variant.capitalizedName()}"
     return tasks.register(taskName, RenameApkTask::class.java) { task ->
-
-        task.inputApkFile.set(params.inputApk)
-        task.renamedApkFile.set(renamedApkFile)
-
-        task.dependsOn(params.apkOutputFileName)
-        task.dependsOn(assembleTask)
+        task.outputFileName.set(params.outputFileName)
+        task.inputDir.set(params.inputDir)
     }
 }
 
@@ -285,17 +272,17 @@ private fun mapToVersionCode(file: File): Int {
  * the [outputFileName] and [baseFileName].
  */
 private fun mapToOutputApkFileName(
-    file: File,
+    tagFile: File,
     outputFileName: String,
     baseFileName: String?,
 ): String {
     val formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy"))
-    return if (file.exists() && outputFileName.endsWith(".apk")) {
-        val tagBuild = fromJson(file)
+    return if (tagFile.exists() && outputFileName.endsWith(".apk")) {
+        val tagBuild = fromJson(tagFile)
         val versionName = tagBuild.buildVariant
         val versionCode = tagBuild.buildNumber
         "$baseFileName-$versionName-vc$versionCode-$formattedDate.apk"
-    } else if (!file.exists() && outputFileName.endsWith(".apk")) {
+    } else if (!tagFile.exists() && outputFileName.endsWith(".apk")) {
         "$baseFileName-$formattedDate.apk"
     } else {
         createDefaultOutputFileName(baseFileName, outputFileName)
@@ -394,10 +381,19 @@ internal data class PrintLastIncreasedTagTaskParams(
 )
 
 /**
- * Parameters for RenameApkTask.
+ * Configuration parameters for the task that renames an APK.
  */
 internal data class RenameApkTaskParams(
+    /**
+     * Provider for the directory containing the input APK file
+     */
+    val inputDir: Provider<Directory>,
+    /**
+     * The build variant for which the APK is being renamed.
+     */
     val buildVariant: BuildVariant,
-    val inputApk: Provider<RegularFile>,
-    val apkOutputFileName: Provider<String>,
+    /**
+     * Provider for the name of the output APK file.
+     */
+    val outputFileName: Provider<String>,
 )

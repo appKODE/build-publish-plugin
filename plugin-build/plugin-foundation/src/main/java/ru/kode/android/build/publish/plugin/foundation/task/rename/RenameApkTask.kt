@@ -1,34 +1,86 @@
 package ru.kode.android.build.publish.plugin.foundation.task.rename
 
+import com.android.build.api.artifact.ArtifactTransformationRequest
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.OutputFile
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import java.nio.file.Files
+import java.io.File
+import javax.inject.Inject
 
-abstract class RenameApkTask : DefaultTask() {
+/**
+ * A task for renaming an APK file.
+ *
+ * This task is used to rename an APK file to a specified name. The task takes the input APK file
+ * and renames it to the specified name in the output directory.
+ */
+abstract class RenameApkTask @Inject constructor() : DefaultTask() {
+
     private val logger: Logger = Logging.getLogger(this::class.java)
 
-    @get:InputFile
-    abstract val inputApkFile: RegularFileProperty
+    /**
+     * The name of the output APK file.
+     *
+     * The task will rename the input APK file to this name.
+     */
+    @get:Input
+    abstract val outputFileName: Property<String>
 
-    @get:OutputFile
-    abstract val renamedApkFile: RegularFileProperty
+    /**
+     * The directory containing the input APK file.
+     *
+     * The task will rename the file with the name specified in [outputFileName]
+     * in this directory.
+     */
+    @get:InputDirectory
+    abstract val inputDir: DirectoryProperty
 
+    /**
+     * The directory to which the renamed APK file will be written.
+     *
+     * The task will rename the file with the name specified in [outputFileName]
+     * in this directory.
+     */
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    /**
+     * The transformation request for renaming the APK file.
+     *
+     * This property is used to store the transformation request for renaming the APK file.
+     * The transformation request is used to submit the transformation logic to the task
+     * execution engine.
+     *
+     * The transformation request is of type [ArtifactTransformationRequest], which is a
+     * property wrapper for [ArtifactTransformationRequest] that provides Gradle property
+     * behavior.
+     *
+     * @see ArtifactTransformationRequest
+     */
+    @get:Internal
+    abstract val transformationRequest: Property<ArtifactTransformationRequest<RenameApkTask>>
+
+    /**
+     * Renames the APK file.
+     *
+     * Copies the input APK file to the output directory with the specified name.
+     */
     @TaskAction
-    fun renameApk() {
-        val src = inputApkFile.get().asFile
-        val dest = renamedApkFile.get().asFile
-
-        dest.parentFile.mkdirs()
-        Files.copy(
-            src.toPath(),
-            dest.toPath(),
-            java.nio.file.StandardCopyOption.REPLACE_EXISTING
-        )
-        logger.info("Renamed apk from $src to $dest")
+    fun rename() {
+        val request = transformationRequest.get()
+        request.submit(this) { builtArtifact ->
+            val inputFile = File(builtArtifact.outputFile)
+            val outputDir = outputDir.get().asFile
+            val targetOutputFileName = outputFileName.get()
+            val outputFile = File(outputDir, targetOutputFileName)
+            logger.info("Renaming APK file from ${inputFile.name} in ${inputFile.parent} to $targetOutputFileName in ${outputDir.path}")
+            inputFile.copyTo(outputFile, overwrite = true)
+        }
     }
 }

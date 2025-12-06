@@ -7,6 +7,7 @@ import com.google.firebase.appdistribution.gradle.AppDistributionExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import ru.kode.android.build.publish.plugin.core.util.APK_FILE_EXTENSION
 import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.core.util.getCommon
 import ru.kode.android.build.publish.plugin.firebase.config.FirebaseDistributionConfig
@@ -108,7 +109,7 @@ private fun AppDistributionExtension.configure(
             .orNull
             ?.takeIf { it.isNotBlank() }
     val testerGroups = config.testerGroups.get()
-    val artifactType = config.artifactType.orNull ?: "APK"
+    val artifactType = config.artifactType.orNull ?: APK_FILE_EXTENSION.uppercase()
 
     if (applicationId != null) {
         appId = applicationId

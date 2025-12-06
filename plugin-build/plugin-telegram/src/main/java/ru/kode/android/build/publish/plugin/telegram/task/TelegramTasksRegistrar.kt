@@ -17,7 +17,8 @@ import ru.kode.android.build.publish.plugin.telegram.task.distribution.TelegramD
 
 internal const val SEND_TELEGRAM_CHANGELOG_TASK_PREFIX = "sendTelegramChangelog"
 
-internal const val TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX = "telegramDistributionUpload"
+// TODO: Replace with telegramDistributionUploadApk
+internal const val TELEGRAM_DISTRIBUTION_UPLOAD_APK_TASK_PREFIX = "telegramDistributionUpload"
 internal const val TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "telegramDistributionUploadBundle"
 
 /**
@@ -87,7 +88,7 @@ internal object TelegramTasksRegistrar {
         params: TelegramApkDistributionTaskParams,
     ): TaskProvider<TelegramDistributionTask>? {
         return if (distributionConfig.destinationBots.isPresent) {
-            project.registerTelegramUploadTask(distributionConfig, params)
+            project.registerTelegramUploadAokTask(distributionConfig, params)
         } else {
             logger.info(
                 "TelegramDistributionTask fpr APK was not created, destinationBots is not present",
@@ -199,12 +200,12 @@ private fun Project.registerSendTelegramChangelogTask(
  * @see TelegramApkDistributionTaskParams For available task parameters
  */
 @Suppress("MaxLineLength") // One parameter function
-private fun Project.registerTelegramUploadTask(
+private fun Project.registerTelegramUploadAokTask(
     distributionConfig: TelegramDistributionConfig,
     params: TelegramApkDistributionTaskParams,
 ): TaskProvider<TelegramDistributionTask> {
     return tasks.register(
-        "$TELEGRAM_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "$TELEGRAM_DISTRIBUTION_UPLOAD_APK_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         TelegramDistributionTask::class.java,
     ) {
         val service =
@@ -218,7 +219,6 @@ private fun Project.registerTelegramUploadTask(
         it.destinationBots.set(distributionConfig.destinationBots)
         it.service.set(service)
 
-        it.dependsOn(params.apkOutputFile)
         it.usesService(service)
     }
 }
@@ -246,30 +246,22 @@ private fun Project.registerTelegramBundleUploadTask(
     distributionConfig: TelegramDistributionConfig,
     params: TelegramBundleDistributionTaskParams,
 ): TaskProvider<TelegramDistributionTask>? {
-    return if (params.bundleOutputFile.isPresent) {
-        tasks.register(
-            "$TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
-            TelegramDistributionTask::class.java,
-        ) {
-            val service =
-                project.extensions
-                    .getByType(TelegramServiceExtension::class.java)
-                    .services
-                    .get()
-                    .getByNameOrCommon(params.buildVariant.name)
+    return tasks.register(
+        "$TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        TelegramDistributionTask::class.java,
+    ) {
+        val service =
+            project.extensions
+                .getByType(TelegramServiceExtension::class.java)
+                .services
+                .get()
+                .getByNameOrCommon(params.buildVariant.name)
 
-            it.distributionFile.set(params.bundleOutputFile)
-            it.destinationBots.set(distributionConfig.destinationBots)
-            it.service.set(service)
+        it.distributionFile.set(params.bundleOutputFile)
+        it.destinationBots.set(distributionConfig.destinationBots)
+        it.service.set(service)
 
-            it.dependsOn(params.bundleOutputFile)
-            it.usesService(service)
-        }
-    } else {
-        logger.info(
-            "TelegramDistributionTask for Bundle was not created, bundleOutputFile is not present",
-        )
-        null
+        it.usesService(service)
     }
 }
 
