@@ -2,6 +2,8 @@ package ru.kode.android.build.publish.plugin.telegram.service
 
 import okhttp3.OkHttpClient
 import org.gradle.api.GradleException
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
@@ -53,6 +55,8 @@ constructor() : BuildService<TelegramService.Params> {
         val bots: ListProperty<String>
     }
 
+    private val logger: Logger = Logging.getLogger("Telegram")
+
     internal abstract val okHttpClientProperty: Property<OkHttpClient>
     internal abstract val retrofitBuilderProperty: Property<Retrofit.Builder>
     internal abstract val distributionApiProperty: Property<TelegramDistributionApi>
@@ -61,7 +65,7 @@ constructor() : BuildService<TelegramService.Params> {
 
     init {
         okHttpClientProperty.set(
-            TelegramClientFactory.build()
+            TelegramClientFactory.build(logger)
         )
         retrofitBuilderProperty.set(
             okHttpClientProperty.map { client ->
@@ -79,8 +83,8 @@ constructor() : BuildService<TelegramService.Params> {
             },
         )
         controllerProperty.set(
-            webhookApiProperty.zip(distributionApiProperty) { a, b ->
-                TelegramControllerImpl(a, b)
+            webhookApiProperty.zip(distributionApiProperty) { webhookApi, distributionApi ->
+                TelegramControllerImpl(webhookApi, distributionApi, logger)
             }
         )
     }
