@@ -1,9 +1,8 @@
 package ru.kode.android.build.publish.plugin.jira.network.entity
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
-@Suppress("ConstructorParameterNaming") // network model
+@Serializable
 internal data class CreateVersionRequest(
     val name: String,
     val projectId: Long,

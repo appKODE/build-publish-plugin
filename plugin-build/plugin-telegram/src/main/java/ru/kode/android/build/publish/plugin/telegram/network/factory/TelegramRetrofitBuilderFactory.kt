@@ -11,7 +11,7 @@ private const val STUB_BASE_URL = "http://localhost/"
 internal object TelegramRetrofitBuilderFactory {
 
     fun build(client: OkHttpClient): Retrofit.Builder {
-       val contentType = "application/json".toMediaType()
+        val contentType = "application/json".toMediaType()
         val json = Json { ignoreUnknownKeys = true }
 
         return Retrofit.Builder()

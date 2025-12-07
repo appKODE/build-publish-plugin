@@ -1,14 +1,12 @@
 package ru.kode.android.build.publish.plugin.jira.network.entity
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
-@Suppress("ConstructorParameterNaming") // network model
+@Serializable
 internal data class SetStatusRequest(
     val transition: Transition,
 ) {
-    @JsonClass(generateAdapter = true)
-    @Suppress("ConstructorParameterNaming") // network model
+    @Serializable
     data class Transition(
         val id: String,
     )

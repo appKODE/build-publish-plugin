@@ -1,25 +1,21 @@
 package ru.kode.android.build.publish.plugin.jira.network.entity
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
-@Suppress("ConstructorParameterNaming") // network model
+@Serializable
 internal data class AddFixVersionRequest(
     val update: Update,
 ) {
-    @JsonClass(generateAdapter = true)
-    @Suppress("ConstructorParameterNaming") // network model
+    @Serializable
     data class Update(
         val fixVersions: List<FixVersion>,
     )
 
-    @JsonClass(generateAdapter = true)
-    @Suppress("ConstructorParameterNaming") // network model
+    @Serializable
     data class FixVersion(
         val add: Description,
     ) {
-        @JsonClass(generateAdapter = true)
-        @Suppress("ConstructorParameterNaming") // network model
+        @Serializable
         data class Description(
             val name: String,
         )

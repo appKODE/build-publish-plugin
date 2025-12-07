@@ -1,20 +1,17 @@
 package ru.kode.android.build.publish.plugin.jira.network.entity
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
-@Suppress("ConstructorParameterNaming") // network model
+@Serializable
 internal data class AddLabelRequest(
     val update: Update,
 ) {
-    @JsonClass(generateAdapter = true)
-    @Suppress("ConstructorParameterNaming") // network model
+    @Serializable
     data class Update(
         val labels: List<Label>,
     )
 
-    @JsonClass(generateAdapter = true)
-    @Suppress("ConstructorParameterNaming") // network model
+    @Serializable
     data class Label(
         val add: String,
     )
