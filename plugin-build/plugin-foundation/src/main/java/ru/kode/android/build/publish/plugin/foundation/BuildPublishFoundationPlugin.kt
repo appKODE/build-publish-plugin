@@ -10,13 +10,13 @@ import com.android.build.gradle.AppPlugin
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFile
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
-import ru.kode.android.build.publish.plugin.core.util.APK_FILE_EXTENSION
 import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
@@ -160,15 +160,9 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 .getByNameOrNullableCommon(buildVariant.name)
                         }
 
-                    val apkOutputFileProvider = renameApkTaskProvider
-                        .flatMap { it.outputDir }
-                        .flatMap { directory ->
-                            val apk = directory.asFile
-                                .listFiles()
-                                ?.singleOrNull { it.extension == APK_FILE_EXTENSION }
-                                ?: throw IllegalStateException("No apk with extension '${APK_FILE_EXTENSION}' found in directory ${directory.asFile.absolutePath}")
-
-                            project.layout.file(project.provider { apk })
+                    val apkOutputFileProvider: Provider<RegularFile> = lastTagTaskOutput.apkOutputFileName
+                        .zip(renameApkTaskProvider.flatMap { it.outputDir }) { outputFileName, outputDir ->
+                            outputDir.file(outputFileName)
                         }
 
                     val changelogFile =
