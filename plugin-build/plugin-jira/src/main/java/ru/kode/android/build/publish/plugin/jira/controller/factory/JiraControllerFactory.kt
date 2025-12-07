@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.jira.controller.factory
 
+import org.gradle.api.logging.Logger
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.JiraControllerImpl
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraApiFactory
@@ -7,15 +8,22 @@ import ru.kode.android.build.publish.plugin.jira.network.factory.JiraClientFacto
 
 object JiraControllerFactory {
 
-    fun build(baseUrl: String, username: String, password: String): JiraController {
+    fun build(
+        baseUrl: String,
+        username: String,
+        password: String,
+        logger: Logger,
+    ): JiraController {
         return JiraControllerImpl(
             api = JiraApiFactory.build(
                 client = JiraClientFactory.build(
                     username,
-                    password
+                    password,
+                    logger
                 ),
                 baseUrl = baseUrl
-            )
+            ),
+            logger = logger
         )
     }
 }

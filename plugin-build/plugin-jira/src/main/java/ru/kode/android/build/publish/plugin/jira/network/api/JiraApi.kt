@@ -11,6 +11,7 @@ import retrofit2.http.Query
 import ru.kode.android.build.publish.plugin.jira.network.entity.AddFixVersionRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.AddLabelRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.CreateVersionRequest
+import ru.kode.android.build.publish.plugin.jira.network.entity.JiraFixVersion
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetFixVersionsResponse
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetLabelsResponse
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetStatusResponse
@@ -26,10 +27,15 @@ internal interface JiraApi {
 
     @DELETE("version/{versionId}")
     fun deleteVersion(
-        @Path("versionId") versionId: Long,
+        @Path("versionId") versionId: String,
         @Query("moveFixIssuesTo") moveFixIssuesTo: Long? = null,
         @Query("moveAffectedIssuesTo") moveAffectedIssuesTo: Long? = null,
     ): Call<Unit>
+
+    @GET("project/{projectKey}/versions")
+    fun getProjectVersions(
+        @Path("projectKey") projectKey: String
+    ): Call<List<JiraFixVersion>>
 
     @PUT("issue/{issueNumber}")
     fun addLabel(

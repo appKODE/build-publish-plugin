@@ -4,7 +4,6 @@ import okhttp3.Credentials
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import ru.kode.android.build.publish.plugin.core.util.createPartFromString
 import ru.kode.android.build.publish.plugin.core.util.executeNoResult
 import ru.kode.android.build.publish.plugin.core.util.executeWithResult
@@ -33,9 +32,8 @@ private const val ESCAPED_CHARACTERS =
 internal class TelegramControllerImpl(
     private val webhookApi: TelegramWebhookApi,
     private val distributionApi: TelegramDistributionApi,
+    private val logger: Logger
 ) : TelegramController {
-
-    private val logger: Logger = Logging.getLogger(this::class.java)
 
     override fun send(
         message: String,

@@ -10,14 +10,6 @@ internal data class GetFixVersionsResponse(
     @JsonClass(generateAdapter = true)
     @Suppress("ConstructorParameterNaming") // network model
     data class Fields(
-        val fixVersions: List<FixVersion>,
-    )
-
-    @JsonClass(generateAdapter = true)
-    @Suppress("ConstructorParameterNaming") // network model
-    data class FixVersion(
-        val id: String,
-        val name: String,
-        val self: String,
+        val fixVersions: List<JiraFixVersion>,
     )
 }

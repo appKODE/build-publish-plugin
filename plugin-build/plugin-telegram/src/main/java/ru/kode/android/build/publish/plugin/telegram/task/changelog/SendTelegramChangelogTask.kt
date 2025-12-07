@@ -16,9 +16,6 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.telegram.config.DestinationTelegramBotConfig
-import ru.kode.android.build.publish.plugin.telegram.controller.entity.DestinationTelegramBot
-import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
-import ru.kode.android.build.publish.plugin.telegram.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.work.SendTelegramChangelogWork
 import javax.inject.Inject
@@ -157,7 +154,7 @@ abstract class SendTelegramChangelogTask
             option = "destinationBots",
             description = "Bots which be used to post changelog",
         )
-        abstract val destinationBots: SetProperty<DestinationTelegramBotConfig>
+        abstract val destinationBots: Property<String>
 
         /**
          * Executes the changelog sending process.
@@ -197,7 +194,7 @@ abstract class SendTelegramChangelogTask
                     parameters.buildName.set(currentBuildTag.name)
                     parameters.changelog.set(changelog)
                     parameters.userMentions.set(userMentions)
-                    parameters.destinationBots.set(destinationBots.map { it.mapToEntity().toJson() })
+                    parameters.destinationBots.set(destinationBots)
                     parameters.service.set(service)
                     parameters.issueUrlPrefix.set(issueUrlPrefix)
                     parameters.issueNumberPattern.set(issueNumberPattern)

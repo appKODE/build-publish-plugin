@@ -81,6 +81,7 @@ abstract class RenameApkTask @Inject constructor() : DefaultTask() {
             val outputFile = File(outputDir, targetOutputFileName)
             logger.info("Renaming APK file from ${inputFile.name} in ${inputFile.parent} to $targetOutputFileName in ${outputDir.path}")
             inputFile.copyTo(outputFile, overwrite = true)
+            outputFile
         }
     }
 }

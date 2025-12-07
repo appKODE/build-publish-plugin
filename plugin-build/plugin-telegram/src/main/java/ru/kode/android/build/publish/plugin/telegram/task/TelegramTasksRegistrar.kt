@@ -11,6 +11,8 @@ import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramDistributionConfig
+import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
+import ru.kode.android.build.publish.plugin.telegram.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExtension
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.SendTelegramChangelogTask
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.TelegramDistributionTask
@@ -172,7 +174,7 @@ private fun Project.registerSendTelegramChangelogTask(
         it.issueNumberPattern.set(params.issueNumberPattern)
         it.baseOutputFileName.set(params.baseFileName)
         it.userMentions.set(changelogConfig.userMentions)
-        it.destinationBots.set(changelogConfig.destinationBots)
+        it.destinationBots.set(changelogConfig.destinationBots.map { it.mapToEntity().toJson() })
         it.service.set(service)
 
         it.dependsOn(params.changelogFile)
@@ -216,7 +218,7 @@ private fun Project.registerTelegramUploadAokTask(
                 .getByNameOrCommon(params.buildVariant.name)
 
         it.distributionFile.set(params.apkOutputFile)
-        it.destinationBots.set(distributionConfig.destinationBots)
+        it.destinationBots.set(distributionConfig.destinationBots.map { it.mapToEntity().toJson() })
         it.service.set(service)
 
         it.usesService(service)
@@ -258,7 +260,7 @@ private fun Project.registerTelegramBundleUploadTask(
                 .getByNameOrCommon(params.buildVariant.name)
 
         it.distributionFile.set(params.bundleOutputFile)
-        it.destinationBots.set(distributionConfig.destinationBots)
+        it.destinationBots.set(distributionConfig.destinationBots.map { it.mapToEntity().toJson() })
         it.service.set(service)
 
         it.usesService(service)

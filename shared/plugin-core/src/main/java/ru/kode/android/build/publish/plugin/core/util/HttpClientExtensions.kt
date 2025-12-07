@@ -21,7 +21,11 @@ fun OkHttpClient.Builder.addProxyIfAvailable(): OkHttpClient.Builder {
         .addNetworkInterceptor { chain ->
             val request = chain.request()
             val proxy = chain.connection()?.route()?.proxy ?: Proxy.NO_PROXY
-            logger.info("Requesting via proxy $proxy: ${request.url}")
+            if (proxy != Proxy.NO_PROXY && proxy.type() != Proxy.Type.DIRECT) {
+                logger.info("Requesting via proxy $proxy: ${request.url}")
+            } else {
+                logger.info("Requesting without proxy: ${request.url}")
+            }
             chain.proceed(request)
         }
         .proxySelector(DynamicProxySelector())

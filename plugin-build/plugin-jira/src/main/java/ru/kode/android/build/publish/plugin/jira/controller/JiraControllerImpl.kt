@@ -14,11 +14,15 @@ import ru.kode.android.build.publish.plugin.jira.network.entity.RemoveFixVersion
 import ru.kode.android.build.publish.plugin.jira.network.entity.RemoveLabelRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.SetStatusRequest
 
+/**
+ * Controller for interacting with the Jira API.
+ *
+ * @param api The Jira API implementation
+ */
 internal class JiraControllerImpl(
     private val api: JiraApi,
+    private val logger: Logger,
 ) : JiraController {
-
-    private val logger: Logger = Logging.getLogger(this::class.java)
 
     /**
      * Transitions a Jira issue to a new status.
@@ -106,9 +110,7 @@ internal class JiraControllerImpl(
         api
             .addLabel(issue, request)
             .executeNoResult()
-            .onFailure {
-                logger.error("Failed to add label for $issue", it)
-            }
+            .onFailure { logger.error("Failed to add label for $issue", it) }
     }
 
     /**
@@ -186,13 +188,34 @@ internal class JiraControllerImpl(
      * @throws JiraApiException If Jira API returns an error
      */
     override fun removeProjectVersion(
-        versionId: Long,
+        versionId: String,
     ) {
         api.deleteVersion(
             versionId = versionId,
             moveFixIssuesTo = null,
             moveAffectedIssuesTo = null,
         ).executeNoResult()
+    }
+
+    /**
+     * Retrieves all versions of a Jira project.
+     *
+     * @param projectKey The key of the Jira project
+     * @return List of project versions
+     *
+     * @throws IOException If the network request fails
+     * @throws JiraApiException If the Jira API returns an error
+     */
+    override fun getProjectVersions(projectKey: String): List<JiraFixVersion> {
+        return api.getProjectVersions(projectKey)
+            .executeWithResult()
+            .getOrThrow()
+            .map {
+                JiraFixVersion(
+                    id = it.id,
+                    name = it.name
+                )
+            }
     }
 
     /**
@@ -222,7 +245,10 @@ internal class JiraControllerImpl(
                             ),
                     ),
             )
-        api.addFixVersion(issue, request).executeNoResult()
+        api
+            .addFixVersion(issue, request)
+            .executeNoResult()
+            .onFailure { logger.error("Failed to add fix version for $issue", it) }
     }
 
     /**
@@ -248,7 +274,8 @@ internal class JiraControllerImpl(
                     ),
             )
 
-        api.removeFixVersion(issue, request).executeNoResult()
+        api.removeFixVersion(issue, request)
+            .executeNoResult()
     }
 
     /**
@@ -267,7 +294,6 @@ internal class JiraControllerImpl(
                 JiraFixVersion(
                     id = it.id,
                     name = it.name,
-                    self = it.self
                 )
             }
     }

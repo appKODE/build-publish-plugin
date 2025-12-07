@@ -25,9 +25,6 @@ dependencies {
 }
 
 tasks.test {
-    // https://jira.kode.ru/browse/AT-290
-    // https://jira.kode.ru/browse/AT-289
-    // https://jira.kode.ru/browse/AT-291
     doFirst {
         systemProperty("JIRA_BASE_URL", project.getEnvOrProperty("JIRA_BASE_URL"))
         systemProperty("JIRA_USER_NAME", project.getEnvOrProperty("JIRA_USER_NAME"))

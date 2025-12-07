@@ -71,7 +71,7 @@ abstract class TelegramDistributionTask
             option = "destinationBots",
             description = "List of Telegram bot configurations for distribution",
         )
-        abstract val destinationBots: SetProperty<DestinationTelegramBotConfig>
+        abstract val destinationBots: Property<String>
 
         /**
          * Task action that handles the APK/bundle upload to Telegram.
@@ -88,7 +88,7 @@ abstract class TelegramDistributionTask
             workQueue.submit(TelegramUploadWork::class.java) { parameters ->
                 parameters.distributionFile.set(distributionFile)
                 parameters.service.set(service)
-                parameters.destinationBots.set(destinationBots.map { it.mapToEntity().toJson() })
+                parameters.destinationBots.set(destinationBots)
             }
         }
     }

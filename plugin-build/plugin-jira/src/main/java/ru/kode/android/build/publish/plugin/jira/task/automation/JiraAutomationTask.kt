@@ -196,12 +196,13 @@ abstract class JiraAutomationTask
         ) {
             if (fixVersionPattern.isPresent) {
                 val version =
-                    fixVersionPattern.get()
-                        .format(
+                    fixVersionPattern.map {
+                        it.format(
                             currentBuildTag.buildVersion,
                             currentBuildTag.buildNumber,
                             currentBuildTag.buildVariant,
                         )
+                    }
                 submit(AddFixVersionWork::class.java) { parameters ->
                     parameters.issues.set(issues)
                     parameters.version.set(version)
@@ -226,12 +227,13 @@ abstract class JiraAutomationTask
         ) {
             if (labelPattern.isPresent) {
                 val label =
-                    labelPattern.get()
-                        .format(
+                    labelPattern.map {
+                        it.format(
                             currentBuildTag.buildVersion,
                             currentBuildTag.buildNumber,
                             currentBuildTag.buildVariant,
                         )
+                    }
                 submit(AddLabelWork::class.java) { parameters ->
                     parameters.issues.set(issues)
                     parameters.label.set(label)

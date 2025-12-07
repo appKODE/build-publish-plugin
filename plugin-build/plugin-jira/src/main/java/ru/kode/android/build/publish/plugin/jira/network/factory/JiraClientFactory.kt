@@ -5,16 +5,18 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import java.util.concurrent.TimeUnit
 
 private const val HTTP_CONNECT_TIMEOUT_SECONDS = 30L
 
 internal object JiraClientFactory {
-    private val logger: Logger = Logging.getLogger(this::class.java)
 
-    fun build(username: String, password: String): OkHttpClient {
+    fun build(
+        username: String,
+        password: String,
+        logger: Logger,
+    ): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)

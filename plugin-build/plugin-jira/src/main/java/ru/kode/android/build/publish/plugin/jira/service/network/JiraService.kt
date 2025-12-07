@@ -1,6 +1,8 @@
 package ru.kode.android.build.publish.plugin.jira.service.network
 
 import okhttp3.OkHttpClient
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
@@ -41,6 +43,8 @@ abstract class JiraService
             val credentials: Property<BasicAuthCredentials>
         }
 
+        private val logger: Logger = Logging.getLogger("Jira")
+
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
 
         internal abstract val apiProperty: Property<JiraApi>
@@ -53,7 +57,7 @@ abstract class JiraService
             okHttpClientProperty.set(
                 username
                     .zip(password) { username, password ->
-                        JiraClientFactory.build(username, password)
+                        JiraClientFactory.build(username, password, logger)
                     },
             )
             apiProperty.set(
@@ -63,7 +67,7 @@ abstract class JiraService
                     },
             )
             controllerProperty.set(
-                apiProperty.map { api -> JiraControllerImpl(api) }
+                apiProperty.map { api -> JiraControllerImpl(api, logger) }
             )
         }
 

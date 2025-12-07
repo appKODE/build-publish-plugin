@@ -3,6 +3,9 @@ package ru.kode.android.build.publish.plugin.jira.controller
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraFixVersion
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueStatus
 
+/**
+ * Controller for interacting with the Jira API.
+ */
 interface JiraController {
 
     /**
@@ -93,7 +96,18 @@ interface JiraController {
      * @throws IOException If request fails
      * @throws JiraApiException If Jira API returns an error
      */
-    fun removeProjectVersion(versionId: Long)
+    fun removeProjectVersion(versionId: String)
+
+    /**
+     * Retrieves all versions of a Jira project.
+     *
+     * @param projectKey The key of the Jira project
+     * @return List of project versions
+     *
+     * @throws IOException If the network request fails
+     * @throws JiraApiException If the Jira API returns an error
+     */
+    fun getProjectVersions(projectKey: String): List<JiraFixVersion>
 
     /**
      * Adds a fix version to a Jira issue.
