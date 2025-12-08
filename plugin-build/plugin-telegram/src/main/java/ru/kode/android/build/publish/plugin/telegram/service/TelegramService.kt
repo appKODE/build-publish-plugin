@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.telegram.service
 
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
@@ -57,6 +58,8 @@ constructor() : BuildService<TelegramService.Params> {
 
     private val logger: Logger = Logging.getLogger("Telegram")
 
+    private val json = Json { ignoreUnknownKeys = true }
+
     internal abstract val okHttpClientProperty: Property<OkHttpClient>
     internal abstract val retrofitBuilderProperty: Property<Retrofit.Builder>
     internal abstract val distributionApiProperty: Property<TelegramDistributionApi>
@@ -65,11 +68,11 @@ constructor() : BuildService<TelegramService.Params> {
 
     init {
         okHttpClientProperty.set(
-            TelegramClientFactory.build(logger)
+            TelegramClientFactory.build(logger, json)
         )
         retrofitBuilderProperty.set(
             okHttpClientProperty.map { client ->
-                TelegramRetrofitBuilderFactory.build(client)
+                TelegramRetrofitBuilderFactory.build(client, json)
             },
         )
         distributionApiProperty.set(
