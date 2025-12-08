@@ -374,10 +374,10 @@ private fun jiraAutomationBlock(automation: JiraConfig.Automation): String {
     return """
             automation {
                 common {
-                    it.projectId.set(${automation.projectId})
+                    it.projectKey.set("${automation.projectKey}")
                     ${automation.fixVersionPattern?.let { """it.fixVersionPattern.set("$it")""" }.orEmpty()}
                     ${automation.labelPattern?.let { """it.labelPattern.set("$it")""" }.orEmpty()}
-                    ${automation.resolvedStatusTransitionId?.let { """it.resolvedStatusTransitionId.set("$it")""" }.orEmpty()}
+                    ${automation.targetStatusName?.let { """it.targetStatusName.set("$it")""" }.orEmpty()}
                 }
             }
     """
@@ -667,10 +667,10 @@ data class JiraConfig(
     )
 
     data class Automation(
-        val projectId: String,
+        val projectKey: String,
         val labelPattern: String?,
         val fixVersionPattern: String?,
-        val resolvedStatusTransitionId: String?,
+        val targetStatusName: String?,
     )
 }
 

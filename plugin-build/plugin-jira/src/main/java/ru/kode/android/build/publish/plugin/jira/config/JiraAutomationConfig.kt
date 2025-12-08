@@ -15,14 +15,14 @@ import org.gradle.api.tasks.Optional
 interface JiraAutomationConfig {
     val name: String
 
-    /**
-     * The ID of the Jira project to apply automation to.
-     *
-     * This is typically a numeric ID that can be found in the Jira project settings
-     * or by viewing the project in a browser and looking at the URL.
-     */
     @get:Input
-    val projectId: Property<Long>
+
+    /**
+     * The Key of the Jira project to use for version management and fix version updates.
+     *
+     * This property is required if fix version updates are enabled.
+     */
+    val projectKey: Property<String>
 
     /**
      * Pattern for labels to be added to Jira issues.
@@ -42,19 +42,12 @@ interface JiraAutomationConfig {
     val fixVersionPattern: Property<String>
 
     /**
-     * The ID of the status transition to apply to matching Jira issues.
+     * The name of the target status to which issues will be transitioned.
      *
-     * This is typically a string representing the transition ID in Jira's workflow.
-     * Common values:
-     * - `"5"` for "Resolved"
-     * - `"2"` for "In Progress"
-     *
-     * To find the correct ID for a transition, you can:
-     * 1. Use the Jira REST API browser
-     * 2. Check your project's workflow configuration
-     * 3. Contact your Jira administrator
+     * This is typically a string like "In Progress" or "Ready for Testing".
+     * If not specified, no status transitions will be performed.
      */
     @get:Input
     @get:Optional
-    val resolvedStatusTransitionId: Property<String>
+    val targetStatusName: Property<String>
 }

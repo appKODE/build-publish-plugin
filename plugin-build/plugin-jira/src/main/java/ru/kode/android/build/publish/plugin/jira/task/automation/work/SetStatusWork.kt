@@ -28,7 +28,7 @@ internal interface SetStatusParameters : WorkParameters {
     /**
      * The network service used to communicate with the Jira API
      */
-    val networkService: Property<JiraService>
+    val service: Property<JiraService>
 }
 
 /**
@@ -52,7 +52,8 @@ internal abstract class SetStatusWork : WorkAction<SetStatusParameters> {
 
     override fun execute() {
         val issues = parameters.issues.get()
-        val service = parameters.networkService.get()
+        val service = parameters.service.get()
+
         issues.forEach { issue ->
             try {
                 service.setStatus(issue, parameters.statusTransitionId.get())

@@ -15,11 +15,20 @@ import ru.kode.android.build.publish.plugin.jira.network.entity.JiraFixVersion
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetFixVersionsResponse
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetLabelsResponse
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetStatusResponse
+import ru.kode.android.build.publish.plugin.jira.network.entity.GetTransitionsResponse
+import ru.kode.android.build.publish.plugin.jira.network.entity.GetProjectResponse
+import ru.kode.android.build.publish.plugin.jira.network.entity.ProjectWorkflowStatuses
 import ru.kode.android.build.publish.plugin.jira.network.entity.RemoveFixVersionRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.RemoveLabelRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.SetStatusRequest
 
 internal interface JiraApi {
+
+    @GET("project/{projectIdOrKey}")
+    fun getProject(
+        @Path("projectIdOrKey") projectIdOrKey: String
+    ): Call<GetProjectResponse>
+
     @POST("version")
     fun createVersion(
         @Body request: CreateVersionRequest,
@@ -60,6 +69,17 @@ internal interface JiraApi {
         @Path("issueNumber") issueNumber: String,
         @Query("fields") fields: String = "status",
     ): Call<GetStatusResponse>
+
+    @GET("issue/{issueNumber}/transitions")
+    fun getAvailableTransitions(
+        @Path("issueNumber") issueNumber: String,
+        @Query("expand") expand: String = "transitions.fields"
+    ): Call<GetTransitionsResponse>
+
+    @GET("project/{projectKey}/statuses")
+    fun getProjectStatuses(
+        @Path("projectKey") projectKey: String
+    ): Call<List<ProjectWorkflowStatuses>>
 
     @PUT("issue/{issueNumber}")
     fun addFixVersion(

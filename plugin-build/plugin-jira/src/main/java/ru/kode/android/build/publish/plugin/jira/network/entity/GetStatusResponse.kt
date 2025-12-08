@@ -7,12 +7,12 @@ internal data class GetStatusResponse(
     val fields: Fields,
 ) {
     @Serializable
-    data class Fields(
+    internal data class Fields(
         val status: Status,
     )
 
     @Serializable
-    data class Status(
+    internal data class Status(
         val id: String,
         val name: String,
         val description: String? = null,
@@ -20,7 +20,7 @@ internal data class GetStatusResponse(
     )
 
     @Serializable
-    data class StatusCategory(
+    internal data class StatusCategory(
         val id: Int? = null,
         val name: String? = null
     )

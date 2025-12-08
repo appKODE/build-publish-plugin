@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -83,16 +84,16 @@ abstract class JiraAutomationTask
         abstract val issueNumberPattern: Property<String>
 
         /**
-         * The ID of the Jira project to create versions in.
+         * The Key of the Jira project to create versions in.
          *
          * This is only required if fix version automation is enabled.
          */
         @get:Input
         @get:Option(
-            option = "projectId",
-            description = "ID of the Jira project for version management",
+            option = "projectKey",
+            description = "Key of the Jira project for version management",
         )
-        abstract val projectId: Property<Long>
+        abstract val projectKey: Property<String>
 
         /**
          * Pattern for generating labels to add to Jira issues.
@@ -123,18 +124,18 @@ abstract class JiraAutomationTask
         abstract val fixVersionPattern: Property<String>
 
         /**
-         * The ID of the status transition to use when marking issues as resolved.
+         * The name of the status to mark issues as resolved.
          *
-         * This is the transition ID from the Jira workflow, not the status ID itself.
-         * If not specified, no status transitions will be performed.
+         * If specified, the task will submit work items to update the status of each issue to the
+         * resolved status transition specified by [targetStatusName].
          */
         @get:Input
         @get:Option(
-            option = "resolvedStatusTransitionId",
-            description = "ID of the status transition to mark issues as resolved",
+            option = "targetStatusName",
+            description = "Name of the status to mark issues as resolved"
         )
         @get:Optional
-        abstract val resolvedStatusTransitionId: Property<String>
+        abstract val targetStatusName: Property<String>
 
         /**
          * Executes the Jira automation task.
@@ -156,9 +157,15 @@ abstract class JiraAutomationTask
             if (issues.isEmpty()) {
                 logger.info("issues not found in the changelog, nothing will change")
             } else {
+                val projectId = service.flatMap { service ->
+                    projectKey.map { projectKey ->
+                        service.getProjectId(projectKey.uppercase())
+                    }
+                }
+
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 workQueue.submitUpdateLabelIfPresent(currentBuildTag, issues)
-                workQueue.submitUpdateVersionIfPresent(currentBuildTag, issues)
+                workQueue.submitUpdateVersionIfPresent(currentBuildTag, issues, projectId)
                 workQueue.submitUpdateStatusIfPresent(issues)
             }
         }
@@ -166,17 +173,39 @@ abstract class JiraAutomationTask
         /**
          * Submits work to update the status of the given issues, if a resolved status transition ID is configured.
          *
-         * This method checks if [resolvedStatusTransitionId] is present, and if so, submits a work item to update the
-         * status of each issue to the resolved status transition specified by [resolvedStatusTransitionId].
+         * This method checks if [targetStatusName] is present, and if so, submits a work item to update the
+         * status of each issue to the resolved status transition specified by [targetStatusName].
          *
          * @param issues The set of issue numbers to update
          */
-        private fun WorkQueue.submitUpdateStatusIfPresent(issues: MutableSet<String>) {
-            if (resolvedStatusTransitionId.isPresent) {
+        private fun WorkQueue.submitUpdateStatusIfPresent(
+            issues: Set<String>,
+        ) {
+            if (targetStatusName.isPresent) {
+                val statusTransitionId = service.flatMap { service ->
+                    projectKey
+                        .zip(targetStatusName) { projectKey, targetStatusName ->
+                            projectKey to targetStatusName
+                        }.map { (projectKey, statusName) ->
+                            val statuses = service.getProjectAvailableStatuses(projectKey)
+                            val statusId = statuses
+                                .first { it.name.equals(statusName, ignoreCase = true) }
+                                .id
+                            val issueKeyWithTransitions = issues.first { issueKey ->
+                                service.getIssueTransitions(issueKey)
+                                    .find { it.statusId == statusId } != null
+                            }
+                            service.getIssueTransitions(issueKeyWithTransitions)
+                                .first { it.statusId == statusId }
+                                .id
+                                .also { id -> logger.info("Resolved statusTransitionId: $id for statusName=$statusName") }
+                        }
+                }
+
                 submit(SetStatusWork::class.java) { parameters ->
                     parameters.issues.set(issues)
-                    parameters.statusTransitionId.set(resolvedStatusTransitionId)
-                    parameters.networkService.set(service)
+                    parameters.statusTransitionId.set(statusTransitionId)
+                    parameters.service.set(service)
                 }
             }
         }
@@ -192,7 +221,8 @@ abstract class JiraAutomationTask
          */
         private fun WorkQueue.submitUpdateVersionIfPresent(
             currentBuildTag: Tag.Build,
-            issues: MutableSet<String>,
+            issues: Set<String>,
+            projectId: Provider<Long>
         ) {
             if (fixVersionPattern.isPresent) {
                 val version =
@@ -223,7 +253,7 @@ abstract class JiraAutomationTask
          */
         private fun WorkQueue.submitUpdateLabelIfPresent(
             currentBuildTag: Tag.Build,
-            issues: MutableSet<String>,
+            issues: Set<String>,
         ) {
             if (labelPattern.isPresent) {
                 val label =

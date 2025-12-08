@@ -8,6 +8,8 @@ import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
 import ru.kode.android.build.publish.plugin.jira.controller.JiraControllerImpl
+import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueStatus
+import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueTransition
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraApiFactory
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraClientFactory
 import ru.kode.android.build.publish.plugin.jira.network.api.JiraApi
@@ -73,36 +75,93 @@ abstract class JiraService
 
         private val controller: JiraControllerImpl get() = controllerProperty.get()
 
+
+        /**
+         * Retrieves all statuses available in a Jira project across all workflows.
+         *
+         * Calls:
+         * `GET /rest/api/2/project/{projectKey}/statuses`
+         *
+         * Example returned values:
+         * - ID: "1", Name: "Open"
+         * - ID: "3", Name: "In Progress"
+         * - ID: "5", Name: "Resolved"
+         */
+        fun getProjectAvailableStatuses(projectKey: String): List<JiraIssueStatus> {
+           return controller.getProjectAvailableStatuses(projectKey)
+        }
+
+        /**
+         * Retrieves all available transitions for a Jira issue.
+         *
+         * This method calls:
+         * `GET /rest/api/2/issue/{issue}/transitions`
+         *
+         * Jira returns a list of transitions, where each transition contains:
+         * - transition ID
+         * - transition name
+         *
+         * Example returned transitions:
+         * - ID: "1", Name: "Start Progress", TargetStatus: "In Progress"
+         * - ID: "2", Name: "Resolve", TargetStatus: "Resolved"
+         *
+         * If no transitions are available, returns an empty list.
+         *
+         * @param issue The Jira issue key (e.g., "PROJ-123").
+         *
+         * @return A list of `JiraIssueTransition` domain objects.
+         *
+         * @throws IOException If HTTP request fails.
+         * @throws JiraApiException If Jira responds with error code or unexpected result.
+         */
+        fun getIssueTransitions(issueKey: String): List<JiraIssueTransition> {
+            return controller.getAvailableIssueTransitions(issueKey)
+        }
+
+        /**
+         * Retrieves the ID of a Jira project by its key.
+         *
+         * @param projectKey The key of the project (e.g., "PROJECT")
+         *
+         * @return The ID of the project
+         *
+         * @throws IOException If the network request fails
+         * @throws JiraApiException If the Jira API returns an error
+         */
+        fun getProjectId(projectKey: String): Long {
+            return controller.getProjectId(projectKey)
+        }
+
         /**
          * Transitions a Jira issue to a new status.
          *
-         * @param issue The issue key (e.g., "PROJ-123")
+         * @param issueKey The issue key (e.g., "PROJ-123")
          * @param statusTransitionId The ID of the status transition to execute
          *
          * @throws IOException If the network request fails
          * @throws JiraApiException If the Jira API returns an error
          */
         fun setStatus(
-            issue: String,
+            issueKey: String,
             statusTransitionId: String,
         ) {
-            controller.setIssueStatus(issue, statusTransitionId)
+            controller.setIssueStatus(issueKey, statusTransitionId)
         }
 
         /**
          * Adds a label to a Jira issue.
          *
-         * @param issue The issue key (e.g., "PROJ-123")
+         * @param issueKey The issue key (e.g., "PROJ-123")
          * @param label The label to add
          *
          * @throws IOException If the network request fails
          * @throws JiraApiException If the Jira API returns an error
          */
         fun addLabel(
-            issue: String,
+            issueKey: String,
             label: String,
         ) {
-            controller.addIssueLabel(issue, label)
+            controller.addIssueLabel(issueKey, label)
         }
 
         /**
@@ -124,16 +183,16 @@ abstract class JiraService
         /**
          * Adds a fix version to a Jira issue.
          *
-         * @param issue The issue key (e.g., "PROJ-123")
+         * @param issueKey The issue key (e.g., "PROJ-123")
          * @param version The version to add as a fix version
          *
          * @throws IOException If the network request fails
          * @throws JiraApiException If the Jira API returns an error
          */
         fun addFixVersion(
-            issue: String,
+            issueKey: String,
             version: String,
         ) {
-            controller.addIssueFixVersion(issue, version)
+            controller.addIssueFixVersion(issueKey, version)
         }
     }

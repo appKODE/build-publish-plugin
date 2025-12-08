@@ -48,7 +48,6 @@ class JiraFixVersionAutomationTest {
     @Test
     @Throws(IOException::class)
     fun `jira fix version automation executes with automation config and without added project version`() {
-        val projectId = "10900"
         val projectKey = "AT"
 
         projectDir.createAndroidProject(
@@ -71,10 +70,10 @@ class JiraFixVersionAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId,
+                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
-                    resolvedStatusTransitionId = null
+                    targetStatusName = null
                 )
             ),
             topBuildFileContent = """
@@ -159,7 +158,6 @@ class JiraFixVersionAutomationTest {
     @Test
     @Throws(IOException::class)
     fun `jira fix version automation executes with automation config and already added project version`() {
-        val projectId = 10900L
         val projectKey = "AT"
 
         projectDir.createAndroidProject(
@@ -182,10 +180,10 @@ class JiraFixVersionAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId.toString(),
+                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
-                    resolvedStatusTransitionId = null
+                    targetStatusName = null
                 )
             ),
             topBuildFileContent = """
@@ -220,6 +218,7 @@ class JiraFixVersionAutomationTest {
         val projectFixVersions = jiraController.getProjectVersions(projectKey)
         val fixVersion = projectFixVersions.find { it.name == expectedFixVersion }
         if (fixVersion == null) {
+            val projectId = jiraController.getProjectId(projectKey)
             jiraController.createProjectVersion(projectId, expectedFixVersion)
         }
         jiraController.removeIssueFixVersion(expectedIssueKey, expectedFixVersion)
@@ -268,7 +267,6 @@ class JiraFixVersionAutomationTest {
     @Test
     @Throws(IOException::class)
     fun `jira fix version automation executes with automation config and already attached plus added project version`() {
-        val projectId = 10900L
         val projectKey = "AT"
 
         projectDir.createAndroidProject(
@@ -291,10 +289,10 @@ class JiraFixVersionAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId.toString(),
+                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
-                    resolvedStatusTransitionId = null
+                    targetStatusName = null
                 )
             ),
             topBuildFileContent = """
@@ -329,6 +327,7 @@ class JiraFixVersionAutomationTest {
         val projectFixVersions = jiraController.getProjectVersions(projectKey)
         val fixVersion = projectFixVersions.find { it.name == expectedFixVersion }
         if (fixVersion == null) {
+            val projectId = jiraController.getProjectId(projectKey)
             jiraController.createProjectVersion(projectId, expectedFixVersion)
         }
         jiraController.addIssueFixVersion(expectedIssueKey, expectedFixVersion)
@@ -377,7 +376,6 @@ class JiraFixVersionAutomationTest {
     @Test
     @Throws(IOException::class)
     fun `jira fix version automation executes with automation config, but without assemble`() {
-        val projectId = "10900"
         val projectKey = "AT"
 
         projectDir.createAndroidProject(
@@ -400,10 +398,10 @@ class JiraFixVersionAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId,
+                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
-                    resolvedStatusTransitionId = null
+                    targetStatusName = null
                 )
             ),
             topBuildFileContent = """
@@ -481,7 +479,7 @@ class JiraFixVersionAutomationTest {
     @Test
     @Throws(IOException::class)
     fun `jira fix version automation executes with automation config when jira task is not available`() {
-        val projectId = "10900"
+        val projectKey = "AT"
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -503,10 +501,10 @@ class JiraFixVersionAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId,
+                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
-                    resolvedStatusTransitionId = null
+                    targetStatusName = null
                 )
             ),
             topBuildFileContent = """

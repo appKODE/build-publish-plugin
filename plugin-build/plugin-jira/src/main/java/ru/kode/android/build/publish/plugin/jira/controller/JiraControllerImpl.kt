@@ -1,11 +1,11 @@
 package ru.kode.android.build.publish.plugin.jira.controller
 
 import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 import ru.kode.android.build.publish.plugin.core.util.executeNoResult
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraFixVersion
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueStatus
+import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueTransition
 import ru.kode.android.build.publish.plugin.jira.network.api.JiraApi
 import ru.kode.android.build.publish.plugin.jira.network.entity.AddFixVersionRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.AddLabelRequest
@@ -85,6 +85,90 @@ internal class JiraControllerImpl(
         } else {
             null
         }
+    }
+
+    /**
+     * Retrieves all available transitions for a Jira issue.
+     *
+     * This method calls:
+     * `GET /rest/api/2/issue/{issue}/transitions`
+     *
+     * Jira returns a list of transitions, where each transition contains:
+     * - transition ID (not used in domain)
+     * - transition name (not used in domain)
+     * - the target status object (ID + name) → this is what we need
+     *
+     * Example returned transitions:
+     * - ID: "1", Name: "Start Progress", TargetStatus: "In Progress"
+     * - ID: "2", Name: "Resolve", TargetStatus: "Resolved"
+     *
+     * If no transitions are available, returns an empty list.
+     *
+     * @param issue The Jira issue key (e.g., "PROJ-123").
+     *
+     * @return A list of `JiraIssueTransition` domain objects.
+     *
+     * @throws IOException If HTTP request fails.
+     * @throws JiraApiException If Jira responds with error code or unexpected result.
+     */
+    override fun getAvailableIssueTransitions(issue: String): List<JiraIssueTransition> {
+        val response = api.getAvailableTransitions(issue)
+            .executeWithResult()
+            .getOrThrow()
+
+        return response.transitions
+            .map { transition ->
+                JiraIssueTransition(
+                    id = transition.id,
+                    name = transition.name,
+                    statusId = transition.to.id
+                )
+            }
+    }
+
+    /**
+     * Retrieves all statuses available in a Jira project across all workflows.
+     *
+     * Calls:
+     * `GET /rest/api/2/project/{projectKey}/statuses`
+     *
+     * Example returned values:
+     * - ID: "1", Name: "Open"
+     * - ID: "3", Name: "In Progress"
+     * - ID: "5", Name: "Resolved"
+     */
+    override fun getProjectAvailableStatuses(projectKey: String): List<JiraIssueStatus> {
+        val workflows = api.getProjectStatuses(projectKey)
+            .executeWithResult()
+            .getOrThrow()
+
+        return workflows
+            .flatMap { it.statuses }
+            .map { status ->
+                JiraIssueStatus(
+                    id = status.id,
+                    name = status.name
+                )
+            }
+            .distinctBy { it.id }
+    }
+    
+    /**
+     * Retrieves the ID of a Jira project by its key.
+     *
+     * @param projectKey The key of the project (e.g., "PROJECT")
+     *
+     * @return The ID of the project
+     *
+     * @throws IOException If the network request fails
+     * @throws JiraApiException If the Jira API returns an error
+     */
+    override fun getProjectId(projectKey: String): Long {
+        val project = api.getProject(projectKey)
+            .executeWithResult()
+            .getOrThrow()
+
+        return project.id
     }
 
     /**

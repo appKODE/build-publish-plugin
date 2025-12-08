@@ -2,6 +2,7 @@ package ru.kode.android.build.publish.plugin.jira.controller
 
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraFixVersion
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueStatus
+import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueTransition
 
 /**
  * Controller for interacting with the Jira API.
@@ -43,6 +44,57 @@ interface JiraController {
      * @throws JiraApiException If Jira responds with an error code or unexpected result.
      */
     fun getIssueStatus(issue: String): JiraIssueStatus?
+
+    /**
+     * Retrieves all available transitions for a Jira issue.
+     *
+     * This method calls:
+     * `GET /rest/api/2/issue/{issue}/transitions`
+     *
+     * Jira returns a list of transitions, where each transition contains:
+     * - transition ID (not used in domain)
+     * - transition name (not used in domain)
+     * - the target status object (ID + name) → this is what we need
+     *
+     * Example returned transitions:
+     * - ID: "1", Name: "Start Progress", TargetStatus: "In Progress"
+     * - ID: "2", Name: "Resolve", TargetStatus: "Resolved"
+     *
+     * If no transitions are available, returns an empty list.
+     *
+     * @param issue The Jira issue key (e.g., "PROJ-123").
+     *
+     * @return A list of `JiraIssueTransition` domain objects.
+     *
+     * @throws IOException If HTTP request fails.
+     * @throws JiraApiException If Jira responds with error code or unexpected result.
+     */
+    fun getAvailableIssueTransitions(issue: String): List<JiraIssueTransition>
+
+    /**
+     * Retrieves all statuses available in a Jira project across all workflows.
+     *
+     * Calls:
+     * `GET /rest/api/2/project/{projectKey}/statuses`
+     *
+     * Example returned values:
+     * - ID: "1", Name: "Open"
+     * - ID: "3", Name: "In Progress"
+     * - ID: "5", Name: "Resolved"
+     */
+    fun getProjectAvailableStatuses(projectKey: String): List<JiraIssueStatus>
+
+    /**
+     * Retrieves the ID of a Jira project by its key.
+     *
+     * @param projectKey The key of the project (e.g., "PROJECT")
+     *
+     * @return The ID of the project
+     *
+     * @throws IOException If the network request fails
+     * @throws JiraApiException If the Jira API returns an error
+     */
+    fun getProjectId(projectKey: String): Long
 
     /**
      * Adds a label to a Jira issue.

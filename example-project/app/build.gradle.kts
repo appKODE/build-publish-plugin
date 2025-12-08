@@ -80,7 +80,7 @@ buildPublishJira {
     }
     automation {
         common {
-            projectId.set(1111)
+            projectKey.set("AT")
             fixVersionPattern.set("fix_%2\$s_%1\$s")
         }
     }

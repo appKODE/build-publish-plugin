@@ -108,7 +108,7 @@ class JiraLabelAutomationTest {
     @Test
     @Throws(IOException::class)
     fun `jira label automation executes with automation config`() {
-        val projectId = "10900"
+        val projectKey = "AT"
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -130,10 +130,10 @@ class JiraLabelAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId,
+                    projectKey = projectKey,
                     labelPattern = "fix_%1\\\$s.%2\\\$s",
                     fixVersionPattern = null,
-                    resolvedStatusTransitionId = null
+                    targetStatusName = null
                 )
             ),
             topBuildFileContent = """
@@ -211,7 +211,7 @@ class JiraLabelAutomationTest {
     @Test
     @Throws(IOException::class)
     fun `jira label automation executes with automation config and already added label`() {
-        val projectId = "10900"
+        val projectKey = "AT"
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -233,10 +233,10 @@ class JiraLabelAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId,
+                    projectKey = projectKey,
                     labelPattern = "fix_%1\\\$s.%2\\\$s",
                     fixVersionPattern = null,
-                    resolvedStatusTransitionId = null
+                    targetStatusName = null
                 )
             ),
             topBuildFileContent = """
@@ -314,7 +314,7 @@ class JiraLabelAutomationTest {
     @Test
     @Throws(IOException::class)
     fun `jira label automation executes with automation config, but without assemble`() {
-        val projectId = "10900"
+        val projectKey = "AT"
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -336,10 +336,10 @@ class JiraLabelAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId,
+                    projectKey = projectKey,
                     labelPattern = "fix_%1\\\$s.%2\\\$s",
                     fixVersionPattern = null,
-                    resolvedStatusTransitionId = null
+                    targetStatusName = null
                 )
             ),
             topBuildFileContent = """
@@ -410,7 +410,8 @@ class JiraLabelAutomationTest {
     @Test
     @Throws(IOException::class)
     fun `jira label automation executes with automation config when jira task is not available`() {
-        val projectId = "10900"
+        val projectKey = "AT"
+
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             foundationConfig =
@@ -431,10 +432,10 @@ class JiraLabelAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId,
+                    projectKey = projectKey,
                     labelPattern = "fix_%1\\\$s.%2\\\$s",
                     fixVersionPattern = null,
-                    resolvedStatusTransitionId = null
+                    targetStatusName = null
                 )
             ),
             topBuildFileContent = """

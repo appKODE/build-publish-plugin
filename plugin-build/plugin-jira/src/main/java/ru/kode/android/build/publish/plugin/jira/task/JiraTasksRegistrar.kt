@@ -66,7 +66,7 @@ private fun Project.registerJiraTasks(
     return if (
         automationConfig.labelPattern.isPresent ||
         automationConfig.fixVersionPattern.isPresent ||
-        automationConfig.resolvedStatusTransitionId.isPresent
+        automationConfig.targetStatusName.isPresent
     ) {
         val service =
             project.extensions
@@ -82,11 +82,11 @@ private fun Project.registerJiraTasks(
             it.buildTagFile.set(params.lastBuildTagFile)
             it.changelogFile.set(params.changelogFile)
             it.issueNumberPattern.set(params.issueNumberPattern)
-            it.projectId.set(automationConfig.projectId)
+            it.projectKey.set(automationConfig.projectKey)
             it.labelPattern.set(automationConfig.labelPattern)
             it.service.set(service)
             it.fixVersionPattern.set(automationConfig.fixVersionPattern)
-            it.resolvedStatusTransitionId.set(automationConfig.resolvedStatusTransitionId)
+            it.targetStatusName.set(automationConfig.targetStatusName)
 
             it.usesService(service)
         }

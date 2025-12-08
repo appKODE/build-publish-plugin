@@ -46,9 +46,23 @@ class JiraStatusAutomationTest {
 
     @Test
     @Throws(IOException::class)
-    fun `jira status automation executes with automation config and without added project version`() {
-        val projectId = "10900"
+    fun `jira status automation executes with automation config`() {
         val projectKey = "AT"
+        val givenIssueKey = "AT-292"
+
+        val availableIssueStatuses = jiraController.getProjectAvailableStatuses(projectKey)
+        val inProgressStatus = availableIssueStatuses.find { it.name.contains("to do", ignoreCase = true) }
+        val todoStatus = availableIssueStatuses.find { it.name.contains("in progress", ignoreCase = true) }
+
+        assertTrue { inProgressStatus != null && todoStatus != null }
+
+        val beforeAutomationStatusId = jiraController.getIssueStatus(givenIssueKey)
+
+        val targetAutomationStatusName = if (beforeAutomationStatusId?.id == todoStatus?.id) {
+            inProgressStatus!!.name
+        } else {
+            todoStatus!!.name
+        }
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -70,10 +84,10 @@ class JiraStatusAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId,
+                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = null,
-                    resolvedStatusTransitionId = null
+                    targetStatusName = targetAutomationStatusName
                 )
             ),
             topBuildFileContent = """
@@ -83,7 +97,6 @@ class JiraStatusAutomationTest {
             """.trimIndent()
         )
 
-        val givenIssueKey = "AT-290"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
@@ -98,24 +111,13 @@ class JiraStatusAutomationTest {
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
-        val expectedFixVersion = "fix_1.0.2"
-        val expectedIssueKey = "AT-290"
+        val expectedIssueKey = "AT-292"
 
         git.addAllAndCommit(givenCommitMessage1)
         git.tag.addNamed(givenTagName1)
         projectDir.getFile("app/README.md").writeText("This is test project")
         git.addAllAndCommit(givenCommitMessage2)
         git.tag.addNamed(givenTagName2)
-
-        val projectFixVersions = jiraController.getProjectVersions(projectKey)
-        val fixVersion = projectFixVersions.find { it.name == expectedFixVersion }
-        if (fixVersion != null) {
-            jiraController.removeIssueFixVersion(expectedIssueKey, fixVersion.name)
-            jiraController.removeProjectVersion(fixVersion.id)
-        }
-
-        val beforeAutomationFixVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { !beforeAutomationFixVersions.contains(expectedFixVersion) }
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
@@ -151,15 +153,33 @@ class JiraStatusAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationFixVersion = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { afterAutomationFixVersion.contains(expectedFixVersion) }
+        val afterAutomationStatus = jiraController.getIssueStatus(expectedIssueKey)
+        assertTrue { afterAutomationStatus?.name == targetAutomationStatusName }
     }
 
     @Test
     @Throws(IOException::class)
-    fun `jira status automation executes with automation config and already added project version`() {
-        val projectId = 10900L
+    fun `jira status automation executes with automation config with multiple tasks, mixed correct and incorrect status`() {
         val projectKey = "AT"
+        // Active task
+        val givenIssueKey1 = "AT-292"
+        // Closed task
+        val givenIssueKey2 = "AT-291"
+
+        val availableIssueStatuses = jiraController.getProjectAvailableStatuses(projectKey)
+        val inProgressStatus = availableIssueStatuses.find { it.name.contains("to do", ignoreCase = true) }
+        val todoStatus = availableIssueStatuses.find { it.name.contains("in progress", ignoreCase = true) }
+
+        assertTrue { inProgressStatus != null && todoStatus != null }
+
+        val beforeAutomationStatusId = jiraController.getIssueStatus(givenIssueKey1)
+
+        val targetAutomationStatusName1 = if (beforeAutomationStatusId?.id == todoStatus?.id) {
+            inProgressStatus!!.name
+        } else {
+            todoStatus!!.name
+        }
+        val targetAutomationStatusName2 = jiraController.getIssueStatus(givenIssueKey2)?.name
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -181,10 +201,10 @@ class JiraStatusAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId.toString(),
+                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = null,
-                    resolvedStatusTransitionId = null
+                    targetStatusName = targetAutomationStatusName1
                 )
             ),
             topBuildFileContent = """
@@ -193,13 +213,19 @@ class JiraStatusAutomationTest {
                 }
             """.trimIndent()
         )
+
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
         val givenCommitMessage2 = """
-            AT-290: Add test readme
+            $givenIssueKey1: Add test readme
             
-            CHANGELOG: [AT-290] Задача для проверки работы BuildPublishPlugin с фиксверсией
+            CHANGELOG: [$givenIssueKey1] Задача для проверки работы BuildPublishPlugin с фиксверсией
+        """.trimIndent()
+        val givenCommitMessage3 = """
+            $givenIssueKey2: Add test readme
+            
+            CHANGELOG: [$givenIssueKey2] Задача для проверки работы BuildPublishPlugin с фиксверсией закрытая
         """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
@@ -207,24 +233,16 @@ class JiraStatusAutomationTest {
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
-        val expectedFixVersion = "fix_1.0.2"
-        val expectedIssueKey = "AT-290"
+        val expectedIssueKey1 = "AT-292"
+        val expectedIssueKey2 = "AT-291"
 
         git.addAllAndCommit(givenCommitMessage1)
         git.tag.addNamed(givenTagName1)
         projectDir.getFile("app/README.md").writeText("This is test project")
         git.addAllAndCommit(givenCommitMessage2)
+        projectDir.getFile("app/README1.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage3)
         git.tag.addNamed(givenTagName2)
-
-        val projectFixVersions = jiraController.getProjectVersions(projectKey)
-        val fixVersion = projectFixVersions.find { it.name == expectedFixVersion }
-        if (fixVersion == null) {
-            jiraController.createProjectVersion(projectId, expectedFixVersion)
-        }
-        jiraController.removeIssueFixVersion(expectedIssueKey, expectedFixVersion)
-
-        val beforeAutomationFixVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { !beforeAutomationFixVersions.contains(expectedFixVersion) }
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
@@ -251,7 +269,8 @@ class JiraStatusAutomationTest {
 
         val expectedChangelogFile =
             """
-            • [$expectedIssueKey] Задача для проверки работы BuildPublishPlugin с фиксверсией
+            • [$expectedIssueKey2] Задача для проверки работы BuildPublishPlugin с фиксверсией закрытая
+            • [$expectedIssueKey1] Задача для проверки работы BuildPublishPlugin с фиксверсией
             """.trimIndent()
 
         assertEquals(
@@ -260,15 +279,34 @@ class JiraStatusAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationFixVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { afterAutomationFixVersions.contains(expectedFixVersion) }
+        val afterAutomationStatus1 = jiraController.getIssueStatus(expectedIssueKey1)
+        assertTrue { afterAutomationStatus1?.name == targetAutomationStatusName1 }
+        val afterAutomationStatus2 = jiraController.getIssueStatus(expectedIssueKey2)
+        assertTrue { afterAutomationStatus2?.name == targetAutomationStatusName2 }
     }
 
     @Test
     @Throws(IOException::class)
-    fun `jira status automation executes with automation config and already attached plus added project version`() {
-        val projectId = 10900L
+    fun `jira status automation executes with automation config with multiple tasks, all correct status`() {
         val projectKey = "AT"
+        val givenIssueKey1 = "AT-293"
+        val givenIssueKey2 = "AT-294"
+        val givenIssueKey3 = "AT-295"
+        val givenIssueKey4 = "AT-296"
+
+        val availableIssueStatuses = jiraController.getProjectAvailableStatuses(projectKey)
+        val inProgressStatus = availableIssueStatuses.find { it.name.contains("to do", ignoreCase = true) }
+        val todoStatus = availableIssueStatuses.find { it.name.contains("in progress", ignoreCase = true) }
+
+        assertTrue { inProgressStatus != null && todoStatus != null }
+
+        val beforeAutomationStatusId = jiraController.getIssueStatus(givenIssueKey1)
+
+        val targetAutomationStatusName = if (beforeAutomationStatusId?.id == todoStatus?.id) {
+            inProgressStatus!!.name
+        } else {
+            todoStatus!!.name
+        }
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -290,10 +328,10 @@ class JiraStatusAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId.toString(),
+                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = null,
-                    resolvedStatusTransitionId = null
+                    targetStatusName = targetAutomationStatusName
                 )
             ),
             topBuildFileContent = """
@@ -302,13 +340,29 @@ class JiraStatusAutomationTest {
                 }
             """.trimIndent()
         )
+
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
         val givenCommitMessage2 = """
-            AT-290: Add test readme
+            $givenIssueKey1: Add test readme
             
-            CHANGELOG: [AT-290] Задача для проверки работы BuildPublishPlugin с фиксверсией
+            CHANGELOG: [$givenIssueKey1] Задача для проверки работы BuildPublishPlugin с фиксверсией 2
+        """.trimIndent()
+        val givenCommitMessage3 = """
+            $givenIssueKey2: Add test readme
+            
+            CHANGELOG: [$givenIssueKey2] Задача для проверки работы BuildPublishPlugin с фиксверсией 3
+        """.trimIndent()
+        val givenCommitMessage4 = """
+            $givenIssueKey3: Add test readme
+            
+            CHANGELOG: [$givenIssueKey3] Задача для проверки работы BuildPublishPlugin с фиксверсией 4
+        """.trimIndent()
+        val givenCommitMessage5 = """
+            $givenIssueKey4: Add test readme
+            
+            CHANGELOG: [$givenIssueKey4] Задача для проверки работы BuildPublishPlugin с фиксверсией 5
         """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
@@ -316,24 +370,22 @@ class JiraStatusAutomationTest {
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
-        val expectedFixVersion = "fix_1.0.2"
-        val expectedIssueKey = "AT-290"
+        val expectedIssueKey1 = "AT-293"
+        val expectedIssueKey2 = "AT-294"
+        val expectedIssueKey3 = "AT-295"
+        val expectedIssueKey4 = "AT-296"
 
         git.addAllAndCommit(givenCommitMessage1)
         git.tag.addNamed(givenTagName1)
         projectDir.getFile("app/README.md").writeText("This is test project")
         git.addAllAndCommit(givenCommitMessage2)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage3)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage4)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage5)
         git.tag.addNamed(givenTagName2)
-
-        val projectFixVersions = jiraController.getProjectVersions(projectKey)
-        val fixVersion = projectFixVersions.find { it.name == expectedFixVersion }
-        if (fixVersion == null) {
-            jiraController.createProjectVersion(projectId, expectedFixVersion)
-        }
-        jiraController.addIssueFixVersion(expectedIssueKey, expectedFixVersion)
-
-        val beforeAutomationFixVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { beforeAutomationFixVersions.contains(expectedFixVersion) }
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
@@ -360,7 +412,10 @@ class JiraStatusAutomationTest {
 
         val expectedChangelogFile =
             """
-            • [$expectedIssueKey] Задача для проверки работы BuildPublishPlugin с фиксверсией
+            • [$expectedIssueKey4] Задача для проверки работы BuildPublishPlugin с фиксверсией 5
+            • [$expectedIssueKey3] Задача для проверки работы BuildPublishPlugin с фиксверсией 4
+            • [$expectedIssueKey2] Задача для проверки работы BuildPublishPlugin с фиксверсией 3
+            • [$expectedIssueKey1] Задача для проверки работы BuildPublishPlugin с фиксверсией 2
             """.trimIndent()
 
         assertEquals(
@@ -369,118 +424,39 @@ class JiraStatusAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationFixVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { afterAutomationFixVersions.contains(expectedFixVersion) }
+        val afterAutomationStatus1 = jiraController.getIssueStatus(expectedIssueKey1)
+        assertTrue { afterAutomationStatus1?.name == targetAutomationStatusName }
+        val afterAutomationStatus2 = jiraController.getIssueStatus(expectedIssueKey2)
+        assertTrue { afterAutomationStatus2?.name == targetAutomationStatusName }
+        val afterAutomationStatus3 = jiraController.getIssueStatus(expectedIssueKey3)
+        assertTrue { afterAutomationStatus3?.name == targetAutomationStatusName }
+        val afterAutomationStatus4 = jiraController.getIssueStatus(expectedIssueKey4)
+        assertTrue { afterAutomationStatus4?.name == targetAutomationStatusName }
     }
 
     @Test
     @Throws(IOException::class)
-    fun `jira status automation executes with automation config, but without assemble`() {
-        val projectId = "10900"
+    fun `jira status automation executes with automation config with multiple tasks, all correct status, status name lowercase`() {
         val projectKey = "AT"
+        val givenIssueKey1 = "AT-293"
+        val givenIssueKey2 = "AT-294"
+        val givenIssueKey3 = "AT-295"
+        val givenIssueKey4 = "AT-296"
 
-        projectDir.createAndroidProject(
-            buildTypes = listOf(BuildType("debug"), BuildType("release")),
-            foundationConfig =
-                FoundationConfig(
-                    output =
-                        FoundationConfig.Output(
-                            baseFileName = "autotest",
-                        ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
-                ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
-                ),
-                automation = JiraConfig.Automation(
-                    projectId = projectId,
-                    labelPattern = null,
-                    fixVersionPattern = null,
-                    resolvedStatusTransitionId = null
-                )
-            ),
-            topBuildFileContent = """
-                plugins {
-                    id 'ru.kode.android.build-publish-novo.foundation' apply false
-                }
-            """.trimIndent()
-        )
-        val givenIssueKey = "AT-290"
-        val givenTagName1 = "v1.0.1-debug"
-        val givenTagName2 = "v1.0.2-debug"
-        val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
-            $givenIssueKey: Add test readme
-            
-            CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с фиксверсией
-        """.trimIndent()
-        val givenJiraAutomationTask = "jiraAutomationDebug"
-        val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val availableIssueStatuses = jiraController.getProjectAvailableStatuses(projectKey)
+        val inProgressStatus = availableIssueStatuses.find { it.name.contains("to do", ignoreCase = true) }
+        val todoStatus = availableIssueStatuses.find { it.name.contains("in progress", ignoreCase = true) }
 
-        val expectedIssueKey = "AT-290"
-        val expectedFixVersion = "fix_1.0.2"
+        assertTrue { inProgressStatus != null && todoStatus != null }
 
-        git.addAllAndCommit(givenCommitMessage1)
-        git.tag.addNamed(givenTagName1)
-        projectDir.getFile("app/README.md").writeText("This is test project")
-        git.addAllAndCommit(givenCommitMessage2)
-        git.tag.addNamed(givenTagName2)
+        val beforeAutomationStatusId = jiraController.getIssueStatus(givenIssueKey1)
 
-        val projectFixVersions = jiraController.getProjectVersions(projectKey)
-        val fixVersion = projectFixVersions.find { it.name == expectedFixVersion }
-        if (fixVersion != null) {
-            jiraController.removeIssueFixVersion(expectedIssueKey, fixVersion.name)
-            jiraController.removeProjectVersion(fixVersion.id)
+        val targetAutomationStatusName = if (beforeAutomationStatusId?.id == todoStatus?.id) {
+            inProgressStatus!!.name
+        } else {
+            todoStatus!!.name
         }
 
-        val beforeAutomationFixVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { !beforeAutomationFixVersions.contains(expectedFixVersion) }
-
-        val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
-
-        projectDir.getFile("app").printFilesRecursively()
-
-        assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            automationResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
-
-        val expectedChangelogFile =
-            """
-            • [$expectedIssueKey] Задача для проверки работы BuildPublishPlugin с фиксверсией
-            """.trimIndent()
-
-        assertEquals(
-            expectedChangelogFile,
-            givenChangelogFile.readText(),
-            "Changelogs equality",
-        )
-
-        val afterAutomationVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { afterAutomationVersions.contains(expectedFixVersion) }
-    }
-
-    @Test
-    @Throws(IOException::class)
-    fun `jira status automation executes with automation config when jira task is not available`() {
-        val projectId = "10900"
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             foundationConfig =
@@ -501,10 +477,10 @@ class JiraStatusAutomationTest {
                     password = System.getProperty("JIRA_USER_PASSWORD")
                 ),
                 automation = JiraConfig.Automation(
-                    projectId = projectId,
+                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = null,
-                    resolvedStatusTransitionId = null
+                    targetStatusName = targetAutomationStatusName.lowercase()
                 )
             ),
             topBuildFileContent = """
@@ -513,14 +489,29 @@ class JiraStatusAutomationTest {
                 }
             """.trimIndent()
         )
-        val givenIssueKey = "AT-2909"
+
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
         val givenCommitMessage2 = """
-            $givenIssueKey: Add test readme
+            $givenIssueKey1: Add test readme
             
-            CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с фиксверсией
+            CHANGELOG: [$givenIssueKey1] Задача для проверки работы BuildPublishPlugin с фиксверсией 2
+        """.trimIndent()
+        val givenCommitMessage3 = """
+            $givenIssueKey2: Add test readme
+            
+            CHANGELOG: [$givenIssueKey2] Задача для проверки работы BuildPublishPlugin с фиксверсией 3
+        """.trimIndent()
+        val givenCommitMessage4 = """
+            $givenIssueKey3: Add test readme
+            
+            CHANGELOG: [$givenIssueKey3] Задача для проверки работы BuildPublishPlugin с фиксверсией 4
+        """.trimIndent()
+        val givenCommitMessage5 = """
+            $givenIssueKey4: Add test readme
+            
+            CHANGELOG: [$givenIssueKey4] Задача для проверки работы BuildPublishPlugin с фиксверсией 5
         """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
@@ -528,12 +519,21 @@ class JiraStatusAutomationTest {
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
 
-        val expectedIssueKey = "AT-2909"
+        val expectedIssueKey1 = "AT-293"
+        val expectedIssueKey2 = "AT-294"
+        val expectedIssueKey3 = "AT-295"
+        val expectedIssueKey4 = "AT-296"
 
         git.addAllAndCommit(givenCommitMessage1)
         git.tag.addNamed(givenTagName1)
         projectDir.getFile("app/README.md").writeText("This is test project")
         git.addAllAndCommit(givenCommitMessage2)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage3)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage4)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage5)
         git.tag.addNamed(givenTagName2)
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
@@ -561,7 +561,10 @@ class JiraStatusAutomationTest {
 
         val expectedChangelogFile =
             """
-            • [$expectedIssueKey] Задача для проверки работы BuildPublishPlugin с фиксверсией
+            • [$expectedIssueKey4] Задача для проверки работы BuildPublishPlugin с фиксверсией 5
+            • [$expectedIssueKey3] Задача для проверки работы BuildPublishPlugin с фиксверсией 4
+            • [$expectedIssueKey2] Задача для проверки работы BuildPublishPlugin с фиксверсией 3
+            • [$expectedIssueKey1] Задача для проверки работы BuildPublishPlugin с фиксверсией 2
             """.trimIndent()
 
         assertEquals(
@@ -569,14 +572,15 @@ class JiraStatusAutomationTest {
             givenChangelogFile.readText(),
             "Changelogs equality",
         )
-        assertTrue {
-            automationResult.output
-                .contains(
-                    """
-                        Failed to add fix version for $expectedIssueKey
-                        Unknown(code=404, reason={"errorMessages":["Issue Does Not Exist"],"errors":{}})
-                    """.trimIndent()
-                )
-        }
+
+        val afterAutomationStatus1 = jiraController.getIssueStatus(expectedIssueKey1)
+        assertTrue { afterAutomationStatus1?.name == targetAutomationStatusName }
+        val afterAutomationStatus2 = jiraController.getIssueStatus(expectedIssueKey2)
+        assertTrue { afterAutomationStatus2?.name == targetAutomationStatusName }
+        val afterAutomationStatus3 = jiraController.getIssueStatus(expectedIssueKey3)
+        assertTrue { afterAutomationStatus3?.name == targetAutomationStatusName }
+        val afterAutomationStatus4 = jiraController.getIssueStatus(expectedIssueKey4)
+        assertTrue { afterAutomationStatus4?.name == targetAutomationStatusName }
     }
+
 }
