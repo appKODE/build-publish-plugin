@@ -88,7 +88,7 @@ class AssembleTwoFlavorsTest {
         val expectedProDebugManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-demoDebug",
+                versionName = "1.0",
             )
         assertTrue(
             demoDebugResult.output.contains("Task :app:getLastTagDemoDebug"),
@@ -128,7 +128,7 @@ class AssembleTwoFlavorsTest {
         val expectedProReleaseManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-proRelease",
+                versionName = "1.0",
             )
         assertTrue(
             !proReleaseResult.output.contains("Task :app:getLastTagDemoDebug"),
@@ -208,7 +208,7 @@ class AssembleTwoFlavorsTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-demoFreeDebug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagDemoFreeDebug"),

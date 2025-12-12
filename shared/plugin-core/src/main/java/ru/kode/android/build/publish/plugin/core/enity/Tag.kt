@@ -2,6 +2,8 @@ package ru.kode.android.build.publish.plugin.core.enity
 
 import org.gradle.api.GradleException
 
+private val NUMBER_REGEX = Regex("\\d+")
+
 /**
  * Represents a Git tag with its associated metadata.
  *
@@ -89,9 +91,9 @@ sealed class Tag {
             tag.name,
             tag.commitSha,
             tag.message,
-            buildVersion = tag.toBuildVersion(),
+            buildVersion = tag.name.toBuildVersion(),
             buildVariant = tag.toBuildVariant(buildVariant),
-            buildNumber = tag.toBuildNumber(),
+            buildNumber = tag.name.toBuildNumber(),
         )
     }
 }
@@ -122,10 +124,13 @@ private fun Tag.toBuildVariant(buildVariant: String): String {
  * @return The extracted build version
  * @throws UnsupportedOperationException if version extraction is not implemented
  */
-private fun Tag.toBuildVersion(): String {
-    val tagFirstPart = name.split("-").first()
-    val numbers = Regex("\\d+").findAll(tagFirstPart).toList()
-    return numbers.dropLast(1).joinToString(separator = ".") { it.value }
+private fun String.toBuildVersion(): String {
+    return NUMBER_REGEX
+        .findAll(substringBefore('-'))
+        .map { it.value }
+        .toList()
+        .dropLast(1)
+        .joinToString(".")
 }
 
 /**
@@ -136,7 +141,10 @@ private fun Tag.toBuildVersion(): String {
  * @return The extracted build number
  * @throws NumberFormatException if the build number cannot be parsed as an integer
  */
-private fun Tag.toBuildNumber(): Int {
-    val tagFirstPart = name.split("-").first()
-    return Regex("\\d+").findAll(tagFirstPart).last().value.toInt()
+private fun String.toBuildNumber(): Int {
+    return NUMBER_REGEX
+        .findAll(substringBefore('-'))
+        .last()
+        .value
+        .toInt()
 }

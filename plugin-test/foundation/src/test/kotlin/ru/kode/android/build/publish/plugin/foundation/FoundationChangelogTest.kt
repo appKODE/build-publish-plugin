@@ -105,7 +105,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -222,7 +222,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -338,7 +338,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -369,8 +369,8 @@ class FoundationChangelogTest {
             """.trimIndent()
 
         assertEquals(
-            expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
+            expectedTagBuildFile.trimMargin(),
             "Tags equality",
         )
         assertEquals(
@@ -456,7 +456,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -574,7 +574,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -692,7 +692,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -810,7 +810,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -929,7 +929,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -1048,7 +1048,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -1166,7 +1166,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
@@ -1384,7 +1384,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -1500,7 +1500,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
@@ -1730,7 +1730,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -1863,7 +1863,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -1996,7 +1996,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -2125,7 +2125,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-debug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),
@@ -2371,7 +2371,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-debug",
+                versionName = "1.0",
             )
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagDebug"),
@@ -2501,7 +2501,7 @@ class FoundationChangelogTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-debug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagDebug"),

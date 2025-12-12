@@ -83,7 +83,7 @@ class AssembleOneFlavorTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-googleDebug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -207,7 +207,7 @@ class AssembleOneFlavorTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-googleDebug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -284,7 +284,7 @@ class AssembleOneFlavorTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-googleDebug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -602,7 +602,7 @@ class AssembleOneFlavorTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-googleRelease",
+                versionName = "1.0",
             )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -732,7 +732,7 @@ class AssembleOneFlavorTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-googleRelease",
+                versionName = "1.0",
             )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -862,7 +862,7 @@ class AssembleOneFlavorTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-googleRelease",
+                versionName = "1.0",
             )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -945,7 +945,7 @@ class AssembleOneFlavorTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-googleRelease",
+                versionName = "1.0",
             )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -960,8 +960,8 @@ class AssembleOneFlavorTest {
             "Build succeeded",
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -1030,7 +1030,7 @@ class AssembleOneFlavorTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "100",
-                versionName = "v1.0.100-googleDebug",
+                versionName = "1.0",
             )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -1045,8 +1045,8 @@ class AssembleOneFlavorTest {
             "Build succeeded",
         )
         assertEquals(
-            givenTagBuildFile.readText(),
             expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
             "Tags equality",
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -1109,7 +1109,7 @@ class AssembleOneFlavorTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "100",
-                versionName = "v1.0.100-googleDebug",
+                versionName = "1.0",
             )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -1194,7 +1194,7 @@ class AssembleOneFlavorTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "100",
-                versionName = "v1.1.100-googleDebug",
+                versionName = "1.1",
             )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -1273,7 +1273,7 @@ class AssembleOneFlavorTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "100",
-                versionName = "v1.1.100-googleDebug",
+                versionName = "1.1",
             )
         assertTrue(
             releaseResult.output.contains("Task :app:getLastTagGoogleDebug"),

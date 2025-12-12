@@ -280,8 +280,18 @@ class GitCommandExecutor(
                         """
                         Cannot return tag, because incorrect tag order detected!
                         Potential reasons:
-                         - Previous tag datetime is after last tag commit datetime
-                         - Previous tag build number the same or greater than last tag build number
+                         - The commit date of the previous tag is after the commit date of the last tag.
+                         - The build number of the previous tag is equal to or greater than the build number of the last tag.
+                         
+                        This can happen if you specified the wrong last build number, 
+                        since it should be increased for each tag. If you want to change the minor version, 
+                        use 4 numbers, for example: `1.2.3.${previousTagBuildNumber + 1}`. 
+                        
+                        Where in `1.2.3.${previousTagBuildNumber + 1}`: 
+                        - 1 - major number; 
+                        - 2 - minor numer; 
+                        - 3 (optional) - patch number; 
+                        - 4 - build number (version code).
                         
                         Details.
                           Last tag = ${lastTag.name}:

@@ -23,15 +23,14 @@ internal const val GET_LAST_TAG_TASK_PREFIX = "getLastTag"
 
 const val DEFAULT_BASE_FILE_NAME = "dev-build"
 
-const val DEFAULT_BUILD_VERSION = "v0.0.1"
-
-const val DEFAULT_VERSION_NAME = "$DEFAULT_BUILD_VERSION-dev"
+const val DEFAULT_BUILD_VERSION = "0.0"
 
 const val DEFAULT_VERSION_CODE = 1
 
+const val DEFAULT_VERSION_NAME = DEFAULT_BUILD_VERSION
 const val DEFAULT_TAG_PATTERN = ".+\\.(\\d+)-%s"
 
-const val DEFAULT_TAG_NAME = "$DEFAULT_BUILD_VERSION-%s"
+const val DEFAULT_TAG_NAME = "v$DEFAULT_BUILD_VERSION.$DEFAULT_VERSION_CODE-%s"
 
 const val DEFAULT_TAG_COMMIT_SHA = "hardcoded_default_stub_commit_sha"
 
@@ -227,9 +226,9 @@ private fun mapToVersionName(
     buildVariant: BuildVariant,
 ): String {
     return if (file.exists()) {
-        fromJson(file).name
+        fromJson(file).buildVersion
     } else {
-        "$DEFAULT_BUILD_VERSION-${buildVariant.name}"
+        DEFAULT_BUILD_VERSION
     }
 }
 

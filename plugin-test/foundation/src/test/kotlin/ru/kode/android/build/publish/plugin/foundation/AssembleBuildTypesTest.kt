@@ -81,7 +81,7 @@ class AssembleBuildTypesTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-debug",
+                versionName = "1.0",
             )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
@@ -155,7 +155,7 @@ class AssembleBuildTypesTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.0.1-debug",
+                versionName = "1.0.0",
             )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
@@ -277,7 +277,7 @@ class AssembleBuildTypesTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-debug",
+                versionName = "1.0",
             )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
@@ -353,7 +353,7 @@ class AssembleBuildTypesTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-debug",
+                versionName = "1.0",
             )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
@@ -852,7 +852,7 @@ class AssembleBuildTypesTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-release",
+                versionName = "1.0",
             )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagDebug"),
@@ -982,7 +982,7 @@ class AssembleBuildTypesTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-release",
+                versionName = "1.0",
             )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagDebug"),
@@ -1112,7 +1112,7 @@ class AssembleBuildTypesTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-release",
+                versionName = "1.0",
             )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagDebug"),
@@ -1194,7 +1194,7 @@ class AssembleBuildTypesTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-release",
+                versionName = "1.0",
             )
         assertTrue(
             !releaseResult.output.contains("Task :app:getLastTagDebug"),
@@ -1278,7 +1278,7 @@ class AssembleBuildTypesTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "100",
-                versionName = "v1.0.100-debug",
+                versionName = "1.0",
             )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
@@ -1356,7 +1356,7 @@ class AssembleBuildTypesTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "100",
-                versionName = "v1.0.100-debug",
+                versionName = "1.0",
             )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
@@ -1440,7 +1440,7 @@ class AssembleBuildTypesTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "100",
-                versionName = "v1.1.100-debug",
+                versionName = "1.1",
             )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
@@ -1518,7 +1518,7 @@ class AssembleBuildTypesTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "100",
-                versionName = "v1.1.100-debug",
+                versionName = "1.1",
             )
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),

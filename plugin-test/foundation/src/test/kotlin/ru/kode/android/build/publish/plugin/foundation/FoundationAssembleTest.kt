@@ -90,7 +90,78 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "321",
-                versionName = "v1.0.321-googleDebug",
+                versionName = "1.0",
+            )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed",
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with last tag containing patch when default config is used and tag exists`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
+        )
+        val givenTagName = "v1.0.1.321-googleDebug"
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleGoogleDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc321-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.log().last().id
+        val expectedBuildNumber = "321"
+        val expectedBuildVariant = "googleDebug"
+        val expectedTagName = "v1.0.1.321-googleDebug"
+        val expectedBuildVersion = "1.0.1"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "321",
+                versionName = "1.0.1",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -162,7 +233,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "321",
-                versionName = "v1.0.321-googleDebug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -226,7 +297,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = DEFAULT_VERSION_CODE.toString(),
-                versionName = DEFAULT_TAG_NAME.format("googleDebug"),
+                versionName = DEFAULT_VERSION_NAME,
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -291,7 +362,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = DEFAULT_VERSION_CODE.toString(),
-                versionName = DEFAULT_TAG_NAME.format("googleDebug"),
+                versionName = DEFAULT_VERSION_NAME,
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -385,7 +456,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "209",
-                versionName = "v0.0.209-internal",
+                versionName = "0.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagInternal"),
@@ -472,7 +543,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-release",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagRelease"),
@@ -557,7 +628,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
-                versionName = "v1.0.1-release",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagRelease"),
@@ -653,7 +724,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-release-androidAuto",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagRelease"),
@@ -747,7 +818,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-release-androidAuto",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagRelease"),
@@ -843,7 +914,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-release",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagRelease"),
@@ -938,7 +1009,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
-                versionName = "v1.0.2-release",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagRelease"),
@@ -1032,7 +1103,101 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "209",
-                versionName = "v0.0.209-internal",
+                versionName = "0.0",
+            )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagInternal"),
+            "Task getLastTagInternal executed",
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with last build number tag when different tags in between of android formated tags is used, incliding patch, different build version, correct build number order`() {
+        projectDir.createAndroidProject(
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("internal"),
+                    BuildType("release"),
+                ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
+        )
+        val givenTagName1 = "v1.0.206-internal"
+        val givenTagName2 = "build/3.0.0-4088"
+
+        val givenTagName3 = "v3.0.207-internal"
+        val givenTagName4 = "v2.0.209.208-internal"
+        val givenTagName5 = "v0.0.209-internal"
+
+        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenAssembleTask = "assembleInternal"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc209-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+        git.tag.addNamed(givenTagName2)
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        git.addAllAndCommit("[pfm] Update pager behaviour")
+        git.tag.addNamed(givenTagName3)
+
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        git.addAllAndCommit("[auth flow]: wrap chat flow component in remember for prevent recomposition")
+        git.tag.addNamed(givenTagName4)
+
+        projectDir.getFile("app/README3.md").writeText("This is test project 3")
+        git.addAllAndCommit("[CEB-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
+        git.tag.addNamed(givenTagName5)
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.find(givenTagName5).id
+        val expectedBuildNumber = "209"
+        val expectedBuildVariant = "internal"
+        val expectedTagName = "v0.0.209-internal"
+        val expectedBuildVersion = "0.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "209",
+                versionName = "0.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagInternal"),
@@ -1122,7 +1287,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "209",
-                versionName = "v0.0.209-internal",
+                versionName = "0.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagInternal"),
@@ -1212,7 +1377,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "209",
-                versionName = "v2.0.209-internal",
+                versionName = "2.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagInternal"),
@@ -1301,7 +1466,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties1 =
             ManifestProperties(
                 versionCode = "208",
-                versionName = "v2.0.208-internal",
+                versionName = "2.0",
             )
         assertTrue(
             assemble1.output.contains("Task :app:getLastTagInternal"),
@@ -1347,7 +1512,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties2 =
             ManifestProperties(
                 versionCode = "209",
-                versionName = "v0.0.209-internal",
+                versionName = "0.0",
             )
         assertTrue(
             assemble2.output.contains("Task :app:getLastTagInternal"),
@@ -1695,7 +1860,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "321",
-                versionName = "v1.0.321-googleDebug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
@@ -2110,7 +2275,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "323",
-                versionName = "cabinet+v1.0.323-cabinetDebug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagCabinetDebug"),
@@ -2336,7 +2501,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "323",
-                versionName = "cabinet+v1.0.323-cabinetDebug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagCabinetDebug"),
@@ -2432,7 +2597,7 @@ class FoundationAssembleTest {
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "323",
-                versionName = "finance+v1.0.323-financeDebug",
+                versionName = "1.0",
             )
         assertTrue(
             result.output.contains("Task :app:getLastTagFinanceDebug"),
