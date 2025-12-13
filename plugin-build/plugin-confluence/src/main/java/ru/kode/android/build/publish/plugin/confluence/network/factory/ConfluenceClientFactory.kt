@@ -5,10 +5,13 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
+import okio.EOFException
+import okio.IOException
 import org.gradle.api.logging.Logger
 import ru.kode.android.build.publish.plugin.core.util.NetworkProxy
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLHandshakeException
 
 private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L
 
@@ -30,18 +33,9 @@ internal object ConfluenceClientFactory {
         password: String,
         logger: Logger,
     ): OkHttpClient {
-       return OkHttpClient.Builder()
-            .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-            .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-            .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-            .addInterceptor(AttachTokenInterceptor(username, password))
-            .addProxyIfAvailable(logger)
-            .apply {
-                val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-                loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-                addNetworkInterceptor(loggingInterceptor)
-            }
-            .build()
+        return buildClient(logger, username, password) {
+            it.addProxyIfAvailable(logger)
+        }
     }
 
     /**
@@ -59,19 +53,38 @@ internal object ConfluenceClientFactory {
         logger: Logger,
         proxy: () -> NetworkProxy?
     ): OkHttpClient {
-       return OkHttpClient.Builder()
-            .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-            .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-            .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-            .addInterceptor(AttachTokenInterceptor(username, password))
-            .addProxyIfAvailable(logger, proxy, proxy)
-            .apply {
-                val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-                loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-                addNetworkInterceptor(loggingInterceptor)
-            }
-            .build()
+        return buildClient(logger, username, password) {
+            it.addProxyIfAvailable(logger, proxy, proxy)
+        }
     }
+}
+
+/**
+ * Creates an OkHttpClient.Builder instance with the necessary configuration for Confluence API communication.
+ *
+ * @param logger The logger instance for logging.
+ * @param username The username for basic authentication.
+ * @param password The password for basic authentication.
+ * @return The configured OkHttpClient.Builder instance.
+ */
+private fun buildClient(
+    logger: Logger,
+    username: String,
+    password: String,
+    apply: (OkHttpClient.Builder) -> OkHttpClient.Builder
+): OkHttpClient {
+    val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }.apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
+    return OkHttpClient.Builder()
+        .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+        .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+        .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
+        .let(apply)
+        .addInterceptor(AttachTokenInterceptor(username, password))
+        .addInterceptor(RetryHandshakeInterceptor(logger))
+        .addNetworkInterceptor(loggingInterceptor)
+        .build()
 }
 
 /**
@@ -92,5 +105,47 @@ private class AttachTokenInterceptor(
                 .addHeader(name = "Authorization", Credentials.basic(username, password))
                 .build()
         return chain.proceed(newRequest)
+    }
+}
+
+/**
+ * Interceptor that retries handshake attempts with a delay specified between retries.
+ *
+ * @property maxRetries The maximum number of retries. Default is 3.
+ * @property delayMillis The delay between retries in milliseconds. Default is 2000 milliseconds.
+ * @property logger The logger instance used for logging.
+ */
+private class RetryHandshakeInterceptor(
+    private val logger: Logger,
+    private val maxRetries: Int = 3,
+    private val delayMillis: Long = 2000,
+) : Interceptor {
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request()
+        var attempt = 0
+        var lastException: IOException? = null
+
+        while (attempt <= maxRetries) {
+            try {
+                return chain.proceed(request)
+            } catch (e: SSLHandshakeException) {
+                lastException = e
+                logger.info("SSL handshake failed, retrying in ${delayMillis}ms (attempt ${attempt + 1}/$maxRetries)", e)
+            } catch (e: EOFException) {
+                lastException = e
+                logger.info("EOF during TLS handshake, retrying in ${delayMillis}ms (attempt ${attempt + 1}/$maxRetries)", e)
+            } catch (e: IOException) {
+                lastException = e
+                logger.info("IO exception, retrying in ${delayMillis}ms (attempt ${attempt + 1}/$maxRetries)", e)
+            }
+
+            attempt++
+            if (attempt <= maxRetries) {
+                Thread.sleep(delayMillis)
+            }
+        }
+
+        throw lastException ?: IOException("Unknown handshake failure after $maxRetries attempts")
     }
 }

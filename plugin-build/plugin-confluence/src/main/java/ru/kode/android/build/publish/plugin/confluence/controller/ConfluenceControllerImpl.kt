@@ -68,9 +68,10 @@ internal class ConfluenceControllerImpl(
             .addComment(
                 commentRequest =
                     AddCommentRequest(
-                        container = AddCommentRequest.Container(pageId),
+                        type = "comment",
+                        container = AddCommentRequest.Container(pageId, "page"),
                         body = AddCommentRequest.Body(
-                            AddCommentRequest.Storage(comment)
+                            AddCommentRequest.Storage(comment, "storage")
                         ),
                     ),
             )

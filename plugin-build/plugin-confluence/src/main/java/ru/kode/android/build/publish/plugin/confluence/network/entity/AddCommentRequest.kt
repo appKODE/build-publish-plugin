@@ -1,28 +1,28 @@
 package ru.kode.android.build.publish.plugin.confluence.network.entity
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 internal data class AddCommentRequest(
-    val type: String = "comment",
+    val type: String,
     val container: Container,
     val body: Body,
 ) {
-    @JsonClass(generateAdapter = true)
+    @Serializable
     internal data class Container(
         val id: String,
-        val type: String = "page",
+        val type: String,
     )
 
-    @JsonClass(generateAdapter = true)
+    @Serializable
     internal data class Body(
         val storage: Storage,
     )
 
-    @JsonClass(generateAdapter = true)
+    @Serializable
     internal data class Storage(
         val value: String,
-        val representation: String = "storage",
+        val representation: String,
     )
 }
 

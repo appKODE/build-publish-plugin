@@ -1,6 +1,5 @@
 package ru.kode.android.build.publish.plugin.confluence.controller.entity
 
-
 /**
  * Represents a comment on a Confluence page.
  *

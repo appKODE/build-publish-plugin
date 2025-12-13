@@ -240,7 +240,6 @@ class ConfluenceDistributionTest {
     fun `confluence apk build distribution available with distribution config with proxy without assemble`() {
         val pageId = System.getProperty("CONFLUENCE_PAGE_ID")
 
-
         val beforeAutomationAttachments = confluenceController.getAttachments(pageId)
         val beforeAutomationComments = confluenceController.getComments(pageId)
 
@@ -287,7 +286,6 @@ class ConfluenceDistributionTest {
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage = "Initial commit"
-        val givenAssembleTask = "assembleDebug"
         val givenConfluenceDistributionTask = "confluenceDistributionUploadDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
@@ -349,7 +347,6 @@ class ConfluenceDistributionTest {
     @Throws(IOException::class)
     fun `confluence bundle build distribution available with distribution config with proxy`() {
         val pageId = System.getProperty("CONFLUENCE_PAGE_ID")
-
 
         val beforeAutomationAttachments = confluenceController.getAttachments(pageId)
         val beforeAutomationComments = confluenceController.getComments(pageId)
@@ -512,7 +509,6 @@ class ConfluenceDistributionTest {
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage = "Initial commit"
-        val givenAssembleTask = "bundleDebug"
         val givenConfluenceDistributionTask = "confluenceDistributionUploadBundleDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/bundle/debug/app-debug.aab")

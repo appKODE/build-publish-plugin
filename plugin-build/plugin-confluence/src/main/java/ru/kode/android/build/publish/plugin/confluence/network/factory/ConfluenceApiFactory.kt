@@ -1,9 +1,10 @@
 package ru.kode.android.build.publish.plugin.confluence.network.factory
 
-import com.squareup.moshi.Moshi
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.serialization.json.Json
 import ru.kode.android.build.publish.plugin.confluence.network.api.ConfluenceApi
 
 /**
@@ -19,11 +20,13 @@ internal object ConfluenceApiFactory {
      * @return A new instance of [ConfluenceApi].
      */
     fun build(client: OkHttpClient, baseUrl: String): ConfluenceApi {
-        val moshi = Moshi.Builder().build()
+        val contentType = "application/json".toMediaType()
+        val json = Json { ignoreUnknownKeys = true }
+
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(client)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(ConfluenceApi::class.java)
     }

@@ -1,6 +1,5 @@
 package ru.kode.android.build.publish.plugin.confluence.controller.entity
 
-
 /**
  * Represents an attachment on a Confluence page.
  *
