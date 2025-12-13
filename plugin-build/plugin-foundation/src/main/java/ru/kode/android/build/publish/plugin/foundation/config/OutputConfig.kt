@@ -3,6 +3,10 @@ package ru.kode.android.build.publish.plugin.foundation.config
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+import ru.kode.android.build.publish.plugin.core.builder.BuildTagPatternBuilder
+import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 
 /**
  * Configuration interface for build output settings.
@@ -80,6 +84,42 @@ abstract class OutputConfig {
     internal abstract val buildTagPattern: Property<String>
 
     /**
+     * The strategy used to convert version code and name to a meaningful version name.
+     *
+     * This strategy is used to transform version code and name extracted from Git tags to a meaningful
+     * version name. The strategy is applied when generating the version name for the build output.
+     *
+     * @see VersionNameStrategy
+     */
+    @get:Input
+    @get:Optional
+    internal abstract val versionNameStrategy: Property<VersionNameStrategy>
+
+    /**
+     * The strategy used to convert version code extracted from Git tags to a meaningful version code.
+     *
+     * This strategy is used to transform version code extracted from Git tags to a meaningful
+     * version code. The strategy is applied when generating the version code for the build output.
+     *
+     * @see VersionCodeStrategy
+     */
+    @get:Input
+    @get:Optional
+    internal abstract val versionCodeStrategy: Property<VersionCodeStrategy>
+
+    /**
+     * The strategy used to generate the name of the output APK file.
+     *
+     * This strategy is used to generate the name of the output APK file based on the build output
+     * configuration. The strategy is applied when generating the output APK file name.
+     *
+     * @see OutputApkNameStrategy
+     */
+    @get:Input
+    @get:Optional
+    internal abstract val outputApkNameStrategy: Property<OutputApkNameStrategy>
+
+    /**
      * Configures the pattern used to match Git tags for version extraction.
      *
      * @param action The configuration action for [BuildTagPatternBuilder].
@@ -90,5 +130,31 @@ abstract class OutputConfig {
     fun buildTagPattern(action: BuildTagPatternBuilder.() -> Unit) {
         val builder = BuildTagPatternBuilder().apply(action)
         buildTagPattern.set(builder.build())
+    }
+
+    /**
+     * Configures the version name mapper used to convert version code and name to a meaningful version name.
+     *
+     * @param action The configuration action for [VersionNameStrategy].
+     *
+     * @see VersionNameStrategy
+     */
+    fun versionNameStrategy(action: () -> VersionNameStrategy) {
+        versionNameStrategy.set(action())
+    }
+
+    /**
+     * Configures the version code mapper used to convert version code extracted from Git tags to a meaningful version code.
+     *
+     * @param action The configuration action for [VersionCodeStrategy].
+     *
+     * @see VersionCodeStrategy
+     */
+    fun versionCodeStrategy(action: () -> VersionCodeStrategy) {
+        versionCodeStrategy.set(action())
+    }
+
+    fun outputApkNameStrategy(action: () -> OutputApkNameStrategy) {
+        outputApkNameStrategy.set(action())
     }
 }

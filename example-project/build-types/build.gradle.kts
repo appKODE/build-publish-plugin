@@ -1,3 +1,8 @@
+import ru.kode.android.build.publish.plugin.core.strategy.FixedApkNamingStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.FixedVersionCodeStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.FixedVersionNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
+
 plugins {
     id("com.android.application")
     id("ru.kode.android.build-publish-novo.foundation")
@@ -23,6 +28,15 @@ buildPublishFoundation {
     output {
         common {
             baseFileName.set("example-base-project-android")
+            versionNameStrategy {
+                FixedVersionNameStrategy { "version" }
+            }
+            versionCodeStrategy {
+                FixedVersionCodeStrategy { 10000 }
+            }
+            outputApkNameStrategy {
+                FixedApkNamingStrategy { "test" }
+            }
         }
 
         buildVariant("debug") {

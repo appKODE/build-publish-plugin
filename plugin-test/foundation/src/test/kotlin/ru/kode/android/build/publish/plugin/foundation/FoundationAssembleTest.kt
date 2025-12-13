@@ -8,11 +8,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_BUILD_VERSION
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_COMMIT_MESSAGE
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_COMMIT_SHA
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_NAME
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_CODE
+import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
+import ru.kode.android.build.publish.plugin.core.strategy.HardcodedTagGenerationStrategy
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_NAME
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.DefaultConfig
@@ -285,15 +282,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = DEFAULT_TAG_NAME.format("googleDebug"),
-                commitSha = DEFAULT_TAG_COMMIT_SHA,
-                message = DEFAULT_TAG_COMMIT_MESSAGE,
-                buildVersion = DEFAULT_BUILD_VERSION,
-                buildVariant = "googleDebug",
-                buildNumber = DEFAULT_VERSION_CODE,
-            ).toJson()
+        val expectedTagBuildFile = HardcodedTagGenerationStrategy.build("googleDebug").toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = DEFAULT_VERSION_CODE.toString(),
@@ -350,15 +339,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedTagBuildFile =
-            Tag.Build(
-                name = DEFAULT_TAG_NAME.format("googleDebug"),
-                commitSha = DEFAULT_TAG_COMMIT_SHA,
-                message = DEFAULT_TAG_COMMIT_MESSAGE,
-                buildVersion = DEFAULT_BUILD_VERSION,
-                buildVariant = "googleDebug",
-                buildNumber = DEFAULT_VERSION_CODE,
-            ).toJson()
+        val expectedTagBuildFile = HardcodedTagGenerationStrategy.build("googleDebug").toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = DEFAULT_VERSION_CODE.toString(),

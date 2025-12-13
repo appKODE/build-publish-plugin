@@ -17,6 +17,8 @@ import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_TAG_PATTERN
+import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
@@ -26,8 +28,6 @@ import ru.kode.android.build.publish.plugin.foundation.config.OutputConfig
 import ru.kode.android.build.publish.plugin.foundation.extension.BuildPublishFoundationExtension
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServicePlugin
 import ru.kode.android.build.publish.plugin.foundation.task.ChangelogTasksRegistrar
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_PATTERN
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_NAME
 import ru.kode.android.build.publish.plugin.foundation.task.GenerateChangelogTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.LastTagTaskParams
@@ -119,6 +119,12 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                             .flatMap { it.useStubsForTagAsFallback }
                                             .orElse(true),
                                     buildTagPattern = buildTagPattern,
+                                    versionNameStrategy = outputConfigProvider
+                                        .flatMap { it.versionNameStrategy },
+                                    versionCodeStrategy = outputConfigProvider
+                                        .flatMap { it.versionCodeStrategy },
+                                    outputApkNameStrategy = outputConfigProvider
+                                        .flatMap { it.outputApkNameStrategy },
                                 ),
                         )
 

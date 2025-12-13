@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.foundation.config
+package ru.kode.android.build.publish.plugin.core.builder
 
 import org.gradle.api.GradleException
 import java.util.regex.Pattern

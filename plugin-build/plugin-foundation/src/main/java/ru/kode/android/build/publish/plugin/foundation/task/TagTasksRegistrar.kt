@@ -8,33 +8,26 @@ import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_BUILD_VERSION
+import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
+import ru.kode.android.build.publish.plugin.core.strategy.SimpleApkNamingStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.PrintLastIncreasedTag
-import java.io.File
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 internal const val PRINT_LAST_INCREASED_TAG_TASK_PREFIX = "printLastIncreasedTag"
 internal const val RENAME_APK_TASK_PREFIX = "renameApk"
 
 internal const val GET_LAST_TAG_TASK_PREFIX = "getLastTag"
 
-const val DEFAULT_BASE_FILE_NAME = "dev-build"
-
-const val DEFAULT_BUILD_VERSION = "0.0"
-
-const val DEFAULT_VERSION_CODE = 1
-
 const val DEFAULT_VERSION_NAME = DEFAULT_BUILD_VERSION
-const val DEFAULT_TAG_PATTERN = ".+\\.(\\d+)-%s"
-
-const val DEFAULT_TAG_NAME = "v$DEFAULT_BUILD_VERSION.$DEFAULT_VERSION_CODE-%s"
-
-const val DEFAULT_TAG_COMMIT_SHA = "hardcoded_default_stub_commit_sha"
-
-const val DEFAULT_TAG_COMMIT_MESSAGE = "hardcoded_default_stub_commit_message"
 
 /**
  * Utility object for registering tasks related to Git tag management in the build process.
@@ -79,27 +72,55 @@ internal object TagTasksRegistrar {
                 }
                 .flatMap { (useVersionsFromTag, useDefaultVersionsAsFallback) ->
                     when {
-                        useVersionsFromTag -> lastBuildTag.map { mapToVersionCode(it.asFile) }
+                        useVersionsFromTag -> lastBuildTag.flatMap { tagBuildFile ->
+                            params.versionCodeStrategy.orElse(
+                                project.provider { BuildVersionCodeStrategy }
+                            ).flatMap { versionCodeStrategy ->
+                                project.provider {
+                                    val tag = if (tagBuildFile.asFile.exists()) {
+                                        fromJson(tagBuildFile.asFile)
+                                    } else {
+                                        null
+                                    }
+                                    versionCodeStrategy.build(
+                                        params.buildVariant,
+                                        tag
+                                    )
+                                }
+                            }
+                        }
+
                         useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_CODE }
                         else -> project.provider { null }
                     }
                 }
 
-        val apkOutputFileName: Provider<String> = params.apkOutputFileName.flatMap { apkOutput ->
-            params.useVersionsFromTag.flatMap { useVersionsFromTag ->
-                if (useVersionsFromTag) {
-                    params.baseFileName
-                        .zip(lastBuildTag) { baseFileName, tagBuildFile -> baseFileName to tagBuildFile }
-                        .map { (baseFileName, tagBuildFile) ->
-                            mapToOutputApkFileName(tagBuildFile.asFile, apkOutput, baseFileName)
+        val apkOutputFileName: Provider<String> = params.apkOutputFileName.flatMap { outputFileName ->
+            val outputApkNameStrategyOrDefault = params.outputApkNameStrategy
+                .orElse(project.provider { VersionedApkNamingStrategy })
+            params.useVersionsFromTag
+                .zip(outputApkNameStrategyOrDefault) { useVersionsFromTag, outputApkNameStrategy ->
+                    useVersionsFromTag to outputApkNameStrategy
+                }.flatMap { (useVersionsFromTag, outputApkNameStrategy) ->
+                    if (useVersionsFromTag) {
+                        params.baseFileName
+                            .zip(lastBuildTag) { baseFileName, tagBuildFile -> baseFileName to tagBuildFile }
+                            .map { (baseFileName, tagBuildFile) ->
+                                val tag = if (tagBuildFile.asFile.exists()) {
+                                    fromJson(tagBuildFile.asFile)
+                                } else {
+                                    null
+                                }
+                                outputApkNameStrategy.build(outputFileName, tag, baseFileName)
+                            }
+                    } else {
+                        params.baseFileName.map { baseFileName ->
+                            SimpleApkNamingStrategy.build(outputFileName, null, baseFileName)
                         }
-                } else {
-                    params.baseFileName.map { baseFileName ->
-                        createDefaultOutputFileName(baseFileName, apkOutput)
                     }
                 }
-            }
         }
+
         val versionName =
             params.useVersionsFromTag
                 .zip(
@@ -110,8 +131,22 @@ internal object TagTasksRegistrar {
                 .flatMap { (useVersionsFromTag, useDefaultVersionsAsFallback) ->
                     when {
                         useVersionsFromTag -> {
-                            lastBuildTag.map { tagBuildFile ->
-                                mapToVersionName(tagBuildFile.asFile, params.buildVariant)
+                            lastBuildTag.flatMap { tagBuildFile ->
+                                params.versionNameStrategy.orElse(
+                                    project.provider { BuildVersionNameStrategy }
+                                ).flatMap { versionNameStrategy ->
+                                    project.provider {
+                                        val tag = if (tagBuildFile.asFile.exists()) {
+                                            fromJson(tagBuildFile.asFile)
+                                        } else {
+                                            null
+                                        }
+                                        versionNameStrategy.build(
+                                            params.buildVariant,
+                                            tag
+                                        )
+                                    }
+                                }
                             }
                         }
 
@@ -209,107 +244,6 @@ private fun TaskContainer.registerPrintLastIncreasedTagTask(params: PrintLastInc
 }
 
 /**
- * Maps a [tagBuildFile] to a version name.
- *
- * This function reads the [tagBuildFile] and extracts the version name from it. If the file exists,
- * it uses the version name from the JSON file. If the file does not exist, it uses the default build
- * version with the name of the build variant appended.
- *
- * @param tagBuildFile The file containing the tag build information.
- * @param buildVariant The build variant for which the version name is being mapped.
- *
- * @return The version name extracted from the [tagBuildFile] or the default build version with the
- * name of the build variant appended.
- */
-private fun mapToVersionName(
-    file: File,
-    buildVariant: BuildVariant,
-): String {
-    return if (file.exists()) {
-        fromJson(file).buildVersion
-    } else {
-        DEFAULT_BUILD_VERSION
-    }
-}
-
-/**
- * Maps a [tagBuildFile] to a version code.
- *
- * This function reads the [tagBuildFile] and extracts the version code from it. If the file exists,
- * it uses the version code from the JSON file. If the file does not exist, it uses the default version
- * code defined in [DEFAULT_VERSION_CODE].
- *
- * @param tagBuildFile The file containing the tag build information.
- *
- * @return The version code extracted from the [tagBuildFile] or the default version code defined in
- * [DEFAULT_VERSION_CODE].
- */
-private fun mapToVersionCode(file: File): Int {
-    return if (file.exists()) {
-        fromJson(file).buildNumber
-    } else {
-        DEFAULT_VERSION_CODE
-    }
-}
-
-/**
- * Maps a [tagBuildFile] to the output APK file name.
- *
- * This function reads the [tagBuildFile] and extracts the version name and version code from it.
- * If the file exists and the [outputFileName] ends with .apk, it constructs the APK file name
- * in the format `<baseFileName>-<versionName>-vc<versionCode>-<formattedDate>.apk`.
- * If the file does not exist and the [outputFileName] ends with .apk, it constructs the APK
- * file name in the format `<baseFileName>-<formattedDate>.apk`.
- * If the file does not exist and the [outputFileName] does not end with .apk, it passes the
- * [outputFileName] through [createDefaultOutputFileName].
- *
- * @param tagBuildFile The file containing the tag build information.
- * @param outputFileName The name of the output APK file.
- * @param baseFileName The base name of the output APK file.
- *
- * @return The APK file name extracted from the [tagBuildFile] or the default APK file name based on
- * the [outputFileName] and [baseFileName].
- */
-private fun mapToOutputApkFileName(
-    tagFile: File,
-    outputFileName: String,
-    baseFileName: String?,
-): String {
-    val formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy"))
-    return if (tagFile.exists() && outputFileName.endsWith(".apk")) {
-        val tagBuild = fromJson(tagFile)
-        val versionName = tagBuild.buildVariant
-        val versionCode = tagBuild.buildNumber
-        "$baseFileName-$versionName-vc$versionCode-$formattedDate.apk"
-    } else if (!tagFile.exists() && outputFileName.endsWith(".apk")) {
-        "$baseFileName-$formattedDate.apk"
-    } else {
-        createDefaultOutputFileName(baseFileName, outputFileName)
-    }
-}
-
-/**
- * Generates the default output file name if the [tagBuildFile] is not available.
- *
- * If the [baseFileName] is not null, it will be used as the base of the output file name.
- * Otherwise, [DEFAULT_BASE_FILE_NAME] will be used.
- * The function extracts the file extension from the [outputFileName] and appends it to the
- * base file name.
- *
- * @param baseFileName The base file name of the output APK, or null if not available.
- * @param outputFileName The name of the output APK file.
- *
- * @return The default output file name if the [tagBuildFile] is not available.
- */
-private fun createDefaultOutputFileName(
-    baseFileName: String?,
-    outputFileName: String,
-): String {
-    return (baseFileName ?: DEFAULT_BASE_FILE_NAME)
-        .let { "$it.${outputFileName.split(".").last()}" }
-}
-
-/**
  * Data class containing the output of the last tag task.
  */
 internal data class LastTagTaskOutput(
@@ -363,6 +297,18 @@ internal data class LastTagTaskParams(
      * The pattern to match build tags against
      */
     val buildTagPattern: Provider<String>,
+    /**
+     * Provider for the version name mapper.
+     */
+    val versionNameStrategy: Provider<VersionNameStrategy>,
+    /**
+     * Provider for the version code mapper.
+     */
+    val versionCodeStrategy: Provider<VersionCodeStrategy>,
+    /**
+     * Provider for the output APK name mapper.
+     */
+    val outputApkNameStrategy: Provider<OutputApkNameStrategy>,
 )
 
 /**

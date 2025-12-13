@@ -6,14 +6,10 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
+import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
+import ru.kode.android.build.publish.plugin.core.strategy.HardcodedTagGenerationStrategy
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_BUILD_VERSION
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_COMMIT_MESSAGE
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_COMMIT_SHA
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_TAG_NAME
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_CODE
 import javax.inject.Inject
 
 /**
@@ -117,16 +113,8 @@ internal abstract class GenerateTagWork
                 }
 
                 useStubsForTagAsFallback -> {
-                    val stubTag =
-                        Tag.Build(
-                            name = DEFAULT_TAG_NAME.format(buildVariant),
-                            commitSha = DEFAULT_TAG_COMMIT_SHA,
-                            message = DEFAULT_TAG_COMMIT_MESSAGE,
-                            buildVersion = DEFAULT_BUILD_VERSION,
-                            buildVariant = buildVariant,
-                            buildNumber = DEFAULT_VERSION_CODE,
-                        )
-                    tagBuildOutput.writeText(stubTag.toJson())
+                    val tag = HardcodedTagGenerationStrategy.build(buildVariant)
+                    tagBuildOutput.writeText(tag.toJson())
                     logger.warn(
                         "Using stub tag for build variant '$buildVariant' " +
                             "because no valid tag was found using pattern '$buildTagPattern'.",
