@@ -15,8 +15,8 @@ import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExte
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 
 private const val EXTENSION_NAME = "buildPublishTelegram"
-private const val NETWORK_SERVICE_NAME = "telegramNetworkService"
-private const val NETWORK_SERVICE_EXTENSION_NAME = "telegramNetworkServiceExtension"
+private const val SERVICE_NAME = "telegramService"
+private const val SERVICE_EXTENSION_NAME = "telegramServiceExtension"
 
 /**
  * A Gradle plugin that integrates with Telegram to send build notifications and deployment updates.
@@ -44,7 +44,7 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
         servicesProperty.set(emptyMap())
 
         project.extensions.create(
-            NETWORK_SERVICE_EXTENSION_NAME,
+            SERVICE_EXTENSION_NAME,
             TelegramServiceExtension::class.java,
             servicesProperty
         )
@@ -64,7 +64,7 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
             val serviceMap = extension.bots.associate { botConfig ->
                 val name = botConfig.name
                 val service = project.gradle.sharedServices.registerIfAbsent(
-                    project.serviceName(NETWORK_SERVICE_NAME, name),
+                    project.serviceName(SERVICE_NAME, name),
                     TelegramService::class.java
                 ) {
                     it.maxParallelUsages.set(1)

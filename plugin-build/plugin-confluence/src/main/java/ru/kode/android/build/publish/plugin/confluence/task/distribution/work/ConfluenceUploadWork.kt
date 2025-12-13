@@ -5,7 +5,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.confluence.service.network.ConfluenceNetworkService
+import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
 import ru.kode.android.build.publish.plugin.core.util.RequestError
 
 /**
@@ -25,7 +25,7 @@ interface ConfluenceUploadParameters : WorkParameters {
     /**
      * The network service used to communicate with Confluence
      */
-    val networkService: Property<ConfluenceNetworkService>
+    val service: Property<ConfluenceService>
 }
 
 /**
@@ -39,15 +39,15 @@ internal abstract class ConfluenceUploadWork : WorkAction<ConfluenceUploadParame
 
     @Suppress("SwallowedException") // see logs below
     override fun execute() {
-        val networkService = parameters.networkService.get()
+        val service = parameters.service.get()
 
         try {
             val distributionFile = parameters.outputFile.asFile.get()
-            networkService.uploadFile(
+            service.uploadFile(
                 pageId = parameters.pageId.get(),
                 file = distributionFile,
             )
-            networkService.addComment(
+            service.addComment(
                 pageId = parameters.pageId.get(),
                 fileName = distributionFile.name,
             )
@@ -55,6 +55,7 @@ internal abstract class ConfluenceUploadWork : WorkAction<ConfluenceUploadParame
             logger.error(
                 "Confluence upload failed with timeout exception, " +
                     "but the file was probably uploaded successfully",
+                ex
             )
         }
     }

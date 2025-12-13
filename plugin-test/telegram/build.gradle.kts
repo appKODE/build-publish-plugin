@@ -57,5 +57,5 @@ private fun Project.getEnvOrProperty(name: String): String {
         props.load(file.inputStream())
         props.getProperty(name)?.let { return it }
     }
-    return "not_denined_stub"
+    return "not_defined_stub"
 }

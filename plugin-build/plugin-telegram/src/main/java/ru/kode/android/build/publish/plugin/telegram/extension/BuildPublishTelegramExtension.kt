@@ -207,7 +207,7 @@ abstract class BuildPublishTelegramExtension
 
             if (bots.isEmpty()) {
                 throw GradleException(
-                    "Need to provide Bots config for $buildVariant or common. " +
+                    "Need to provide Bots config for `$buildVariant` or `common`. " +
                     "It's required to run Telegram plugin. " +
                     "Please check that you have 'bots' block in your build script " +
                     "and that it's not empty. "
@@ -218,7 +218,7 @@ abstract class BuildPublishTelegramExtension
 
             if (changelogConfig == null && distributionConfig == null) {
                 throw GradleException(
-                    "Need to provide at least one of Changelog or Distribution config for $buildVariant or common. " +
+                    "Need to provide at least one of Changelog or Distribution config for `$buildVariant` or `common`. " +
                         "Please check that you have either 'changelog' or 'distribution' block in your build script " +
                         "and that it's not empty. "
                 )

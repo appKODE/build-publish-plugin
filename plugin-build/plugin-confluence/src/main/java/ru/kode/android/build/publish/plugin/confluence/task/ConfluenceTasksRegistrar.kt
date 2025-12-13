@@ -9,7 +9,7 @@ import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.ConfluenceDistributionTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 
 internal const val CONFLUENCE_DISTRIBUTION_UPLOAD_TASK_PREFIX = "confluenceDistributionUpload"
 internal const val CONFLUENCE_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "confluenceDistributionUploadBundle"
@@ -70,15 +70,18 @@ private fun Project.registerApkConfluenceDistributionTask(
         "$CONFLUENCE_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         ConfluenceDistributionTask::class.java,
     ) {
-        val networkService =
+        val service =
             project.extensions
                 .getByType(ConfluenceServiceExtension::class.java)
-                .networkServices
-                .flatMapByNameOrCommon(params.buildVariant.name)
+                .services
+                .get()
+                .getByNameOrCommon(params.buildVariant.name)
 
         it.distributionFile.set(params.apkOutputFile)
         it.pageId.set(distributionConfig.pageId)
-        it.networkService.set(networkService)
+        it.service.set(service)
+
+        it.usesService(service)
     }
 }
 
@@ -95,26 +98,22 @@ private fun Project.registerBundleConfluenceDistributionTask(
     distributionConfig: ConfluenceDistributionConfig,
     params: ConfluenceBundleDistributionTaskParams,
 ): TaskProvider<ConfluenceDistributionTask>? {
-    return if (params.bundleOutputFile.isPresent) {
-        tasks.register(
-            "$CONFLUENCE_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
-            ConfluenceDistributionTask::class.java,
-        ) {
-            val networkService =
-                project.extensions
-                    .getByType(ConfluenceServiceExtension::class.java)
-                    .networkServices
-                    .flatMapByNameOrCommon(params.buildVariant.name)
+    return tasks.register(
+        "$CONFLUENCE_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        ConfluenceDistributionTask::class.java,
+    ) {
+        val service =
+            project.extensions
+                .getByType(ConfluenceServiceExtension::class.java)
+                .services
+                .get()
+                .getByNameOrCommon(params.buildVariant.name)
 
-            it.distributionFile.set(params.bundleOutputFile)
-            it.pageId.set(distributionConfig.pageId)
-            it.networkService.set(networkService)
-        }
-    } else {
-        logger.info(
-            "ConfluenceDistributionTask for Bundle was not created, bundleOutputFile is not present",
-        )
-        null
+        it.distributionFile.set(params.bundleOutputFile)
+        it.pageId.set(distributionConfig.pageId)
+        it.service.set(service)
+
+        it.usesService(service)
     }
 }
 

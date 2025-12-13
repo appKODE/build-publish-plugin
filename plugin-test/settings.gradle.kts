@@ -26,6 +26,7 @@ rootProject.name = ("ru.kode.android.build.publish.plugin-test")
 include("foundation")
 include("jira")
 include("telegram")
+include("confluence")
 include("utils")
 includeBuild("../plugin-build") {
     dependencySubstitution {
@@ -35,6 +36,8 @@ includeBuild("../plugin-build") {
             .using(project(":pugin-jira"))
         substitute(module("ru.kode.android:plugin-telegram"))
             .using(project(":pugin-telegram"))
+        substitute(module("ru.kode.android:plugin-confluence"))
+            .using(project(":pugin-confluence"))
     }
 }
 

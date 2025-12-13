@@ -160,7 +160,7 @@ abstract class BuildPublishJiraExtension
 
             if (auth.isEmpty()) {
                 throw GradleException(
-                    "Need to provide Auth config for $variantName or common. " +
+                    "Need to provide Auth config for `$variantName` or `common`. " +
                     "It's required to run Jira plugin. " +
                     "Please check that you have 'auth' block in your build script " +
                     "and that it's not empty. "
@@ -169,7 +169,7 @@ abstract class BuildPublishJiraExtension
 
             val automationConfig = automationConfigOrNull(variantName)
                 ?: throw GradleException(
-                    "Need to provide Automation config for $variantName or common. " +
+                    "Need to provide Automation config for `$variantName` or `common`. " +
                     "Please check that you have 'automation' block in your build script " +
                     "and that it's not empty. "
                 )

@@ -48,7 +48,6 @@ internal interface AddFixVersionParameters : WorkParameters {
  * @see [JiraService.createVersion] for version creation implementation
  * @see [JiraService.addFixVersion] for adding fix version implementation
  */
-@Suppress("SwallowedException") // Exceptions are handled by the JiraNetworkService
 internal abstract class AddFixVersionWork : WorkAction<AddFixVersionParameters> {
     override fun execute() {
         val service = parameters.service.get()

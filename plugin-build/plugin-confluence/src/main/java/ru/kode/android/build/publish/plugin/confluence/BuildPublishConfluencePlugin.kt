@@ -8,12 +8,12 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.confluence.extension.BuildPublishConfluenceExtension
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceServiceExtension
-import ru.kode.android.build.publish.plugin.confluence.service.network.ConfluenceNetworkService
+import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 
 private const val EXTENSION_NAME = "buildPublishConfluence"
-private const val NETWORK_SERVICE_NAME = "confluenceNetworkService"
-private const val NETWORK_SERVICE_EXTENSION_NAME = "confluenceNetworkServiceExtension"
+private const val SERVICE_NAME = "confluenceService"
+private const val SERVICE_EXTENSION_NAME = "confluenceServiceExtension"
 
 /**
  * A Gradle plugin that provides Confluence integration for build publishing.
@@ -35,13 +35,13 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
                 .getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
-            val services: Provider<Map<String, Provider<ConfluenceNetworkService>>> =
+            val services: Provider<Map<String, Provider<ConfluenceService>>> =
                 project.provider {
                     extension.auth.fold(mapOf()) { acc, authConfig ->
                         val service =
                             project.gradle.sharedServices.registerIfAbsent(
-                                project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),
-                                ConfluenceNetworkService::class.java,
+                                project.serviceName(SERVICE_NAME, authConfig.name),
+                                ConfluenceService::class.java,
                                 {
                                     it.maxParallelUsages.set(1)
                                     it.parameters.credentials.set(authConfig.credentials)
@@ -54,7 +54,7 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
                     }
                 }
             project.extensions.create(
-                NETWORK_SERVICE_EXTENSION_NAME,
+                SERVICE_EXTENSION_NAME,
                 ConfluenceServiceExtension::class.java,
                 services,
             )

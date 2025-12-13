@@ -16,8 +16,8 @@ import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 
 private const val EXTENSION_NAME = "buildPublishJira"
-const val NETWORK_SERVICE_NAME = "jiraNetworkService"
-private const val NETWORK_SERVICE_EXTENSION_NAME = "jiraNetworkServiceExtension"
+private const val SERVICE_NAME = "jiraService"
+private const val SERVICE_EXTENSION_NAME = "jiraServiceExtension"
 
 /**
  * Gradle plugin for integrating Jira issue tracking with Android build and publish workflows.
@@ -49,7 +49,7 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
         servicesProperty.set(emptyMap())
 
         project.extensions.create(
-            NETWORK_SERVICE_EXTENSION_NAME,
+            SERVICE_EXTENSION_NAME,
             JiraServiceExtension::class.java,
             servicesProperty
         )
@@ -78,7 +78,7 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
             val serviceMap = extension.auth.associate { authConfig ->
                 val name = authConfig.name
                 val registered = project.gradle.sharedServices.registerIfAbsent(
-                    project.serviceName(NETWORK_SERVICE_NAME, name),
+                    project.serviceName(SERVICE_NAME, name),
                     JiraService::class.java
                 ) {
                     it.maxParallelUsages.set(1)

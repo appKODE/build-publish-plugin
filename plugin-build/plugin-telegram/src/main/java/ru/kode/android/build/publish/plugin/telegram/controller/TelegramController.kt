@@ -5,6 +5,12 @@ import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramL
 import ru.kode.android.build.publish.plugin.telegram.network.entity.TelegramMessage
 import java.io.File
 
+/**
+ * The TelegramController interface defines methods for sending messages to Telegram chats.
+ *
+ * The TelegramController interface provides methods for sending messages to Telegram chats
+ * using the configured Telegram bots. It allows to send both text and file messages.
+ */
 interface TelegramController {
 
     /**

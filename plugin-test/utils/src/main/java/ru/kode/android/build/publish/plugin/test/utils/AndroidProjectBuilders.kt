@@ -198,22 +198,18 @@ fun File.createAndroidProject(
     val confluenceConfigBlock =
         confluenceConfig?.let { config ->
             """
-            buildPublishConfluence {
-                auth {
-                    common {
-                        it.baseUrl.set("${config.auth.baseUrl}")
-                        it.credentials.username.set("${config.auth.username}")
-                        it.credentials.password.set("${config.auth.password}")
-                    }
-                }
-                
-                distribution {
-                    buildVariant("default") {
-                        pageId.set("${config.distribution.pageId}")
-                    }
+        buildPublishConfluence {
+            auth {
+                common {
+                    it.baseUrl.set("${config.auth.baseUrl}")
+                    it.credentials.username.set("${config.auth.username}")
+                    it.credentials.password.set("${config.auth.password}")
                 }
             }
-            """.trimIndent()
+                
+            ${config.distribution?.let { confluenceDistributionBlock(it) }.orEmpty()}
+        }
+            """
         }.orEmpty()
 
     val firebaseConfigBlock =
@@ -380,6 +376,16 @@ private fun jiraAutomationBlock(automation: JiraConfig.Automation): String {
                     ${automation.targetStatusName?.let { """it.targetStatusName.set("$it")""" }.orEmpty()}
                 }
             }
+    """
+}
+
+private fun confluenceDistributionBlock(distribution: ConfluenceConfig.Distribution): String {
+    return """
+           distribution {
+                common {
+                    it.pageId.set("${distribution.pageId}")
+                }
+           }
     """
 }
 
@@ -632,7 +638,7 @@ data class ClickUpConfig(
 
 data class ConfluenceConfig(
     val auth: Auth,
-    val distribution: Distribution,
+    val distribution: Distribution?,
 ) {
     data class Auth(
         val baseUrl: String,

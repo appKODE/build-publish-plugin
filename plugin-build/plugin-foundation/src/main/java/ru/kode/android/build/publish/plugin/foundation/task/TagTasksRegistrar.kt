@@ -70,24 +70,21 @@ internal object TagTasksRegistrar {
                 ) { useVersionsFromTag, useDefaultVersionsAsFallback ->
                     useVersionsFromTag to useDefaultVersionsAsFallback
                 }
-                .flatMap { (useVersionsFromTag, useDefaultVersionsAsFallback) ->
+                .zip(params.versionCodeStrategy
+                    .orElse(project.provider { BuildVersionCodeStrategy })) { versionsParamsPair, versionCodeStrategy ->
+                    versionsParamsPair to versionCodeStrategy
+                }
+                .flatMap { (versionsParamsPair, versionCodeStrategy) ->
+                    val useVersionsFromTag = versionsParamsPair.first
+                    val useDefaultVersionsAsFallback = versionsParamsPair.second
                     when {
-                        useVersionsFromTag -> lastBuildTag.flatMap { tagBuildFile ->
-                            params.versionCodeStrategy.orElse(
-                                project.provider { BuildVersionCodeStrategy }
-                            ).flatMap { versionCodeStrategy ->
-                                project.provider {
-                                    val tag = if (tagBuildFile.asFile.exists()) {
-                                        fromJson(tagBuildFile.asFile)
-                                    } else {
-                                        null
-                                    }
-                                    versionCodeStrategy.build(
-                                        params.buildVariant,
-                                        tag
-                                    )
-                                }
+                        useVersionsFromTag -> lastBuildTag.map { tagBuildFile ->
+                            val tag = if (tagBuildFile.asFile.exists()) {
+                                fromJson(tagBuildFile.asFile)
+                            } else {
+                                null
                             }
+                            versionCodeStrategy.build(params.buildVariant, tag)
                         }
 
                         useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_CODE }
@@ -95,31 +92,35 @@ internal object TagTasksRegistrar {
                     }
                 }
 
-        val apkOutputFileName: Provider<String> = params.apkOutputFileName.flatMap { outputFileName ->
-            val outputApkNameStrategyOrDefault = params.outputApkNameStrategy
-                .orElse(project.provider { VersionedApkNamingStrategy })
-            params.useVersionsFromTag
-                .zip(outputApkNameStrategyOrDefault) { useVersionsFromTag, outputApkNameStrategy ->
-                    useVersionsFromTag to outputApkNameStrategy
-                }.flatMap { (useVersionsFromTag, outputApkNameStrategy) ->
-                    if (useVersionsFromTag) {
-                        params.baseFileName
-                            .zip(lastBuildTag) { baseFileName, tagBuildFile -> baseFileName to tagBuildFile }
-                            .map { (baseFileName, tagBuildFile) ->
-                                val tag = if (tagBuildFile.asFile.exists()) {
-                                    fromJson(tagBuildFile.asFile)
-                                } else {
-                                    null
-                                }
-                                outputApkNameStrategy.build(outputFileName, tag, baseFileName)
+        val apkOutputFileName: Provider<String> = params.apkOutputFileName
+            .zip(params.useVersionsFromTag) { apkOutputFileName, useVersionsFromTag ->
+                apkOutputFileName to useVersionsFromTag
+            }
+            .zip(params.outputApkNameStrategy
+                .orElse(project.provider { VersionedApkNamingStrategy })) { paramsPair, outputApkNameStrategy ->
+                paramsPair to outputApkNameStrategy
+            }
+            .flatMap { (paramsPair, outputApkNameStrategy) ->
+                val outputFileName = paramsPair.first
+                val useVersionsFromTag = paramsPair.second
+                if (useVersionsFromTag) {
+                    params.baseFileName
+                        .zip(lastBuildTag) { baseFileName, tagBuildFile -> baseFileName to tagBuildFile }
+                        .map { (baseFileName, tagBuildFile) ->
+                            val tag = if (tagBuildFile.asFile.exists()) {
+                                fromJson(tagBuildFile.asFile)
+                            } else {
+                                null
                             }
-                    } else {
-                        params.baseFileName.map { baseFileName ->
-                            SimpleApkNamingStrategy.build(outputFileName, null, baseFileName)
+                            outputApkNameStrategy.build(outputFileName, tag, baseFileName)
                         }
+                } else {
+                    params.baseFileName.map { baseFileName ->
+                        SimpleApkNamingStrategy.build(outputFileName, null, baseFileName)
                     }
                 }
-        }
+            }
+
 
         val versionName =
             params.useVersionsFromTag
@@ -128,25 +129,26 @@ internal object TagTasksRegistrar {
                 ) { useVersionsFromTag, useDefaultVersionsAsFallback ->
                     useVersionsFromTag to useDefaultVersionsAsFallback
                 }
-                .flatMap { (useVersionsFromTag, useDefaultVersionsAsFallback) ->
+                .zip(params.versionNameStrategy
+                    .orElse(project.provider { BuildVersionNameStrategy })) { versionsParamsPair, versionNameStrategy ->
+                    versionsParamsPair to versionNameStrategy
+                }
+                .flatMap { (versionsParamsPair, versionNameStrategy) ->
+                    val useVersionsFromTag = versionsParamsPair.first
+                    val useDefaultVersionsAsFallback = versionsParamsPair.second
+
                     when {
                         useVersionsFromTag -> {
-                            lastBuildTag.flatMap { tagBuildFile ->
-                                params.versionNameStrategy.orElse(
-                                    project.provider { BuildVersionNameStrategy }
-                                ).flatMap { versionNameStrategy ->
-                                    project.provider {
-                                        val tag = if (tagBuildFile.asFile.exists()) {
-                                            fromJson(tagBuildFile.asFile)
-                                        } else {
-                                            null
-                                        }
-                                        versionNameStrategy.build(
-                                            params.buildVariant,
-                                            tag
-                                        )
-                                    }
+                            lastBuildTag.map { tagBuildFile ->
+                                val tag = if (tagBuildFile.asFile.exists()) {
+                                    fromJson(tagBuildFile.asFile)
+                                } else {
+                                    null
                                 }
+                                versionNameStrategy.build(
+                                    params.buildVariant,
+                                    tag
+                                )
                             }
                         }
 

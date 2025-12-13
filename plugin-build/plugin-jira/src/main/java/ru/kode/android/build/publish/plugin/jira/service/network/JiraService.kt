@@ -7,6 +7,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
+import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.JiraControllerImpl
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueStatus
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueTransition
@@ -51,7 +52,7 @@ abstract class JiraService
 
         internal abstract val apiProperty: Property<JiraApi>
 
-        internal abstract val controllerProperty: Property<JiraControllerImpl>
+        internal abstract val controllerProperty: Property<JiraController>
 
         init {
             val username = parameters.credentials.flatMap { it.username }
@@ -73,7 +74,7 @@ abstract class JiraService
             )
         }
 
-        private val controller: JiraControllerImpl get() = controllerProperty.get()
+        private val controller: JiraController get() = controllerProperty.get()
 
 
         /**

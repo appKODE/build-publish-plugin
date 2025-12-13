@@ -7,8 +7,18 @@ import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramDis
 import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramRetrofitBuilderFactory
 import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramWebhookApiFactory
 
+
+/**
+ * Factory for creating instances of [TelegramController].
+ */
 object TelegramControllerFactory {
 
+    /**
+     * Creates an instance of [TelegramController].
+     *
+     * @param logger The logger to be used by the controller.
+     * @return A new instance of [TelegramController].
+     */
     fun build(
         logger: Logger
     ): TelegramController {

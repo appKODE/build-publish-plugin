@@ -43,126 +43,126 @@ private const val TELEGRAM_BASE_RUL = "https://api.telegram.org"
  * @see Params For configuration parameters
  */
 abstract class TelegramService
-@Inject
-constructor() : BuildService<TelegramService.Params> {
-    /**
-     * Configuration parameters for the TelegramNetworkService.
-     */
-    interface Params : BuildServiceParameters {
+    @Inject
+    constructor() : BuildService<TelegramService.Params> {
         /**
-         * A list of configured Telegram bots that can be used for sending messages.
-         * Each bot is identified by its name and contains the necessary credentials.
+         * Configuration parameters for the TelegramService.
          */
-        val bots: ListProperty<String>
+        interface Params : BuildServiceParameters {
+            /**
+             * A list of configured Telegram bots that can be used for sending messages.
+             * Each bot is identified by its name and contains the necessary credentials.
+             */
+            val bots: ListProperty<String>
+        }
+
+        private val logger: Logger = Logging.getLogger("Telegram")
+
+        private val json = Json { ignoreUnknownKeys = true }
+
+        internal abstract val okHttpClientProperty: Property<OkHttpClient>
+        internal abstract val retrofitBuilderProperty: Property<Retrofit.Builder>
+        internal abstract val distributionApiProperty: Property<TelegramDistributionApi>
+        internal abstract val webhookApiProperty: Property<TelegramWebhookApi>
+        internal abstract val controllerProperty: Property<TelegramController>
+
+        init {
+            okHttpClientProperty.set(
+                TelegramClientFactory.build(logger, json)
+            )
+            retrofitBuilderProperty.set(
+                okHttpClientProperty.map { client ->
+                    TelegramRetrofitBuilderFactory.build(client, json)
+                },
+            )
+            distributionApiProperty.set(
+                retrofitBuilderProperty.map { retrofitBuilder ->
+                    TelegramDistributionApiFactory.build(retrofitBuilder)
+                },
+            )
+            webhookApiProperty.set(
+                retrofitBuilderProperty.map { retrofitBuilder ->
+                    TelegramWebhookApiFactory.build(retrofitBuilder)
+                },
+            )
+            controllerProperty.set(
+                webhookApiProperty.zip(distributionApiProperty) { webhookApi, distributionApi ->
+                    TelegramControllerImpl(webhookApi, distributionApi, logger)
+                }
+            )
+        }
+
+        private val bots: List<TelegramBot> get() = parameters.bots
+            .map { it.map { telegramBotFromJson(it) } }
+            .get()
+
+        private val controller: TelegramController get() = controllerProperty.get()
+
+        /**
+         * Sends a text message to the specified Telegram chats using the configured bots in chunks.
+         *
+         * This method sends a Markdown-formatted message to one or more Telegram chats
+         * using the specified bots. The message will be split into chunks if it exceeds the maximum
+         * length allowed by Telegram. The chunks will be separated by newlines.
+         *
+         * @param message The message to send (supports MarkdownV2 formatting)
+         * @param bots List of bot configurations
+         * @param destinationBots Set of destination bots and their respective chat configurations
+         *
+         * @throws IllegalStateException If no matching bot configuration is found
+         * @throws IOException If there's a network error while sending the message
+         *
+         * @see upload For sending files instead of text messages
+         */
+        fun send(
+            changelog: String,
+            header: String,
+            userMentions: List<String>?,
+            issueUrlPrefix: String,
+            issueNumberPattern: String,
+            destinationBots: List<DestinationTelegramBot>,
+        ) {
+            controller.send(
+                changelog,
+                header,
+                userMentions,
+                issueUrlPrefix,
+                issueNumberPattern,
+                bots.mapToChatSpecificBots(
+                    destinationBots = destinationBots,
+                    fallbackServerBaseUrl = TELEGRAM_BASE_RUL
+                ),
+            )
+        }
+
+
+        /**
+         * Uploads a file to the specified Telegram chats using the configured bots.
+         *
+         * This method sends a file to one or more Telegram chats using the specified bots.
+         * The file will be sent as a document, and a caption can be included.
+         *
+         * @param file The file to upload
+         * @param destinationBots Set of destination bots and their respective chat configurations
+         *
+         * @throws IllegalStateException If no matching bot configuration is found
+         * @throws IOException If there's a network error or the file cannot be read
+         *
+         * @see send For sending text messages without file attachments
+         */
+        fun upload(
+            file: File,
+            destinationBots: List<DestinationTelegramBot>,
+        ) {
+            controller.upload(
+                file,
+                bots.mapToChatSpecificBots(
+                    destinationBots = destinationBots,
+                    fallbackServerBaseUrl = TELEGRAM_BASE_RUL
+                ),
+            )
+        }
     }
-
-    private val logger: Logger = Logging.getLogger("Telegram")
-
-    private val json = Json { ignoreUnknownKeys = true }
-
-    internal abstract val okHttpClientProperty: Property<OkHttpClient>
-    internal abstract val retrofitBuilderProperty: Property<Retrofit.Builder>
-    internal abstract val distributionApiProperty: Property<TelegramDistributionApi>
-    internal abstract val webhookApiProperty: Property<TelegramWebhookApi>
-    internal abstract val controllerProperty: Property<TelegramController>
-
-    init {
-        okHttpClientProperty.set(
-            TelegramClientFactory.build(logger, json)
-        )
-        retrofitBuilderProperty.set(
-            okHttpClientProperty.map { client ->
-                TelegramRetrofitBuilderFactory.build(client, json)
-            },
-        )
-        distributionApiProperty.set(
-            retrofitBuilderProperty.map { retrofitBuilder ->
-                TelegramDistributionApiFactory.build(retrofitBuilder)
-            },
-        )
-        webhookApiProperty.set(
-            retrofitBuilderProperty.map { retrofitBuilder ->
-                TelegramWebhookApiFactory.build(retrofitBuilder)
-            },
-        )
-        controllerProperty.set(
-            webhookApiProperty.zip(distributionApiProperty) { webhookApi, distributionApi ->
-                TelegramControllerImpl(webhookApi, distributionApi, logger)
-            }
-        )
-    }
-
-    private val bots: List<TelegramBot> get() = parameters.bots
-        .map { it.map { telegramBotFromJson(it) } }
-        .get()
-
-    private val controller: TelegramController get() = controllerProperty.get()
-
-    /**
-     * Sends a text message to the specified Telegram chats using the configured bots in chunks.
-     *
-     * This method sends a Markdown-formatted message to one or more Telegram chats
-     * using the specified bots. The message will be split into chunks if it exceeds the maximum
-     * length allowed by Telegram. The chunks will be separated by newlines.
-     *
-     * @param message The message to send (supports MarkdownV2 formatting)
-     * @param bots List of bot configurations
-     * @param destinationBots Set of destination bots and their respective chat configurations
-     *
-     * @throws IllegalStateException If no matching bot configuration is found
-     * @throws IOException If there's a network error while sending the message
-     *
-     * @see upload For sending files instead of text messages
-     */
-    fun send(
-        changelog: String,
-        header: String,
-        userMentions: List<String>?,
-        issueUrlPrefix: String,
-        issueNumberPattern: String,
-        destinationBots: List<DestinationTelegramBot>,
-    ) {
-        controller.send(
-            changelog,
-            header,
-            userMentions,
-            issueUrlPrefix,
-            issueNumberPattern,
-            bots.mapToChatSpecificBots(
-                destinationBots = destinationBots,
-                fallbackServerBaseUrl = TELEGRAM_BASE_RUL
-            ),
-        )
-    }
-
-
-    /**
-     * Uploads a file to the specified Telegram chats using the configured bots.
-     *
-     * This method sends a file to one or more Telegram chats using the specified bots.
-     * The file will be sent as a document, and a caption can be included.
-     *
-     * @param file The file to upload
-     * @param destinationBots Set of destination bots and their respective chat configurations
-     *
-     * @throws IllegalStateException If no matching bot configuration is found
-     * @throws IOException If there's a network error or the file cannot be read
-     *
-     * @see send For sending text messages without file attachments
-     */
-    fun upload(
-        file: File,
-        destinationBots: List<DestinationTelegramBot>,
-    ) {
-        controller.upload(
-            file,
-            bots.mapToChatSpecificBots(
-                destinationBots = destinationBots,
-                fallbackServerBaseUrl = TELEGRAM_BASE_RUL
-            ),
-        )
-    }
-}
 
 /**
  * Retrieves a list of [ChatSpecificTelegramBot] configurations based on the provided [destinationBots].

@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.confluence.service.network.ConfluenceNetworkService
+import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.work.ConfluenceUploadWork
 import javax.inject.Inject
 
@@ -38,7 +38,7 @@ abstract class ConfluenceDistributionTask
          * It is internal and not meant to be accessed or configured by the user.
          */
         @get:Internal
-        abstract val networkService: Property<ConfluenceNetworkService>
+        abstract val service: Property<ConfluenceService>
 
         /**
          * The distribution file to be uploaded to Confluence.
@@ -80,7 +80,7 @@ abstract class ConfluenceDistributionTask
             workQueue.submit(ConfluenceUploadWork::class.java) { parameters ->
                 parameters.outputFile.set(distributionFile)
                 parameters.pageId.set(pageId)
-                parameters.networkService.set(networkService)
+                parameters.service.set(service)
             }
         }
     }

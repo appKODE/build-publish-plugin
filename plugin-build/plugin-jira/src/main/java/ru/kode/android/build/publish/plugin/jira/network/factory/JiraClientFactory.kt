@@ -10,8 +10,19 @@ import java.util.concurrent.TimeUnit
 
 private const val HTTP_CONNECT_TIMEOUT_SECONDS = 30L
 
+/**
+ * Factory for creating OkHttpClient instances with the necessary configuration for Jira API communication.
+ */
 internal object JiraClientFactory {
 
+    /**
+     * Builds an instance of OkHttpClient for Jira API communication with the necessary configuration.
+     *
+     * @param username The username used for authentication with the Jira API.
+     * @param password The password used for authentication with the Jira API.
+     * @param logger The logger used for logging HTTP requests and responses.
+     * @return An instance of OkHttpClient.
+     */
     fun build(
         username: String,
         password: String,
@@ -22,7 +33,7 @@ internal object JiraClientFactory {
             .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .addInterceptor(AttachTokenInterceptor(username, password))
-            .addProxyIfAvailable()
+            .addProxyIfAvailable(logger)
             .apply {
                 val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
                 loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -32,6 +43,13 @@ internal object JiraClientFactory {
     }
 }
 
+/**
+ * Interceptor that attaches the username and password as basic authentication
+ * to each request.
+ *
+ * @property username The username used for authentication.
+ * @property password The password used for authentication.
+ */
 private class AttachTokenInterceptor(
     private val username: String,
     private val password: String,

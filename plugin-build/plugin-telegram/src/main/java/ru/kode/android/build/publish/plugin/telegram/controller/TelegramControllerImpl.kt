@@ -29,12 +29,37 @@ private const val MESSAGE_MAX_LENGTH = 4096
 private const val ESCAPED_CHARACTERS =
     "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]|-"
 
+/**
+ * The implementation of the TelegramController interface.
+ *
+ * This class is responsible for sending messages to Telegram chats using the configured bots.
+ *
+ * @param webhookApi the API for sending webhook requests
+ * @param distributionApi the API for sending distribution requests
+ * @param logger the logger for logging messages
+ */
 internal class TelegramControllerImpl(
     private val webhookApi: TelegramWebhookApi,
     private val distributionApi: TelegramDistributionApi,
     private val logger: Logger
 ) : TelegramController {
 
+    /**
+     * Sends a text message to the specified Telegram chats using the configured bots in chunks.
+     *
+     * This method sends a Markdown-formatted message to one or more Telegram chats
+     * using the specified bots. The message will be split into chunks if it exceeds the maximum
+     * length allowed by Telegram. The chunks will be separated by newlines.
+     *
+     * @param message The message to send (supports MarkdownV2 formatting)
+     * @param bots List of bot configurations
+     * @param destinationBots Set of destination bots and their respective chat configurations
+     *
+     * @throws IllegalStateException If no matching bot configuration is found
+     * @throws IOException If there's a network error while sending the message
+     *
+     * @see upload For sending files instead of text messages
+     */
     override fun send(
         message: String,
         header: String,
@@ -285,10 +310,21 @@ private fun String.chunked(
     return result
 }
 
+/**
+ * Formats the message by removing any Windows-style line breaks and escaping newline characters.
+ *
+ * @return The formatted message.
+ */
 private fun String.formatMessage(): String {
     return this.replace(Regex("(\r\n|\r|\n)"), "\n")
 }
 
+/**
+ * Escapes the specified characters in the string.
+ *
+ * @param escapedCharacters The characters to be escaped.
+ * @return The string with escaped characters.
+ */
 private fun String.escapeCharacters(escapedCharacters: String): String {
     return this.replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
 }

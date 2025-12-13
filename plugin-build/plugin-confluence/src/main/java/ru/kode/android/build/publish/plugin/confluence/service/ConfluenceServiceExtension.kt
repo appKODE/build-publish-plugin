@@ -1,7 +1,6 @@
 package ru.kode.android.build.publish.plugin.confluence.service
 
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.confluence.service.network.ConfluenceNetworkService
 
 /**
  * Extension for configuring and accessing Confluence services within the build.
@@ -15,5 +14,5 @@ abstract class ConfluenceServiceExtension(
      * A provider of a map containing Confluence network service providers,
      * keyed by service name.
      */
-    val networkServices: Provider<Map<String, Provider<ConfluenceNetworkService>>>,
+    val services: Provider<Map<String, Provider<ConfluenceService>>>,
 )

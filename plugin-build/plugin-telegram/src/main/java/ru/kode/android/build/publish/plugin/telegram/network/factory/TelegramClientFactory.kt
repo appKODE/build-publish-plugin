@@ -14,14 +14,25 @@ private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L
 private const val TOO_MANY_REQUESTS_ERROR_CODE = 429
 private const val DEFAULT_RETRY_AFTER_SECONDS = 3L
 
+/**
+ * Factory for creating OkHttpClient instances with the necessary configuration for Telegram API communication.
+ */
 internal object TelegramClientFactory {
 
+    /**
+     * Builds an instance of OkHttpClient for Telegram API communication with the necessary
+     * configuration.
+     *
+     * @param logger The logger used for logging HTTP requests and responses.
+     * @param json The Json instance used for parsing error responses.
+     * @return An instance of OkHttpClient.
+     */
     fun build(logger: Logger, json: Json): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
-            .addProxyIfAvailable()
+            .addProxyIfAvailable(logger)
             .apply {
                 val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
                 loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -32,6 +43,14 @@ internal object TelegramClientFactory {
     }
 }
 
+/**
+ * Interceptor that retries requests that resulted in a 429 "Too Many Requests" error with a delay
+ * specified in the "Retry-After" header.
+ *
+ * @param json The Json instance used for parsing error responses.
+ * @param logger The logger used for logging HTTP requests and responses.
+ * @param maxRetries The maximum number of retries. Default is 3.
+ */
 private class RetryAfterInterceptor(
     private val json: Json,
     private val logger: Logger,

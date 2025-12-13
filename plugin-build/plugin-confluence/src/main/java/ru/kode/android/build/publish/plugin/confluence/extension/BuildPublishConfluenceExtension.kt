@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.confluence.extension
 
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
@@ -137,7 +138,24 @@ abstract class BuildPublishConfluenceExtension
             project: Project,
             input: ExtensionInput,
         ) {
-            val distributionConfig = distributionConfig(input.buildVariant.name)
+
+            val variantName = input.buildVariant.name
+
+            if (auth.isEmpty()) {
+                throw GradleException(
+                    "Need to provide Auth config for `$variantName` or `common`. " +
+                        "It's required to run Jira plugin. " +
+                        "Please check that you have 'auth' block in your build script " +
+                        "and that it's not empty. "
+                )
+            }
+
+            val distributionConfig = distributionConfigOrNull(input.buildVariant.name)
+                ?: throw GradleException(
+                    "Need to provide Distribution config for `$variantName` or `common`. " +
+                        "Please check that you have 'distribution' block in your build script " +
+                        "and that it's not empty. "
+                )
 
             ConfluenceTasksRegistrar.registerApkDistributionTask(
                 project = project,
