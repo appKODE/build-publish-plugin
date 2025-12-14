@@ -184,14 +184,7 @@ fun File.createAndroidProject(
                 }
             }
             
-            automation {
-                common {
-                    ${config.automation.workspaceName.let { """it.workspaceName.set("$it")""" }}
-                    ${config.automation.fixVersionPattern?.let { """it.fixVersionPattern.set("$it")""" }.orEmpty()}
-                    ${config.automation.fixVersionFieldName?.let { """it.fixVersionFieldName.set("$it")""" }.orEmpty()}
-                    ${config.automation.tagPattern?.let { """it.tagPattern.set("$it")""" }.orEmpty()}
-                }
-            }
+            ${config.automation?.let { clickUpAutomationBlock(it) }.orEmpty()}
         }
             """
         }.orEmpty()
@@ -375,6 +368,19 @@ private fun jiraAutomationBlock(automation: JiraConfig.Automation): String {
                     ${automation.fixVersionPattern?.let { """it.fixVersionPattern.set("$it")""" }.orEmpty()}
                     ${automation.labelPattern?.let { """it.labelPattern.set("$it")""" }.orEmpty()}
                     ${automation.targetStatusName?.let { """it.targetStatusName.set("$it")""" }.orEmpty()}
+                }
+            }
+    """
+}
+
+private fun clickUpAutomationBlock(automation: ClickUpConfig.Automation): String {
+    return """
+            automation {
+                common {
+                    ${automation.workspaceName.let { """it.workspaceName.set("$it")""" }}
+                    ${automation.fixVersionPattern?.let { """it.fixVersionPattern.set("$it")""" }.orEmpty()}
+                    ${automation.fixVersionFieldName?.let { """it.fixVersionFieldName.set("$it")""" }.orEmpty()}
+                    ${automation.tagPattern?.let { """it.tagPattern.set("$it")""" }.orEmpty()}
                 }
             }
     """
@@ -624,7 +630,7 @@ data class AppCenterConfig(
 
 data class ClickUpConfig(
     val auth: Auth,
-    val automation: Automation,
+    val automation: Automation?,
 ) {
     data class Auth(
         val apiTokenFilePath: String,
