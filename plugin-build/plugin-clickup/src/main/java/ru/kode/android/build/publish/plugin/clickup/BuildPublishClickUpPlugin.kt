@@ -5,15 +5,18 @@ package ru.kode.android.build.publish.plugin.clickup
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.StopExecutionException
 import ru.kode.android.build.publish.plugin.clickup.extension.BuildPublishClickUpExtension
 import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtension
-import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpNetworkService
+import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
 import ru.kode.android.build.publish.plugin.core.util.serviceName
+import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 
 private const val EXTENSION_NAME = "buildPublishClickUp"
-private const val NETWORK_SERVICE_NAME = "clickUpNetworkService"
-private const val NETWORK_SERVICE_EXTENSION_NAME = "clickUpNetworkServiceExtension"
+private const val SERVICE_NAME = "clickUpService"
+private const val SERVICE_EXTENSION_NAME = "clickUpServiceExtension"
 
 /**
  * A Gradle plugin that integrates ClickUp task management with the Android build process.
@@ -22,38 +25,70 @@ private const val NETWORK_SERVICE_EXTENSION_NAME = "clickUpNetworkServiceExtensi
  * such as updating task statuses, adding tags, and setting custom fields.
  *
  * @see BuildPublishClickUpExtension For configuration options
- * @see ClickUpNetworkService For the underlying network operations
+ * @see ClickUpService For the underlying network operations
  */
 abstract class BuildPublishClickUpPlugin : Plugin<Project> {
+
+    private val logger = Logging.getLogger(this::class.java)
+
     override fun apply(project: Project) {
-        val extension = project.extensions.create(EXTENSION_NAME, BuildPublishClickUpExtension::class.java)
+        val extension =
+            project.extensions.create(
+                EXTENSION_NAME,
+                BuildPublishClickUpExtension::class.java
+            )
+
+        val servicesProperty =
+            project.objects.mapProperty(
+                String::class.java,
+                Provider::class.java
+            )
+        servicesProperty.set(emptyMap())
+
+        project.extensions.create(
+            SERVICE_EXTENSION_NAME,
+            ClickUpServiceExtension::class.java,
+            servicesProperty
+        )
+
+        logger.info("ClickUpServiceExtension created (empty)")
+
+        if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
+            throw StopExecutionException(
+                "Must only be used with BuildPublishFoundationPlugin. " +
+                    "Please apply 'ru.kode.android.build-publish-novo.foundation'."
+            )
+        }
 
         val androidExtension = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
-            val services: Provider<Map<String, Provider<ClickUpNetworkService>>> =
-                project.provider {
-                    extension.auth.fold(mapOf()) { acc, authConfig ->
-                        val service =
-                            project.gradle.sharedServices.registerIfAbsent(
-                                project.serviceName(NETWORK_SERVICE_NAME, authConfig.name),
-                                ClickUpNetworkService::class.java,
-                                {
-                                    it.maxParallelUsages.set(1)
-                                    it.parameters.token.set(authConfig.apiTokenFile)
-                                },
-                            )
-                        acc.toMutableMap().apply {
-                            put(authConfig.name, service)
+            if (extension.auth.isEmpty()) {
+                logger.info("ClickUp: no auth configs — leaving service map empty")
+                return@finalizeDsl
+            }
+
+            logger.info("ClickUp: registering services...")
+
+            val serviceMap =
+                extension.auth.associate { authConfig ->
+                    val name = authConfig.name
+
+                    val service =
+                        project.gradle.sharedServices.registerIfAbsent(
+                            project.serviceName(SERVICE_NAME, name),
+                            ClickUpService::class.java
+                        ) {
+                            it.maxParallelUsages.set(1)
+                            it.parameters.token.set(authConfig.apiTokenFile)
                         }
-                    }
+
+                    name to service
                 }
 
-            project.extensions.create(
-                NETWORK_SERVICE_EXTENSION_NAME,
-                ClickUpServiceExtension::class.java,
-                services,
-            )
+            logger.info("ClickUp services created: ${serviceMap.keys}")
+
+            servicesProperty.set(serviceMap)
         }
     }
 }

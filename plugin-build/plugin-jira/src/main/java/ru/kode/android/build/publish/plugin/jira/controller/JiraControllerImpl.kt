@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.jira.controller
 
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 import ru.kode.android.build.publish.plugin.core.util.executeNoResult
@@ -25,6 +26,48 @@ internal class JiraControllerImpl(
 ) : JiraController {
 
     /**
+     * Retrieves the ID of the status with the given name in the specified project,
+     * using the first issue in the list that has a transition to this status.
+     *
+     * @param projectKey The key of the Jira project
+     * @param statusName The name of the status to search for
+     * @param issues A list of issue keys to search for a transition to the given status
+     * @return The ID of the status with the given name
+     *
+     * @throws IOException If the network request fails
+     * @throws JiraApiException If the Jira API returns an error
+     */
+    override fun getStatusTransitionId(projectKey: String, statusName: String, issues: List<String>): String {
+        val statuses = getProjectAvailableStatuses(projectKey)
+        val status = statuses
+            .firstOrNull { it.name.equals(statusName, ignoreCase = true) }
+            ?: throw GradleException("Status $statusName not found in project $projectKey. " +
+                "To set a Jira issue status, you need to add this status to the project first. " +
+                "You can do this by creating a new status with the name $statusName in the project settings.")
+
+        val statusId = status.id
+        val issueKeyWithTransitions = issues
+            .firstOrNull { issueKey ->
+                getAvailableIssueTransitions(issueKey)
+                    .find { it.statusId == statusId } != null
+            }
+            ?: throw GradleException("Issue with status $statusName not found or " +
+                "does not have a transition to status $statusName. " +
+                "To set a Jira issue status, you need to add this transition to the issue first. " +
+                "You can do this by transitioning the issue to the status manually in the Jira web interface.")
+
+        val transition = getAvailableIssueTransitions(issueKeyWithTransitions)
+            .firstOrNull { it.statusId == statusId }
+            ?: throw GradleException("Issue $issueKeyWithTransitions does not have a transition to status $statusName. " +
+                "To set a Jira issue status, you need to add this transition to the issue first. " +
+                "You can do this by transitioning the issue to the status manually in the Jira web interface.")
+
+        return transition
+            .id
+            .also { id -> logger.info("Resolved statusTransitionId: $id for statusName=$statusName") }
+    }
+
+    /**
      * Transitions a Jira issue to a new status.
      *
      * @param issue The issue key (e.g., "PROJ-123")
@@ -44,7 +87,10 @@ internal class JiraControllerImpl(
                         id = statusTransitionId,
                     ),
             )
-        api.setStatus(issue, request).executeNoResult()
+        api
+            .setStatus(issue, request)
+            .executeNoResult()
+            .onFailure { logger.info("Failed to set issue status for $issue: $it") }
     }
 
     /**
@@ -73,6 +119,7 @@ internal class JiraControllerImpl(
     override fun getIssueStatus(issue: String): JiraIssueStatus? {
         val status = api.getStatus(issue)
             .executeWithResult()
+            .onFailure { logger.info("Failed to get issue status for $issue: $it") }
             .getOrNull()
             ?.fields
             ?.status
@@ -85,45 +132,6 @@ internal class JiraControllerImpl(
         } else {
             null
         }
-    }
-
-    /**
-     * Retrieves all available transitions for a Jira issue.
-     *
-     * This method calls:
-     * `GET /rest/api/2/issue/{issue}/transitions`
-     *
-     * Jira returns a list of transitions, where each transition contains:
-     * - transition ID (not used in domain)
-     * - transition name (not used in domain)
-     * - the target status object (ID + name) → this is what we need
-     *
-     * Example returned transitions:
-     * - ID: "1", Name: "Start Progress", TargetStatus: "In Progress"
-     * - ID: "2", Name: "Resolve", TargetStatus: "Resolved"
-     *
-     * If no transitions are available, returns an empty list.
-     *
-     * @param issue The Jira issue key (e.g., "PROJ-123").
-     *
-     * @return A list of `JiraIssueTransition` domain objects.
-     *
-     * @throws IOException If HTTP request fails.
-     * @throws JiraApiException If Jira responds with error code or unexpected result.
-     */
-    override fun getAvailableIssueTransitions(issue: String): List<JiraIssueTransition> {
-        val response = api.getAvailableTransitions(issue)
-            .executeWithResult()
-            .getOrThrow()
-
-        return response.transitions
-            .map { transition ->
-                JiraIssueTransition(
-                    id = transition.id,
-                    name = transition.name,
-                    statusId = transition.to.id
-                )
-            }
     }
 
     /**
@@ -152,7 +160,7 @@ internal class JiraControllerImpl(
             }
             .distinctBy { it.id }
     }
-    
+
     /**
      * Retrieves the ID of a Jira project by its key.
      *
@@ -221,6 +229,7 @@ internal class JiraControllerImpl(
         api
             .removeLabel(issue, request)
             .executeNoResult()
+            .onFailure { logger.info("Failed to remove label for $issue: $it") }
             .getOrNull()
     }
 
@@ -260,7 +269,9 @@ internal class JiraControllerImpl(
                 name = version,
                 projectId = projectId,
             )
-        api.createVersion(request).executeNoResult()
+        api.createVersion(request)
+            .executeNoResult()
+            .onFailure { logger.error("Failed to create version $version for project $projectId", it) }
     }
 
     /**
@@ -274,11 +285,14 @@ internal class JiraControllerImpl(
     override fun removeProjectVersion(
         versionId: String,
     ) {
-        api.deleteVersion(
-            versionId = versionId,
-            moveFixIssuesTo = null,
-            moveAffectedIssuesTo = null,
-        ).executeNoResult()
+        api
+            .deleteVersion(
+                versionId = versionId,
+                moveFixIssuesTo = null,
+                moveAffectedIssuesTo = null,
+            )
+            .executeNoResult()
+            .onFailure { logger.error("Failed to remove version $versionId", it) }
     }
 
     /**
@@ -360,6 +374,7 @@ internal class JiraControllerImpl(
 
         api.removeFixVersion(issue, request)
             .executeNoResult()
+            .onFailure { logger.error("Failed to remove fix version for $issue", it) }
     }
 
     /**
@@ -370,6 +385,7 @@ internal class JiraControllerImpl(
     override fun getIssueFixVersions(issue: String): List<JiraFixVersion> {
         return api.getFixVersions(issue)
             .executeWithResult()
+            .onFailure { logger.error("Failed to get fix versions for $issue", it) }
             .getOrNull()
             ?.fields
             ?.fixVersions
@@ -378,6 +394,45 @@ internal class JiraControllerImpl(
                 JiraFixVersion(
                     id = it.id,
                     name = it.name,
+                )
+            }
+    }
+
+    /**
+     * Retrieves all available transitions for a Jira issue.
+     *
+     * This method calls:
+     * `GET /rest/api/2/issue/{issue}/transitions`
+     *
+     * Jira returns a list of transitions, where each transition contains:
+     * - transition ID (not used in domain)
+     * - transition name (not used in domain)
+     * - the target status object (ID + name) → this is what we need
+     *
+     * Example returned transitions:
+     * - ID: "1", Name: "Start Progress", TargetStatus: "In Progress"
+     * - ID: "2", Name: "Resolve", TargetStatus: "Resolved"
+     *
+     * If no transitions are available, returns an empty list.
+     *
+     * @param issue The Jira issue key (e.g., "PROJ-123").
+     *
+     * @return A list of `JiraIssueTransition` domain objects.
+     *
+     * @throws IOException If HTTP request fails.
+     * @throws JiraApiException If Jira responds with error code or unexpected result.
+     */
+    private fun getAvailableIssueTransitions(issue: String): List<JiraIssueTransition> {
+        val response = api.getAvailableTransitions(issue)
+            .executeWithResult()
+            .getOrThrow()
+
+        return response.transitions
+            .map { transition ->
+                JiraIssueTransition(
+                    id = transition.id,
+                    name = transition.name,
+                    statusId = transition.to.id
                 )
             }
     }

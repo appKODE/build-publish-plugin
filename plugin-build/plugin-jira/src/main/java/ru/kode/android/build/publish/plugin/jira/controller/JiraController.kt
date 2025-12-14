@@ -9,6 +9,21 @@ import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueTran
  */
 interface JiraController {
 
+
+    /**
+     * Retrieves the ID of the status with the given name in the specified project,
+     * using the first issue in the list that has a transition to this status.
+     *
+     * @param projectKey The key of the Jira project
+     * @param statusName The name of the status to search for
+     * @param issues A list of issue keys to search for a transition to the given status
+     * @return The ID of the status with the given name
+     *
+     * @throws IOException If the network request fails
+     * @throws JiraApiException If the Jira API returns an error
+     */
+    fun getStatusTransitionId(projectKey: String, statusName: String, issues: List<String>): String
+
     /**
      * Transitions a Jira issue to a new status.
      *
@@ -44,32 +59,6 @@ interface JiraController {
      * @throws JiraApiException If Jira responds with an error code or unexpected result.
      */
     fun getIssueStatus(issue: String): JiraIssueStatus?
-
-    /**
-     * Retrieves all available transitions for a Jira issue.
-     *
-     * This method calls:
-     * `GET /rest/api/2/issue/{issue}/transitions`
-     *
-     * Jira returns a list of transitions, where each transition contains:
-     * - transition ID (not used in domain)
-     * - transition name (not used in domain)
-     * - the target status object (ID + name) → this is what we need
-     *
-     * Example returned transitions:
-     * - ID: "1", Name: "Start Progress", TargetStatus: "In Progress"
-     * - ID: "2", Name: "Resolve", TargetStatus: "Resolved"
-     *
-     * If no transitions are available, returns an empty list.
-     *
-     * @param issue The Jira issue key (e.g., "PROJ-123").
-     *
-     * @return A list of `JiraIssueTransition` domain objects.
-     *
-     * @throws IOException If HTTP request fails.
-     * @throws JiraApiException If Jira responds with error code or unexpected result.
-     */
-    fun getAvailableIssueTransitions(issue: String): List<JiraIssueTransition>
 
     /**
      * Retrieves all statuses available in a Jira project across all workflows.

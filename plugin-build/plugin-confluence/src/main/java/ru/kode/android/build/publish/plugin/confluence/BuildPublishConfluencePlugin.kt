@@ -5,7 +5,10 @@ package ru.kode.android.build.publish.plugin.confluence
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.StopExecutionException
+import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 import ru.kode.android.build.publish.plugin.confluence.extension.BuildPublishConfluenceExtension
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceServiceExtension
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
@@ -27,37 +30,69 @@ private const val SERVICE_EXTENSION_NAME = "confluenceServiceExtension"
  * including network services for API communication.
  */
 abstract class BuildPublishConfluencePlugin : Plugin<Project> {
+
+    private val logger = Logging.getLogger(this::class.java)
+
     override fun apply(project: Project) {
-        val extension = project.extensions.create(EXTENSION_NAME, BuildPublishConfluenceExtension::class.java)
+        val extension =
+            project.extensions.create(
+                EXTENSION_NAME,
+                BuildPublishConfluenceExtension::class.java
+            )
+
+        val servicesProperty =
+            project.objects.mapProperty(
+                String::class.java,
+                Provider::class.java
+            )
+        servicesProperty.set(emptyMap())
+
+        project.extensions.create(
+            SERVICE_EXTENSION_NAME,
+            ConfluenceServiceExtension::class.java,
+            servicesProperty
+        )
+
+        logger.info("ConfluenceServiceExtension created (empty)")
+
+        if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
+            throw StopExecutionException(
+                "Must only be used with BuildPublishFoundationPlugin. " +
+                    "Please apply 'ru.kode.android.build-publish-novo.foundation'."
+            )
+        }
 
         val androidExtension =
-            project.extensions
-                .getByType(ApplicationAndroidComponentsExtension::class.java)
+            project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
-            val services: Provider<Map<String, Provider<ConfluenceService>>> =
-                project.provider {
-                    extension.auth.fold(mapOf()) { acc, authConfig ->
-                        val service =
-                            project.gradle.sharedServices.registerIfAbsent(
-                                project.serviceName(SERVICE_NAME, authConfig.name),
-                                ConfluenceService::class.java,
-                                {
-                                    it.maxParallelUsages.set(1)
-                                    it.parameters.credentials.set(authConfig.credentials)
-                                    it.parameters.baseUrl.set(authConfig.baseUrl)
-                                },
-                            )
-                        acc.toMutableMap().apply {
-                            put(authConfig.name, service)
+            if (extension.auth.isEmpty()) {
+                logger.info("Confluence: no auth configs — leaving service map empty")
+                return@finalizeDsl
+            }
+
+            logger.info("Confluence: registering services...")
+
+            val serviceMap =
+                extension.auth.associate { authConfig ->
+                    val name = authConfig.name
+
+                    val service =
+                        project.gradle.sharedServices.registerIfAbsent(
+                            project.serviceName(SERVICE_NAME, name),
+                            ConfluenceService::class.java
+                        ) {
+                            it.maxParallelUsages.set(1)
+                            it.parameters.credentials.set(authConfig.credentials)
+                            it.parameters.baseUrl.set(authConfig.baseUrl)
                         }
-                    }
+
+                    name to service
                 }
-            project.extensions.create(
-                SERVICE_EXTENSION_NAME,
-                ConfluenceServiceExtension::class.java,
-                services,
-            )
+
+            logger.info("Confluence services created: ${serviceMap.keys}")
+
+            servicesProperty.set(serviceMap)
         }
     }
 }

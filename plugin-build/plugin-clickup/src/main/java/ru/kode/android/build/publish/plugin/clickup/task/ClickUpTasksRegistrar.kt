@@ -10,7 +10,7 @@ import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtens
 import ru.kode.android.build.publish.plugin.clickup.task.automation.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 
 internal const val CLICK_UP_AUTOMATION_TASK = "clickUpAutomation"
 
@@ -64,35 +64,37 @@ private fun Project.registerClickUpTasks(
     params: ClickUpAutomationTaskParams,
 ): TaskProvider<ClickUpAutomationTask>? {
     val fixVersionIsPresent =
-        automationConfig.fixVersionPattern.isPresent && automationConfig.fixVersionFieldId.isPresent
+        automationConfig.fixVersionPattern.isPresent && automationConfig.fixVersionFieldName.isPresent
     val hasMissingFixVersionProperties =
-        automationConfig.fixVersionPattern.isPresent || automationConfig.fixVersionFieldId.isPresent
+        automationConfig.fixVersionPattern.isPresent || automationConfig.fixVersionFieldName.isPresent
 
     if (!fixVersionIsPresent && hasMissingFixVersionProperties) {
         throw GradleException(
-            "To use the fixVersion logic, the fixVersionPattern or fixVersionFieldId " +
+            "To use the fixVersion logic, the fixVersionPattern or fixVersionFieldName " +
                 "properties must be specified",
         )
     }
 
-    val networkService =
+    val service =
         project.extensions
             .getByType(ClickUpServiceExtension::class.java)
-            .networkServices
-            .flatMapByNameOrCommon(params.buildVariant.name)
+            .services
+            .get()
+            .getByNameOrCommon(params.buildVariant.name)
 
-    return if (fixVersionIsPresent || automationConfig.tagName.isPresent) {
+    return if (fixVersionIsPresent || automationConfig.tagPattern.isPresent) {
         tasks.register(
             "$CLICK_UP_AUTOMATION_TASK${params.buildVariant.capitalizedName()}",
             ClickUpAutomationTask::class.java,
         ) {
+            it.workspaceName.set(automationConfig.workspaceName)
             it.buildTagFile.set(params.lastBuildTagFile)
             it.changelogFile.set(params.changelogFile)
             it.issueNumberPattern.set(params.issueNumberPattern)
             it.fixVersionPattern.set(automationConfig.fixVersionPattern)
-            it.fixVersionFieldId.set(automationConfig.fixVersionFieldId)
-            it.taskTag.set(automationConfig.tagName)
-            it.networkService.set(networkService)
+            it.fixVersionFieldName.set(automationConfig.fixVersionFieldName)
+            it.tagPattern.set(automationConfig.tagPattern)
+            it.service.set(service)
         }
     } else {
         null

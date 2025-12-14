@@ -12,13 +12,12 @@ dependencies {
     implementation(gradleApi())
     implementation(libs.okhttp)
     implementation(libs.okhttpLogging)
-    implementation(libs.moshi)
     implementation(libs.retrofit)
     implementation(libs.retrofitSerialization)
     implementation(libs.agp)
     implementation(libs.serializationJson)
 
-    ksp(libs.moshiCodgen)
+    implementation(project(":plugin-foundation"))
 }
 
 gradlePlugin {

@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -12,7 +13,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpNetworkService
+import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddFixVersionWork
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddTagToTaskWork
 import ru.kode.android.build.publish.plugin.core.enity.Tag
@@ -31,7 +32,7 @@ import javax.inject.Inject
  * The task is typically registered by [ClickUpTasksRegistrar] based on the build configuration.
  *
  * @see ClickUpTasksRegistrar For task registration
- * @see ClickUpNetworkService For the underlying network operations
+ * @see ClickUpService For the underlying network operations
  */
 abstract class ClickUpAutomationTask
     @Inject
@@ -49,7 +50,21 @@ abstract class ClickUpAutomationTask
          * This is an internal property that's injected when the task is created.
          */
         @get:Internal
-        abstract val networkService: Property<ClickUpNetworkService>
+        abstract val service: Property<ClickUpService>
+
+
+        /**
+         * The name of the ClickUp workspace to operate on.
+         *
+         * This is the name of the ClickUp workspace where tasks are located.
+         * It's used when determining the custom field ID for fix versions.
+         */
+        @get:Input
+        @get:Option(
+            option = "workspaceName",
+            description = "Name of the ClickUp workspace to operate on",
+        )
+        abstract val workspaceName: Property<String>
 
         /**
          * A JSON file containing build tag information.
@@ -101,7 +116,7 @@ abstract class ClickUpAutomationTask
          *
          * Example: `"{0} ({1})"` might result in `"1.2.3 (456)"`
          *
-         * If specified, [fixVersionFieldId] must also be provided.
+         * If specified, [fixVersionFieldName] must also be provided.
          */
         @get:Input
         @get:Option(
@@ -121,11 +136,11 @@ abstract class ClickUpAutomationTask
          */
         @get:Input
         @get:Option(
-            option = "fixVersionFieldId",
-            description = "ID of the custom field where the fix version is stored",
+            option = "fixVersionFieldName",
+            description = "Name of the custom field where the fix version is stored",
         )
         @get:Optional
-        abstract val fixVersionFieldId: Property<String>
+        abstract val fixVersionFieldName: Property<String>
 
         /**
          * The tag to be added to ClickUp tasks mentioned in the changelog.
@@ -137,11 +152,11 @@ abstract class ClickUpAutomationTask
          */
         @get:Input
         @get:Option(
-            option = "taskTag",
+            option = "tagPattern",
             description = "Tag to be added to ClickUp tasks mentioned in the changelog",
         )
         @get:Optional
-        abstract val taskTag: Property<String>
+        abstract val tagPattern: Property<String>
 
         /**
          * The main task action that processes the changelog and updates ClickUp tasks.
@@ -165,16 +180,25 @@ abstract class ClickUpAutomationTask
             if (issues.isEmpty()) {
                 logger.info("issues not found in the changelog, nothing will change")
             } else {
+                val fixVersionFieldId = service.flatMap { service ->
+                    workspaceName
+                        .zip(fixVersionFieldName) { workspaceName, fixVersionFieldName ->
+                            workspaceName to fixVersionFieldName
+                        }
+                        .map { (workspaceName, fixVersionFieldName) ->
+                            service.getCustomFieldId(workspaceName, fixVersionFieldName)
+                        }
+                }
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
-                workQueue.submitUpdateVersionIfPresent(currentBuildTag, issues)
-                workQueue.submitSetTagIfPresent(issues)
+                workQueue.submitUpdateVersionIfPresent(currentBuildTag, issues, fixVersionFieldId)
+                workQueue.submitSetTagIfPresent(currentBuildTag, issues)
             }
         }
 
         /**
          * Submits work to update the fix version for the given issues, if configured.
          *
-         * This method checks if both [fixVersionPattern] and [fixVersionFieldId] are set,
+         * This method checks if both [fixVersionPattern] and [fixVersionFieldName] are set,
          * and if so, submits a work item to update the fix version for each issue.
          *
          * @param currentBuildTag The current build tag containing version and build number
@@ -183,21 +207,23 @@ abstract class ClickUpAutomationTask
         private fun WorkQueue.submitUpdateVersionIfPresent(
             currentBuildTag: Tag.Build,
             issues: Set<String>,
+            fieldId: Provider<String>
         ) {
-            if (fixVersionPattern.isPresent && fixVersionFieldId.isPresent) {
+            if (fixVersionPattern.isPresent && fixVersionFieldName.isPresent) {
                 val version =
-                    fixVersionPattern.get()
-                        .format(
+                    fixVersionPattern.map {
+                        it.format(
                             currentBuildTag.buildVersion,
                             currentBuildTag.buildNumber,
                             currentBuildTag.buildVariant,
                         )
-                val fieldId = fixVersionFieldId.get()
+                    }
+
                 submit(AddFixVersionWork::class.java) { parameters ->
                     parameters.issues.set(issues)
                     parameters.version.set(version)
                     parameters.fieldId.set(fieldId)
-                    parameters.networkService.set(networkService)
+                    parameters.service.set(service)
                 }
             }
         }
@@ -205,18 +231,28 @@ abstract class ClickUpAutomationTask
         /**
          * Submits work to add the configured tag to the given issues, if a tag is configured.
          *
-         * This method checks if [taskTag] is set, and if so, submits a work item
+         * This method checks if [tagPattern] is set, and if so, submits a work item
          * to add the tag to each issue.
          *
          * @param issues The set of issue numbers to tag
          */
-        private fun WorkQueue.submitSetTagIfPresent(issues: Set<String>) {
-            if (taskTag.isPresent) {
-                val tagName = taskTag.get()
+        private fun WorkQueue.submitSetTagIfPresent(
+            currentBuildTag: Tag.Build,
+            issues: Set<String>
+        ) {
+            if (tagPattern.isPresent) {
+                val tagName =
+                    tagPattern.map {
+                        it.format(
+                            currentBuildTag.buildVersion,
+                            currentBuildTag.buildNumber,
+                            currentBuildTag.buildVariant,
+                        )
+                    }
                 submit(AddTagToTaskWork::class.java) { parameters ->
                     parameters.issues.set(issues)
                     parameters.tagName.set(tagName)
-                    parameters.networkService.set(networkService)
+                    parameters.service.set(service)
                 }
             }
         }

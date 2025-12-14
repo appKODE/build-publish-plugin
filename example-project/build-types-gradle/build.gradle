@@ -3,6 +3,7 @@ plugins {
     id 'com.google.firebase.appdistribution'
     id 'ru.kode.android.build-publish-novo.foundation'
     id 'ru.kode.android.build-publish-novo.telegram'
+    id 'ru.kode.android.build-publish-novo.clickup'
 }
 
 android {
@@ -55,6 +56,23 @@ buildPublishTelegram {
                 botName = "ChangelogBot"
                 chatNames("ChangelogTest")
             }
+        }
+    }
+}
+
+buildPublishClickUp {
+    auth {
+        common {
+            it.apiTokenFile = project.file("clickup-token.txt")
+        }
+    }
+
+    automation {
+        common {
+            it.workspaceName.set("Ilia Nekrasov's Workspace")
+            it.fixVersionPattern = "fix_%2\$s_%1\$s"
+            it.fixVersionFieldName = "Fix version"
+            it.tagPattern = "test_tag_name"
         }
     }
 }

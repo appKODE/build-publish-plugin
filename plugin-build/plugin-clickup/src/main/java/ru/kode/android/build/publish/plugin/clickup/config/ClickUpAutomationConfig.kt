@@ -14,6 +14,14 @@ interface ClickUpAutomationConfig {
     val name: String
 
     /**
+     * The name of the ClickUp workspace to work with.
+     *
+     * This is the name of the ClickUp workspace that the automation tasks will interact with.
+     */
+    @get:Input
+    val workspaceName: Property<String>
+
+    /**
      * Pattern used to format version numbers for ClickUp tasks.
      *
      * This pattern is used to format the version number when setting fix versions in ClickUp.
@@ -23,15 +31,13 @@ interface ClickUpAutomationConfig {
     val fixVersionPattern: Property<String>
 
     /**
-     * The ID of the custom field used for fix versions in ClickUp.
+     * The name of the custom field used for fix versions in ClickUp.
      *
-     * This is the ID of the custom field in ClickUp where the fix version will be set.
-     * You can find this ID by inspecting the network requests in your browser's developer tools
-     * when viewing a task in ClickUp.
+     * This is the name of the custom field in ClickUp where the fix version will be set.
      */
     @get:Input
     @get:Optional
-    val fixVersionFieldId: Property<String>
+    val fixVersionFieldName: Property<String>
 
     /**
      * The tag name to apply to ClickUp tasks during this build.
@@ -42,5 +48,5 @@ interface ClickUpAutomationConfig {
      */
     @get:Input
     @get:Optional
-    val tagName: Property<String>
+    val tagPattern: Property<String>
 }

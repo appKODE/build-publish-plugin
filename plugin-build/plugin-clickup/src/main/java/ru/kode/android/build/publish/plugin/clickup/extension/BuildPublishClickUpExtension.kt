@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.clickup.extension
 
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
@@ -157,7 +158,24 @@ abstract class BuildPublishClickUpExtension
             project: Project,
             input: ExtensionInput,
         ) {
-            val automationConfig = automationConfig(input.buildVariant.name)
+            val variantName = input.buildVariant.name
+
+            if (auth.isEmpty()) {
+                throw GradleException(
+                    "Need to provide Auth config for `$variantName` or `common`. " +
+                        "It's required to run ClickUp plugin. " +
+                        "Please check that you have 'auth' block in your build script " +
+                        "and that it's not empty. "
+                )
+            }
+
+            val automationConfig = automationConfigOrNull(input.buildVariant.name)
+                ?: throw GradleException(
+                    "Need to provide Automation config for `$variantName` or `common`. " +
+                        "Please check that you have 'automation' block in your build script " +
+                        "and that it's not empty. "
+                )
+
 
             ClickUpTasksRegistrar.registerAutomationTask(
                 project = project,

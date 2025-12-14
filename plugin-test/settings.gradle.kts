@@ -28,6 +28,7 @@ include("jira")
 include("telegram")
 include("confluence")
 include("utils")
+include("clickup")
 includeBuild("../plugin-build") {
     dependencySubstitution {
         substitute(module("ru.kode.android:plugin-foundation"))
@@ -38,6 +39,8 @@ includeBuild("../plugin-build") {
             .using(project(":pugin-telegram"))
         substitute(module("ru.kode.android:plugin-confluence"))
             .using(project(":pugin-confluence"))
+        substitute(module("ru.kode.android:plugin-clickup"))
+            .using(project(":pugin-clickup"))
     }
 }
 

@@ -177,22 +177,23 @@ fun File.createAndroidProject(
     val clickUpConfigBlock =
         clickUpConfig?.let { config ->
             """
-            buildPublishClickUp {
-                auth {
-                    common {
-                        it.apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
-                    }
-                }
-                
-                automation {
-                    common {
-                        ${config.automation.fixVersionPattern?.let { """fixVersionPattern.set("$it")""" }.orEmpty()}
-                        ${config.automation.fixVersionFieldId?.let { """fixVersionFieldId.set("$it")""" }.orEmpty()}
-                        ${config.automation.tagName?.let { """tagName.set("$it")""" }.orEmpty()}
-                    }
+        buildPublishClickUp {
+            auth {
+                common {
+                    it.apiTokenFile = project.file("${config.auth.apiTokenFilePath}")
                 }
             }
-            """.trimIndent()
+            
+            automation {
+                common {
+                    ${config.automation.workspaceName.let { """it.workspaceName.set("$it")""" }}
+                    ${config.automation.fixVersionPattern?.let { """it.fixVersionPattern.set("$it")""" }.orEmpty()}
+                    ${config.automation.fixVersionFieldName?.let { """it.fixVersionFieldName.set("$it")""" }.orEmpty()}
+                    ${config.automation.tagPattern?.let { """it.tagPattern.set("$it")""" }.orEmpty()}
+                }
+            }
+        }
+            """
         }.orEmpty()
 
     val confluenceConfigBlock =
@@ -630,9 +631,10 @@ data class ClickUpConfig(
     )
 
     data class Automation(
+        val workspaceName: String,
         val fixVersionPattern: String?,
-        val fixVersionFieldId: String?,
-        val tagName: String?,
+        val fixVersionFieldName: String?,
+        val tagPattern: String?,
     )
 }
 

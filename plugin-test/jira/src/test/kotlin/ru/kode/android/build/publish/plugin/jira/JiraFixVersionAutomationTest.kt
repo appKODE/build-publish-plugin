@@ -35,7 +35,6 @@ class JiraFixVersionAutomationTest {
 
     @BeforeEach
     fun setup() {
-
         projectDir = File(tempDir, "test-project")
         jiraController = JiraControllerFactory.build(
             baseUrl = System.getProperty("JIRA_BASE_URL"),

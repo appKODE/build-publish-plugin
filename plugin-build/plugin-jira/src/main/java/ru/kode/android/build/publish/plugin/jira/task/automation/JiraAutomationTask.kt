@@ -187,18 +187,7 @@ abstract class JiraAutomationTask
                         .zip(targetStatusName) { projectKey, targetStatusName ->
                             projectKey to targetStatusName
                         }.map { (projectKey, statusName) ->
-                            val statuses = service.getProjectAvailableStatuses(projectKey)
-                            val statusId = statuses
-                                .first { it.name.equals(statusName, ignoreCase = true) }
-                                .id
-                            val issueKeyWithTransitions = issues.first { issueKey ->
-                                service.getIssueTransitions(issueKey)
-                                    .find { it.statusId == statusId } != null
-                            }
-                            service.getIssueTransitions(issueKeyWithTransitions)
-                                .first { it.statusId == statusId }
-                                .id
-                                .also { id -> logger.info("Resolved statusTransitionId: $id for statusName=$statusName") }
+                            service.getStatusTransitionId(projectKey, statusName, issues.toList())
                         }
                 }
 

@@ -9,8 +9,6 @@ import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.JiraControllerImpl
-import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueStatus
-import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueTransition
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraApiFactory
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraClientFactory
 import ru.kode.android.build.publish.plugin.jira.network.api.JiraApi
@@ -76,47 +74,20 @@ abstract class JiraService
 
         private val controller: JiraController get() = controllerProperty.get()
 
-
         /**
-         * Retrieves all statuses available in a Jira project across all workflows.
+         * Retrieves the ID of the status with the given name in the specified project,
+         * using the first issue in the list that has a transition to this status.
          *
-         * Calls:
-         * `GET /rest/api/2/project/{projectKey}/statuses`
+         * @param projectKey The key of the Jira project
+         * @param statusName The name of the status to search for
+         * @param issues A list of issue keys to search for a transition to the given status
+         * @return The ID of the status with the given name
          *
-         * Example returned values:
-         * - ID: "1", Name: "Open"
-         * - ID: "3", Name: "In Progress"
-         * - ID: "5", Name: "Resolved"
+         * @throws IOException If the network request fails
+         * @throws JiraApiException If the Jira API returns an error
          */
-        fun getProjectAvailableStatuses(projectKey: String): List<JiraIssueStatus> {
-           return controller.getProjectAvailableStatuses(projectKey)
-        }
-
-        /**
-         * Retrieves all available transitions for a Jira issue.
-         *
-         * This method calls:
-         * `GET /rest/api/2/issue/{issue}/transitions`
-         *
-         * Jira returns a list of transitions, where each transition contains:
-         * - transition ID
-         * - transition name
-         *
-         * Example returned transitions:
-         * - ID: "1", Name: "Start Progress", TargetStatus: "In Progress"
-         * - ID: "2", Name: "Resolve", TargetStatus: "Resolved"
-         *
-         * If no transitions are available, returns an empty list.
-         *
-         * @param issue The Jira issue key (e.g., "PROJ-123").
-         *
-         * @return A list of `JiraIssueTransition` domain objects.
-         *
-         * @throws IOException If HTTP request fails.
-         * @throws JiraApiException If Jira responds with error code or unexpected result.
-         */
-        fun getIssueTransitions(issueKey: String): List<JiraIssueTransition> {
-            return controller.getAvailableIssueTransitions(issueKey)
+        fun getStatusTransitionId(projectKey: String, statusName: String, issues: List<String>): String {
+            return controller.getStatusTransitionId(projectKey, statusName, issues)
         }
 
         /**

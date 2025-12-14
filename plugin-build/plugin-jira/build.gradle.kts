@@ -12,7 +12,6 @@ dependencies {
     implementation(gradleApi())
     implementation(libs.okhttp)
     implementation(libs.okhttpLogging)
-    implementation(libs.moshi)
     implementation(libs.retrofit)
     implementation(libs.retrofitSerialization)
     implementation(libs.agp)

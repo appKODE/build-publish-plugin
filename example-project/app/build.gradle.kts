@@ -171,8 +171,8 @@ buildPublishClickUp {
     automation {
         common {
             fixVersionPattern = "fix_%2\$s_%1\$s"
-            fixVersionFieldId = "01234567qwerty"
-            tagName = "test_tag_name"
+            fixVersionFieldName = "Fix version"
+            tagPattern = "test_tag_name"
         }
     }
 }

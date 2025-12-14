@@ -7,7 +7,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.StopExecutionException
 import ru.kode.android.build.publish.plugin.core.util.serviceName
+import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.telegram.extension.BuildPublishTelegramExtension
@@ -34,7 +36,10 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val extension =
-            project.extensions.create(EXTENSION_NAME, BuildPublishTelegramExtension::class.java)
+            project.extensions.create(
+                EXTENSION_NAME,
+                BuildPublishTelegramExtension::class.java
+            )
 
         val servicesProperty =
             project.objects.mapProperty(
@@ -50,6 +55,14 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
         )
 
         logger.info("TelegramServiceExtension created (empty)")
+
+
+        if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
+            throw StopExecutionException(
+                "Must only be used with BuildPublishFoundationPlugin. " +
+                    "Please apply 'ru.kode.android.build-publish-novo.foundation'."
+            )
+        }
 
         val androidExtension = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 

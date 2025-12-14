@@ -16,6 +16,8 @@ dependencies {
     implementation(libs.retrofitSerialization)
     implementation(libs.agp)
     implementation(libs.serializationJson)
+
+    implementation(project(":plugin-foundation"))
 }
 
 gradlePlugin {

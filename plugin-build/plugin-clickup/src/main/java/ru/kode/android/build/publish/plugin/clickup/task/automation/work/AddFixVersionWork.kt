@@ -4,7 +4,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpNetworkService
+import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
 
 /**
  * Parameters for the [AddFixVersionWork] work action.
@@ -31,7 +31,7 @@ internal interface AddFixVersionParameters : WorkParameters {
     /**
      * The network service used to communicate with the ClickUp API
      */
-    val networkService: Property<ClickUpNetworkService>
+    val service: Property<ClickUpService>
 }
 
 /**
@@ -45,14 +45,15 @@ internal interface AddFixVersionParameters : WorkParameters {
  * that might take a significant amount of time.
  *
  * @see WorkAction For more information about Gradle work actions
- * @see ClickUpNetworkService For the underlying network operations
+ * @see ClickUpService For the underlying network operations
  */
 internal abstract class AddFixVersionWork : WorkAction<AddFixVersionParameters> {
     override fun execute() {
-        val service = parameters.networkService.get()
+        val service = parameters.service.get()
         val issues = parameters.issues.get()
         val version = parameters.version.get()
         val fieldId = parameters.fieldId.get()
+
         issues.forEach { issue ->
             service.addFieldToTask(issue, fieldId, version)
         }
