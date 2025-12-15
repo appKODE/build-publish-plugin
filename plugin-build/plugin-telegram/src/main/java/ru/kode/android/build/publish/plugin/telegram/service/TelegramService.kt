@@ -60,18 +60,18 @@ abstract class TelegramService
 
         private val json = Json { ignoreUnknownKeys = true }
 
-        internal abstract val okHttpClientProperty: Property<OkHttpClient>
+        internal abstract val clientProperty: Property<OkHttpClient>
         internal abstract val retrofitBuilderProperty: Property<Retrofit.Builder>
         internal abstract val distributionApiProperty: Property<TelegramDistributionApi>
         internal abstract val webhookApiProperty: Property<TelegramWebhookApi>
         internal abstract val controllerProperty: Property<TelegramController>
 
         init {
-            okHttpClientProperty.set(
+            clientProperty.set(
                 TelegramClientFactory.build(logger, json)
             )
             retrofitBuilderProperty.set(
-                okHttpClientProperty.map { client ->
+                clientProperty.map { client ->
                     TelegramRetrofitBuilderFactory.build(client, json)
                 },
             )
@@ -117,7 +117,7 @@ abstract class TelegramService
         fun send(
             changelog: String,
             header: String,
-            userMentions: List<String>?,
+            userMentions: List<String>,
             issueUrlPrefix: String,
             issueNumberPattern: String,
             destinationBots: List<DestinationTelegramBot>,

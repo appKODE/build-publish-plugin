@@ -13,7 +13,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.slack.service.webhook.SlackWebhookService
+import ru.kode.android.build.publish.plugin.slack.service.SlackService
 import ru.kode.android.build.publish.plugin.slack.task.changelog.work.SendSlackChangelogWork
 import javax.inject.Inject
 
@@ -45,10 +45,10 @@ abstract class SendSlackChangelogTask
          *
          * This property is internal and should only be used by the plugin's own code.
          *
-         * @see SlackWebhookService
+         * @see SlackService
          */
         @get:Internal
-        abstract val networkService: Property<SlackWebhookService>
+        abstract val service: Property<SlackService>
 
         /**
          * A property that holds a reference to the changelog file.
@@ -199,35 +199,18 @@ abstract class SendSlackChangelogTask
                     "changelog file not found, is empty or error occurred",
                 )
             } else {
-                val changelogWithIssues = changelog.formatIssues()
-                val userMentions = userMentions.orNull.orEmpty().joinToString(", ")
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 workQueue.submit(SendSlackChangelogWork::class.java) { parameters ->
                     parameters.baseOutputFileName.set(baseOutputFileName)
                     parameters.iconUrl.set(iconUrl)
                     parameters.buildName.set(currentBuildTag.name)
-                    parameters.changelog.set(changelogWithIssues)
+                    parameters.changelog.set(changelog)
                     parameters.userMentions.set(userMentions)
                     parameters.attachmentColor.set(attachmentColor)
-                    parameters.networkService.set(networkService)
+                    parameters.issueNumberPattern.set(issueNumberPattern)
+                    parameters.issueUrlPrefix.set(issueUrlPrefix)
+                    parameters.service.set(service)
                 }
             }
-        }
-
-        /**
-         * Formats issue references in the changelog text.
-         *
-         * This method transforms raw issue numbers into clickable links using the
-         * configured issue URL prefix and pattern.
-         *
-         * @receiver The raw changelog text
-         *
-         * @return The formatted changelog with issue links
-         */
-        private fun String.formatIssues(): String {
-            val issueUrlPrefix = issueUrlPrefix.get()
-            val issueNumberPattern = issueNumberPattern.get()
-            return this
-                .replace(Regex(issueNumberPattern), "<$issueUrlPrefix\$0|\$0>")
         }
     }

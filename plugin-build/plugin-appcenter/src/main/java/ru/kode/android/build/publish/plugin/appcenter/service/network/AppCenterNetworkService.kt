@@ -199,6 +199,7 @@ abstract class AppCenterNetworkService
             uploadApi
                 .uploadChunk(packageAssetId, encodedToken, chunkNumber, request)
                 .executeNoResult()
+                .onFailure { logger.error("upload chunk failed: ${it.message}", it) }
         }
 
         /**
@@ -214,6 +215,7 @@ abstract class AppCenterNetworkService
             uploadApi
                 .sendUploadIsFinished(packageAssetId, encodedToken)
                 .executeNoResult()
+                .onFailure { logger.error("send upload is finished failed: ${it.message}", it) }
         }
 
         /**
@@ -224,6 +226,7 @@ abstract class AppCenterNetworkService
         internal fun commit(preparedUploadId: String) {
             api.commit(ownerName, appName, preparedUploadId, CommitRequest(preparedUploadId))
                 .executeNoResult()
+                .onFailure { logger.error("commit failed: ${it.message}", it) }
         }
 
         /**
@@ -274,7 +277,9 @@ abstract class AppCenterNetworkService
                     destinations = distributionGroups.map { DistributeRequest.Destination(it) },
                     release_notes = releaseNotes,
                 )
-            api.distribute(ownerName, appName, releaseId, request).executeNoResult()
+            api.distribute(ownerName, appName, releaseId, request)
+                .executeNoResult()
+                .onFailure { logger.error("distribute failed: ${it.message}", it) }
         }
 
         companion object {

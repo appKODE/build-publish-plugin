@@ -32,7 +32,7 @@ interface TelegramController {
     fun send(
         message: String,
         header: String,
-        userMentions: List<String>?,
+        userMentions: List<String>,
         issueUrlPrefix: String,
         issueNumberPattern: String,
         bots: List<ChatSpecificTelegramBot>,

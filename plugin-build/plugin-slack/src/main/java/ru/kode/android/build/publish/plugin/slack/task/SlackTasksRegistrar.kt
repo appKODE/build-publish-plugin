@@ -9,6 +9,7 @@ import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackDistributionConfig
@@ -69,10 +70,7 @@ internal object SlackTasksRegistrar {
         distributionConfig: SlackDistributionConfig,
         params: SlackApkDistributionTaskParams,
     ): TaskProvider<SlackDistributionTask>? {
-        return if (
-            distributionConfig.uploadApiTokenFile.isPresent &&
-            distributionConfig.destinationChannels.isPresent
-        ) {
+        return if (distributionConfig.destinationChannels.isPresent) {
             project.registerApkSlackDistributionTask(distributionConfig, params)
         } else {
             logger.info(
@@ -100,10 +98,7 @@ internal object SlackTasksRegistrar {
         distributionConfig: SlackDistributionConfig,
         params: SlackBundleDistributionTaskParams,
     ): TaskProvider<SlackDistributionTask>? {
-        return if (
-            distributionConfig.uploadApiTokenFile.isPresent &&
-            distributionConfig.destinationChannels.isPresent
-        ) {
+        return if (distributionConfig.destinationChannels.isPresent) {
             project.registerBundleSlackDistributionTask(distributionConfig, params)
         } else {
             logger.info(
@@ -133,11 +128,12 @@ private fun Project.registerSendSlackChangelogTask(
         "$SEND_SLACK_CHANGELOG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         SendSlackChangelogTask::class.java,
     ) {
-        val webhookService =
+        val service =
             extensions
                 .getByType(SlackServiceExtension::class.java)
-                .webhookServices
-                .flatMapByNameOrCommon(params.buildVariant.name)
+                .services
+                .get()
+                .getByNameOrCommon(params.buildVariant.name)
 
         it.changelogFile.set(params.changelogFile)
         it.buildTagFile.set(params.lastBuildTagFile)
@@ -147,7 +143,9 @@ private fun Project.registerSendSlackChangelogTask(
         it.iconUrl.set(botConfig.iconUrl)
         it.userMentions.set(changelogConfig.userMentions)
         it.attachmentColor.set(changelogConfig.attachmentColor)
-        it.networkService.set(webhookService)
+        it.service.set(service)
+
+        it.usesService(service)
     }
 }
 
@@ -167,17 +165,20 @@ private fun Project.registerApkSlackDistributionTask(
         "$SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
         SlackDistributionTask::class.java,
     ) {
-        val uploadService =
+        val service =
             extensions
                 .getByType(SlackServiceExtension::class.java)
-                .uploadServices
-                .flatMapByNameOrCommon(params.buildVariant.name)
+                .services
+                .get()
+                .getByNameOrCommon(params.buildVariant.name)
 
         it.distributionFile.set(params.apkOutputFile)
         it.destinationChannels.set(distributionConfig.destinationChannels)
         it.buildTagFile.set(params.lastBuildTagFile)
         it.baseOutputFileName.set(params.baseFileName)
-        it.networkService.set(uploadService)
+        it.service.set(service)
+
+        it.usesService(service)
     }
 }
 
@@ -193,28 +194,24 @@ private fun Project.registerBundleSlackDistributionTask(
     distributionConfig: SlackDistributionConfig,
     params: SlackBundleDistributionTaskParams,
 ): TaskProvider<SlackDistributionTask>? {
-    return if (params.bundleOutputFile.isPresent) {
-        tasks.register(
-            "$SLACK_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
-            SlackDistributionTask::class.java,
-        ) {
-            val uploadService =
-                extensions
-                    .getByType(SlackServiceExtension::class.java)
-                    .uploadServices
-                    .flatMapByNameOrCommon(params.buildVariant.name)
+    return tasks.register(
+        "$SLACK_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        SlackDistributionTask::class.java,
+    ) {
+        val service =
+            extensions
+                .getByType(SlackServiceExtension::class.java)
+                .services
+                .get()
+                .getByNameOrCommon(params.buildVariant.name)
 
-            it.distributionFile.set(params.bundleOutputFile)
-            it.destinationChannels.set(distributionConfig.destinationChannels)
-            it.buildTagFile.set(params.lastBuildTagFile)
-            it.baseOutputFileName.set(params.baseFileName)
-            it.networkService.set(uploadService)
-        }
-    } else {
-        logger.info(
-            "SlackDistributionTask for Bundle was not created, bundleOutputFile is not present",
-        )
-        null
+        it.distributionFile.set(params.bundleOutputFile)
+        it.destinationChannels.set(distributionConfig.destinationChannels)
+        it.buildTagFile.set(params.lastBuildTagFile)
+        it.baseOutputFileName.set(params.baseFileName)
+        it.service.set(service)
+
+        it.usesService(service)
     }
 }
 

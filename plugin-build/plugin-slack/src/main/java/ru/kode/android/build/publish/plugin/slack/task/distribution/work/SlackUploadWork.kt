@@ -7,9 +7,7 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.util.RequestError
-import ru.kode.android.build.publish.plugin.core.zip.zipAllInto
-import ru.kode.android.build.publish.plugin.slack.service.upload.SlackUploadService
-import java.io.File
+import ru.kode.android.build.publish.plugin.slack.service.SlackService
 
 /**
  * Parameters for the Slack upload work action.
@@ -40,7 +38,7 @@ internal interface SlackUploadParameters : WorkParameters {
     /**
      * The Slack upload service to use for the file upload
      */
-    val networkService: Property<SlackUploadService>
+    val service: Property<SlackService>
 }
 
 /**
@@ -59,21 +57,17 @@ internal abstract class SlackUploadWork : WorkAction<SlackUploadParameters> {
 
     @Suppress("SwallowedException") // see logs below
     override fun execute() {
-        val uploader = parameters.networkService.get()
+        val service = parameters.service.get()
         val distributionFile = parameters.distributionFile.asFile.get()
-        val zippedDistributionFile =
-            listOf(distributionFile).zipAllInto(
-                File(
-                    distributionFile.toString()
-                        .replace(".${distributionFile.extension}", ".zip"),
-                ),
-            )
         try {
-            uploader.upload(
-                parameters.baseOutputFileName.get(),
-                parameters.buildName.get(),
-                zippedDistributionFile,
-                parameters.destinationChannels.get(),
+            val baseOutputFileName = parameters.baseOutputFileName.get()
+            val buildName = parameters.buildName.get()
+            val initialComment = "$baseOutputFileName $buildName"
+
+            service.upload(
+                initialComment,
+                distributionFile,
+                parameters.destinationChannels.get().toList(),
             )
         } catch (ex: RequestError.UploadTimeout) {
             logger.error(

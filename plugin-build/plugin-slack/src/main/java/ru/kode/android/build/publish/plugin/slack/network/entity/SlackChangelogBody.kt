@@ -1,8 +1,8 @@
-package ru.kode.android.build.publish.plugin.slack.task.changelog.entity
+package ru.kode.android.build.publish.plugin.slack.network.entity
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 @Suppress("ConstructorParameterNaming") // network model
 internal data class SlackChangelogBody(
     val icon_url: String,
@@ -10,19 +10,19 @@ internal data class SlackChangelogBody(
     val blocks: List<Block>,
     val attachments: List<Attachment>,
 ) {
-    @JsonClass(generateAdapter = true)
+    @Serializable
     data class Attachment(
         val color: String,
         val blocks: List<Block>,
     )
 
-    @JsonClass(generateAdapter = true)
+    @Serializable
     data class Block(
         val type: String,
         val text: Text,
     )
 
-    @JsonClass(generateAdapter = true)
+    @Serializable
     data class Text(
         val type: String,
         val text: String,

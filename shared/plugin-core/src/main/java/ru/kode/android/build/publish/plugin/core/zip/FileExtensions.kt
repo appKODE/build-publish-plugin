@@ -8,10 +8,10 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 @Suppress("NestedBlockDepth", "MagicNumber") // simple zip logic
-fun List<File>.zipAllInto(zipFile: File): File {
+fun List<File>.zipAllInto(targetZipFile: File): File {
     require(isNotEmpty()) { "File list cannot be empty." }
 
-    ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zipOut ->
+    ZipOutputStream(BufferedOutputStream(FileOutputStream(targetZipFile))).use { zipOut ->
         val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
 
         this.forEach { file ->
@@ -26,5 +26,15 @@ fun List<File>.zipAllInto(zipFile: File): File {
         }
     }
 
-    return zipFile
+    return targetZipFile
+}
+
+fun File.zipped(): File {
+    return listOf(this)
+        .zipAllInto(
+            File(
+                this.toString()
+                    .replace(".${this.extension}", ".zip"),
+            ),
+        )
 }

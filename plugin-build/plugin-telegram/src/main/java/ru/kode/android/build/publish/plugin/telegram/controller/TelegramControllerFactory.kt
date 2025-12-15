@@ -7,7 +7,6 @@ import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramDis
 import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramRetrofitBuilderFactory
 import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramWebhookApiFactory
 
-
 /**
  * Factory for creating instances of [TelegramController].
  */

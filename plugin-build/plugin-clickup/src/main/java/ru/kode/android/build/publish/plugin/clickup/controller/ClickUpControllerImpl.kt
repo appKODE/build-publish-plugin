@@ -66,7 +66,9 @@ internal class ClickUpControllerImpl(
                 "No list found in space ${space.name}. " +
                     "Cannot delete custom field '$fieldId'."
             )
-        api.deleteCustomFieldFromList(list.id, fieldId).executeNoResult()
+        api.deleteCustomFieldFromList(list.id, fieldId)
+            .executeNoResult()
+            .onFailure { logger.error("Failed to delete custom field '$fieldId' from list '$list'", it) }
     }
 
     /**
@@ -97,7 +99,8 @@ internal class ClickUpControllerImpl(
      * @throws RuntimeException If the API returns an error response
      */
     override fun removeTag(taskId: String, tagName: String) {
-        api.removeTag(taskId, tagName).executeNoResult()
+        api.removeTag(taskId, tagName)
+            .executeNoResult()
             .onFailure { logger.error("Failed to remove tag '$tagName' from task '$taskId'", it) }
         logger.info("Tag '$tagName' removed from task '$taskId'")
     }

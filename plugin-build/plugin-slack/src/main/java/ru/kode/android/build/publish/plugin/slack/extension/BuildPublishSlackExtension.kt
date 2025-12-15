@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.slack.extension
 
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
@@ -187,9 +188,26 @@ abstract class BuildPublishSlackExtension
             project: Project,
             input: ExtensionInput,
         ) {
-            val botConfig = botConfig(input.buildVariant.name)
+            val buildVariant = input.buildVariant.name
+            val botConfig = botConfigOrNull(input.buildVariant.name)
+            if (botConfig == null) {
+                throw GradleException(
+                    "Need to provide Bot config for `$buildVariant` or `common`. " +
+                        "It's required to run Slack plugin. " +
+                        "Please check that you have 'bots' block in your build script " +
+                        "and that it's not empty. "
+                )
+            }
             val changelogConfig = changelogConfigOrNull(input.buildVariant.name)
             val distributionConfig = distributionConfigOrNull(input.buildVariant.name)
+
+            if (changelogConfig == null && distributionConfig == null) {
+                throw GradleException(
+                    "Need to provide at least one of Changelog or Distribution config for `$buildVariant` or `common`. " +
+                        "Please check that you have either 'changelog' or 'distribution' block in your build script " +
+                        "and that it's not empty. "
+                )
+            }
 
             if (changelogConfig != null) {
                 SlackTasksRegistrar.registerChangelogTask(

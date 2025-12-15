@@ -63,7 +63,7 @@ internal class TelegramControllerImpl(
     override fun send(
         message: String,
         header: String,
-        userMentions: List<String>?,
+        userMentions: List<String>,
         issueUrlPrefix: String,
         issueNumberPattern: String,
         bots: List<ChatSpecificTelegramBot>,
@@ -76,7 +76,7 @@ internal class TelegramControllerImpl(
         )
 
         val escapedUserMentions =
-            userMentions.orEmpty()
+            userMentions
                 .joinToString(", ")
                 .escapeCharacters(ESCAPED_CHARACTERS)
 

@@ -1,7 +1,9 @@
 package ru.kode.android.build.publish.plugin.slack.config
 
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 
 /**
  * Configuration interface for a Slack bot that sends notifications.
@@ -31,6 +33,19 @@ interface SlackBotConfig {
      */
     @get:Input
     val webhookUrl: Property<String>
+
+    /**
+     * File containing the Slack API token with `files:write` scope.
+     *
+     * The token should have the following OAuth scopes:
+     * - `files:write` - To upload files
+     * - `channels:read` - To verify channel access
+     * - `groups:read` - For private channel access
+     *
+     * @see <a href="https://api.slack.com/authentication/token-types#bot">Slack Bot Tokens</a>
+     */
+    @get:InputFile
+    val uploadApiTokenFile: RegularFileProperty
 
     /**
      * The URL of an image to use as the bot's icon for messages.

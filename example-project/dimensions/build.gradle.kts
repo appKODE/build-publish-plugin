@@ -85,6 +85,7 @@ buildPublishSlack {
         common {
             webhookUrl.set("https://hooks.slack.com/services/111111111/AAAAAAA/DDDDDDD")
             iconUrl.set("https://i.imgur.com/HQTF5FK.png")
+            uploadApiTokenFile.set(File("Test"))
         }
     }
     changelog {
@@ -94,7 +95,6 @@ buildPublishSlack {
         }
     }
     distributionCommon {
-        uploadApiTokenFile.set(File("Test"))
         destinationChannel("builds")
     }
 }

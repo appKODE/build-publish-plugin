@@ -8,7 +8,6 @@ import retrofit2.Retrofit
 
 private const val STUB_BASE_URL = "http://localhost/"
 
-
 /**
  * Factory for creating Retrofit.Builder instances with the necessary configuration for Telegram API communication.
  */

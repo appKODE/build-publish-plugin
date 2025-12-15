@@ -88,7 +88,6 @@ class TelegramDistributionTest {
                         )
                     )
                 )
-
             ),
             topBuildFileContent = """
                 plugins {
@@ -206,7 +205,6 @@ class TelegramDistributionTest {
                         )
                     )
                 )
-
             ),
             topBuildFileContent = """
                 plugins {

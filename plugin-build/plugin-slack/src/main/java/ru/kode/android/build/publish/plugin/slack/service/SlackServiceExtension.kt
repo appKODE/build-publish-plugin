@@ -1,8 +1,6 @@
 package ru.kode.android.build.publish.plugin.slack.service
 
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.slack.service.upload.SlackUploadService
-import ru.kode.android.build.publish.plugin.slack.service.webhook.SlackWebhookService
 
 /**
  * Extension class that provides access to configured Slack services.
@@ -13,13 +11,8 @@ import ru.kode.android.build.publish.plugin.slack.service.webhook.SlackWebhookSe
  */
 abstract class SlackServiceExtension(
     /**
-     * Provider for a map of named [SlackWebhookService] providers.
+     * Provider for a map of named [SlackService] providers.
      * The key is the service name, and the value is a provider for the service.
      */
-    val webhookServices: Provider<Map<String, Provider<SlackWebhookService>>>,
-    /**
-     * Provider for a map of named [SlackUploadService] providers.
-     * The key is the service name, and the value is a provider for the service.
-     */
-    val uploadServices: Provider<Map<String, Provider<SlackUploadService>>>,
+    val services: Provider<Map<String, Provider<SlackService>>>,
 )

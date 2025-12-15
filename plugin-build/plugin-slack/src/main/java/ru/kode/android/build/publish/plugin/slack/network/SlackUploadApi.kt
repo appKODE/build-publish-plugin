@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.slack.task.distribution.api
+package ru.kode.android.build.publish.plugin.slack.network
 
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -13,8 +13,8 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Query
 import retrofit2.http.Url
-import ru.kode.android.build.publish.plugin.slack.task.distribution.entity.SlackCompleteUploadUrlResponse
-import ru.kode.android.build.publish.plugin.slack.task.distribution.entity.SlackGetUploadUrlResponse
+import ru.kode.android.build.publish.plugin.slack.network.entity.SlackCompleteUploadUrlResponse
+import ru.kode.android.build.publish.plugin.slack.network.entity.SlackGetUploadUrlResponse
 
 internal interface SlackUploadApi {
     @GET("files.getUploadURLExternal")

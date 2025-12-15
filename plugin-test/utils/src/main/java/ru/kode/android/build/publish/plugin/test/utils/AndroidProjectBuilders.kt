@@ -263,27 +263,18 @@ fun File.createAndroidProject(
     val slackConfigBlock =
         slackConfig?.let { config ->
             """
-            buildPublishSlack {
-                bot {
-                    common {
-                        webhookUrl.set("${config.bot.webhookUrl}")
-                        iconUrl.set("${config.bot.iconUrl}")
-                    }
-                }
-                
-                changelog {
-                    common {
-                        userMentions(${config.changelog.userMentions.joinToString { "\"$it\"" }})
-                        attachmentColor.set("${config.changelog.attachmentColor}")
-                    }
-                }
-                
-                distributionCommon {
-                    uploadApiTokenFile.set(File("${config.distribution.uploadApiTokenFilePath}"))
-                    destinationChannels(${config.distribution.destinationChannels.joinToString { "\"$it\"" }})
+        buildPublishSlack {
+            bot {
+                common {
+                    it.webhookUrl.set("${config.bot.webhookUrl}")
+                    ${config.bot.uploadApiTokenFilePath?.let { """it.uploadApiTokenFile = project.file("$it")""" }.orEmpty()}
+                    it.iconUrl.set("${config.bot.iconUrl}")
                 }
             }
-            """.trimIndent()
+            ${config.changelog?.let { slackChangelogBlock(it) }.orEmpty()}
+            ${config.distribution?.let { slackDistributionBlock(it) }.orEmpty()}
+        }
+            """
         }.orEmpty()
 
     val telegramConfigBlock =
@@ -408,6 +399,17 @@ private fun telegramChangelogBlock(changelog: TelegramConfig.Changelog): String 
     """
 }
 
+private fun slackChangelogBlock(changelog: SlackConfig.Changelog): String {
+    return """
+            changelog {
+                common {
+                    it.userMentions(${changelog.userMentions.joinToString { "\"$it\"" }})
+                    it.attachmentColor.set("${changelog.attachmentColor}")
+                }
+            }
+    """
+}
+
 private fun telegramBotsBlock(bots: List<TelegramConfig.Bot>): String {
     return """
                         bots {
@@ -425,6 +427,16 @@ private fun telegramDistributionBlock(distribution: TelegramConfig.Distribution)
                                ${distribution.destinationBots.joinToString("\n") { telegramDestinationBotBlock(it) }}
                            } 
                         }
+    """
+}
+
+private fun slackDistributionBlock(distribution: SlackConfig.Distribution): String {
+    return """
+            distribution {
+               common {
+                   it.destinationChannels(${distribution.destinationChannels.joinToString { "\"$it\"" }})
+               } 
+            }
     """
 }
 
@@ -705,11 +717,12 @@ data class PlayConfig(
 
 data class SlackConfig(
     val bot: Bot,
-    val changelog: Changelog,
-    val distribution: Distribution,
+    val changelog: Changelog?,
+    val distribution: Distribution?,
 ) {
     data class Bot(
         val webhookUrl: String,
+        val uploadApiTokenFilePath: String?,
         val iconUrl: String,
     )
 
@@ -719,7 +732,6 @@ data class SlackConfig(
     )
 
     data class Distribution(
-        val uploadApiTokenFilePath: String,
         val destinationChannels: List<String>,
     )
 }

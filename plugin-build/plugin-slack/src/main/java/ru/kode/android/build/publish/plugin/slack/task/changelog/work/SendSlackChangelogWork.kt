@@ -2,9 +2,10 @@ package ru.kode.android.build.publish.plugin.slack.task.changelog.work
 
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.slack.service.webhook.SlackWebhookService
+import ru.kode.android.build.publish.plugin.slack.service.SlackService
 import javax.inject.Inject
 
 /**
@@ -18,36 +19,38 @@ internal interface SendSlackChangelogParameters : WorkParameters {
      * The base name for the build output (e.g., app name)
      */
     val baseOutputFileName: Property<String>
-
     /**
      * The name/version of the build
      */
     val buildName: Property<String>
-
     /**
      * The actual changelog content to be sent
      */
     val changelog: Property<String>
-
     /**
      * Optional user mentions to be included in the message
      */
-    val userMentions: Property<String>
-
+    val userMentions: SetProperty<String>
     /**
      * URL to an icon to be displayed in the Slack message
      */
     val iconUrl: Property<String>
-
     /**
      *  Color code for the message attachment (e.g., "#36a64f" for green)
      */
     val attachmentColor: Property<String>
-
+    /**
+     * URL prefix for issue references in the changelog text.
+     */
+    val issueUrlPrefix: Property<String>
+    /**
+     * Regular expression pattern used to extract issue numbers from the changelog text.
+     */
+    val issueNumberPattern: Property<String>
     /**
      * The network service for sending messages to Slack
      */
-    val networkService: Property<SlackWebhookService>
+    val service: Property<SlackService>
 }
 
 /**
@@ -60,7 +63,7 @@ internal interface SendSlackChangelogParameters : WorkParameters {
  * - Custom icon and color for better visual identification
  *
  * @see SendSlackChangelogTask The task that creates and submits this work
- * @see SlackWebhookService The service that performs the actual network communication
+ * @see SlackService The service that performs the actual network communication
  */
 internal abstract class SendSlackChangelogWork
     @Inject
@@ -68,14 +71,20 @@ internal abstract class SendSlackChangelogWork
         private val logger = Logging.getLogger(this::class.java)
 
         override fun execute() {
-            val service = parameters.networkService.get()
+            val service = parameters.service.get()
+
+            val baseOutputFileName = parameters.baseOutputFileName.get()
+            val buildName = parameters.buildName.get()
+            val initialComment = "$baseOutputFileName $buildName"
+
             service.send(
-                baseOutputFileName = parameters.baseOutputFileName.get(),
-                buildName = parameters.buildName.get(),
+                initialComment = initialComment,
                 changelog = parameters.changelog.get(),
-                userMentions = parameters.userMentions.get(),
+                userMentions = parameters.userMentions.orNull?.toList().orEmpty(),
                 iconUrl = parameters.iconUrl.get(),
                 attachmentColor = parameters.attachmentColor.get(),
+                issueUrlPrefix = parameters.issueUrlPrefix.get(),
+                issueNumberPattern = parameters.issueNumberPattern.get(),
             )
             logger.info("Changelog successfully sent to Slack")
         }

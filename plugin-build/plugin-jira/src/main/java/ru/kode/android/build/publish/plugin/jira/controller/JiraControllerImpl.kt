@@ -90,7 +90,7 @@ internal class JiraControllerImpl(
         api
             .setStatus(issue, request)
             .executeNoResult()
-            .onFailure { logger.info("Failed to set issue status for $issue: $it") }
+            .onFailure { logger.error("Failed to set issue status for $issue", it) }
     }
 
     /**
@@ -229,7 +229,7 @@ internal class JiraControllerImpl(
         api
             .removeLabel(issue, request)
             .executeNoResult()
-            .onFailure { logger.info("Failed to remove label for $issue: $it") }
+            .onFailure { logger.error("Failed to remove label for $issue", it) }
             .getOrNull()
     }
 

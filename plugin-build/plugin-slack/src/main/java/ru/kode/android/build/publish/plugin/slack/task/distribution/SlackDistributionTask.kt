@@ -13,7 +13,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.slack.service.upload.SlackUploadService
+import ru.kode.android.build.publish.plugin.slack.service.SlackService
 import ru.kode.android.build.publish.plugin.slack.task.distribution.work.SlackUploadWork
 import javax.inject.Inject
 
@@ -43,7 +43,7 @@ abstract class SlackDistributionTask
          * It is injected by Gradle when the task is created and configured.
          */
         @get:Internal
-        abstract val networkService: Property<SlackUploadService>
+        abstract val service: Property<SlackService>
 
         /**
          * The build tag file property contains metadata about the current build.
@@ -115,7 +115,7 @@ abstract class SlackDistributionTask
                 parameters.destinationChannels.set(destinationChannels)
                 parameters.buildName.set(currentBuildTag.name)
                 parameters.baseOutputFileName.set(baseOutputFileName)
-                parameters.networkService.set(networkService)
+                parameters.service.set(service)
             }
         }
     }

@@ -86,14 +86,12 @@ internal abstract class SendTelegramChangelogWork
 
             val baseOutputFileName = parameters.baseOutputFileName.get()
             val buildName = parameters.buildName.get()
-            val userMentions = parameters.userMentions.orNull?.toList()
-
             val header = "$baseOutputFileName $buildName"
 
             service.send(
                 changelog = parameters.changelog.get(),
                 header = header,
-                userMentions = userMentions,
+                userMentions =  parameters.userMentions.orNull?.toList().orEmpty(),
                 issueUrlPrefix = parameters.issueUrlPrefix.get(),
                 issueNumberPattern = parameters.issueNumberPattern.get(),
                 destinationBots = parameters.destinationBots.map { destinationTelegramBotsFromJson(it) }.get()
