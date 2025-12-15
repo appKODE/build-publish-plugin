@@ -14,7 +14,6 @@ fun File.createAndroidProject(
     productFlavors: List<ProductFlavor> = listOf(),
     defaultConfig: DefaultConfig? = DefaultConfig(),
     foundationConfig: FoundationConfig = FoundationConfig(),
-    appCenterConfig: AppCenterConfig? = null,
     clickUpConfig: ClickUpConfig? = null,
     confluenceConfig: ConfluenceConfig? = null,
     firebaseConfig: FirebaseConfig? = null,
@@ -150,29 +149,6 @@ fun File.createAndroidProject(
             }
         }
     """
-    val appCenterConfigBlock =
-        appCenterConfig?.let { config ->
-            """
-            buildPublishAppCenter {
-                auth {
-                    common {
-                        ownerName.set("${config.auth.ownerName}")
-                        apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
-                    }
-                }
-            
-                distribution {
-                    common {
-                        appName.set("${config.distribution.appName}")
-                        testerGroups(${config.distribution.testerGroups.joinToString { "\"$it\"" }})
-                        ${config.distribution.maxUploadStatusRequestCount?.let { "maxUploadStatusRequestCount.set($it)" }.orEmpty()}
-                        ${config.distribution.uploadStatusRequestDelayMs?.let { "uploadStatusRequestDelayMs.set($it)" }.orEmpty()}
-                        ${config.distribution.uploadStatusRequestDelayCoefficient?.let { "uploadStatusRequestDelayCoefficient.set($it)" }.orEmpty()}
-                    }
-                }
-            }
-            """.trimIndent()
-        }.orEmpty()
 
     val clickUpConfigBlock =
         clickUpConfig?.let { config ->
@@ -293,7 +269,6 @@ fun File.createAndroidProject(
         plugins {
             id 'com.android.application'
             id 'ru.kode.android.build-publish-novo.foundation'
-            ${appCenterConfig?.let { """id 'ru.kode.android.build-publish-novo.appcenter'""" }.orEmpty()}
             ${clickUpConfig?.let { """id 'ru.kode.android.build-publish-novo.clickup'""" }.orEmpty()}
             ${confluenceConfig?.let { """id 'ru.kode.android.build-publish-novo.confluence'""" }.orEmpty()}
             ${firebaseConfig?.let { """id 'ru.kode.android.build-publish-novo.firebase'""" }.orEmpty()}
@@ -320,8 +295,6 @@ fun File.createAndroidProject(
         $foundationConfigBlock
         
         $jiraConfigBlock
-        
-        $appCenterConfigBlock
         
         $clickUpConfigBlock
         
@@ -619,24 +592,6 @@ data class FoundationConfig(
         val issueUrlPrefix: String = "https://jira.example.com/browse/",
         val commitMessageKey: String = "CHANGELOG",
         val excludeMessageKey: Boolean = true,
-    )
-}
-
-data class AppCenterConfig(
-    val auth: Auth,
-    val distribution: Distribution,
-) {
-    data class Auth(
-        val apiTokenFilePath: String,
-        val ownerName: String,
-    )
-
-    data class Distribution(
-        val appName: String,
-        val testerGroups: List<String>,
-        val maxUploadStatusRequestCount: Int?,
-        val uploadStatusRequestDelayMs: Int?,
-        val uploadStatusRequestDelayCoefficient: Int?,
     )
 }
 

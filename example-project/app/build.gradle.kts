@@ -2,7 +2,6 @@ plugins {
     id("com.android.application")
     id("ru.kode.android.build-publish-novo.foundation")
     id("ru.kode.android.build-publish-novo.jira")
-    id("ru.kode.android.build-publish-novo.appcenter")
     id("ru.kode.android.build-publish-novo.confluence")
     id("ru.kode.android.build-publish-novo.telegram")
     id("ru.kode.android.build-publish-novo.clickup")
@@ -82,32 +81,6 @@ buildPublishJira {
         common {
             projectKey.set("AT")
             fixVersionPattern.set("fix_%2\$s_%1\$s")
-        }
-    }
-}
-
-buildPublishAppCenter {
-    auth {
-        common {
-            ownerName.set("android-team-kode.ru")
-            apiTokenFile.set(File("appcenter-token.txt"))
-        }
-    }
-
-    distribution {
-        common {
-            appName.set("Android")
-            testerGroups("Collaborators")
-        }
-
-        buildVariant("debug") {
-            appName.set("AndroidDebug")
-            testerGroups("Collaborators")
-        }
-
-        buildVariant("release") {
-            appName.set("AndroidRelease")
-            testerGroups("Collaborators")
         }
     }
 }
