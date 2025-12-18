@@ -12,6 +12,11 @@ import org.gradle.api.tasks.StopExecutionException
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 import ru.kode.android.build.publish.plugin.jira.extension.BuildPublishJiraExtension
+import ru.kode.android.build.publish.plugin.jira.messages.jiraServicesCreatedMessage
+import ru.kode.android.build.publish.plugin.jira.messages.mustApplyFoundationPluginMessage
+import ru.kode.android.build.publish.plugin.jira.messages.noAuthConfigsMessage
+import ru.kode.android.build.publish.plugin.jira.messages.pluginInitializedMessage
+import ru.kode.android.build.publish.plugin.jira.messages.serviceExtensionCreatedMessage
 import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 
@@ -54,13 +59,10 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
             servicesProperty
         )
 
-        logger.info("JiraServiceExtension created (empty)")
+        logger.info(serviceExtensionCreatedMessage())
 
         if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
-            throw StopExecutionException(
-                "Must only be used with BuildPublishFoundationPlugin. " +
-                    "Please apply 'ru.kode.android.build-publish-novo.foundation'."
-            )
+            throw StopExecutionException(mustApplyFoundationPluginMessage())
         }
 
         val androidExtension =
@@ -69,7 +71,7 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
 
         androidExtension.finalizeDsl {
             if (extension.auth.isEmpty()) {
-                logger.info("Jira: no auth configs — leaving service map empty")
+                logger.info(noAuthConfigsMessage())
                 return@finalizeDsl
             }
 
@@ -88,12 +90,12 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
                 name to registered
             }
 
-            logger.info("Jira services created: ${serviceMap.keys}")
+            logger.info(jiraServicesCreatedMessage(serviceMap.keys))
 
             servicesProperty.set(serviceMap)
 
             logger.info(
-                "Jira plugin finalizeDsl: auth=${extension.auth.names}; automation=${extension.automation.names}"
+                pluginInitializedMessage(extension.auth.names, extension.automation.names)
             )
         }
     }

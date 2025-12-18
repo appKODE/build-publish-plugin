@@ -11,6 +11,7 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import ru.kode.android.build.publish.plugin.foundation.messages.renameApkMessage
 import java.io.File
 import javax.inject.Inject
 
@@ -79,7 +80,7 @@ abstract class RenameApkTask @Inject constructor() : DefaultTask() {
             val outputDir = outputDir.get().asFile
             val targetOutputFileName = outputFileName.get()
             val outputFile = File(outputDir, targetOutputFileName)
-            logger.info("Renaming APK file from ${inputFile.name} in ${inputFile.parent} to $targetOutputFileName in ${outputDir.path}")
+            logger.info(renameApkMessage(inputFile, targetOutputFileName, outputDir))
             inputFile.copyTo(outputFile, overwrite = true)
             outputFile
         }

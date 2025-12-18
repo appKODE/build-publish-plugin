@@ -29,7 +29,7 @@ open class BuildPublishConfigurableExtension {
      * @param container The container to configure
      * @param configurationAction The action that configures the common settings
      */
-    protected fun <T> common(
+    protected fun <T : Any> common(
         container: NamedDomainObjectContainer<T>,
         configurationAction: Action<in T>,
     ) {
@@ -46,7 +46,7 @@ open class BuildPublishConfigurableExtension {
      * @param container The base domain container to configure
      * @param configurationAction The action that configures the common settings
      */
-    protected fun <T> common(
+    protected fun <T : Any> common(
         container: BuildPublishDomainObjectContainer<T>,
         configurationAction: Action<in T>,
     ) {
@@ -61,7 +61,7 @@ open class BuildPublishConfigurableExtension {
      * @param container The container to configure
      * @param configurationAction The action that configures the build type
      */
-    protected fun <T> buildVariant(
+    protected fun <T : Any> buildVariant(
         buildVariant: String,
         container: NamedDomainObjectContainer<T>,
         configurationAction: Action<in T>,
@@ -77,7 +77,7 @@ open class BuildPublishConfigurableExtension {
      * @param container The base domain container to configure
      * @param configurationAction The action that configures the build type
      */
-    protected fun <T> buildVariant(
+    protected fun <T : Any> buildVariant(
         buildVariant: String,
         container: BuildPublishDomainObjectContainer<T>,
         configurationAction: Action<in T>,

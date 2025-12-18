@@ -5,19 +5,16 @@ import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.util.internal.VersionNumber
+import ru.kode.android.build.publish.plugin.foundation.messages.mustBeUsedWithAndroidMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.mustBeUsedWithVersionMessage
 
 @Suppress("ThrowsCount") // block to throws exceptions on apply
 internal fun Project.stopExecutionIfNotSupported() {
     if (AgpVersions.CURRENT < AgpVersions.VERSION_7_0_4) {
-        throw StopExecutionException(
-            "Must only be used with with Android Gradle Plugin >= 7.4 ",
-        )
+        throw StopExecutionException(mustBeUsedWithVersionMessage())
     }
     if (!plugins.hasPlugin(AppPlugin::class.java)) {
-        throw StopExecutionException(
-            "Must only be used with Android application projects." +
-                " Please apply the 'com.android.application' plugin.",
-        )
+        throw StopExecutionException(mustBeUsedWithAndroidMessage())
     }
 }
 

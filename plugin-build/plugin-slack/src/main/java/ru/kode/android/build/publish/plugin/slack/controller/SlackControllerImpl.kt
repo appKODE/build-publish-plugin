@@ -11,6 +11,9 @@ import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
 import ru.kode.android.build.publish.plugin.core.util.executeNoResult
 import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 import ru.kode.android.build.publish.plugin.core.zip.zipped
+import ru.kode.android.build.publish.plugin.slack.messages.blockTextHasMoreSymbolsMessage
+import ru.kode.android.build.publish.plugin.slack.messages.failedToSendChangelogMessage
+import ru.kode.android.build.publish.plugin.slack.messages.headerTextHasMoreSymbolsMessage
 import ru.kode.android.build.publish.plugin.slack.network.SlackApi
 import ru.kode.android.build.publish.plugin.slack.network.SlackUploadApi
 import ru.kode.android.build.publish.plugin.slack.network.entity.SlackChangelogBody
@@ -152,7 +155,7 @@ internal class SlackControllerImpl(
         slackApi
             .send(webhookUrl, changelogBody)
             .executeNoResult()
-            .onFailure { logger.error("Failed to send changelog to $webhookUrl", it) }
+            .onFailure { logger.error(failedToSendChangelogMessage(webhookUrl), it) }
     }
 
     /**
@@ -172,7 +175,7 @@ internal class SlackControllerImpl(
                     text =
                         text.also {
                             if (it.length > MAX_BLOCK_SYMBOLS) {
-                                logger.info("Header text has more than $MAX_BLOCK_SYMBOLS symbols")
+                                logger.info(headerTextHasMoreSymbolsMessage(MAX_BLOCK_SYMBOLS))
                             }
                         }.ellipsizeAt(MAX_BLOCK_SYMBOLS),
                 ),
@@ -191,7 +194,7 @@ internal class SlackControllerImpl(
                     text =
                         text.also {
                             if (it.length > MAX_BLOCK_SYMBOLS) {
-                                logger.info("Block text has more than $MAX_BLOCK_SYMBOLS symbols")
+                                logger.info(blockTextHasMoreSymbolsMessage(MAX_BLOCK_SYMBOLS))
                             }
                         }.ellipsizeAt(MAX_BLOCK_SYMBOLS),
                 ),
@@ -210,8 +213,10 @@ internal class SlackControllerImpl(
      * @return The formatted changelog with issue links
      */
     private fun String.formatIssues(issueUrlPrefix: String, issueNumberPattern: String): String {
-        return this
-            .replace(Regex(issueNumberPattern), "<$issueUrlPrefix\$0|\$0>")
+        return this.replace(
+            Regex(issueNumberPattern),
+            "<$issueUrlPrefix\$0|\$0>"
+        )
     }
 }
 

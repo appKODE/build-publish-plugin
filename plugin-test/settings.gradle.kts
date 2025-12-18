@@ -33,17 +33,17 @@ include("slack")
 includeBuild("../plugin-build") {
     dependencySubstitution {
         substitute(module("ru.kode.android:plugin-foundation"))
-            .using(project(":pugin-foundation"))
+            .using(project(":plugin-foundation"))
         substitute(module("ru.kode.android:plugin-jira"))
-            .using(project(":pugin-jira"))
+            .using(project(":plugin-jira"))
         substitute(module("ru.kode.android:plugin-telegram"))
-            .using(project(":pugin-telegram"))
+            .using(project(":plugin-telegram"))
         substitute(module("ru.kode.android:plugin-confluence"))
-            .using(project(":pugin-confluence"))
+            .using(project(":plugin-confluence"))
         substitute(module("ru.kode.android:plugin-clickup"))
-            .using(project(":pugin-clickup"))
+            .using(project(":plugin-clickup"))
         substitute(module("ru.kode.android:plugin-slack"))
-            .using(project(":pugin-slack"))
+            .using(project(":plugin-slack"))
     }
 }
 
@@ -51,6 +51,6 @@ includeBuild("../build-conventions")
 includeBuild("../shared") {
     dependencySubstitution {
         substitute(module("ru.kode.android:plugin-core"))
-            .using(project(":pugin-core"))
+            .using(project(":plugin-core"))
     }
 }

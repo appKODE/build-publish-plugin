@@ -11,13 +11,9 @@ dependencies {
     implementation(gradleApi())
     implementation(libs.okhttp)
     implementation(libs.okhttpLogging)
-    implementation(libs.moshi)
     implementation(libs.retrofit)
-    implementation(libs.retrofitMoshi)
     implementation(libs.agp)
     implementation(libs.firebaseAppdistribution)
-
-    ksp(libs.moshiCodgen)
 }
 
 gradlePlugin {

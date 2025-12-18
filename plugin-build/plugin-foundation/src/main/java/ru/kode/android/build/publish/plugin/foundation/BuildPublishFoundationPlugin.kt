@@ -19,13 +19,15 @@ import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_TAG_PATTERN
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
-import ru.kode.android.build.publish.plugin.core.util.changelogDirectory
+import ru.kode.android.build.publish.plugin.core.util.changelogFileProvider
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.core.util.getCommon
 import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.foundation.config.OutputConfig
 import ru.kode.android.build.publish.plugin.foundation.extension.BuildPublishFoundationExtension
+import ru.kode.android.build.publish.plugin.foundation.messages.configureExtensionMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.outputConfigShouldBeDefinedMessage
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServicePlugin
 import ru.kode.android.build.publish.plugin.foundation.task.ChangelogTasksRegistrar
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_NAME
@@ -72,16 +74,21 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
 
         androidExtension.onVariants(
             callback = { variant ->
-                val variantName = variant.name
                 val buildVariant = BuildVariant(
-                    variantName,
-                    variant.flavorName,
-                    variant.buildType
+                    name = variant.name,
+                    flavorName = variant.flavorName?.takeIf { it.isNotBlank() },
+                    buildTypeName = variant.buildType?.takeIf { it.isNotBlank() },
+                    productFlavors = variant.productFlavors.map {
+                        BuildVariant.ProductFlavor(
+                            dimension = it.first,
+                            name = it.second
+                        )
+                    }
                 )
 
                 val variantOutput =
                     variant.outputs
-                        .find { it is VariantOutputImpl && it.fullName == variantName }
+                        .find { it is VariantOutputImpl && it.fullName == buildVariant.name }
                         as? VariantOutputImpl
 
                 if (variantOutput != null) {
@@ -159,7 +166,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             ),
                     )
 
-                    val changelogConfigProvider: Provider<ChangelogConfig?> =
+                    val changelogConfigProvider: Provider<ChangelogConfig> =
                         project.providers.provider {
                             buildPublishFoundationExtension
                                 .changelog
@@ -171,6 +178,8 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             outputDir.file(outputFileName)
                         }
 
+                    val changelogFileProvider = project.changelogFileProvider(buildVariant.name)
+
                     val changelogFile =
                         ChangelogTasksRegistrar.registerGenerateChangelogTask(
                             project = project,
@@ -178,20 +187,15 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 GenerateChangelogTaskParams(
                                     commitMessageKey = changelogConfigProvider
                                         .flatMap {
-                                            it?.commitMessageKey
-                                                ?: project.providers.provider { null }
+                                            it.commitMessageKey
+                                                .orElse(project.providers.provider { null })
                                         },
                                     excludeMessageKey = changelogConfigProvider.flatMap {
-                                        if (it != null) {
-                                            it.excludeMessageKey
-                                                .orElse(true)
-                                        } else {
-                                            project.providers.provider { null }
-                                        }
+                                        it.excludeMessageKey.orElse(true)
                                     },
                                     buildTagPattern = buildTagPattern,
                                     buildVariant = buildVariant,
-                                    changelogFile = project.changelogDirectory(),
+                                    changelogFile = changelogFileProvider,
                                     lastTagFile = lastTagTaskOutput.lastBuildTagFile,
                                 ),
                         )
@@ -205,7 +209,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             project.extensions.getByName(schema.name) as BuildPublishConfigurableExtension
                         }
                         .onEach { extension ->
-                            logger.info("Configure $extension in core")
+                            logger.info(configureExtensionMessage(extension))
 
                             extension.configure(
                                 project = project,
@@ -214,16 +218,16 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                         changelog =
                                             ExtensionInput.Changelog(
                                                 issueNumberPattern = changelogConfigProvider.flatMap {
-                                                    it?.issueNumberPattern
-                                                        ?: project.providers.provider { null }
+                                                    it.issueNumberPattern
+                                                        .orElse(project.providers.provider { null })
                                                 },
                                                 issueUrlPrefix = changelogConfigProvider.flatMap {
-                                                    it?.issueUrlPrefix
-                                                        ?: project.providers.provider { null }
+                                                    it.issueUrlPrefix
+                                                        .orElse(project.providers.provider { null })
                                                 },
                                                 commitMessageKey = changelogConfigProvider.flatMap {
-                                                    it?.commitMessageKey
-                                                        ?: project.providers.provider { null }
+                                                    it.commitMessageKey
+                                                        .orElse(project.providers.provider { null })
                                                 },
                                                 file = changelogFile,
                                             ),
@@ -236,7 +240,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                                 lastBuildTagFile = lastTagTaskOutput.lastBuildTagFile,
                                                 versionName = lastTagTaskOutput.versionName,
                                                 versionCode = lastTagTaskOutput.versionCode,
-                                                apkFileName = lastTagTaskOutput.apkOutputFileName,
+                                                changelogFileName = changelogFileProvider,
                                                 apkFile = apkOutputFileProvider,
                                                 bundleFile = bundleFileProvider,
                                             ),
@@ -256,7 +260,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
         androidExtension.finalizeDsl {
             val outputConfig =
                 buildPublishFoundationExtension.output.getCommon()
-                    ?: throw GradleException("output config should be defined")
+                    ?: throw GradleException(outputConfigShouldBeDefinedMessage())
             val useDefaultsForVersionsAsFallback =
                 outputConfig
                     .useDefaultsForVersionsAsFallback

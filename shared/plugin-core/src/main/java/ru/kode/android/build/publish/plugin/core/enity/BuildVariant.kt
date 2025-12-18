@@ -19,4 +19,15 @@ data class BuildVariant(
      * The name of the build type (e.g., "debug", "release"), or null if not specified
      */
     val buildTypeName: String?,
-)
+    /**
+     * The list of product flavors for this build variant.
+     *
+     * The list is empty if no flavor is configured.
+     */
+    val productFlavors: List<ProductFlavor>,
+) {
+    data class ProductFlavor(
+        val dimension: String,
+        val name: String,
+    )
+}

@@ -9,6 +9,11 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.StopExecutionException
 import ru.kode.android.build.publish.plugin.clickup.extension.BuildPublishClickUpExtension
+import ru.kode.android.build.publish.plugin.clickup.messages.extensionCreatedMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.mustApplyFoundationPluginMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.noAuthConfigMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.registeringServicesMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.servicesCreatedMessage
 import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtension
 import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
 import ru.kode.android.build.publish.plugin.core.util.serviceName
@@ -51,24 +56,21 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
             servicesProperty
         )
 
-        logger.info("ClickUpServiceExtension created (empty)")
+        logger.info(extensionCreatedMessage())
 
         if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
-            throw StopExecutionException(
-                "Must only be used with BuildPublishFoundationPlugin. " +
-                    "Please apply 'ru.kode.android.build-publish-novo.foundation'."
-            )
+            throw StopExecutionException(mustApplyFoundationPluginMessage())
         }
 
         val androidExtension = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
             if (extension.auth.isEmpty()) {
-                logger.info("ClickUp: no auth configs — leaving service map empty")
+                logger.info(noAuthConfigMessage())
                 return@finalizeDsl
             }
 
-            logger.info("ClickUp: registering services...")
+            logger.info(registeringServicesMessage())
 
             val serviceMap =
                 extension.auth.associate { authConfig ->
@@ -86,7 +88,7 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
                     name to service
                 }
 
-            logger.info("ClickUp services created: ${serviceMap.keys}")
+            logger.info(servicesCreatedMessage(serviceMap.keys))
 
             servicesProperty.set(serviceMap)
         }

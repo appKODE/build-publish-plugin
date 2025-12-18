@@ -4,8 +4,11 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 
-const val CHANGELOG_FILENAME = "changelog.txt"
+fun Project.changelogFileProvider(variantName: String): Provider<RegularFile> {
+    return this.layout.buildDirectory.file("changelog-$variantName.txt")
+}
 
-fun Project.changelogDirectory(): Provider<RegularFile> {
-    return this.layout.buildDirectory.file(CHANGELOG_FILENAME)
+fun Project.tagBuildFileProvider(variantName: String): Provider<RegularFile> {
+    return project.layout.buildDirectory
+        .file("tag-build-${variantName}.json")
 }

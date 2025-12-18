@@ -15,6 +15,7 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.jira.messages.issuesNoFoundMessage
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddFixVersionWork
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddLabelWork
@@ -155,7 +156,7 @@ abstract class JiraAutomationTask
                     .mapTo(mutableSetOf()) { it.groupValues[0] }
 
             if (issues.isEmpty()) {
-                logger.info("issues not found in the changelog, nothing will change")
+                logger.info(issuesNoFoundMessage())
             } else {
                 val projectId = service.flatMap { service ->
                     projectKey.map { projectKey ->

@@ -25,7 +25,6 @@ rootProject.name = ("ru.kode.android.build.publish.example-project")
 include("app")
 include("build-types")
 include("build-types-gradle")
-include("custom-plugin")
 include("dimensions")
 include("flavors")
 includeBuild("../plugin-build")
@@ -34,6 +33,6 @@ includeBuild("../build-conventions")
 includeBuild("../shared") {
     dependencySubstitution {
         substitute(module("ru.kode.android:plugin-core"))
-            .using(project(":pugin-core"))
+            .using(project(":plugin-core"))
     }
 }

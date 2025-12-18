@@ -62,7 +62,8 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
         val lastBuildTag = fromJson(buildTagFile.asFile.get())
         val currentBuildNumber = lastBuildTag.buildNumber.toString()
         val increasedBuildNumber = lastBuildTag.buildNumber.inc().toString()
-        val nextBuildTag = lastBuildTag.name.replaceLast(currentBuildNumber, increasedBuildNumber)
+        val nextBuildTag = lastBuildTag.name
+            .replaceLast(currentBuildNumber, increasedBuildNumber)
         print(nextBuildTag)
     }
 }

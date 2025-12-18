@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.slack.messages.changelogSentMessage
 import ru.kode.android.build.publish.plugin.slack.service.SlackService
 import javax.inject.Inject
 
@@ -86,6 +87,7 @@ internal abstract class SendSlackChangelogWork
                 issueUrlPrefix = parameters.issueUrlPrefix.get(),
                 issueNumberPattern = parameters.issueNumberPattern.get(),
             )
-            logger.info("Changelog successfully sent to Slack")
+            logger.info(changelogSentMessage())
         }
     }
+

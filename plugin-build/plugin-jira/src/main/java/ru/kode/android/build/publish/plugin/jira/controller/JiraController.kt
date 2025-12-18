@@ -2,7 +2,6 @@ package ru.kode.android.build.publish.plugin.jira.controller
 
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraFixVersion
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueStatus
-import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueTransition
 
 /**
  * Controller for interacting with the Jira API.

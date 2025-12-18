@@ -6,6 +6,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.foundation.messages.noOutputVariantMessage
 
 internal fun Project.mapToOutputApkFile(
     buildVariant: BuildVariant,
@@ -15,5 +16,6 @@ internal fun Project.mapToOutputApkFile(
         .firstOrNull { it.variantName == buildVariant.name }
         ?.outputDirectory
         ?.map { directory -> directory.file(fileName) }
-        ?: throw GradleException("no output for variant ${buildVariant.name}")
+        ?: throw GradleException(noOutputVariantMessage(buildVariant))
 }
+

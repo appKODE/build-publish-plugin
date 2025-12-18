@@ -13,6 +13,8 @@ import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackDistributionConfig
+import ru.kode.android.build.publish.plugin.slack.messages.provideBotConfigMessage
+import ru.kode.android.build.publish.plugin.slack.messages.provideChangelogOrDistributionConfigMessage
 import ru.kode.android.build.publish.plugin.slack.task.SlackApkDistributionTaskParams
 import ru.kode.android.build.publish.plugin.slack.task.SlackBundleDistributionTaskParams
 import ru.kode.android.build.publish.plugin.slack.task.SlackChangelogTaskParams
@@ -191,22 +193,13 @@ abstract class BuildPublishSlackExtension
             val buildVariant = input.buildVariant.name
             val botConfig = botConfigOrNull(input.buildVariant.name)
             if (botConfig == null) {
-                throw GradleException(
-                    "Need to provide Bot config for `$buildVariant` or `common`. " +
-                        "It's required to run Slack plugin. " +
-                        "Please check that you have 'bots' block in your build script " +
-                        "and that it's not empty. "
-                )
+                throw GradleException(provideBotConfigMessage(buildVariant))
             }
             val changelogConfig = changelogConfigOrNull(input.buildVariant.name)
             val distributionConfig = distributionConfigOrNull(input.buildVariant.name)
 
             if (changelogConfig == null && distributionConfig == null) {
-                throw GradleException(
-                    "Need to provide at least one of Changelog or Distribution config for `$buildVariant` or `common`. " +
-                        "Please check that you have either 'changelog' or 'distribution' block in your build script " +
-                        "and that it's not empty. "
-                )
+                throw GradleException(provideChangelogOrDistributionConfigMessage(buildVariant))
             }
 
             if (changelogConfig != null) {

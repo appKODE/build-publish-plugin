@@ -5,6 +5,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.confluence.messages.uploadFailedMessage
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
 import ru.kode.android.build.publish.plugin.core.util.RequestError
 
@@ -52,11 +53,8 @@ internal abstract class ConfluenceUploadWork : WorkAction<ConfluenceUploadParame
                 fileName = distributionFile.name,
             )
         } catch (ex: RequestError.UploadTimeout) {
-            logger.error(
-                "Confluence upload failed with timeout exception, " +
-                    "but the file was probably uploaded successfully",
-                ex
-            )
+            logger.error(uploadFailedMessage(), ex)
         }
     }
 }
+

@@ -22,7 +22,7 @@ import ru.kode.android.build.publish.plugin.core.util.common
  *
  * @see NamedDomainObjectContainer
  */
-class BuildPublishDomainObjectContainer<T>(
+class BuildPublishDomainObjectContainer<T : Any>(
     private val namedContainer: NamedDomainObjectContainer<T>,
 ) {
     /**

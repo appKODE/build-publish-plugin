@@ -18,6 +18,7 @@ import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
+import ru.kode.android.build.publish.plugin.core.util.tagBuildFileProvider
 import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.PrintLastIncreasedTag
@@ -212,10 +213,7 @@ private fun Project.registerRenameApkTask(
  */
 private fun Project.registerGetLastTagTask(params: LastTagTaskParams): Provider<RegularFile> {
     val variant = params.buildVariant
-    val tagBuildFile =
-        project.layout.buildDirectory
-            .file("tag-build-${variant.name}.json")
-
+    val tagBuildFile = project.tagBuildFileProvider(variant.name)
     val taskName = "$GET_LAST_TAG_TASK_PREFIX${variant.capitalizedName()}"
     return tasks.register(taskName, GetLastTagTask::class.java) { task ->
         task.tagBuildFile.set(tagBuildFile)
@@ -252,11 +250,11 @@ internal data class LastTagTaskOutput(
     /**
      * Provider for the version name, or null if not applicable
      */
-    val versionName: Provider<String?>,
+    val versionName: Provider<String>,
     /**
      * Provider for the version code, or null if not applicable
      */
-    val versionCode: Provider<Int?>,
+    val versionCode: Provider<Int>,
     /**
      * Provider for the formatted APK output file name
      */

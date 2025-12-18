@@ -6,6 +6,7 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAutomationConfig
+import ru.kode.android.build.publish.plugin.clickup.messages.propertiesNotAppliedMessage
 import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtension
 import ru.kode.android.build.publish.plugin.clickup.task.automation.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
@@ -69,10 +70,7 @@ private fun Project.registerClickUpTasks(
         automationConfig.fixVersionPattern.isPresent || automationConfig.fixVersionFieldName.isPresent
 
     if (!fixVersionIsPresent && hasMissingFixVersionProperties) {
-        throw GradleException(
-            "To use the fixVersion logic, the fixVersionPattern or fixVersionFieldName " +
-                "properties must be specified",
-        )
+        throw GradleException(propertiesNotAppliedMessage())
     }
 
     val service =

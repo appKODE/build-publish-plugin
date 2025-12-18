@@ -7,6 +7,7 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.util.RequestError
+import ru.kode.android.build.publish.plugin.slack.messages.uploadFailedMessage
 import ru.kode.android.build.publish.plugin.slack.service.SlackService
 
 /**
@@ -70,11 +71,8 @@ internal abstract class SlackUploadWork : WorkAction<SlackUploadParameters> {
                 parameters.destinationChannels.get().toList(),
             )
         } catch (ex: RequestError.UploadTimeout) {
-            logger.error(
-                "slack upload failed with timeout exception, " +
-                    "but probably uploaded, " +
-                    "see https://github.com/slackapi/python-slack-sdk/issues/1165",
-            )
+            logger.error(uploadFailedMessage(), ex)
         }
     }
 }
+

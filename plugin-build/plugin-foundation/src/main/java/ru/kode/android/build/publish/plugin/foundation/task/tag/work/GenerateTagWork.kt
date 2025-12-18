@@ -9,6 +9,10 @@ import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.strategy.HardcodedTagGenerationStrategy
+import ru.kode.android.build.publish.plugin.foundation.messages.invalidTagMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.tagNotCreatedMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.usingStabMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.validBuildTagFoundMessage
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
 import javax.inject.Inject
 
@@ -80,74 +84,22 @@ internal abstract class GenerateTagWork
 
             when {
                 buildTag != null && isTagValid -> {
-                    logger.info(
-                        "Valid build tag '${buildTag.name}' found for '$buildVariant' " +
-                            "(build number: ${buildTag.buildNumber}). Generating tag build file...",
-                    )
+                    logger.info(validBuildTagFoundMessage(buildTag, buildVariant), )
                     tagBuildOutput.writeText(buildTag.toJson())
                 }
 
                 buildTag != null && !isTagValid -> {
-                    val errorMessage =
-                        """
-                        |Invalid build tag '${buildTag.name}' for '$buildVariant' variant.
-                        |Detected build number: ${buildTag.buildNumber}, expected >= $DEFAULT_VERSION_CODE.
-                        |
-                        |According to Google Play requirements, every Android build must have a positive 
-                        |(greater than 0) and incrementing version code. A tag producing a non-positive or 
-                        |reset build number cannot be used for release builds.
-                        |
-                        |Fix:
-                        |1. Ensure the tag encodes a valid build number (>= $DEFAULT_VERSION_CODE)
-                        |2. Delete and recreate the incorrect tag if necessary:
-                        |   git tag -d ${buildTag.name} && git push origin :refs/tags/${buildTag.name}
-                        |   git tag <correct_tag> && git push origin <correct_tag>
-                        |3. Re-run the build after correcting the tag.
-                        """.trimMargin()
-
-                    logger.error(
-                        "Invalid build tag '${buildTag.name}' for '$buildVariant' — " +
-                            "build number (${buildTag.buildNumber}) < expected minimum ($DEFAULT_VERSION_CODE).",
-                    )
-                    throw GradleException(errorMessage)
+                    throw GradleException(invalidTagMessage(buildTag, buildVariant))
                 }
 
                 useStubsForTagAsFallback -> {
                     val tag = HardcodedTagGenerationStrategy.build(buildVariant)
                     tagBuildOutput.writeText(tag.toJson())
-                    logger.warn(
-                        "Using stub tag for build variant '$buildVariant' " +
-                            "because no valid tag was found using pattern '$buildTagPattern'.",
-                    )
+                    logger.warn(usingStabMessage(buildVariant, buildTagPattern))
                 }
 
                 else -> {
-                    val errorMessage =
-                        """
-                        |Build tag file not created for '$buildVariant' build variant 
-                        |and no stub tag was used because 'useStubsForTagAsFallback' is false.
-                        |
-                        |Possible reasons:
-                        |- The pattern '$buildTagPattern' is incorrect
-                        |- No matching tag exists in the repository
-                        |- The tag exists but wasn’t fetched
-                        |
-                        |This is a critical error as other tasks depend on this file.
-                        |
-                        |Troubleshooting steps:
-                        |1. Verify that a tag matching the pattern exists:
-                        |   git tag -l '$buildTagPattern'
-                        |2. If the tag exists but isn't being found, try fetching all tags:
-                        |   git fetch --all --tags
-                        |3. Check the pattern in your build configuration
-                        |4. For more details, run with --info flag
-                        """.trimMargin()
-
-                    logger.error(
-                        "No build tag found for '$buildVariant' using pattern '$buildTagPattern'. " +
-                            "Stub tag generation disabled (`useStubsForTagAsFallback` = false).",
-                    )
-                    throw GradleException(errorMessage)
+                    throw GradleException(tagNotCreatedMessage(buildVariant, buildTagPattern))
                 }
             }
         }

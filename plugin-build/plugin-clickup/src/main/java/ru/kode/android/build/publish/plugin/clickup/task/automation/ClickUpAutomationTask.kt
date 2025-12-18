@@ -13,6 +13,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
+import ru.kode.android.build.publish.plugin.clickup.messages.issuesNotFoundMessage
 import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddFixVersionWork
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddTagToTaskWork
@@ -178,7 +179,7 @@ abstract class ClickUpAutomationTask
                     .findAll(changelog)
                     .mapTo(mutableSetOf()) { it.groupValues[0] }
             if (issues.isEmpty()) {
-                logger.info("issues not found in the changelog, nothing will change")
+                logger.info(issuesNotFoundMessage())
             } else {
                 val fixVersionFieldId = service.flatMap { service ->
                     workspaceName

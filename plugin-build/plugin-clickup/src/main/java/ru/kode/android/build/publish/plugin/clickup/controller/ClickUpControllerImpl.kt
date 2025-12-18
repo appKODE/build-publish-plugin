@@ -8,6 +8,18 @@ import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpSpa
 import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpTaskFields
 import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpTaskTags
 import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpTeam
+import ru.kode.android.build.publish.plugin.clickup.messages.customFieldClearedMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.failedAddFieldMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.failedAddTagMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.failedToDeleteCustomFieldMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.failedToRemoveTagMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.listNotFoundForCreateMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.listNotFoundForDeleteMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.spaceNotFoundForCreateMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.tagRemovedMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.teamNotFoundForCreateMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.teamNotFoundForDeleteMeesage
+import ru.kode.android.build.publish.plugin.clickup.messages.teamNotFoundForDeleteMessage
 import ru.kode.android.build.publish.plugin.clickup.network.api.ClickUpApi
 import ru.kode.android.build.publish.plugin.clickup.network.entity.AddFieldToTaskRequest
 import ru.kode.android.build.publish.plugin.clickup.network.entity.ClearCustomFieldRequest
@@ -30,14 +42,11 @@ internal class ClickUpControllerImpl(
     override fun getOrCreateCustomFieldId(workspaceName: String, fieldName: String): String {
         val team = getTeams()
             .firstOrNull { it.name.equals(workspaceName, ignoreCase = true) }
-            ?: throw GradleException("Team not found for workspace $workspaceName. " +
-                "To get custom field id, you need to add team to workspace $workspaceName in ClickUp web interface.")
+            ?: throw GradleException(teamNotFoundForCreateMessage(workspaceName))
         val space = getSpaces(team.id).firstOrNull()
-            ?: throw GradleException("Space not found for team $team. " +
-                "To get custom field id, you need to add space to workspace $workspaceName.")
+            ?: throw GradleException(spaceNotFoundForCreateMessage(team, workspaceName))
         val list = getListsInSpace(space.id).firstOrNull()
-            ?: throw GradleException("List not found for space $team. " +
-                "To get custom field id, you need to add list to workspace $workspaceName.")
+            ?: throw GradleException(listNotFoundForCreateMessage(team, workspaceName))
         val customField = getCustomFields(list.id)
             .firstOrNull { it.name.equals(fieldName, ignoreCase = true) }
 
@@ -54,21 +63,14 @@ internal class ClickUpControllerImpl(
     override fun deleteCustomFieldFromList(workspaceName: String, fieldId: String) {
         val team = getTeams()
             .firstOrNull { it.name.equals(workspaceName, ignoreCase = true) }
-            ?: throw GradleException("Team not found for workspace $workspaceName. " +
-                "To delete custom field id, you need to add team to workspace $workspaceName in ClickUp web interface.")
+            ?: throw GradleException(teamNotFoundForDeleteMeesage(workspaceName))
         val space = getSpaces(team.id).firstOrNull()
-            ?: throw GradleException(
-                "Space not found for team $team. " +
-                    "Cannot delete custom field '$fieldId'."
-            )
+            ?: throw GradleException(teamNotFoundForDeleteMessage(team, fieldId))
         val list = getListsInSpace(space.id).firstOrNull()
-            ?: throw GradleException(
-                "No list found in space ${space.name}. " +
-                    "Cannot delete custom field '$fieldId'."
-            )
+            ?: throw GradleException(listNotFoundForDeleteMessage(space, fieldId))
         api.deleteCustomFieldFromList(list.id, fieldId)
             .executeNoResult()
-            .onFailure { logger.error("Failed to delete custom field '$fieldId' from list '$list'", it) }
+            .onFailure { logger.error(failedToDeleteCustomFieldMessage(fieldId, list), it) }
     }
 
     /**
@@ -86,7 +88,7 @@ internal class ClickUpControllerImpl(
     ) {
         api.addTagToTask(taskId, tagName)
             .executeWithResult()
-            .onFailure { logger.error("Failed to add tag '$tagName' to task '$taskId'", it) }
+            .onFailure { logger.error(failedAddTagMessage(tagName, taskId), it) }
     }
 
     /**
@@ -101,8 +103,8 @@ internal class ClickUpControllerImpl(
     override fun removeTag(taskId: String, tagName: String) {
         api.removeTag(taskId, tagName)
             .executeNoResult()
-            .onFailure { logger.error("Failed to remove tag '$tagName' from task '$taskId'", it) }
-        logger.info("Tag '$tagName' removed from task '$taskId'")
+            .onFailure { logger.error(failedToRemoveTagMessage(tagName, taskId), it) }
+        logger.info(tagRemovedMessage(tagName, taskId))
     }
 
     /**
@@ -135,7 +137,7 @@ internal class ClickUpControllerImpl(
         api.clearCustomField(taskId, fieldId, ClearCustomFieldRequest(value = ""))
             .executeNoResult()
             .getOrThrow()
-        logger.info("Custom field '$fieldId' cleared for task '$taskId'")
+        logger.info(customFieldClearedMessage(fieldId, taskId))
     }
 
     /**
@@ -185,7 +187,7 @@ internal class ClickUpControllerImpl(
         val request = AddFieldToTaskRequest(value = fieldValue)
         api.addFieldToTask(taskId, fieldId, request)
             .executeNoResult()
-            .onFailure { logger.error("Failed to add field '$fieldId' to task '$taskId'", it) }
+            .onFailure { logger.error(failedAddFieldMessage(fieldId, taskId), it) }
     }
 
     /**

@@ -13,7 +13,7 @@ dependencies {
     implementation(libs.google.auth)
     implementation(libs.agp)
 
-    ksp(libs.moshiCodgen)
+    implementation(project(":plugin-foundation"))
 }
 
 gradlePlugin {

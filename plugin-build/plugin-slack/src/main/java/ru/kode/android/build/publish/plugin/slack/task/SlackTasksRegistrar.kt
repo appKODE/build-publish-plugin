@@ -13,12 +13,13 @@ import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackDistributionConfig
+import ru.kode.android.build.publish.plugin.slack.messages.apkDistributionNotCreatedMessage
+import ru.kode.android.build.publish.plugin.slack.messages.bundleDistributionNotCreatedMessage
 import ru.kode.android.build.publish.plugin.slack.service.SlackServiceExtension
 import ru.kode.android.build.publish.plugin.slack.task.changelog.SendSlackChangelogTask
 import ru.kode.android.build.publish.plugin.slack.task.distribution.SlackDistributionTask
 
 internal const val SEND_SLACK_CHANGELOG_TASK_PREFIX = "sendSlackChangelog"
-
 internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
 internal const val SLACK_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "slackDistributionUploadBundle"
 
@@ -73,10 +74,7 @@ internal object SlackTasksRegistrar {
         return if (distributionConfig.destinationChannels.isPresent) {
             project.registerApkSlackDistributionTask(distributionConfig, params)
         } else {
-            logger.info(
-                "SlackDistributionTask for APK was not created, " +
-                    "uploadApiTokenFile and uploadChannels are not present",
-            )
+            logger.info(apkDistributionNotCreatedMessage())
             null
         }
     }
@@ -102,8 +100,7 @@ internal object SlackTasksRegistrar {
             project.registerBundleSlackDistributionTask(distributionConfig, params)
         } else {
             logger.info(
-                "SlackDistributionTask for Bundle was not created, " +
-                    "uploadApiTokenFile and uploadChannels are not present",
+                bundleDistributionNotCreatedMessage(),
             )
             null
         }

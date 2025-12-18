@@ -15,6 +15,8 @@ import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.jira.config.JiraAuthConfig
 import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
+import ru.kode.android.build.publish.plugin.jira.messages.needToProvideAuthConfigMessage
+import ru.kode.android.build.publish.plugin.jira.messages.needToProvideAutomationConfigMessage
 import ru.kode.android.build.publish.plugin.jira.task.JiraAutomationTaskParams
 import ru.kode.android.build.publish.plugin.jira.task.JiraTasksRegistrar
 import javax.inject.Inject
@@ -159,20 +161,11 @@ abstract class BuildPublishJiraExtension
             val variantName = input.buildVariant.name
 
             if (auth.isEmpty()) {
-                throw GradleException(
-                    "Need to provide Auth config for `$variantName` or `common`. " +
-                    "It's required to run Jira plugin. " +
-                    "Please check that you have 'auth' block in your build script " +
-                    "and that it's not empty. "
-                )
+                throw GradleException(needToProvideAuthConfigMessage(variantName))
             }
 
             val automationConfig = automationConfigOrNull(variantName)
-                ?: throw GradleException(
-                    "Need to provide Automation config for `$variantName` or `common`. " +
-                    "Please check that you have 'automation' block in your build script " +
-                    "and that it's not empty. "
-                )
+                ?: throw GradleException(needToProvideAutomationConfigMessage(variantName))
 
             JiraTasksRegistrar.registerAutomationTask(
                 project = project,

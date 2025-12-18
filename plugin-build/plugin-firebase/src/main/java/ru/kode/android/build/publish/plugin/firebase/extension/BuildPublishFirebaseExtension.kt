@@ -1,13 +1,20 @@
 package ru.kode.android.build.publish.plugin.firebase.extension
 
+import com.android.build.gradle.AppExtension
+import com.google.firebase.appdistribution.gradle.AppDistributionExtension
+import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
+import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.firebase.config.FirebaseDistributionConfig
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -73,4 +80,53 @@ abstract class BuildPublishFirebaseExtension
         fun distributionCommon(configurationAction: Action<FirebaseDistributionConfig>) {
             common(distribution, configurationAction)
         }
+
+        override fun configure(project: Project, input: ExtensionInput) {
+            val appExtension = project.extensions.findByType(AppExtension::class.java)
+                ?: throw GradleException("AppExtension not found")
+            val buildTypeName = input.buildVariant.buildTypeName
+
+            val firebaseExtension = project.extensions.getByType(BuildPublishFirebaseExtension::class.java)
+            val distributionConfig = firebaseExtension.distribution
+
+            val config = distributionConfig.getByNameOrRequiredCommon(input.buildVariant.name)
+            if (buildTypeName != null) {
+                val buildType = appExtension.buildTypes.getByName(buildTypeName)
+                buildType.firebaseAppDistribution {
+                    val changelogFile: File? = input.output.changelogFileName.orNull?.asFile
+                    this.applyConfig(config, changelogFile)
+                }
+            }
+            input.buildVariant.productFlavors.forEach { flavor ->
+                val flavor = appExtension.productFlavors.getByName(flavor.name)
+                flavor.firebaseAppDistribution {
+                    val changelogFile: File? = input.output.changelogFileName.orNull?.asFile
+                    this.applyConfig(config, changelogFile)
+                }
+            }
+        }
     }
+
+/**
+ * Applies Firebase App Distribution settings to a variant extension.
+ */
+private fun AppDistributionExtension.applyConfig(
+    config: FirebaseDistributionConfig,
+    changelogFile: File?,
+) {
+    config.appId.orNull
+        ?.takeIf { it.isNotBlank() }
+        ?.let { appId = it }
+
+    config.serviceCredentialsFile.orNull?.asFile
+        ?.takeIf { it.exists() }
+        ?.let { serviceCredentialsFile = it.path }
+
+    config.artifactType.orNull
+        ?.let { artifactType = it }
+
+    config.testerGroups.orNull
+        ?.let { groups = it.joinToString(",") }
+
+    changelogFile?.let { releaseNotesFile = it.path }
+}

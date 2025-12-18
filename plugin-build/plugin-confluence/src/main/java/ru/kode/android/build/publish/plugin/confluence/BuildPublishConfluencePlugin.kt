@@ -10,6 +10,11 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.StopExecutionException
 import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 import ru.kode.android.build.publish.plugin.confluence.extension.BuildPublishConfluenceExtension
+import ru.kode.android.build.publish.plugin.confluence.messages.extensionCreatedMessage
+import ru.kode.android.build.publish.plugin.confluence.messages.mustBeUsedWithFoundationPluginException
+import ru.kode.android.build.publish.plugin.confluence.messages.noAuthConfigsMessage
+import ru.kode.android.build.publish.plugin.confluence.messages.registeringServicesMessage
+import ru.kode.android.build.publish.plugin.confluence.messages.servicesCreatedMessage
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceServiceExtension
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
 import ru.kode.android.build.publish.plugin.core.util.serviceName
@@ -53,13 +58,10 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
             servicesProperty
         )
 
-        logger.info("ConfluenceServiceExtension created (empty)")
+        logger.info(extensionCreatedMessage())
 
         if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
-            throw StopExecutionException(
-                "Must only be used with BuildPublishFoundationPlugin. " +
-                    "Please apply 'ru.kode.android.build-publish-novo.foundation'."
-            )
+            throw StopExecutionException(mustBeUsedWithFoundationPluginException())
         }
 
         val androidExtension =
@@ -67,11 +69,11 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
 
         androidExtension.finalizeDsl {
             if (extension.auth.isEmpty()) {
-                logger.info("Confluence: no auth configs — leaving service map empty")
+                logger.info(noAuthConfigsMessage())
                 return@finalizeDsl
             }
 
-            logger.info("Confluence: registering services...")
+            logger.info(registeringServicesMessage())
 
             val serviceMap =
                 extension.auth.associate { authConfig ->
@@ -90,8 +92,7 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
                     name to service
                 }
 
-            logger.info("Confluence services created: ${serviceMap.keys}")
-
+            logger.info(servicesCreatedMessage(serviceMap.keys))
             servicesProperty.set(serviceMap)
         }
     }

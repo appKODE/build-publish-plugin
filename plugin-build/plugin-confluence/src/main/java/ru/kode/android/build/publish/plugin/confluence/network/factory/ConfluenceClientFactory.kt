@@ -8,6 +8,9 @@ import okhttp3.logging.HttpLoggingInterceptor
 import okio.EOFException
 import okio.IOException
 import org.gradle.api.logging.Logger
+import ru.kode.android.build.publish.plugin.confluence.messages.eofDuringHandShakeMessage
+import ru.kode.android.build.publish.plugin.confluence.messages.ioExceptionMessage
+import ru.kode.android.build.publish.plugin.confluence.messages.sslHandShakeMessage
 import ru.kode.android.build.publish.plugin.core.util.NetworkProxy
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import java.util.concurrent.TimeUnit
@@ -131,13 +134,13 @@ private class RetryHandshakeInterceptor(
                 return chain.proceed(request)
             } catch (e: SSLHandshakeException) {
                 lastException = e
-                logger.info("SSL handshake failed, retrying in ${delayMillis}ms (attempt ${attempt + 1}/$maxRetries)", e)
+                logger.info(sslHandShakeMessage(attempt, delayMillis, maxRetries), e)
             } catch (e: EOFException) {
                 lastException = e
-                logger.info("EOF during TLS handshake, retrying in ${delayMillis}ms (attempt ${attempt + 1}/$maxRetries)", e)
+                logger.info(eofDuringHandShakeMessage(attempt, delayMillis, maxRetries), e)
             } catch (e: IOException) {
                 lastException = e
-                logger.info("IO exception, retrying in ${delayMillis}ms (attempt ${attempt + 1}/$maxRetries)", e)
+                logger.info(ioExceptionMessage(attempt, delayMillis, maxRetries), e)
             }
 
             attempt++

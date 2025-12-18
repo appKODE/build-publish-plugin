@@ -7,6 +7,18 @@ import ru.kode.android.build.publish.plugin.core.util.executeNoResult
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraFixVersion
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueStatus
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueTransition
+import ru.kode.android.build.publish.plugin.jira.messages.failedToAddFixVersionMessage
+import ru.kode.android.build.publish.plugin.jira.messages.failedToCreateProjectVersionMessage
+import ru.kode.android.build.publish.plugin.jira.messages.failedToGetIssueFixVersionMessage
+import ru.kode.android.build.publish.plugin.jira.messages.failedToRemoveFixVersionMessage
+import ru.kode.android.build.publish.plugin.jira.messages.failedToRemoveVersionMessage
+import ru.kode.android.build.publish.plugin.jira.messages.failedToSetStatusMessage
+import ru.kode.android.build.publish.plugin.jira.messages.failedToGetIssueStatusMessage
+import ru.kode.android.build.publish.plugin.jira.messages.failedToAddLabelMessage
+import ru.kode.android.build.publish.plugin.jira.messages.failedToRemoveMessage
+import ru.kode.android.build.publish.plugin.jira.messages.issueStatusNotFoundMessage
+import ru.kode.android.build.publish.plugin.jira.messages.issueTransitionNotFoundMessage
+import ru.kode.android.build.publish.plugin.jira.messages.statusNotFoundMessage
 import ru.kode.android.build.publish.plugin.jira.network.api.JiraApi
 import ru.kode.android.build.publish.plugin.jira.network.entity.AddFixVersionRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.AddLabelRequest
@@ -41,9 +53,7 @@ internal class JiraControllerImpl(
         val statuses = getProjectAvailableStatuses(projectKey)
         val status = statuses
             .firstOrNull { it.name.equals(statusName, ignoreCase = true) }
-            ?: throw GradleException("Status $statusName not found in project $projectKey. " +
-                "To set a Jira issue status, you need to add this status to the project first. " +
-                "You can do this by creating a new status with the name $statusName in the project settings.")
+            ?: throw GradleException(statusNotFoundMessage(statusName, projectKey))
 
         val statusId = status.id
         val issueKeyWithTransitions = issues
@@ -51,16 +61,11 @@ internal class JiraControllerImpl(
                 getAvailableIssueTransitions(issueKey)
                     .find { it.statusId == statusId } != null
             }
-            ?: throw GradleException("Issue with status $statusName not found or " +
-                "does not have a transition to status $statusName. " +
-                "To set a Jira issue status, you need to add this transition to the issue first. " +
-                "You can do this by transitioning the issue to the status manually in the Jira web interface.")
+            ?: throw GradleException(issueStatusNotFoundMessage(statusName))
 
         val transition = getAvailableIssueTransitions(issueKeyWithTransitions)
             .firstOrNull { it.statusId == statusId }
-            ?: throw GradleException("Issue $issueKeyWithTransitions does not have a transition to status $statusName. " +
-                "To set a Jira issue status, you need to add this transition to the issue first. " +
-                "You can do this by transitioning the issue to the status manually in the Jira web interface.")
+            ?: throw GradleException(issueTransitionNotFoundMessage(issueKeyWithTransitions, statusName))
 
         return transition
             .id
@@ -90,7 +95,7 @@ internal class JiraControllerImpl(
         api
             .setStatus(issue, request)
             .executeNoResult()
-            .onFailure { logger.error("Failed to set issue status for $issue", it) }
+            .onFailure { logger.error(failedToSetStatusMessage(issue), it) }
     }
 
     /**
@@ -119,7 +124,7 @@ internal class JiraControllerImpl(
     override fun getIssueStatus(issue: String): JiraIssueStatus? {
         val status = api.getStatus(issue)
             .executeWithResult()
-            .onFailure { logger.info("Failed to get issue status for $issue: $it") }
+            .onFailure { logger.error(failedToGetIssueStatusMessage(issue), it) }
             .getOrNull()
             ?.fields
             ?.status
@@ -202,7 +207,7 @@ internal class JiraControllerImpl(
         api
             .addLabel(issue, request)
             .executeNoResult()
-            .onFailure { logger.error("Failed to add label for $issue", it) }
+            .onFailure { logger.error(failedToAddLabelMessage(issue), it) }
     }
 
     /**
@@ -229,7 +234,7 @@ internal class JiraControllerImpl(
         api
             .removeLabel(issue, request)
             .executeNoResult()
-            .onFailure { logger.error("Failed to remove label for $issue", it) }
+            .onFailure { logger.error(failedToRemoveMessage(issue), it) }
             .getOrNull()
     }
 
@@ -271,7 +276,7 @@ internal class JiraControllerImpl(
             )
         api.createVersion(request)
             .executeNoResult()
-            .onFailure { logger.error("Failed to create version $version for project $projectId", it) }
+            .onFailure { logger.error(failedToCreateProjectVersionMessage(version, projectId), it) }
     }
 
     /**
@@ -292,7 +297,7 @@ internal class JiraControllerImpl(
                 moveAffectedIssuesTo = null,
             )
             .executeNoResult()
-            .onFailure { logger.error("Failed to remove version $versionId", it) }
+            .onFailure { logger.error(failedToRemoveVersionMessage(versionId), it) }
     }
 
     /**
@@ -346,7 +351,7 @@ internal class JiraControllerImpl(
         api
             .addFixVersion(issue, request)
             .executeNoResult()
-            .onFailure { logger.error("Failed to add fix version for $issue", it) }
+            .onFailure { logger.error(failedToAddFixVersionMessage(issue), it) }
     }
 
     /**
@@ -374,7 +379,7 @@ internal class JiraControllerImpl(
 
         api.removeFixVersion(issue, request)
             .executeNoResult()
-            .onFailure { logger.error("Failed to remove fix version for $issue", it) }
+            .onFailure { logger.error(failedToRemoveFixVersionMessage(issue), it) }
     }
 
     /**
@@ -385,7 +390,7 @@ internal class JiraControllerImpl(
     override fun getIssueFixVersions(issue: String): List<JiraFixVersion> {
         return api.getFixVersions(issue)
             .executeWithResult()
-            .onFailure { logger.error("Failed to get fix versions for $issue", it) }
+            .onFailure { logger.error(failedToGetIssueFixVersionMessage(issue), it) }
             .getOrNull()
             ?.fields
             ?.fixVersions

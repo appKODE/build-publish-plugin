@@ -6,6 +6,7 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.util.UploadError
+import ru.kode.android.build.publish.plugin.jira.messages.failedToUpdateStatusMessage
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 
 /**
@@ -58,7 +59,7 @@ internal abstract class SetStatusWork : WorkAction<SetStatusParameters> {
             try {
                 service.setStatus(issue, parameters.statusTransitionId.get())
             } catch (ex: UploadError) {
-                logger.info("Failed to update status for issue $issue. Error: ${ex.message}", ex)
+                logger.info(failedToUpdateStatusMessage(issue), ex)
             }
         }
     }

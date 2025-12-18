@@ -12,7 +12,7 @@ import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomai
 const val COMMON_CONTAINER_NAME = "default"
 
 @Suppress("TooGenericExceptionCaught") // Need to catch all exceptions
-inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrRequiredCommon(
+inline fun <reified T : Any> NamedDomainObjectContainer<T>.getByNameOrRequiredCommon(
     name: String,
     defaultName: String = COMMON_CONTAINER_NAME,
 ): T {
@@ -28,7 +28,7 @@ inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrRequiredCommon(
     }
 }
 
-inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrNullableCommon(
+inline fun <reified T : Any> NamedDomainObjectContainer<T>.getByNameOrNullableCommon(
     name: String,
     defaultName: String = COMMON_CONTAINER_NAME,
 ): T? {
@@ -36,7 +36,7 @@ inline fun <reified T> NamedDomainObjectContainer<T>.getByNameOrNullableCommon(
 }
 
 @Suppress("TooGenericExceptionCaught") // Need to catch all exceptions
-inline fun <reified T> BuildPublishDomainObjectContainer<T>.getByNameOrRequiredCommon(
+inline fun <reified T : Any> BuildPublishDomainObjectContainer<T>.getByNameOrRequiredCommon(
     name: String,
     defaultName: String = COMMON_CONTAINER_NAME,
 ): T {
@@ -52,35 +52,35 @@ inline fun <reified T> BuildPublishDomainObjectContainer<T>.getByNameOrRequiredC
     }
 }
 
-inline fun <reified T> BuildPublishDomainObjectContainer<T>.getByNameOrNullableCommon(
+inline fun <reified T : Any> BuildPublishDomainObjectContainer<T>.getByNameOrNullableCommon(
     name: String,
     defaultName: String = COMMON_CONTAINER_NAME,
 ): T? {
     return findByName(name) ?: findByName(defaultName)
 }
 
-inline fun <reified T> NamedDomainObjectContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
+inline fun <reified T : Any> NamedDomainObjectContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
     return findByName(defaultName)
 }
 
-inline fun <reified T> BuildPublishDomainObjectContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
+inline fun <reified T : Any> BuildPublishDomainObjectContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
     return findByName(defaultName)
 }
 
 @Throws(InvalidUserDataException::class)
-fun <T> NamedDomainObjectContainer<T>.common(configurationAction: Action<in T>): NamedDomainObjectProvider<T> {
+fun <T : Any> NamedDomainObjectContainer<T>.common(configurationAction: Action<in T>): NamedDomainObjectProvider<T> {
     return this.register(COMMON_CONTAINER_NAME, configurationAction)
 }
 
 @Throws(InvalidUserDataException::class)
-fun <T> NamedDomainObjectContainer<T>.buildVariant(
+fun <T : Any> NamedDomainObjectContainer<T>.buildVariant(
     buildVariant: String,
     configurationAction: Action<in T>,
 ): NamedDomainObjectProvider<T> {
     return this.register(buildVariant, configurationAction)
 }
 
-inline fun <reified T> Provider<Map<String, Provider<T>>>.flatMapByNameOrCommon(
+inline fun <reified T : Any> Provider<Map<String, Provider<T>>>.flatMapByNameOrCommon(
     name: String,
     defaultName: String = COMMON_CONTAINER_NAME,
 ): Provider<T> {
@@ -96,7 +96,7 @@ inline fun <reified T> Provider<Map<String, Provider<T>>>.flatMapByNameOrCommon(
     }
 }
 
-inline fun <reified T> Map<String, Provider<T>>.getByNameOrCommon(
+inline fun <reified T : Any> Map<String, Provider<T>>.getByNameOrCommon(
     name: String,
     defaultName: String = COMMON_CONTAINER_NAME,
 ): Provider<T> {

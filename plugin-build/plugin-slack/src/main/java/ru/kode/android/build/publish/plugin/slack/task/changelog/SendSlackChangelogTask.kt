@@ -13,6 +13,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.slack.messages.changelogFileNotFoundMessage
 import ru.kode.android.build.publish.plugin.slack.service.SlackService
 import ru.kode.android.build.publish.plugin.slack.task.changelog.work.SendSlackChangelogWork
 import javax.inject.Inject
@@ -195,9 +196,7 @@ abstract class SendSlackChangelogTask
             val currentBuildTag = fromJson(buildTagFile.asFile.get())
             val changelog = changelogFile.orNull?.asFile?.readText()
             if (changelog.isNullOrEmpty()) {
-                logger.error(
-                    "changelog file not found, is empty or error occurred",
-                )
+                logger.error(changelogFileNotFoundMessage())
             } else {
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 workQueue.submit(SendSlackChangelogWork::class.java) { parameters ->

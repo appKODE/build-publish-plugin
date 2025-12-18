@@ -3,15 +3,15 @@ package ru.kode.android.build.publish.plugin.play.task.distribution.publisher
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 
 /** Response for an edit request. */
-sealed class EditResponse {
+internal sealed class EditResponse {
     /** Response for a successful edit request. */
-    data class Success internal constructor(
+    internal data class Success(
         /** The id of the edit in question. */
         val id: String,
     ) : EditResponse()
 
     /** Response for an unsuccessful edit request. */
-    data class Failure internal constructor(
+    internal data class Failure(
         private val e: GoogleJsonResponseException,
     ) : EditResponse() {
         /** @return true if the app wasn't found in the Play Console, false otherwise */
@@ -20,18 +20,18 @@ sealed class EditResponse {
 }
 
 /** Response for an commit request. */
-sealed class CommitResponse {
+internal sealed class CommitResponse {
     /** Response for a successful commit request. */
-    object Success : CommitResponse()
+    internal object Success : CommitResponse()
 
     /** Response for an unsuccessful commit request. */
-    data class Failure internal constructor(
+    internal data class Failure(
         private val e: GoogleJsonResponseException,
     ) : CommitResponse()
 }
 
 /** Response for an internal sharing artifact upload. */
-data class UploadInternalSharingArtifactResponse internal constructor(
+internal data class UploadInternalSharingArtifactResponse(
     /** The response's full JSON payload. */
     val json: String,
     /** The download URL of the uploaded artifact. */
@@ -39,7 +39,7 @@ data class UploadInternalSharingArtifactResponse internal constructor(
 )
 
 /** Response for a product request. */
-data class GppProduct internal constructor(
+internal data class GppProduct(
     /** The product ID. */
     val sku: String,
     /** The response's full JSON payload. */
@@ -47,7 +47,7 @@ data class GppProduct internal constructor(
 )
 
 /** Response for a product update request. */
-data class UpdateProductResponse internal constructor(
+internal data class UpdateProductResponse(
     /** @return true if the product doesn't exist and needs to be created, false otherwise. */
     val needsCreating: Boolean,
 )

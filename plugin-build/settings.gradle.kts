@@ -34,6 +34,6 @@ includeBuild("../build-conventions")
 includeBuild("../shared") {
     dependencySubstitution {
         substitute(module("ru.kode.android:plugin-core"))
-            .using(project(":pugin-core"))
+            .using(project(":plugin-core"))
     }
 }

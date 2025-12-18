@@ -5,7 +5,13 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.foundation.messages.changelogGeneratedMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.changelogNotgeneratedMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.noChangedDetectedSinceStartMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.noChangesChangelogMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.noChangesDetectedSinceBuildMessage
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
 import javax.inject.Inject
 
@@ -86,28 +92,21 @@ internal abstract class GenerateChangelogWork
                                 tagRange.previousBuildTag?.name
                                     ?.let { "($it)" }
                             if (previousBuildName != null) {
-                                "No changes detected since previous build $previousBuildName."
+                                noChangesDetectedSinceBuildMessage(previousBuildName)
                             } else {
-                                "No changes detected since the start of the repository."
+                                noChangedDetectedSinceStartMessage()
                             }.trim()
                         },
                     )
             val changelogOutput = parameters.changelogFile.asFile.get()
 
             if (changelog.isNullOrBlank()) {
-                val noChangesMessage = "No changes because changelog is not generated for tag ${currentBuildTag.name}"
-                logger.info(
-                    "Changelog is NOT generated for pattern '$buildTagPattern' " +
-                        "and build tag '$currentBuildTag'. Writing default message.",
-                )
+                val noChangesMessage = noChangesChangelogMessage(currentBuildTag)
+                logger.info(changelogNotgeneratedMessage(buildTagPattern, currentBuildTag))
                 changelogOutput.writeText(noChangesMessage)
             } else {
-                logger.info(
-                    "Changelog generated successfully for pattern '$buildTagPattern' " +
-                        "and build tag '$currentBuildTag'. Writing to output file.",
-                )
+                logger.info(changelogGeneratedMessage(buildTagPattern, currentBuildTag))
                 changelogOutput.writeText(changelog)
-                logger.debug("Changelog content: $changelog")
             }
         }
     }

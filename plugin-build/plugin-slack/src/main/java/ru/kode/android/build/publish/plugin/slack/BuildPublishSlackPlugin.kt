@@ -13,6 +13,11 @@ import ru.kode.android.build.publish.plugin.slack.extension.BuildPublishSlackExt
 import ru.kode.android.build.publish.plugin.slack.service.SlackServiceExtension
 import ru.kode.android.build.publish.plugin.slack.service.SlackService
 import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
+import ru.kode.android.build.publish.plugin.slack.messages.extensionNotCreatedMessage
+import ru.kode.android.build.publish.plugin.slack.messages.mustApplyFoundationPluginMessage
+import ru.kode.android.build.publish.plugin.slack.messages.noBotsConfiguredMessage
+import ru.kode.android.build.publish.plugin.slack.messages.registeringServicesMessage
+import ru.kode.android.build.publish.plugin.slack.messages.servicesCreatedMessages
 
 private const val EXTENSION_NAME = "buildPublishSlack"
 private const val SERVICE_NAME = "slackService"
@@ -54,13 +59,12 @@ abstract class BuildPublishSlackPlugin : Plugin<Project> {
             servicesProperty
         )
 
-        logger.info("SlackServiceExtension created (empty)")
+        logger.info(extensionNotCreatedMessage())
 
 
         if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
             throw StopExecutionException(
-                "Must only be used with BuildPublishFoundationPlugin. " +
-                    "Please apply 'ru.kode.android.build-publish-novo.foundation'."
+                mustApplyFoundationPluginMessage()
             )
         }
 
@@ -68,11 +72,11 @@ abstract class BuildPublishSlackPlugin : Plugin<Project> {
 
         androidExtension.finalizeDsl {
             if (extension.bot.isEmpty()) {
-                logger.info("Slack: no bots configured — leaving service map empty")
+                logger.info(noBotsConfiguredMessage())
                 return@finalizeDsl
             }
 
-            logger.info("Slack: registering services...")
+            logger.info(registeringServicesMessage())
 
             val serviceMap = extension.bot.associate { authConfig ->
                 val name = authConfig.name
@@ -87,7 +91,7 @@ abstract class BuildPublishSlackPlugin : Plugin<Project> {
                 name to registered
             }
 
-            logger.info("Slack services created: ${serviceMap.keys}")
+            logger.info(servicesCreatedMessages(serviceMap.keys))
 
             servicesProperty.set(serviceMap)
         }

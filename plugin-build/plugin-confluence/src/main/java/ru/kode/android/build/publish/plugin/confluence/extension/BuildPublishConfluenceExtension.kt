@@ -7,6 +7,8 @@ import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceAuthConfig
 import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceDistributionConfig
+import ru.kode.android.build.publish.plugin.confluence.messages.needProvideAuthConfigMessage
+import ru.kode.android.build.publish.plugin.confluence.messages.needProvideDistributionConfigMessage
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceApkDistributionTaskParams
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceBundleDistributionTaskParams
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceTasksRegistrar
@@ -142,20 +144,11 @@ abstract class BuildPublishConfluenceExtension
             val variantName = input.buildVariant.name
 
             if (auth.isEmpty()) {
-                throw GradleException(
-                    "Need to provide Auth config for `$variantName` or `common`. " +
-                        "It's required to run Jira plugin. " +
-                        "Please check that you have 'auth' block in your build script " +
-                        "and that it's not empty. "
-                )
+                throw GradleException(needProvideAuthConfigMessage(variantName))
             }
 
             val distributionConfig = distributionConfigOrNull(input.buildVariant.name)
-                ?: throw GradleException(
-                    "Need to provide Distribution config for `$variantName` or `common`. " +
-                        "Please check that you have 'distribution' block in your build script " +
-                        "and that it's not empty. "
-                )
+                ?: throw GradleException(needProvideDistributionConfigMessage(variantName))
 
             ConfluenceTasksRegistrar.registerApkDistributionTask(
                 project = project,
