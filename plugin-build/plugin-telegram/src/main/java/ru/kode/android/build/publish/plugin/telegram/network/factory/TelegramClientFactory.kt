@@ -7,12 +7,16 @@ import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import org.gradle.api.logging.Logger
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
+import ru.kode.android.build.publish.plugin.telegram.messages.failedToParseRetryMessage
+import ru.kode.android.build.publish.plugin.telegram.messages.reachedMaxTriesMessage
+import ru.kode.android.build.publish.plugin.telegram.messages.tooManyRequestsMessage
 import ru.kode.android.build.publish.plugin.telegram.network.entity.TelegramErrorResponse
 import java.util.concurrent.TimeUnit
 
 private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L
 private const val TOO_MANY_REQUESTS_ERROR_CODE = 429
 private const val DEFAULT_RETRY_AFTER_SECONDS = 3L
+private const val HALF_OF_SECOND_MS = 500L
 
 /**
  * Factory for creating OkHttpClient instances with the necessary configuration for Telegram API communication.
@@ -28,18 +32,25 @@ internal object TelegramClientFactory {
      * @return An instance of OkHttpClient.
      */
     fun build(logger: Logger, json: Json): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }.apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
         return OkHttpClient.Builder()
             .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .addProxyIfAvailable(logger)
-            .apply {
-                val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-                loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-                addNetworkInterceptor(loggingInterceptor)
-                addInterceptor(RetryAfterInterceptor(json, logger))
-            }
+            .addInterceptor(RetryAfterInterceptor(json, logger))
+            .addInterceptor(DelayInterceptor(HALF_OF_SECOND_MS))
+            .addNetworkInterceptor(loggingInterceptor)
             .build()
+    }
+}
+
+private class DelayInterceptor(private val delayMs: Long) : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        Thread.sleep(delayMs)
+        return chain.proceed(chain.request())
     }
 }
 
@@ -74,17 +85,17 @@ private class RetryAfterInterceptor(
                 val errorResponse = json.decodeFromString<TelegramErrorResponse>(bodyString)
                 errorResponse.parameters?.retry_after ?: DEFAULT_RETRY_AFTER_SECONDS
             } catch (e: Exception) {
-                logger.info("Failed to parse retry_after from response: $bodyString", e)
+                logger.info(failedToParseRetryMessage(bodyString), e)
                 DEFAULT_RETRY_AFTER_SECONDS
             }
 
             response.close()
             attempt++
             if (attempt <= maxRetries) {
-                logger.info("429 Too Many Requests, retrying after $retryAfterSeconds seconds (attempt $attempt/$maxRetries)...")
+                logger.info(tooManyRequestsMessage(retryAfterSeconds, attempt, maxRetries))
                 Thread.sleep(TimeUnit.SECONDS.toMillis(retryAfterSeconds))
             } else {
-                logger.info("Reached max retries ($maxRetries). Returning 429 response.")
+                logger.info(reachedMaxTriesMessage(maxRetries))
             }
 
         } while (response.code == TOO_MANY_REQUESTS_ERROR_CODE && attempt <= maxRetries)

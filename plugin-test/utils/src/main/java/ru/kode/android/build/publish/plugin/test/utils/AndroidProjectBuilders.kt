@@ -258,6 +258,7 @@ fun File.createAndroidProject(
             """
             buildPublishTelegram {
                 ${config.bots.bots.takeIf { it.isNotEmpty() }?.let { telegramBotsBlock(it) }.orEmpty()}
+                ${config.lookup?.let { telegramLookupBlock(it) }.orEmpty()}
                 ${config.changelog?.let { telegramChangelogBlock(it) }.orEmpty()}
                 ${config.distribution?.let { telegramDistributionBlock(it) }.orEmpty()}
             }
@@ -372,6 +373,16 @@ private fun telegramChangelogBlock(changelog: TelegramConfig.Changelog): String 
     """
 }
 
+private fun telegramLookupBlock(changelog: TelegramConfig.Lookup): String {
+    return """
+                        lookup {
+                            it.botName.set("${changelog.botName}")
+                            it.chatName.set("${changelog.chatName}")
+                            ${changelog.topicName?.let { "it.topicName.set(\"${it}\")" }.orEmpty()}
+                        }
+    """
+}
+
 private fun slackChangelogBlock(changelog: SlackConfig.Changelog): String {
     return """
             changelog {
@@ -429,7 +440,7 @@ private fun telegramBotBlock(bot: TelegramConfig.Bot): String {
 private fun telegramBotChatBlock(chat: TelegramConfig.Chat): String {
     return """
                                     chat("${chat.chatName}") {
-                                        chatId = "${chat.chatId}"
+                                        ${chat.chatId?.let { "chatId = \"$it\"" }.orEmpty()}
                                         ${chat.topicId?.let { "topicId = \"$it\"" }.orEmpty()}
                                     }
     """
@@ -701,9 +712,15 @@ data class DefaultConfig(
 
 data class TelegramConfig(
     val bots: Bots,
+    val lookup: Lookup? = null,
     val changelog: Changelog?,
     val distribution: Distribution?,
 ) {
+    data class Lookup(
+        val botName: String,
+        val chatName: String,
+        val topicName: String?
+    )
     data class Bots(
         val bots: List<Bot>,
     )
@@ -733,7 +750,7 @@ data class TelegramConfig(
 
     data class Chat(
         val chatName: String,
-        val chatId: String,
+        val chatId: String?,
         val topicId: String?,
     )
 }

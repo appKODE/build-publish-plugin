@@ -4,7 +4,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -13,8 +12,6 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.telegram.config.DestinationTelegramBotConfig
-import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
-import ru.kode.android.build.publish.plugin.telegram.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.work.TelegramUploadWork
 import javax.inject.Inject

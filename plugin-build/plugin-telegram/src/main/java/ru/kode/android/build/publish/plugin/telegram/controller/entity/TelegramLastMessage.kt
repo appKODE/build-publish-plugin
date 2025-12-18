@@ -7,5 +7,9 @@ package ru.kode.android.build.publish.plugin.telegram.controller.entity
  */
 @kotlinx.serialization.Serializable
 data class TelegramLastMessage(
-    val text: String
+    val text: String?,
+    val chatName: String,
+    val chatId: String,
+    val topicName: String?,
+    val topicId: String?
 )

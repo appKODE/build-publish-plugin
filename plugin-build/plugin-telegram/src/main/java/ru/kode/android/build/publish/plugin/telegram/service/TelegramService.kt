@@ -17,7 +17,9 @@ import ru.kode.android.build.publish.plugin.telegram.controller.TelegramControll
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.DestinationTelegramBot
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.ChatSpecificTelegramBot
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramBot
+import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramLastMessage
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.telegramBotFromJson
+import ru.kode.android.build.publish.plugin.telegram.messages.noMatchingConfigurationMessage
 import ru.kode.android.build.publish.plugin.telegram.network.api.TelegramDistributionApi
 import ru.kode.android.build.publish.plugin.telegram.network.api.TelegramWebhookApi
 import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramClientFactory
@@ -26,8 +28,6 @@ import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramRet
 import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramWebhookApiFactory
 import java.io.File
 import javax.inject.Inject
-
-private const val TELEGRAM_BASE_RUL = "https://api.telegram.org"
 
 /**
  * A Gradle [BuildService] that handles network communication with the Telegram Bot API.
@@ -92,9 +92,10 @@ abstract class TelegramService
             )
         }
 
-        private val bots: List<TelegramBot> get() = parameters.bots
-            .map { it.map { telegramBotFromJson(it) } }
-            .get()
+        private val bots: List<TelegramBot>
+            get() = parameters.bots
+                .map { it.map { telegramBotFromJson(it) } }
+                .get()
 
         private val controller: TelegramController get() = controllerProperty.get()
 
@@ -130,7 +131,6 @@ abstract class TelegramService
                 issueNumberPattern,
                 bots.mapToChatSpecificBots(
                     destinationBots = destinationBots,
-                    fallbackServerBaseUrl = TELEGRAM_BASE_RUL
                 ),
             )
         }
@@ -158,54 +158,89 @@ abstract class TelegramService
                 file,
                 bots.mapToChatSpecificBots(
                     destinationBots = destinationBots,
-                    fallbackServerBaseUrl = TELEGRAM_BASE_RUL
                 ),
             )
         }
+
+        /**
+         * Retrieves the last message sent to the specified chat.
+         *
+         * @param bot The ID of the bot to use for retrieving the message
+         * @param chatName The ID of the chat to retrieve the last message from
+         * @param topicName The ID of the topic to retrieve the last message from; if null, retrieves the last message from the chat
+         *
+         * @return The last message sent to the chat, or null if no message was found
+         *
+         * @throws IllegalStateException If no matching bot configuration is found
+         * @throws IOException If there's a network error while retrieving the message
+         */
+        fun getLastMessage(
+            botName: String,
+            chatName: String,
+            topicName: String?
+        ): TelegramLastMessage? {
+            val bot = bots.firstOrNull { it.name == botName }
+                ?: throw GradleException(noMatchingConfigurationMessage(botName))
+            return controller.getLastMessage(bot.id, chatName, topicName)
+        }
     }
 
-/**
- * Retrieves a list of [ChatSpecificTelegramBot] configurations based on the provided [destinationBots].
- *
- * This function filters the list of [TelegramBotConfig] based on the matching [botName] and [chatNames].
- * It then maps each matching [TelegramChatConfig] to a [ChatSpecificTelegramBot] instance,
- * using the corresponding [botName], [botId], [botServerBaseUrl], [basicAuth], [chatId], and [topicId].
- *
- * @param destinationBots The set of [DestinationTelegramBotConfig] configurations.
- *
- * @return A list of [ChatSpecificTelegramBot] configurations that match the provided [destinationBots].
- */
-private fun Collection<TelegramBot>.mapToChatSpecificBots(
-    destinationBots: List<DestinationTelegramBot>,
-    fallbackServerBaseUrl: String
-): List<ChatSpecificTelegramBot> {
-    return destinationBots
-        .flatMap { destinationBot ->
-            val botName = destinationBot.botName
-            val chatNames = destinationBot.chatNames
-            val bot = this.firstOrNull { it.name == botName }
-            bot?.chats?.filter { it.name in chatNames }
-                ?.map { chat ->
-                    val authPassword = bot.basicAuth?.password
-                    val authUserName = bot.basicAuth?.username
-                    val basicAuth =
-                        if (authUserName != null && authPassword != null) {
-                            ChatSpecificTelegramBot.BasicAuth(authUserName, authPassword)
-                        } else {
-                            null
-                        }
-                    ChatSpecificTelegramBot(
-                        name = bot.name,
-                        id = bot.id,
-                        serverBaseUrl = bot.serverBaseUrl ?: fallbackServerBaseUrl,
-                        basicAuth = basicAuth,
-                        chatId = chat.id,
-                        topicId = chat.topicId,
-                    )
-                } ?: throw GradleException(
-                "No matching bot configuration found for botName: ${destinationBot.botName} and chatNames: ${destinationBot.chatNames}.\n" +
-                        "Make sure that the botName and chatNames in the destinationBot configuration match a botName and chatNames in the bots configuration.\n" +
-                        "To fix this, update the destinationBot configuration to match a botName and chatNames in the bots configuration."
+    /**
+     * Retrieves a list of [ChatSpecificTelegramBot] configurations based on the provided [destinationBots].
+     *
+     * This function filters the list of [TelegramBotConfig] based on the matching [botName] and [chatNames].
+     * It then maps each matching [TelegramChatConfig] to a [ChatSpecificTelegramBot] instance,
+     * using the corresponding [botName], [botId], [botServerBaseUrl], [basicAuth], [chatId], and [topicId].
+     *
+     * @param destinationBots The set of [DestinationTelegramBotConfig] configurations.
+     *
+     * @return A list of [ChatSpecificTelegramBot] configurations that match the provided [destinationBots].
+     */
+    private fun Collection<TelegramBot>.mapToChatSpecificBots(
+        destinationBots: List<DestinationTelegramBot>,
+    ): List<ChatSpecificTelegramBot> {
+        return destinationBots
+            .flatMap { destinationBot ->
+                val botName = destinationBot.botName
+                val bot = this.firstOrNull { it.name == botName }
+                bot?.mapToChatSpecificBot(destinationBot)
+                    ?: throw GradleException(noMatchingConfigurationMessage(destinationBot))
+            }
+    }
+
+    /**
+     * Retrieves a list of [ChatSpecificTelegramBot] configurations based on the provided [destinationBot].
+     *
+     * This function filters the list of [TelegramChatConfig] based on the matching [chatNames].
+     * It then maps each matching [TelegramChatConfig] to a [ChatSpecificTelegramBot] instance,
+     * using the corresponding [name], [id], [serverBaseUrl], [basicAuth], [chatId], and [topicId].
+     *
+     * @param destinationBot The [DestinationTelegramBotConfig] configuration.
+     * @param fallbackServerBaseUrl The fallback server base URL to use if [serverBaseUrl] is not set.
+     *
+     * @return A list of [ChatSpecificTelegramBot] configurations that match the provided [destinationBot].
+     */
+    private fun TelegramBot.mapToChatSpecificBot(
+        destinationBot: DestinationTelegramBot,
+    ): List<ChatSpecificTelegramBot> {
+        val chatNames = destinationBot.chatNames
+        return chats.filter { it.name in chatNames }
+            .map { chat ->
+                val authPassword = this.basicAuth?.password
+                val authUserName = this.basicAuth?.username
+                val basicAuth =
+                    if (authUserName != null && authPassword != null) {
+                        ChatSpecificTelegramBot.BasicAuth(authUserName, authPassword)
+                    } else {
+                        null
+                    }
+                ChatSpecificTelegramBot(
+                    name = this.name,
+                    id = this.id,
+                    serverBaseUrl = this.serverBaseUrl,
+                    basicAuth = basicAuth,
+                    chatId = chat.id,
+                    topicId = chat.topicId,
                 )
-        }
-}
+            }
+    }

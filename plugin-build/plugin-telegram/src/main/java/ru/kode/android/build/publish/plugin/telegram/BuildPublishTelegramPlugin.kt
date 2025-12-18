@@ -13,12 +13,17 @@ import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlu
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.telegram.extension.BuildPublishTelegramExtension
+import ru.kode.android.build.publish.plugin.telegram.messages.extensionCreatedMessage
+import ru.kode.android.build.publish.plugin.telegram.messages.mustApplyFoundationPluginMessage
+import ru.kode.android.build.publish.plugin.telegram.messages.noBotsConfiguredMessage
+import ru.kode.android.build.publish.plugin.telegram.messages.registeringServiceMessage
+import ru.kode.android.build.publish.plugin.telegram.messages.telegramServicesCreated
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExtension
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 
 private const val EXTENSION_NAME = "buildPublishTelegram"
 private const val SERVICE_NAME = "telegramService"
-private const val SERVICE_EXTENSION_NAME = "telegramServiceExtension"
+internal const val SERVICE_EXTENSION_NAME = "telegramServiceExtension"
 
 /**
  * A Gradle plugin that integrates with Telegram to send build notifications and deployment updates.
@@ -54,39 +59,36 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
             servicesProperty
         )
 
-        logger.info("TelegramServiceExtension created (empty)")
+        logger.info(extensionCreatedMessage())
 
 
         if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
-            throw StopExecutionException(
-                "Must only be used with BuildPublishFoundationPlugin. " +
-                    "Please apply 'ru.kode.android.build-publish-novo.foundation'."
-            )
+            throw StopExecutionException(mustApplyFoundationPluginMessage())
         }
 
         val androidExtension = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
             if (extension.bots.isEmpty()) {
-                logger.info("Telegram: no bots configured — leaving service map empty")
+                logger.info(noBotsConfiguredMessage())
                 return@finalizeDsl
             }
 
-            logger.info("Telegram: registering services...")
+            logger.info(registeringServiceMessage())
 
             val serviceMap = extension.bots.associate { botConfig ->
                 val name = botConfig.name
                 val service = project.gradle.sharedServices.registerIfAbsent(
                     project.serviceName(SERVICE_NAME, name),
                     TelegramService::class.java
-                ) {
-                    it.maxParallelUsages.set(1)
-                    it.parameters.bots.set(botConfig.bots.map { it.mapToEntity().toJson() })
+                ) { spec ->
+                    spec.maxParallelUsages.set(1)
+                    spec.parameters.bots.set(botConfig.bots.map { it.mapToEntity().toJson() })
                 }
                 name to service
             }
 
-            logger.info("Telegram services created: ${serviceMap.keys}")
+            logger.info(telegramServicesCreated(serviceMap.keys))
 
             servicesProperty.set(serviceMap)
         }

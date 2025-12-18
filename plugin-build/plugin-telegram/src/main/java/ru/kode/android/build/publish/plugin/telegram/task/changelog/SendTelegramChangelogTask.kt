@@ -16,6 +16,7 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.telegram.config.DestinationTelegramBotConfig
+import ru.kode.android.build.publish.plugin.telegram.messages.failedToReadChangelogFile
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.work.SendTelegramChangelogWork
 import javax.inject.Inject
@@ -181,12 +182,10 @@ abstract class SendTelegramChangelogTask
         fun sendChangelog() {
             val currentBuildTag = fromJson(buildTagFile.asFile.get())
 
-            val changelog = changelogFile.orNull?.asFile?.readText()
+            val changelogFile = changelogFile.asFile.orNull
+            val changelog = changelogFile?.readText()
             if (changelog.isNullOrEmpty()) {
-                logger.error(
-                    "Failed to read the changelog file at ${changelogFile.asFile.get().absolutePath}. " +
-                    "The file either does not exist or is empty.",
-                )
+                logger.error(failedToReadChangelogFile(changelogFile))
             } else {
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 workQueue.submit(SendTelegramChangelogWork::class.java) { parameters ->
@@ -202,4 +201,3 @@ abstract class SendTelegramChangelogTask
             }
         }
     }
-

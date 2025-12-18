@@ -11,17 +11,21 @@ import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramDistributionConfig
+import ru.kode.android.build.publish.plugin.telegram.config.TelegramLookupConfig
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.toJson
+import ru.kode.android.build.publish.plugin.telegram.messages.distributionBundleTaskNotCreatedMessage
+import ru.kode.android.build.publish.plugin.telegram.messages.distributionTaskNotCreatedMessage
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExtension
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.SendTelegramChangelogTask
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.TelegramDistributionTask
+import ru.kode.android.build.publish.plugin.telegram.task.lookup.TelegramLookupTask
 
 internal const val SEND_TELEGRAM_CHANGELOG_TASK_PREFIX = "sendTelegramChangelog"
-
 // TODO: Replace with telegramDistributionUploadApk
 internal const val TELEGRAM_DISTRIBUTION_UPLOAD_APK_TASK_PREFIX = "telegramDistributionUpload"
 internal const val TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "telegramDistributionUploadBundle"
+internal const val TELEGRAM_LOOKUP_TASK_PREFIX = "telegramLookup"
 
 /**
  * Utility object for registering Telegram-related Gradle tasks.
@@ -47,7 +51,7 @@ internal object TelegramTasksRegistrar {
      * message to the configured Telegram chats when executed.
      *
      * @param project The Gradle project to register the task in
-     * @param changelogConfig Configuration for the changelog notification, including
+     * @param config Configuration for the changelog notification, including
      *                       destination bots and message formatting options
      * @param params Parameters for the changelog task, including build variant and
      *              changelog file location
@@ -59,10 +63,10 @@ internal object TelegramTasksRegistrar {
      */
     internal fun registerChangelogTask(
         project: Project,
-        changelogConfig: TelegramChangelogConfig,
+        config: TelegramChangelogConfig,
         params: TelegramChangelogTaskParams,
     ): TaskProvider<SendTelegramChangelogTask> {
-        return project.registerSendTelegramChangelogTask(changelogConfig, params)
+        return project.registerSendTelegramChangelogTask(config, params)
     }
 
     /**
@@ -72,7 +76,7 @@ internal object TelegramTasksRegistrar {
      * a new app distribution to the configured Telegram chats when executed.
      *
      * @param project The Gradle project to register the task in
-     * @param distributionConfig Configuration for the distribution notification,
+     * @param config Configuration for the distribution notification,
      *                          including destination bots and message formatting options
      * @param params Parameters for the distribution task, including build variant
      *              and APK file location
@@ -86,15 +90,13 @@ internal object TelegramTasksRegistrar {
      */
     internal fun registerApkDistributionTask(
         project: Project,
-        distributionConfig: TelegramDistributionConfig,
+        config: TelegramDistributionConfig,
         params: TelegramApkDistributionTaskParams,
     ): TaskProvider<TelegramDistributionTask>? {
-        return if (distributionConfig.destinationBots.isPresent) {
-            project.registerTelegramUploadAokTask(distributionConfig, params)
+        return if (config.destinationBots.isPresent) {
+            project.registerTelegramUploadAokTask(config, params)
         } else {
-            logger.info(
-                "TelegramDistributionTask fpr APK was not created, destinationBots is not present",
-            )
+            logger.info(distributionTaskNotCreatedMessage())
             null
         }
     }
@@ -106,7 +108,7 @@ internal object TelegramTasksRegistrar {
      * a new app distribution to the configured Telegram chats when executed.
      *
      * @param project The Gradle project to register the task in
-     * @param distributionConfig Configuration for the distribution notification,
+     * @param config Configuration for the distribution notification,
      *                          including destination bots and message formatting options
      * @param params Parameters for the distribution task, including build variant
      *              and Bundle file location
@@ -120,17 +122,39 @@ internal object TelegramTasksRegistrar {
      */
     internal fun registerBundleDistributionTask(
         project: Project,
-        distributionConfig: TelegramDistributionConfig,
+        config: TelegramDistributionConfig,
         params: TelegramBundleDistributionTaskParams,
     ): TaskProvider<TelegramDistributionTask>? {
-        return if (distributionConfig.destinationBots.isPresent) {
-            project.registerTelegramBundleUploadTask(distributionConfig, params)
+        return if (config.destinationBots.isPresent) {
+            project.registerTelegramBundleUploadTask(config, params)
         } else {
-            logger.info(
-                "TelegramDistributionTask for Bundle was not created, destinationBots is not present",
-            )
+            logger.info(distributionBundleTaskNotCreatedMessage())
             null
         }
+    }
+
+    /**
+     * Registers a Telegram lookup notification task in the project.
+     *
+     * This method creates and configures a task that will look up the specified
+     * chatId and topicId when executed.
+     *
+     * @param project The Gradle project to register the task in
+     * @param config Configuration for the lookup notification, including
+     *                       destination bots and message formatting options
+     * @param params Parameters for the lookup task, including build variant
+     * @return A TaskProvider for the registered TelegramLookupTask, or null if
+     *         no destination bots are configured
+     *
+     * @see TelegramLookupTask For the task implementation
+     * @see TelegramLookupTaskParams For available task parameters
+     */
+    internal fun registerLookupTask(
+        project: Project,
+        config: TelegramLookupConfig,
+        params: TelegramLookupTaskParams,
+    ): TaskProvider<TelegramLookupTask>? {
+        return project.registerTelegramLookupTask(config, params)
     }
 }
 
@@ -268,6 +292,49 @@ private fun Project.registerTelegramBundleUploadTask(
 }
 
 /**
+ * Registers a Telegram lookup notification task in the project.
+ *
+ * This extension function configures a [TelegramLookupTask] with the provided
+ * parameters and sets up its dependencies.
+ *
+ * The task will be configured to:
+ * - Lookup the specified chatId and topicId
+ * - Format the notification message according to the provided configuration
+ * - Send the notification to the configured Telegram chats
+ *
+ * @receiver The Gradle project to register the task in
+ * @param distributionConfig Configuration for the lookup notification
+ * @param params Parameters for the lookup task
+ * @return A TaskProvider for the registered TelegramLookupTask
+ *
+ * @see TelegramLookupTask For the task implementation
+ * @see TelegramLookupTaskParams For available task parameters
+ */
+private fun Project.registerTelegramLookupTask(
+    distributionConfig: TelegramLookupConfig,
+    params: TelegramLookupTaskParams,
+): TaskProvider<TelegramLookupTask>? {
+    return tasks.register(
+        "$TELEGRAM_LOOKUP_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        TelegramLookupTask::class.java,
+    ) {
+        val service =
+            project.extensions
+                .getByType(TelegramServiceExtension::class.java)
+                .services
+                .get()
+                .getByNameOrCommon(params.buildVariant.name)
+
+        it.botName.set(distributionConfig.botName)
+        it.chatName.set(distributionConfig.chatName)
+        it.topicName.set(distributionConfig.topicName)
+        it.service.set(service)
+
+        it.usesService(service)
+    }
+}
+
+/**
  * Parameters for configuring a Telegram changelog notification task.
  *
  * This data class holds all the necessary parameters to configure a [SendTelegramChangelogTask].
@@ -303,6 +370,19 @@ internal data class TelegramChangelogTaskParams(
 )
 
 /**
+ * Parameters for configuring a Telegram lookup notification task.
+ *
+ * This data class holds all the necessary parameters to configure a [TelegramLookupTask].
+ * It includes information about the build variant and the destination bot configuration.
+ */
+internal data class TelegramLookupTaskParams(
+    /**
+     * The build variant this task is associated with.
+     */
+    val buildVariant: BuildVariant,
+)
+
+/**
  * Parameters for configuring a Telegram distribution notification task.
  *
  * This data class holds all the necessary parameters to configure a [TelegramDistributionTask].
@@ -328,7 +408,7 @@ internal data class TelegramApkDistributionTaskParams(
     /**
      * File containing the last build tag information.
      *
-     * This file is typically generated by the [GetLastTagTask] task.
+     * This file is typically generated by the [ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagTask] task.
      */
     val lastBuildTag: Provider<RegularFile>,
     /**
@@ -363,7 +443,7 @@ internal data class TelegramBundleDistributionTaskParams(
     /**
      * File containing the last build tag information.
      *
-     * This file is typically generated by the [GetLastTagTask] task.
+     * This file is typically generated by the [ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagTask] task.
      */
     val lastBuildTag: Provider<RegularFile>,
     /**

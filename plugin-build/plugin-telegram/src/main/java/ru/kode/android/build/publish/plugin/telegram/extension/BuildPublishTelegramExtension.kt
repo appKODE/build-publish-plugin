@@ -13,9 +13,13 @@ import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotsConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramDistributionConfig
+import ru.kode.android.build.publish.plugin.telegram.config.TelegramLookupConfig
+import ru.kode.android.build.publish.plugin.telegram.messages.needToProvideBotsConfigMessage
+import ru.kode.android.build.publish.plugin.telegram.messages.needToProvideChangelogOrDistributionConfigMessage
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramApkDistributionTaskParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramBundleDistributionTaskParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramChangelogTaskParams
+import ru.kode.android.build.publish.plugin.telegram.task.TelegramLookupTaskParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramTasksRegistrar
 import javax.inject.Inject
 
@@ -51,6 +55,15 @@ abstract class BuildPublishTelegramExtension
          */
         internal val changelog: NamedDomainObjectContainer<TelegramChangelogConfig> =
             objectFactory.domainObjectContainer(TelegramChangelogConfig::class.java)
+
+        /**
+         * Container for lookup configurations, keyed by build type.
+         *
+         * This internal property holds all the lookup configurations for different build types.
+         * Use the [lookup] and [lookupCommon] methods to configure these settings in your build script.
+         */
+        internal val lookup: NamedDomainObjectContainer<TelegramLookupConfig> =
+            objectFactory.domainObjectContainer(TelegramLookupConfig::class.java)
 
         /**
          * Container for distribution configurations, keyed by build type.
@@ -94,6 +107,24 @@ abstract class BuildPublishTelegramExtension
         }
 
         /**
+         * Retrieves a required lookup configuration for the specified build variant.
+         * @throws UnknownDomainObjectException if no configuration exists for the build variant
+         */
+        val lookupConfig: (buildName: String) -> TelegramLookupConfig = { buildName ->
+            lookup.getByNameOrRequiredCommon(buildName)
+        }
+
+        /**
+         * Retrieves an optional lookup configuration for the specified build variant.
+         *
+         * @param buildName name of the build variant
+         * @return The lookup configuration or null if not found
+         */
+        val lookupConfigOrNull: (buildName: String) -> TelegramLookupConfig? = { buildName ->
+            lookup.getByNameOrNullableCommon(buildName)
+        }
+
+        /**
          * Retrieves a required distribution configuration for the specified build variant.
          * @throws UnknownDomainObjectException if no configuration exists for the build variant
          */
@@ -133,6 +164,19 @@ abstract class BuildPublishTelegramExtension
         fun changelog(configurationAction: Action<BuildPublishDomainObjectContainer<TelegramChangelogConfig>>) {
             val container = BuildPublishDomainObjectContainer(changelog)
             configurationAction.execute(container)
+        }
+
+        /**
+         * Configures common Telegram lookup settings that apply to all build variants.
+         *
+         * This method allows you to configure Telegram lookup settings that apply to all
+         * build variants. It registers a common configuration that applies to all
+         * lookups using the [BuildPublishDomainObjectContainer] abstraction.
+         *
+         * @param configurationAction Action to configure common lookup settings
+         */
+        fun lookup(configurationAction: Action<TelegramLookupConfig>) {
+            common(lookup, configurationAction)
         }
 
         /**
@@ -206,28 +250,30 @@ abstract class BuildPublishTelegramExtension
             val buildVariant = input.buildVariant.name
 
             if (bots.isEmpty()) {
-                throw GradleException(
-                    "Need to provide Bots config for `$buildVariant` or `common`. " +
-                    "It's required to run Telegram plugin. " +
-                    "Please check that you have 'bots' block in your build script " +
-                    "and that it's not empty. "
-                )
+                throw GradleException(needToProvideBotsConfigMessage(buildVariant))
             }
             val changelogConfig = changelogConfigOrNull(buildVariant)
             val distributionConfig = distributionConfigOrNull(buildVariant)
+            val lookupConfig = lookupConfigOrNull(buildVariant)
 
-            if (changelogConfig == null && distributionConfig == null) {
+            if (lookupConfig != null) {
+                TelegramTasksRegistrar.registerLookupTask(
+                    project,
+                    lookupConfig,
+                    TelegramLookupTaskParams(input.buildVariant)
+                )
+            }
+
+            if (changelogConfig == null && distributionConfig == null && lookupConfig == null) {
                 throw GradleException(
-                    "Need to provide at least one of Changelog or Distribution config for `$buildVariant` or `common`. " +
-                        "Please check that you have either 'changelog' or 'distribution' block in your build script " +
-                        "and that it's not empty. "
+                    needToProvideChangelogOrDistributionConfigMessage(buildVariant)
                 )
             }
 
             if (changelogConfig != null) {
                 TelegramTasksRegistrar.registerChangelogTask(
                     project = project,
-                    changelogConfig = changelogConfig,
+                    config = changelogConfig,
                     params =
                         TelegramChangelogTaskParams(
                             baseFileName = input.output.baseFileName,
@@ -242,7 +288,7 @@ abstract class BuildPublishTelegramExtension
             if (distributionConfig != null) {
                 TelegramTasksRegistrar.registerApkDistributionTask(
                     project = project,
-                    distributionConfig = distributionConfig,
+                    config = distributionConfig,
                     params =
                         TelegramApkDistributionTaskParams(
                             baseFileName = input.output.baseFileName,
@@ -254,7 +300,7 @@ abstract class BuildPublishTelegramExtension
 
                 TelegramTasksRegistrar.registerBundleDistributionTask(
                     project = project,
-                    distributionConfig = distributionConfig,
+                    config = distributionConfig,
                     params =
                         TelegramBundleDistributionTaskParams(
                             baseFileName = input.output.baseFileName,

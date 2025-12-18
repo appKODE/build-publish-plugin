@@ -9,15 +9,17 @@ import ru.kode.android.build.publish.plugin.core.util.executeNoResult
 import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.ChatSpecificTelegramBot
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramLastMessage
+import ru.kode.android.build.publish.plugin.telegram.messages.sendingMessageBotMessage
+import ru.kode.android.build.publish.plugin.telegram.messages.uploadFileStartedMessage
 import ru.kode.android.build.publish.plugin.telegram.network.api.TelegramDistributionApi
 import ru.kode.android.build.publish.plugin.telegram.network.api.TelegramWebhookApi
 import ru.kode.android.build.publish.plugin.telegram.network.entity.TelegramMessage
 import java.io.File
 import java.net.URLEncoder
-import kotlin.collections.orEmpty
 import kotlin.sequences.forEach
 import kotlin.text.toRegex
 
+internal const val TELEGRAM_DEFAULT_BASE_RUL = "https://api.telegram.org"
 private const val SEND_MESSAGE_TO_CHAT_WEB_HOOK =
     "%s/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2&disable_web_page_preview=true"
 private const val SEND_MESSAGE_TO_TOPIC_WEB_HOOK =
@@ -118,7 +120,8 @@ internal class TelegramControllerImpl(
         bots: List<ChatSpecificTelegramBot>,
     ) {
         bots.forEach { bot ->
-            val webhookUrl = SEND_DOCUMENT_WEB_HOOK.format(bot.serverBaseUrl, bot.id)
+            val baseUrl = bot.serverBaseUrl ?: TELEGRAM_DEFAULT_BASE_RUL
+            val webhookUrl = SEND_DOCUMENT_WEB_HOOK.format(baseUrl, bot.id)
             val filePart =
                 MultipartBody.Part.createFormData(
                     "document",
@@ -137,7 +140,8 @@ internal class TelegramControllerImpl(
                         "chat_id" to createPartFromString(bot.chatId),
                     )
                 }
-            logger.info("upload file to ${bot.name} by $webhookUrl")
+            logger.info(uploadFileStartedMessage(bot.name, webhookUrl))
+
             val authorization =
                 bot.basicAuth
                     ?.let { Credentials.basic(it.username, it.password) }
@@ -156,30 +160,57 @@ internal class TelegramControllerImpl(
      * @param bot The [ChatSpecificTelegramBot] configuration.
      * @return The last [TelegramMessage] if available, otherwise null.
      */
-    override fun getLastMessage(bot: ChatSpecificTelegramBot): TelegramLastMessage? {
+    override fun getLastMessage(
+        botId: String,
+        chatName: String,
+        topicName: String?
+    ): TelegramLastMessage? {
         val webhookUrl = GET_MESSAGE_IN_CHAT_WEB_HOOK.format(
-            bot.serverBaseUrl,
-            bot.id
+            TELEGRAM_DEFAULT_BASE_RUL,
+            botId
         )
 
-        val authorization =
-            bot.basicAuth
-                ?.let { Credentials.basic(it.username, it.password) }
-
         val response = webhookApi
-            .getUpdates(authorization, webhookUrl)
-            .execute()
-            .body()
+            .getUpdates(null, webhookUrl)
+            .executeWithResult()
+            .getOrThrow()
 
-        logger.info("getting message from ${bot.name} by $webhookUrl")
+        val messages = response
+            .result
+            .mapNotNull { it.channel_post ?: it.edited_message ?: it.message }
+            .filter { it.chat.title.contains(chatName, ignoreCase = true) }
 
-        return response
-            ?.result
-            ?.mapNotNull { it.channel_post ?: it.edited_message ?: it.message }
-            ?.filter { it.chat.id.toString() == bot.chatId }
-            ?.maxByOrNull { it.date }
-            ?.takeIf { it.text != null }
-            ?.let { TelegramLastMessage(text = it.text!!) }
+        val messageWithTopic = messages.firstOrNull {
+            val messageTopicName = it.forum_topic_created?.name
+                ?: it.reply_to_message?.forum_topic_created?.name
+            it.message_thread_id != null
+                && messageTopicName != null
+                && topicName != null
+                && messageTopicName.contains(topicName, ignoreCase = true)
+                && !it.text.isNullOrBlank()
+        }
+        val lastMessage = messages
+            .sortedByDescending { it.date }
+            .firstOrNull { !it.text.isNullOrBlank() }
+
+        val topicId = messageWithTopic?.message_thread_id
+        return if (topicId != null && topicName != null) {
+            TelegramLastMessage(
+                text = messageWithTopic.text,
+                chatName = messageWithTopic.chat.title,
+                chatId = messageWithTopic.chat.id.toString(),
+                topicId = topicId.toString(),
+                topicName = lastMessage?.forum_topic_created?.name ?: topicName
+            )
+        } else if (topicName == null && lastMessage != null) {
+            TelegramLastMessage(
+                text = lastMessage.text,
+                chatId = lastMessage.chat.id.toString(),
+                topicId = null,
+                topicName = null,
+                chatName = lastMessage.chat.title,
+            )
+        } else null
     }
 
     /**
@@ -203,24 +234,25 @@ internal class TelegramControllerImpl(
     ) {
         bots.forEach { bot ->
             val topicId = bot.topicId
+            val baseUrl = bot.serverBaseUrl ?: TELEGRAM_DEFAULT_BASE_RUL
             val webhookUrl =
                 if (topicId.isNullOrEmpty()) {
                     SEND_MESSAGE_TO_CHAT_WEB_HOOK.format(
-                        bot.serverBaseUrl,
+                        baseUrl,
                         bot.id,
                         bot.chatId,
                         URLEncoder.encode(message, "utf-8"),
                     )
                 } else {
                     SEND_MESSAGE_TO_TOPIC_WEB_HOOK.format(
-                        bot.serverBaseUrl,
+                        baseUrl,
                         bot.id,
                         bot.chatId,
                         topicId,
                         URLEncoder.encode(message, "utf-8"),
                     )
                 }
-            logger.info("sending message to ${bot.name} by $webhookUrl")
+            logger.info(sendingMessageBotMessage(bot.name, webhookUrl))
 
             val authorization =
                 bot.basicAuth
@@ -254,7 +286,6 @@ private fun String.formatIssues(
     issueUrlPrefix: String,
     issueNumberPattern: String
 ): String {
-    println("formatIssues: escapedCharacters=$escapedCharacters; issueUrlPrefix=$issueUrlPrefix; issueNumberPattern$issueNumberPattern")
     val issueRegexp = issueNumberPattern.toRegex()
     val matchResults = issueRegexp.findAll(this).distinctBy { it.value }
     var out = this.escapeCharacters(escapedCharacters)

@@ -3,7 +3,6 @@ package ru.kode.android.build.publish.plugin.telegram.network.entity
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class TelegramChat(
-    val id: Long,
-    val title: String,
+internal data class ForumTopicCreated(
+    val name: String,
 )

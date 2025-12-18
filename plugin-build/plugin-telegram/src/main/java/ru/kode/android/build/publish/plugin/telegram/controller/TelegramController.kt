@@ -2,7 +2,6 @@ package ru.kode.android.build.publish.plugin.telegram.controller
 
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.ChatSpecificTelegramBot
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramLastMessage
-import ru.kode.android.build.publish.plugin.telegram.network.entity.TelegramMessage
 import java.io.File
 
 /**
@@ -58,13 +57,21 @@ interface TelegramController {
     )
 
     /**
-     * Retrieves the last message from the specified Telegram chat.
+     * Retrieves the last message sent to the specified chat.
      *
-     * This method fetches the last message from the specified Telegram chat.
+     * @param botId The ID of the bot to use for retrieving the message
+     * @param chatName The ID of the chat to retrieve the last message from
+     * @param topicName The ID of the topic to retrieve the last message from; if null, retrieves the last message from the chat
      *
-     * @param bot The [ChatSpecificTelegramBot] configuration.
-     * @return The last [TelegramMessage] if available, otherwise null.
+     * @return The last message sent to the chat, or null if no message was found
+     *
+     * @throws IllegalStateException If no matching bot configuration is found
+     * @throws IOException If there's a network error while retrieving the message
      */
-    fun getLastMessage(bot: ChatSpecificTelegramBot): TelegramLastMessage?
+    fun getLastMessage(
+        botId: String,
+        chatName: String,
+        topicName: String?
+    ): TelegramLastMessage?
 
 }

@@ -14,10 +14,9 @@ internal interface TelegramWebhookApi {
         @Url webhookUrl: String,
     ): Call<Unit>
 
-
     @GET
     fun getUpdates(
         @Header("Authorization") authorization: String?,
-        @Url url: String,
+        @Url webhookUrl: String,
     ): Call<TelegramUpdateResponse>
 }

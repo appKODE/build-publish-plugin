@@ -6,6 +6,7 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.destinationTelegramBotsFromJson
+import ru.kode.android.build.publish.plugin.telegram.messages.changelogSentMessage
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 import javax.inject.Inject
 
@@ -91,11 +92,13 @@ internal abstract class SendTelegramChangelogWork
             service.send(
                 changelog = parameters.changelog.get(),
                 header = header,
-                userMentions =  parameters.userMentions.orNull?.toList().orEmpty(),
+                userMentions = parameters.userMentions.orNull?.toList().orEmpty(),
                 issueUrlPrefix = parameters.issueUrlPrefix.get(),
                 issueNumberPattern = parameters.issueNumberPattern.get(),
-                destinationBots = parameters.destinationBots.map { destinationTelegramBotsFromJson(it) }.get()
+                destinationBots = parameters.destinationBots
+                    .map { destinationTelegramBotsFromJson(it) }
+                    .get()
             )
-            logger.info("Changelog successfully sent to Telegram")
+            logger.info(changelogSentMessage())
         }
     }

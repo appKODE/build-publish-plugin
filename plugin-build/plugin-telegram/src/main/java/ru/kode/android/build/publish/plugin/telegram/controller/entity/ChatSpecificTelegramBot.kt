@@ -16,7 +16,7 @@ data class ChatSpecificTelegramBot(
     /**
      * The base URL for the Telegram Bot API server (defaults to "https://api.telegram.org")
      */
-    val serverBaseUrl: String,
+    val serverBaseUrl: String?,
     /**
      * The unique identifier of the chat where the bot will send messages
      */

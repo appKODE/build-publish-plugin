@@ -93,7 +93,7 @@ buildPublishConfluence {
         }
     }
     distribution {
-        buildVariant("default") {
+        common {
             pageId.set("123435")
         }
     }
@@ -114,6 +114,11 @@ buildPublishTelegram {
                 }
             }
         }
+    }
+    lookup {
+        botName.set("buildPublish")
+        chatName.set("Test chat")
+        topicName.set("Topic")
     }
     changelog {
         common {

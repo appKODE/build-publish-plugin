@@ -7,6 +7,7 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.util.RequestError
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.destinationTelegramBotsFromJson
+import ru.kode.android.build.publish.plugin.telegram.messages.telegramUploadFailedMessage
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 
 /**
@@ -59,12 +60,7 @@ internal abstract class TelegramUploadWork : WorkAction<TelegramUploadParameters
                 destinationBots = parameters.destinationBots.map { destinationTelegramBotsFromJson(it) }.get()
             )
         } catch (ex: RequestError.UploadTimeout) {
-            logger.error(
-                "Telegram upload failed with timeout exception, " +
-                    "but the file was probably uploaded successfully. " +
-                    "Check your Telegram chat to confirm.",
-                ex,
-            )
+            logger.error(telegramUploadFailedMessage(), ex)
         }
     }
 }

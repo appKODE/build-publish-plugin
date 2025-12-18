@@ -37,7 +37,7 @@ import ru.kode.android.build.publish.plugin.foundation.task.TagTasksRegistrar
 import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
 import ru.kode.android.build.publish.plugin.foundation.validate.stopExecutionIfNotSupported
 
-private const val EXTENSION_NAME = "buildPublishFoundation"
+const val EXTENSION_NAME = "buildPublishFoundation"
 
 /**
  * Core plugin that provides foundation functionality for the build publishing system.
