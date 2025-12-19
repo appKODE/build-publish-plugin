@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.play.extension
 
+import com.android.build.api.variant.ApplicationVariant
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
@@ -135,6 +136,7 @@ abstract class BuildPublishPlayExtension
         override fun configure(
             project: Project,
             input: ExtensionInput,
+            variant: ApplicationVariant,
         ) {
             val distributionConfig = distributionConfig(input.buildVariant.name)
 

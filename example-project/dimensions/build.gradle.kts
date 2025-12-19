@@ -1,3 +1,5 @@
+import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType
+
 plugins {
     id("com.android.application")
     id("ru.kode.android.build-publish-novo.foundation")
@@ -75,6 +77,7 @@ buildPublishFirebase {
         common {
             serviceCredentialsFile.set(File("Test"))
             appId.set("ru.kode.test.app")
+            artifactType.set(ArtifactType.Apk)
             testerGroups("android-testers")
         }
     }

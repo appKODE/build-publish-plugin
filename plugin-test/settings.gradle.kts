@@ -30,6 +30,8 @@ include("confluence")
 include("utils")
 include("clickup")
 include("slack")
+include("firebase")
+include("play")
 includeBuild("../plugin-build") {
     dependencySubstitution {
         substitute(module("ru.kode.android:plugin-foundation"))
@@ -44,6 +46,10 @@ includeBuild("../plugin-build") {
             .using(project(":plugin-clickup"))
         substitute(module("ru.kode.android:plugin-slack"))
             .using(project(":plugin-slack"))
+        substitute(module("ru.kode.android:plugin-firebase"))
+            .using(project(":plugin-firebase"))
+        substitute(module("ru.kode.android:plugin-play"))
+            .using(project(":plugin-play"))
     }
 }
 

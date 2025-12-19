@@ -209,7 +209,12 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             project.extensions.getByName(schema.name) as BuildPublishConfigurableExtension
                         }
                         .onEach { extension ->
-                            logger.info(configureExtensionMessage(extension))
+                            logger.info(
+                                configureExtensionMessage(
+                                    extension.toString(),
+                                    variant.name
+                                )
+                            )
 
                             extension.configure(
                                 project = project,
@@ -240,12 +245,13 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                                 lastBuildTagFile = lastTagTaskOutput.lastBuildTagFile,
                                                 versionName = lastTagTaskOutput.versionName,
                                                 versionCode = lastTagTaskOutput.versionCode,
-                                                changelogFileName = changelogFileProvider,
+                                                changelogFileName = changelogFile,
                                                 apkFile = apkOutputFileProvider,
                                                 bundleFile = bundleFileProvider,
                                             ),
                                         buildVariant = buildVariant,
                                     ),
+                                variant = variant
                             )
                         }
                     if (lastTagTaskOutput.versionCode.isPresent) {

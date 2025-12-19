@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.clickup.extension
 
+import com.android.build.api.variant.ApplicationVariant
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
@@ -159,6 +160,7 @@ abstract class BuildPublishClickUpExtension
         override fun configure(
             project: Project,
             input: ExtensionInput,
+            variant: ApplicationVariant,
         ) {
             val variantName = input.buildVariant.name
 

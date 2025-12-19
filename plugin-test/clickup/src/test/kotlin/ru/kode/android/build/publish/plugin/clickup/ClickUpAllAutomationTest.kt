@@ -102,7 +102,7 @@ class ClickUpAllAutomationTest {
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedTag = "fix_1.0.2"
         val expectedFixVersion = "fix_1.0.2"

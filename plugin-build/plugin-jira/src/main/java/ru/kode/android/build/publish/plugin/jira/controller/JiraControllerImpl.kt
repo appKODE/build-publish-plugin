@@ -207,7 +207,7 @@ internal class JiraControllerImpl(
         api
             .addLabel(issue, request)
             .executeNoResult()
-            .onFailure { logger.error(failedToAddLabelMessage(issue), it) }
+            .onFailure { logger.error(failedToAddLabelMessage(issue, label), it) }
     }
 
     /**
@@ -351,7 +351,7 @@ internal class JiraControllerImpl(
         api
             .addFixVersion(issue, request)
             .executeNoResult()
-            .onFailure { logger.error(failedToAddFixVersionMessage(issue), it) }
+            .onFailure { logger.error(failedToAddFixVersionMessage(issue, version), it) }
     }
 
     /**

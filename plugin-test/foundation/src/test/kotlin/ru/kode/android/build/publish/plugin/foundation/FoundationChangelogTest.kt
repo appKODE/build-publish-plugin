@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
+import ru.kode.android.build.publish.plugin.foundation.messages.noChangedDetectedSinceStartMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.noChangesDetectedSinceBuildMessage
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.FoundationConfig
 import ru.kode.android.build.publish.plugin.test.utils.ManifestProperties
@@ -66,7 +68,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "Update pager behaviour"
@@ -128,10 +130,7 @@ class FoundationChangelogTest {
             "Build succeed",
         )
 
-        val expectedChangelogFile =
-            """
-            No changes detected since the start of the repository.
-            """.trimIndent()
+        val expectedChangelogFile = noChangedDetectedSinceStartMessage()
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
@@ -183,7 +182,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "Update pager behaviour"
@@ -299,7 +298,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -417,7 +416,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHN: Update pager behaviour"
@@ -535,7 +534,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHN:Update pager behaviour"
@@ -653,7 +652,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHNUpdate pager behaviour"
@@ -771,7 +770,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "Update pager behaviour. CHN"
@@ -890,7 +889,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "[TICKET-1111] Update pager behaviour"
@@ -1009,7 +1008,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -1128,7 +1127,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -1248,7 +1247,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -1345,7 +1344,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -1462,7 +1461,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -1581,7 +1580,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -1678,7 +1677,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -1811,7 +1810,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -1944,7 +1943,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "Update pager behaviour"
@@ -2019,10 +2018,7 @@ class FoundationChangelogTest {
             "Build succeed",
         )
 
-        val expectedChangelogFile =
-            """
-            No changes detected since previous build (v1.0.1-debug).
-            """.trimIndent()
+        val expectedChangelogFile = noChangesDetectedSinceBuildMessage(givenTagName1)
 
         assertEquals(
             expectedTagBuildFile.trimMargin(),
@@ -2074,7 +2070,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -2208,7 +2204,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -2319,7 +2315,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -2450,7 +2446,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -2583,7 +2579,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -2694,7 +2690,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -2809,7 +2805,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -2924,7 +2920,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"
@@ -3041,7 +3037,7 @@ class FoundationChangelogTest {
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
         val changelogMessage1 = "CHANGELOG: Update pager behaviour"

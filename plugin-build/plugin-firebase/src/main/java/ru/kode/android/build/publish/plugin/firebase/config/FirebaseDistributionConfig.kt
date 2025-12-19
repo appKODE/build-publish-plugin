@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 
 /**
  * Configuration class for Firebase App Distribution settings.
@@ -37,7 +38,7 @@ abstract class FirebaseDistributionConfig {
      * Default: None (must be specified)
      */
     @get:Input
-    abstract val artifactType: Property<String>
+    abstract val artifactType: Property<ArtifactType>
 
     /**
      * The Firebase App ID for distribution.
@@ -56,6 +57,7 @@ abstract class FirebaseDistributionConfig {
      * Tester groups must be created in the Firebase Console before they can be used here.
      */
     @get:Input
+    @get:Optional
     internal abstract val testerGroups: SetProperty<String>
 
     /**

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.factory.JiraControllerFactory
+import ru.kode.android.build.publish.plugin.jira.messages.failedToAddFixVersionMessage
 import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.FoundationConfig
@@ -95,7 +96,7 @@ class JiraFixVersionAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedFixVersion = "fix_1.0.2"
         val expectedIssueKey = "AT-290"
@@ -203,7 +204,7 @@ class JiraFixVersionAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedFixVersion = "fix_1.0.2"
         val expectedIssueKey = "AT-290"
@@ -312,7 +313,7 @@ class JiraFixVersionAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedFixVersion = "fix_1.0.2"
         val expectedIssueKey = "AT-290"
@@ -421,7 +422,7 @@ class JiraFixVersionAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-290"
         val expectedFixVersion = "fix_1.0.2"
@@ -525,9 +526,10 @@ class JiraFixVersionAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-2909"
+        val expectedFixVersion = "fix_1.0.2"
 
         git.addAllAndCommit(givenCommitMessage1)
         git.tag.addNamed(givenTagName1)
@@ -570,12 +572,7 @@ class JiraFixVersionAutomationTest {
         )
         assertTrue {
             automationResult.output
-                .contains(
-                    """
-                        Failed to add fix version for $expectedIssueKey
-                        Unknown(code=404, reason={"errorMessages":["Issue Does Not Exist"],"errors":{}})
-                    """.trimIndent()
-                )
+                .contains(failedToAddFixVersionMessage(expectedIssueKey, expectedFixVersion))
         }
     }
 }

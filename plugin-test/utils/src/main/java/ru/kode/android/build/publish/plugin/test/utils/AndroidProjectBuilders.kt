@@ -22,6 +22,7 @@ fun File.createAndroidProject(
     slackConfig: SlackConfig? = null,
     telegramConfig: TelegramConfig? = null,
     topBuildFileContent: String? = null,
+    import: String? = null,
 ) {
     val topSettingsFile = this.getFile("settings.gradle")
     val topBuildFile = this.getFile("build.gradle")
@@ -184,18 +185,30 @@ fun File.createAndroidProject(
 
     val firebaseConfigBlock =
         firebaseConfig?.let { config ->
-            """
-            buildPublishFirebase {
-                distribution {
-                    common {
-                        serviceCredentialsFile.set(File("${config.distribution.serviceCredentialsFilePath}"))
-                        appId.set("${config.distribution.appId}")
-                        artifactType.set("${config.distribution.artifactType}")
-                        testerGroups(${config.distribution.testerGroups.joinToString { "\"$it\"" }})
-                    }
+            val buildTypeFirebaseBlock =
+                config.distributionBuildType?.let { (name, config) ->
+                    """
+                buildVariant("$name") {
+                    it.serviceCredentialsFile = project.file("${config.serviceCredentialsFilePath}")
+                    it.appId.set("${config.appId}")
+                    it.artifactType.set(${config.artifactType})
+                    ${config.testerGroups?.let { """it.testerGroups(${it.joinToString { "\"$it\"" }})""" }.orEmpty()}
                 }
+                    """
+                }
+            """
+        buildPublishFirebase {
+            distribution {
+                common {
+                    it.serviceCredentialsFile = project.file("${config.distributionCommon.serviceCredentialsFilePath}")
+                    it.appId.set("${config.distributionCommon.appId}")
+                    it.artifactType.set(${config.distributionCommon.artifactType})
+                    ${config.distributionCommon.testerGroups?.let { """it.testerGroups(${it.joinToString { "\"$it\"" }})""" }.orEmpty()}
+                }
+                ${buildTypeFirebaseBlock.orEmpty()}
             }
-            """.trimIndent()
+        }
+            """
         }.orEmpty()
 
     val jiraConfigBlock =
@@ -267,6 +280,8 @@ fun File.createAndroidProject(
 
     val appBuildFileContent =
         """
+        ${import.orEmpty()}
+        
         plugins {
             id 'com.android.application'
             id 'ru.kode.android.build-publish-novo.foundation'
@@ -638,13 +653,14 @@ data class ConfluenceConfig(
 }
 
 data class FirebaseConfig(
-    val distribution: Distribution,
+    val distributionCommon: Distribution,
+    val distributionBuildType: Pair<String, Distribution>? = null,
 ) {
     data class Distribution(
         val serviceCredentialsFilePath: String,
         val artifactType: String,
         val appId: String,
-        val testerGroups: List<String>,
+        val testerGroups: List<String>?,
     )
 }
 

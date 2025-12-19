@@ -33,7 +33,7 @@ abstract class BuildPublishFirebasePlugin : Plugin<Project> {
                     .isNotEmpty()
 
             if (hasDistributionConfig) {
-                project.pluginManager.apply(AppDistributionPlugin::class.java)
+               project.pluginManager.apply(AppDistributionPlugin::class.java)
             }
         }
     }

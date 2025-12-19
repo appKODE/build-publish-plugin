@@ -95,7 +95,7 @@ class ClickUpFixVersionAutomationTest {
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedFixVersion = "fix_1.0.2"
         val expectedIssueKey = "86c72yxu3"
@@ -204,7 +204,7 @@ class ClickUpFixVersionAutomationTest {
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedFixVersion = "fix_1.0.2"
         val expectedIssueKey = "86c72yxu3"
@@ -307,7 +307,7 @@ class ClickUpFixVersionAutomationTest {
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedFixVersion = "fix_1.0.2"
         val expectedIssueKey = "86c72yxu3"
@@ -414,7 +414,7 @@ class ClickUpFixVersionAutomationTest {
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedFixVersion = "fix_1.0.2"
         val expectedIssueKey = "86c72yxu3"
@@ -515,7 +515,7 @@ class ClickUpFixVersionAutomationTest {
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedFixVersion = "fix_1.0.2"
         val expectedIssueKey = "86c72yxu3"
@@ -621,7 +621,7 @@ class ClickUpFixVersionAutomationTest {
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedFixVersion = "fix_1.0.2"
         val expectedIssueKey = "86c72yxu3"
@@ -724,7 +724,7 @@ class ClickUpFixVersionAutomationTest {
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "11172yxu1"
 

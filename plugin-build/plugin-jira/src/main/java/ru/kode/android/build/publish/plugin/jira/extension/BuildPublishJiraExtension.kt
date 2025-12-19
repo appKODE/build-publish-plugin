@@ -1,12 +1,11 @@
 package ru.kode.android.build.publish.plugin.jira.extension
 
+import com.android.build.api.variant.ApplicationVariant
 import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
@@ -35,8 +34,6 @@ import javax.inject.Inject
 abstract class BuildPublishJiraExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
-
-        private val logger: Logger = Logging.getLogger(this::class.java)
 
          /**
          * Container for Jira authentication configurations.
@@ -156,6 +153,7 @@ abstract class BuildPublishJiraExtension
         override fun configure(
             project: Project,
             input: ExtensionInput,
+            variant: ApplicationVariant,
         ) {
 
             val variantName = input.buildVariant.name

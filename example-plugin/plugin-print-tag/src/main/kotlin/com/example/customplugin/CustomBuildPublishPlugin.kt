@@ -20,6 +20,7 @@ import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import javax.inject.Inject
+import com.android.build.api.variant.ApplicationVariant
 
 private const val EXTENSION_NAME = "buildPublishPrintTag"
 
@@ -52,7 +53,7 @@ abstract class CustomBuildPublishExtension
             common(message, configurationAction)
         }
 
-        override fun configure(project: Project, input: ExtensionInput) {
+        override fun configure(project: Project, input: ExtensionInput, variant: ApplicationVariant) {
             val messageConfig = messageConfig(input.buildVariant.name)
 
             project.tasks.register(

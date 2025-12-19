@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.factory.JiraControllerFactory
+import ru.kode.android.build.publish.plugin.jira.messages.failedToAddLabelMessage
 import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.FoundationConfig
@@ -155,7 +156,7 @@ class JiraLabelAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-289"
         val expectedIssueLabel = "fix_1.0.2"
@@ -258,7 +259,7 @@ class JiraLabelAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-289"
         val expectedIssueLabel = "fix_1.0.2"
@@ -367,7 +368,7 @@ class JiraLabelAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-289"
         val expectedIssueLabel = "fix_1.0.2"
@@ -470,7 +471,7 @@ class JiraLabelAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-289"
         val expectedIssueLabel = "fix_1.0.2"
@@ -579,7 +580,7 @@ class JiraLabelAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-289"
         val expectedIssueLabel = "fix_1.0.2"
@@ -682,7 +683,7 @@ class JiraLabelAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-289"
         val expectedIssueLabel = "fix_1.0.2"
@@ -791,7 +792,7 @@ class JiraLabelAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-289"
         val expectedIssueLabel = "fix_1.0.2"
@@ -894,7 +895,7 @@ class JiraLabelAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-289"
         val expectedIssueLabel = "fix_1.0.2"
@@ -1001,7 +1002,7 @@ class JiraLabelAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-289"
         val expectedIssueLabel = "fix_1.0.2"
@@ -1097,7 +1098,7 @@ class JiraLabelAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-289"
         val expectedIssueLabel = "fix_1.0.2"
@@ -1188,22 +1189,23 @@ class JiraLabelAutomationTest {
                 }
             """.trimIndent()
         )
-        val givenLabelKey = "AT-2899"
+        val givenIssueKey = "AT-2899"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
         val givenCommitMessage2 = """
-            $givenLabelKey: Add test readme
+            $givenIssueKey: Add test readme
             
-            CHANGELOG: [$givenLabelKey] Задача для проверки работы BuildPublishPlugin с лейблом
+            CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с лейблом
         """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
-        val expectedLabelKey = "AT-2899"
+        val expectedIssueKey = "AT-2899"
+        val expectedIssueLabel = "fix_1.0.2"
 
         git.addAllAndCommit(givenCommitMessage1)
         git.tag.addNamed(givenTagName1)
@@ -1236,7 +1238,7 @@ class JiraLabelAutomationTest {
 
         val expectedChangelogFile =
             """
-            • [$expectedLabelKey] Задача для проверки работы BuildPublishPlugin с лейблом
+            • [$expectedIssueKey] Задача для проверки работы BuildPublishPlugin с лейблом
             """.trimIndent()
 
         assertEquals(
@@ -1246,12 +1248,7 @@ class JiraLabelAutomationTest {
         )
         assertTrue {
             automationResult.output
-                .contains(
-                    """
-                        Failed to add label for $expectedLabelKey
-                        Unknown(code=404, reason={"errorMessages":["Issue Does Not Exist"],"errors":{}})
-                    """.trimIndent()
-                )
+                .contains(failedToAddLabelMessage(expectedIssueKey, expectedIssueLabel))
         }
     }
 
@@ -1292,22 +1289,23 @@ class JiraLabelAutomationTest {
                 }
             """.trimIndent()
         )
-        val givenLabelKey = "AT-2899"
+        val givenIssueKey = "AT-2899"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
         val givenCommitMessage2 = """
-            $givenLabelKey: Add test readme
+            $givenIssueKey: Add test readme
             
-            CHANGELOG: [$givenLabelKey] Задача для проверки работы BuildPublishPlugin с лейблом
+            CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с лейблом
         """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
-        val expectedLabelKey = "AT-2899"
+        val expectedIssueKey = "AT-2899"
+        val expectedIssueLabel = "fix_1.0.2"
 
         git.addAllAndCommit(givenCommitMessage1)
         git.tag.addNamed(givenTagName1)
@@ -1346,7 +1344,7 @@ class JiraLabelAutomationTest {
 
         val expectedChangelogFile =
             """
-            • [$expectedLabelKey] Задача для проверки работы BuildPublishPlugin с лейблом
+            • [$expectedIssueKey] Задача для проверки работы BuildPublishPlugin с лейблом
             """.trimIndent()
 
         assertEquals(
@@ -1356,12 +1354,7 @@ class JiraLabelAutomationTest {
         )
         assertTrue {
             automationResult.output
-                .contains(
-                    """
-                        Failed to add label for $expectedLabelKey
-                        Unknown(code=404, reason={"errorMessages":["Issue Does Not Exist"],"errors":{}})
-                    """.trimIndent()
-                )
+                .contains(failedToAddLabelMessage(expectedIssueKey, expectedIssueLabel))
         }
     }
 }

@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.slack.extension
 
+import com.android.build.api.variant.ApplicationVariant
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
@@ -189,6 +190,7 @@ abstract class BuildPublishSlackExtension
         override fun configure(
             project: Project,
             input: ExtensionInput,
+            variant: ApplicationVariant,
         ) {
             val buildVariant = input.buildVariant.name
             val botConfig = botConfigOrNull(input.buildVariant.name)

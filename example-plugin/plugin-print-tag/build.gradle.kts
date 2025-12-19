@@ -10,6 +10,7 @@ version = "1.0.0"
 dependencies {
     implementation(gradleApi())
     implementation("ru.kode.android:plugin-core")
+    implementation(libs.agp)
 }
 
 gradlePlugin {

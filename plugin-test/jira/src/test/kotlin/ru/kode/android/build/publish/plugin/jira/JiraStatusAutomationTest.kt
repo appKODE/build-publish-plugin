@@ -109,7 +109,7 @@ class JiraStatusAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-292"
 
@@ -231,7 +231,7 @@ class JiraStatusAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey1 = "AT-292"
         val expectedIssueKey2 = "AT-291"
@@ -368,7 +368,7 @@ class JiraStatusAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey1 = "AT-293"
         val expectedIssueKey2 = "AT-294"
@@ -517,7 +517,7 @@ class JiraStatusAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey1 = "AT-293"
         val expectedIssueKey2 = "AT-294"

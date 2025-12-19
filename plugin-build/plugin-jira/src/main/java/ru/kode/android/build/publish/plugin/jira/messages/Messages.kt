@@ -16,7 +16,7 @@ fun pluginInitializedMessage(authNames: Set<String>, automationNames: Set<String
         | 2. Check the logs for any warnings or errors
         | 3. Run your build to test the integration
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun jiraServicesCreatedMessage(servicesNames: Set<String>): String {
@@ -32,7 +32,7 @@ fun jiraServicesCreatedMessage(servicesNames: Set<String>): String {
         | These services will be used for interacting with Jira API
         | and managing issue tracking during the build process.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun noAuthConfigsMessage(): String {
@@ -61,7 +61,7 @@ fun noAuthConfigsMessage(): String {
         |
         | NOTE: Store sensitive credentials in gradle.properties or environment variables.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun mustApplyFoundationPluginMessage(): String {
@@ -82,7 +82,7 @@ fun mustApplyFoundationPluginMessage(): String {
         |
         | Make sure to replace <version> with the correct version number.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun serviceExtensionCreatedMessage(): String {
@@ -105,7 +105,7 @@ fun serviceExtensionCreatedMessage(): String {
         |     automation { ... }
         | }
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun issuesNoFoundMessage(): String {
@@ -123,7 +123,7 @@ fun issuesNoFoundMessage(): String {
         | 2. The changelog format includes the issue references
         | 3. The Jira project key matches your commit messages
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun failedToUpdateStatusMessage(issue: String?): String {
@@ -146,7 +146,7 @@ fun failedToUpdateStatusMessage(issue: String?): String {
         | 3. Review the full error in the logs
         | 4. Try updating the status manually in Jira to test permissions
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun needToProvideAutomationConfigMessage(variantName: String): String {
@@ -181,7 +181,7 @@ fun needToProvideAutomationConfigMessage(variantName: String): String {
         |
         | For more details, check the plugin documentation.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun needToProvideAuthConfigMessage(variantName: String): String {
@@ -219,7 +219,7 @@ fun needToProvideAuthConfigMessage(variantName: String): String {
         | • Use gradle.properties or environment variables for sensitive data
         | • Consider using API tokens instead of passwords
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun failedToGetIssueFixVersionMessage(issue: String): String {
@@ -241,7 +241,7 @@ fun failedToGetIssueFixVersionMessage(issue: String): String {
         | 3. Try accessing the issue in the Jira web interface
         | 4. Review the full error in the logs
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun failedToRemoveFixVersionMessage(issue: String): String {
@@ -263,16 +263,16 @@ fun failedToRemoveFixVersionMessage(issue: String): String {
         | 3. Try removing the fix version manually in Jira
         | 4. Review the full error in the logs
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
-fun failedToAddFixVersionMessage(issue: String): String {
+fun failedToAddFixVersionMessage(issue: String, version: String): String {
     return """
-        |
+        
         |============================================================
         |         ⚠️ FAILED TO ADD FIX VERSION ⚠️
         |============================================================
-        | Could not add fix version to issue: $issue
+        | Could not add $version fix version to issue: $issue
         |
         | POSSIBLE CAUSES:
         | 1. The version might not exist in the project
@@ -285,7 +285,7 @@ fun failedToAddFixVersionMessage(issue: String): String {
         | 3. Try adding the version manually in Jira
         | 4. Review the full error in the logs
         |============================================================
-    """.trimMargin()
+    """.trimIndent().trim()
 }
 
 fun failedToRemoveVersionMessage(versionId: String): String {
@@ -307,7 +307,7 @@ fun failedToRemoveVersionMessage(versionId: String): String {
         | 3. Try archiving the version instead of deleting
         | 4. Review the full error in the logs
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun failedToCreateProjectVersionMessage(version: String, projectId: Long): String {
@@ -331,7 +331,7 @@ fun failedToCreateProjectVersionMessage(version: String, projectId: Long): Strin
         | 3. Check your Jira project admin permissions
         | 4. Review the full error in the logs
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun failedToRemoveMessage(issue: String): String {
@@ -353,16 +353,16 @@ fun failedToRemoveMessage(issue: String): String {
         | 3. Try removing the label manually in Jira
         | 4. Review the full error in the logs
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
-fun failedToAddLabelMessage(issue: String): String {
+fun failedToAddLabelMessage(issue: String, label: String): String {
     return """
-        |
+        
         |============================================================
         |           ⚠️ FAILED TO ADD LABEL ⚠️
         |============================================================
-        | Could not add label to issue: $issue
+        | Could not add ${label} label to issue: $issue
         |
         | POSSIBLE CAUSES:
         | 1. The label might be too long (max 255 chars)
@@ -376,7 +376,7 @@ fun failedToAddLabelMessage(issue: String): String {
         | 3. Try adding the label manually in Jira
         | 4. Review the full error in the logs
         |============================================================
-    """.trimMargin()
+    """.trimIndent().trim()
 }
 
 fun failedToGetIssueStatusMessage(issue: String): String {
@@ -398,7 +398,7 @@ fun failedToGetIssueStatusMessage(issue: String): String {
         | 3. Try accessing the issue in the Jira web interface
         | 4. Review the full error in the logs
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun failedToSetStatusMessage(issue: String): String {
@@ -422,7 +422,7 @@ fun failedToSetStatusMessage(issue: String): String {
         | 4. Try the transition manually in Jira
         | 5. Review the full error in the logs
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun issueTransitionNotFoundMessage(issueKeyWithTransitions: String, statusName: String): String {
@@ -450,7 +450,7 @@ fun issueTransitionNotFoundMessage(issueKeyWithTransitions: String, statusName: 
         | You can perform this transition manually in the Jira web interface
         | to see the exact requirements and available options.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun issueStatusNotFoundMessage(statusName: String): String {
@@ -475,7 +475,7 @@ fun issueStatusNotFoundMessage(statusName: String): String {
         | TIP: You can view all available statuses in your Jira project
         | by checking the workflow configuration.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun statusNotFoundMessage(statusName: String, projectKey: String): String {
@@ -504,5 +504,5 @@ fun statusNotFoundMessage(statusName: String, projectKey: String): String {
         |
         | NOTE: You need Jira administrator permissions to modify workflows.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }

@@ -5,7 +5,6 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.foundation.messages.changelogGeneratedMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.changelogNotgeneratedMessage
@@ -88,14 +87,12 @@ internal abstract class GenerateChangelogWork
                         currentBuildTag,
                         buildTagPattern,
                         defaultValueSupplier = { tagRange ->
-                            val previousBuildName =
-                                tagRange.previousBuildTag?.name
-                                    ?.let { "($it)" }
+                            val previousBuildName = tagRange.previousBuildTag?.name
                             if (previousBuildName != null) {
                                 noChangesDetectedSinceBuildMessage(previousBuildName)
                             } else {
                                 noChangedDetectedSinceStartMessage()
-                            }.trim()
+                            }
                         },
                     )
             val changelogOutput = parameters.changelogFile.asFile.get()

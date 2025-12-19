@@ -145,7 +145,7 @@ class JiraAllAutomationTest {
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
-        val givenChangelogFile = projectDir.getFile("app/build/changelog.txt")
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         git.addAllAndCommit(givenCommitMessage1)
         git.tag.addNamed(givenTagName1)

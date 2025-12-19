@@ -1,6 +1,5 @@
 package ru.kode.android.build.publish.plugin.foundation.messages
 
-import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
@@ -25,21 +24,21 @@ fun outputConfigShouldBeDefinedMessage(): String {
         |     // Other configuration options...
         | }
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
-fun configureExtensionMessage(extension: BuildPublishConfigurableExtension): String {
+fun configureExtensionMessage(extensionName: String, variantName: String): String {
     return """
         |
         |============================================================
         |           ℹ️ EXTENSION CONFIGURATION ℹ️
         |============================================================
-        | Configuring $extension in core module.
+        | Configuring `$extensionName` for `$variantName` in foundation module.
         |
         | This is an informational message indicating that the
         | extension configuration is being processed.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun mustBeUsedWithAndroidMessage(): String {
@@ -60,7 +59,7 @@ fun mustBeUsedWithAndroidMessage(): String {
         |
         | NOTE: This plugin is not compatible with library projects.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun mustBeUsedWithVersionMessage(): String {
@@ -82,7 +81,7 @@ fun mustBeUsedWithVersionMessage(): String {
         | 2. Sync your project with Gradle files
         | 3. Clean and rebuild your project
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun noOutputVariantMessage(buildVariant: BuildVariant): String {
@@ -103,7 +102,7 @@ fun noOutputVariantMessage(buildVariant: BuildVariant): String {
         | 2. Check the build logs for any assembly errors
         | 3. Ensure the output directory is writable
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun tagNotCreatedMessage(buildVariant: String, buildTagPattern: String): String {
@@ -130,7 +129,7 @@ fun tagNotCreatedMessage(buildVariant: String, buildTagPattern: String): String 
         |
         | NOTE: This is a critical error as other tasks depend on this file.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun usingStabMessage(buildVariant: String, buildTagPattern: String): String {
@@ -149,7 +148,7 @@ fun usingStabMessage(buildVariant: String, buildTagPattern: String): String {
         | 2. Check if tags exist in your repository
         | 3. Ensure you have the latest tags: git fetch --all --tags
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun invalidTagMessage(buildTag: Tag.Build, buildVariant: String): String {
@@ -177,7 +176,7 @@ fun invalidTagMessage(buildTag: Tag.Build, buildVariant: String): String {
         |
         | NOTE: Make sure to replace <correct_tag> with a properly formatted tag
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun validBuildTagFoundMessage(buildTag: Tag.Build, buildVariant: String): String {
@@ -193,7 +192,7 @@ fun validBuildTagFoundMessage(buildTag: Tag.Build, buildVariant: String): String
         |
         | Generating tag build file...
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun renameApkMessage(inputFile: File, targetOutputFileName: String, outputDir: File): String {
@@ -210,12 +209,12 @@ fun renameApkMessage(inputFile: File, targetOutputFileName: String, outputDir: F
         |
         | This step ensures the output file follows the expected naming convention.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun noChangedDetectedSinceStartMessage(): String {
     return """
-        |
+        
         |============================================================
         |           ℹ️ NO CHANGES DETECTED ℹ️
         |============================================================
@@ -229,12 +228,12 @@ fun noChangedDetectedSinceStartMessage(): String {
         | 1. Verify your repository has the expected commits
         | 2. Check your Git history: git log --oneline
         |============================================================
-    """.trimMargin()
+    """.trimIndent().trim()
 }
 
 fun noChangesDetectedSinceBuildMessage(previousBuildName: String): String {
     return """
-        |
+        
         |============================================================
         |           ℹ️ NO CHANGES DETECTED ℹ️
         |============================================================
@@ -248,7 +247,7 @@ fun noChangesDetectedSinceBuildMessage(previousBuildName: String): String {
         | 1. Verify your code changes are committed and pushed
         | 2. Check your build configuration for any changes
         |============================================================
-    """.trimMargin()
+    """.trimIndent().trim()
 }
 
 fun changelogGeneratedMessage(buildTagPattern: String, currentBuildTag: Tag.Build): String {
@@ -266,7 +265,7 @@ fun changelogGeneratedMessage(buildTagPattern: String, currentBuildTag: Tag.Buil
         |
         | The changelog will be included in the build output.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun changelogNotgeneratedMessage(buildTagPattern: String, currentBuildTag: Tag.Build): String {
@@ -285,7 +284,7 @@ fun changelogNotgeneratedMessage(buildTagPattern: String, currentBuildTag: Tag.B
         | 1. Verify your code changes are committed and pushed
         | 2. Check your build configuration for any changes
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }
 
 fun noChangesChangelogMessage(currentBuildTag: Tag.Build): String {
@@ -304,5 +303,5 @@ fun noChangesChangelogMessage(currentBuildTag: Tag.Build): String {
         |
         | NOTE: This is normal if no code changes were made between builds.
         |============================================================
-    """.trimMargin()
+    """.trimIndent()
 }

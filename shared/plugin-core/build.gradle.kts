@@ -8,6 +8,7 @@ version = "1.0.0"
 
 dependencies {
     implementation(gradleApi())
+    implementation(libs.agp)
     implementation(libs.grgitCore)
     implementation(libs.okhttp)
     implementation(libs.retrofit)
