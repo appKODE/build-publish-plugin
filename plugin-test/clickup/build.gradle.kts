@@ -43,7 +43,6 @@ tasks.test {
     }
 }
 
-
 private fun Project.getEnvOrProperty(name: String): String {
     System.getenv(name)?.let { return it }
 

@@ -142,15 +142,15 @@ abstract class BuildPublishConfluenceExtension
             input: ExtensionInput,
             variant: ApplicationVariant,
         ) {
-
             val variantName = input.buildVariant.name
 
             if (auth.isEmpty()) {
                 throw GradleException(needProvideAuthConfigMessage(variantName))
             }
 
-            val distributionConfig = distributionConfigOrNull(input.buildVariant.name)
-                ?: throw GradleException(needProvideDistributionConfigMessage(variantName))
+            val distributionConfig =
+                distributionConfigOrNull(input.buildVariant.name)
+                    ?: throw GradleException(needProvideDistributionConfigMessage(variantName))
 
             ConfluenceTasksRegistrar.registerApkDistributionTask(
                 project = project,

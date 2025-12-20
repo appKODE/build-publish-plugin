@@ -22,7 +22,6 @@ private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L
  * Factory for creating OkHttpClient instances with the necessary configuration for Confluence API communication.
  */
 internal object ConfluenceClientFactory {
-
     /**
      * Creates an OkHttpClient instance with the necessary configuration for Confluence API communication.
      *
@@ -54,7 +53,7 @@ internal object ConfluenceClientFactory {
         username: String,
         password: String,
         logger: Logger,
-        proxy: () -> NetworkProxy?
+        proxy: () -> NetworkProxy?,
     ): OkHttpClient {
         return buildClient(logger, username, password) {
             it.addProxyIfAvailable(logger, proxy, proxy)
@@ -74,11 +73,12 @@ private fun buildClient(
     logger: Logger,
     username: String,
     password: String,
-    apply: (OkHttpClient.Builder) -> OkHttpClient.Builder
+    apply: (OkHttpClient.Builder) -> OkHttpClient.Builder,
 ): OkHttpClient {
-    val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }.apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
+    val loggingInterceptor =
+        HttpLoggingInterceptor { message -> logger.info(message) }.apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
     return OkHttpClient.Builder()
         .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
         .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
@@ -123,7 +123,6 @@ private class RetryHandshakeInterceptor(
     private val maxRetries: Int = 3,
     private val delayMillis: Long = 2000,
 ) : Interceptor {
-
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         var attempt = 0

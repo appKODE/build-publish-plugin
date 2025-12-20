@@ -7,8 +7,10 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 
 internal object SlackRetrofitBuilderFactory {
-
-    fun build(client: OkHttpClient, json: Json): Retrofit.Builder {
+    fun build(
+        client: OkHttpClient,
+        json: Json,
+    ): Retrofit.Builder {
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
             .client(client)

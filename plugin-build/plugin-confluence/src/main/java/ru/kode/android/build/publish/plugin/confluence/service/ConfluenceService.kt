@@ -69,14 +69,13 @@ abstract class ConfluenceService
             controllerProperty.set(
                 apiProperty.flatMap { api ->
                     parameters.baseUrl.map { baseUrl ->
-                        ConfluenceControllerImpl(baseUrl, api, logger)
+                        ConfluenceControllerImpl(baseUrl, api)
                     }
-                }
+                },
             )
         }
 
         private val controller: ConfluenceController get() = controllerProperty.get()
-
 
         /**
          * Uploads a file as an attachment to a Confluence page.

@@ -5,7 +5,6 @@ import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpTas
 import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpTaskTags
 
 interface ClickUpController {
-
     /**
      * Adds a tag to a ClickUp task.
      *
@@ -43,7 +42,10 @@ interface ClickUpController {
      * @param fieldName The name of the custom field.
      * @return The ID of the custom field.
      */
-    fun getOrCreateCustomFieldId(workspaceName: String, fieldName: String): String
+    fun getOrCreateCustomFieldId(
+        workspaceName: String,
+        fieldName: String,
+    ): String
 
     /**
      * Clears a custom field value for a ClickUp task.
@@ -54,7 +56,10 @@ interface ClickUpController {
      * @throws IOException If the network request fails
      * @throws RuntimeException If the API returns an error response or the field ID is invalid
      */
-    fun clearCustomField(taskId: String, fieldId: String)
+    fun clearCustomField(
+        taskId: String,
+        fieldId: String,
+    )
 
     /**
      * Removes a tag from a ClickUp task.
@@ -65,7 +70,10 @@ interface ClickUpController {
      * @throws IOException If the network request fails
      * @throws RuntimeException If the API returns an error response
      */
-    fun removeTag(taskId: String, tagName: String)
+    fun removeTag(
+        taskId: String,
+        tagName: String,
+    )
 
     /**
      * Retrieves the list of tags associated with a ClickUp task.
@@ -96,6 +104,8 @@ interface ClickUpController {
      * @param fieldId The id of the custom field.
      * @throws GradleException If the custom field is not found in the list or if the list is not found in the workspace.
      */
-    fun deleteCustomFieldFromList(workspaceName: String, fieldId: String)
-
+    fun deleteCustomFieldFromList(
+        workspaceName: String,
+        fieldId: String,
+    )
 }

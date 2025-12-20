@@ -5,8 +5,19 @@ import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import ru.kode.android.build.publish.plugin.core.messages.applyProxyAuthMessage
+import ru.kode.android.build.publish.plugin.core.messages.cannotCreateHttpProxyMessage
+import ru.kode.android.build.publish.plugin.core.messages.cannotCreateHttpsProxyMessage
+import ru.kode.android.build.publish.plugin.core.messages.createHttpProxyMessage
+import ru.kode.android.build.publish.plugin.core.messages.createHttpsProxyMessage
+import ru.kode.android.build.publish.plugin.core.messages.proxyConnectionFailedMessage
+import ru.kode.android.build.publish.plugin.core.messages.proxyCredsNotSpecified
+import ru.kode.android.build.publish.plugin.core.messages.requestingProxyMessage
+import ru.kode.android.build.publish.plugin.core.messages.requestingWithoutProxyMessage
+import ru.kode.android.build.publish.plugin.core.messages.returnAndApplyProxyMessage
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Proxy
@@ -15,7 +26,6 @@ import java.net.SocketAddress
 import java.net.URI
 
 private val logger = Logging.getLogger("HttpClientExtensions")
-
 
 /**
  * Data class representing a network proxy.
@@ -45,7 +55,7 @@ data class NetworkProxy(
      *
      * Example: "localhost,127.0.0.1,example.com"
      */
-    val nonProxyHosts: String? = null
+    val nonProxyHosts: String? = null,
 )
 
 /**
@@ -63,7 +73,7 @@ data class NetworkProxy(
 fun OkHttpClient.Builder.addProxyIfAvailable(
     logger: Logger = ru.kode.android.build.publish.plugin.core.util.logger,
     httpProxyProvider: (() -> NetworkProxy?) = { createHttpProxy(logger) },
-    httpsProxyProvider: (() -> NetworkProxy?) = { createHttpsProxy(logger) }
+    httpsProxyProvider: (() -> NetworkProxy?) = { createHttpsProxy(logger) },
 ): OkHttpClient.Builder {
     val httpsProxy by lazy { httpsProxyProvider() }
     val httpProxy by lazy { httpProxyProvider() }
@@ -72,9 +82,9 @@ fun OkHttpClient.Builder.addProxyIfAvailable(
             val request = chain.request()
             val proxy = chain.connection()?.route()?.proxy ?: Proxy.NO_PROXY
             if (proxy != Proxy.NO_PROXY && proxy.type() != Proxy.Type.DIRECT) {
-                logger.info("Requesting via proxy $proxy: ${request.url}")
+                logger.info(requestingProxyMessage(proxy, request))
             } else {
-                logger.info("Requesting without proxy: ${request.url}")
+                logger.info(requestingWithoutProxyMessage(request))
             }
             chain.proceed(request)
         }
@@ -95,25 +105,10 @@ fun OkHttpClient.Builder.addProxyIfAvailable(
                 }
 
             if (proxyUser == null || proxyPassword == null) {
-                throw RuntimeException(
-                    """
-                    Proxy user or password is not specified. 
-                    To set proxy credentials add system properties:
-                    -Dhttp.proxyUser=username
-                    -Dhttp.proxyPassword=password
-                    -Dhttps.proxyUser=username
-                    -Dhttps.proxyPassword=password
-                    
-                    or specify them in gradle.properties:
-                    systemProp.http.proxyUser=username
-                    systemProp.http.proxyPassword=password
-                    systemProp.https.proxyUser=username
-                    systemProp.https.proxyPassword=password
-                    """
-                )
+                throw GradleException(proxyCredsNotSpecified())
             }
             val credentials = Credentials.basic(proxyUser, proxyPassword)
-            logger.info("Apply proxy authorization: $proxyUser")
+            logger.info(applyProxyAuthMessage(proxyUser))
             response.request.newBuilder()
                 .header("Proxy-Authorization", credentials)
                 .build()
@@ -130,7 +125,7 @@ fun OkHttpClient.Builder.addProxyIfAvailable(
 private class DynamicProxySelector(
     private val logger: Logger,
     private val httpProxyProvider: (() -> NetworkProxy?),
-    private val httpsProxyProvider: (() -> NetworkProxy?)
+    private val httpsProxyProvider: (() -> NetworkProxy?),
 ) : ProxySelector() {
     private val httpsProxy by lazy { httpsProxyProvider() }
     private val httpProxy by lazy { httpProxyProvider() }
@@ -161,7 +156,7 @@ private class DynamicProxySelector(
                 return listOf(Proxy.NO_PROXY)
             }
             val proxyAddress = InetSocketAddress.createUnresolved(proxyHost, proxyPort.toInt())
-            logger.info("Return and apply proxy: url=$uri; proxy address=$proxyAddress")
+            logger.info(returnAndApplyProxyMessage(uri, proxyAddress))
             return listOf(Proxy(Proxy.Type.HTTP, proxyAddress))
         }
         return listOf(Proxy.NO_PROXY)
@@ -172,7 +167,7 @@ private class DynamicProxySelector(
         address: SocketAddress?,
         error: IOException?,
     ) {
-        logger.error("Proxy connection failed for $uri", error)
+        logger.error(proxyConnectionFailedMessage(uri), error)
     }
 }
 
@@ -196,16 +191,16 @@ private fun createHttpsProxy(logger: Logger): NetworkProxy? {
     val host = getEnvOrProperty("https.proxyHost")
     val port = getEnvOrProperty("https.proxyPort")
     return if (host != null && port != null) {
-        logger.info("Create https proxy: host=$host; port=$port")
+        logger.info(createHttpsProxyMessage(host, port))
         NetworkProxy(
             host = host,
             port = port,
             user = getEnvOrProperty("https.proxyUser"),
             password = getEnvOrProperty("https.proxyPassword"),
-            nonProxyHosts = getEnvOrProperty("https.nonProxyHosts")
+            nonProxyHosts = getEnvOrProperty("https.nonProxyHosts"),
         )
     } else {
-        logger.info("Cannot create https proxy: host=$host; port=$port")
+        logger.info(cannotCreateHttpsProxyMessage(host, port))
         null
     }
 }
@@ -220,16 +215,16 @@ private fun createHttpProxy(logger: Logger): NetworkProxy? {
     val host = getEnvOrProperty("http.proxyHost")
     val port = getEnvOrProperty("http.proxyPort")
     return if (host != null && port != null) {
-        logger.info("Create http proxy: host=$host; port=$port")
+        logger.info(createHttpProxyMessage(host, port))
         NetworkProxy(
             host = host,
             port = port,
             user = getEnvOrProperty("http.proxyUser"),
             password = getEnvOrProperty("http.proxyPassword"),
-            nonProxyHosts = getEnvOrProperty("http.nonProxyHosts")
+            nonProxyHosts = getEnvOrProperty("http.nonProxyHosts"),
         )
     } else {
-        logger.info("Cannot create http proxy: host=$host; port=$port")
+        logger.info(cannotCreateHttpProxyMessage(host, port))
         null
     }
 }

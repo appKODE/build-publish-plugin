@@ -262,13 +262,13 @@ abstract class BuildPublishTelegramExtension
                 TelegramTasksRegistrar.registerLookupTask(
                     project,
                     lookupConfig,
-                    TelegramLookupTaskParams(input.buildVariant)
+                    TelegramLookupTaskParams(input.buildVariant),
                 )
             }
 
             if (changelogConfig == null && distributionConfig == null && lookupConfig == null) {
                 throw GradleException(
-                    needToProvideChangelogOrDistributionConfigMessage(buildVariant)
+                    needToProvideChangelogOrDistributionConfigMessage(buildVariant),
                 )
             }
 

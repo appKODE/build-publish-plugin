@@ -4,7 +4,6 @@ import ru.kode.android.build.publish.plugin.core.util.UploadError
 import java.io.File
 
 interface SlackController {
-
     /**
      * Uploads a file to Slack and shares it in the specified channels.
      *
@@ -51,6 +50,6 @@ interface SlackController {
         iconUrl: String,
         attachmentColor: String,
         issueUrlPrefix: String,
-        issueNumberPattern: String
+        issueNumberPattern: String,
     )
 }

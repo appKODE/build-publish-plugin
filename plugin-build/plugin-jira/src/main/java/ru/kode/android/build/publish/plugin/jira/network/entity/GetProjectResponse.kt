@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 internal data class GetProjectResponse(
     val id: Long,
     val key: String,
-    val name: String
+    val name: String,
 )

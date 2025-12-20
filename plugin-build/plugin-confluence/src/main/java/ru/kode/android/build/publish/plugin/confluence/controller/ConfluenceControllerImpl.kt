@@ -2,7 +2,6 @@ package ru.kode.android.build.publish.plugin.confluence.controller
 
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import org.gradle.api.logging.Logger
 import ru.kode.android.build.publish.plugin.confluence.controller.entity.ConfluenceAttachment
 import ru.kode.android.build.publish.plugin.confluence.controller.entity.ConfluenceComment
 import ru.kode.android.build.publish.plugin.confluence.network.api.ConfluenceApi
@@ -19,9 +18,7 @@ import java.io.File
 internal class ConfluenceControllerImpl(
     private val baseUrl: String,
     private val api: ConfluenceApi,
-    private val logger: Logger,
 ) : ConfluenceController {
-
     /**
      * Uploads a file as an attachment to a Confluence page.
      *
@@ -34,7 +31,10 @@ internal class ConfluenceControllerImpl(
      * @throws IllegalStateException if the file doesn't exist or is not readable
      * @throws Exception if the API request fails or returns an error
      */
-    override fun uploadFile(pageId: String, file: File) {
+    override fun uploadFile(
+        pageId: String,
+        file: File,
+    ) {
         val filePart =
             MultipartBody.Part.createFormData(
                 "file",
@@ -62,7 +62,10 @@ internal class ConfluenceControllerImpl(
      * @throws IllegalArgumentException if the pageId is empty or invalid
      * @throws Exception if the API request fails or returns an error
      */
-    override fun addComment(pageId: String, fileName: String) {
+    override fun addComment(
+        pageId: String,
+        fileName: String,
+    ) {
         val comment = "<a href=\"$baseUrl/download/attachments/$pageId/$fileName\">$fileName</a>"
         api
             .addComment(
@@ -70,9 +73,10 @@ internal class ConfluenceControllerImpl(
                     AddCommentRequest(
                         type = "comment",
                         container = AddCommentRequest.Container(pageId, "page"),
-                        body = AddCommentRequest.Body(
-                            AddCommentRequest.Storage(comment, "storage")
-                        ),
+                        body =
+                            AddCommentRequest.Body(
+                                AddCommentRequest.Storage(comment, "storage"),
+                            ),
                     ),
             )
             .executeNoResult()

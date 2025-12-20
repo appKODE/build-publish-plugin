@@ -26,8 +26,20 @@ data class BuildVariant(
      */
     val productFlavors: List<ProductFlavor>,
 ) {
+    /**
+     * Represents a product flavor in an Android project.
+     *
+     * A product flavor is a named configuration that can be used to customize the build of an Android project.
+     * This class captures essential information about a product flavor including its name and dimension.
+     */
     data class ProductFlavor(
+        /**
+         * The dimension that this product flavor belongs to.
+         */
         val dimension: String,
+        /**
+         * The name of the product flavor.
+         */
         val name: String,
     )
 }

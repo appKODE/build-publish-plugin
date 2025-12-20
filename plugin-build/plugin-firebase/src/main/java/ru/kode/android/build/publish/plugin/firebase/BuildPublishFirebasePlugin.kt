@@ -15,7 +15,6 @@ internal const val EXTENSION_NAME = "buildPublishFirebase"
  * using variant-aware Android Components API.
  */
 abstract class BuildPublishFirebasePlugin : Plugin<Project> {
-
     override fun apply(project: Project) {
         val androidComponents =
             project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
@@ -33,7 +32,7 @@ abstract class BuildPublishFirebasePlugin : Plugin<Project> {
                     .isNotEmpty()
 
             if (hasDistributionConfig) {
-               project.pluginManager.apply(AppDistributionPlugin::class.java)
+                project.pluginManager.apply(AppDistributionPlugin::class.java)
             }
         }
     }

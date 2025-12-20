@@ -53,7 +53,6 @@ abstract class ClickUpAutomationTask
         @get:Internal
         abstract val service: Property<ClickUpService>
 
-
         /**
          * The name of the ClickUp workspace to operate on.
          *
@@ -181,15 +180,16 @@ abstract class ClickUpAutomationTask
             if (issues.isEmpty()) {
                 logger.info(issuesNotFoundMessage())
             } else {
-                val fixVersionFieldId = service.flatMap { service ->
-                    workspaceName
-                        .zip(fixVersionFieldName) { workspaceName, fixVersionFieldName ->
-                            workspaceName to fixVersionFieldName
-                        }
-                        .map { (workspaceName, fixVersionFieldName) ->
-                            service.getCustomFieldId(workspaceName, fixVersionFieldName)
-                        }
-                }
+                val fixVersionFieldId =
+                    service.flatMap { service ->
+                        workspaceName
+                            .zip(fixVersionFieldName) { workspaceName, fixVersionFieldName ->
+                                workspaceName to fixVersionFieldName
+                            }
+                            .map { (workspaceName, fixVersionFieldName) ->
+                                service.getCustomFieldId(workspaceName, fixVersionFieldName)
+                            }
+                    }
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 workQueue.submitUpdateVersionIfPresent(currentBuildTag, issues, fixVersionFieldId)
                 workQueue.submitSetTagIfPresent(currentBuildTag, issues)
@@ -208,7 +208,7 @@ abstract class ClickUpAutomationTask
         private fun WorkQueue.submitUpdateVersionIfPresent(
             currentBuildTag: Tag.Build,
             issues: Set<String>,
-            fieldId: Provider<String>
+            fieldId: Provider<String>,
         ) {
             if (fixVersionPattern.isPresent && fixVersionFieldName.isPresent) {
                 val version =
@@ -239,7 +239,7 @@ abstract class ClickUpAutomationTask
          */
         private fun WorkQueue.submitSetTagIfPresent(
             currentBuildTag: Tag.Build,
-            issues: Set<String>
+            issues: Set<String>,
         ) {
             if (tagPattern.isPresent) {
                 val tagName =

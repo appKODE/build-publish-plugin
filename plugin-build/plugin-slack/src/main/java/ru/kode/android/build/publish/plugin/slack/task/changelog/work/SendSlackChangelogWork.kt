@@ -20,34 +20,42 @@ internal interface SendSlackChangelogParameters : WorkParameters {
      * The base name for the build output (e.g., app name)
      */
     val baseOutputFileName: Property<String>
+
     /**
      * The name/version of the build
      */
     val buildName: Property<String>
+
     /**
      * The actual changelog content to be sent
      */
     val changelog: Property<String>
+
     /**
      * Optional user mentions to be included in the message
      */
     val userMentions: SetProperty<String>
+
     /**
      * URL to an icon to be displayed in the Slack message
      */
     val iconUrl: Property<String>
+
     /**
      *  Color code for the message attachment (e.g., "#36a64f" for green)
      */
     val attachmentColor: Property<String>
+
     /**
      * URL prefix for issue references in the changelog text.
      */
     val issueUrlPrefix: Property<String>
+
     /**
      * Regular expression pattern used to extract issue numbers from the changelog text.
      */
     val issueNumberPattern: Property<String>
+
     /**
      * The network service for sending messages to Slack
      */
@@ -90,4 +98,3 @@ internal abstract class SendSlackChangelogWork
             logger.info(changelogSentMessage())
         }
     }
-

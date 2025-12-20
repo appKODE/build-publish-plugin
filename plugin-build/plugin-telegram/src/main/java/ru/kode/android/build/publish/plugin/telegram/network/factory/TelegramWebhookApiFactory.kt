@@ -7,7 +7,6 @@ import ru.kode.android.build.publish.plugin.telegram.network.api.TelegramWebhook
  * Factory for creating instances of [TelegramWebhookApi].
  */
 internal object TelegramWebhookApiFactory {
-
     /**
      * Builds an instance of [TelegramWebhookApi] using the provided [Retrofit.Builder].
      *

@@ -15,13 +15,12 @@ import org.gradle.api.tasks.Optional
 interface JiraAutomationConfig {
     val name: String
 
-    @get:Input
-
     /**
      * The Key of the Jira project to use for version management and fix version updates.
      *
      * This property is required if fix version updates are enabled.
      */
+    @get:Input
     val projectKey: Property<String>
 
     /**

@@ -4,9 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class GetSpacesResponse(
-    val spaces: List<ClickUpSpace>
+    val spaces: List<ClickUpSpace>,
 ) {
-
     @Serializable
     internal data class ClickUpSpace(
         val id: String,

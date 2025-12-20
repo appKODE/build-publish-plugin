@@ -6,6 +6,13 @@ import org.gradle.api.GradleException
 import org.gradle.internal.cc.base.logger
 import ru.kode.android.build.publish.plugin.core.enity.CommitRange
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.messages.cannotReturnTagMessage
+import ru.kode.android.build.publish.plugin.core.messages.couldNotFindProvidedBuildTagMessage
+import ru.kode.android.build.publish.plugin.core.messages.finTagsByRegexAfterSortingMessage
+import ru.kode.android.build.publish.plugin.core.messages.findTagsByNameFoundTagsMessage
+import ru.kode.android.build.publish.plugin.core.messages.findTagsByRangeBeforeSearchMessage
+import ru.kode.android.build.publish.plugin.core.messages.findTagsByRegexAfterFilterMessage
+import ru.kode.android.build.publish.plugin.core.messages.findTagsByRegexBeforeFilterMessage
 import ru.kode.android.build.publish.plugin.core.util.getBuildNumber
 import ru.kode.android.build.publish.plugin.core.util.getCommitsByRange
 import org.ajoberstar.grgit.Tag as GrgitTag
@@ -137,23 +144,9 @@ class GitCommandExecutor(
         val tagsList = grgit.tag.list()
 
         return tagsList
-            .also { tags ->
-                logger.info(
-                    """
-                    [FIND TAGS BY REGEX] Tags original list:
-                        ${tags.joinToString { tag -> "${tag.name} (datetime: ${tag.dateTime})" }}
-                    """.trimIndent(),
-                )
-            }
+            .also { tags -> logger.info(findTagsByRegexBeforeFilterMessage(tags)) }
             .filter { tag -> tag.name.matches(buildTagRegex) }
-            .also { tags ->
-                logger.info(
-                    """
-                    [FIND TAGS BY REGEX] Tags after filter by regex ($buildTagRegex): 
-                        ${tags.joinToString { it.name }}
-                    """.trimIndent(),
-                )
-            }
+            .also { tags -> logger.info(findTagsByRegexAfterFilterMessage(buildTagRegex, tags)) }
             .sortedWith(
                 compareByDescending<GrgitTag> { tag ->
                     val index = commitsLog.indexOfFirst { it.id == tag.commit.id }
@@ -162,14 +155,7 @@ class GitCommandExecutor(
                     tag.getBuildNumber(buildTagRegex)
                 },
             )
-            .also { tags ->
-                logger.info(
-                    """
-                    [FIND TAGS BY REGEX] Tags after descending sorting by date and build number: 
-                        ${tags.joinToString { "${it.name} / ${it.commit.id}" }}
-                    """.trimIndent(),
-                )
-            }
+            .also { tags -> logger.info(finTagsByRegexAfterSortingMessage(tags)) }
     }
 
     /**
@@ -196,7 +182,7 @@ class GitCommandExecutor(
         val commitsLog = grgit.log()
         val tagsList = grgit.tag.list()
 
-        logger.info("[FIND TAGS BY RANGE] Start search from tag ${startTag.name}")
+        logger.info(findTagsByRangeBeforeSearchMessage(startTag))
 
         val filteredAndSortedTags =
             tagsList
@@ -215,14 +201,7 @@ class GitCommandExecutor(
         if (startIndex < 0) {
             val availableTagNames = filteredAndSortedTags.joinToString { it.name }
             throw GradleException(
-                """
-                ❌ Could not find the provided build tag '${startTag.name}' in the git history.
-                
-                Details:
-                  - Provided tag commit SHA: ${startTag.commitSha}
-                  - Regex filter used: $buildTagRegex
-                  - Available tags after filtering: [$availableTagNames]
-                """.trimIndent(),
+                couldNotFindProvidedBuildTagMessage(startTag, buildTagRegex, availableTagNames),
             )
         }
 
@@ -232,9 +211,7 @@ class GitCommandExecutor(
                 minOf(startIndex + 2, filteredAndSortedTags.size),
             )
 
-        logger.info(
-            "[FIND TAGS BY RANGE] Found tags: ${lastTwoTags.joinToString { it.name }}",
-        )
+        logger.info(findTagsByNameFoundTagsMessage(lastTwoTags))
 
         return lastTwoTags
     }
@@ -277,32 +254,14 @@ class GitCommandExecutor(
                     previousTagBuildNumber >= lastTagBuildNumber
                 ) {
                     throw GradleException(
-                        """
-                        Cannot return tag, because incorrect tag order detected!
-                        Potential reasons:
-                         - The commit date of the previous tag is after the commit date of the last tag.
-                         - The build number of the previous tag is equal to or greater than the build number of the last tag.
-                         
-                        This can happen if you specified the wrong last build number, 
-                        since it should be increased for each tag. If you want to change the minor version, 
-                        use 4 numbers, for example: `1.2.3.${previousTagBuildNumber + 1}`. 
-                        
-                        Where in `1.2.3.${previousTagBuildNumber + 1}`: 
-                        - 1 - major number; 
-                        - 2 - minor numer; 
-                        - 3 (optional) - patch number; 
-                        - 4 - build number (version code).
-                        
-                        Details.
-                          Last tag = ${lastTag.name}:
-                            - commit ${lastTag.commit.id};
-                            - date ${lastTagCommit.dateTime};
-                            - build number $lastTagBuildNumber.
-                          Previous tag = ${previousTag.name}:
-                            - commit ${previousTag.commit.id};
-                            - date ${previousTagCommit.dateTime};
-                            - build number $previousTagBuildNumber.
-                        """.trimIndent(),
+                        cannotReturnTagMessage(
+                            previousTagBuildNumber,
+                            lastTag,
+                            lastTagCommit,
+                            lastTagBuildNumber,
+                            previousTag,
+                            previousTagCommit,
+                        ),
                     )
                 }
             }

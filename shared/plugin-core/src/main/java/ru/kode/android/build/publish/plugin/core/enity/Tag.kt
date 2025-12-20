@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.core.enity
 
 import org.gradle.api.GradleException
+import ru.kode.android.build.publish.plugin.core.messages.noVariantMessage
 
 private val NUMBER_REGEX = Regex("\\d+")
 
@@ -110,9 +111,7 @@ private fun Tag.toBuildVariant(buildVariant: String): String {
     return if (this.name.contains(buildVariant)) {
         buildVariant
     } else {
-        throw GradleException(
-            "No buildVariant for ${this.name}. Available variants: $buildVariant",
-        )
+        throw GradleException(noVariantMessage(buildVariant))
     }
 }
 

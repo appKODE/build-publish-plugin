@@ -6,12 +6,11 @@ import kotlinx.serialization.Serializable
 internal data class ProjectWorkflowStatuses(
     val id: String,
     val name: String,
-    val statuses: List<JiraStatus>
+    val statuses: List<JiraStatus>,
 ) {
-
     @Serializable
     internal data class JiraStatus(
         val id: String,
-        val name: String
+        val name: String,
     )
 }

@@ -22,7 +22,6 @@ private const val HALF_OF_SECOND_MS = 500L
  * Factory for creating OkHttpClient instances with the necessary configuration for Telegram API communication.
  */
 internal object TelegramClientFactory {
-
     /**
      * Builds an instance of OkHttpClient for Telegram API communication with the necessary
      * configuration.
@@ -31,10 +30,14 @@ internal object TelegramClientFactory {
      * @param json The Json instance used for parsing error responses.
      * @return An instance of OkHttpClient.
      */
-    fun build(logger: Logger, json: Json): OkHttpClient {
-        val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }.apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
+    fun build(
+        logger: Logger,
+        json: Json,
+    ): OkHttpClient {
+        val loggingInterceptor =
+            HttpLoggingInterceptor { message -> logger.info(message) }.apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
         return OkHttpClient.Builder()
             .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
@@ -67,7 +70,7 @@ private class RetryAfterInterceptor(
     private val logger: Logger,
     private val maxRetries: Int = 3,
 ) : Interceptor {
-
+    @Suppress("TooGenericExceptionCaught")
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         var attempt = 0
@@ -81,13 +84,14 @@ private class RetryAfterInterceptor(
             }
 
             val bodyString = response.body.string()
-            val retryAfterSeconds = try {
-                val errorResponse = json.decodeFromString<TelegramErrorResponse>(bodyString)
-                errorResponse.parameters?.retry_after ?: DEFAULT_RETRY_AFTER_SECONDS
-            } catch (e: Exception) {
-                logger.info(failedToParseRetryMessage(bodyString), e)
-                DEFAULT_RETRY_AFTER_SECONDS
-            }
+            val retryAfterSeconds =
+                try {
+                    val errorResponse = json.decodeFromString<TelegramErrorResponse>(bodyString)
+                    errorResponse.parameters?.retry_after ?: DEFAULT_RETRY_AFTER_SECONDS
+                } catch (e: Exception) {
+                    logger.info(failedToParseRetryMessage(bodyString), e)
+                    DEFAULT_RETRY_AFTER_SECONDS
+                }
 
             response.close()
             attempt++
@@ -97,8 +101,7 @@ private class RetryAfterInterceptor(
             } else {
                 logger.info(reachedMaxTriesMessage(maxRetries))
             }
-
-        } while (response.code == TOO_MANY_REQUESTS_ERROR_CODE && attempt <= maxRetries)
+        } while (attempt <= maxRetries)
 
         return response
     }

@@ -23,7 +23,6 @@ import ru.kode.android.build.publish.plugin.core.util.common
  * @see NamedDomainObjectContainer
  */
 open class BuildPublishConfigurableExtension {
-
     protected val logger: Logger = Logging.getLogger(this::class.java)
 
     /**
@@ -103,6 +102,6 @@ open class BuildPublishConfigurableExtension {
     open fun configure(
         project: Project,
         input: ExtensionInput,
-        variant: ApplicationVariant
+        variant: ApplicationVariant,
     ) = Unit
 }

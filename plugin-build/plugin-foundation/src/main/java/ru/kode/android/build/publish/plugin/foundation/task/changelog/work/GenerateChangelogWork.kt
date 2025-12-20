@@ -7,7 +7,7 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.foundation.messages.changelogGeneratedMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.changelogNotgeneratedMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.changelogNotGeneratedMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.noChangedDetectedSinceStartMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.noChangesChangelogMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.noChangesDetectedSinceBuildMessage
@@ -99,7 +99,7 @@ internal abstract class GenerateChangelogWork
 
             if (changelog.isNullOrBlank()) {
                 val noChangesMessage = noChangesChangelogMessage(currentBuildTag)
-                logger.info(changelogNotgeneratedMessage(buildTagPattern, currentBuildTag))
+                logger.info(changelogNotGeneratedMessage(buildTagPattern, currentBuildTag))
                 changelogOutput.writeText(noChangesMessage)
             } else {
                 logger.info(changelogGeneratedMessage(buildTagPattern, currentBuildTag))

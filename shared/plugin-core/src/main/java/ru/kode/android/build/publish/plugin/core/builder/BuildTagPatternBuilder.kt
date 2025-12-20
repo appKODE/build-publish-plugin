@@ -1,6 +1,9 @@
 package ru.kode.android.build.publish.plugin.core.builder
 
 import org.gradle.api.GradleException
+import ru.kode.android.build.publish.plugin.core.messages.invalidRegexMessage
+import ru.kode.android.build.publish.plugin.core.messages.tagPatterMustContainVariantNameMessage
+import ru.kode.android.build.publish.plugin.core.messages.tagPatternMustContainVersionGroupMessage
 import java.util.regex.Pattern
 
 private const val BUILD_VERSION_REGEX_PART = "(\\d+)"
@@ -84,13 +87,13 @@ class BuildTagPatternBuilder {
 
         if (!template.contains(BUILD_VERSION_REGEX_PART)) {
             throw GradleException(
-                "Tag pattern must contain a build version group (e.g. $BUILD_VERSION_REGEX_PART)",
+                tagPatternMustContainVersionGroupMessage(BUILD_VERSION_REGEX_PART),
             )
         }
 
         if (!template.contains(BUILD_VARIANT_NAME_REGEX_PART)) {
             throw GradleException(
-                "Tag pattern must contain a build variant name group $BUILD_VARIANT_NAME_REGEX_PART",
+                tagPatterMustContainVariantNameMessage(BUILD_VARIANT_NAME_REGEX_PART),
             )
         }
 
@@ -98,7 +101,7 @@ class BuildTagPatternBuilder {
         try {
             Pattern.compile(testRegex)
         } catch (e: Exception) {
-            throw GradleException("Invalid regex produced: $testRegex", e)
+            throw GradleException(invalidRegexMessage(testRegex), e)
         }
 
         return template

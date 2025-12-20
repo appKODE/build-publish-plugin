@@ -9,9 +9,9 @@ import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.JiraControllerImpl
+import ru.kode.android.build.publish.plugin.jira.network.api.JiraApi
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraApiFactory
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraClientFactory
-import ru.kode.android.build.publish.plugin.jira.network.api.JiraApi
 import javax.inject.Inject
 
 /**
@@ -68,7 +68,7 @@ abstract class JiraService
                     },
             )
             controllerProperty.set(
-                apiProperty.map { api -> JiraControllerImpl(api, logger) }
+                apiProperty.map { api -> JiraControllerImpl(api, logger) },
             )
         }
 
@@ -86,7 +86,11 @@ abstract class JiraService
          * @throws IOException If the network request fails
          * @throws JiraApiException If the Jira API returns an error
          */
-        fun getStatusTransitionId(projectKey: String, statusName: String, issues: List<String>): String {
+        fun getStatusTransitionId(
+            projectKey: String,
+            statusName: String,
+            issues: List<String>,
+        ): String {
             return controller.getStatusTransitionId(projectKey, statusName, issues)
         }
 

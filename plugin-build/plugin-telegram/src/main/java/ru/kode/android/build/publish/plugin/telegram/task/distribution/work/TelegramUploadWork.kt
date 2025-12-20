@@ -57,7 +57,7 @@ internal abstract class TelegramUploadWork : WorkAction<TelegramUploadParameters
         try {
             service.upload(
                 parameters.distributionFile.asFile.get(),
-                destinationBots = parameters.destinationBots.map { destinationTelegramBotsFromJson(it) }.get()
+                destinationBots = parameters.destinationBots.map { destinationTelegramBotsFromJson(it) }.get(),
             )
         } catch (ex: RequestError.UploadTimeout) {
             logger.error(telegramUploadFailedMessage(), ex)

@@ -10,14 +10,14 @@ import java.util.concurrent.TimeUnit
 private const val HTTP_CONNECT_TIMEOUT_SECONDS = 60L
 
 internal object ClickUpClientFactory {
-
     fun build(
         token: String,
         logger: Logger,
     ): OkHttpClient {
-        val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }.apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
+        val loggingInterceptor =
+            HttpLoggingInterceptor { message -> logger.info(message) }.apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
         return OkHttpClient.Builder()
             .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)

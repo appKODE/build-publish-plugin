@@ -24,7 +24,7 @@ internal data class TelegramBot(
     /**
      * List of chat configurations associated with this bot.
      */
-    val chats: List<Chat>
+    val chats: List<Chat>,
 ) {
     /**
      * Represents basic authentication credentials for the Telegram Bot API server.
@@ -57,6 +57,6 @@ internal data class TelegramBot(
         /**
          * The topic ID for this chat.
          */
-        val topicId: String?
+        val topicId: String?,
     )
 }

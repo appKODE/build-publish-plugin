@@ -7,9 +7,8 @@ internal data class GetTaskResponse(
     val id: String,
     val name: String?,
     val tags: List<ClickUpTag>,
-    val custom_fields: List<ClickUpCustomFieldValue>
+    val custom_fields: List<ClickUpCustomFieldValue>,
 ) {
-
     @Serializable
     internal data class ClickUpTag(
         val name: String,
@@ -20,6 +19,6 @@ internal data class GetTaskResponse(
         val id: String,
         val name: String,
         val type: String,
-        val value: String? = null
+        val value: String? = null,
     )
 }

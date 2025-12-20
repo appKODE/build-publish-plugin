@@ -7,7 +7,6 @@ import ru.kode.android.build.publish.plugin.telegram.network.api.TelegramDistrib
  * Factory for creating instances of [TelegramDistributionApi].
  */
 internal object TelegramDistributionApiFactory {
-
     /**
      * Builds an instance of [TelegramDistributionApi] using the provided [Retrofit.Builder].
      *

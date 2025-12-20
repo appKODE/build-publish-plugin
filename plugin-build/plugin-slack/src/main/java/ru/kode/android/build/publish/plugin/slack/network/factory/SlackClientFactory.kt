@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit
 private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L
 
 internal object SlackClientFactory {
-
     fun build(logger: Logger): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)

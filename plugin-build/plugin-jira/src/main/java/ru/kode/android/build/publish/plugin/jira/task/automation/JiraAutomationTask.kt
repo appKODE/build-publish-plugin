@@ -133,7 +133,7 @@ abstract class JiraAutomationTask
         @get:Input
         @get:Option(
             option = "targetStatusName",
-            description = "Name of the status to mark issues as resolved"
+            description = "Name of the status to mark issues as resolved",
         )
         @get:Optional
         abstract val targetStatusName: Property<String>
@@ -158,11 +158,12 @@ abstract class JiraAutomationTask
             if (issues.isEmpty()) {
                 logger.info(issuesNoFoundMessage())
             } else {
-                val projectId = service.flatMap { service ->
-                    projectKey.map { projectKey ->
-                        service.getProjectId(projectKey.uppercase())
+                val projectId =
+                    service.flatMap { service ->
+                        projectKey.map { projectKey ->
+                            service.getProjectId(projectKey.uppercase())
+                        }
                     }
-                }
 
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 workQueue.submitUpdateLabelIfPresent(currentBuildTag, issues)
@@ -179,18 +180,18 @@ abstract class JiraAutomationTask
          *
          * @param issues The set of issue numbers to update
          */
-        private fun WorkQueue.submitUpdateStatusIfPresent(
-            issues: Set<String>,
-        ) {
+        private fun WorkQueue.submitUpdateStatusIfPresent(issues: Set<String>) {
             if (targetStatusName.isPresent) {
-                val statusTransitionId = service.flatMap { service ->
-                    projectKey
-                        .zip(targetStatusName) { projectKey, targetStatusName ->
-                            projectKey to targetStatusName
-                        }.map { (projectKey, statusName) ->
-                            service.getStatusTransitionId(projectKey, statusName, issues.toList())
-                        }
-                }
+                val statusTransitionId =
+                    service.flatMap { service ->
+                        projectKey
+                            .zip(targetStatusName) { projectKey, targetStatusName ->
+                                projectKey to targetStatusName
+                            }
+                            .map { (projectKey, statusName) ->
+                                service.getStatusTransitionId(projectKey, statusName, issues.toList())
+                            }
+                    }
 
                 submit(SetStatusWork::class.java) { parameters ->
                     parameters.issues.set(issues)
@@ -212,7 +213,7 @@ abstract class JiraAutomationTask
         private fun WorkQueue.submitUpdateVersionIfPresent(
             currentBuildTag: Tag.Build,
             issues: Set<String>,
-            projectId: Provider<Long>
+            projectId: Provider<Long>,
         ) {
             if (fixVersionPattern.isPresent) {
                 val version =

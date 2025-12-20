@@ -11,7 +11,6 @@ import ru.kode.android.build.publish.plugin.core.util.NetworkProxy
  * Factory for creating instances of [ConfluenceController].
  */
 object ConfluenceControllerFactory {
-
     /**
      * Creates an instance of [ConfluenceController].
      *
@@ -27,20 +26,21 @@ object ConfluenceControllerFactory {
         username: String,
         password: String,
         logger: Logger,
-        proxy: () -> NetworkProxy
+        proxy: () -> NetworkProxy,
     ): ConfluenceController {
         return ConfluenceControllerImpl(
             baseUrl = baseUrl,
-            api = ConfluenceApiFactory.build(
-                client = ConfluenceClientFactory.build(
-                    username,
-                    password,
-                    logger,
-                    proxy
+            api =
+                ConfluenceApiFactory.build(
+                    client =
+                        ConfluenceClientFactory.build(
+                            username,
+                            password,
+                            logger,
+                            proxy,
+                        ),
+                    baseUrl = baseUrl,
                 ),
-                baseUrl = baseUrl
-            ),
-            logger = logger
         )
     }
 }

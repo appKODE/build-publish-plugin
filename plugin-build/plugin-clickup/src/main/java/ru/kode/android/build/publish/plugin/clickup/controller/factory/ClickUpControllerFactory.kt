@@ -7,16 +7,16 @@ import ru.kode.android.build.publish.plugin.clickup.network.factory.ClickUpApiFa
 import ru.kode.android.build.publish.plugin.clickup.network.factory.ClickUpClientFactory
 
 object ClickUpControllerFactory {
-
     fun build(
         token: String,
         logger: Logger,
     ): ClickUpController {
         return ClickUpControllerImpl(
-            api = ClickUpApiFactory.build(
-                client = ClickUpClientFactory.build(token, logger),
-            ),
-            logger = logger
+            api =
+                ClickUpApiFactory.build(
+                    client = ClickUpClientFactory.build(token, logger),
+                ),
+            logger = logger,
         )
     }
 }

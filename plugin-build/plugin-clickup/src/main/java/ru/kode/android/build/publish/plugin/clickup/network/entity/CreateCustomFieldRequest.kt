@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class CreateCustomFieldRequest(
     val name: String,
-    val type: String, // "text", "number", "dropdown", etc.
+    // "text", "number", "dropdown", etc.
+    val type: String,
 )

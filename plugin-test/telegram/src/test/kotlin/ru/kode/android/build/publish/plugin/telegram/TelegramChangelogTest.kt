@@ -153,6 +153,107 @@ class TelegramChangelogTest {
 
     @Test
     @Throws(IOException::class)
+    fun `telegram empty changelog sending available with changelog config without proxy and custom server`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("release")
+            ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog = FoundationConfig.Changelog(
+                        issueNumberPattern = "CEB-\\\\d+",
+                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
+                    )
+                ),
+            telegramConfig = TelegramConfig(
+                bots = TelegramConfig.Bots(
+                    listOf(
+                        TelegramConfig.Bot(
+                            botName = "ChangelogBot",
+                            botId = System.getProperty("TELEGRAM_BOT_ID"),
+                            botServerBaseUrl = null,
+                            botServerUsername = null,
+                            botServerPassword = null,
+                            chats = listOf(
+                                Chat(
+                                    chatName = "ChangelogTest",
+                                    chatId = System.getProperty("TELEGRAM_CHAT_ID"),
+                                    topicId = null,
+                                )
+                            ),
+                        )
+                    )
+                ),
+                changelog = TelegramConfig.Changelog(
+                    userMentions = listOf(
+                        "@melora_silvian_ar",
+                        "@renalt_meridun_rt",
+                        "@theronvale_miro_xt",
+                        "@corvann_elidra_qm",
+                        "@Marvilo7"
+                    ),
+                    destinationBots = listOf(
+                        TelegramConfig.DestinationBot(
+                            botName = "ChangelogBot",
+                            chatNames = listOf("ChangelogTest")
+                        )
+                    )
+                ),
+                distribution = null
+
+            ),
+            topBuildFileContent = """
+                plugins {
+                    id 'ru.kode.android.build-publish-novo.foundation' apply false
+                }
+            """.trimIndent()
+        )
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
+        val givenCommitMessage = "Initial commit"
+        val givenCommitMessage2 = "Update something"
+        val givenAssembleTask = "assembleDebug"
+        val givenTelegramChangelogTask = "sendTelegramChangelogDebug"
+        val git = projectDir.initGit()
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage2)
+        git.tag.addNamed(givenTagName2)
+
+        val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
+        val changelogResult: BuildResult = projectDir.runTask(givenTelegramChangelogTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        assertTrue(
+            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("BUILD SUCCESSFUL"),
+            "Build successful",
+        )
+        assertTrue(
+            changelogResult.output.contains("BUILD SUCCESSFUL"),
+            "Telegram changelog successful"
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+    }
+
+    @Test
+    @Throws(IOException::class)
     fun `telegram changelog sending into channel available with changelog config without proxy and custom server`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(

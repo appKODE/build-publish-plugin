@@ -1,6 +1,5 @@
 package ru.kode.android.build.publish.plugin.jira.controller.entity
 
-
 /**
  * Represents the status of a Jira issue, including both the name and ID.
  *

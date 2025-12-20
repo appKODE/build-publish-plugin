@@ -34,8 +34,7 @@ import javax.inject.Inject
 abstract class BuildPublishJiraExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
-
-         /**
+        /**
          * Container for Jira authentication configurations.
          *
          * Each configuration defines how to authenticate with a Jira instance.
@@ -103,7 +102,7 @@ abstract class BuildPublishJiraExtension
          */
         fun auth(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<JiraAuthConfig>>
+            configurationAction: Action<BuildPublishDomainObjectContainer<JiraAuthConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(auth)
             configurationAction.execute(container)
@@ -117,7 +116,7 @@ abstract class BuildPublishJiraExtension
          */
         fun automation(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<JiraAutomationConfig>>
+            configurationAction: Action<BuildPublishDomainObjectContainer<JiraAutomationConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(automation)
             configurationAction.execute(container)
@@ -155,15 +154,15 @@ abstract class BuildPublishJiraExtension
             input: ExtensionInput,
             variant: ApplicationVariant,
         ) {
-
             val variantName = input.buildVariant.name
 
             if (auth.isEmpty()) {
                 throw GradleException(needToProvideAuthConfigMessage(variantName))
             }
 
-            val automationConfig = automationConfigOrNull(variantName)
-                ?: throw GradleException(needToProvideAutomationConfigMessage(variantName))
+            val automationConfig =
+                automationConfigOrNull(variantName)
+                    ?: throw GradleException(needToProvideAutomationConfigMessage(variantName))
 
             JiraTasksRegistrar.registerAutomationTask(
                 project = project,

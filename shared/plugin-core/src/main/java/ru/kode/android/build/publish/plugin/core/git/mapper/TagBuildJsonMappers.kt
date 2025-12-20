@@ -4,6 +4,7 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.gradle.api.GradleException
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.messages.fileCannotBeParsedMessage
 import java.io.File
 
 fun Tag.Build.toJson(): String {
@@ -33,6 +34,6 @@ fun fromJson(file: File): Tag.Build {
                     ?: throw GradleException("buildNumber not found"),
         )
     } else {
-        throw GradleException("file $file can't be parsed: it has wrong data or different object")
+        throw GradleException(fileCannotBeParsedMessage(file))
     }
 }

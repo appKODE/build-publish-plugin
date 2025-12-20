@@ -21,7 +21,6 @@ import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
  * The task uses Gradle's Worker API to perform the lookup asynchronously.
  */
 abstract class TelegramLookupTask : DefaultTask() {
-
     init {
         description = "Lookup last message in Telegram chat"
         group = BasePlugin.BUILD_GROUP
@@ -49,7 +48,6 @@ abstract class TelegramLookupTask : DefaultTask() {
     )
     abstract val botName: Property<String>
 
-
     /**
      * Name of the Telegram chat to lookup messages in.
      *
@@ -74,7 +72,7 @@ abstract class TelegramLookupTask : DefaultTask() {
     @get:Input
     @get:Option(
         option = "topicName",
-        description = "Name of the Telegram topic to lookup messages in"
+        description = "Name of the Telegram topic to lookup messages in",
     )
     @get:Optional
     abstract val topicName: Property<String>

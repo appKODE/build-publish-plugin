@@ -12,7 +12,6 @@ data class DestinationTelegramBot(
      * The name of the bot.
      */
     val botName: String,
-
     /**
      * The names of the chats.
      */

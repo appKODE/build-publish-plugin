@@ -11,5 +11,5 @@ data class TelegramLastMessage(
     val chatName: String,
     val chatId: String,
     val topicName: String?,
-    val topicId: String?
+    val topicId: String?,
 )

@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class ClearCustomFieldRequest(
-    val value: String
+    val value: String,
 )

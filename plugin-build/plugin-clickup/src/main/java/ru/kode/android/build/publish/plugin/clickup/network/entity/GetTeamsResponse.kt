@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class GetTeamsResponse(
-    val teams: List<Team>
+    val teams: List<Team>,
 ) {
     @Serializable
     internal data class Team(

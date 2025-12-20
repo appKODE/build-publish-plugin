@@ -40,5 +40,4 @@ abstract class TelegramLookupConfig {
     @get:Input
     @get:Optional
     abstract val topicName: Property<String>
-
 }

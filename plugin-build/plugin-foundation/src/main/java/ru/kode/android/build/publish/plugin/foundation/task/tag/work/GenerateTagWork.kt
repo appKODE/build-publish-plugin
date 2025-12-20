@@ -84,7 +84,7 @@ internal abstract class GenerateTagWork
 
             when {
                 buildTag != null && isTagValid -> {
-                    logger.info(validBuildTagFoundMessage(buildTag, buildVariant), )
+                    logger.info(validBuildTagFoundMessage(buildTag, buildVariant))
                     tagBuildOutput.writeText(buildTag.toJson())
                 }
 

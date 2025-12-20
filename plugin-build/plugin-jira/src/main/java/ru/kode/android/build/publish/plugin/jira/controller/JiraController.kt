@@ -7,8 +7,6 @@ import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueStat
  * Controller for interacting with the Jira API.
  */
 interface JiraController {
-
-
     /**
      * Retrieves the ID of the status with the given name in the specified project,
      * using the first issue in the list that has a transition to this status.
@@ -21,7 +19,11 @@ interface JiraController {
      * @throws IOException If the network request fails
      * @throws JiraApiException If the Jira API returns an error
      */
-    fun getStatusTransitionId(projectKey: String, statusName: String, issues: List<String>): String
+    fun getStatusTransitionId(
+        projectKey: String,
+        statusName: String,
+        issues: List<String>,
+    ): String
 
     /**
      * Transitions a Jira issue to a new status.
@@ -32,7 +34,10 @@ interface JiraController {
      * @throws IOException If the network request fails
      * @throws JiraApiException If the Jira API returns an error
      */
-    fun setIssueStatus(issue: String, statusTransitionId: String)
+    fun setIssueStatus(
+        issue: String,
+        statusTransitionId: String,
+    )
 
     /**
      * Retrieves the current status of a Jira issue, including both the name and ID.
@@ -93,7 +98,10 @@ interface JiraController {
      * @throws IOException If the network request fails
      * @throws JiraApiException If the Jira API returns an error
      */
-    fun addIssueLabel(issue: String, label: String)
+    fun addIssueLabel(
+        issue: String,
+        label: String,
+    )
 
     /**
      * Removes a label from a Jira issue.
@@ -104,7 +112,10 @@ interface JiraController {
      * @throws IOException If the network request fails
      * @throws JiraApiException If the Jira API returns an error
      */
-    fun removeIssueLabel(issue: String, label: String)
+    fun removeIssueLabel(
+        issue: String,
+        label: String,
+    )
 
     /**
      * Retrieves labels of a Jira issue.
@@ -126,7 +137,10 @@ interface JiraController {
      * @throws IOException If the network request fails
      * @throws JiraApiException If the Jira API returns an error or version already exists
      */
-    fun createProjectVersion(projectId: Long, version: String)
+    fun createProjectVersion(
+        projectId: Long,
+        version: String,
+    )
 
     /**
      * Removes a version from a Jira project.
@@ -158,7 +172,10 @@ interface JiraController {
      * @throws IOException If the network request fails
      * @throws JiraApiException If the Jira API returns an error
      */
-    fun addIssueFixVersion(issue: String, version: String)
+    fun addIssueFixVersion(
+        issue: String,
+        version: String,
+    )
 
     /**
      * Removes a fix version from a Jira issue.
@@ -166,7 +183,10 @@ interface JiraController {
      * @param issue The issue key (e.g., "PROJ-123")
      * @param version The version to remove
      */
-    fun removeIssueFixVersion(issue: String, version: String)
+    fun removeIssueFixVersion(
+        issue: String,
+        version: String,
+    )
 
     /**
      * Gets fix versions assigned to an issue.
@@ -174,5 +194,4 @@ interface JiraController {
      * @param issue The issue key (e.g., "PROJ-123")
      */
     fun getIssueFixVersions(issue: String): List<JiraFixVersion>
-
 }

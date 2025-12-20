@@ -8,8 +8,8 @@ import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAuthConfig
 import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAutomationConfig
-import ru.kode.android.build.publish.plugin.clickup.messages.needToProvideAuthConfigMessage
-import ru.kode.android.build.publish.plugin.clickup.messages.needToProvideAutomationConfigMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.provideAuthConfigMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.provideAutomationConfigMessage
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpAutomationTaskParams
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpTasksRegistrar
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
@@ -165,11 +165,12 @@ abstract class BuildPublishClickUpExtension
             val variantName = input.buildVariant.name
 
             if (auth.isEmpty()) {
-                throw GradleException(needToProvideAuthConfigMessage(variantName))
+                throw GradleException(provideAuthConfigMessage(variantName))
             }
 
-            val automationConfig = automationConfigOrNull(input.buildVariant.name)
-                ?: throw GradleException(needToProvideAutomationConfigMessage(variantName))
+            val automationConfig =
+                automationConfigOrNull(input.buildVariant.name)
+                    ?: throw GradleException(provideAutomationConfigMessage(variantName))
 
             ClickUpTasksRegistrar.registerAutomationTask(
                 project = project,

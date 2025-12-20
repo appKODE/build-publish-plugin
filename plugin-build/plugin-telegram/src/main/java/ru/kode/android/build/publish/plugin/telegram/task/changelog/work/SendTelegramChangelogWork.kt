@@ -95,9 +95,10 @@ internal abstract class SendTelegramChangelogWork
                 userMentions = parameters.userMentions.orNull?.toList().orEmpty(),
                 issueUrlPrefix = parameters.issueUrlPrefix.get(),
                 issueNumberPattern = parameters.issueNumberPattern.get(),
-                destinationBots = parameters.destinationBots
-                    .map { destinationTelegramBotsFromJson(it) }
-                    .get()
+                destinationBots =
+                    parameters.destinationBots
+                        .map { destinationTelegramBotsFromJson(it) }
+                        .get(),
             )
             logger.info(changelogSentMessage())
         }

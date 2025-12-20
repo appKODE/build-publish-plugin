@@ -75,4 +75,3 @@ internal abstract class SlackUploadWork : WorkAction<SlackUploadParameters> {
         }
     }
 }
-

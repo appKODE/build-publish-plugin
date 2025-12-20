@@ -1,7 +1,7 @@
 package ru.kode.android.build.publish.plugin.slack.controller
 
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.gradle.api.logging.Logger
@@ -33,9 +33,8 @@ internal class SlackControllerImpl(
     private val json: Json,
     private val slackApi: SlackApi,
     private val uploadApi: SlackUploadApi,
-    private val logger: Logger
+    private val logger: Logger,
 ) : SlackController {
-
     /**
      * Uploads a file to Slack and shares it in the specified channels.
      *
@@ -86,9 +85,10 @@ internal class SlackControllerImpl(
                 .executeWithResult()
                 .getOrThrow()
 
-            val files = json.encodeToString(
-                listOf(UploadingFileRequest(fileId, zippedFile.name))
-            )
+            val files =
+                json.encodeToString(
+                    listOf(UploadingFileRequest(fileId, zippedFile.name)),
+                )
             uploadApi
                 .completeUploading(
                     authorisation = getAuthorisationHeader(uploadToken),
@@ -201,7 +201,6 @@ internal class SlackControllerImpl(
         )
     }
 
-
     /**
      * Formats issue references in the changelog text.
      *
@@ -212,10 +211,13 @@ internal class SlackControllerImpl(
      *
      * @return The formatted changelog with issue links
      */
-    private fun String.formatIssues(issueUrlPrefix: String, issueNumberPattern: String): String {
+    private fun String.formatIssues(
+        issueUrlPrefix: String,
+        issueNumberPattern: String,
+    ): String {
         return this.replace(
             Regex(issueNumberPattern),
-            "<$issueUrlPrefix\$0|\$0>"
+            "<$issueUrlPrefix\$0|\$0>",
         )
     }
 }

@@ -20,7 +20,10 @@ interface ConfluenceController {
      * @throws IllegalStateException if the file doesn't exist or is not readable
      * @throws Exception if the API request fails or returns an error
      */
-    fun uploadFile(pageId: String, file: File)
+    fun uploadFile(
+        pageId: String,
+        file: File,
+    )
 
     /**
      * Adds a comment with a file download link to a Confluence page.
@@ -34,7 +37,10 @@ interface ConfluenceController {
      * @throws IllegalArgumentException if the pageId is empty or invalid
      * @throws Exception if the API request fails or returns an error
      */
-    fun addComment(pageId: String, fileName: String)
+    fun addComment(
+        pageId: String,
+        fileName: String,
+    )
 
     /**
      * Retrieves a list of attachments for a given Confluence page.

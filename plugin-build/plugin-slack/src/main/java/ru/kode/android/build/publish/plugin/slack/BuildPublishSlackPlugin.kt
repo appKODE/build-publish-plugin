@@ -9,17 +9,17 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.StopExecutionException
 import ru.kode.android.build.publish.plugin.core.util.serviceName
-import ru.kode.android.build.publish.plugin.slack.extension.BuildPublishSlackExtension
-import ru.kode.android.build.publish.plugin.slack.service.SlackServiceExtension
-import ru.kode.android.build.publish.plugin.slack.service.SlackService
 import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
+import ru.kode.android.build.publish.plugin.slack.extension.BuildPublishSlackExtension
 import ru.kode.android.build.publish.plugin.slack.messages.extensionNotCreatedMessage
 import ru.kode.android.build.publish.plugin.slack.messages.mustApplyFoundationPluginMessage
 import ru.kode.android.build.publish.plugin.slack.messages.noBotsConfiguredMessage
 import ru.kode.android.build.publish.plugin.slack.messages.registeringServicesMessage
 import ru.kode.android.build.publish.plugin.slack.messages.servicesCreatedMessages
+import ru.kode.android.build.publish.plugin.slack.service.SlackService
+import ru.kode.android.build.publish.plugin.slack.service.SlackServiceExtension
 
-private const val EXTENSION_NAME = "buildPublishSlack"
+internal const val EXTENSION_NAME = "buildPublishSlack"
 private const val SERVICE_NAME = "slackService"
 private const val SERVICE_EXTENSION_NAME = "slackServiceExtension"
 
@@ -36,35 +36,33 @@ private const val SERVICE_EXTENSION_NAME = "slackServiceExtension"
  * and provides extensions for build scripts to configure Slack integration.
  */
 abstract class BuildPublishSlackPlugin : Plugin<Project> {
-
     private val logger = Logging.getLogger(this::class.java)
 
     override fun apply(project: Project) {
         val extension =
             project.extensions.create(
                 EXTENSION_NAME,
-                BuildPublishSlackExtension::class.java
+                BuildPublishSlackExtension::class.java,
             )
 
         val servicesProperty =
             project.objects.mapProperty(
                 String::class.java,
-                Provider::class.java
+                Provider::class.java,
             )
         servicesProperty.set(emptyMap())
 
         project.extensions.create(
             SERVICE_EXTENSION_NAME,
             SlackServiceExtension::class.java,
-            servicesProperty
+            servicesProperty,
         )
 
         logger.info(extensionNotCreatedMessage())
 
-
         if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
             throw StopExecutionException(
-                mustApplyFoundationPluginMessage()
+                mustApplyFoundationPluginMessage(),
             )
         }
 
@@ -78,18 +76,20 @@ abstract class BuildPublishSlackPlugin : Plugin<Project> {
 
             logger.info(registeringServicesMessage())
 
-            val serviceMap = extension.bot.associate { authConfig ->
-                val name = authConfig.name
-                val registered = project.gradle.sharedServices.registerIfAbsent(
-                    project.serviceName(SERVICE_NAME, name),
-                    SlackService::class.java
-                ) {
-                    it.maxParallelUsages.set(1)
-                    it.parameters.webhookUrl.set(authConfig.webhookUrl)
-                    it.parameters.uploadApiTokenFile.set(authConfig.uploadApiTokenFile)
+            val serviceMap =
+                extension.bot.associate { authConfig ->
+                    val name = authConfig.name
+                    val registered =
+                        project.gradle.sharedServices.registerIfAbsent(
+                            project.serviceName(SERVICE_NAME, name),
+                            SlackService::class.java,
+                        ) {
+                            it.maxParallelUsages.set(1)
+                            it.parameters.webhookUrl.set(authConfig.webhookUrl)
+                            it.parameters.uploadApiTokenFile.set(authConfig.uploadApiTokenFile)
+                        }
+                    name to registered
                 }
-                name to registered
-            }
 
             logger.info(servicesCreatedMessages(serviceMap.keys))
 

@@ -11,22 +11,21 @@ import retrofit2.http.Query
 import ru.kode.android.build.publish.plugin.jira.network.entity.AddFixVersionRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.AddLabelRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.CreateVersionRequest
-import ru.kode.android.build.publish.plugin.jira.network.entity.JiraFixVersion
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetFixVersionsResponse
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetLabelsResponse
+import ru.kode.android.build.publish.plugin.jira.network.entity.GetProjectResponse
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetStatusResponse
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetTransitionsResponse
-import ru.kode.android.build.publish.plugin.jira.network.entity.GetProjectResponse
+import ru.kode.android.build.publish.plugin.jira.network.entity.JiraFixVersion
 import ru.kode.android.build.publish.plugin.jira.network.entity.ProjectWorkflowStatuses
 import ru.kode.android.build.publish.plugin.jira.network.entity.RemoveFixVersionRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.RemoveLabelRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.SetStatusRequest
 
 internal interface JiraApi {
-
     @GET("project/{projectIdOrKey}")
     fun getProject(
-        @Path("projectIdOrKey") projectIdOrKey: String
+        @Path("projectIdOrKey") projectIdOrKey: String,
     ): Call<GetProjectResponse>
 
     @POST("version")
@@ -43,7 +42,7 @@ internal interface JiraApi {
 
     @GET("project/{projectKey}/versions")
     fun getProjectVersions(
-        @Path("projectKey") projectKey: String
+        @Path("projectKey") projectKey: String,
     ): Call<List<JiraFixVersion>>
 
     @PUT("issue/{issueNumber}")
@@ -73,12 +72,12 @@ internal interface JiraApi {
     @GET("issue/{issueNumber}/transitions")
     fun getAvailableTransitions(
         @Path("issueNumber") issueNumber: String,
-        @Query("expand") expand: String = "transitions.fields"
+        @Query("expand") expand: String = "transitions.fields",
     ): Call<GetTransitionsResponse>
 
     @GET("project/{projectKey}/statuses")
     fun getProjectStatuses(
-        @Path("projectKey") projectKey: String
+        @Path("projectKey") projectKey: String,
     ): Call<List<ProjectWorkflowStatuses>>
 
     @PUT("issue/{issueNumber}")

@@ -44,7 +44,6 @@ abstract class SendTelegramChangelogTask
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
-
         private val logger: Logger = Logging.getLogger(this::class.java)
 
         init {

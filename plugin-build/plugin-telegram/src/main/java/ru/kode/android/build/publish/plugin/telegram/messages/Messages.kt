@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.telegram.messages
 
 import ru.kode.android.build.publish.plugin.core.util.capitalized
+import ru.kode.android.build.publish.plugin.telegram.EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.telegram.SERVICE_EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.DestinationTelegramBot
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramLastMessage
@@ -15,19 +16,19 @@ fun configErrorMessage(chatName: String): String {
         |============================================================
         | Failed to get last message from Telegram chat
         |
-        | Chat name:
-        |   $chatName
+        | Chat name: $chatName
         |
         | REQUIRED ACTIONS:
-        |  1. Send ANY message from YOUR account to the chat/channel/topic.
+        |  1. Send ANY message from YOUR account to the 
+        |     chat/channel/topic.
         |  2. Restart the task
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun lookupSuccessMessage(
     botName: String,
-    message: TelegramLastMessage
+    message: TelegramLastMessage,
 ): String {
     return """
 
@@ -42,21 +43,20 @@ fun lookupSuccessMessage(
         | Message:
         | ${message.text ?: "—"}
         |------------------------------------------------------------
-        | To apply these values in the build script, you need to add the following lines:
+        | To apply these values in the build script, 
+        | you need to add the following lines:
+        |
+        | $EXTENSION_NAME {
         |    bots {
-        |            common {
-        |                bot("$botName") {
-        |                    botId.set("<YOUR_BOT_TOKEN>")
-        |                    
-        |                    chat("${message.chatName}") {
-        |                        chatId = "${message.chatId}"
-        |                        ${message.topicId?.let { "topicId = \"$it\"" }.orEmpty()}
-        |                    }
-        |                }
-        |            }
+        |       common {
+        |           bot("$botName") {
+        |               // Your bot settings here
+        |           }
+        |       }
         |    }
+        | }
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun mustApplyFoundationPluginMessage(): String {
@@ -65,7 +65,8 @@ fun mustApplyFoundationPluginMessage(): String {
         |============================================================
         |              🚨 PLUGIN CONFIGURATION ERROR 🚨
         |============================================================
-        | The Telegram plugin requires the BuildPublishFoundationPlugin to be applied first.
+        | The Telegram plugin requires the BuildPublishFoundationPlugin 
+        | to be applied first.
         |
         | REQUIRED ACTION:
         |   Add the following to your module's build.gradle.kts file:
@@ -74,9 +75,10 @@ fun mustApplyFoundationPluginMessage(): String {
         |       id("ru.kode.android.build-publish-novo.foundation") version "<version>"
         |   }
         |
-        | Make sure to replace <version> with the correct version number.
+        | Make sure to replace <version> with the correct version 
+        | number.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun configErrorExceptionMessage(chatName: String): String {
@@ -89,7 +91,7 @@ fun configErrorExceptionMessage(chatName: String): String {
         | Failed to get last message from Telegram chat: $chatName
         |
         | See instructions above in the build log.
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun telegramUploadFailedMessage(): String {
@@ -98,41 +100,44 @@ fun telegramUploadFailedMessage(): String {
         |============================================================
         |               ⚠️ TELEGRAM UPLOAD TIMEOUT ⚠️
         |============================================================
-        | The file upload to Telegram timed out, but it might have been
-        | successful. This can happen due to network latency or server delays.
+        | The file upload to Telegram timed out, but it might have 
+        | been successful. 
+        | This can happen due to network latency or server delays.
         |
         | RECOMMENDED ACTIONS:
-        | 1. Check your Telegram chat to verify if the file was uploaded
-        | 2. If the file is present, you can safely ignore this warning
-        | 3. If the file is missing, try uploading again
+        |  1. Check your Telegram chat to verify if the file was 
+        |     uploaded
+        |  2. If the file is present, you can safely ignore this
+        |     warning
+        |  3. If the file is missing, try uploading again
         |
         | If the issue persists, check your network connection or
         | Telegram API status.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun failedToReadChangelogFile(file: File?): String {
     return if (file != null) {
         """
-            
-            |============================================================
-            |                 📄CHANGELOG FILE ERROR 📄
-            |============================================================
-            | The changelog file at:
-            |   ${file.absolutePath}
-            | exists but is empty or could not be read.
-            |
-            | POSSIBLE CAUSES:
-            | 1. The file is empty (0 bytes)
-            | 2. Insufficient permissions to read the file
-            | 3. The file is locked by another process
-            |
-            | RECOMMENDED ACTIONS:
-            | 1. Check if the file exists and has content
-            | 2. Verify file permissions
-            | 3. Ensure no other process is locking the file
-            """.trimIndent()
+        
+        |============================================================
+        |                 📄CHANGELOG FILE ERROR 📄
+        |============================================================
+        | The changelog file at:
+        |   ${file.absolutePath}
+        | exists but is empty or could not be read.
+        |
+        | POSSIBLE CAUSES:
+        |  1. The file is empty (0 bytes)
+        |  2. Insufficient permissions to read the file
+        |  3. The file is locked by another process
+        |
+        | RECOMMENDED ACTIONS:
+        |  1. Check if the file exists and has content
+        |  2. Verify file permissions
+        |  3. Ensure no other process is locking the file
+        """.trimIndent()
     } else {
         """
             
@@ -142,12 +147,13 @@ fun failedToReadChangelogFile(file: File?): String {
             | The changelog file does not exist at the specified path.
             |
             | POSSIBLE CAUSES:
-            | 1. The changelog file was not generated
-            | 3. The changelog generation task was not executed
+            |  1. The changelog file was not generated
+            |  3. The changelog generation task was not executed
             |
             | RECOMMENDED ACTIONS:
-            | 1. Check if the changelog file exists in the expected location
-            | 2. Run the changelog generation task before this step
+            |  1. Check if the changelog file exists in the expected 
+            |    location
+            |  2. Run the changelog generation task before this step
             """
     }.trimIndent()
 }
@@ -162,15 +168,15 @@ fun changelogSentMessage(): String {
         | Telegram chat(s).
         |
         | NEXT STEPS:
-        | 1. Check your Telegram chat to verify the changelog
-        | 2. Consider pinning the message for better visibility
+        |  1. Check your Telegram chat to verify the changelog
+        |  2. Consider pinning the message for better visibility
         |
         | If you don't see the message, please check:
         | - The bot has permission to post in the chat
         | - The chat ID and topic ID (if used) are correct
         | - The message isn't marked as spam by Telegram
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun noMatchingConfigurationMessage(botName: String): String {
@@ -184,26 +190,19 @@ fun noMatchingConfigurationMessage(botName: String): String {
         | REQUIRED ACTION:
         | Add the bot configuration to your build script:
         |
-        | telegram {
+        | $EXTENSION_NAME {
         |     bots {
         |         common {
         |             bot("$botName") {
-        |                 botId.set("<YOUR_BOT_TOKEN>")
-        |                 
-        |                 chat("<YOUR_CHAT_NAME>") {
-        |                     chatId = "" // It can be empty, and filled after 
-        |                 }
+        |                 // Your bot settings here
         |             }
         |         }
         |     }
         | }
         |
-        | REPLACE:
-        | - YOUR_BOT_TOKEN: Your Telegram bot token from @BotFather
-        |
         | After updating, sync your project and try again.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun noMatchingConfigurationMessage(destinationBot: DestinationTelegramBot): String {
@@ -217,29 +216,25 @@ fun noMatchingConfigurationMessage(destinationBot: DestinationTelegramBot): Stri
         | - Chat Names: ${destinationBot.chatNames}
         |
         | POSSIBLE ISSUES:
-        | 1. The bot '${destinationBot.botName}' is not configured
-        | 2. The chat names don't match any configured chat
-        | 3. The configuration is in the wrong scope (common/variant-specific)
+        |  1. The bot '${destinationBot.botName}' is not configured
+        |  2. The chat names don't match any configured chat
+        |  3. The configuration is in the wrong scope (common/variant-specific)
         |
         | REQUIRED ACTIONS:
-        | 1. Verify the bot name matches exactly (case-sensitive):
+        |  1. Verify the bot name matches exactly (case-sensitive):
         |    - Check for typos in '${destinationBot.botName}'
         |
-        | 2. Check your chat names match exactly:
+        |  2. Check your chat names match exactly:
         |    - Configured: ${destinationBot.chatNames}
         |    - Should match the 'chat' block names in your bot config
         |
-        | 3. Example configuration:
+        |  3. Example configuration:
         |
-        |    telegram {
+        |    $EXTENSION_NAME {
         |        bots {
-        |            common {  // or specific variant
+        |            common {  // Or specific variant
         |                bot("${destinationBot.botName}") {
-        |                    botId.set("<YOUR_BOT_TOKEN>")
-        |                    
-        |                    chat("${destinationBot.chatNames.firstOrNull() ?: "<YOUR_CHAT_NAME>"}") {
-        |                        chatId = "<YOUR_CHAT_ID>"
-        |                    }
+        |                    // Your bot settings here
         |                }
         |            }
         |        }
@@ -247,7 +242,7 @@ fun noMatchingConfigurationMessage(destinationBot: DestinationTelegramBot): Stri
         |
         | 4. After fixing, sync your project and rebuild.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun failedToParseRetryMessage(bodyString: String): String {
@@ -262,21 +257,25 @@ fun failedToParseRetryMessage(bodyString: String): String {
         | ${bodyString.take(500)}${if (bodyString.length > 500) "... (truncated)" else ""}
         |
         | POSSIBLE CAUSES:
-        | 1. Unexpected response format from Telegram API
-        | 2. Rate limiting response format changed
-        | 3. Network proxy or firewall modifying the response
+        |  1. Unexpected response format from Telegram API
+        |  2. Rate limiting response format changed
+        |  3. Network proxy or firewall modifying the response
         |
         | RECOMMENDED ACTIONS:
-        | 1. Check if the Telegram API has been updated
-        | 2. Verify your network isn't modifying API responses
-        | 3. Report this issue if it persists with full response
+        |  1. Check if the Telegram API has been updated
+        |  2. Verify your network isn't modifying API responses
+        |  3. Report this issue if it persists with full response
         |
         | The system will continue with default retry behavior.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
-fun tooManyRequestsMessage(retryAfterSeconds: Long, attempt: Int, maxRetries: Int): String {
+fun tooManyRequestsMessage(
+    retryAfterSeconds: Long,
+    attempt: Int,
+    maxRetries: Int,
+): String {
     return """
         
         |============================================================
@@ -292,7 +291,7 @@ fun tooManyRequestsMessage(retryAfterSeconds: Long, attempt: Int, maxRetries: In
         | The system will automatically retry until the maximum
         | number of attempts ($maxRetries) is reached.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun reachedMaxTriesMessage(maxRetries: Int): String {
@@ -309,17 +308,17 @@ fun reachedMaxTriesMessage(maxRetries: Int): String {
         | - Last error: 429 Too Many Requests
         |
         | POSSIBLE CAUSES:
-        | 1. Telegram's rate limits are being hit too frequently
-        | 2. The server is under heavy load
-        | 3. Multiple processes might be making requests simultaneously
+        |  1. Telegram's rate limits are being hit too frequently
+        |  2. The server is under heavy load
+        |  3. Multiple processes might be making requests simultaneously
         |
         | RECOMMENDED ACTIONS:
-        | 1. Wait before trying again (at least 1 minute recommended)
-        | 2. Check for other processes that might be making requests
+        |  1. Wait before trying again (at least 1 minute recommended)
+        |  2. Check for other processes that might be making requests
         |
         | The operation will now fail with a 429 status code.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun needToProvideChangelogOrDistributionConfigMessage(buildVariant: String): String {
@@ -335,27 +334,19 @@ fun needToProvideChangelogOrDistributionConfigMessage(buildVariant: String): Str
         | You need to configure at least one of these in your build script:
         |
         | 1. Changelog Configuration (recommended for release notes):
-        |    buildPublishTelegram {
+        |    $EXTENSION_NAME {
         |        changelog {
         |            common { // Or buildVariant("$buildVariant")
-        |                userMentions("<@USER_NAME_1>", <@USER_NAME_2>, <@USER_NAME_3>)
-        |    
-        |                destinationBot {
-        |                    botName = "<YOUR_BOT_NAME>"
-        |                    chatNames("<YOUR_CHAT_NAME>")
-        |                }
+        |                // Your changelog settings here
         |            }
         |        }
         |    }
         |
         | 2. Distribution Configuration (for file uploads):
-        |    buildPublishTelegram {
+        |    $EXTENSION_NAME {
         |        distribution {
         |            common { // Or buildVariant("$buildVariant")
-        |                destinationBot {
-        |                    botName = "<YOUR_BOT_NAME>"
-        |                    chatNames("<YOUR_CHAT_NAME>")
-        |                }
+        |                // Your distribution settings here
         |            }
         |        }
         |    }
@@ -367,7 +358,7 @@ fun needToProvideChangelogOrDistributionConfigMessage(buildVariant: String): Str
         | After running the lookup task, use the provided configuration
         | snippet to update your build script.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun needToProvideBotsConfigMessage(buildVariant: String): String {
@@ -382,26 +373,19 @@ fun needToProvideBotsConfigMessage(buildVariant: String): String {
         | REQUIRED CONFIGURATION:
         | Add the following to your build script:
         |
-        |    buildPublishTelegram {
+        |    $EXTENSION_NAME {
         |        bots {
         |            common { // Or buildVariant("$buildVariant")
-        |                bot("<YOUR_BOT_NAME>>") {
-        |                    botId.set("<BOT_TOKEN>")
-        |                    
-        |                    chat("<YOUR_CHAT_NAME>") {
-        |                        chatId = "<YOUR_CHAT_ID"
-        |                        topicId = "<YOUR_TOPIC_ID" // Optional
-        |                    }
-        |                }
+        |                // Your bot settings here
         |            }
         |        }
         |    }
         |
         | GETTING STARTED:
-        | 1. Create a bot using @BotFather on Telegram
-        | 2. Add the bot to your chat/channel
-        | 3. Get the chat ID (and topic ID if using topics)
-        | 4. Fill in the configuration above
+        |  1. Create a bot using @BotFather on Telegram
+        |  2. Add the bot to your chat/channel
+        |  3. Get the chat ID (and topic ID if using topics)
+        |  4. Fill in the configuration above
         |
         | LOOKUP INSTRUCTIONS:
         | You can find chatId and topicId using the lookup task:
@@ -409,10 +393,13 @@ fun needToProvideBotsConfigMessage(buildVariant: String): String {
         |
         | After configuration, sync your project and try again.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
-fun sendingMessageBotMessage(botName: String, webhookUrl: String): String {
+fun sendingMessageBotMessage(
+    botName: String,
+    webhookUrl: String,
+): String {
     return """
         
         |============================================================
@@ -422,10 +409,13 @@ fun sendingMessageBotMessage(botName: String, webhookUrl: String): String {
         | Endpoint: ${webhookUrl.take(50)} (truncated)...
         | Status  : Sending...
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
-fun uploadFileStartedMessage(botName: String, webhookUrl: String): String {
+fun uploadFileStartedMessage(
+    botName: String,
+    webhookUrl: String,
+): String {
     return """
         
         |============================================================
@@ -438,7 +428,7 @@ fun uploadFileStartedMessage(botName: String, webhookUrl: String): String {
         | NOTE: Large files may take time to upload.
         | Progress will be shown once available.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun telegramServicesCreated(servicesKeys: Set<String>): String {
@@ -454,7 +444,7 @@ fun telegramServicesCreated(servicesKeys: Set<String>): String {
         | These services will handle communication with the
         | Telegram Bot API for various operations.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun registeringServiceMessage(): String {
@@ -472,7 +462,7 @@ fun registeringServiceMessage(): String {
         |
         | Please wait while services are being configured.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun noBotsConfiguredMessage(): String {
@@ -484,29 +474,22 @@ fun noBotsConfiguredMessage(): String {
         | The Telegram plugin is active but no bots are configured.
         |
         | NEXT STEPS:
-        | 1. Add bot configurations to your build script:
+        |  1. Add bot configurations to your build script:
         |
-        |    buildPublishTelegram {
+        |    $EXTENSION_NAME {
         |        bots {
         |            common { // Or buildVariant("<BUILD_VARIANT>")
-        |                bot("<YOUR_BOT_NAME>>") {
-        |                    botId.set("<BOT_TOKEN>")
-        |                    
-        |                    chat("<YOUR_CHAT_NAME>") {
-        |                        chatId = "<YOUR_CHAT_ID"
-        |                        topicId = "<YOUR_TOPIC_ID" // Optional
-        |                    }
-        |                }
+        |                // Your bot configuration
         |            }
         |        }
         |    }
         |
-        | 2. Sync your project after making changes
+        |  2. Sync your project after making changes
         |
         | The plugin will continue to run but won't send any messages
         | until at least one bot is properly configured.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun extensionCreatedMessage(): String {
@@ -520,18 +503,18 @@ fun extensionCreatedMessage(): String {
         | STATUS: Empty configuration detected
         |
         | NEXT STEPS:
-        | 1. Configure the extension in your build script:
+        |  1. Configure the extension in your build script:
         |
-        |    buildPublishTelegram {
+        |    $EXTENSION_NAME {
         |        // Your configuration here
         |    }
         |
-        | 2. Sync your project to apply changes
+        |  2. Sync your project to apply changes
         |
         | The extension is now ready to be configured with your
         | Telegram bot and chat settings.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun distributionBundleTaskNotCreatedMessage(): String {
@@ -548,24 +531,24 @@ fun distributionBundleTaskNotCreatedMessage(): String {
         | for the current build variant.
         |
         | TO ENABLE BUNDLE DISTRIBUTION:
-        | 1. Add at least one destination bot configuration:
+        |  1. Add at least one destination bot configuration:
         |
-        |    buildPublishTelegram {
+        |    $EXTENSION_NAME {
         |        distribution {
         |            common { // Or buildVariant("<BUILD_VARIANT>")
-        |                botName = "<YOUR_BOT_NAME>"
-        |                chatNames("YOUR_CHAT_NAME")
+        |                // Your distribution settings here
         |            }
         |        }
         |    }
         |
-        | 2. Ensure your build variant matches the configuration or use common
-        | 3. Sync your project and rebuild
+        |  2. Ensure your build variant matches the configuration or 
+        |     use common
+        |  3. Sync your project and rebuild
         |
         | The task will be automatically created when valid
         | configurations are provided.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun distributionTaskNotCreatedMessage(): String {
@@ -582,24 +565,24 @@ fun distributionTaskNotCreatedMessage(): String {
         | for the current build variant.
         |
         | TO ENABLE APK DISTRIBUTION:
-        | 1. Add at least one destination bot configuration:
+        |  1. Add at least one destination bot configuration:
         |
-        |    buildPublishTelegram {
+        |    $EXTENSION_NAME {
         |        distribution {
         |            common { // Or buildVariant("<BUILD_VARIANT>")
-        |                botName = "<YOUR_BOT_NAME>"
-        |                chatNames("YOUR_CHAT_NAME")
+        |                // Your distribution settings here
         |            }
         |        }
         |    }
         |
-        | 2. Ensure your build variant matches the configuration or use common
-        | 3. Sync your project and rebuild
+        |  2. Ensure your build variant matches the configuration or 
+        |     use common
+        |  3. Sync your project and rebuild
         |
         | The task will be automatically created when valid
         | configurations are provided.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun botWithoutChatMessage(botName: String): String {
@@ -617,29 +600,24 @@ fun botWithoutChatMessage(botName: String): String {
         | REQUIRED CONFIGURATION:
         | Add the following to your build script:
         |
-        |    buildPublishTelegram {
+        |    $EXTENSION_NAME {
         |        bots {
         |            common { // Or buildVariant("<BUILD_VARIANT>")
         |                bot("$botName") {
-        |                    botId.set("<BOT_TOKEN>")
-        |                    
-        |                    chat("<YOUR_CHAT_NAME>") {
-        |                        chatId = "<YOUR_CHAT_ID" // Required
-        |                        topicId = "<YOUR_TOPIC_ID" // Optional
-        |                    }
+        |                    // Your bot configuration here
         |                }
         |            }
         |        }
         |    }
         |
         | NOTES:
-        | 1. 'chat' block is required for each bot
-        | 2. 'chatId' is required inside each 'chat' block
-        | 3. 'topicId' is optional and only needed for topics
+        |  1. 'chat' block is required for each bot
+        |  2. 'chatId' is required inside each 'chat' block
+        |  3. 'topicId' is optional and only needed for topics
         |
         | After updating, sync your project and try again.
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun telegramBotFailedEncodeToJsonMessage(): String {
@@ -651,19 +629,19 @@ fun telegramBotFailedEncodeToJsonMessage(): String {
         | Failed to serialize TelegramBot configuration to JSON.
         |
         | POSSIBLE CAUSES:
-        | 1. Invalid characters in bot configuration
-        | 2. Circular references in bot settings
-        | 3. Unsupported data types in configuration
+        |  1. Invalid characters in bot configuration
+        |  2. Circular references in bot settings
+        |  3. Unsupported data types in configuration
         |
         | TROUBLESHOOTING STEPS:
-        | 1. Check for special characters in bot names or chat names
-        | 2. Verify all configuration values are serializable
-        | 3. Look for custom objects that might not be serializable
+        |  1. Check for special characters in bot names or chat names
+        |  2. Verify all configuration values are serializable
+        |  3. Look for custom objects that might not be serializable
         |
         | If the issue persists, please report this as a bug with
         | your bot configuration details (excluding sensitive data).
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun telegramBotJsonParsingFailedMessage(json: String): String {
@@ -678,19 +656,19 @@ fun telegramBotJsonParsingFailedMessage(json: String): String {
         | ${json.take(200)}${if (json.length > 200) "..." else ""}
         |
         | POSSIBLE CAUSES:
-        | 1. Malformed JSON in configuration
-        | 2. Invalid escape sequences
-        | 3. Mismatched quotes or brackets
-        | 4. Invalid data types for fields
+        |  1. Malformed JSON in configuration
+        |  2. Invalid escape sequences
+        |  3. Mismatched quotes or brackets
+        |  4. Invalid data types for fields
         |
         | RECOMMENDED ACTIONS:
-        | 1. Check for special characters in bot names or chat names
-        | 2. Verify all required fields are present
+        |  1. Check for special characters in bot names or chat names
+        |  2. Verify all required fields are present
         |
         | If the issue persists, please report this as a bug with
         | your bot configuration details (excluding sensitive data).
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun destinationBotsEncodeToJsonFailedMessage(): String {
@@ -702,19 +680,19 @@ fun destinationBotsEncodeToJsonFailedMessage(): String {
         | Failed to serialize the list of destination bots to JSON.
         |
         | POSSIBLE CAUSES:
-        | 1. Invalid characters in bot or chat names
-        | 2. Circular references in destination configuration
-        | 3. Unsupported data types in bot settings
+        |  1. Invalid characters in bot or chat names
+        |  2. Circular references in destination configuration
+        |  3. Unsupported data types in bot settings
         |
         | TROUBLESHOOTING STEPS:
-        | 1. Check for special characters in configuration
-        | 2. Verify all destination bot configurations are valid
-        | 3. Ensure all required fields are properly set
+        |  1. Check for special characters in configuration
+        |  2. Verify all destination bot configurations are valid
+        |  3. Ensure all required fields are properly set
         |
         | If the issue persists, please report this as a bug with
         | your bot configuration details (excluding sensitive data).
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }
 
 fun destinationBotsJsonParsingFailedMessage(json: String): String {
@@ -729,17 +707,17 @@ fun destinationBotsJsonParsingFailedMessage(json: String): String {
         | ${json.take(200)}${if (json.length > 200) "..." else ""}
         |
         | POSSIBLE CAUSES:
-        | 1. Invalid or missing required fields
-        | 2. Type mismatches in configuration values
-        | 3. Corrupted configuration data
+        |  1. Invalid or missing required fields
+        |  2. Type mismatches in configuration values
+        |  3. Corrupted configuration data
         |
         | RECOMMENDED ACTIONS:
-        | 1. Check for missing or extra commas, brackets
-        | 2. Ensure all string values are properly quoted
-        | 3. Validate against the expected schema
+        |  1. Check for missing or extra commas, brackets
+        |  2. Ensure all string values are properly quoted
+        |  3. Validate against the expected schema
         |
         | If the issue persists, please report this as a bug with
         | your bot configuration details (excluding sensitive data).
         |============================================================
-    """.trimIndent()
+        """.trimIndent()
 }

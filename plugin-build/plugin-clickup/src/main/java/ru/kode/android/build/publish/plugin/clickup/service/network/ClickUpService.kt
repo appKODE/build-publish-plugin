@@ -45,7 +45,6 @@ abstract class ClickUpService
 
         private val logger: Logger = Logging.getLogger("ClickUp")
 
-
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
 
         internal abstract val apiProperty: Property<ClickUpApi>
@@ -73,7 +72,6 @@ abstract class ClickUpService
 
         private val controller: ClickUpController get() = controllerProperty.get()
 
-
         /**
          * Retrieves the ID of a ClickUp custom field.
          *
@@ -81,7 +79,10 @@ abstract class ClickUpService
          * @param fieldName The name of the custom field.
          * @return The ID of the custom field.
          */
-        fun getCustomFieldId(workspaceName: String, fieldName: String): String {
+        fun getCustomFieldId(
+            workspaceName: String,
+            fieldName: String,
+        ): String {
             return controller.getOrCreateCustomFieldId(workspaceName, fieldName)
         }
 

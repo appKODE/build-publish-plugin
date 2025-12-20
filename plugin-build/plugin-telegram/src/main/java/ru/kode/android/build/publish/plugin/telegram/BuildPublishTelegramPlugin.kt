@@ -18,12 +18,13 @@ import ru.kode.android.build.publish.plugin.telegram.messages.mustApplyFoundatio
 import ru.kode.android.build.publish.plugin.telegram.messages.noBotsConfiguredMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.registeringServiceMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.telegramServicesCreated
-import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExtension
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
+import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExtension
 
-private const val EXTENSION_NAME = "buildPublishTelegram"
-private const val SERVICE_NAME = "telegramService"
+internal const val EXTENSION_NAME = "buildPublishTelegram"
 internal const val SERVICE_EXTENSION_NAME = "telegramServiceExtension"
+
+private const val SERVICE_NAME = "telegramService"
 
 /**
  * A Gradle plugin that integrates with Telegram to send build notifications and deployment updates.
@@ -36,31 +37,29 @@ internal const val SERVICE_EXTENSION_NAME = "telegramServiceExtension"
  * @see TelegramService For the underlying network service implementation
  */
 abstract class BuildPublishTelegramPlugin : Plugin<Project> {
-
     private val logger = Logging.getLogger(this::class.java)
 
     override fun apply(project: Project) {
         val extension =
             project.extensions.create(
                 EXTENSION_NAME,
-                BuildPublishTelegramExtension::class.java
+                BuildPublishTelegramExtension::class.java,
             )
 
         val servicesProperty =
             project.objects.mapProperty(
                 String::class.java,
-                Provider::class.java
+                Provider::class.java,
             )
         servicesProperty.set(emptyMap())
 
         project.extensions.create(
             SERVICE_EXTENSION_NAME,
             TelegramServiceExtension::class.java,
-            servicesProperty
+            servicesProperty,
         )
 
         logger.info(extensionCreatedMessage())
-
 
         if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
             throw StopExecutionException(mustApplyFoundationPluginMessage())
@@ -76,17 +75,19 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
 
             logger.info(registeringServiceMessage())
 
-            val serviceMap = extension.bots.associate { botConfig ->
-                val name = botConfig.name
-                val service = project.gradle.sharedServices.registerIfAbsent(
-                    project.serviceName(SERVICE_NAME, name),
-                    TelegramService::class.java
-                ) { spec ->
-                    spec.maxParallelUsages.set(1)
-                    spec.parameters.bots.set(botConfig.bots.map { it.mapToEntity().toJson() })
+            val serviceMap =
+                extension.bots.associate { botConfig ->
+                    val name = botConfig.name
+                    val service =
+                        project.gradle.sharedServices.registerIfAbsent(
+                            project.serviceName(SERVICE_NAME, name),
+                            TelegramService::class.java,
+                        ) { spec ->
+                            spec.maxParallelUsages.set(1)
+                            spec.parameters.bots.set(botConfig.bots.map { it.mapToEntity().toJson() })
+                        }
+                    name to service
                 }
-                name to service
-            }
 
             logger.info(telegramServicesCreated(serviceMap.keys))
 

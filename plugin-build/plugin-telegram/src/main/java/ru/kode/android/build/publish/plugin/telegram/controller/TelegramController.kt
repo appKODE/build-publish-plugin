@@ -11,7 +11,6 @@ import java.io.File
  * using the configured Telegram bots. It allows to send both text and file messages.
  */
 interface TelegramController {
-
     /**
      * Sends a text message to the specified Telegram chats using the configured bots in chunks.
      *
@@ -71,7 +70,6 @@ interface TelegramController {
     fun getLastMessage(
         botId: String,
         chatName: String,
-        topicName: String?
+        topicName: String?,
     ): TelegramLastMessage?
-
 }

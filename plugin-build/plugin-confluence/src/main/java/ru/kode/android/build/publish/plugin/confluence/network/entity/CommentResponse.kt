@@ -4,17 +4,17 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class CommentResponse(
-    val results: List<Comment>
+    val results: List<Comment>,
 ) {
     @Serializable
     internal data class Comment(
         val id: String,
-        val body: CommentBody
+        val body: CommentBody,
     )
 
     @Serializable
     internal data class CommentBody(
-        val storage: Storage
+        val storage: Storage,
     )
 
     @Serializable

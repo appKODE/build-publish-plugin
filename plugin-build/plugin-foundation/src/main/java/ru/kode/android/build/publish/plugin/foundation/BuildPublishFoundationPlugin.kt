@@ -55,9 +55,9 @@ const val EXTENSION_NAME = "buildPublishFoundation"
  * for version management and changelog generation based on Git history.
  */
 abstract class BuildPublishFoundationPlugin : Plugin<Project> {
-
     private val logger: Logger = Logging.getLogger(this::class.java)
 
+    @Suppress("LongMethod") // Just big creation methods
     override fun apply(project: Project) {
         project.stopExecutionIfNotSupported()
 
@@ -71,20 +71,21 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
             project.extensions
                 .getByType(ApplicationAndroidComponentsExtension::class.java)
 
-
         androidExtension.onVariants(
             callback = { variant ->
-                val buildVariant = BuildVariant(
-                    name = variant.name,
-                    flavorName = variant.flavorName?.takeIf { it.isNotBlank() },
-                    buildTypeName = variant.buildType?.takeIf { it.isNotBlank() },
-                    productFlavors = variant.productFlavors.map {
-                        BuildVariant.ProductFlavor(
-                            dimension = it.first,
-                            name = it.second
-                        )
-                    }
-                )
+                val buildVariant =
+                    BuildVariant(
+                        name = variant.name,
+                        flavorName = variant.flavorName?.takeIf { it.isNotBlank() },
+                        buildTypeName = variant.buildType?.takeIf { it.isNotBlank() },
+                        productFlavors =
+                            variant.productFlavors.map {
+                                BuildVariant.ProductFlavor(
+                                    dimension = it.first,
+                                    name = it.second,
+                                )
+                            },
+                    )
 
                 val variantOutput =
                     variant.outputs
@@ -99,11 +100,12 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 .getByNameOrRequiredCommon(buildVariant.name)
                         }
 
-                    val buildTagPattern = outputConfigProvider.flatMap { outputConfig ->
-                        outputConfig.buildTagPattern
-                            .orElse(DEFAULT_TAG_PATTERN)
-                            .map { it.format(buildVariant.name) }
-                    }
+                    val buildTagPattern =
+                        outputConfigProvider.flatMap { outputConfig ->
+                            outputConfig.buildTagPattern
+                                .orElse(DEFAULT_TAG_PATTERN)
+                                .map { it.format(buildVariant.name) }
+                        }
 
                     val lastTagTaskOutput =
                         TagTasksRegistrar.registerLastTagTask(
@@ -112,11 +114,13 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 LastTagTaskParams(
                                     buildVariant = buildVariant,
                                     apkOutputFileName = variantOutput.outputFileName,
-                                    useVersionsFromTag = outputConfigProvider
-                                        .flatMap { it.useVersionsFromTag }
-                                        .orElse(true),
-                                    baseFileName = outputConfigProvider
-                                        .flatMap { it.baseFileName },
+                                    useVersionsFromTag =
+                                        outputConfigProvider
+                                            .flatMap { it.useVersionsFromTag }
+                                            .orElse(true),
+                                    baseFileName =
+                                        outputConfigProvider
+                                            .flatMap { it.baseFileName },
                                     useDefaultsForVersionsAsFallback =
                                         outputConfigProvider
                                             .flatMap { it.useDefaultsForVersionsAsFallback }
@@ -126,32 +130,37 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                             .flatMap { it.useStubsForTagAsFallback }
                                             .orElse(true),
                                     buildTagPattern = buildTagPattern,
-                                    versionNameStrategy = outputConfigProvider
-                                        .flatMap { it.versionNameStrategy },
-                                    versionCodeStrategy = outputConfigProvider
-                                        .flatMap { it.versionCodeStrategy },
-                                    outputApkNameStrategy = outputConfigProvider
-                                        .flatMap { it.outputApkNameStrategy },
+                                    versionNameStrategy =
+                                        outputConfigProvider
+                                            .flatMap { it.versionNameStrategy },
+                                    versionCodeStrategy =
+                                        outputConfigProvider
+                                            .flatMap { it.versionCodeStrategy },
+                                    outputApkNameStrategy =
+                                        outputConfigProvider
+                                            .flatMap { it.outputApkNameStrategy },
                                 ),
                         )
 
                     val apkDirProvider = variant.artifacts.get(SingleArtifact.APK)
 
-                    val renameApkTaskProvider = TagTasksRegistrar.registerRenameApkTask(
-                        project,
-                        RenameApkTaskParams(
-                            inputDir = apkDirProvider,
-                            buildVariant = buildVariant,
-                            outputFileName = lastTagTaskOutput.apkOutputFileName
+                    val renameApkTaskProvider =
+                        TagTasksRegistrar.registerRenameApkTask(
+                            project,
+                            RenameApkTaskParams(
+                                inputDir = apkDirProvider,
+                                buildVariant = buildVariant,
+                                outputFileName = lastTagTaskOutput.apkOutputFileName,
+                            ),
                         )
-                    )
 
-                    val renameTransformationRequest = variant.artifacts.use(renameApkTaskProvider)
-                        .wiredWithDirectories(
-                            RenameApkTask::inputDir,
-                            RenameApkTask::outputDir
-                        )
-                        .toTransformMany(SingleArtifact.APK)
+                    val renameTransformationRequest =
+                        variant.artifacts.use(renameApkTaskProvider)
+                            .wiredWithDirectories(
+                                RenameApkTask::inputDir,
+                                RenameApkTask::outputDir,
+                            )
+                            .toTransformMany(SingleArtifact.APK)
 
                     renameApkTaskProvider.configure { it.transformationRequest.set(renameTransformationRequest) }
 
@@ -173,10 +182,11 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 .getByNameOrNullableCommon(buildVariant.name)
                         }
 
-                    val apkOutputFileProvider: Provider<RegularFile> = lastTagTaskOutput.apkOutputFileName
-                        .zip(renameApkTaskProvider.flatMap { it.outputDir }) { outputFileName, outputDir ->
-                            outputDir.file(outputFileName)
-                        }
+                    val apkOutputFileProvider: Provider<RegularFile> =
+                        lastTagTaskOutput.apkOutputFileName
+                            .zip(renameApkTaskProvider.flatMap { it.outputDir }) { outputFileName, outputDir ->
+                                outputDir.file(outputFileName)
+                            }
 
                     val changelogFileProvider = project.changelogFileProvider(buildVariant.name)
 
@@ -185,14 +195,16 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             project = project,
                             params =
                                 GenerateChangelogTaskParams(
-                                    commitMessageKey = changelogConfigProvider
-                                        .flatMap {
-                                            it.commitMessageKey
-                                                .orElse(project.providers.provider { null })
+                                    commitMessageKey =
+                                        changelogConfigProvider
+                                            .flatMap {
+                                                it.commitMessageKey
+                                                    .orElse(project.providers.provider { null })
+                                            },
+                                    excludeMessageKey =
+                                        changelogConfigProvider.flatMap {
+                                            it.excludeMessageKey.orElse(true)
                                         },
-                                    excludeMessageKey = changelogConfigProvider.flatMap {
-                                        it.excludeMessageKey.orElse(true)
-                                    },
                                     buildTagPattern = buildTagPattern,
                                     buildVariant = buildVariant,
                                     changelogFile = changelogFileProvider,
@@ -212,36 +224,40 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             logger.info(
                                 configureExtensionMessage(
                                     extension.toString(),
-                                    variant.name
-                                )
+                                    variant.name,
+                                ),
                             )
-
                             extension.configure(
                                 project = project,
                                 input =
                                     ExtensionInput(
                                         changelog =
                                             ExtensionInput.Changelog(
-                                                issueNumberPattern = changelogConfigProvider.flatMap {
-                                                    it.issueNumberPattern
-                                                        .orElse(project.providers.provider { null })
-                                                },
-                                                issueUrlPrefix = changelogConfigProvider.flatMap {
-                                                    it.issueUrlPrefix
-                                                        .orElse(project.providers.provider { null })
-                                                },
-                                                commitMessageKey = changelogConfigProvider.flatMap {
-                                                    it.commitMessageKey
-                                                        .orElse(project.providers.provider { null })
-                                                },
+                                                issueNumberPattern =
+                                                    changelogConfigProvider.flatMap {
+                                                        it.issueNumberPattern
+                                                            .orElse(project.providers.provider { null })
+                                                    },
+                                                issueUrlPrefix =
+                                                    changelogConfigProvider.flatMap {
+                                                        it.issueUrlPrefix
+                                                            .orElse(project.providers.provider { null })
+                                                    },
+                                                commitMessageKey =
+                                                    changelogConfigProvider.flatMap {
+                                                        it.commitMessageKey
+                                                            .orElse(project.providers.provider { null })
+                                                    },
                                                 file = changelogFile,
                                             ),
                                         output =
                                             ExtensionInput.Output(
-                                                baseFileName = outputConfigProvider
-                                                    .flatMap { it.baseFileName },
-                                                buildTagPattern = outputConfigProvider
-                                                    .flatMap { it.buildTagPattern },
+                                                baseFileName =
+                                                    outputConfigProvider
+                                                        .flatMap { it.baseFileName },
+                                                buildTagPattern =
+                                                    outputConfigProvider
+                                                        .flatMap { it.buildTagPattern },
                                                 lastBuildTagFile = lastTagTaskOutput.lastBuildTagFile,
                                                 versionName = lastTagTaskOutput.versionName,
                                                 versionCode = lastTagTaskOutput.versionCode,
@@ -251,7 +267,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                             ),
                                         buildVariant = buildVariant,
                                     ),
-                                variant = variant
+                                variant = variant,
                             )
                         }
                     if (lastTagTaskOutput.versionCode.isPresent) {

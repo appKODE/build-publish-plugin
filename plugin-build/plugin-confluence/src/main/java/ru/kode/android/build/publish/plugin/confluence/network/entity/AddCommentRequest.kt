@@ -25,4 +25,3 @@ internal data class AddCommentRequest(
         val representation: String,
     )
 }
-

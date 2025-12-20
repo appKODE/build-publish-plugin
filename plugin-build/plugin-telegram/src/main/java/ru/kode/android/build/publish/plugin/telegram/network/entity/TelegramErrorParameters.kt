@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class TelegramErrorParameters(
-    val retry_after: Long? = null
+    val retry_after: Long? = null,
 )

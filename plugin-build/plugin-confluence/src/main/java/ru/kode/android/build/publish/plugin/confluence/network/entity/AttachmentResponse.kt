@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class AttachmentResponse(
-    val results: List<Attachment>
+    val results: List<Attachment>,
 ) {
     @Serializable
     internal data class Attachment(

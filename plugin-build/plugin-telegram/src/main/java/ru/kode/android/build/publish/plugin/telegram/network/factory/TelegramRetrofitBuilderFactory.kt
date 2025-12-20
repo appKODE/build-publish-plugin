@@ -12,7 +12,6 @@ private const val STUB_BASE_URL = "http://localhost/"
  * Factory for creating Retrofit.Builder instances with the necessary configuration for Telegram API communication.
  */
 internal object TelegramRetrofitBuilderFactory {
-
     /**
      * Builds a [Retrofit.Builder] instance with the necessary configuration for Telegram API communication.
      *
@@ -20,7 +19,10 @@ internal object TelegramRetrofitBuilderFactory {
      * @param json The Json instance used for parsing error responses.
      * @return A new instance of [Retrofit.Builder].
      */
-    fun build(client: OkHttpClient, json: Json): Retrofit.Builder {
+    fun build(
+        client: OkHttpClient,
+        json: Json,
+    ): Retrofit.Builder {
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
             .baseUrl(STUB_BASE_URL)

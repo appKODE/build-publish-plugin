@@ -16,11 +16,12 @@ import ru.kode.android.build.publish.plugin.jira.messages.jiraServicesCreatedMes
 import ru.kode.android.build.publish.plugin.jira.messages.mustApplyFoundationPluginMessage
 import ru.kode.android.build.publish.plugin.jira.messages.noAuthConfigsMessage
 import ru.kode.android.build.publish.plugin.jira.messages.pluginInitializedMessage
+import ru.kode.android.build.publish.plugin.jira.messages.registeringServicesMessage
 import ru.kode.android.build.publish.plugin.jira.messages.serviceExtensionCreatedMessage
 import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 
-private const val EXTENSION_NAME = "buildPublishJira"
+internal const val EXTENSION_NAME = "buildPublishJira"
 private const val SERVICE_NAME = "jiraService"
 private const val SERVICE_EXTENSION_NAME = "jiraServiceExtension"
 
@@ -37,18 +38,16 @@ private const val SERVICE_EXTENSION_NAME = "jiraServiceExtension"
  * @see BuildPublishJiraExtension For configuration options
  */
 abstract class BuildPublishJiraPlugin : Plugin<Project> {
-
     private val logger: Logger = Logging.getLogger(this::class.java)
 
     override fun apply(project: Project) {
-
         val extension =
             project.extensions.create(EXTENSION_NAME, BuildPublishJiraExtension::class.java)
 
         val servicesProperty =
             project.objects.mapProperty(
                 String::class.java,
-                Provider::class.java
+                Provider::class.java,
             )
 
         servicesProperty.set(emptyMap())
@@ -56,7 +55,7 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
         project.extensions.create(
             SERVICE_EXTENSION_NAME,
             JiraServiceExtension::class.java,
-            servicesProperty
+            servicesProperty,
         )
 
         logger.info(serviceExtensionCreatedMessage())
@@ -75,27 +74,32 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
                 return@finalizeDsl
             }
 
-            logger.info("Jira: registering services...")
+            logger.info(registeringServicesMessage())
 
-            val serviceMap = extension.auth.associate { authConfig ->
-                val name = authConfig.name
-                val registered = project.gradle.sharedServices.registerIfAbsent(
-                    project.serviceName(SERVICE_NAME, name),
-                    JiraService::class.java
-                ) {
-                    it.maxParallelUsages.set(1)
-                    it.parameters.credentials.set(authConfig.credentials)
-                    it.parameters.baseUrl.set(authConfig.baseUrl)
+            val serviceMap =
+                extension.auth.associate { authConfig ->
+                    val name = authConfig.name
+                    val registered =
+                        project.gradle.sharedServices.registerIfAbsent(
+                            project.serviceName(SERVICE_NAME, name),
+                            JiraService::class.java,
+                        ) {
+                            it.maxParallelUsages.set(1)
+                            it.parameters.credentials.set(authConfig.credentials)
+                            it.parameters.baseUrl.set(authConfig.baseUrl)
+                        }
+                    name to registered
                 }
-                name to registered
-            }
 
             logger.info(jiraServicesCreatedMessage(serviceMap.keys))
 
             servicesProperty.set(serviceMap)
 
             logger.info(
-                pluginInitializedMessage(extension.auth.names, extension.automation.names)
+                pluginInitializedMessage(
+                    extension.auth.names,
+                    extension.automation.names,
+                ),
             )
         }
     }

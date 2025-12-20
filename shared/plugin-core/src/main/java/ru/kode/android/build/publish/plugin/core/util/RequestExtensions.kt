@@ -27,16 +27,16 @@ inline fun <reified T : Any?> Response<T>.mapError(): Result<T?> {
             .failure(
                 RequestError.UploadTimeout(
                     code = code(),
-                    reason = reason
-                )
+                    reason = reason,
+                ),
             )
     } else {
         Result
             .failure(
                 RequestError.Unknown(
                     code = code(),
-                    reason = reason
-                )
+                    reason = reason,
+                ),
             )
     }
 }
@@ -47,17 +47,15 @@ sealed class RequestError : Throwable() {
 
     data class Unknown(
         override val code: Int,
-        override val reason: String?
+        override val reason: String?,
     ) : RequestError()
-
 
     data class UploadTimeout(
         override val code: Int,
-        override val reason: String?
+        override val reason: String?,
     ) : RequestError()
-
 }
 
 data class UploadError(
-    override val message: String
+    override val message: String,
 ) : Throwable(message)

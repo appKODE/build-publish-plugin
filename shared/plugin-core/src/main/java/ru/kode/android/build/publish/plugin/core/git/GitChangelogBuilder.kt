@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.core.git
 import org.gradle.api.logging.Logger
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.enity.TagRange
+import ru.kode.android.build.publish.plugin.core.messages.failedToBuildChangelogMessage
 
 /**
  * Builds changelogs by extracting and formatting commit messages from Git history.
@@ -58,7 +59,7 @@ class GitChangelogBuilder(
     ): String? {
         val tagRange =
             gitRepository.findTagRange(buildTag, buildTagPattern)
-                .also { if (it == null) logger?.warn("failed to build a changelog: no build tags") }
+                .also { if (it == null) logger?.warn(failedToBuildChangelogMessage()) }
                 ?: return null
         return buildChangelog(
             tagRange,

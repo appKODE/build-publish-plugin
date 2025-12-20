@@ -14,7 +14,6 @@ private const val HTTP_CONNECT_TIMEOUT_SECONDS = 30L
  * Factory for creating OkHttpClient instances with the necessary configuration for Jira API communication.
  */
 internal object JiraClientFactory {
-
     /**
      * Builds an instance of OkHttpClient for Jira API communication with the necessary configuration.
      *

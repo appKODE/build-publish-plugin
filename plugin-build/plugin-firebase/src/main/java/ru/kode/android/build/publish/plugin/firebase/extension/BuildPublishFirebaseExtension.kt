@@ -17,7 +17,7 @@ import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType
 import ru.kode.android.build.publish.plugin.firebase.config.FirebaseDistributionConfig
 import ru.kode.android.build.publish.plugin.firebase.messages.appDistributionConfigNotFoundMessage
-import ru.kode.android.build.publish.plugin.firebase.messages.needToProvideDistributionConfigMessage
+import ru.kode.android.build.publish.plugin.firebase.messages.provideDistributionConfigMessage
 import javax.inject.Inject
 
 /**
@@ -84,23 +84,29 @@ abstract class BuildPublishFirebaseExtension
             common(distribution, configurationAction)
         }
 
-        override fun configure(project: Project, input: ExtensionInput, variant: ApplicationVariant) {
+        override fun configure(
+            project: Project,
+            input: ExtensionInput,
+            variant: ApplicationVariant,
+        ) {
             val buildVariantName = input.buildVariant.name
             val distributionConfig = distributionConfigOrNull(buildVariantName)
 
             if (distributionConfig == null) {
-                throw GradleException(needToProvideDistributionConfigMessage(buildVariantName))
+                throw GradleException(provideDistributionConfigMessage(buildVariantName))
             }
 
             variant.getExtension(AppDistributionVariantExtension::class.java)?.apply {
                 appId.set(distributionConfig.appId)
                 serviceCredentialsFile.set(distributionConfig.serviceCredentialsFile.map { it.asFile.path })
-                artifactType.set(distributionConfig.artifactType.map {
-                    when (it) {
-                        ArtifactType.Apk -> APK_FILE_EXTENSION.uppercase()
-                        ArtifactType.Bundle -> BUNDLE_FILE_EXTENSION.uppercase()
-                    }
-                })
+                artifactType.set(
+                    distributionConfig.artifactType.map {
+                        when (it) {
+                            ArtifactType.Apk -> APK_FILE_EXTENSION.uppercase()
+                            ArtifactType.Bundle -> BUNDLE_FILE_EXTENSION.uppercase()
+                        }
+                    },
+                )
                 groups.set(distributionConfig.testerGroups.map { it.joinToString(",") })
                 releaseNotesFile.set(input.output.changelogFileName.map { it.asFile.path })
             } ?: throw GradleException(appDistributionConfigNotFoundMessage(buildVariantName))

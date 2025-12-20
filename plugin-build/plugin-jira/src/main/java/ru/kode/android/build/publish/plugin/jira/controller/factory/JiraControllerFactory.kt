@@ -10,7 +10,6 @@ import ru.kode.android.build.publish.plugin.jira.network.factory.JiraClientFacto
  * Factory for creating instances of [JiraController].
  */
 object JiraControllerFactory {
-
     /**
      * Creates an instance of [JiraController].
      *
@@ -27,15 +26,17 @@ object JiraControllerFactory {
         logger: Logger,
     ): JiraController {
         return JiraControllerImpl(
-            api = JiraApiFactory.build(
-                client = JiraClientFactory.build(
-                    username,
-                    password,
-                    logger
+            api =
+                JiraApiFactory.build(
+                    client =
+                        JiraClientFactory.build(
+                            username,
+                            password,
+                            logger,
+                        ),
+                    baseUrl = baseUrl,
                 ),
-                baseUrl = baseUrl
-            ),
-            logger = logger
+            logger = logger,
         )
     }
 }

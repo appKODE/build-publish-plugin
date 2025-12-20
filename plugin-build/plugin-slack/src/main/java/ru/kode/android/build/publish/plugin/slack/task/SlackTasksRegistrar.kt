@@ -8,7 +8,6 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
@@ -99,9 +98,7 @@ internal object SlackTasksRegistrar {
         return if (distributionConfig.destinationChannels.isPresent) {
             project.registerBundleSlackDistributionTask(distributionConfig, params)
         } else {
-            logger.info(
-                bundleDistributionNotCreatedMessage(),
-            )
+            logger.info(bundleDistributionNotCreatedMessage())
             null
         }
     }

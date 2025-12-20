@@ -8,15 +8,15 @@ import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_BUILD_VERSION
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
-import ru.kode.android.build.publish.plugin.core.strategy.SimpleApkNamingStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.SimpleApkNamingStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.tagBuildFileProvider
 import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
@@ -71,57 +71,64 @@ internal object TagTasksRegistrar {
                 ) { useVersionsFromTag, useDefaultVersionsAsFallback ->
                     useVersionsFromTag to useDefaultVersionsAsFallback
                 }
-                .zip(params.versionCodeStrategy
-                    .orElse(project.provider { BuildVersionCodeStrategy })) { versionsParamsPair, versionCodeStrategy ->
+                .zip(
+                    params.versionCodeStrategy
+                        .orElse(project.provider { BuildVersionCodeStrategy }),
+                ) { versionsParamsPair, versionCodeStrategy ->
                     versionsParamsPair to versionCodeStrategy
                 }
                 .flatMap { (versionsParamsPair, versionCodeStrategy) ->
                     val useVersionsFromTag = versionsParamsPair.first
                     val useDefaultVersionsAsFallback = versionsParamsPair.second
                     when {
-                        useVersionsFromTag -> lastBuildTag.map { tagBuildFile ->
-                            val tag = if (tagBuildFile.asFile.exists()) {
-                                fromJson(tagBuildFile.asFile)
-                            } else {
-                                null
+                        useVersionsFromTag ->
+                            lastBuildTag.map { tagBuildFile ->
+                                val tag =
+                                    if (tagBuildFile.asFile.exists()) {
+                                        fromJson(tagBuildFile.asFile)
+                                    } else {
+                                        null
+                                    }
+                                versionCodeStrategy.build(params.buildVariant, tag)
                             }
-                            versionCodeStrategy.build(params.buildVariant, tag)
-                        }
 
                         useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_CODE }
                         else -> project.provider { null }
                     }
                 }
 
-        val apkOutputFileName: Provider<String> = params.apkOutputFileName
-            .zip(params.useVersionsFromTag) { apkOutputFileName, useVersionsFromTag ->
-                apkOutputFileName to useVersionsFromTag
-            }
-            .zip(params.outputApkNameStrategy
-                .orElse(project.provider { VersionedApkNamingStrategy })) { paramsPair, outputApkNameStrategy ->
-                paramsPair to outputApkNameStrategy
-            }
-            .flatMap { (paramsPair, outputApkNameStrategy) ->
-                val outputFileName = paramsPair.first
-                val useVersionsFromTag = paramsPair.second
-                if (useVersionsFromTag) {
-                    params.baseFileName
-                        .zip(lastBuildTag) { baseFileName, tagBuildFile -> baseFileName to tagBuildFile }
-                        .map { (baseFileName, tagBuildFile) ->
-                            val tag = if (tagBuildFile.asFile.exists()) {
-                                fromJson(tagBuildFile.asFile)
-                            } else {
-                                null
+        val apkOutputFileName: Provider<String> =
+            params.apkOutputFileName
+                .zip(params.useVersionsFromTag) { apkOutputFileName, useVersionsFromTag ->
+                    apkOutputFileName to useVersionsFromTag
+                }
+                .zip(
+                    params.outputApkNameStrategy
+                        .orElse(project.provider { VersionedApkNamingStrategy }),
+                ) { paramsPair, outputApkNameStrategy ->
+                    paramsPair to outputApkNameStrategy
+                }
+                .flatMap { (paramsPair, outputApkNameStrategy) ->
+                    val outputFileName = paramsPair.first
+                    val useVersionsFromTag = paramsPair.second
+                    if (useVersionsFromTag) {
+                        params.baseFileName
+                            .zip(lastBuildTag) { baseFileName, tagBuildFile -> baseFileName to tagBuildFile }
+                            .map { (baseFileName, tagBuildFile) ->
+                                val tag =
+                                    if (tagBuildFile.asFile.exists()) {
+                                        fromJson(tagBuildFile.asFile)
+                                    } else {
+                                        null
+                                    }
+                                outputApkNameStrategy.build(outputFileName, tag, baseFileName)
                             }
-                            outputApkNameStrategy.build(outputFileName, tag, baseFileName)
+                    } else {
+                        params.baseFileName.map { baseFileName ->
+                            SimpleApkNamingStrategy.build(outputFileName, null, baseFileName)
                         }
-                } else {
-                    params.baseFileName.map { baseFileName ->
-                        SimpleApkNamingStrategy.build(outputFileName, null, baseFileName)
                     }
                 }
-            }
-
 
         val versionName =
             params.useVersionsFromTag
@@ -130,8 +137,10 @@ internal object TagTasksRegistrar {
                 ) { useVersionsFromTag, useDefaultVersionsAsFallback ->
                     useVersionsFromTag to useDefaultVersionsAsFallback
                 }
-                .zip(params.versionNameStrategy
-                    .orElse(project.provider { BuildVersionNameStrategy })) { versionsParamsPair, versionNameStrategy ->
+                .zip(
+                    params.versionNameStrategy
+                        .orElse(project.provider { BuildVersionNameStrategy }),
+                ) { versionsParamsPair, versionNameStrategy ->
                     versionsParamsPair to versionNameStrategy
                 }
                 .flatMap { (versionsParamsPair, versionNameStrategy) ->
@@ -141,14 +150,15 @@ internal object TagTasksRegistrar {
                     when {
                         useVersionsFromTag -> {
                             lastBuildTag.map { tagBuildFile ->
-                                val tag = if (tagBuildFile.asFile.exists()) {
-                                    fromJson(tagBuildFile.asFile)
-                                } else {
-                                    null
-                                }
+                                val tag =
+                                    if (tagBuildFile.asFile.exists()) {
+                                        fromJson(tagBuildFile.asFile)
+                                    } else {
+                                        null
+                                    }
                                 versionNameStrategy.build(
                                     params.buildVariant,
-                                    tag
+                                    tag,
                                 )
                             }
                         }
@@ -190,9 +200,7 @@ internal object TagTasksRegistrar {
 }
 
 @Suppress("MaxLineLength")
-private fun Project.registerRenameApkTask(
-    params: RenameApkTaskParams,
-): TaskProvider<RenameApkTask> {
+private fun Project.registerRenameApkTask(params: RenameApkTaskParams): TaskProvider<RenameApkTask> {
     val variant = params.buildVariant
     val taskName = "$RENAME_APK_TASK_PREFIX${variant.capitalizedName()}"
     return tasks.register(taskName, RenameApkTask::class.java) { task ->

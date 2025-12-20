@@ -19,7 +19,7 @@ import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpServi
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 
-private const val EXTENSION_NAME = "buildPublishClickUp"
+internal const val EXTENSION_NAME = "buildPublishClickUp"
 private const val SERVICE_NAME = "clickUpService"
 private const val SERVICE_EXTENSION_NAME = "clickUpServiceExtension"
 
@@ -33,27 +33,26 @@ private const val SERVICE_EXTENSION_NAME = "clickUpServiceExtension"
  * @see ClickUpService For the underlying network operations
  */
 abstract class BuildPublishClickUpPlugin : Plugin<Project> {
-
     private val logger = Logging.getLogger(this::class.java)
 
     override fun apply(project: Project) {
         val extension =
             project.extensions.create(
                 EXTENSION_NAME,
-                BuildPublishClickUpExtension::class.java
+                BuildPublishClickUpExtension::class.java,
             )
 
         val servicesProperty =
             project.objects.mapProperty(
                 String::class.java,
-                Provider::class.java
+                Provider::class.java,
             )
         servicesProperty.set(emptyMap())
 
         project.extensions.create(
             SERVICE_EXTENSION_NAME,
             ClickUpServiceExtension::class.java,
-            servicesProperty
+            servicesProperty,
         )
 
         logger.info(extensionCreatedMessage())
@@ -79,7 +78,7 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
                     val service =
                         project.gradle.sharedServices.registerIfAbsent(
                             project.serviceName(SERVICE_NAME, name),
-                            ClickUpService::class.java
+                            ClickUpService::class.java,
                         ) {
                             it.maxParallelUsages.set(1)
                             it.parameters.token.set(authConfig.apiTokenFile)

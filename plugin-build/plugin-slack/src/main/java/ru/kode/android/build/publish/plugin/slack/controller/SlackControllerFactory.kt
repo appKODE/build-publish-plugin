@@ -8,7 +8,6 @@ import ru.kode.android.build.publish.plugin.slack.network.factory.SlackUploadApi
 import ru.kode.android.build.publish.plugin.slack.network.factory.SlackWebhookApiFactory
 
 object SlackControllerFactory {
-
     fun build(logger: Logger): SlackController {
         val json = Json { ignoreUnknownKeys = true }
         val client = SlackClientFactory.build(logger)
@@ -17,7 +16,7 @@ object SlackControllerFactory {
             json = json,
             slackApi = SlackWebhookApiFactory.build(retrofitBuilder),
             uploadApi = SlackUploadApiFactory.build(retrofitBuilder),
-            logger = logger
+            logger = logger,
         )
     }
 }

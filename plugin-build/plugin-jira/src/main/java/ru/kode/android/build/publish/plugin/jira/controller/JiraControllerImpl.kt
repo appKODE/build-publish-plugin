@@ -2,20 +2,20 @@ package ru.kode.android.build.publish.plugin.jira.controller
 
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
-import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 import ru.kode.android.build.publish.plugin.core.util.executeNoResult
+import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraFixVersion
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueStatus
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueTransition
 import ru.kode.android.build.publish.plugin.jira.messages.failedToAddFixVersionMessage
+import ru.kode.android.build.publish.plugin.jira.messages.failedToAddLabelMessage
 import ru.kode.android.build.publish.plugin.jira.messages.failedToCreateProjectVersionMessage
 import ru.kode.android.build.publish.plugin.jira.messages.failedToGetIssueFixVersionMessage
+import ru.kode.android.build.publish.plugin.jira.messages.failedToGetIssueStatusMessage
 import ru.kode.android.build.publish.plugin.jira.messages.failedToRemoveFixVersionMessage
+import ru.kode.android.build.publish.plugin.jira.messages.failedToRemoveMessage
 import ru.kode.android.build.publish.plugin.jira.messages.failedToRemoveVersionMessage
 import ru.kode.android.build.publish.plugin.jira.messages.failedToSetStatusMessage
-import ru.kode.android.build.publish.plugin.jira.messages.failedToGetIssueStatusMessage
-import ru.kode.android.build.publish.plugin.jira.messages.failedToAddLabelMessage
-import ru.kode.android.build.publish.plugin.jira.messages.failedToRemoveMessage
 import ru.kode.android.build.publish.plugin.jira.messages.issueStatusNotFoundMessage
 import ru.kode.android.build.publish.plugin.jira.messages.issueTransitionNotFoundMessage
 import ru.kode.android.build.publish.plugin.jira.messages.statusNotFoundMessage
@@ -36,7 +36,6 @@ internal class JiraControllerImpl(
     private val api: JiraApi,
     private val logger: Logger,
 ) : JiraController {
-
     /**
      * Retrieves the ID of the status with the given name in the specified project,
      * using the first issue in the list that has a transition to this status.
@@ -49,23 +48,30 @@ internal class JiraControllerImpl(
      * @throws IOException If the network request fails
      * @throws JiraApiException If the Jira API returns an error
      */
-    override fun getStatusTransitionId(projectKey: String, statusName: String, issues: List<String>): String {
+    override fun getStatusTransitionId(
+        projectKey: String,
+        statusName: String,
+        issues: List<String>,
+    ): String {
         val statuses = getProjectAvailableStatuses(projectKey)
-        val status = statuses
-            .firstOrNull { it.name.equals(statusName, ignoreCase = true) }
-            ?: throw GradleException(statusNotFoundMessage(statusName, projectKey))
+        val status =
+            statuses
+                .firstOrNull { it.name.equals(statusName, ignoreCase = true) }
+                ?: throw GradleException(statusNotFoundMessage(statusName, projectKey))
 
         val statusId = status.id
-        val issueKeyWithTransitions = issues
-            .firstOrNull { issueKey ->
-                getAvailableIssueTransitions(issueKey)
-                    .find { it.statusId == statusId } != null
-            }
-            ?: throw GradleException(issueStatusNotFoundMessage(statusName))
+        val issueKeyWithTransitions =
+            issues
+                .firstOrNull { issueKey ->
+                    getAvailableIssueTransitions(issueKey)
+                        .find { it.statusId == statusId } != null
+                }
+                ?: throw GradleException(issueStatusNotFoundMessage(statusName))
 
-        val transition = getAvailableIssueTransitions(issueKeyWithTransitions)
-            .firstOrNull { it.statusId == statusId }
-            ?: throw GradleException(issueTransitionNotFoundMessage(issueKeyWithTransitions, statusName))
+        val transition =
+            getAvailableIssueTransitions(issueKeyWithTransitions)
+                .firstOrNull { it.statusId == statusId }
+                ?: throw GradleException(issueTransitionNotFoundMessage(issueKeyWithTransitions, statusName))
 
         return transition
             .id
@@ -122,20 +128,19 @@ internal class JiraControllerImpl(
      * @throws JiraApiException If Jira responds with an error code or unexpected result.
      */
     override fun getIssueStatus(issue: String): JiraIssueStatus? {
-        val status = api.getStatus(issue)
-            .executeWithResult()
-            .onFailure { logger.error(failedToGetIssueStatusMessage(issue), it) }
-            .getOrNull()
-            ?.fields
-            ?.status
+        val status =
+            api.getStatus(issue)
+                .executeWithResult()
+                .onFailure { logger.error(failedToGetIssueStatusMessage(issue), it) }
+                .getOrNull()
+                ?.fields
+                ?.status
 
-        return if (status != null) {
+        return status?.let {
             JiraIssueStatus(
-                id = status.id,
-                name = status.name
+                id = it.id,
+                name = it.name,
             )
-        } else {
-            null
         }
     }
 
@@ -151,16 +156,17 @@ internal class JiraControllerImpl(
      * - ID: "5", Name: "Resolved"
      */
     override fun getProjectAvailableStatuses(projectKey: String): List<JiraIssueStatus> {
-        val workflows = api.getProjectStatuses(projectKey)
-            .executeWithResult()
-            .getOrThrow()
+        val workflows =
+            api.getProjectStatuses(projectKey)
+                .executeWithResult()
+                .getOrThrow()
 
         return workflows
             .flatMap { it.statuses }
             .map { status ->
                 JiraIssueStatus(
                     id = status.id,
-                    name = status.name
+                    name = status.name,
                 )
             }
             .distinctBy { it.id }
@@ -177,9 +183,10 @@ internal class JiraControllerImpl(
      * @throws JiraApiException If the Jira API returns an error
      */
     override fun getProjectId(projectKey: String): Long {
-        val project = api.getProject(projectKey)
-            .executeWithResult()
-            .getOrThrow()
+        val project =
+            api.getProject(projectKey)
+                .executeWithResult()
+                .getOrThrow()
 
         return project.id
     }
@@ -287,9 +294,7 @@ internal class JiraControllerImpl(
      * @throws IOException If request fails
      * @throws JiraApiException If Jira API returns an error
      */
-    override fun removeProjectVersion(
-        versionId: String,
-    ) {
+    override fun removeProjectVersion(versionId: String) {
         api
             .deleteVersion(
                 versionId = versionId,
@@ -316,7 +321,7 @@ internal class JiraControllerImpl(
             .map {
                 JiraFixVersion(
                     id = it.id,
-                    name = it.name
+                    name = it.name,
                 )
             }
     }
@@ -428,18 +433,18 @@ internal class JiraControllerImpl(
      * @throws JiraApiException If Jira responds with error code or unexpected result.
      */
     private fun getAvailableIssueTransitions(issue: String): List<JiraIssueTransition> {
-        val response = api.getAvailableTransitions(issue)
-            .executeWithResult()
-            .getOrThrow()
+        val response =
+            api.getAvailableTransitions(issue)
+                .executeWithResult()
+                .getOrThrow()
 
         return response.transitions
             .map { transition ->
                 JiraIssueTransition(
                     id = transition.id,
                     name = transition.name,
-                    statusId = transition.to.id
+                    statusId = transition.to.id,
                 )
             }
     }
-
 }

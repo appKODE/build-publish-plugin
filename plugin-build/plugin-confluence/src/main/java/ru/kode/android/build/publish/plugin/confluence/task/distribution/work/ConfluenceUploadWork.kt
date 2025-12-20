@@ -57,4 +57,3 @@ internal abstract class ConfluenceUploadWork : WorkAction<ConfluenceUploadParame
         }
     }
 }
-

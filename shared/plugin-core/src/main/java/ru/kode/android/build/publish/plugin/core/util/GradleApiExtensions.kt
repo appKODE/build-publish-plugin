@@ -8,6 +8,7 @@ import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
+import ru.kode.android.build.publish.plugin.core.messages.requiredConfigurationNotFoundMessage
 
 const val COMMON_CONTAINER_NAME = "default"
 
@@ -20,10 +21,8 @@ inline fun <reified T : Any> NamedDomainObjectContainer<T>.getByNameOrRequiredCo
         findByName(name) ?: getByName(defaultName)
     } catch (ex: Throwable) {
         throw GradleException(
-            "Required `$name` or `$defaultName` configuration not found. " +
-                "This can happen if the configuration was not registered or if the name is incorrect. " +
-                "Make sure that there is no errors in the build script. " +
-                ex,
+            requiredConfigurationNotFoundMessage(name, defaultName),
+            ex,
         )
     }
 }
@@ -44,10 +43,8 @@ inline fun <reified T : Any> BuildPublishDomainObjectContainer<T>.getByNameOrReq
         findByName(name) ?: getByName(defaultName)
     } catch (ex: Exception) {
         throw GradleException(
-            "Required `$name` or `$defaultName` configuration not found. " +
-                "This can happen if the configuration was not registered or if the name is incorrect. " +
-                "Make sure that there is no errors in the build script. " +
-                ex,
+            requiredConfigurationNotFoundMessage(name, defaultName),
+            ex,
         )
     }
 }
@@ -59,14 +56,17 @@ inline fun <reified T : Any> BuildPublishDomainObjectContainer<T>.getByNameOrNul
     return findByName(name) ?: findByName(defaultName)
 }
 
+@Suppress("MaxLineLength")
 inline fun <reified T : Any> NamedDomainObjectContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
     return findByName(defaultName)
 }
 
+@Suppress("MaxLineLength")
 inline fun <reified T : Any> BuildPublishDomainObjectContainer<T>.getCommon(defaultName: String = COMMON_CONTAINER_NAME): T? {
     return findByName(defaultName)
 }
 
+@Suppress("MaxLineLength")
 @Throws(InvalidUserDataException::class)
 fun <T : Any> NamedDomainObjectContainer<T>.common(configurationAction: Action<in T>): NamedDomainObjectProvider<T> {
     return this.register(COMMON_CONTAINER_NAME, configurationAction)
@@ -88,10 +88,8 @@ inline fun <reified T : Any> Provider<Map<String, Provider<T>>>.flatMapByNameOrC
         providers[name]
             ?: providers[defaultName]
             ?: throw GradleException(
-                "Required `$name` or `$defaultName` configuration not found. " +
-                    "This can happen if the configuration was not registered or if the name is incorrect. " +
-                    "Make sure that there is no errors in the build script. ",
-                IllegalStateException("Provider map keys: ${providers.keys}")
+                requiredConfigurationNotFoundMessage(name, defaultName),
+                IllegalStateException("Provider map keys: ${providers.keys}"),
             )
     }
 }
@@ -103,10 +101,8 @@ inline fun <reified T : Any> Map<String, Provider<T>>.getByNameOrCommon(
     return this[name]
         ?: this[defaultName]
         ?: throw GradleException(
-            "Required `$name` or `$defaultName` configuration not found. " +
-                "This can happen if the configuration was not registered or if the name is incorrect. " +
-                "Make sure that there is no errors in the build script. ",
-            IllegalStateException("Provider map keys: ${this.keys}")
+            requiredConfigurationNotFoundMessage(name, defaultName),
+            IllegalStateException("Provider map keys: ${this.keys}"),
         )
 }
 

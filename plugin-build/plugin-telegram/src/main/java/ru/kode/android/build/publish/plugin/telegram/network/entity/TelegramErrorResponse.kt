@@ -7,5 +7,5 @@ internal data class TelegramErrorResponse(
     val ok: Boolean,
     val error_code: Int,
     val description: String,
-    val parameters: TelegramErrorParameters? = null
+    val parameters: TelegramErrorParameters? = null,
 )

@@ -43,9 +43,8 @@ private const val ESCAPED_CHARACTERS =
 internal class TelegramControllerImpl(
     private val webhookApi: TelegramWebhookApi,
     private val distributionApi: TelegramDistributionApi,
-    private val logger: Logger
+    private val logger: Logger,
 ) : TelegramController {
-
     /**
      * Sends a text message to the specified Telegram chats using the configured bots in chunks.
      *
@@ -70,20 +69,21 @@ internal class TelegramControllerImpl(
         issueNumberPattern: String,
         bots: List<ChatSpecificTelegramBot>,
     ) {
-
-        val messageWithIssuesLinks = message.formatIssues(
-            ESCAPED_CHARACTERS,
-            issueUrlPrefix,
-            issueNumberPattern,
-        )
+        val messageWithIssuesLinks =
+            message.formatIssues(
+                ESCAPED_CHARACTERS,
+                issueUrlPrefix,
+                issueNumberPattern,
+            )
 
         val escapedUserMentions =
             userMentions
                 .joinToString(", ")
                 .escapeCharacters(ESCAPED_CHARACTERS)
 
-        val escapedHeader = header
-            .replace(ESCAPED_CHARACTERS.toRegex()) { result -> "\\${result.value}" }
+        val escapedHeader =
+            header
+                .replace(ESCAPED_CHARACTERS.toRegex()) { result -> "\\${result.value}" }
 
         messageWithIssuesLinks
             .chunked(MESSAGE_MAX_LENGTH)
@@ -163,35 +163,41 @@ internal class TelegramControllerImpl(
     override fun getLastMessage(
         botId: String,
         chatName: String,
-        topicName: String?
+        topicName: String?,
     ): TelegramLastMessage? {
-        val webhookUrl = GET_MESSAGE_IN_CHAT_WEB_HOOK.format(
-            TELEGRAM_DEFAULT_BASE_RUL,
-            botId
-        )
+        val webhookUrl =
+            GET_MESSAGE_IN_CHAT_WEB_HOOK.format(
+                TELEGRAM_DEFAULT_BASE_RUL,
+                botId,
+            )
 
-        val response = webhookApi
-            .getUpdates(null, webhookUrl)
-            .executeWithResult()
-            .getOrThrow()
+        val response =
+            webhookApi
+                .getUpdates(null, webhookUrl)
+                .executeWithResult()
+                .getOrThrow()
 
-        val messages = response
-            .result
-            .mapNotNull { it.channel_post ?: it.edited_message ?: it.message }
-            .filter { it.chat.title.contains(chatName, ignoreCase = true) }
+        val messages =
+            response
+                .result
+                .mapNotNull { it.channel_post ?: it.edited_message ?: it.message }
+                .filter { it.chat.title.contains(chatName, ignoreCase = true) }
 
-        val messageWithTopic = messages.firstOrNull {
-            val messageTopicName = it.forum_topic_created?.name
-                ?: it.reply_to_message?.forum_topic_created?.name
-            it.message_thread_id != null
-                && messageTopicName != null
-                && topicName != null
-                && messageTopicName.contains(topicName, ignoreCase = true)
-                && !it.text.isNullOrBlank()
-        }
-        val lastMessage = messages
-            .sortedByDescending { it.date }
-            .firstOrNull { !it.text.isNullOrBlank() }
+        val messageWithTopic =
+            messages.firstOrNull {
+                val messageTopicName =
+                    it.forum_topic_created?.name
+                        ?: it.reply_to_message?.forum_topic_created?.name
+                it.message_thread_id != null &&
+                    messageTopicName != null &&
+                    topicName != null &&
+                    messageTopicName.contains(topicName, ignoreCase = true) &&
+                    !it.text.isNullOrBlank()
+            }
+        val lastMessage =
+            messages
+                .sortedByDescending { it.date }
+                .firstOrNull { !it.text.isNullOrBlank() }
 
         val topicId = messageWithTopic?.message_thread_id
         return if (topicId != null && topicName != null) {
@@ -200,7 +206,7 @@ internal class TelegramControllerImpl(
                 chatName = messageWithTopic.chat.title,
                 chatId = messageWithTopic.chat.id.toString(),
                 topicId = topicId.toString(),
-                topicName = lastMessage?.forum_topic_created?.name ?: topicName
+                topicName = lastMessage?.forum_topic_created?.name ?: topicName,
             )
         } else if (topicName == null && lastMessage != null) {
             TelegramLastMessage(
@@ -210,7 +216,9 @@ internal class TelegramControllerImpl(
                 topicName = null,
                 chatName = lastMessage.chat.title,
             )
-        } else null
+        } else {
+            null
+        }
     }
 
     /**
@@ -284,7 +292,7 @@ internal class TelegramControllerImpl(
 private fun String.formatIssues(
     escapedCharacters: String,
     issueUrlPrefix: String,
-    issueNumberPattern: String
+    issueNumberPattern: String,
 ): String {
     val issueRegexp = issueNumberPattern.toRegex()
     val matchResults = issueRegexp.findAll(this).distinctBy { it.value }

@@ -31,7 +31,6 @@ abstract class TelegramDistributionTask
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
-
         init {
             description = "Task to send APK/bundle to Telegram"
             group = BasePlugin.BUILD_GROUP

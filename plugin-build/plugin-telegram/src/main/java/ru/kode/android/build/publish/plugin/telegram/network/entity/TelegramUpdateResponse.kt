@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class TelegramUpdateResponse(
     val ok: Boolean,
-    val result: List<TelegramUpdate>
+    val result: List<TelegramUpdate>,
 )

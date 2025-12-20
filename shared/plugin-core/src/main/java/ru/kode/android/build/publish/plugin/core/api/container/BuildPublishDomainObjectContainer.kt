@@ -36,7 +36,7 @@ class BuildPublishDomainObjectContainer<T : Any>(
      */
     fun common(
         @DelegatesTo.Target
-        configurationAction: Action<in T>
+        configurationAction: Action<in T>,
     ): NamedDomainObjectProvider<T> {
         return namedContainer.common(configurationAction)
     }

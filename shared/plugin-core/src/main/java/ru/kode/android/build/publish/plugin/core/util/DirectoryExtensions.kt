@@ -10,5 +10,5 @@ fun Project.changelogFileProvider(variantName: String): Provider<RegularFile> {
 
 fun Project.tagBuildFileProvider(variantName: String): Provider<RegularFile> {
     return project.layout.buildDirectory
-        .file("tag-build-${variantName}.json")
+        .file("tag-build-$variantName.json")
 }

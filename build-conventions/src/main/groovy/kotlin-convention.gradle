@@ -35,8 +35,7 @@ ktlint {
   ignoreFailures = false
   disabledRules = ["import-ordering"]
   filter {
-    include("**/kotlin/**")
-    exclude { it.file.path.contains("generated") || it.file.path.contains("test") }
+    include("src/main/**/*.kt")
   }
 }
 

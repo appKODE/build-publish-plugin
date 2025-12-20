@@ -4,5 +4,5 @@ data class ClickUpCustomField(
     val id: String,
     val name: String,
     val type: String,
-    val value: String?
+    val value: String?,
 )

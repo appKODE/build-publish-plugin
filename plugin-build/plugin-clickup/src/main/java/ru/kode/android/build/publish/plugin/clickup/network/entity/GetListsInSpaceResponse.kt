@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GetListsInSpaceResponse(
-    val lists: List<ListInSpaceMinimal>
+    val lists: List<ListInSpaceMinimal>,
 ) {
     @Serializable
     data class ListInSpaceMinimal(

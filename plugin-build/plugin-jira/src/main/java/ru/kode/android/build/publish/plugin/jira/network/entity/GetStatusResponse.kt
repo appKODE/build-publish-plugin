@@ -16,12 +16,12 @@ internal data class GetStatusResponse(
         val id: String,
         val name: String,
         val description: String? = null,
-        val statusCategory: StatusCategory? = null
+        val statusCategory: StatusCategory? = null,
     )
 
     @Serializable
     internal data class StatusCategory(
         val id: Int? = null,
-        val name: String? = null
+        val name: String? = null,
     )
 }

@@ -34,12 +34,12 @@ abstract class SlackService
     constructor(
         providerFactory: ProviderFactory,
     ) : BuildService<SlackService.Params> {
-
         interface Params : BuildServiceParameters {
             /**
              * The incoming webhook URL for sending messages
              */
             val webhookUrl: Property<String>
+
             /**
              * File containing the Slack API token for file uploads
              */
@@ -57,10 +57,10 @@ abstract class SlackService
 
         init {
             okHttpClientProperty.set(
-                SlackClientFactory.build(logger)
+                SlackClientFactory.build(logger),
             )
             jsonProperty.set(
-                providerFactory.provider { Json { ignoreUnknownKeys = true } }
+                providerFactory.provider { Json { ignoreUnknownKeys = true } },
             )
             retrofitProperty.set(
                 okHttpClientProperty.zip(jsonProperty) { client, json ->
@@ -82,12 +82,11 @@ abstract class SlackService
                     apiProperty.zip(uploadApiProperty) { webhookApi, distributionApi ->
                         SlackControllerImpl(json, webhookApi, distributionApi, logger)
                     }
-                }
+                },
             )
         }
 
         private val controller: SlackController get() = controllerProperty.get()
-
 
         /**
          * Sends a formatted message to the configured Slack webhook.
@@ -112,7 +111,7 @@ abstract class SlackService
             iconUrl: String,
             attachmentColor: String,
             issueUrlPrefix: String,
-            issueNumberPattern: String
+            issueNumberPattern: String,
         ) {
             controller.send(
                 webhookUrl = parameters.webhookUrl.get(),

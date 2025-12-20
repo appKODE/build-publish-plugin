@@ -22,6 +22,7 @@ import ru.kode.android.build.publish.plugin.telegram.task.distribution.TelegramD
 import ru.kode.android.build.publish.plugin.telegram.task.lookup.TelegramLookupTask
 
 internal const val SEND_TELEGRAM_CHANGELOG_TASK_PREFIX = "sendTelegramChangelog"
+
 // TODO: Replace with telegramDistributionUploadApk
 internal const val TELEGRAM_DISTRIBUTION_UPLOAD_APK_TASK_PREFIX = "telegramDistributionUpload"
 internal const val TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "telegramDistributionUploadBundle"
