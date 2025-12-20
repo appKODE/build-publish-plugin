@@ -32,3 +32,9 @@ tasks.register("preMerge") {
     dependsOnRecursivelyByName(this, "ktlintFormat")
     dependsOnRecursivelyByName(this, "detektDebug")
 }
+
+tasks.register("test") {
+    group = "test"
+
+    dependsOnRecursivelyByName(this, "test")
+}

@@ -6,7 +6,7 @@ fun servicesCreatedMessage(servicesKeys: Set<String>): String {
     return """
         
         |============================================================
-        |             🚀 CONFLUENCE SERVICES CREATED 🚀
+        |                CONFLUENCE SERVICES CREATED   
         |============================================================
         | Successfully created Confluence services:
         |
@@ -22,7 +22,7 @@ fun registeringServicesMessage(): String {
     return """
         
         |============================================================
-        |           🔄 REGISTERING CONFLUENCE SERVICES 🔄
+        |              REGISTERING CONFLUENCE SERVICES   
         |============================================================
         | Initializing Confluence service registration...
         |
@@ -36,7 +36,7 @@ fun noAuthConfigsMessage(): String {
     return """
         
         |============================================================
-        |       ℹ️ NO CONFLUENCE AUTH CONFIGURATIONS FOUND ℹ️
+        |          NO CONFLUENCE AUTH CONFIGURATIONS FOUND   
         |============================================================
         | No Confluence authentication configurations were found.
         | The service map will remain empty and Confluence integration 
@@ -67,7 +67,7 @@ fun foundationPluginNotFoundException(): String {
     return """
         
         |============================================================
-        |              🚨 PLUGIN CONFIGURATION ERROR 🚨
+        |                 PLUGIN CONFIGURATION ERROR   
         |============================================================
         | The Confluence plugin requires the BuildPublishFoundationPlugin
         | to be applied first.
@@ -89,7 +89,7 @@ fun extensionCreatedMessage(): String {
     return """
         
         |============================================================
-        |           ℹ️ CONFLUENCE EXTENSION INITIALIZED ℹ️
+        |              CONFLUENCE EXTENSION INITIALIZED   
         |============================================================
         | ConfluenceServiceExtension has been created but no 
         | configuration has been provided yet.
@@ -107,7 +107,7 @@ fun uploadFailedMessage(): String {
     return """
         
         |============================================================
-        |             ⚠️ CONFLUENCE UPLOAD TIMED OUT ⚠️
+        |                CONFLUENCE UPLOAD TIMED OUT   
         |============================================================
         | The Confluence upload operation timed out, but the file may
         | have been uploaded successfully.
@@ -135,7 +135,7 @@ fun ioExceptionMessage(
     return """
         
         |============================================================
-        |             ⚠️ NETWORK IO ERROR - RETRYING ⚠️
+        |                NETWORK IO ERROR - RETRYING   
         |============================================================
         | An I/O error occurred while communicating with Confluence.
         |
@@ -158,7 +158,7 @@ fun eofDuringHandShakeMessage(
     return """
         
         |============================================================
-        |          ⚠️ CONNECTION ERROR DURING HANDSHAKE ⚠️
+        |             CONNECTION ERROR DURING HANDSHAKE   
         |============================================================
         | The connection to Confluence was terminated during the 
         | TLS handshake.
@@ -184,7 +184,7 @@ fun sslHandShakeMessage(
     return """
         
         |============================================================
-        |                ⚠️ SSL HANDSHAKE FAILURE ⚠️
+        |                   SSL HANDSHAKE FAILURE   
         |============================================================
         | Failed to establish a secure connection to Confluence.
         |
@@ -205,7 +205,7 @@ fun needProvideDistributionConfigMessage(variantName: String): String {
     return """
         
         |============================================================
-        |         🚨 MISSING DISTRIBUTION CONFIGURATION 🚨
+        |            MISSING DISTRIBUTION CONFIGURATION   
         |============================================================
         | No distribution configuration found for variant: $variantName
         |
@@ -233,7 +233,7 @@ fun needProvideAuthConfigMessage(variantName: String): String {
     return """
         
         |============================================================
-        |         🚨 MISSING AUTHENTICATION CONFIGURATION 🚨
+        |            MISSING AUTHENTICATION CONFIGURATION   
         |============================================================
         | No authentication configuration found for variant: $variantName
         |

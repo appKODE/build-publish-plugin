@@ -9,7 +9,7 @@ fun servicesCreatedMessage(serviceMap: Set<String>): String {
     return """
         
         |============================================================
-        |         🚀 CLICKUP SERVICES CREATED SUCCESSFULLY 🚀
+        |            CLICKUP SERVICES CREATED SUCCESSFULLY   
         |============================================================
         | Successfully created and configured ClickUp services:
         |
@@ -25,7 +25,7 @@ fun registeringServicesMessage(): String {
     return """
         
         |============================================================
-        |             🔄 REGISTERING CLICKUP SERVICES 🔄
+        |                REGISTERING CLICKUP SERVICES   
         |============================================================
         | Initializing ClickUp service registration...
         |
@@ -39,7 +39,7 @@ fun noAuthConfigMessage(): String {
     return """
         
         |============================================================
-        |          ℹ️ NO CLICKUP AUTH CONFIGURATIONS FOUND ℹ️
+        |             NO CLICKUP AUTH CONFIGURATIONS FOUND   
         |============================================================
         | No ClickUp authentication configurations were found.
         | The service map will remain empty and ClickUp integration 
@@ -70,7 +70,7 @@ fun mustApplyFoundationPluginMessage(): String {
     return """
         
         |============================================================
-        |              🚨 PLUGIN CONFIGURATION ERROR 🚨
+        |                 PLUGIN CONFIGURATION ERROR   
         |============================================================
         | The ClickUp plugin requires the BuildPublishFoundationPlugin
         | to be applied first.
@@ -92,7 +92,7 @@ fun extensionCreatedMessage(): String {
     return """
         
         |============================================================
-        |            ℹ️ CLICKUP EXTENSION INITIALIZED ℹ️
+        |               CLICKUP EXTENSION INITIALIZED   
         |============================================================
         | ClickUp extensions has been created but no configuration
         | has been provided yet.
@@ -110,7 +110,7 @@ fun propertiesNotAppliedMessage(): String {
     return """
         
         |============================================================
-        |             ⚠️ MISSING REQUIRED PROPERTIES ⚠️
+        |                MISSING REQUIRED PROPERTIES   
         |============================================================
         | To use the fixVersion logic, 
         | the following properties must be specified:
@@ -138,7 +138,7 @@ fun issuesNotFoundMessage(): String {
     return """
         
         |============================================================
-        |            ℹ️ NO ISSUES FOUND IN CHANGELOG ℹ️
+        |               NO ISSUES FOUND IN CHANGELOG   
         |============================================================
         | No issue references were found in the changelog.
         | No automation will be performed for this build.
@@ -155,7 +155,7 @@ fun provideAutomationConfigMessage(variantName: String): String {
     return """
         
         |============================================================
-        |          ⚠️ MISSING AUTOMATION CONFIGURATION ⚠️
+        |             MISSING AUTOMATION CONFIGURATION   
         |============================================================
         | No ClickUp automation configuration found for variant: 
         | $variantName
@@ -184,7 +184,7 @@ fun provideAuthConfigMessage(variantName: String): String {
     return """
         
         |============================================================
-        |        ⚠️ MISSING AUTHENTICATION CONFIGURATION ⚠️
+        |           MISSING AUTHENTICATION CONFIGURATION   
         |============================================================
         | No ClickUp authentication configuration found for variant: 
         | $variantName
@@ -218,7 +218,7 @@ fun failedAddFieldMessage(
     return """
         
         |============================================================
-        |            ⚠️ FAILED TO ADD FIELD TO TASK ⚠️
+        |               FAILED TO ADD FIELD TO TASK   
         |============================================================
         | Field ID: $fieldId
         | Task ID: $taskId
@@ -243,7 +243,7 @@ fun customFieldClearedMessage(
     return """
         
         |============================================================
-        |          ✅ CUSTOM FIELD CLEARED SUCCESSFULLY ✅
+        |             CUSTOM FIELD CLEARED SUCCESSFULLY   
         |============================================================
         | Field ID: $fieldId
         | Task ID: $taskId
@@ -260,7 +260,7 @@ fun tagRemovedMessage(
     return """
         
         |============================================================
-        |          ✅ TAG REMOVED FROM TASK SUCCESSFULLY ✅
+        |             TAG REMOVED FROM TASK SUCCESSFULLY   
         |============================================================
         | Tag: $tagName
         | Task ID: $taskId
@@ -277,7 +277,7 @@ fun failedToRemoveTagMessage(
     return """
         
         |============================================================
-        |           ⚠️ FAILED TO REMOVE TAG FROM TASK ⚠️
+        |              FAILED TO REMOVE TAG FROM TASK   
         |============================================================
         | Tag: $tagName
         | Task ID: $taskId
@@ -303,7 +303,7 @@ fun failedAddTagMessage(
     return """
         
         |============================================================
-        |             ⚠️ FAILED TO ADD TAG TO TASK ⚠️
+        |                FAILED TO ADD TAG TO TASK   
         |============================================================
         | Tag: $tagName
         | Task ID: $taskId
@@ -329,7 +329,7 @@ fun failedToDeleteCustomFieldMessage(
     return """
         
         |============================================================
-        |       ⚠️ FAILED TO DELETE CUSTOM FIELD FROM LIST ⚠️
+        |          FAILED TO DELETE CUSTOM FIELD FROM LIST   
         |============================================================
         | Field ID: $fieldId
         | List ID: ${list.id}
@@ -355,7 +355,7 @@ fun listNotFoundForDeleteMessage(
     return """
         
         |============================================================
-        |               ⚠️ LIST NOT FOUND IN SPACE ⚠️
+        |                  LIST NOT FOUND IN SPACE   
         |============================================================
         | Space: ${space.name} (ID: ${space.id})
         | Field ID: $fieldId
@@ -387,7 +387,7 @@ fun teamNotFoundForDeleteMessage(
     return """
         
         |============================================================
-        |              ⚠️ SPACE NOT FOUND IN TEAM ⚠️
+        |                 SPACE NOT FOUND IN TEAM   
         |============================================================
         | Team: ${team.name} (ID: ${team.id})
         | Field ID: $fieldId
@@ -416,7 +416,7 @@ fun teamNotFoundForDeleteMessage(workspaceName: String): String {
     return """
         
         |============================================================
-        |           ⚠       ️ TEAM NOT FOUND ⚠️
+        |           ⚠       ️ TEAM NOT FOUND   
         |============================================================
         | Workspace: $workspaceName
         |
@@ -443,7 +443,7 @@ fun listNotFoundForCreateMessage(
     return """
         
         |============================================================
-        |               ⚠️ LIST NOT FOUND IN SPACE ⚠️
+        |                  LIST NOT FOUND IN SPACE   
         |============================================================
         | Team: ${team.name} (ID: ${team.id})
         | Workspace: $workspaceName
@@ -475,7 +475,7 @@ fun spaceNotFoundForCreateMessage(
     return """
         
         |============================================================
-        |              ⚠️ SPACE NOT FOUND IN TEAM ⚠️
+        |                 SPACE NOT FOUND IN TEAM   
         |============================================================
         | Team: ${team.name} (ID: ${team.id})
         | Workspace: $workspaceName
@@ -504,7 +504,7 @@ fun teamNotFoundForCreateMessage(workspaceName: String): String {
     return """
         
         |============================================================
-        |                   ⚠️ TEAM NOT FOUND ⚠️
+        |                      TEAM NOT FOUND   
         |============================================================
         | Workspace: $workspaceName
         |

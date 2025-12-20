@@ -40,7 +40,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = "ru.kode.android.build-publish-novo.clickup".removePrefix("$groupId.")
+            artifactId = "build-publish-novo-clickup"
             version = project.version.toString()
 
             from(components["java"])

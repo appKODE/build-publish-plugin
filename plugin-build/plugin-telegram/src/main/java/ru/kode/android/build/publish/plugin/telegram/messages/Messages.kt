@@ -12,7 +12,7 @@ fun configErrorMessage(chatName: String): String {
     return """
         |
         |============================================================
-        |        🚨🚨🚨 TELEGRAM CONFIGURATION ERROR 🚨🚨🚨
+        |               TELEGRAM CONFIGURATION ERROR   
         |============================================================
         | Failed to get last message from Telegram chat
         |
@@ -33,7 +33,7 @@ fun lookupSuccessMessage(
     return """
 
         |============================================================
-        |        📨📨📨 TELEGRAM LAST MESSAGE DETECTED 📨📨📨
+        |              TELEGRAM LAST MESSAGE DETECTED     
         |------------------------------------------------------------
         | Chat name : ${message.chatName}
         | Chat ID   : ${message.chatId}
@@ -63,7 +63,7 @@ fun mustApplyFoundationPluginMessage(): String {
     return """
         
         |============================================================
-        |              🚨 PLUGIN CONFIGURATION ERROR 🚨
+        |                 PLUGIN CONFIGURATION ERROR   
         |============================================================
         | The Telegram plugin requires the BuildPublishFoundationPlugin 
         | to be applied first.
@@ -85,7 +85,7 @@ fun configErrorExceptionMessage(chatName: String): String {
     return """
         
         |============================================================
-        |            🚨 TELEGRAM CONFIGURATION ERROR 🚨
+        |               TELEGRAM CONFIGURATION ERROR   
         |============================================================
         |
         | Failed to get last message from Telegram chat: $chatName
@@ -98,7 +98,7 @@ fun telegramUploadFailedMessage(): String {
     return """
         
         |============================================================
-        |               ⚠️ TELEGRAM UPLOAD TIMEOUT ⚠️
+        |                  TELEGRAM UPLOAD TIMEOUT   
         |============================================================
         | The file upload to Telegram timed out, but it might have 
         | been successful. 
@@ -122,7 +122,7 @@ fun failedToReadChangelogFile(file: File?): String {
         """
         
         |============================================================
-        |                 📄CHANGELOG FILE ERROR 📄
+        |                   CHANGELOG FILE ERROR   
         |============================================================
         | The changelog file at:
         |   ${file.absolutePath}
@@ -142,7 +142,7 @@ fun failedToReadChangelogFile(file: File?): String {
         """
             
             |============================================================
-            |                 📄CHANGELOG FILE ERROR 📄
+            |                   CHANGELOG FILE ERROR   
             |============================================================
             | The changelog file does not exist at the specified path.
             |
@@ -162,7 +162,7 @@ fun changelogSentMessage(): String {
     return """
         
         |============================================================
-        |           ✅ CHANGELOG UPLOADED SUCCESSFULLY ✅
+        |              CHANGELOG UPLOADED SUCCESSFULLY   
         |============================================================
         | The changelog has been successfully sent to the configured
         | Telegram chat(s).
@@ -183,7 +183,7 @@ fun noMatchingConfigurationMessage(botName: String): String {
     return """
         
         |============================================================
-        |              🤖 BOT CONFIGURATION MISSING 🤖
+        |                 BOT CONFIGURATION MISSING   
         |============================================================
         | No configuration found for bot: $botName
         |
@@ -209,7 +209,7 @@ fun noMatchingConfigurationMessage(destinationBot: DestinationTelegramBot): Stri
     return """
         
         |============================================================
-        |           🔍 BOT/CHAT CONFIGURATION MISMATCH 🔍
+        |              BOT/CHAT CONFIGURATION MISMATCH   
         |============================================================
         | Could not find matching configuration for:
         | - Bot Name: ${destinationBot.botName}
@@ -249,7 +249,7 @@ fun failedToParseRetryMessage(bodyString: String): String {
     return """
         
         |============================================================
-        |          ⚠️ TELEGRAM API RESPONSE PARSE ERROR ⚠️
+        |             TELEGRAM API RESPONSE PARSE ERROR   
         |============================================================
         | Failed to parse 'retry_after' from Telegram API response.
         |
@@ -279,7 +279,7 @@ fun tooManyRequestsMessage(
     return """
         
         |============================================================
-        |           ⚠️ TELEGRAM API RATE LIMIT REACHED ⚠️
+        |              TELEGRAM API RATE LIMIT REACHED   
         |============================================================
         | The Telegram API has rate-limited your requests.
         |
@@ -298,7 +298,7 @@ fun reachedMaxTriesMessage(maxRetries: Int): String {
     return """
         
         |============================================================
-        |            ❌ MAXIMUM RETRY ATTEMPTS REACHED ❌
+        |               MAXIMUM RETRY ATTEMPTS REACHED   
         |============================================================
         | The operation has been retried $maxRetries times but
         | continues to fail due to rate limiting.
@@ -325,7 +325,7 @@ fun needToProvideChangelogOrDistributionConfigMessage(buildVariant: String): Str
     return """
         
         |============================================================
-        |                📝 MISSING CONFIGURATION 📝
+        |                   MISSING CONFIGURATION   
         |============================================================
         | The Telegram plugin requires either a changelog or distribution
         | configuration for the '$buildVariant' build variant.
@@ -365,7 +365,7 @@ fun needToProvideBotsConfigMessage(buildVariant: String): String {
     return """
         
         |============================================================
-        |             🤖 MISSING BOTS CONFIGURATION 🤖
+        |                MISSING BOTS CONFIGURATION   
         |============================================================
         | The Telegram plugin requires a 'bots' configuration block
         | for the '$buildVariant' build variant or 'common'.
@@ -403,7 +403,7 @@ fun sendingMessageBotMessage(
     return """
         
         |============================================================
-        |              📤 SENDING TELEGRAM MESSAGE 📤
+        |                 SENDING TELEGRAM MESSAGE   
         |============================================================
         | Bot     : $botName
         | Endpoint: ${webhookUrl.take(50)} (truncated)...
@@ -419,7 +419,7 @@ fun uploadFileStartedMessage(
     return """
         
         |============================================================
-        |             📤 UPLOADING FILE TO TELEGRAM 📤
+        |                UPLOADING FILE TO TELEGRAM   
         |============================================================
         | Bot     : $botName
         | Endpoint: ${webhookUrl.take(50)} (truncated)...
@@ -435,7 +435,7 @@ fun telegramServicesCreated(servicesKeys: Set<String>): String {
     return """
         
         |============================================================
-        |            🔧 TELEGRAM SERVICES INITIALIZED 🔧
+        |               TELEGRAM SERVICES INITIALIZED   
         |============================================================
         | The following Telegram services have been created:
         |
@@ -451,7 +451,7 @@ fun registeringServiceMessage(): String {
     return """
         
         |============================================================
-        |            ⚙️ REGISTERING TELEGRAM SERVICES ⚙️
+        |               REGISTERING TELEGRAM SERVICES   
         |============================================================
         | Initializing and registering Telegram plugin services...
         |
@@ -469,7 +469,7 @@ fun noBotsConfiguredMessage(): String {
     return """
         
         |============================================================
-        |             ℹ️ NO TELEGRAM BOTS CONFIGURED ℹ️
+        |                NO TELEGRAM BOTS CONFIGURED   
         |============================================================
         | The Telegram plugin is active but no bots are configured.
         |
@@ -496,7 +496,7 @@ fun extensionCreatedMessage(): String {
     return """
         
         |============================================================
-        |             ⚡ TELEGRAM EXTENSION INITIALIZED ⚡ 
+        |               TELEGRAM EXTENSION INITIALIZED    
         |============================================================
         | The $SERVICE_EXTENSION_NAME has been created.
         |
@@ -521,7 +521,7 @@ fun distributionBundleTaskNotCreatedMessage(): String {
     return """
         
         |============================================================
-        |           📦 BUNDLE DISTRIBUTION TASK SKIPPED 📦
+        |              BUNDLE DISTRIBUTION TASK SKIPPED   
         |============================================================
         | The Telegram distribution task for Android App Bundles (AAB)
         | was not created because no destination bots are configured.
@@ -555,7 +555,7 @@ fun distributionTaskNotCreatedMessage(): String {
     return """
         
         |============================================================
-        |            📱 APK DISTRIBUTION TASK SKIPPED 📱
+        |              APK DISTRIBUTION TASK SKIPPED  
         |============================================================
         | The Telegram distribution task for APK files was not created
         | because no destination bots are configured.
@@ -589,7 +589,7 @@ fun botWithoutChatMessage(botName: String): String {
     return """
         
         |============================================================
-        |              ❌ INVALID BOT CONFIGURATION ❌ 
+        |                 INVALID BOT CONFIGURATION    
         |============================================================
         | The bot '$botName' is missing required chat configuration.
         |
@@ -624,7 +624,7 @@ fun telegramBotFailedEncodeToJsonMessage(): String {
     return """
         
         |============================================================
-        |                 ❌ SERIALIZATION ERROR ❌
+        |                    SERIALIZATION ERROR   
         |============================================================
         | Failed to serialize TelegramBot configuration to JSON.
         |
@@ -648,7 +648,7 @@ fun telegramBotJsonParsingFailedMessage(json: String): String {
     return """
         
         |============================================================
-        |               ❌ CONFIGURATION PARSE ERROR ❌ 
+        |                  CONFIGURATION PARSE ERROR    
         |============================================================
         | Failed to parse Telegram bot configuration from JSON.
         |
@@ -675,7 +675,7 @@ fun destinationBotsEncodeToJsonFailedMessage(): String {
     return """
         
         |============================================================
-        |        ❌ DESTINATION BOTS SERIALIZATION FAILED ❌ 
+        |           DESTINATION BOTS SERIALIZATION FAILED    
         |============================================================
         | Failed to serialize the list of destination bots to JSON.
         |
@@ -699,7 +699,7 @@ fun destinationBotsJsonParsingFailedMessage(json: String): String {
     return """
         
         |============================================================
-        |            ❌ DESTINATION BOTS PARSE ERROR ❌
+        |               DESTINATION BOTS PARSE ERROR   
         |============================================================
         | Failed to parse destination bots configuration from JSON.
         |

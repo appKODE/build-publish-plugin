@@ -36,7 +36,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = "ru.kode.android.build-publish-novo.play".removePrefix("$groupId.")
+            artifactId = "build-publish-novo-play"
             version = project.version.toString()
 
             from(components["java"])

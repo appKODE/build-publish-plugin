@@ -6,7 +6,7 @@ fun servicesCreatedMessages(servicesNames: Set<String>): String {
     return """
         
         |============================================================
-        |       🚀 SLACK SERVICES INITIALIZED SUCCESSFULLY 🚀
+        |          SLACK SERVICES INITIALIZED SUCCESSFULLY   
         |============================================================
         | The following Slack services have been created and configured:
         |
@@ -22,7 +22,7 @@ fun registeringServicesMessage(): String {
     return """
         
         |============================================================
-        |            🔄 REGISTERING SLACK SERVICES... 🔄
+        |               REGISTERING SLACK SERVICES...   
         |============================================================
         | Initializing and configuring Slack services...
         | This may take a moment as we set up the necessary
@@ -35,7 +35,7 @@ fun noBotsConfiguredMessage(): String {
     return """
         
         |============================================================
-        |             ℹ️ NO SLACK BOTS CONFIGURED ℹ️
+        |                NO SLACK BOTS CONFIGURED   
         |============================================================
         | No Slack bots have been configured in your build script.
         | The service map will remain empty.
@@ -63,7 +63,7 @@ fun mustApplyFoundationPluginMessage(): String {
     return """
         
         |============================================================
-        |              🚨 PLUGIN CONFIGURATION ERROR 🚨
+        |                 PLUGIN CONFIGURATION ERROR   
         |============================================================
         | The Slack plugin requires the BuildPublishFoundationPlugin
         | to be applied first.
@@ -85,7 +85,7 @@ fun extensionNotCreatedMessage(): String {
     return """
         
         |============================================================
-        |             ℹ️ SLACK EXTENSION INITIALIZED ℹ️
+        |                SLACK EXTENSION INITIALIZED   
         |============================================================
         | SlackServiceExtension has been created but no configuration
         | has been provided yet.
@@ -110,7 +110,7 @@ fun bundleDistributionNotCreatedMessage(): String {
     return """
         
         |============================================================
-        |             ℹ️ BUNDLE DISTRIBUTION SKIPPED ℹ️
+        |                BUNDLE DISTRIBUTION SKIPPED   
         |============================================================
         | The Slack distribution task for Android App Bundles was not
         | created because required configuration is missing.
@@ -132,7 +132,7 @@ fun apkDistributionNotCreatedMessage(): String {
     return """
         
         |============================================================
-        |              ℹ️ APK DISTRIBUTION SKIPPED ℹ️
+        |                 APK DISTRIBUTION SKIPPED   
         |============================================================
         | The Slack distribution task for APK files was not created
         | because required configuration is missing.
@@ -154,7 +154,7 @@ fun uploadFailedMessage(): String {
     return """
         
         |============================================================
-        |                ⚠️ SLACK UPLOAD TIMEOUT ⚠️
+        |                   SLACK UPLOAD TIMEOUT   
         |============================================================
         | The file upload to Slack timed out, but it might have been
         | successful. This is a known issue with the Slack API.
@@ -178,7 +178,7 @@ fun changelogFileNotFoundMessage(): String {
     return """
         
         |============================================================
-        |          ❌ CHANGELOG FILE NOT FOUND OR EMPTY ❌
+        |             CHANGELOG FILE NOT FOUND OR EMPTY   
         |============================================================
         | The changelog file could not be found or is empty.
         |
@@ -204,7 +204,7 @@ fun changelogSentMessage(): String {
     return """
         
         |============================================================
-        |         ✅ CHANGELOG SENT TO SLACK SUCCESSFULLY ✅
+        |            CHANGELOG SENT TO SLACK SUCCESSFULLY   
         |============================================================
         | The changelog has been successfully sent to the configured
         | Slack channel(s).
@@ -225,7 +225,7 @@ fun provideChangelogOrDistributionConfigMessage(buildVariant: String): String {
     return """
         
         |============================================================
-        |            ⚠️ MISSING REQUIRED CONFIGURATION ⚠️
+        |               MISSING REQUIRED CONFIGURATION   
         |============================================================
         | No valid configuration found for build variant: 
         | $buildVariant
@@ -252,7 +252,7 @@ fun provideBotConfigMessage(buildVariant: String): String {
     return """
         
         |============================================================
-        |              ⚠️ MISSING BOT CONFIGURATION ⚠️
+        |                 MISSING BOT CONFIGURATION   
         |============================================================
         | No bot configuration found for build variant: 
         | $buildVariant
@@ -283,7 +283,7 @@ fun blockTextHasMoreSymbolsMessage(maxSymbols: Int): String {
     return """
         
         |============================================================
-        |                  ⚠️ MESSAGE TOO LONG ⚠️
+        |                     MESSAGE TOO LONG   
         |============================================================
         | The message block text exceeds the maximum allowed length
         | of $maxSymbols characters.
@@ -302,7 +302,7 @@ fun headerTextHasMoreSymbolsMessage(maxSymbols: Int): String {
     return """
         
         |============================================================
-        |                ⚠️ HEADER TEXT TOO LONG ⚠️
+        |                   HEADER TEXT TOO LONG   
         |============================================================
         | The header text exceeds the maximum allowed length
         | of $maxSymbols characters.
@@ -320,7 +320,7 @@ fun failedToSendChangelogMessage(webhookUrl: String): String {
     return """
         |
         |============================================================
-        |          ❌ FAILED TO SEND CHANGELOG TO SLACK ❌
+        |             FAILED TO SEND CHANGELOG TO SLACK   
         |============================================================
         | Target Webhook: ${webhookUrl.take(50)} (trunked)...
         |

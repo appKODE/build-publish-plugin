@@ -554,8 +554,11 @@ class JiraFixVersionAutomationTest {
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build successful",
         )
+        val output = automationResult.output
+            .replace("\r\n", "\n")
+            .replace("\r", "\n")
         assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
+            output.contains("BUILD SUCCESSFUL"),
             "Jira automation successful"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -571,8 +574,7 @@ class JiraFixVersionAutomationTest {
             "Changelogs equality",
         )
         assertTrue {
-            automationResult.output
-                .contains(failedToAddFixVersionMessage(expectedIssueKey, expectedFixVersion))
+            output.contains(failedToAddFixVersionMessage(expectedIssueKey, expectedFixVersion))
         }
     }
 }

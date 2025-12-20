@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.api.Disabled
 import ru.kode.android.build.publish.plugin.telegram.controller.TelegramController
 import ru.kode.android.build.publish.plugin.telegram.controller.TelegramControllerFactory
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramLastMessage
@@ -28,6 +29,7 @@ import ru.kode.android.build.publish.plugin.test.utils.runTaskWithFail
 import java.io.File
 import java.io.IOException
 
+@Disabled // It is disabled because it requires to write in chats each time
 class TelegramLookupTest {
 
     private val logger: Logger = AlwaysInfoLogger()

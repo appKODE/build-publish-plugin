@@ -1230,8 +1230,11 @@ class JiraLabelAutomationTest {
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build successful",
         )
+        val output = automationResult.output
+            .replace("\r\n", "\n")
+            .replace("\r", "\n")
         assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
+            output.contains("BUILD SUCCESSFUL"),
             "Jira automation successful"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -1247,7 +1250,7 @@ class JiraLabelAutomationTest {
             "Changelogs equality",
         )
         assertTrue {
-            automationResult.output
+            output
                 .contains(failedToAddLabelMessage(expectedIssueKey, expectedIssueLabel))
         }
     }
@@ -1336,8 +1339,11 @@ class JiraLabelAutomationTest {
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build successful",
         )
+        val output = automationResult.output
+            .replace("\r\n", "\n")
+            .replace("\r", "\n")
         assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
+            output.contains("BUILD SUCCESSFUL"),
             "Jira automation successful"
         )
         assertTrue(givenOutputFile.exists(), "Output file exists")
@@ -1353,8 +1359,7 @@ class JiraLabelAutomationTest {
             "Changelogs equality",
         )
         assertTrue {
-            automationResult.output
-                .contains(failedToAddLabelMessage(expectedIssueKey, expectedIssueLabel))
+            output.contains(failedToAddLabelMessage(expectedIssueKey, expectedIssueLabel))
         }
     }
 }

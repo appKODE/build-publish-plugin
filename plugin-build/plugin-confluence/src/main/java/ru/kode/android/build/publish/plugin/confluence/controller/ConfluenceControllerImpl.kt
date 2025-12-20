@@ -133,7 +133,6 @@ internal class ConfluenceControllerImpl(
         api
             .deleteContent(attachmentId)
             .executeNoResult()
-            .getOrThrow()
     }
 
     /**
@@ -148,6 +147,5 @@ internal class ConfluenceControllerImpl(
         api
             .deleteContent(commentId)
             .executeNoResult()
-            .getOrThrow()
     }
 }

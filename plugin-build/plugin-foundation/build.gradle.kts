@@ -27,6 +27,7 @@ gradlePlugin {
             description = "Android plugin to configure output and changelog generation"
             tags.set(listOf("output", "publish", "changelog", "build"))
         }
+
         create("ru.kode.android.build-publish-novo.foundation.service") {
             id = "ru.kode.android.build-publish-novo.foundation.service"
             displayName = "Configure project output using tag and generate changelog "
@@ -42,7 +43,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = "ru.kode.android.build-publish-novo".removePrefix("$groupId.")
+            artifactId = "build-publish-novo-foundation"
             version = project.version.toString()
 
             from(components["java"])

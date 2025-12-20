@@ -12,8 +12,9 @@ retrofitSerialzation = "1.0.0"
 junit = "6.0.1"
 ksp = "2.3.4"
 play-publish = "v3-rev20231115-2.0.0"
-google-auth = "1.41.0"
-kotlinx-serialization = "1.9.0"
+googleAuth = "1.41.0"
+kotlinxSerialization = "1.9.0"
+pluginCore = "1.0.0"
 
 [libraries]
 agp = { module = "com.android.tools.build:gradle", version.ref = "agp" }
@@ -25,14 +26,16 @@ retrofitSerialization = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-s
 grgitCore = { module = "org.ajoberstar.grgit:grgit-core", version.ref = "grgit" }
 grgitGradle = { module = "org.ajoberstar.grgit:grgit-gradle", version.ref = "grgit" }
 junitBom = { module = "org.junit:junit-bom", version.ref = "junit" }
-serializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+serializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+# plugin-core is used for CI/CD build in settings.gradle.kts
+plugin-core = { group = "ru.kode.android", name = "build-publish-novo-core", version.ref = "pluginCore" }
 
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 ktlint-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
 detekt-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 play-publish = { module = "com.google.apis:google-api-services-androidpublisher", version.ref = "play-publish" }
-google-auth = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "google-auth" }
+google-auth = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "googleAuth" }
 
 [plugins]
 agp = { id = "com.android.application", version.ref = "agp" }

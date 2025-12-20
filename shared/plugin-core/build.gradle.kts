@@ -4,7 +4,6 @@ plugins {
 }
 
 group = "ru.kode.android"
-version = "1.0.0"
 
 dependencies {
     implementation(gradleApi())
@@ -15,10 +14,24 @@ dependencies {
 }
 
 publishing {
+    repositories {
+        mavenLocal()
+
+        if (System.getenv("MAVEN_URL") != null) {
+            maven {
+                url = uri(System.getenv("MAVEN_URL"))
+                credentials {
+                    username = System.getenv("MAVEN_USERNAME")
+                    password = System.getenv("MAVEN_PASSWORD")
+                }
+            }
+        }
+    }
+
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = "ru.kode.android.build-publish-novo-core".removePrefix("$groupId.")
+            artifactId = "build-publish-novo-core"
             version = project.version.toString()
 
             from(components["java"])

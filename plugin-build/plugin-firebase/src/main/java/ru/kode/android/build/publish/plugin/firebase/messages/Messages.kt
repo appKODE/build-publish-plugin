@@ -6,7 +6,7 @@ fun appDistributionConfigNotFoundMessage(buildVariantName: String): String {
     return """
         
         |============================================================
-        |       ⚠️ FIREBASE DISTRIBUTION CONFIG NOT FOUND ⚠️
+        |          FIREBASE DISTRIBUTION CONFIG NOT FOUND   
         |============================================================
         | Firebase App Distribution configuration is missing 
         | for build variant: $buildVariantName
@@ -19,7 +19,7 @@ fun provideDistributionConfigMessage(buildVariantName: String): String {
     return """
         
         |============================================================
-        |     ⚠️ MISSING FIREBASE DISTRIBUTION CONFIGURATION ⚠️
+        |        MISSING FIREBASE DISTRIBUTION CONFIGURATION   
         |============================================================
         | No distribution configuration found 
         | for build variant: $buildVariantName

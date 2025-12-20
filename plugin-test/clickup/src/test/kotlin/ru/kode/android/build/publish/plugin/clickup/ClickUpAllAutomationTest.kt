@@ -5,6 +5,7 @@ import org.gradle.testkit.runner.BuildResult
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.clickup.controller.ClickUpController
@@ -24,6 +25,7 @@ import ru.kode.android.build.publish.plugin.test.utils.runTask
 import java.io.File
 import java.io.IOException
 
+@Disabled // It disabled because free account has fixed amount of fields
 class ClickUpAllAutomationTest {
 
     private val logger: Logger = AlwaysInfoLogger()

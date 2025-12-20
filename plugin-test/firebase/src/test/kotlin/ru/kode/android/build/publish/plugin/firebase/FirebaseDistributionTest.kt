@@ -60,7 +60,7 @@ class FirebaseDistributionTest {
                 ),
             firebaseConfig = FirebaseConfig(
                 distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.path,
+                    serviceCredentialsFilePath = serviceCredentialsFile.name,
                     appId = System.getProperty("FIREBASE_APP_ID"),
                     testerGroups = listOf("testers"),
                     artifactType = "ArtifactType.Apk",
@@ -159,13 +159,13 @@ class FirebaseDistributionTest {
                 ),
             firebaseConfig = FirebaseConfig(
                 distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.path,
+                    serviceCredentialsFilePath = serviceCredentialsFile.name,
                     appId = System.getProperty("FIREBASE_APP_ID"),
                     testerGroups = listOf("testers"),
                     artifactType = "ArtifactType.Apk",
                 ),
                 distributionBuildType = "internal" to FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.path,
+                    serviceCredentialsFilePath = serviceCredentialsFile.name,
                     appId = System.getProperty("FIREBASE_APP_ID_INTERNAL"),
                     testerGroups = listOf("testers"),
                     artifactType = "ArtifactType.Apk",
@@ -261,7 +261,7 @@ class FirebaseDistributionTest {
                 ),
             firebaseConfig = FirebaseConfig(
                 distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.path,
+                    serviceCredentialsFilePath = serviceCredentialsFile.name,
                     appId = System.getProperty("FIREBASE_APP_ID"),
                     testerGroups = listOf("testers"),
                     artifactType = "ArtifactType.Apk",
@@ -345,7 +345,7 @@ class FirebaseDistributionTest {
                 ),
             firebaseConfig = FirebaseConfig(
                 distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.path,
+                    serviceCredentialsFilePath = serviceCredentialsFile.name,
                     appId = System.getProperty("FIREBASE_APP_ID"),
                     testerGroups = listOf("testers"),
                     artifactType = "ArtifactType.Bundle",
@@ -441,7 +441,7 @@ class FirebaseDistributionTest {
                 ),
             firebaseConfig = FirebaseConfig(
                 distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.path,
+                    serviceCredentialsFilePath = serviceCredentialsFile.name,
                     appId = System.getProperty("FIREBASE_APP_ID"),
                     testerGroups = listOf("testers"),
                     artifactType = "ArtifactType.Bundle",
@@ -534,7 +534,7 @@ class FirebaseDistributionTest {
                 ),
             firebaseConfig = FirebaseConfig(
                 distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.path,
+                    serviceCredentialsFilePath = serviceCredentialsFile.name,
                     appId = System.getProperty("FIREBASE_APP_ID"),
                     testerGroups = listOf("testers"),
                     artifactType = "ArtifactType.Apk",
@@ -630,7 +630,7 @@ class FirebaseDistributionTest {
                 ),
             firebaseConfig = FirebaseConfig(
                 distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.path,
+                    serviceCredentialsFilePath = serviceCredentialsFile.name,
                     appId = System.getProperty("FIREBASE_APP_ID"),
                     testerGroups = listOf("testers"),
                     artifactType = "ArtifactType.Apk",
@@ -720,7 +720,7 @@ class FirebaseDistributionTest {
                 ),
             firebaseConfig = FirebaseConfig(
                 distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.path,
+                    serviceCredentialsFilePath = serviceCredentialsFile.name,
                     appId = System.getProperty("FIREBASE_APP_ID"),
                     testerGroups = listOf("testers"),
                     artifactType = "ArtifactType.Apk",
@@ -813,7 +813,7 @@ class FirebaseDistributionTest {
                 ),
             firebaseConfig = FirebaseConfig(
                 distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.path,
+                    serviceCredentialsFilePath = serviceCredentialsFile.name,
                     appId = System.getProperty("FIREBASE_APP_ID"),
                     testerGroups = null,
                     artifactType = "ArtifactType.Apk",

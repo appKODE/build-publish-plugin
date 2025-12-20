@@ -16,7 +16,7 @@ fun cannotCreateHttpProxyMessage(
     return """
         
         |============================================================
-        |            🔌❌ PROXY CONFIGURATION ERROR ❌🔌
+        |                 PROXY CONFIGURATION ERROR
         |============================================================
         | Failed to create HTTP proxy
         |
@@ -37,7 +37,7 @@ fun createHttpProxyMessage(
     return """
         
         |============================================================
-        |       🔌✅ HTTP PROXY CONFIGURED SUCCESSFULLY 🔌✅
+        |            HTTP PROXY CONFIGURED SUCCESSFULLY     
         |============================================================
         | Host: $host
         | Port: $port
@@ -54,7 +54,7 @@ fun cannotCreateHttpsProxyMessage(
     return """
         
         |============================================================
-        |         🔐❌ HTTPS PROXY CONFIGURATION ERROR ❌🔐
+        |              HTTPS PROXY CONFIGURATION ERROR
         |============================================================
         | Failed to create HTTPS proxy
         |
@@ -76,7 +76,7 @@ fun createHttpsProxyMessage(
     return """
         
         |============================================================
-        |       🔐✅ HTTPS PROXY CONFIGURED SUCCESSFULLY 🔐✅
+        |            HTTPS PROXY CONFIGURED SUCCESSFULLY     
         |============================================================
         | Host: $host
         | Port: $port
@@ -90,7 +90,7 @@ fun proxyConnectionFailedMessage(uri: URI?): String {
     return """
         
         |============================================================
-        |               ❌ PROXY CONNECTION FAILED ❌
+        |                  PROXY CONNECTION FAILED   
         |============================================================
         | Failed to connect to proxy server
         |
@@ -118,7 +118,7 @@ fun returnAndApplyProxyMessage(
     return """
         
         |============================================================
-        |            🔄 APPLYING PROXY CONFIGURATION 🔄
+        |               APPLYING PROXY CONFIGURATION   
         |============================================================
         | Target URI: $uri
         | Proxy: ${proxyAddress ?: "No proxy (direct connection)"}
@@ -132,7 +132,7 @@ fun applyProxyAuthMessage(proxyUser: String): String {
     return """
         
         |============================================================
-        |            🔑 APPLYING PROXY AUTHENTICATION 🔑
+        |               APPLYING PROXY AUTHENTICATION   
         |============================================================
         | Authenticating as: $proxyUser
         |
@@ -145,7 +145,7 @@ fun requestingWithoutProxyMessage(request: Request): String {
     return """
         
         |============================================================
-        |                  🌐 DIRECT CONNECTION 🌐
+        |                     DIRECT CONNECTION   
         |============================================================
         | Sending request without proxy
         |
@@ -164,7 +164,7 @@ fun requestingProxyMessage(
     return """
         
         |============================================================
-        |                   🔄 PROXIED REQUEST 🔄 
+        |                      PROXIED REQUEST    
         |============================================================
         | Sending request via proxy
         |
@@ -181,7 +181,7 @@ fun proxyCredsNotSpecified(): String {
     return """
         
         |============================================================
-        |           🔐❌ PROXY AUTHENTICATION MISSING 🔐❌
+        |                PROXY AUTHENTICATION MISSING     
         |============================================================
         | Proxy authentication credentials are not specified
         |
@@ -210,7 +210,7 @@ fun String.tagPartsByRegexMessage(
     return """
         
         |============================================================
-        |                  🔍 TAG PARSING RESULT 🔍 
+        |                      TAG PARSING RESULT     
         |============================================================
         | Tag: $this
         | Regex: $regex
@@ -230,7 +230,7 @@ fun requiredConfigurationNotFoundMessage(
     return """
         
         |============================================================
-        |                 ⚠️ CONFIGURATION ERROR ⚠️ 
+        |                    CONFIGURATION ERROR    
         |============================================================
         | Required configuration not found
         |
@@ -255,7 +255,7 @@ fun failedToBuildChangelogMessage(): String {
     return """
         
         |============================================================
-        |           📝❌ CHANGELOG GENERATION FAILED 📝❌
+        |                CHANGELOG GENERATION FAILED     
         |============================================================
         | Could not generate changelog
         |
@@ -285,7 +285,7 @@ fun cannotReturnTagMessage(
     return """
         
         |============================================================
-        |           🏷️❌ INVALID TAG ORDER DETECTED 🏷️❌ 
+        |             ️   INVALID TAG ORDER DETECTED   ️   
         |============================================================
         | Cannot process tags due to incorrect version order
         |
@@ -328,7 +328,7 @@ fun findTagsByNameFoundTagsMessage(lastTwoTags: List<GrgitTag>): String {
     return """
         
         |============================================================
-        |        🔍 FOUND ${lastTwoTags.size} TAGS BY NAME
+        |            FOUND ${lastTwoTags.size} TAGS BY NAME
         |============================================================
         | The following tags were found in the repository:
         |
@@ -360,7 +360,7 @@ fun couldNotFindProvidedBuildTagMessage(
     return """
         
         |============================================================
-        |               🏷️❌ BUILD TAG NOT FOUND 🏷️❌
+        |                 ️   BUILD TAG NOT FOUND   ️  
         |============================================================
         | Could not find the specified build tag in git history
         |
@@ -391,7 +391,7 @@ fun findTagsByRangeBeforeSearchMessage(startTag: Tag.Build): String {
     return """
         
         |============================================================
-        |                 🔍 STARTING TAG SEARCH 🔍
+        |                     STARTING TAG SEARCH    
         |============================================================
         | Starting tag search from: ${startTag.name}
         |
@@ -421,7 +421,7 @@ fun finTagsByRegexAfterSortingMessage(tags: List<GrgitTag>): String {
     return """
         
         |============================================================
-        |        🔄 TAGS SORTED BY DATE (${tags.size}) 🔄 
+        |           TAGS SORTED BY DATE (${tags.size})    
         |============================================================
         | Tags sorted by commit date (newest first):
         |
@@ -449,7 +449,7 @@ fun findTagsByRegexAfterFilterMessage(
     return """
         
         |============================================================
-        |     ✅ TAGS FILTERED BY REGEX (${tags.size} matches) ✅ 
+        |        TAGS FILTERED BY REGEX (${tags.size} matches)    
         |============================================================
         | Filter pattern: $buildTagRegex
         |
@@ -480,7 +480,7 @@ fun findTagsByRegexBeforeFilterMessage(tags: List<GrgitTag>): String {
     return """
         
         |============================================================
-        |        🔍 FOUND ${tags.size} TAGS IN REPOSITORY 🔍
+        |            FOUND ${tags.size} TAGS IN REPOSITORY    
         |============================================================
         | All tags found before applying any filters:
         |
@@ -497,7 +497,7 @@ fun fileCannotBeParsedMessage(file: File): String {
     return """
         
         |============================================================
-        |               📁❌ FILE PARSING ERROR 📁❌
+        |                    FILE PARSING ERROR     
         |============================================================
         | File $file cannot be parsed
         |
@@ -515,7 +515,7 @@ fun Tag.noVariantMessage(buildVariant: String): String {
     return """
         
         |============================================================
-        |            🏗️❌ BUILD VARIANT NOT FOUND 🏗️❌
+        |              ️   BUILD VARIANT NOT FOUND   ️  
         |============================================================
         | The specified build variant was not found
         |
@@ -539,7 +539,7 @@ fun invalidRegexMessage(testRegex: String): String {
     return """
         
         |============================================================
-        |           ❓❌ INVALID REGULAR EXPRESSION ❓❌
+        |                INVALID REGULAR EXPRESSION     
         |============================================================
         | The generated regular expression is invalid
         |
@@ -564,7 +564,7 @@ fun tagPatterMustContainVariantNameMessage(group: String): String {
     return """
         
         |============================================================
-        |              🏷️❌ INVALID TAG PATTERN 🏷️❌
+        |                ️   INVALID TAG PATTERN   ️  
         |============================================================
         | The tag pattern must include the variant name
         |
@@ -583,7 +583,7 @@ fun tagPatternMustContainVersionGroupMessage(regexPart: String): String {
     return """
         
         |============================================================
-        |           🏷️❌ INVALID TAG VERSION PATTERN 🏷️❌
+        |             ️   INVALID TAG VERSION PATTERN   ️  
         |============================================================
         | The tag pattern must include a version group
         |

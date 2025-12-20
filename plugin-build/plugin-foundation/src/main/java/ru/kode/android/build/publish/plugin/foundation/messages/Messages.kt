@@ -9,7 +9,7 @@ fun outputConfigShouldBeDefinedMessage(): String {
     return """
         
         |============================================================
-        |             🚨 MISSING OUTPUT CONFIGURATION 🚨
+        |                MISSING OUTPUT CONFIGURATION   
         |============================================================
         | The output configuration has not been defined.
         |
@@ -35,7 +35,7 @@ fun configureExtensionMessage(
     return """
         
         |============================================================
-        |               ℹ️ EXTENSION CONFIGURATION ℹ️
+        |                  EXTENSION CONFIGURATION   
         |============================================================
         | Configuring `$extensionName` for `$variantName` 
         | in foundation module.
@@ -50,7 +50,7 @@ fun mustBeUsedWithAndroidMessage(): String {
     return """
         
         |============================================================
-        |              🚨 PLUGIN CONFIGURATION ERROR 🚨
+        |                 PLUGIN CONFIGURATION ERROR   
         |============================================================
         | This plugin can only be used with Android application 
         | projects.
@@ -73,7 +73,7 @@ fun mustBeUsedWithVersionMessage(): String {
     return """
         
         |============================================================
-        |      ⚠️ UNSUPPORTED ANDROID GRADLE PLUGIN VERSION ⚠️
+        |         UNSUPPORTED ANDROID GRADLE PLUGIN VERSION   
         |============================================================
         | This plugin requires Android Gradle Plugin version 7.4 
         | or higher.
@@ -100,7 +100,7 @@ fun tagNotCreatedMessage(
     return """
         
         |============================================================
-        |             🚨 BUILD TAG FILE NOT CREATED 🚨
+        |                BUILD TAG FILE NOT CREATED   
         |============================================================
         | Build tag file not created for '$buildVariant' build variant
         | and no stub tag was used because 'useStubsForTagAsFallback' 
@@ -133,7 +133,7 @@ fun usingStabMessage(
     return """
         
         |============================================================
-        |           ℹ️ USING STUB TAG FOR BUILD VARIANT ℹ️
+        |              USING STUB TAG FOR BUILD VARIANT   
         |============================================================
         | Using stub tag for build variant: $buildVariant
         |
@@ -155,7 +155,7 @@ fun invalidTagMessage(
     return """
         
         |============================================================
-        |             🚨 INVALID BUILD TAG DETECTED 🚨
+        |                INVALID BUILD TAG DETECTED   
         |============================================================
         | Invalid build tag '${buildTag.name}' for '$buildVariant' 
         | variant.
@@ -194,7 +194,7 @@ fun validBuildTagFoundMessage(
     return """
         
         |============================================================
-        |                ✅ VALID BUILD TAG FOUND ✅
+        |                   VALID BUILD TAG FOUND   
         |============================================================
         | Valid build tag found for '$buildVariant' variant:
         |
@@ -232,7 +232,7 @@ fun noChangedDetectedSinceStartMessage(): String {
     return """
         
         |============================================================
-        |                 ℹ️ NO CHANGES DETECTED ℹ️
+        |                    NO CHANGES DETECTED   
         |============================================================
         | No changes detected since the start of the repository 
         | history.
@@ -252,7 +252,7 @@ fun noChangesDetectedSinceBuildMessage(previousBuildName: String): String {
     return """
         
         |============================================================
-        |                 ℹ️ NO CHANGES DETECTED ℹ️
+        |                    NO CHANGES DETECTED   
         |============================================================
         | No changes detected since previous build $previousBuildName.
         |
@@ -274,7 +274,7 @@ fun changelogGeneratedMessage(
     return """
         
         |============================================================
-        |           ✅ CHANGELOG GENERATED SUCCESSFULLY ✅
+        |              CHANGELOG GENERATED SUCCESSFULLY   
         |============================================================
         | Changelog has been generated for build tag: 
         | ${currentBuildTag.name}
@@ -296,7 +296,7 @@ fun changelogNotGeneratedMessage(
     return """
         
         |============================================================
-        |               🚨 CHANGELOG NOT GENERATED 🚨
+        |                  CHANGELOG NOT GENERATED   
         |============================================================
         | Changelog is not generated for pattern '$buildTagPattern' 
         | and build tag '$currentBuildTag'.
@@ -316,7 +316,7 @@ fun noChangesChangelogMessage(currentBuildTag: Tag.Build): String {
     return """
         
         |============================================================
-        |               ℹ️ NO CHANGES IN CHANGELOG ℹ️
+        |                  NO CHANGES IN CHANGELOG   
         |============================================================
         | No changes detected in the changelog for build tag: 
         | ${currentBuildTag.name}

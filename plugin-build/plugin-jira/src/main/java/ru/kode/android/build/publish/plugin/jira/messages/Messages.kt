@@ -9,7 +9,7 @@ fun pluginInitializedMessage(
     return """
         
         |============================================================
-        |         🚀 JIRA PLUGIN INITIALIZED SUCCESSFULLY 🚀
+        |            JIRA PLUGIN INITIALIZED SUCCESSFULLY   
         |============================================================
         | Jira plugin has been initialized with the following 
         | configurations:
@@ -31,7 +31,7 @@ fun registeringServicesMessage(): String {
     return """
         
         |============================================================
-        |              🔄 REGISTERING JIRA SERVICES 🔄
+        |                 REGISTERING JIRA SERVICES   
         |============================================================
         |  Initializing Jira service registration...
         |============================================================
@@ -43,7 +43,7 @@ fun jiraServicesCreatedMessage(servicesNames: Set<String>): String {
     return """
         
         |============================================================
-        |           🔧 JIRA SERVICES CREATED SUCCESSFULLY 🔧
+        |              JIRA SERVICES CREATED SUCCESSFULLY   
         |============================================================
         | The following Jira services have been created and configured:
         |
@@ -59,7 +59,7 @@ fun noAuthConfigsMessage(): String {
     return """
         
         |============================================================
-        |           ℹ️ NO JIRA AUTH CONFIGURATIONS FOUND ℹ️
+        |              NO JIRA AUTH CONFIGURATIONS FOUND   
         |============================================================
         | No Jira authentication configurations were found in your 
         | build script.
@@ -91,7 +91,7 @@ fun mustApplyFoundationPluginMessage(): String {
     return """
         
         |============================================================
-        |              🚨 PLUGIN CONFIGURATION ERROR 🚨
+        |                 PLUGIN CONFIGURATION ERROR   
         |============================================================
         | The Jira plugin requires the BuildPublishFoundationPlugin
         | to be applied first.
@@ -113,7 +113,7 @@ fun serviceExtensionCreatedMessage(): String {
     return """
         
         |============================================================
-        |              ℹ️ JIRA EXTENSION INITIALIZED ℹ️
+        |                 JIRA EXTENSION INITIALIZED   
         |============================================================
         | JiraServiceExtension has been created but no configuration
         | has been provided yet.
@@ -137,7 +137,7 @@ fun issuesNoFoundMessage(): String {
     return """
         
         |============================================================
-        |             ℹ️ NO ISSUES FOUND IN CHANGELOG ℹ️
+        |                NO ISSUES FOUND IN CHANGELOG   
         |============================================================
         | No Jira issue keys were found in the changelog.
         | No Jira automation will be performed for this build.
@@ -155,7 +155,7 @@ fun failedToUpdateStatusMessage(issue: String): String {
     return """
         
         |============================================================
-        |            ⚠️ FAILED TO UPDATE ISSUE STATUS ⚠️
+        |               FAILED TO UPDATE ISSUE STATUS   
         |============================================================
         | Could not update status for issue: $issue
         |
@@ -179,7 +179,7 @@ fun needToProvideAutomationConfigMessage(variantName: String): String {
     return """
         
         |============================================================
-        |           ⚠️ MISSING AUTOMATION CONFIGURATION ⚠️
+        |              MISSING AUTOMATION CONFIGURATION   
         |============================================================
         | No Jira automation configuration found for build variant: 
         | $variantName
@@ -207,7 +207,7 @@ fun needToProvideAuthConfigMessage(variantName: String): String {
     return """
         
         |============================================================
-        |                ⚠️ MISSING AUTHENTICATION ⚠️
+        |                   MISSING AUTHENTICATION   
         |============================================================
         | No Jira authentication configuration found for build variant: 
         | $variantName
@@ -239,7 +239,7 @@ fun failedToGetIssueFixVersionMessage(issue: String): String {
     return """
         
         |============================================================
-        |           ⚠️ FAILED TO RETRIEVE FIX VERSIONS ⚠️
+        |              FAILED TO RETRIEVE FIX VERSIONS   
         |============================================================
         | Could not retrieve fix versions for issue: $issue
         |
@@ -261,7 +261,7 @@ fun failedToRemoveFixVersionMessage(issue: String): String {
     return """
         
         |============================================================
-        |            ⚠️ FAILED TO REMOVE FIX VERSION ⚠️
+        |               FAILED TO REMOVE FIX VERSION   
         |============================================================
         | Could not remove fix version from issue: $issue
         |
@@ -286,7 +286,7 @@ fun failedToAddFixVersionMessage(
     return """
         
         |============================================================
-        |              ⚠️ FAILED TO ADD FIX VERSION ⚠️
+        |                 FAILED TO ADD FIX VERSION   
         |============================================================
         | Could not add $version fix version to issue: $issue
         |
@@ -308,7 +308,7 @@ fun failedToRemoveVersionMessage(versionId: String): String {
     return """
         
         |============================================================
-        |              ⚠️ FAILED TO REMOVE VERSION ⚠️
+        |                 FAILED TO REMOVE VERSION   
         |============================================================
         | Could not remove version: $versionId
         |
@@ -333,7 +333,7 @@ fun failedToCreateProjectVersionMessage(
     return """
         
         |============================================================
-        |          ⚠️ FAILED TO CREATE PROJECT VERSION ⚠️
+        |             FAILED TO CREATE PROJECT VERSION   
         |============================================================
         | Could not create version: $version
         | Project ID: $projectId
@@ -357,7 +357,7 @@ fun failedToRemoveMessage(issue: String): String {
     return """
         
         |============================================================
-        |               ⚠️ FAILED TO REMOVE LABEL ⚠️
+        |                  FAILED TO REMOVE LABEL   
         |============================================================
         | Could not remove label from issue: $issue
         |
@@ -382,7 +382,7 @@ fun failedToAddLabelMessage(
     return """
         
         |============================================================
-        |                ⚠️ FAILED TO ADD LABEL ⚠️
+        |                   FAILED TO ADD LABEL   
         |============================================================
         | Could not add $label label to issue: $issue
         |
@@ -405,7 +405,7 @@ fun failedToGetIssueStatusMessage(issue: String): String {
     return """
         
         |============================================================
-        |             ⚠️ FAILED TO GET ISSUE STATUS ⚠️
+        |                FAILED TO GET ISSUE STATUS   
         |============================================================
         | Could not retrieve status for issue: $issue
         |
@@ -427,7 +427,7 @@ fun failedToSetStatusMessage(issue: String): String {
     return """
         
         |============================================================
-        |            ⚠️ FAILED TO SET ISSUE STATUS ⚠️
+        |               FAILED TO SET ISSUE STATUS   
         |============================================================
         | Could not update status for issue: $issue
         |
@@ -454,7 +454,7 @@ fun issueTransitionNotFoundMessage(
     return """
         
         |============================================================
-        |              ⚠️ INVALID STATUS TRANSITION ⚠️
+        |                 INVALID STATUS TRANSITION   
         |============================================================
         | Issue: $issueKeyWithTransitions
         | Target Status: $statusName
@@ -486,7 +486,7 @@ fun issueStatusNotFoundMessage(statusName: String): String {
     return """
         
         |============================================================
-        |                   ⚠️ STATUS NOT FOUND ⚠️
+        |                      STATUS NOT FOUND   
         |============================================================
         | The specified status was not found: $statusName
         |
@@ -516,7 +516,7 @@ fun statusNotFoundMessage(
     return """
         
         |============================================================
-        |            ⚠️ STATUS NOT FOUND IN PROJECT ⚠️
+        |               STATUS NOT FOUND IN PROJECT   
         |============================================================
         | Status: $statusName
         | Project: $projectKey

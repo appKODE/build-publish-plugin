@@ -40,7 +40,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = project.group.toString()
-            artifactId = "ru.kode.android.build-publish-novo.confluence".removePrefix("$groupId.")
+            artifactId = "build-publish-novo-confluence"
             version = project.version.toString()
 
             from(components["java"])
