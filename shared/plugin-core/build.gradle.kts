@@ -4,6 +4,7 @@ plugins {
 }
 
 group = "ru.kode.android"
+version = libs.versions.buildPublish.get()
 
 dependencies {
     implementation(gradleApi())

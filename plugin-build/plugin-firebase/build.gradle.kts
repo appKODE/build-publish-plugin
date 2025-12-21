@@ -5,6 +5,8 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+version = libs.versions.buildPublish.get()
+
 dependencies {
     implementation("ru.kode.android:plugin-core")
 

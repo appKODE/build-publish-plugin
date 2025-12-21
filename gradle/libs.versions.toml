@@ -1,4 +1,5 @@
 [versions]
+buildPublish = "1.0.0"
 kotlin = "2.2.21"
 agp = "8.13.2"
 detekt = "1.23.8"
@@ -14,7 +15,6 @@ ksp = "2.3.4"
 play-publish = "v3-rev20231115-2.0.0"
 googleAuth = "1.41.0"
 kotlinxSerialization = "1.9.0"
-pluginCore = "1.0.0"
 
 [libraries]
 agp = { module = "com.android.tools.build:gradle", version.ref = "agp" }
@@ -28,7 +28,7 @@ grgitGradle = { module = "org.ajoberstar.grgit:grgit-gradle", version.ref = "grg
 junitBom = { module = "org.junit:junit-bom", version.ref = "junit" }
 serializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 # plugin-core is used for CI/CD build in settings.gradle.kts
-plugin-core = { group = "ru.kode.android", name = "build-publish-novo-core", version.ref = "pluginCore" }
+plugin-core = { group = "ru.kode.android", name = "build-publish-novo-core", version.ref = "buildPublish" }
 
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 ktlint-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }

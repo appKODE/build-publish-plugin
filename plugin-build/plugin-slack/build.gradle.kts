@@ -6,6 +6,8 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
+version = libs.versions.buildPublish.get()
+
 dependencies {
     implementation("ru.kode.android:plugin-core")
 

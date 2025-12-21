@@ -38,17 +38,17 @@ includeBuild("../shared") {
         dependencySubstitution {
             val libsCatalog = settings.extensions.getByType<VersionCatalogsExtension>()
             val pluginCoreVersion = libsCatalog.named("libs")
-                .findVersion("plugin-core")
+                .findVersion("buildPublish")
                 .get()
                 .requiredVersion
             val pluginCoreLibrary = libsCatalog.named("libs")
                 .findLibrary("plugin-core")
-                .get()
+                .orElseThrow { error("plugin-core library not found in libs.versions.toml") }
                 .get()
                 .module
 
             substitute(module("ru.kode.android:build-publish-novo-core"))
-                .using(module("${pluginCoreLibrary.name}:${pluginCoreLibrary.group}:$pluginCoreVersion"))
+                .using(module("${pluginCoreLibrary.group}:${pluginCoreLibrary.name}:$pluginCoreVersion"))
                 .because("Using plugin-core from libs.versions.toml in CI/CD build")
         }
     } else {
