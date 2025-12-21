@@ -8,6 +8,10 @@ plugins {
 
 version = libs.versions.buildPublish.get()
 
+base {
+    archivesName.set("build-publish-novo-confluence")
+}
+
 dependencies {
     implementation("ru.kode.android:plugin-core")
 
@@ -34,18 +38,6 @@ gradlePlugin {
             version = project.version
             description = "Android plugin to automate Confluence operations"
             tags.set(listOf("confluence", "publish", "changelog", "build"))
-        }
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = project.group.toString()
-            artifactId = "build-publish-novo-confluence"
-            version = project.version.toString()
-
-            from(components["java"])
         }
     }
 }

@@ -7,6 +7,10 @@ plugins {
 
 version = libs.versions.buildPublish.get()
 
+base {
+    archivesName.set("build-publish-novo-play")
+}
+
 dependencies {
     implementation("ru.kode.android:plugin-core")
 
