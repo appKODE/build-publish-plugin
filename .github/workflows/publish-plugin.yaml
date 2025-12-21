@@ -40,6 +40,7 @@ jobs:
         run: ./gradlew preMerge --continue
       - name: Publish Core to GitHub Packages
         run: ./gradlew :shared:plugin-core:publish
+        continue-on-error: true
         env:
           MAVEN_URL: https://maven.pkg.github.com/${{ github.repository }}
           MAVEN_USERNAME: ${{ github.actor }}

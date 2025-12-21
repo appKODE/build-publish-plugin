@@ -8,6 +8,10 @@ plugins {
 
 version = libs.versions.buildPublish.get()
 
+base {
+    archivesName.set("build-publish-novo-jira")
+}
+
 dependencies {
     implementation("ru.kode.android:plugin-core")
 
@@ -34,18 +38,6 @@ gradlePlugin {
             version = project.version
             description = "Android plugin to automate Jira operations"
             tags.set(listOf("jira", "publish", "changelog", "build"))
-        }
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = project.group.toString()
-            artifactId = "build-publish-novo-jira"
-            version = project.version.toString()
-
-            from(components["java"])
         }
     }
 }

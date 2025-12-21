@@ -7,6 +7,10 @@ plugins {
 
 version = libs.versions.buildPublish.get()
 
+base {
+    archivesName.set("build-publish-novo-firebase")
+}
+
 dependencies {
     implementation("ru.kode.android:plugin-core")
 
@@ -30,18 +34,6 @@ gradlePlugin {
             version = project.version
             description = "Android plugin to publish bundles and apks to Firebase App Distribution with changelogs"
             tags.set(listOf("firebase", "publish", "changelog", "build"))
-        }
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = project.group.toString()
-            artifactId = "build-publish-novo-firebase"
-            version = project.version.toString()
-
-            from(components["java"])
         }
     }
 }

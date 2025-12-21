@@ -7,6 +7,10 @@ plugins {
 
 version = libs.versions.buildPublish.get()
 
+base {
+    archivesName.set("build-publish-novo-foundation")
+}
+
 dependencies {
     implementation("ru.kode.android:plugin-core")
 
@@ -33,22 +37,10 @@ gradlePlugin {
         create("ru.kode.android.build-publish-novo.foundation.service") {
             id = "ru.kode.android.build-publish-novo.foundation.service"
             displayName = "Configure project output using tag and generate changelog "
-            implementationClass = "ru.kode.android.build.publish.plugin.foundation.service.GitExecutorServicePlugin"
+            implementationClass = "ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServicePlugin"
             version = project.version
             description = "Android plugin to configure output and changelog generation"
             tags.set(listOf("output", "publish", "changelog", "build"))
-        }
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = project.group.toString()
-            artifactId = "build-publish-novo-foundation"
-            version = project.version.toString()
-
-            from(components["java"])
         }
     }
 }
