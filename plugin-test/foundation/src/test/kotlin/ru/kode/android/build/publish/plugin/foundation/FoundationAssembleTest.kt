@@ -19,7 +19,6 @@ import ru.kode.android.build.publish.plugin.test.utils.ProductFlavor
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
-import ru.kode.android.build.publish.plugin.test.utils.currentDate
 import ru.kode.android.build.publish.plugin.test.utils.extractManifestProperties
 import ru.kode.android.build.publish.plugin.test.utils.find
 import ru.kode.android.build.publish.plugin.test.utils.getFile
@@ -59,7 +58,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc321-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -67,6 +65,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-googleDebug-vc321-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -130,7 +133,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc321-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -138,6 +140,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-googleDebug-vc321-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -202,7 +209,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc321-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -210,6 +216,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-googleDebug-vc321-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -272,13 +283,17 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
 
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-googleDebug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -329,13 +344,17 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
 
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-googleDebug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -396,7 +415,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc209-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -417,6 +435,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -488,7 +511,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/autotest-release-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -504,6 +526,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/release")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-release-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -575,7 +602,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/autotest-release-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -589,6 +615,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/release")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-release-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -669,7 +700,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/autotest-release-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -685,6 +715,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/release")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-release-vc2-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -765,7 +800,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/autotest-release-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -779,6 +813,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/release")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-release-vc2-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -859,7 +898,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/autotest-release-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -875,6 +913,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/release")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-release-vc2-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -955,7 +998,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/autotest-release-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -970,6 +1012,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/release")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-release-vc2-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1043,7 +1090,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc209-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1064,6 +1110,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1137,7 +1188,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc209-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1158,6 +1208,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1231,7 +1286,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc209-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1248,6 +1302,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1321,7 +1380,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc209-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1338,6 +1396,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1424,8 +1487,13 @@ class FoundationAssembleTest {
         git.tag.addNamed(givenTagName3)
         git.tag.addNamed(givenTagName4)
 
-        val givenOutputFile1 = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc208-$currentDate.apk")
         val assemble1: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        val apkDir1 = projectDir.getFile("app/build/outputs/apk/internal")
+        val givenOutputFile1 = apkDir1.listFiles()
+            ?.first { it.name.matches(Regex("autotest-internal-vc208-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
+
         val givenOutputFileManifestProperties1 = givenOutputFile1.extractManifestProperties()
 
         projectDir.getFile("app").printFilesRecursively()
@@ -1472,8 +1540,12 @@ class FoundationAssembleTest {
 
         git.tag.addNamed(givenTagName5)
 
-        val givenOutputFile2 = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc209-$currentDate.apk")
         val assemble2: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        val apkDir2 = projectDir.getFile("app/build/outputs/apk/internal")
+        val givenOutputFile2 = apkDir2.listFiles()
+            ?.first { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
         val givenOutputFileManifestProperties2 = givenOutputFile2.extractManifestProperties()
 
         val expectedCommitSha2 = git.tag.find(givenTagName5).id
@@ -1546,7 +1618,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc209-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1568,6 +1639,11 @@ class FoundationAssembleTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             result.output.contains("Task :app:getLastTagInternal"),
             "Task getLastTagInternal executed",
@@ -1577,7 +1653,7 @@ class FoundationAssembleTest {
             "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -1609,7 +1685,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc209-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1634,6 +1709,11 @@ class FoundationAssembleTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             result.output.contains("Task :app:getLastTagInternal"),
             "Task getLastTagInternal executed",
@@ -1643,7 +1723,7 @@ class FoundationAssembleTest {
             "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -1813,7 +1893,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest-googleDebug-vc321-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -1821,6 +1900,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-googleDebug-vc321-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -2242,7 +2326,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleCabinetDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/cabinet/debug/autotest-cabinetDebug-vc323-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -2250,6 +2333,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/cabinet/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-cabinetDebug-vc323-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -2303,7 +2391,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleCabinetDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/cabinet/debug/autotest-cabinetDebug-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -2311,6 +2398,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/cabinet/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-cabinetDebug-vc1-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !result.output.contains("Task :app:getLastTagCabinetDebug"),
@@ -2321,7 +2413,7 @@ class FoundationAssembleTest {
             "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -2352,7 +2444,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleCabinetDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/cabinet/debug/autotest-cabinetDebug-vc323-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -2360,6 +2451,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/cabinet/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-cabinetDebug-vc323-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !result.output.contains("Task :app:getLastTagCabinetDebug"),
@@ -2370,7 +2466,7 @@ class FoundationAssembleTest {
             "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -2401,7 +2497,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleCabinetDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/cabinet/debug/autotest-cabinetDebug-vc323-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -2409,6 +2504,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/cabinet/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-cabinetDebug-vc323-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !result.output.contains("Task :app:getLastTagCabinetDebug"),
@@ -2419,7 +2519,7 @@ class FoundationAssembleTest {
             "Build failed",
         )
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -2462,7 +2562,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleCabinetDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/cabinet/debug/autotest-cabinetDebug-vc323-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -2476,6 +2575,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/cabinet/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-cabinetDebug-vc323-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -2558,7 +2662,6 @@ class FoundationAssembleTest {
         val givenAssembleTask = "assembleFinanceDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-financeDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/finance/debug/autotest-financeDebug-vc323-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -2572,6 +2675,11 @@ class FoundationAssembleTest {
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/finance/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-financeDebug-vc323-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 

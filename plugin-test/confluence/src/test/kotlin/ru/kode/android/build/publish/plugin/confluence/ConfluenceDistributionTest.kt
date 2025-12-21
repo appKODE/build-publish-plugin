@@ -91,7 +91,6 @@ class ConfluenceDistributionTest {
         val givenAssembleTask = "assembleDebug"
         val givenConfluenceDistributionTask = "confluenceDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -100,6 +99,11 @@ class ConfluenceDistributionTest {
         val automationResult: BuildResult = projectDir.runTaskWithFail(givenConfluenceDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -117,7 +121,7 @@ class ConfluenceDistributionTest {
             automationResult.output.contains("BUILD FAILED"),
             "Confluence distribution failed"
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -174,7 +178,6 @@ class ConfluenceDistributionTest {
         val givenAssembleTask = "assembleDebug"
         val givenConfluenceDistributionTask = "confluenceDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -192,7 +195,6 @@ class ConfluenceDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val proxyProps = mapOf(
             "https.proxyUser" to System.getProperty("PROXY_USER"),
             "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
@@ -204,6 +206,11 @@ class ConfluenceDistributionTest {
         val distributionResult: BuildResult = projectDir.runTask(givenConfluenceDistributionTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -221,7 +228,7 @@ class ConfluenceDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Confluence distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
 
         val afterAutomationAttachments = confluenceController.getAttachments(pageId)
         val afterAutomationComments = confluenceController.getComments(pageId)
@@ -287,7 +294,6 @@ class ConfluenceDistributionTest {
         val givenCommitMessage = "Initial commit"
         val givenConfluenceDistributionTask = "confluenceDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -305,7 +311,6 @@ class ConfluenceDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val proxyProps = mapOf(
             "https.proxyUser" to System.getProperty("PROXY_USER"),
             "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
@@ -316,6 +321,11 @@ class ConfluenceDistributionTest {
         val distributionResult: BuildResult = projectDir.runTask(givenConfluenceDistributionTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !distributionResult.output.contains("Task :app:getLastTagRelease"),
@@ -329,7 +339,7 @@ class ConfluenceDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Confluence distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
 
         val afterAutomationAttachments = confluenceController.getAttachments(pageId)
         val afterAutomationComments = confluenceController.getComments(pageId)
@@ -527,7 +537,6 @@ class ConfluenceDistributionTest {
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
-
 
         val proxyProps = mapOf(
             "https.proxyUser" to System.getProperty("PROXY_USER"),

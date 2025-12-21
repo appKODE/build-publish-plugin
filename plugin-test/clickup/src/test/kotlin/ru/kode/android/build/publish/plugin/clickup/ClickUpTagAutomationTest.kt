@@ -16,7 +16,6 @@ import ru.kode.android.build.publish.plugin.test.utils.FoundationConfig
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
-import ru.kode.android.build.publish.plugin.test.utils.currentDate
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
@@ -75,7 +74,6 @@ class ClickUpTagAutomationTest {
         val givenAssembleTask = "assembleDebug"
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -84,6 +82,11 @@ class ClickUpTagAutomationTest {
         val automationResult: BuildResult = projectDir.runTaskWithFail(givenClickUpAutomationTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -101,7 +104,7 @@ class ClickUpTagAutomationTest {
             automationResult.output.contains("BUILD FAILED"),
             "ClickUp automation failed"
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -156,7 +159,6 @@ class ClickUpTagAutomationTest {
         val givenAssembleTask = "assembleDebug"
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedTag = "fix_1.0.2"
@@ -178,6 +180,11 @@ class ClickUpTagAutomationTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -194,7 +201,7 @@ class ClickUpTagAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "ClickUp automation successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
             """
@@ -263,7 +270,6 @@ class ClickUpTagAutomationTest {
         val givenAssembleTask = "assembleDebug"
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedTag = "fix_1.0.2"
@@ -291,6 +297,11 @@ class ClickUpTagAutomationTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -307,7 +318,7 @@ class ClickUpTagAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "ClickUp automation successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
             """
@@ -375,7 +386,6 @@ class ClickUpTagAutomationTest {
         """.trimIndent()
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedTag = "fix_1.0.2"
@@ -396,6 +406,11 @@ class ClickUpTagAutomationTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !automationResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -408,7 +423,7 @@ class ClickUpTagAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "ClickUp automation successful"
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
 
         val expectedChangelogFile =
             """
@@ -476,7 +491,6 @@ class ClickUpTagAutomationTest {
         """.trimIndent()
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedTag = "fix_1.0.2"
@@ -503,6 +517,11 @@ class ClickUpTagAutomationTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !automationResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -515,7 +534,7 @@ class ClickUpTagAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "ClickUp automation successful"
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
 
         val expectedChangelogFile =
             """
@@ -584,7 +603,6 @@ class ClickUpTagAutomationTest {
         val givenAssembleTask = "assembleDebug"
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedTag = "fix_1.0.2"
@@ -607,6 +625,11 @@ class ClickUpTagAutomationTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -623,7 +646,7 @@ class ClickUpTagAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "ClickUp automation successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
             """
@@ -692,7 +715,6 @@ class ClickUpTagAutomationTest {
         val givenAssembleTask = "assembleDebug"
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedTag = "fix_1.0.2"
@@ -721,6 +743,11 @@ class ClickUpTagAutomationTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -737,7 +764,7 @@ class ClickUpTagAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "ClickUp automation successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
             """
@@ -805,7 +832,6 @@ class ClickUpTagAutomationTest {
         """.trimIndent()
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedTag = "fix_1.0.2"
@@ -827,6 +853,11 @@ class ClickUpTagAutomationTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !automationResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -839,7 +870,7 @@ class ClickUpTagAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "ClickUp automation successful"
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
 
         val expectedChangelogFile =
             """
@@ -907,7 +938,6 @@ class ClickUpTagAutomationTest {
         """.trimIndent()
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedTag = "fix_1.0.2"
@@ -935,6 +965,11 @@ class ClickUpTagAutomationTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !automationResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -947,7 +982,7 @@ class ClickUpTagAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "ClickUp automation successful"
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
 
         val expectedChangelogFile =
             """

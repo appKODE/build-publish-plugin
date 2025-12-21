@@ -1,8 +1,10 @@
 package ru.kode.android.build.publish.plugin.confluence.network.factory
 
+import okhttp3.ConnectionPool
 import okhttp3.Credentials
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.EOFException
@@ -80,6 +82,8 @@ private fun buildClient(
             level = HttpLoggingInterceptor.Level.BODY
         }
     return OkHttpClient.Builder()
+        .protocols(listOf(Protocol.HTTP_1_1))
+        .connectionPool(ConnectionPool(0, 1, TimeUnit.SECONDS))
         .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
         .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
         .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)

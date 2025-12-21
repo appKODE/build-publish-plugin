@@ -20,7 +20,6 @@ import ru.kode.android.build.publish.plugin.test.utils.TelegramConfig.Chat
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
-import ru.kode.android.build.publish.plugin.test.utils.currentDate
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
@@ -103,7 +102,6 @@ class TelegramLookupTest {
         val givenCommitMessage = "Initial commit"
         val telegramLookupTask = "telegramLookupDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -125,6 +123,11 @@ class TelegramLookupTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !changelogResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -137,7 +140,7 @@ class TelegramLookupTest {
             changelogResult.output.contains("BUILD SUCCESSFUL"),
             "Lookup successful",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
         assertTrue(
             changelogResult.output.contains(
                 lookupSuccessMessage(
@@ -207,7 +210,6 @@ class TelegramLookupTest {
         val givenCommitMessage = "Initial commit"
         val telegramLookupTask = "telegramLookupDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -229,6 +231,11 @@ class TelegramLookupTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !changelogResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -241,7 +248,7 @@ class TelegramLookupTest {
             changelogResult.output.contains("BUILD SUCCESSFUL"),
             "Lookup successful",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
         assertTrue(
             changelogResult.output.contains(
                 lookupSuccessMessage(
@@ -317,7 +324,6 @@ class TelegramLookupTest {
         val givenCommitMessage = "Initial commit"
         val telegramLookupTask = "telegramLookupDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -339,6 +345,11 @@ class TelegramLookupTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !changelogResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -351,7 +362,7 @@ class TelegramLookupTest {
             changelogResult.output.contains("BUILD FAILED"),
             "Lookup failed",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
         val expectedMessage = botWithoutChatMessage("ChangelogBot")
         println(expectedMessage)
         assertTrue(
@@ -419,7 +430,6 @@ class TelegramLookupTest {
         val givenCommitMessage = "Initial commit"
         val telegramLookupTask = "telegramLookupDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -441,6 +451,11 @@ class TelegramLookupTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !changelogResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -453,7 +468,7 @@ class TelegramLookupTest {
             changelogResult.output.contains("BUILD SUCCESSFUL"),
             "Lookup successful",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
         assertTrue(
             changelogResult.output.contains(
                 lookupSuccessMessage(
@@ -528,7 +543,6 @@ class TelegramLookupTest {
         val givenCommitMessage = "Initial commit"
         val telegramLookupTask = "telegramLookupDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -550,6 +564,11 @@ class TelegramLookupTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !changelogResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -562,7 +581,7 @@ class TelegramLookupTest {
             changelogResult.output.contains("BUILD SUCCESSFUL"),
             "Lookup successful",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
         val expectedLastMessage = TelegramLastMessage(
             chatId = System.getProperty("TELEGRAM_LOOKUP_CHAT_FORUM_ID"),
             chatName = "Changelog Test with Topic Lookup",

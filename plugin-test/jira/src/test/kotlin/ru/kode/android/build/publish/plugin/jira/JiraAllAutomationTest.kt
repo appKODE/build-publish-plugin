@@ -16,7 +16,6 @@ import ru.kode.android.build.publish.plugin.test.utils.JiraConfig
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
-import ru.kode.android.build.publish.plugin.test.utils.currentDate
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
@@ -144,7 +143,6 @@ class JiraAllAutomationTest {
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         git.addAllAndCommit(givenCommitMessage1)
@@ -159,6 +157,11 @@ class JiraAllAutomationTest {
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -176,7 +179,7 @@ class JiraAllAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "Jira automation successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
             """

@@ -12,7 +12,6 @@ import ru.kode.android.build.publish.plugin.test.utils.FoundationConfig
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
-import ru.kode.android.build.publish.plugin.test.utils.currentDate
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
@@ -80,7 +79,6 @@ class FirebaseDistributionTest {
         val givenChangelogTask = "generateChangelogDebug"
         val givenAppDistributionTask = "appDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -98,12 +96,16 @@ class FirebaseDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val generateChangelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
         val distributionResult: BuildResult = projectDir.runTask(givenAppDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -125,7 +127,7 @@ class FirebaseDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Firebase distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -185,7 +187,6 @@ class FirebaseDistributionTest {
         val givenChangelogTask = "generateChangelogInternal"
         val givenAppDistributionTask = "appDistributionUploadInternal"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/internal/autotest-internal-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -203,12 +204,16 @@ class FirebaseDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val generateChangelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
         val distributionResult: BuildResult = projectDir.runTask(givenAppDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-internal-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -230,7 +235,7 @@ class FirebaseDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Firebase distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -279,7 +284,6 @@ class FirebaseDistributionTest {
         val givenCommitMessage = "Initial commit"
         val givenAppDistributionTask = "appDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -297,10 +301,14 @@ class FirebaseDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val distributionResult: BuildResult = projectDir.runTaskWithFail(givenAppDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !distributionResult.output.contains("Task :app:getLastTagRelease"),
@@ -314,7 +322,7 @@ class FirebaseDistributionTest {
             distributionResult.output.contains("BUILD FAILED"),
             "Firebase distribution failed"
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -382,7 +390,6 @@ class FirebaseDistributionTest {
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
-
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val generateChangelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
@@ -461,7 +468,6 @@ class FirebaseDistributionTest {
         val givenChangelogTask = "generateChangelogDebug"
         val givenAppDistributionTask = "appDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -479,12 +485,16 @@ class FirebaseDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val generateChangelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
         val distributionResult: BuildResult = projectDir.runTaskWithFail(givenAppDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -506,7 +516,7 @@ class FirebaseDistributionTest {
             distributionResult.output.contains("BUILD FAILED"),
             "Firebase distribution failed"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -554,7 +564,6 @@ class FirebaseDistributionTest {
         val givenChangelogTask = "generateChangelogDebug"
         val givenAppDistributionTask = "appDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -579,6 +588,11 @@ class FirebaseDistributionTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -599,7 +613,7 @@ class FirebaseDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Firebase distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -649,7 +663,6 @@ class FirebaseDistributionTest {
         val givenAssembleTask = "assembleDebug"
         val givenAppDistributionTask = "appDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -667,11 +680,15 @@ class FirebaseDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val distributionResult: BuildResult = projectDir.runTaskWithFail(givenAppDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -689,7 +706,7 @@ class FirebaseDistributionTest {
             distributionResult.output.contains("BUILD FAILED"),
             "Firebase distribution failed"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -739,7 +756,6 @@ class FirebaseDistributionTest {
         val givenChangelogTask = "generateChangelogDebug"
         val givenAppDistributionTask = "appDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -762,6 +778,11 @@ class FirebaseDistributionTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !generateChangelogResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -782,7 +803,7 @@ class FirebaseDistributionTest {
             distributionResult.output.contains("BUILD FAILED"),
             "Firebase distribution failed"
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -833,7 +854,6 @@ class FirebaseDistributionTest {
         val givenChangelogTask = "generateChangelogDebug"
         val givenAppDistributionTask = "appDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -851,12 +871,16 @@ class FirebaseDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val generateChangelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
         val distributionResult: BuildResult = projectDir.runTask(givenAppDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -878,7 +902,7 @@ class FirebaseDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Firebase distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
 }

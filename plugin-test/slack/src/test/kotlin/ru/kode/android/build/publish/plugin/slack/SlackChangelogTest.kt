@@ -15,7 +15,6 @@ import ru.kode.android.build.publish.plugin.test.utils.SlackConfig
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
-import ru.kode.android.build.publish.plugin.test.utils.currentDate
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
@@ -88,7 +87,6 @@ class SlackChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenSlackChangelogTask = "sendSlackChangelogDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -111,6 +109,11 @@ class SlackChangelogTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -127,7 +130,7 @@ class SlackChangelogTest {
             changelogResult.output.contains("BUILD SUCCESSFUL"),
             "Slack changelog successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -178,7 +181,6 @@ class SlackChangelogTest {
         val givenCommitMessage = "Initial commit"
         val givenSlackChangelogTask = "sendSlackChangelogDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -200,6 +202,11 @@ class SlackChangelogTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !changelogResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -212,7 +219,7 @@ class SlackChangelogTest {
             changelogResult.output.contains("BUILD SUCCESSFUL"),
             "Slack changelog successful"
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -264,7 +271,6 @@ class SlackChangelogTest {
         val givenAssembleTask = "assembleRelease"
         val givenSlackChangelogTask = "sendSlackChangelogRelease"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/release/ceb-android-release-vc339-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -300,6 +306,11 @@ class SlackChangelogTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/release")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("ceb-android-release-vc339-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             assembleResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease executed",
@@ -316,7 +327,7 @@ class SlackChangelogTest {
             changelogResult.output.contains("BUILD SUCCESSFUL"),
             "Slack changelog successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -351,7 +362,6 @@ class SlackChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenSlackChangelogTask = "slackChangelogDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -360,6 +370,11 @@ class SlackChangelogTest {
         val automationResult: BuildResult = projectDir.runTaskWithFail(givenSlackChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -377,7 +392,7 @@ class SlackChangelogTest {
             automationResult.output.contains("BUILD FAILED"),
             "Slack changelog failed"
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 }
 

@@ -17,7 +17,6 @@ import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.addNamedWithMessage
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
-import ru.kode.android.build.publish.plugin.test.utils.currentDate
 import ru.kode.android.build.publish.plugin.test.utils.extractManifestProperties
 import ru.kode.android.build.publish.plugin.test.utils.find
 import ru.kode.android.build.publish.plugin.test.utils.getFile
@@ -67,7 +66,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -87,6 +85,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -181,7 +184,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -201,6 +203,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -297,7 +304,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -317,6 +323,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -415,7 +426,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -435,6 +445,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -533,7 +548,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -553,6 +567,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -651,7 +670,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -671,6 +689,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -769,7 +792,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -789,6 +811,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -888,7 +915,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -908,6 +934,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1007,7 +1038,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1027,6 +1057,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1126,7 +1161,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1145,6 +1179,11 @@ class FoundationChangelogTest {
         val result: BuildResult = projectDir.runTasks(givenAssembleTask, givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1246,7 +1285,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1265,6 +1303,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: false
 
         val expectedCommitSha = git.tag.find(givenTagName).id
         val expectedBuildNumber = "1"
@@ -1311,7 +1354,7 @@ class FoundationChangelogTest {
             givenChangelogFile.readText(),
             "Changelogs equality",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -1343,7 +1386,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1363,6 +1405,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1460,7 +1507,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1479,6 +1525,11 @@ class FoundationChangelogTest {
         val result: BuildResult = projectDir.runTasks(givenAssembleTask, givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1579,7 +1630,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1598,6 +1648,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: false
 
         val expectedCommitSha = git.tag.find(givenTagName).id
         val expectedBuildNumber = "1"
@@ -1643,7 +1698,7 @@ class FoundationChangelogTest {
             givenChangelogFile.readText(),
             "Changelogs equality",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -1676,7 +1731,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1709,6 +1763,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1809,7 +1868,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1842,6 +1900,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1942,7 +2005,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1975,6 +2037,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -2069,7 +2136,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2101,6 +2167,11 @@ class FoundationChangelogTest {
         val result: BuildResult = projectDir.runTasks(givenAssembleTask, givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -2203,7 +2274,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2235,6 +2305,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         val expectedCommitSha = git.tag.find(givenTagName2).id
         val expectedBuildNumber = "2"
@@ -2281,7 +2356,7 @@ class FoundationChangelogTest {
             givenChangelogFile.readText(),
             "Changelogs equality",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     @Test
@@ -2314,7 +2389,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2347,6 +2421,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -2445,7 +2524,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2477,6 +2555,11 @@ class FoundationChangelogTest {
         val result: BuildResult = projectDir.runTasks(givenAssembleTask, givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -2578,7 +2661,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2610,6 +2692,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         val expectedCommitSha = git.tag.find(givenTagName2).id
         val expectedBuildNumber = "2"
@@ -2655,7 +2742,7 @@ class FoundationChangelogTest {
             givenChangelogFile.readText(),
             "Changelogs equality",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     // TODO: Should we trigger assemble automatically before getLastTag?
@@ -2689,7 +2776,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2722,6 +2808,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         val expectedCommitSha = git.tag.find(givenTagName2).id
         val expectedBuildNumber = "3"
@@ -2767,7 +2858,7 @@ class FoundationChangelogTest {
             givenChangelogFile.readText(),
             "Changelogs equality",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     // TODO: Should we trigger assemble automatically before getLastTag?
@@ -2804,7 +2895,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2837,6 +2927,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         val expectedCommitSha = git.tag.find(givenTagName2).id
         val expectedBuildNumber = "3"
@@ -2885,7 +2980,7 @@ class FoundationChangelogTest {
             givenChangelogFile.readText(),
             "Changelogs equality",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     // TODO: Should we trigger assemble automatically before getLastTag?
@@ -2919,7 +3014,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2952,6 +3046,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         val expectedCommitSha = git.tag.find(givenTagName2).id
         val expectedBuildNumber = "3"
@@ -2999,7 +3098,7 @@ class FoundationChangelogTest {
             givenChangelogFile.readText(),
             "Changelogs equality",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
     // TODO: Should we trigger assemble automatically before getLastTag?
@@ -3036,7 +3135,6 @@ class FoundationChangelogTest {
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -3069,6 +3167,11 @@ class FoundationChangelogTest {
         val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         val expectedCommitSha = git.tag.find(givenTagName2).id
         val expectedBuildNumber = "3"
@@ -3115,6 +3218,6 @@ class FoundationChangelogTest {
             givenChangelogFile.readText(),
             "Changelogs equality",
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 }

@@ -16,7 +16,6 @@ import ru.kode.android.build.publish.plugin.test.utils.TelegramConfig.Chat
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
-import ru.kode.android.build.publish.plugin.test.utils.currentDate
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
@@ -101,7 +100,6 @@ class TelegramDistributionTest {
         val givenAssembleTask = "assembleDebug"
         val givenTelegramDistributionTask = "telegramDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -119,11 +117,15 @@ class TelegramDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val distributionResult: BuildResult = projectDir.runTask(givenTelegramDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -141,7 +143,7 @@ class TelegramDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Telegram distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -204,7 +206,6 @@ class TelegramDistributionTest {
         val givenAssembleTask = "assembleDebug"
         val givenTelegramDistributionTask = "telegramDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -222,11 +223,15 @@ class TelegramDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val distributionResult: BuildResult = projectDir.runTask(givenTelegramDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -244,7 +249,7 @@ class TelegramDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Telegram distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -307,7 +312,6 @@ class TelegramDistributionTest {
         val givenAssembleTask = "assembleDebug"
         val givenTelegramDistributionTask = "telegramDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -325,11 +329,15 @@ class TelegramDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val distributionResult: BuildResult = projectDir.runTask(givenTelegramDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -347,7 +355,7 @@ class TelegramDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Telegram distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -424,7 +432,6 @@ class TelegramDistributionTest {
         val givenTelegramChangelogTask = "sendTelegramChangelogDebug"
         val givenTelegramDistributionTask = "telegramDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -442,11 +449,15 @@ class TelegramDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val changelogResult: BuildResult = projectDir.runTask(givenTelegramChangelogTask)
         val distributionResult: BuildResult = projectDir.runTask(givenTelegramDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !changelogResult.output.contains("Task :app:getLastTagRelease"),
@@ -464,7 +475,7 @@ class TelegramDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Telegram distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -542,7 +553,6 @@ class TelegramDistributionTest {
         val givenTelegramChangelogTask = "sendTelegramChangelogDebug"
         val givenTelegramDistributionTask = "telegramDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -560,10 +570,14 @@ class TelegramDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val result: BuildResult = projectDir.runTasks(givenTelegramChangelogTask, givenTelegramDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !result.output.contains("Task :app:getLastTagRelease"),
@@ -581,7 +595,7 @@ class TelegramDistributionTest {
             !result.output.contains("BUILD FAILED"),
             "Telegram changelog and distribution not failed"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -644,7 +658,6 @@ class TelegramDistributionTest {
         val givenCommitMessage = "Initial commit"
         val givenTelegramDistributionTask = "telegramDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -662,10 +675,14 @@ class TelegramDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val distributionResult: BuildResult = projectDir.runTask(givenTelegramDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !distributionResult.output.contains("Task :app:getLastTagRelease"),
@@ -679,7 +696,7 @@ class TelegramDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Telegram distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
     }
 
     @Test
@@ -815,7 +832,6 @@ class TelegramDistributionTest {
         val givenAssembleTask = "assembleDebug"
         val givenTelegramDistributionTask = "telegramDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc1-$currentDate.apk")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -824,6 +840,11 @@ class TelegramDistributionTest {
         val automationResult: BuildResult = projectDir.runTaskWithFail(givenTelegramDistributionTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -841,7 +862,7 @@ class TelegramDistributionTest {
             automationResult.output.contains("BUILD FAILED"),
             "Telegram distribution failed"
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 }
 

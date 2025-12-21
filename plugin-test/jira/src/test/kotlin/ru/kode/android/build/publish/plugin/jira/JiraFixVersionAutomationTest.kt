@@ -17,7 +17,6 @@ import ru.kode.android.build.publish.plugin.test.utils.JiraConfig
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
-import ru.kode.android.build.publish.plugin.test.utils.currentDate
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
@@ -95,7 +94,6 @@ class JiraFixVersionAutomationTest {
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedFixVersion = "fix_1.0.2"
@@ -122,6 +120,11 @@ class JiraFixVersionAutomationTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -138,7 +141,7 @@ class JiraFixVersionAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "Jira automation successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
             """
@@ -203,7 +206,6 @@ class JiraFixVersionAutomationTest {
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedFixVersion = "fix_1.0.2"
@@ -231,6 +233,11 @@ class JiraFixVersionAutomationTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -247,7 +254,7 @@ class JiraFixVersionAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "Jira automation successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
             """
@@ -312,7 +319,6 @@ class JiraFixVersionAutomationTest {
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedFixVersion = "fix_1.0.2"
@@ -340,6 +346,11 @@ class JiraFixVersionAutomationTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -356,7 +367,7 @@ class JiraFixVersionAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "Jira automation successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
             """
@@ -421,7 +432,6 @@ class JiraFixVersionAutomationTest {
         """.trimIndent()
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-290"
@@ -447,6 +457,11 @@ class JiraFixVersionAutomationTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
         assertTrue(
             !automationResult.output.contains("Task :app:getLastTagRelease"),
             "Task getLastTagRelease not executed",
@@ -459,7 +474,7 @@ class JiraFixVersionAutomationTest {
             automationResult.output.contains("BUILD SUCCESSFUL"),
             "Jira automation successful"
         )
-        assertTrue(!givenOutputFile.exists(), "Output file not exists")
+        assertTrue(!givenOutputFileExists, "Output file not exists")
 
         val expectedChangelogFile =
             """
@@ -525,7 +540,6 @@ class JiraFixVersionAutomationTest {
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/debug/autotest-debug-vc2-$currentDate.apk")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         val expectedIssueKey = "AT-2909"
@@ -541,6 +555,11 @@ class JiraFixVersionAutomationTest {
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagRelease"),
@@ -561,7 +580,7 @@ class JiraFixVersionAutomationTest {
             output.contains("BUILD SUCCESSFUL"),
             "Jira automation successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
             """
