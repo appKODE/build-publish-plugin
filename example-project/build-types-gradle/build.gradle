@@ -42,6 +42,9 @@ buildPublishTelegram {
     bots {
         common {
             it.bot("ChangelogBot") {
+                botServerBaseUrl.set("test")
+                botServerAuth.password.set("test")
+                botServerAuth.username.set("test")
                 botId.set("test")
                 chat("ChangelogTest") {
                     chatId = "testid"

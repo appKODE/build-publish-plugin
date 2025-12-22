@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.telegram.config
 
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import javax.inject.Inject
@@ -45,6 +46,15 @@ abstract class DestinationTelegramBotConfig
         }
 
         /**
+         * Adds a new chat name to the set of chat names for this destination bot.
+         *
+         * @param chatName The name of the chat to add.
+         */
+        fun chatName(chatName: Provider<String>) {
+            chatNames.add(chatName)
+        }
+
+        /**
          * Adds multiple chat names to the set of chat names for this destination bot.
          *
          * @param chatName The names of the chats to add.
@@ -52,4 +62,23 @@ abstract class DestinationTelegramBotConfig
         fun chatNames(vararg chatName: String) {
             chatNames.addAll(chatName.toList())
         }
+
+        /**
+         * Adds multiple chat names to the set of chat names for this destination bot.
+         *
+         * @param chatNames The names of the chats to add.
+         */
+        fun chatNames(chatNames: Iterable<String>) {
+            this.chatNames.addAll(chatNames.toList())
+        }
+
+        /**
+         * Adds multiple chat names to the set of chat names for this destination bot.
+         *
+         * @param chatNames A provider that returns a list of chat names to add.
+         */
+        fun chatNames(chatNames: Provider<List<String>>) {
+            this.chatNames.addAll(chatNames)
+        }
+
     }

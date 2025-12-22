@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.slack.config
 
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 
@@ -53,11 +54,38 @@ abstract class SlackChangelogConfig {
     }
 
     /**
+     * Adds a single user or group mention to the changelog notification.
+     *
+     * @param userMention Provider of a Slack mention string (e.g., "@username", "@here", "@group-name")
+     */
+    fun userMention(userMention: Provider<String>) {
+        userMentions.add(userMention)
+    }
+
+    /**
      * Adds multiple user or group mentions to the changelog notification.
      *
      * @param userMention Vararg of Slack mention strings (e.g., "@username", "@here", "@group-name")
      */
     fun userMentions(vararg userMention: String) {
         userMentions.addAll(userMention.toList())
+    }
+
+    /**
+     * Adds multiple user or group mentions to the changelog notification.
+     *
+     * @param userMentions Iterable of Slack mention strings (e.g., "@username", "@here", "@group-name")
+     */
+    fun userMentions(userMentions: Iterable<String>) {
+        this.userMentions.addAll(userMentions)
+    }
+
+    /**
+     * Adds multiple user or group mentions to the changelog notification.
+     *
+     * @param userMentions Provider of list of Slack mention strings (e.g., "@username", "@here", "@group-name")
+     */
+    fun userMentions(userMentions: Provider<List<String>>) {
+        this.userMentions.addAll(userMentions)
     }
 }

@@ -2,6 +2,7 @@ package ru.kode.android.build.publish.plugin.firebase.config
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -71,6 +72,16 @@ abstract class FirebaseDistributionConfig {
     }
 
     /**
+     * Adds a single tester group to receive this distribution.
+     *
+     * @param testerGroup Provider of the name of the tester group to add
+     * @see testerGroup
+     */
+    fun testerGroup(testerGroup: Provider<String>) {
+        testerGroups.add(testerGroup)
+    }
+
+    /**
      * Adds multiple tester groups to receive this distribution.
      *
      * @param testerGroup Vararg parameter of tester group names to add
@@ -78,5 +89,25 @@ abstract class FirebaseDistributionConfig {
      */
     fun testerGroups(vararg testerGroup: String) {
         testerGroups.addAll(testerGroup.toList())
+    }
+
+    /**
+     * Adds multiple tester groups to receive this distribution.
+     *
+     * @param testerGroups Iterable of tester group names to add
+     * @see testerGroup
+     */
+    fun testerGroups(testerGroups: Iterable<String>) {
+        this.testerGroups.addAll(testerGroups)
+    }
+
+    /**
+     * Adds multiple tester groups to receive this distribution.
+     *
+     * @param testerGroups Provider of tester group names to add
+     * @see testerGroup
+     */
+    fun testerGroups(testerGroups: Provider<List<String>>) {
+        this.testerGroups.addAll(testerGroups)
     }
 }

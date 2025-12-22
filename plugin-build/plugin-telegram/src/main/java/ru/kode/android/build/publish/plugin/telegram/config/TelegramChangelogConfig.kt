@@ -2,6 +2,7 @@ package ru.kode.android.build.publish.plugin.telegram.config
 
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import javax.inject.Inject
@@ -60,6 +61,16 @@ abstract class TelegramChangelogConfig
         }
 
         /**
+         * Adds a single user mention to the list of user mentions.
+         *
+         * @param userMention The [Provider] of the Telegram username to mention.
+         * It should include the '@' prefix.
+         */
+        fun userMention(userMention: Provider<String>) {
+            userMentions.add(userMention)
+        }
+
+        /**
          * Adds multiple user mentions to the list of user mentions.
          *
          * @param userMention The array of Telegram usernames to mention.
@@ -67,6 +78,29 @@ abstract class TelegramChangelogConfig
          **/
         fun userMentions(vararg userMention: String) {
             userMentions.addAll(userMention.toList())
+        }
+
+        /**
+         * Adds multiple user mentions to the list of user mentions.
+         *
+         * @param userMentions The collection of Telegram usernames to mention.
+         * Each username should include the '@' prefix.
+         **/
+        fun userMentions(userMentions: Iterable<String>) {
+            this.userMentions.addAll(userMentions)
+        }
+
+        /**
+         * Adds multiple user mentions to the list of user mentions.
+         *
+         * @param userMentions Provider of collection of Telegram usernames to mention.
+         * Each username should include the '@' prefix.
+         *
+         * Note: The [Provider] is used to enable lazy evaluation of the user mentions.
+         * If the provider is not used, the user mentions will be eagerly resolved.
+         **/
+        fun userMentions(userMentions: Provider<List<String>>) {
+            this.userMentions.addAll(userMentions)
         }
 
         /**

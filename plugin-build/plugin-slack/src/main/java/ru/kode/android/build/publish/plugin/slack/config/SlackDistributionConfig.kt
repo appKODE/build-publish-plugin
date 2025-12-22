@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.slack.config
 
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 
@@ -32,11 +33,38 @@ abstract class SlackDistributionConfig {
     }
 
     /**
+     * Adds a single destination channel for file uploads.
+     *
+     * @param channelId Provider of Slack channel ID (e.g., "#releases") where files should be uploaded
+     */
+    fun destinationChannel(channelId: Provider<String>) {
+        destinationChannels.add(channelId)
+    }
+
+    /**
      * Adds multiple destination channels for file uploads.
      *
      * @param channelId Vararg of Slack channel IDs (e.g., "#releases", "#android-team")
      */
     fun destinationChannels(vararg channelId: String) {
         destinationChannels.addAll(channelId.toList())
+    }
+
+    /**
+     * Adds multiple destination channels for file uploads.
+     *
+     * @param channelIds Iterable of Slack channel IDs (e.g., "#releases", "#android-team")
+     */
+    fun destinationChannels(channelIds: Iterable<String>) {
+        this.destinationChannels.addAll(channelIds)
+    }
+
+    /**
+     * Adds multiple destination channels for file uploads.
+     *
+     * @param channelIds Provider of Slack channel IDs (e.g., "#releases", "#android-team")
+     */
+    fun destinationChannels(channelIds: Provider<List<String>>) {
+        this.destinationChannels.addAll(channelIds)
     }
 }
