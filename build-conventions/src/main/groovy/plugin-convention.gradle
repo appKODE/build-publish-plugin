@@ -1,0 +1,9 @@
+dependencies {
+    var isBuildPublication = System.getenv("IS_BUILD_PUBLICATION")?.toBoolean() ?: false
+
+    if (isBuildPublication) {
+        implementation(libs.plugin.core)
+    } else {
+        implementation("ru.kode.android:plugin-core")
+    }
+}

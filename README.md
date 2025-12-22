@@ -13,15 +13,19 @@ A comprehensive Gradle plugin suite for automating Android build publishing work
 ## Table of Contents
 
 - [Installation](#installation)
+- [Examples](#examples)
+  - [Example Project](#1-example-project)
+  - [Example Plugin](#2-example-plugin)
+  - [Plugin Tests](#3-plugin-tests)
 - [Available Plugins](#available-plugins)
-   - [Foundation Plugin](#1-foundation-plugin)
-   - [Firebase Plugin](#2-firebase-plugin)
-   - [Play Store Plugin](#3-play-store-plugin)
-   - [Slack Plugin](#4-slack-plugin)
-   - [Telegram Plugin](#5-telegram-plugin)
-   - [Jira Plugin](#6-jira-plugin)
-   - [Confluence Plugin](#7-confluence-plugin)
-   - [ClickUp Plugin](#8-clickup-plugin)
+  - [Foundation Plugin](#1-foundation-plugin-rukodeandroidbuild-publish-novofoundation)
+  - [Firebase Plugin](#2-firebase-plugin-rukodeandroidbuild-publish-novofirebase)
+  - [Play Store Plugin](#3-play-store-plugin-rukodeandroidbuild-publish-novoplay)
+  - [Slack Plugin](#4-slack-plugin-rukodeandroidbuild-publish-novoslack)
+  - [Telegram Plugin](#5-telegram-plugin-rukodeandroidbuild-publish-novotelegram)
+  - [Jira Plugin](#6-jira-plugin-rukodeandroidbuild-publish-novojira)
+  - [Confluence Plugin](#7-confluence-plugin-rukodeandroidbuild-publish-novoconfluence)
+  - [ClickUp Plugin](#8-clickup-plugin-rukodeandroidbuild-publish-novoclickup)
 - [Custom Plugin Development](#custom-plugin-development)
 - [Version Management](#version-management)
 - [Common Tasks](#common-tasks)
@@ -50,9 +54,43 @@ dependencyResolutionManagement {
 }
 ```
 
+## Examples
+
+The project includes several examples to help you get started:
+
+### 1. Example Project
+Located in `example-project/`, this is a complete Android application demonstrating how to use the plugin in a real-world scenario. It includes:
+- Multiple build types and flavors
+- Integration with Firebase and Play Store
+- Example of version management
+- Sample build configurations
+
+To use the example project:
+1. Navigate to the `example-project` directory
+2. Run `./gradlew tasks` to see available tasks
+3. Try building different variants: `./gradlew assembleDebug` or `./gradlew assembleRelease`
+
+### 2. Example Plugin
+Found in `example-plugin/`, this demonstrates how to create a custom plugin that extends the build publish functionality. It includes:
+- A simple plugin that prints the current Git tag
+- Basic plugin structure and configuration
+- Integration with the main plugin system
+
+### 3. Plugin Tests
+In the `plugin-test/` directory, you'll find test implementations for all major plugin features:
+- Firebase App Distribution
+- Google Play Store publishing
+- Jira automation
+- Slack notifications and distribution
+- Telegram notifications and distribution
+- ClickUp task management
+- Confluence distribution
+
+These test modules serve as practical references for implementing specific features in your project.
+
 ## Available Plugins
 
-### 1. Foundation Plugin (`ru.kode.android.build.publish.foundation`)
+### 1. Foundation Plugin (`ru.kode.android.build-publish-novo.foundation`)
 
 The core plugin that provides essential functionality for build publishing, version management, and changelog generation. This plugin must be applied to all modules that will use any of the publishing plugins.
 
@@ -139,7 +177,7 @@ buildPublishFoundation {
 
 ---
 
-### 2. Firebase Plugin (`ru.kode.android.build.publish.firebase`)
+### 2. Firebase Plugin (`ru.kode.android.build-publish-novo.firebase`)
 
 Publish builds to Firebase App Distribution with support for multiple variants and tester groups.
 
@@ -226,7 +264,7 @@ buildPublishFirebase {
 
 ---
 
-### 3. Play Store Plugin (`ru.kode.android.build.publish.play`)
+### 3. Play Store Plugin (`ru.kode.android.build-publish-novo.play`)
 
 Publish builds to Google Play Store with support for multiple tracks and release types.
 
@@ -304,7 +342,7 @@ buildPublishPlay {
 
 ---
 
-### 4. Slack Plugin (`ru.kode.android.build.publish.slack`)
+### 4. Slack Plugin (`ru.kode.android.build-publish-novo.slack`)
 
 Send build notifications to Slack channels with detailed build information.
 
@@ -379,7 +417,7 @@ buildPublishSlack {
 
 ---
 
-### 5. Telegram Plugin (`ru.kode.android.build.publish.telegram`)
+### 5. Telegram Plugin (`ru.kode.android.build-publish-novo.telegram`)
 
 Send build notifications to Telegram channels or groups.
 
@@ -460,7 +498,7 @@ buildPublishTelegram {
 
 ---
 
-### 6. Jira Plugin (`ru.kode.android.build.publish.jira`)
+### 6. Jira Plugin (`ru.kode.android.build-publish-novo.jira`)
 
 Update Jira tickets with build information.
 
@@ -487,7 +525,7 @@ buildPublishJira {
 
 ---
 
-### 7. Confluence Plugin (`ru.kode.android.build.publish.confluence`)
+### 7. Confluence Plugin (`ru.kode.android.build-publish-novo.confluence`)
 
 Update Confluence pages with release notes.
 
@@ -516,7 +554,7 @@ buildPublishConfluence {
 
 ---
 
-### 8. ClickUp Plugin (`ru.kode.android.build.publish.clickup`)
+### 8. ClickUp Plugin (`ru.kode.android.build-publish-novo.clickup`)
 
 Update ClickUp tasks with build information.
 
@@ -538,6 +576,149 @@ buildPublishClickUp {
 - `apiKey`: ClickUp API key
 - `teamId`: ClickUp team ID
 - `listId`: Target list ID for task creation
+
+## Custom Plugin Development
+
+Extend the build publish functionality by creating custom plugins. The plugin system is built on Gradle's plugin architecture and provides extension points for various build phases.
+
+### Creating a Custom Plugin
+
+1. Create a new Gradle module with the `java-gradle-plugin` applied:
+
+```kotlin
+// build.gradle.kts of your plugin module
+plugins {
+    `java-gradle-plugin`
+    `kotlin-dsl`
+}
+
+gradlePlugin {
+    plugins {
+        create("yourCustomPlugin") {
+            id = "com.yourcompany.build.publish.yourplugin"
+            implementationClass = "com.yourcompany.build.publish.YourCustomPlugin"
+        }
+    }
+}
+```
+
+2. Implement your plugin by extending `BasePublishPlugin`:
+
+```kotlin
+class YourCustomPlugin : BasePublishPlugin<YourExtension>() {
+    override fun createExtension(project: Project): YourExtension {
+        return project.extensions.create("buildPublishYourPlugin", YourExtension::class.java)
+    }
+    
+    override fun configureTasks(project: Project) {
+        // Register your tasks here
+    }
+}
+```
+
+3. Define your extension class:
+
+```kotlin
+abstract class YourExtension {
+    abstract val enabled: Property<Boolean>
+    abstract val customOption: Property<String>
+    
+    init {
+        enabled.convention(true)
+        customOption.convention("default")
+    }
+}
+```
+
+4. Apply and configure your plugin in the target project:
+
+```kotlin
+// app/build.gradle.kts
+plugins {
+    id("com.yourcompany.build.publish.yourplugin")
+}
+
+buildPublishYourPlugin {
+    enabled.set(true)
+    customOption.set("custom-value")
+}
+```
+
+## Version Management
+
+The plugin provides robust version management using Git tags with the following format:
+`v<major>.<minor>.<patch>-<variant>-<versionCode>`
+
+### Version Components
+- **Major**: Breaking changes
+- **Minor**: New features (resets patch)
+- **Patch**: Bug fixes
+- **Variant**: Build variant (e.g., dev, qa, prod)
+- **Version Code**: Auto-incremented integer
+
+### Version Tasks
+
+| Task | Description | Depends On |
+|------|-------------|------------|
+| `showVersion` | Displays current version information | - |
+| `incrementMajorVersion` | Bumps major version | - |
+| `incrementMinorVersion` | Bumps minor version | - |
+| `incrementPatchVersion` | Bumps patch version | - |
+| `tagVersion` | Creates a Git tag with current version | - |
+
+### Version Configuration
+
+Configure version management in your root `build.gradle.kts`:
+
+```kotlin
+buildPublish {
+    version {
+        initialVersion.set("1.0.0")
+        versionFile.set(project.rootProject.file("version.properties"))
+        requireCleanWorkingDir.set(true)
+        pushTags.set(true)
+    }
+}
+```
+
+## Common Tasks
+
+### Build and Publish
+
+| Task | Description |
+|------|-------------|
+| `buildAndPublish<Variant>` | Builds and publishes the specified variant |
+| `publishToAllChannels<Variant>` | Publishes to all configured channels |
+| `buildAndPublishAllVariants` | Builds and publishes all variants |
+
+### Distribution
+
+| Task | Description |
+|------|-------------|
+| `distributeToTesters<Variant>` | Distributes build to testers |
+| `notifyTeam<Variant>` | Sends notifications to the team |
+| `updateReleaseNotes<Variant>` | Updates release notes |
+
+### Maintenance
+
+| Task | Description |
+|------|-------------|
+| `cleanAll` | Cleans all build artifacts |
+| `updateDependencies` | Updates project dependencies |
+| `generateChangelog` | Generates changelog from Git history |
+
+### Example Usage
+
+```bash
+# Build and publish a debug build
+./gradlew buildAndPublishDebug
+
+# Increment version and tag
+./gradlew incrementMinorVersion tagVersion
+
+# Clean and rebuild
+./gradlew cleanAll build
+```
 
 ## Troubleshooting
 
