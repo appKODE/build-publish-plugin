@@ -33,28 +33,8 @@ includeBuild("../plugin-build")
 includeBuild("../example-plugin")
 includeBuild("../build-conventions")
 includeBuild("../shared") {
-    val isBuildPublication: Boolean = System.getenv("IS_BUILD_PUBLICATION")?.toBoolean() ?: false
-    if (isBuildPublication) {
-        dependencySubstitution {
-            val libsCatalog = settings.extensions.getByType<VersionCatalogsExtension>()
-            val pluginCoreVersion = libsCatalog.named("libs")
-                .findVersion("buildPublish")
-                .get()
-                .requiredVersion
-            val pluginCoreLibrary = libsCatalog.named("libs")
-                .findLibrary("plugin-core")
-                .orElseThrow { error("plugin-core library not found in libs.versions.toml") }
-                .get()
-                .module
-
-            substitute(module("ru.kode.android:build-publish-novo-core"))
-                .using(module("${pluginCoreLibrary.group}:${pluginCoreLibrary.name}:$pluginCoreVersion"))
-                .because("Using plugin-core from libs.versions.toml in CI/CD build")
-        }
-    } else {
-        dependencySubstitution {
-            substitute(module("ru.kode.android:build-publish-novo-core"))
-                .using(project(":plugin-core"))
-        }
+    dependencySubstitution {
+        substitute(module("ru.kode.android:plugin-core"))
+            .using(project(":plugin-core"))
     }
 }

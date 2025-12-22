@@ -40,8 +40,17 @@ include(":plugin-confluence")
 include(":plugin-firebase")
 includeBuild("../build-conventions")
 includeBuild("../shared") {
-    dependencySubstitution {
-        substitute(module("ru.kode.android:plugin-core"))
-            .using(project(":plugin-core"))
+    val isBuildPublication: Boolean = System.getenv("IS_BUILD_PUBLICATION")?.toBoolean() ?: false
+    if (isBuildPublication) {
+        dependencySubstitution {
+            substitute(module("ru.kode.android:plugin-core"))
+                .using(module("ru.kode.android:build-publish-novo-core:1.0.2"))
+                .because("Using plugin-core from libs.versions.toml in CI/CD build")
+        }
+    } else {
+        dependencySubstitution {
+            substitute(module("ru.kode.android:plugin-core"))
+                .using(project(":plugin-core"))
+        }
     }
 }
