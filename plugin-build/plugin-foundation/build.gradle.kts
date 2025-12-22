@@ -1,19 +1,16 @@
 plugins {
     id("kotlin-convention")
+    id("plugin-convention")
     id("java-gradle-plugin")
     id("com.gradle.plugin-publish")
     id("com.google.devtools.ksp")
 }
-
-version = libs.versions.buildPublish.get()
 
 base {
     archivesName.set("build-publish-novo-foundation")
 }
 
 dependencies {
-    implementation("ru.kode.android:plugin-core")
-
     implementation(gradleApi())
     implementation(libs.agp)
     implementation(libs.grgitCore)
@@ -45,6 +42,12 @@ gradlePlugin {
     }
 }
 
+publishing {
+    repositories {
+        mavenLocal()
+    }
+}
+
 tasks.register("setupPluginUploadFromEnvironment") {
     doLast {
         val key = System.getenv("GRADLE_PUBLISH_KEY")
@@ -58,3 +61,4 @@ tasks.register("setupPluginUploadFromEnvironment") {
         System.setProperty("gradle.publish.secret", secret)
     }
 }
+

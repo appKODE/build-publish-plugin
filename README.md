@@ -646,15 +646,133 @@ buildPublishYourPlugin {
 
 ## Version Management
 
-The plugin provides robust version management using Git tags with the following format:
-`v<major>.<minor>.<patch>-<variant>-<versionCode>`
+The plugin provides robust version management using Git tags. This section details the tag format, usage, and best practices.
+
+### Tag Format
+
+Tags should follow the pattern: `<prefix>.<versionCode>-<variant>` where:
+- `<prefix>` is any text (e.g., 'v1.0', 'app', 'release')
+- `<versionCode>` is the incremental build number (e.g., 100, 101, 200)
+- `<variant>` is the build variant in lowercase (e.g., debug, release, staging)
+
+### Tag Examples
+```
+# Default format
+v1.0.100-debug
+app.101-release
+release.200-qa
+build.300-staging
+
+# With custom prefix
+myapp.400-prod
+feature-x.500-dev
+```
+
+### Version Increment Rules
+- **Major version (x.0.0)**: Breaking changes or major features
+- **Minor version (1.x.0)**: New features, backwards compatible
+- **Patch version (1.0.x)**: Bug fixes and minor improvements
+
+### Creating and Managing Tags
+
+1. **Create a new tag**:
+   ```bash
+   # Basic tag
+   git tag v1.0.100-release
+   
+   # Annotated tag (recommended)
+   git tag -a v1.0.100-release -m "Release 1.0.0"
+   ```
+
+2. **Push tags to remote**:
+   ```bash
+   # Push a single tag
+   git push origin v1.0.100-release
+   
+   # Push all tags
+   git push --tags
+   ```
+
+3. **Viewing and managing tags**:
+   ```bash
+   # List all tags
+   git tag -l
+   
+   # Show tag details
+   git show v1.0.100-release
+   
+   # Delete a local tag
+   git tag -d v1.0.100-release
+   
+   # Delete a remote tag
+   git push --delete origin v1.0.100-release
+   ```
+
+### Special Release Tags
+For pre-release versions, you can include these in your tag pattern:
+- **Release Candidates**: `-rcX` (e.g., `v1.0.100-rc1-debug`)
+- **Beta Releases**: `-betaX` (e.g., `app.101-beta2-release`)
+- **Alpha Releases**: `-alphaX` (e.g., `build.200-alpha3-qa`)
+
+To use these, update your tag pattern to include the pre-release part:
+
+```kotlin
+buildTagPattern {
+    literal("v").buildVersion()
+        .separator("-").anyOptionalSymbols()  // For pre-release identifiers
+        .separator("-").buildVariantName()
+}
+```
+
+### Best Practices
+1. Always create tags on the main or release branches
+2. Never reuse or overwrite tags
+3. Use annotated tags for better traceability
+4. Keep version numbers in sync with your `build.gradle`
+5. Document releases in your changelog
+
+### Automatic Version Detection
+The plugin can automatically detect versions from tags. Configure the pattern in your `build.gradle`:
+
+```kotlin
+buildPublishFoundation {
+   output {
+      common {
+         useVersionsFromTag.set(true)
+         buildTagPattern { 
+             // Default pattern: any text followed by .{versionCode}-{variant}
+             // Example: v1.0.100-debug, app.101-release
+             literal("v").buildVersion().separator("-").buildVariantName()
+         }
+      }
+   }
+}
+```
 
 ### Version Components
-- **Major**: Breaking changes
-- **Minor**: New features (resets patch)
-- **Patch**: Bug fixes
-- **Variant**: Build variant (e.g., dev, qa, prod)
-- **Version Code**: Auto-incremented integer
+- **Prefix**: Any text (e.g., 'v1.0', 'app', 'release')
+- **Version Code**: Auto-incremented integer (required)
+- **Variant**: Build variant (e.g., dev, qa, prod, required)
+
+### Custom Tag Pattern
+
+You can customize the tag pattern using the `buildTagPattern` DSL:
+
+```kotlin
+buildPublishFoundation {
+   output {
+      common {
+         buildTagPattern {
+             // Example: Matches 'app-{versionCode}-{variant}'
+             literal("app").separator("-").buildVersion().separator("-").buildVariantName()
+             
+             // Or use the default pattern with a custom prefix
+             // literal("myprefix").separator(".").buildVersion().separator("-").buildVariantName()
+         }
+      }
+   }
+}
+```
 
 ### Version Tasks
 

@@ -1,10 +1,11 @@
 plugins {
     id("kotlin-convention")
     id("maven-publish")
+    alias(libs.plugins.vanniktech.maven.publish)
 }
 
 group = "ru.kode.android"
-version = libs.versions.buildPublish.get()
+version = libs.versions.buildPublishShared.get()
 
 dependencies {
     implementation(gradleApi())
@@ -14,28 +15,38 @@ dependencies {
     implementation(libs.retrofit)
 }
 
-publishing {
-    repositories {
-        mavenLocal()
+mavenPublishing {
+    coordinates(artifactId = "build-publish-novo-core")
 
-        if (System.getenv("MAVEN_URL") != null) {
-            maven {
-                url = uri(System.getenv("MAVEN_URL"))
-                credentials {
-                    username = System.getenv("MAVEN_USERNAME")
-                    password = System.getenv("MAVEN_PASSWORD")
-                }
+    publishToMavenCentral()
+    signAllPublications()
+
+    pom {
+
+        name.set("Build Publish Novo Core")
+        description.set("Core library to use inside Build Publish plugins ")
+        inceptionYear.set("2025")
+        url.set("https://github.com/appKODE/build-publish-plugin")
+
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
             }
         }
-    }
 
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = project.group.toString()
-            artifactId = "build-publish-novo-core"
-            version = project.version.toString()
+        developers {
+            developer {
+                id.set("dmitrii.suzdalev.dz")
+                name.set("DIma")
+                email.set("dz@kode.ru")
+            }
+        }
 
-            from(components["java"])
+        scm {
+            url.set("https://github.com/appKODE/build-publish-plugin")
+            connection.set("scm:git:https://github.com/appKODE/build-publish-plugin.git")
+            developerConnection.set("scm:git:ssh://git@github.com:appKODE/build-publish-plugin.git")
         }
     }
 }

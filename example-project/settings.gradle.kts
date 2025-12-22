@@ -1,5 +1,3 @@
-import kotlin.jvm.optionals.getOrNull
-
 pluginManagement {
     repositories {
         gradlePluginPortal()

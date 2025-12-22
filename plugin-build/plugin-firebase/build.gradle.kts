@@ -1,19 +1,16 @@
 plugins {
     id("kotlin-convention")
+    id("plugin-convention")
     id("java-gradle-plugin")
     id("com.gradle.plugin-publish")
     id("com.google.devtools.ksp")
 }
-
-version = libs.versions.buildPublish.get()
 
 base {
     archivesName.set("build-publish-novo-firebase")
 }
 
 dependencies {
-    implementation("ru.kode.android:plugin-core")
-
     implementation(gradleApi())
     implementation(libs.okhttp)
     implementation(libs.okhttpLogging)

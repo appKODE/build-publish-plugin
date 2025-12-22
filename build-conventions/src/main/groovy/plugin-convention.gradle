@@ -1,3 +1,5 @@
+version = libs.versions.buildPublishPlugin.get()
+
 dependencies {
     var isBuildPublication = System.getenv("IS_BUILD_PUBLICATION")?.toBoolean() ?: false
 

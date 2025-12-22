@@ -1,20 +1,17 @@
 plugins {
     id("kotlin-convention")
+    id("plugin-convention")
     id("java-gradle-plugin")
     id("com.gradle.plugin-publish")
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
-version = libs.versions.buildPublish.get()
-
 base {
     archivesName.set("build-publish-novo-clickup")
 }
 
 dependencies {
-    implementation("ru.kode.android:plugin-core")
-
     implementation(gradleApi())
     implementation(libs.okhttp)
     implementation(libs.okhttpLogging)
