@@ -74,11 +74,10 @@ class GitCommandExecutor(
         buildTagRegex: Regex,
         limitResultCount: Int,
     ): List<Tag>? {
-        val tags = findTagsByRegex(buildTagRegex)
-        if (tags.isNotEmpty()) validateTags(tags, buildTagRegex)
-
-        return tags
-            .take(limitResultCount)
+        val allTags = findTagsByRegex(buildTagRegex)
+        val lastTags = allTags.take(limitResultCount + 1)
+        if (lastTags.isNotEmpty()) validateTags(lastTags, buildTagRegex)
+        return lastTags
             .map { tag ->
                 Tag.Generic(
                     name = tag.name,
