@@ -144,7 +144,10 @@ class GitCommandExecutor(
 
         return tagsList
             .also { tags -> logger.info(findTagsByRegexBeforeFilterMessage(tags)) }
-            .filter { tag -> tag.name.matches(buildTagRegex) && tag.commit.id.isNotBlank() }
+            .filter { tag ->
+                tag.name.matches(buildTagRegex) && tag.commit.id.isNotBlank()
+                    && commitsLog.any { it.id == tag.commit.id }
+            }
             .also { tags -> logger.info(findTagsByRegexAfterFilterMessage(buildTagRegex, tags)) }
             .sortedWith(
                 compareByDescending<GrgitTag> { tag ->
