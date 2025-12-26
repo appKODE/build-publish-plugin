@@ -4,10 +4,11 @@ import org.ajoberstar.grgit.gradle.GrgitServiceExtension
 import org.ajoberstar.grgit.gradle.GrgitServicePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 
-internal const val SERVICE_NAME = "gitExecutorService"
-internal const val SERVICE_NAME_EXTENSION = "gitExecutorServiceExtension"
+internal const val GOT_EXECUTOR_SERVICE_NAME = "gitExecutorService"
+internal const val GIT_EXECUTOR_SERVICE_NAME_EXTENSION = "gitExecutorServiceExtension"
 
 /**
  * A Gradle plugin that provides Git operations through a shared service.
@@ -29,20 +30,26 @@ abstract class GitExecutorServicePlugin : Plugin<Project> {
                 .getByType(GrgitServiceExtension::class.java)
                 .service
 
-        val service =
+        val loggerProvider =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
+
+        val serviceProvider =
             project.gradle.sharedServices.registerIfAbsent(
-                project.serviceName(SERVICE_NAME),
+                project.serviceName(GOT_EXECUTOR_SERVICE_NAME),
                 GitExecutorService::class.java,
                 {
                     it.maxParallelUsages.set(1)
                     it.parameters.grgitService.set(grGitService)
+                    it.parameters.loggerService.set(loggerProvider)
                 },
             )
 
         project.extensions.create(
-            SERVICE_NAME_EXTENSION,
+            GIT_EXECUTOR_SERVICE_NAME_EXTENSION,
             GitExecutorServiceExtension::class.java,
-            service,
+            serviceProvider,
         )
     }
 }

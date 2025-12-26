@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.clickup.controller.ClickUpController
 import ru.kode.android.build.publish.plugin.clickup.controller.factory.ClickUpControllerFactory
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.ClickUpConfig
@@ -39,7 +40,23 @@ class ClickUpFixVersionAutomationTest {
         projectDir = File(tempDir, "test-project")
         clickUpController = ClickUpControllerFactory.build(
             token = System.getProperty("CLICKUP_TOKEN"),
-            logger = logger,
+            logger = object : PluginLogger {
+                override fun info(message: String, exception: Throwable?) {
+                    logger.info(message, exception)
+                }
+
+                override fun warn(message: String) {
+                    logger.warn(message)
+                }
+
+                override fun error(message: String, exception: Throwable?) {
+                    logger.error(message, exception)
+                }
+
+                override fun quiet(message: String) {
+                    logger.quiet(message)
+                }
+            },
         )
     }
 

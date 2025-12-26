@@ -6,6 +6,7 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.play.extension.BuildPublishPlayExtension
 import ru.kode.android.build.publish.plugin.play.service.PlayServiceExtension
@@ -35,6 +36,10 @@ abstract class BuildPublishPlayPlugin : Plugin<Project> {
                 .getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
+            val loggerProvider =
+                project.extensions.getByType(LoggerServiceExtension::class.java)
+                    .service
+
             val services: Provider<Map<String, Provider<PlayNetworkService>>> =
                 project.provider {
                     extension.auth.fold(mapOf()) { acc, authConfig ->
@@ -46,6 +51,7 @@ abstract class BuildPublishPlayPlugin : Plugin<Project> {
                                     it.maxParallelUsages.set(1)
                                     it.parameters.appId.set(authConfig.appId)
                                     it.parameters.apiTokenFile.set(authConfig.apiTokenFile)
+                                    it.parameters.loggerService.set(loggerProvider)
                                 },
                             )
                         acc.toMutableMap().apply {

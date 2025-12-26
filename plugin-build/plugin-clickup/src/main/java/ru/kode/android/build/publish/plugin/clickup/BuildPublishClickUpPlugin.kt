@@ -5,17 +5,16 @@ package ru.kode.android.build.publish.plugin.clickup
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.StopExecutionException
 import ru.kode.android.build.publish.plugin.clickup.extension.BuildPublishClickUpExtension
-import ru.kode.android.build.publish.plugin.clickup.messages.extensionCreatedMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.mustApplyFoundationPluginMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.noAuthConfigMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.registeringServicesMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.servicesCreatedMessage
 import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtension
 import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 
@@ -33,8 +32,6 @@ private const val SERVICE_EXTENSION_NAME = "clickUpServiceExtension"
  * @see ClickUpService For the underlying network operations
  */
 abstract class BuildPublishClickUpPlugin : Plugin<Project> {
-    private val logger = Logging.getLogger(this::class.java)
-
     override fun apply(project: Project) {
         val extension =
             project.extensions.create(
@@ -55,8 +52,6 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
             servicesProperty,
         )
 
-        logger.info(extensionCreatedMessage())
-
         if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
             throw StopExecutionException(mustApplyFoundationPluginMessage())
         }
@@ -64,6 +59,12 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
         val androidExtension = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
+            val loggerProvider =
+                project.extensions.getByType(LoggerServiceExtension::class.java)
+                    .service
+
+            val logger = loggerProvider.get()
+
             if (extension.auth.isEmpty()) {
                 logger.info(noAuthConfigMessage())
                 return@finalizeDsl
@@ -82,6 +83,7 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
                         ) {
                             it.maxParallelUsages.set(1)
                             it.parameters.token.set(authConfig.apiTokenFile)
+                            it.parameters.loggerService.set(loggerProvider)
                         }
 
                     name to service

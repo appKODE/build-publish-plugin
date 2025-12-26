@@ -1,10 +1,10 @@
 package ru.kode.android.build.publish.plugin.slack.task.changelog.work
 
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.slack.messages.changelogSentMessage
 import ru.kode.android.build.publish.plugin.slack.service.SlackService
 import javax.inject.Inject
@@ -60,6 +60,11 @@ internal interface SendSlackChangelogParameters : WorkParameters {
      * The network service for sending messages to Slack
      */
     val service: Property<SlackService>
+
+    /**
+     * The logger service used for logging messages.
+     */
+    val loggerService: Property<LoggerService>
 }
 
 /**
@@ -77,10 +82,9 @@ internal interface SendSlackChangelogParameters : WorkParameters {
 internal abstract class SendSlackChangelogWork
     @Inject
     constructor() : WorkAction<SendSlackChangelogParameters> {
-        private val logger = Logging.getLogger(this::class.java)
-
         override fun execute() {
             val service = parameters.service.get()
+            val logger = parameters.loggerService.get()
 
             val baseOutputFileName = parameters.baseOutputFileName.get()
             val buildName = parameters.buildName.get()

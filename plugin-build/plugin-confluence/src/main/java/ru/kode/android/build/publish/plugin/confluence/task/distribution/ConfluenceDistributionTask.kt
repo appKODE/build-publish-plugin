@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
+import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -13,6 +14,7 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.work.ConfluenceUploadWork
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import javax.inject.Inject
 
 /**
@@ -39,6 +41,14 @@ abstract class ConfluenceDistributionTask
          */
         @get:Internal
         abstract val service: Property<ConfluenceService>
+
+        /**
+         * The logger service used for logging.
+         *
+         * This is an internal property that's injected when the task is created.
+         */
+        @get:ServiceReference
+        abstract val loggerService: Property<LoggerService>
 
         /**
          * The distribution file to be uploaded to Confluence.
@@ -81,6 +91,7 @@ abstract class ConfluenceDistributionTask
                 parameters.outputFile.set(distributionFile)
                 parameters.pageId.set(pageId)
                 parameters.service.set(service)
+                parameters.loggerService.set(loggerService)
             }
         }
     }

@@ -5,6 +5,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
+import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -13,6 +14,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.slack.messages.changelogFileNotFoundMessage
 import ru.kode.android.build.publish.plugin.slack.service.SlackService
 import ru.kode.android.build.publish.plugin.slack.task.changelog.work.SendSlackChangelogWork
@@ -50,6 +52,17 @@ abstract class SendSlackChangelogTask
          */
         @get:Internal
         abstract val service: Property<SlackService>
+
+        /**
+         * A property that holds a reference to the LoggerService,
+         * which is used for logging debug and error messages.
+         *
+         * This property is internal and should only be used by the plugin's own code.
+         *
+         * @see LoggerService
+         */
+        @get:ServiceReference
+        abstract val loggerService: Property<LoggerService>
 
         /**
          * A property that holds a reference to the changelog file.
@@ -196,7 +209,7 @@ abstract class SendSlackChangelogTask
             val currentBuildTag = fromJson(buildTagFile.asFile.get())
             val changelog = changelogFile.orNull?.asFile?.readText()
             if (changelog.isNullOrEmpty()) {
-                logger.error(changelogFileNotFoundMessage())
+                loggerService.get().error(changelogFileNotFoundMessage())
             } else {
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 workQueue.submit(SendSlackChangelogWork::class.java) { parameters ->
@@ -209,6 +222,7 @@ abstract class SendSlackChangelogTask
                     parameters.issueNumberPattern.set(issueNumberPattern)
                     parameters.issueUrlPrefix.set(issueUrlPrefix)
                     parameters.service.set(service)
+                    parameters.loggerService.set(loggerService)
                 }
             }
         }

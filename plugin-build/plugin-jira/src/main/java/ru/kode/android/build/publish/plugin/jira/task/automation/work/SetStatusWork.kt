@@ -1,10 +1,10 @@
 package ru.kode.android.build.publish.plugin.jira.task.automation.work
 
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.util.UploadError
 import ru.kode.android.build.publish.plugin.jira.messages.failedToUpdateStatusMessage
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
@@ -30,6 +30,11 @@ internal interface SetStatusParameters : WorkParameters {
      * The network service used to communicate with the Jira API
      */
     val service: Property<JiraService>
+
+    /**
+     * The logger service used to log messages from the work action.
+     */
+    val loggerService: Property<LoggerService>
 }
 
 /**
@@ -49,11 +54,10 @@ internal interface SetStatusParameters : WorkParameters {
  * @see [JiraService.setStatus] for the actual API call implementation
  */
 internal abstract class SetStatusWork : WorkAction<SetStatusParameters> {
-    private val logger = Logging.getLogger(this::class.java)
-
     override fun execute() {
         val issues = parameters.issues.get()
         val service = parameters.service.get()
+        val logger = parameters.loggerService.get()
 
         issues.forEach { issue ->
             try {

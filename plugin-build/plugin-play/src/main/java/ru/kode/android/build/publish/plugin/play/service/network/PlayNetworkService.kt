@@ -1,11 +1,10 @@
 package ru.kode.android.build.publish.plugin.play.service.network
 
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.DefaultPlayPublisher
 import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.EditResponse
 import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.InternalPlayPublisher
@@ -16,8 +15,6 @@ import ru.kode.android.build.publish.plugin.play.task.distribution.track.Default
 import ru.kode.android.build.publish.plugin.play.task.distribution.track.TrackManager
 import java.io.File
 import javax.inject.Inject
-
-private val logger: Logger = Logging.getLogger(PlayNetworkService::class.java)
 
 /**
  * A network service for interacting with the Google Play Developer API.
@@ -47,6 +44,11 @@ abstract class PlayNetworkService
              * The application ID (package name) in the Play Store
              */
             val appId: Property<String>
+
+            /**
+             * The service for logging messages.
+             */
+            val loggerService: Property<LoggerService>
         }
 
         internal abstract val publisherProperty: Property<InternalPlayPublisher>
@@ -61,6 +63,8 @@ abstract class PlayNetworkService
                 },
             )
         }
+
+        private val logger = parameters.loggerService.get()
 
         private val publisher: InternalPlayPublisher get() = publisherProperty.get()
 

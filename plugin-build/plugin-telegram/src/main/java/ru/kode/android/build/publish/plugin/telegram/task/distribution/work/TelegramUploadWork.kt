@@ -1,10 +1,10 @@
 package ru.kode.android.build.publish.plugin.telegram.task.distribution.work
 
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.util.RequestError
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.destinationTelegramBotsFromJson
 import ru.kode.android.build.publish.plugin.telegram.messages.telegramUploadFailedMessage
@@ -31,6 +31,11 @@ internal interface TelegramUploadParameters : WorkParameters {
      * The network service instance for handling Telegram API communication
      */
     val service: Property<TelegramService>
+
+    /**
+     * The logger service instance for logging debug and error messages
+     */
+    val loggerService: Property<LoggerService>
 }
 
 /**
@@ -49,11 +54,10 @@ internal interface TelegramUploadParameters : WorkParameters {
  * @see TelegramService The service that performs the actual network communication
  */
 internal abstract class TelegramUploadWork : WorkAction<TelegramUploadParameters> {
-    private val logger = Logging.getLogger(this::class.java)
-
     @Suppress("SwallowedException")
     override fun execute() {
         val service = parameters.service.get()
+        val logger = parameters.loggerService.get()
         try {
             service.upload(
                 parameters.distributionFile.asFile.get(),

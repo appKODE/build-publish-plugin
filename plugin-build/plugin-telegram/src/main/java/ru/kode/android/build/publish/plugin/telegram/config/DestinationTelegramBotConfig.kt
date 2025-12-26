@@ -80,5 +80,4 @@ abstract class DestinationTelegramBotConfig
         fun chatNames(chatNames: Provider<List<String>>) {
             this.chatNames.addAll(chatNames)
         }
-
     }

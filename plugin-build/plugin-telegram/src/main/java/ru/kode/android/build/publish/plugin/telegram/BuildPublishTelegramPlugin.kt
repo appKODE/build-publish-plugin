@@ -5,15 +5,14 @@ package ru.kode.android.build.publish.plugin.telegram
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.StopExecutionException
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.telegram.extension.BuildPublishTelegramExtension
-import ru.kode.android.build.publish.plugin.telegram.messages.extensionCreatedMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.mustApplyFoundationPluginMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.noBotsConfiguredMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.registeringServiceMessage
@@ -37,8 +36,6 @@ private const val SERVICE_NAME = "telegramService"
  * @see TelegramService For the underlying network service implementation
  */
 abstract class BuildPublishTelegramPlugin : Plugin<Project> {
-    private val logger = Logging.getLogger(this::class.java)
-
     override fun apply(project: Project) {
         val extension =
             project.extensions.create(
@@ -59,8 +56,6 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
             servicesProperty,
         )
 
-        logger.info(extensionCreatedMessage())
-
         if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
             throw StopExecutionException(mustApplyFoundationPluginMessage())
         }
@@ -68,6 +63,12 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
         val androidExtension = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
+            val loggerProvider =
+                project.extensions.getByType(LoggerServiceExtension::class.java)
+                    .service
+
+            val logger = loggerProvider.get()
+
             if (extension.bots.isEmpty()) {
                 logger.info(noBotsConfiguredMessage())
                 return@finalizeDsl
@@ -85,6 +86,7 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
                         ) { spec ->
                             spec.maxParallelUsages.set(1)
                             spec.parameters.bots.set(botConfig.bots.map { it.mapToEntity().toJson() })
+                            spec.parameters.loggerService.set(loggerProvider)
                         }
                     name to service
                 }

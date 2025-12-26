@@ -18,7 +18,7 @@ import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.addNamedWithMessage
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.extractManifestProperties
-import ru.kode.android.build.publish.plugin.test.utils.find
+import ru.kode.android.build.publish.plugin.test.utils.findTag
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
@@ -93,7 +93,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -211,7 +211,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -331,7 +331,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -453,7 +453,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -575,7 +575,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -697,7 +697,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -819,7 +819,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -942,7 +942,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -1065,7 +1065,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -1187,7 +1187,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -1309,7 +1309,7 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -1413,7 +1413,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -1533,7 +1533,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -1654,7 +1654,7 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.find(givenTagName).id
+        val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
@@ -1771,7 +1771,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.2-debug"
@@ -1908,7 +1908,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.2-debug"
@@ -2045,7 +2045,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.2-debug"
@@ -2175,7 +2175,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.2-debug"
@@ -2311,7 +2311,7 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.2-debug"
@@ -2429,7 +2429,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.2-debug"
@@ -2563,7 +2563,7 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.2-debug"
@@ -2698,7 +2698,7 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.2-debug"
@@ -2814,7 +2814,7 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "3"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.3-debug"
@@ -2933,7 +2933,7 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "3"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.3-debug"
@@ -3052,7 +3052,7 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "3"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.3-debug"
@@ -3173,7 +3173,7 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "3"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.3-debug"

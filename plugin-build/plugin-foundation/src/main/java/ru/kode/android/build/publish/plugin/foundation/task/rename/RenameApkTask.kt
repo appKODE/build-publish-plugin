@@ -3,14 +3,14 @@ package ru.kode.android.build.publish.plugin.foundation.task.rename
 import com.android.build.api.artifact.ArtifactTransformationRequest
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
+import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.foundation.messages.renameApkMessage
 import java.io.File
 import javax.inject.Inject
@@ -24,7 +24,15 @@ import javax.inject.Inject
 abstract class RenameApkTask
     @Inject
     constructor() : DefaultTask() {
-        private val logger: Logger = Logging.getLogger(this::class.java)
+        /**
+         * The logger service property.
+         *
+         * This service is used for logging debug and error messages.
+         *
+         * @see LoggerService
+         */
+        @get:ServiceReference
+        abstract val loggerService: Property<LoggerService>
 
         /**
          * The name of the output APK file.
@@ -81,7 +89,7 @@ abstract class RenameApkTask
                 val outputDir = outputDir.get().asFile
                 val targetOutputFileName = outputFileName.get()
                 val outputFile = File(outputDir, targetOutputFileName)
-                logger.info(renameApkMessage(inputFile, targetOutputFileName, outputDir))
+                loggerService.get().info(renameApkMessage(inputFile, targetOutputFileName, outputDir))
                 inputFile.copyTo(outputFile, overwrite = true)
                 outputFile
             }

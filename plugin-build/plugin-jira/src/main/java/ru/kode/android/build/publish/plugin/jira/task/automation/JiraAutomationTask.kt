@@ -5,6 +5,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -15,6 +16,7 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.jira.messages.issuesNoFoundMessage
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddFixVersionWork
@@ -52,6 +54,16 @@ abstract class JiraAutomationTask
          */
         @get:Internal
         abstract val service: Property<JiraService>
+
+        /**
+         * The logger service used to log messages during the execution of the task.
+         *
+         * This service provides methods to log messages at different levels of severity.
+         *
+         * @see LoggerService
+         */
+        @get:ServiceReference
+        abstract val loggerService: Property<LoggerService>
 
         /**
          * JSON file containing information about the current build tag.
@@ -156,7 +168,7 @@ abstract class JiraAutomationTask
                     .mapTo(mutableSetOf()) { it.groupValues[0] }
 
             if (issues.isEmpty()) {
-                logger.info(issuesNoFoundMessage())
+                loggerService.get().info(issuesNoFoundMessage())
             } else {
                 val projectId =
                     service.flatMap { service ->
@@ -185,10 +197,7 @@ abstract class JiraAutomationTask
                 val statusTransitionId =
                     service.flatMap { service ->
                         projectKey
-                            .zip(targetStatusName) { projectKey, targetStatusName ->
-                                projectKey to targetStatusName
-                            }
-                            .map { (projectKey, statusName) ->
+                            .zip(targetStatusName) { projectKey, statusName ->
                                 service.getStatusTransitionId(projectKey, statusName, issues.toList())
                             }
                     }
@@ -197,6 +206,7 @@ abstract class JiraAutomationTask
                     parameters.issues.set(issues)
                     parameters.statusTransitionId.set(statusTransitionId)
                     parameters.service.set(service)
+                    parameters.loggerService.set(loggerService)
                 }
             }
         }

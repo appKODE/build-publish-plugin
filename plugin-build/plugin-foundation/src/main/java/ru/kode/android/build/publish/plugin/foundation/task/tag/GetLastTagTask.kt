@@ -12,6 +12,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
 import ru.kode.android.build.publish.plugin.foundation.task.tag.work.GenerateTagWork
 import javax.inject.Inject
@@ -49,6 +50,16 @@ abstract class GetLastTagTask
          */
         @get:ServiceReference
         abstract val gitExecutorService: Property<GitExecutorService>
+
+        /**
+         * The logger service used to log messages during the task execution.
+         *
+         * This service provides logging capabilities for the task.
+         *
+         * @see LoggerService
+         */
+        @get:ServiceReference
+        abstract val loggerService: Property<LoggerService>
 
         /**
          * The name of the current build variant.
@@ -121,6 +132,7 @@ abstract class GetLastTagTask
                 parameters.buildVariant.set(buildVariantName)
                 parameters.buildTagPattern.set(buildTagPattern)
                 parameters.gitExecutorService.set(gitExecutorService)
+                parameters.loggerService.set(loggerService)
                 parameters.useStubsForTagAsFallback.set(useStubsForTagAsFallback)
             }
             workQueue.await()

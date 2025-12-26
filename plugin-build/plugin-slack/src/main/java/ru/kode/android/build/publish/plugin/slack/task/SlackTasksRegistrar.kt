@@ -2,11 +2,10 @@ package ru.kode.android.build.publish.plugin.slack.task
 
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
@@ -32,8 +31,6 @@ internal const val SLACK_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "slackDistribu
  * It handles task creation and configuration based on the provided parameters and build variants.
  */
 internal object SlackTasksRegistrar {
-    private val logger: Logger = Logging.getLogger(this::class.java)
-
     /**
      * Registers a task for sending changelog notifications to Slack.
      *
@@ -73,6 +70,11 @@ internal object SlackTasksRegistrar {
         return if (distributionConfig.destinationChannels.isPresent) {
             project.registerApkSlackDistributionTask(distributionConfig, params)
         } else {
+            val logger =
+                project.extensions
+                    .getByType(LoggerServiceExtension::class.java)
+                    .service
+                    .get()
             logger.info(apkDistributionNotCreatedMessage())
             null
         }
@@ -98,6 +100,11 @@ internal object SlackTasksRegistrar {
         return if (distributionConfig.destinationChannels.isPresent) {
             project.registerBundleSlackDistributionTask(distributionConfig, params)
         } else {
+            val logger =
+                project.extensions
+                    .getByType(LoggerServiceExtension::class.java)
+                    .service
+                    .get()
             logger.info(bundleDistributionNotCreatedMessage())
             null
         }

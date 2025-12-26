@@ -3,13 +3,12 @@ package ru.kode.android.build.publish.plugin.slack.service
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import retrofit2.Retrofit
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.util.UploadError
 import ru.kode.android.build.publish.plugin.slack.controller.SlackController
 import ru.kode.android.build.publish.plugin.slack.controller.SlackControllerImpl
@@ -44,9 +43,12 @@ abstract class SlackService
              * File containing the Slack API token for file uploads
              */
             val uploadApiTokenFile: RegularFileProperty
-        }
 
-        private val logger: Logger = Logging.getLogger("Slack")
+            /**
+             * The logger service used for logging debug and error messages.
+             */
+            val loggerService: Property<LoggerService>
+        }
 
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
         internal abstract val retrofitProperty: Property<Retrofit.Builder>
@@ -57,7 +59,7 @@ abstract class SlackService
 
         init {
             okHttpClientProperty.set(
-                SlackClientFactory.build(logger),
+                parameters.loggerService.map { SlackClientFactory.build(it) },
             )
             jsonProperty.set(
                 providerFactory.provider { Json { ignoreUnknownKeys = true } },
@@ -78,9 +80,11 @@ abstract class SlackService
                 },
             )
             controllerProperty.set(
-                jsonProperty.flatMap { json ->
-                    apiProperty.zip(uploadApiProperty) { webhookApi, distributionApi ->
-                        SlackControllerImpl(json, webhookApi, distributionApi, logger)
+                parameters.loggerService.flatMap { logger ->
+                    jsonProperty.flatMap { json ->
+                        apiProperty.zip(uploadApiProperty) { webhookApi, distributionApi ->
+                            SlackControllerImpl(json, webhookApi, distributionApi, logger)
+                        }
                     }
                 },
             )

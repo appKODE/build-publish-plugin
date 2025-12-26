@@ -1,12 +1,11 @@
 package ru.kode.android.build.publish.plugin.jira.service.network
 
 import okhttp3.OkHttpClient
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.JiraControllerImpl
 import ru.kode.android.build.publish.plugin.jira.network.api.JiraApi
@@ -42,9 +41,12 @@ abstract class JiraService
              * The authentication credentials for the Jira API, containing username and password/token
              */
             val credentials: Property<BasicAuthCredentials>
-        }
 
-        private val logger: Logger = Logging.getLogger("Jira")
+            /**
+             * The logger service for logging messages during network operations.
+             */
+            val loggerService: Property<LoggerService>
+        }
 
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
 
@@ -56,10 +58,12 @@ abstract class JiraService
             val username = parameters.credentials.flatMap { it.username }
             val password = parameters.credentials.flatMap { it.password }
             okHttpClientProperty.set(
-                username
-                    .zip(password) { username, password ->
-                        JiraClientFactory.build(username, password, logger)
-                    },
+                parameters.loggerService.flatMap { logger ->
+                    username
+                        .zip(password) { username, password ->
+                            JiraClientFactory.build(username, password, logger)
+                        }
+                },
             )
             apiProperty.set(
                 okHttpClientProperty
@@ -68,7 +72,9 @@ abstract class JiraService
                     },
             )
             controllerProperty.set(
-                apiProperty.map { api -> JiraControllerImpl(api, logger) },
+                apiProperty.zip(parameters.loggerService) { api, logger ->
+                    JiraControllerImpl(api, logger)
+                },
             )
         }
 

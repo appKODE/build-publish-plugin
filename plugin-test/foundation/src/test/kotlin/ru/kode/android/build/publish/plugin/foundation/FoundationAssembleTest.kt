@@ -18,9 +18,10 @@ import ru.kode.android.build.publish.plugin.test.utils.ManifestProperties
 import ru.kode.android.build.publish.plugin.test.utils.ProductFlavor
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
+import ru.kode.android.build.publish.plugin.test.utils.checkoutBranch
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.extractManifestProperties
-import ru.kode.android.build.publish.plugin.test.utils.find
+import ru.kode.android.build.publish.plugin.test.utils.findTag
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
@@ -33,10 +34,12 @@ class FoundationAssembleTest {
     @TempDir
     lateinit var tempDir: File
     private lateinit var projectDir: File
+    private lateinit var remoteDir: File
 
     @BeforeEach
     fun setup() {
         projectDir = File(tempDir, "test-project")
+        remoteDir = File(tempDir, "remote-project")
     }
 
     @Test
@@ -95,6 +98,125 @@ class FoundationAssembleTest {
         assertTrue(
             result.output.contains("Task :app:getLastTagGoogleDebug"),
             "Task getLastTagGoogleDebug executed",
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with last tag when default config is used and tag exists, branches`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("internal")),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
+        )
+        val givenTagName = "v1.0.0-release"
+        val givenTagName1 = "v1.0.3-internal"
+        val givenTagName2 = "v1.0.166-internal"
+        val givenTagName3 = "v1.0.167-internal"
+        val givenCommitMessage = "Initial commit"
+        val givenCommitMessage1 = "[CHANGELOG] Telegram changes"
+        val givenCommitMessage2 = "[CHANGELOG] Update changes changes"
+        val givenCommitMessage3 = "[CHANGELOG] Update changes changes"
+        val givenAssembleTask = "assembleInternal"
+
+        val git = projectDir.initGit()
+
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName)
+
+        println("Branch before switch: ${git.branch.current().name}")
+
+        git.branch.addNamed("telegram-changes")
+        git.checkoutBranch("telegram-changes")
+
+        println("Branch after switch to telegram-changes: ${git.branch.current().name}")
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+
+        git.addAllAndCommit(givenCommitMessage1)
+        git.tag.addNamed(givenTagName1)
+
+        git.checkoutBranch("master")
+
+        println("Branch after switch to master: ${git.branch.current().name}")
+
+        git.branch.addNamed("update-plugin")
+        git.checkoutBranch("update-plugin")
+
+        println("Branch after switch to update-plugin: ${git.branch.current().name}")
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+
+        git.addAllAndCommit(givenCommitMessage2)
+        git.tag.addNamed(givenTagName2)
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+
+        git.addAllAndCommit(givenCommitMessage3)
+        git.tag.addNamed(givenTagName3)
+
+        git.branch.remove()
+
+        println("Branch after remove: ${git.branch.current().name}")
+
+        val result: BuildResult = projectDir.runTask(givenAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
+        val givenOutputFile = apkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-internal-vc167-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.tag.findTag(givenTagName3).id
+        val expectedBuildNumber = "167"
+        val expectedBuildVariant = "internal"
+        val expectedTagName = "v1.0.167-internal"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "167",
+                versionName = "1.0",
+            )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagInternal"),
+            "Task getLastTagInternal executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -443,7 +565,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName5).id
+        val expectedCommitSha = git.tag.findTag(givenTagName5).id
         val expectedBuildNumber = "209"
         val expectedBuildVariant = "internal"
         val expectedTagName = "v0.0.209-internal"
@@ -534,7 +656,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "release"
         val expectedTagName = "v1.0.1-release"
@@ -623,7 +745,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName2).id
+        val expectedCommitSha = git.tag.findTag(givenTagName2).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "release"
         val expectedTagName = "v1.0.1-release"
@@ -723,7 +845,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName3).id
+        val expectedCommitSha = git.tag.findTag(givenTagName3).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "release"
         val expectedTagName = "v1.0.2-release-androidAuto"
@@ -821,7 +943,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName3).id
+        val expectedCommitSha = git.tag.findTag(givenTagName3).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "release"
         val expectedTagName = "v1.0.2-release-androidAuto"
@@ -921,7 +1043,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName3).id
+        val expectedCommitSha = git.tag.findTag(givenTagName3).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "release"
         val expectedTagName = "v1.0.2-release"
@@ -1020,7 +1142,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName3).id
+        val expectedCommitSha = git.tag.findTag(givenTagName3).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "release"
         val expectedTagName = "v1.0.2-release"
@@ -1118,7 +1240,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName5).id
+        val expectedCommitSha = git.tag.findTag(givenTagName5).id
         val expectedBuildNumber = "209"
         val expectedBuildVariant = "internal"
         val expectedTagName = "v0.0.209-internal"
@@ -1216,7 +1338,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName5).id
+        val expectedCommitSha = git.tag.findTag(givenTagName5).id
         val expectedBuildNumber = "209"
         val expectedBuildVariant = "internal"
         val expectedTagName = "v0.0.209-internal"
@@ -1310,7 +1432,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName5).id
+        val expectedCommitSha = git.tag.findTag(givenTagName5).id
         val expectedBuildNumber = "209"
         val expectedBuildVariant = "internal"
         val expectedTagName = "v0.0.209-internal"
@@ -1404,7 +1526,7 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagName4).id
+        val expectedCommitSha = git.tag.findTag(givenTagName4).id
         val expectedBuildNumber = "209"
         val expectedBuildVariant = "internal"
         val expectedTagName = "v2.0.209-internal"
@@ -1498,7 +1620,7 @@ class FoundationAssembleTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedCommitSha1 = git.tag.find(givenTagName4).id
+        val expectedCommitSha1 = git.tag.findTag(givenTagName4).id
         val expectedBuildNumber1 = "208"
         val expectedBuildVariant1 = "internal"
         val expectedTagName1 = "v2.0.208-internal"
@@ -1548,7 +1670,7 @@ class FoundationAssembleTest {
             ?: throw AssertionError("Output file not found")
         val givenOutputFileManifestProperties2 = givenOutputFile2.extractManifestProperties()
 
-        val expectedCommitSha2 = git.tag.find(givenTagName5).id
+        val expectedCommitSha2 = git.tag.findTag(givenTagName5).id
         val expectedBuildNumber2 = "209"
         val expectedBuildVariant2 = "internal"
         val expectedTagName2 = "v0.0.209-internal"

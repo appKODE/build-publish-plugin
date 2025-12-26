@@ -409,14 +409,8 @@ fun findTagsByRangeBeforeSearchMessage(startTag: Tag.Build): String {
 
 fun finTagsByRegexAfterSortingMessage(tags: List<GrgitTag>): String {
     val tagsMessage =
-        tags.take(10).joinToString("\n") {
+        tags.joinToString("\n") {
             "|  - ${it.name.padEnd(25)} (${it.commit.id.take(7)})"
-        }
-    val moreTagsMessage =
-        if (tags.size > 10) {
-            "|  ... and ${tags.size - 10} more tags"
-        } else {
-            "| "
         }
     return """
         
@@ -426,7 +420,6 @@ fun finTagsByRegexAfterSortingMessage(tags: List<GrgitTag>): String {
         | Tags sorted by commit date (newest first):
         |
         $tagsMessage
-        $moreTagsMessage
         |
         | The tags have been sorted by commit date in descending order.
         | This ensures the changelog shows changes from newest to oldest.
@@ -465,17 +458,11 @@ fun findTagsByRegexAfterFilterMessage(
 fun findTagsByRegexBeforeFilterMessage(tags: List<GrgitTag>): String {
     val tagsMessage =
         if (tags.isNotEmpty()) {
-            tags.take(10).joinToString("\n") {
+            tags.joinToString("\n") {
                 "|  - ${it.name.padEnd(30)} (${it.commit.id.take(7)})"
             }
         } else {
             "|  No tags found in the repository"
-        }
-    val moreTagsMessage =
-        if (tags.size > 10) {
-            "|  ... and ${tags.size - 10} more tags"
-        } else {
-            "| "
         }
     return """
         
@@ -485,7 +472,6 @@ fun findTagsByRegexBeforeFilterMessage(tags: List<GrgitTag>): String {
         | All tags found before applying any filters:
         |
         $tagsMessage
-        $moreTagsMessage
         |
         | These tags were found before applying any version filtering.
         | The next step will filter them based on the configured pattern.

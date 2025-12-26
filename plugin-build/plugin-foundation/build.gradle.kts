@@ -61,4 +61,3 @@ tasks.register("setupPluginUploadFromEnvironment") {
         System.setProperty("gradle.publish.secret", secret)
     }
 }
-

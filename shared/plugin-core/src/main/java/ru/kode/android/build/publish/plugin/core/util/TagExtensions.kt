@@ -2,15 +2,13 @@ package ru.kode.android.build.publish.plugin.core.util
 
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
-import org.gradle.api.logging.Logging
 import ru.kode.android.build.publish.plugin.core.enity.CommitRange
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.messages.tagPartsByRegexMessage
 import org.ajoberstar.grgit.Tag as GrgitTag
 
 private const val UNKNOWN_COMMIT_INDEX = -1
-
-private val logger = Logging.getLogger("HttpClientExtensions")
 
 /**
  * Retrieves a list of Git commits within the specified range, or all commits if the range is null.
@@ -43,15 +41,21 @@ fun Grgit.getCommitsByRange(range: CommitRange?): List<Commit> {
 /**
  * Extracts the build number from this [GrgitTag]'s name using the provided regular expression.
  */
-fun GrgitTag.getBuildNumber(regex: Regex): Int {
-    return this.name.extractIntBy(regex)
+fun GrgitTag.getBuildNumber(
+    regex: Regex,
+    logger: PluginLogger,
+): Int {
+    return this.name.extractIntBy(regex, logger)
 }
 
 /**
  * Extracts the build number from this [Tag]'s name using the provided regular expression.
  */
-fun Tag.getBuildNumber(regex: Regex): Int {
-    return this.name.extractIntBy(regex)
+fun Tag.getBuildNumber(
+    regex: Regex,
+    logger: PluginLogger,
+): Int {
+    return this.name.extractIntBy(regex, logger)
 }
 
 /**
@@ -66,7 +70,10 @@ fun Tag.getBuildNumber(regex: Regex): Int {
  * @param regex The [Regex] pattern used to extract the integer.
  * @return The extracted integer, or `0` if extraction fails.
  */
-private fun String.extractIntBy(regex: Regex): Int {
+private fun String.extractIntBy(
+    regex: Regex,
+    logger: PluginLogger,
+): Int {
     return regex.find(this)?.groupValues
         ?.also { logger.info(tagPartsByRegexMessage(regex, it)) }
         ?.get(1)

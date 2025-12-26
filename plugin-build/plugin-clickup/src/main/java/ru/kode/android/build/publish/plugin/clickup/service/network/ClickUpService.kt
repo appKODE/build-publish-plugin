@@ -2,8 +2,6 @@ package ru.kode.android.build.publish.plugin.clickup.service.network
 
 import okhttp3.OkHttpClient
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
@@ -12,6 +10,7 @@ import ru.kode.android.build.publish.plugin.clickup.controller.ClickUpController
 import ru.kode.android.build.publish.plugin.clickup.network.api.ClickUpApi
 import ru.kode.android.build.publish.plugin.clickup.network.factory.ClickUpApiFactory
 import ru.kode.android.build.publish.plugin.clickup.network.factory.ClickUpClientFactory
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import javax.inject.Inject
 
 /**
@@ -41,9 +40,14 @@ abstract class ClickUpService
              *  The file should contain the token as plain text with no additional formatting.
              */
             val token: RegularFileProperty
-        }
 
-        private val logger: Logger = Logging.getLogger("ClickUp")
+            /**
+             * A Gradle service that provides logging capabilities for the [ClickUpService].
+             *
+             * @see LoggerService
+             */
+            val loggerService: Property<LoggerService>
+        }
 
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
 
@@ -53,7 +57,7 @@ abstract class ClickUpService
 
         init {
             okHttpClientProperty.set(
-                parameters.token.map { token ->
+                parameters.token.zip(parameters.loggerService) { token, logger ->
                     val token = token.asFile.readText()
                     ClickUpClientFactory.build(token, logger)
                 },
@@ -64,7 +68,7 @@ abstract class ClickUpService
                 },
             )
             controllerProperty.set(
-                apiProperty.map { api ->
+                apiProperty.zip(parameters.loggerService) { api, logger ->
                     ClickUpControllerImpl(api, logger)
                 },
             )

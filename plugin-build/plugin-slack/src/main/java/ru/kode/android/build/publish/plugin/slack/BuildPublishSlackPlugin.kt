@@ -5,13 +5,12 @@ package ru.kode.android.build.publish.plugin.slack
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.StopExecutionException
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 import ru.kode.android.build.publish.plugin.slack.extension.BuildPublishSlackExtension
-import ru.kode.android.build.publish.plugin.slack.messages.extensionNotCreatedMessage
 import ru.kode.android.build.publish.plugin.slack.messages.mustApplyFoundationPluginMessage
 import ru.kode.android.build.publish.plugin.slack.messages.noBotsConfiguredMessage
 import ru.kode.android.build.publish.plugin.slack.messages.registeringServicesMessage
@@ -36,8 +35,6 @@ private const val SERVICE_EXTENSION_NAME = "slackServiceExtension"
  * and provides extensions for build scripts to configure Slack integration.
  */
 abstract class BuildPublishSlackPlugin : Plugin<Project> {
-    private val logger = Logging.getLogger(this::class.java)
-
     override fun apply(project: Project) {
         val extension =
             project.extensions.create(
@@ -58,8 +55,6 @@ abstract class BuildPublishSlackPlugin : Plugin<Project> {
             servicesProperty,
         )
 
-        logger.info(extensionNotCreatedMessage())
-
         if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
             throw StopExecutionException(
                 mustApplyFoundationPluginMessage(),
@@ -69,6 +64,12 @@ abstract class BuildPublishSlackPlugin : Plugin<Project> {
         val androidExtension = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
+            val loggerProvider =
+                project.extensions.getByType(LoggerServiceExtension::class.java)
+                    .service
+
+            val logger = loggerProvider.get()
+
             if (extension.bot.isEmpty()) {
                 logger.info(noBotsConfiguredMessage())
                 return@finalizeDsl
@@ -87,6 +88,7 @@ abstract class BuildPublishSlackPlugin : Plugin<Project> {
                             it.maxParallelUsages.set(1)
                             it.parameters.webhookUrl.set(authConfig.webhookUrl)
                             it.parameters.uploadApiTokenFile.set(authConfig.uploadApiTokenFile)
+                            it.parameters.loggerService.set(loggerProvider)
                         }
                     name to registered
                 }

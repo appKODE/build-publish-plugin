@@ -5,6 +5,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
+import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -13,6 +14,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.slack.service.SlackService
 import ru.kode.android.build.publish.plugin.slack.task.distribution.work.SlackUploadWork
 import javax.inject.Inject
@@ -44,6 +46,17 @@ abstract class SlackDistributionTask
          */
         @get:Internal
         abstract val service: Property<SlackService>
+
+        /**
+         * The logger service property provides access to the logger used for logging debug and error messages.
+         *
+         * This property is internal and should not be directly accessed by other plugins.
+         * It is injected by Gradle when the task is created and configured.
+         *
+         * @see LoggerService
+         */
+        @get:ServiceReference
+        abstract val loggerService: Property<LoggerService>
 
         /**
          * The build tag file property contains metadata about the current build.
@@ -116,6 +129,7 @@ abstract class SlackDistributionTask
                 parameters.buildName.set(currentBuildTag.name)
                 parameters.baseOutputFileName.set(baseOutputFileName)
                 parameters.service.set(service)
+                parameters.loggerService.set(loggerService)
             }
         }
     }

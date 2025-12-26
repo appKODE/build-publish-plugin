@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.confluence.controller.ConfluenceController
 import ru.kode.android.build.publish.plugin.confluence.controller.factory.ConfluenceControllerFactory
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.util.NetworkProxy
 import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
@@ -41,7 +42,23 @@ class ConfluenceDistributionTest {
             baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
             username = System.getProperty("CONFLUENCE_USER_NAME"),
             password = System.getProperty("CONFLUENCE_USER_PASSWORD"),
-            logger = logger,
+            logger = object : PluginLogger {
+                override fun info(message: String, exception: Throwable?) {
+                    logger.info(message)
+                }
+
+                override fun warn(message: String) {
+                    logger.warn(message)
+                }
+
+                override fun error(message: String, exception: Throwable?) {
+                    logger.error(message, exception)
+                }
+
+                override fun quiet(message: String) {
+                    logger.quiet(message)
+                }
+            },
             proxy = {
                 NetworkProxy(
                     host = System.getProperty("PROXY_HOST"),

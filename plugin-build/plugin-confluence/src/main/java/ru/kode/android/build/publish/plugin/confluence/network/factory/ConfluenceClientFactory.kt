@@ -9,10 +9,10 @@ import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.EOFException
 import okio.IOException
-import org.gradle.api.logging.Logger
 import ru.kode.android.build.publish.plugin.confluence.messages.eofDuringHandShakeMessage
 import ru.kode.android.build.publish.plugin.confluence.messages.ioExceptionMessage
 import ru.kode.android.build.publish.plugin.confluence.messages.sslHandShakeMessage
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.util.NetworkProxy
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import java.util.concurrent.TimeUnit
@@ -35,7 +35,7 @@ internal object ConfluenceClientFactory {
     fun build(
         username: String,
         password: String,
-        logger: Logger,
+        logger: PluginLogger,
     ): OkHttpClient {
         return buildClient(logger, username, password) {
             it.addProxyIfAvailable(logger)
@@ -54,7 +54,7 @@ internal object ConfluenceClientFactory {
     fun build(
         username: String,
         password: String,
-        logger: Logger,
+        logger: PluginLogger,
         proxy: () -> NetworkProxy?,
     ): OkHttpClient {
         return buildClient(logger, username, password) {
@@ -72,7 +72,7 @@ internal object ConfluenceClientFactory {
  * @return The configured OkHttpClient.Builder instance.
  */
 private fun buildClient(
-    logger: Logger,
+    logger: PluginLogger,
     username: String,
     password: String,
     apply: (OkHttpClient.Builder) -> OkHttpClient.Builder,
@@ -123,7 +123,7 @@ private class AttachTokenInterceptor(
  * @property logger The logger instance used for logging.
  */
 private class RetryHandshakeInterceptor(
-    private val logger: Logger,
+    private val logger: PluginLogger,
     private val maxRetries: Int = 3,
     private val delayMillis: Long = 2000,
 ) : Interceptor {

@@ -1,11 +1,11 @@
 package ru.kode.android.build.publish.plugin.foundation.task.changelog.work
 
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.foundation.messages.changelogGeneratedMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.changelogNotGeneratedMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.noChangedDetectedSinceStartMessage
@@ -51,6 +51,11 @@ internal interface GenerateChangelogParameters : WorkParameters {
      * Service for executing Git commands and retrieving commit history
      */
     val gitExecutorService: Property<GitExecutorService>
+
+    /**
+     * Service for logging messages during the changelog generation process
+     */
+    val loggerService: Property<LoggerService>
 }
 
 /**
@@ -70,13 +75,12 @@ internal interface GenerateChangelogParameters : WorkParameters {
 internal abstract class GenerateChangelogWork
     @Inject
     constructor() : WorkAction<GenerateChangelogParameters> {
-        private val logger = Logging.getLogger(this::class.java)
-
         override fun execute() {
             val messageKey = parameters.commitMessageKey.get()
             val excludeMessageKey = parameters.excludeMessageKey.get()
             val buildTagPattern = parameters.buildTagPattern.get()
             val currentBuildTag = fromJson(parameters.tagBuildFile.asFile.get())
+            val logger = parameters.loggerService.get()
 
             val changelog =
                 parameters.gitExecutorService.get()

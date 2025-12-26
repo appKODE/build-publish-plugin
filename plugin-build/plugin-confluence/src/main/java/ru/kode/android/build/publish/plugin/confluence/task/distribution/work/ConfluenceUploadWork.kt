@@ -1,12 +1,12 @@
 package ru.kode.android.build.publish.plugin.confluence.task.distribution.work
 
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.confluence.messages.uploadFailedMessage
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.util.RequestError
 
 /**
@@ -27,6 +27,11 @@ interface ConfluenceUploadParameters : WorkParameters {
      * The network service used to communicate with Confluence
      */
     val service: Property<ConfluenceService>
+
+    /**
+     * The logger service used to log messages during the upload process.
+     */
+    val loggerService: Property<LoggerService>
 }
 
 /**
@@ -36,11 +41,10 @@ interface ConfluenceUploadParameters : WorkParameters {
  * It handles the upload process and adds a comment to the Confluence page after successful upload.
  */
 internal abstract class ConfluenceUploadWork : WorkAction<ConfluenceUploadParameters> {
-    private val logger = Logging.getLogger(this::class.java)
-
     @Suppress("SwallowedException") // see logs below
     override fun execute() {
         val service = parameters.service.get()
+        val logger = parameters.loggerService.get()
 
         try {
             val distributionFile = parameters.outputFile.asFile.get()

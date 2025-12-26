@@ -1,10 +1,9 @@
 package ru.kode.android.build.publish.plugin.slack.controller
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import org.gradle.api.logging.Logger
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.util.UploadError
 import ru.kode.android.build.publish.plugin.core.util.createPartFromString
 import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
@@ -33,7 +32,7 @@ internal class SlackControllerImpl(
     private val json: Json,
     private val slackApi: SlackApi,
     private val uploadApi: SlackUploadApi,
-    private val logger: Logger,
+    private val logger: PluginLogger,
 ) : SlackController {
     /**
      * Uploads a file to Slack and shares it in the specified channels.

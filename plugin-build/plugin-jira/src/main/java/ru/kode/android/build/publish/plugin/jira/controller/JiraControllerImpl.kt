@@ -1,7 +1,7 @@
 package ru.kode.android.build.publish.plugin.jira.controller
 
 import org.gradle.api.GradleException
-import org.gradle.api.logging.Logger
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.util.executeNoResult
 import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraFixVersion
@@ -34,7 +34,7 @@ import ru.kode.android.build.publish.plugin.jira.network.entity.SetStatusRequest
  */
 internal class JiraControllerImpl(
     private val api: JiraApi,
-    private val logger: Logger,
+    private val logger: PluginLogger,
 ) : JiraController {
     /**
      * Retrieves the ID of the status with the given name in the specified project,

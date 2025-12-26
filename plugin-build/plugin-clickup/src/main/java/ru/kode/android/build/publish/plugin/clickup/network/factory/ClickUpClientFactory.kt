@@ -3,7 +3,7 @@ package ru.kode.android.build.publish.plugin.clickup.network.factory
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.gradle.api.logging.Logger
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import java.util.concurrent.TimeUnit
 
@@ -12,7 +12,7 @@ private const val HTTP_CONNECT_TIMEOUT_SECONDS = 60L
 internal object ClickUpClientFactory {
     fun build(
         token: String,
-        logger: Logger,
+        logger: PluginLogger,
     ): OkHttpClient {
         val loggingInterceptor =
             HttpLoggingInterceptor { message -> logger.info(message) }.apply {
@@ -23,7 +23,7 @@ internal object ClickUpClientFactory {
             .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .addInterceptor(AttachTokenInterceptor(token))
-            .addProxyIfAvailable()
+            .addProxyIfAvailable(logger)
             .addNetworkInterceptor(loggingInterceptor)
             .build()
     }

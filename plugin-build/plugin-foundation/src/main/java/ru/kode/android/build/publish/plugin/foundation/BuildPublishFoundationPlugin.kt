@@ -11,18 +11,21 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_EXTENSION_NAME
+import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_NAME
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_TAG_PATTERN
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.util.changelogFileProvider
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.core.util.getCommon
+import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.foundation.config.OutputConfig
 import ru.kode.android.build.publish.plugin.foundation.extension.BuildPublishFoundationExtension
@@ -55,13 +58,9 @@ const val EXTENSION_NAME = "buildPublishFoundation"
  * for version management and changelog generation based on Git history.
  */
 abstract class BuildPublishFoundationPlugin : Plugin<Project> {
-    private val logger: Logger = Logging.getLogger(this::class.java)
-
     @Suppress("LongMethod") // Just big creation methods
     override fun apply(project: Project) {
         project.stopExecutionIfNotSupported()
-
-        project.pluginManager.apply(GitExecutorServicePlugin::class.java)
 
         val buildPublishFoundationExtension =
             project.extensions
@@ -71,8 +70,32 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
             project.extensions
                 .getByType(ApplicationAndroidComponentsExtension::class.java)
 
+        val loggerServiceProvider =
+            project.gradle.sharedServices.registerIfAbsent(
+                project.serviceName(LOGGER_SERVICE_NAME),
+                LoggerService::class.java,
+            ) {
+                it.parameters.verboseLogging.set(
+                    buildPublishFoundationExtension.verboseLogging,
+                )
+            }
+
+        project.extensions.create(
+            LOGGER_SERVICE_EXTENSION_NAME,
+            LoggerServiceExtension::class.java,
+            loggerServiceProvider,
+        )
+
+        project.pluginManager.apply(GitExecutorServicePlugin::class.java)
+
         androidExtension.onVariants(
             callback = { variant ->
+                val logger =
+                    project.extensions
+                        .getByType(LoggerServiceExtension::class.java)
+                        .service
+                        .get()
+
                 val buildVariant =
                     BuildVariant(
                         name = variant.name,

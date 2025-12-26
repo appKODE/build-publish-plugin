@@ -1,8 +1,8 @@
 package ru.kode.android.build.publish.plugin.core.git
 
-import org.gradle.api.logging.Logger
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.enity.TagRange
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.messages.failedToBuildChangelogMessage
 
 /**
@@ -12,13 +12,13 @@ import ru.kode.android.build.publish.plugin.core.messages.failedToBuildChangelog
  * Git commit messages between tags. It supports custom message keys and fallback values.
  *
  * @property gitRepository The Git repository to extract commit history from
- * @property logger Optional logger for warning and debug messages
+ * @property logger Logger for warning and debug messages
  *
  * @see GitRepository For repository operations used to gather commit data
  */
 class GitChangelogBuilder(
     private val gitRepository: GitRepository,
-    private val logger: Logger?,
+    private val logger: PluginLogger,
 ) {
     /**
      * Builds a changelog string for a given build tag by determining the tag range and collecting
@@ -59,7 +59,7 @@ class GitChangelogBuilder(
     ): String? {
         val tagRange =
             gitRepository.findTagRange(buildTag, buildTagPattern)
-                .also { if (it == null) logger?.warn(failedToBuildChangelogMessage()) }
+                .also { if (it == null) logger.warn(failedToBuildChangelogMessage()) }
                 ?: return null
         return buildChangelog(
             tagRange,

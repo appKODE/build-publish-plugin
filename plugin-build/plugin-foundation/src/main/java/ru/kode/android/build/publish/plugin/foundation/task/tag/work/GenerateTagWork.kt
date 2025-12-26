@@ -2,11 +2,11 @@ package ru.kode.android.build.publish.plugin.foundation.task.tag.work
 
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.strategy.HardcodedTagGenerationStrategy
 import ru.kode.android.build.publish.plugin.foundation.messages.invalidTagMessage
@@ -44,6 +44,11 @@ internal interface GenerateTagParameters : WorkParameters {
     val gitExecutorService: Property<GitExecutorService>
 
     /**
+     * The logger service for logging messages during the work.
+     */
+    val loggerService: Property<LoggerService>
+
+    /**
      * Whether to use stub values when no matching tag is found
      */
     val useStubsForTagAsFallback: Property<Boolean>
@@ -66,13 +71,12 @@ internal interface GenerateTagParameters : WorkParameters {
 internal abstract class GenerateTagWork
     @Inject
     constructor() : WorkAction<GenerateTagParameters> {
-        private val logger = Logging.getLogger(this::class.java)
-
         override fun execute() {
             val buildVariant = parameters.buildVariant.get()
             val buildTagPattern = parameters.buildTagPattern.get()
             val tagBuildOutput = parameters.tagBuildFile.asFile.get()
             val useStubsForTagAsFallback = parameters.useStubsForTagAsFallback.get()
+            val logger = parameters.loggerService.get()
 
             val buildTag =
                 parameters.gitExecutorService.get()

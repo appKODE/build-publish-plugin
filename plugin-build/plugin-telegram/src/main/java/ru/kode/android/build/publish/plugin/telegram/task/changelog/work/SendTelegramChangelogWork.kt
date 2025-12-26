@@ -1,10 +1,10 @@
 package ru.kode.android.build.publish.plugin.telegram.task.changelog.work
 
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.destinationTelegramBotsFromJson
 import ru.kode.android.build.publish.plugin.telegram.messages.changelogSentMessage
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
@@ -56,6 +56,11 @@ internal interface SendTelegramChangelogParameters : WorkParameters {
      * The network service for sending messages to Telegram
      */
     val service: Property<TelegramService>
+
+    /**
+     * The logger service for logging debug and error messages.
+     */
+    val loggerService: Property<LoggerService>
 }
 
 /**
@@ -80,10 +85,9 @@ internal interface SendTelegramChangelogParameters : WorkParameters {
 internal abstract class SendTelegramChangelogWork
     @Inject
     constructor() : WorkAction<SendTelegramChangelogParameters> {
-        private val logger = Logging.getLogger(this::class.java)
-
         override fun execute() {
             val service = parameters.service.get()
+            val logger = parameters.loggerService.get()
 
             val baseOutputFileName = parameters.baseOutputFileName.get()
             val buildName = parameters.buildName.get()

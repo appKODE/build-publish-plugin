@@ -16,7 +16,7 @@ import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.extractManifestProperties
-import ru.kode.android.build.publish.plugin.test.utils.find
+import ru.kode.android.build.publish.plugin.test.utils.findTag
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
@@ -201,7 +201,7 @@ class AssembleOneFlavorTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenSecondTagName).id
+        val expectedCommitSha = git.tag.findTag(givenSecondTagName).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "googleDebug"
         val expectedTagName = "v1.0.2-googleDebug"
@@ -282,7 +282,7 @@ class AssembleOneFlavorTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenSecondTagName).id
+        val expectedCommitSha = git.tag.findTag(givenSecondTagName).id
         val expectedBuildNumber = "2"
         val expectedBuildVariant = "googleDebug"
         val expectedTagName = "v1.0.2-googleDebug"
@@ -762,7 +762,7 @@ class AssembleOneFlavorTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagNameRelease).id
+        val expectedCommitSha = git.tag.findTag(givenTagNameRelease).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "googleRelease"
         val expectedTagName = "v1.0.1-googleRelease"
@@ -900,7 +900,7 @@ class AssembleOneFlavorTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagNameRelease).id
+        val expectedCommitSha = git.tag.findTag(givenTagNameRelease).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "googleRelease"
         val expectedTagName = "v1.0.1-googleRelease"
@@ -987,7 +987,7 @@ class AssembleOneFlavorTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.find(givenTagNameRelease).id
+        val expectedCommitSha = git.tag.findTag(givenTagNameRelease).id
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "googleRelease"
         val expectedTagName = "v1.0.1-googleRelease"
@@ -1079,7 +1079,7 @@ class AssembleOneFlavorTest {
         val expectedBuildNumber = "100"
         val expectedBuildVariant = "googleDebug"
         val expectedTagName = "v1.0.100-googleDebug"
-        val expectedCommitSha = git.tag.find(expectedTagName).id
+        val expectedCommitSha = git.tag.findTag(expectedTagName).id
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -1162,7 +1162,7 @@ class AssembleOneFlavorTest {
         val expectedBuildNumber = "100"
         val expectedBuildVariant = "googleDebug"
         val expectedTagName = "v1.0.100-googleDebug"
-        val expectedCommitSha = git.tag.find(expectedTagName).id
+        val expectedCommitSha = git.tag.findTag(expectedTagName).id
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(
@@ -1251,7 +1251,7 @@ class AssembleOneFlavorTest {
         val expectedBuildNumber = "100"
         val expectedBuildVariant = "googleDebug"
         val expectedTagName = "v1.1.100-googleDebug"
-        val expectedCommitSha = git.tag.find(expectedTagName).id
+        val expectedCommitSha = git.tag.findTag(expectedTagName).id
         val expectedBuildVersion = "1.1"
         val expectedTagBuildFile =
             Tag.Build(
@@ -1334,7 +1334,7 @@ class AssembleOneFlavorTest {
         val expectedBuildNumber = "100"
         val expectedBuildVariant = "googleDebug"
         val expectedTagName = "v1.1.100-googleDebug"
-        val expectedCommitSha = git.tag.find(expectedTagName).id
+        val expectedCommitSha = git.tag.findTag(expectedTagName).id
         val expectedBuildVersion = "1.1"
         val expectedTagBuildFile =
             Tag.Build(

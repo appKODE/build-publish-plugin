@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.slack.controller.SlackController
 import ru.kode.android.build.publish.plugin.slack.controller.SlackControllerFactory
 import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
@@ -36,7 +37,25 @@ class SlackDistributionTest {
     @BeforeEach
     fun setup() {
         projectDir = File(tempDir, "test-project")
-        slackController = SlackControllerFactory.build(logger)
+        slackController = SlackControllerFactory.build(
+            object : PluginLogger {
+                override fun info(message: String, exception: Throwable?) {
+                    logger.info(message)
+                }
+
+                override fun warn(message: String) {
+                    logger.warn(message)
+                }
+
+                override fun error(message: String, exception: Throwable?) {
+                    logger.error(message, exception)
+                }
+
+                override fun quiet(message: String) {
+                    logger.quiet(message)
+                }
+            }
+        )
     }
 
     @Test

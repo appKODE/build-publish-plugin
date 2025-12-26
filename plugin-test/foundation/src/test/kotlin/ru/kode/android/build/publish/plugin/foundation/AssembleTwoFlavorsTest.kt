@@ -15,7 +15,7 @@ import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.extractManifestProperties
-import ru.kode.android.build.publish.plugin.test.utils.find
+import ru.kode.android.build.publish.plugin.test.utils.findTag
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
@@ -84,7 +84,7 @@ class AssembleTwoFlavorsTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedDemoDebugCommitSha = git.tag.find(givenTagName1).id
+        val expectedDemoDebugCommitSha = git.tag.findTag(givenTagName1).id
         val expectedDemoDebugTagFile =
             Tag.Build(
                 name = givenTagName1,
@@ -124,7 +124,7 @@ class AssembleTwoFlavorsTest {
             "Manifest properties equality",
         )
 
-        val expectedProReleaseCommitSha = git.tag.find(givenTagName2).id
+        val expectedProReleaseCommitSha = git.tag.findTag(givenTagName2).id
         val expectedProReleaseTagFile =
             Tag.Build(
                 name = givenTagName2,

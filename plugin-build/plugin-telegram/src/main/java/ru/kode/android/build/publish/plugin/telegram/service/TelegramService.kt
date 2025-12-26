@@ -3,13 +3,12 @@ package ru.kode.android.build.publish.plugin.telegram.service
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import org.gradle.api.GradleException
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import retrofit2.Retrofit
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.telegram.config.DestinationTelegramBotConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotConfig
 import ru.kode.android.build.publish.plugin.telegram.controller.TelegramController
@@ -54,9 +53,13 @@ abstract class TelegramService
              * Each bot is identified by its name and contains the necessary credentials.
              */
             val bots: ListProperty<String>
-        }
 
-        private val logger: Logger = Logging.getLogger("Telegram")
+            /**
+             * A logger service property that provides access to the logger service used for logging operations
+             * within the service.
+             */
+            val loggerService: Property<LoggerService>
+        }
 
         private val json = Json { ignoreUnknownKeys = true }
 
@@ -68,7 +71,9 @@ abstract class TelegramService
 
         init {
             clientProperty.set(
-                TelegramClientFactory.build(logger, json),
+                parameters.loggerService.map { logger ->
+                    TelegramClientFactory.build(logger, json)
+                },
             )
             retrofitBuilderProperty.set(
                 clientProperty.map { client ->
@@ -86,8 +91,10 @@ abstract class TelegramService
                 },
             )
             controllerProperty.set(
-                webhookApiProperty.zip(distributionApiProperty) { webhookApi, distributionApi ->
-                    TelegramControllerImpl(webhookApi, distributionApi, logger)
+                parameters.loggerService.flatMap { logger ->
+                    webhookApiProperty.zip(distributionApiProperty) { webhookApi, distributionApi ->
+                        TelegramControllerImpl(webhookApi, distributionApi, logger)
+                    }
                 },
             )
         }

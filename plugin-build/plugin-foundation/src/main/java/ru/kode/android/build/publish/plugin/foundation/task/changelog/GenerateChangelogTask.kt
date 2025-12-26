@@ -13,6 +13,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
 import ru.kode.android.build.publish.plugin.foundation.task.changelog.work.GenerateChangelogWork
 import javax.inject.Inject
@@ -48,6 +49,16 @@ abstract class GenerateChangelogTask
          */
         @get:ServiceReference
         abstract val gitExecutorService: Property<GitExecutorService>
+
+        /**
+         * The logger service used to log messages during the task execution.
+         *
+         * This service provides a logger that can be used to log messages during the task execution.
+         *
+         * @see LoggerService
+         */
+        @get:ServiceReference
+        abstract val loggerService: Property<LoggerService>
 
         /**
          * The JSON file containing information about the last build tag.
@@ -159,6 +170,7 @@ abstract class GenerateChangelogTask
                 parameters.tagBuildFile.set(buildTagFile)
                 parameters.changelogFile.set(changelogFile)
                 parameters.gitExecutorService.set(gitExecutorService)
+                parameters.loggerService.set(loggerService)
             }
         }
     }

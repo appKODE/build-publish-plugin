@@ -64,7 +64,8 @@ internal object TagTasksRegistrar {
         params: LastTagTaskParams,
     ): LastTagTaskOutput {
         val lastBuildTag = project.registerGetLastTagTask(params)
-        val versionCode =
+
+        val versionCode: Provider<Int> =
             params.useVersionsFromTag
                 .zip(
                     params.useDefaultsForVersionsAsFallback,
@@ -113,8 +114,7 @@ internal object TagTasksRegistrar {
                     val useVersionsFromTag = paramsPair.second
                     if (useVersionsFromTag) {
                         params.baseFileName
-                            .zip(lastBuildTag) { baseFileName, tagBuildFile -> baseFileName to tagBuildFile }
-                            .map { (baseFileName, tagBuildFile) ->
+                            .zip(lastBuildTag) { baseFileName, tagBuildFile ->
                                 val tag =
                                     if (tagBuildFile.asFile.exists()) {
                                         fromJson(tagBuildFile.asFile)
@@ -130,7 +130,7 @@ internal object TagTasksRegistrar {
                     }
                 }
 
-        val versionName =
+        val versionName: Provider<String> =
             params.useVersionsFromTag
                 .zip(
                     params.useDefaultsForVersionsAsFallback,
@@ -223,6 +223,7 @@ private fun Project.registerGetLastTagTask(params: LastTagTaskParams): Provider<
     val variant = params.buildVariant
     val tagBuildFile = project.tagBuildFileProvider(variant.name)
     val taskName = "$GET_LAST_TAG_TASK_PREFIX${variant.capitalizedName()}"
+
     return tasks.register(taskName, GetLastTagTask::class.java) { task ->
         task.tagBuildFile.set(tagBuildFile)
         task.buildVariantName.set(variant.name)

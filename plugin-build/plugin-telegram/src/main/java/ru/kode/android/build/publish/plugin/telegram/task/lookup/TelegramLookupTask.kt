@@ -4,11 +4,13 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
+import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.telegram.messages.configErrorExceptionMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.configErrorMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.lookupSuccessMessage
@@ -32,6 +34,16 @@ abstract class TelegramLookupTask : DefaultTask() {
      */
     @get:Internal
     abstract val service: Property<TelegramService>
+
+    /**
+     * The logger service property provides access to the logger service used for logging messages during task execution.
+     *
+     * This property is marked as @Internal as it's not part of the task's input/output.
+     *
+     * @see LoggerService
+     */
+    @get:ServiceReference
+    abstract val loggerService: Property<LoggerService>
 
     /**
      * Name of the Telegram bot configuration to lookup messages in.
@@ -93,10 +105,10 @@ abstract class TelegramLookupTask : DefaultTask() {
         val topicName = topicName.orNull
         val lastMessage = service.getLastMessage(botName, chatName, topicName)
         if (lastMessage == null) {
-            logger.quiet(configErrorMessage(chatName))
+            loggerService.get().quiet(configErrorMessage(chatName))
             throw GradleException(configErrorExceptionMessage(chatName))
         } else {
-            logger.quiet(lookupSuccessMessage(botName, lastMessage))
+            loggerService.get().quiet(lookupSuccessMessage(botName, lastMessage))
         }
     }
 }

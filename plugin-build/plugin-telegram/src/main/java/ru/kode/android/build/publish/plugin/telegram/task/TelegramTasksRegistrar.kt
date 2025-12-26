@@ -2,11 +2,10 @@ package ru.kode.android.build.publish.plugin.telegram.task
 
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
@@ -43,8 +42,6 @@ internal const val TELEGRAM_LOOKUP_TASK_PREFIX = "telegramLookup"
  * @see TelegramDistributionTask For the distribution notification task implementation
  */
 internal object TelegramTasksRegistrar {
-    private val logger: Logger = Logging.getLogger(this::class.java)
-
     /**
      * Registers a task for sending changelog notifications to Telegram.
      *
@@ -97,6 +94,11 @@ internal object TelegramTasksRegistrar {
         return if (config.destinationBots.isPresent) {
             project.registerTelegramUploadAokTask(config, params)
         } else {
+            val logger =
+                project.extensions
+                    .getByType(LoggerServiceExtension::class.java)
+                    .service
+                    .get()
             logger.info(distributionTaskNotCreatedMessage())
             null
         }
@@ -129,6 +131,11 @@ internal object TelegramTasksRegistrar {
         return if (config.destinationBots.isPresent) {
             project.registerTelegramBundleUploadTask(config, params)
         } else {
+            val logger =
+                project.extensions
+                    .getByType(LoggerServiceExtension::class.java)
+                    .service
+                    .get()
             logger.info(distributionBundleTaskNotCreatedMessage())
             null
         }

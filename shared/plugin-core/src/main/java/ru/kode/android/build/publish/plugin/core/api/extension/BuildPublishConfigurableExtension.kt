@@ -4,8 +4,6 @@ import com.android.build.api.variant.ApplicationVariant
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.buildVariant
@@ -23,8 +21,6 @@ import ru.kode.android.build.publish.plugin.core.util.common
  * @see NamedDomainObjectContainer
  */
 open class BuildPublishConfigurableExtension {
-    protected val logger: Logger = Logging.getLogger(this::class.java)
-
     /**
      * Applies common configuration to a named domain object container.
      *

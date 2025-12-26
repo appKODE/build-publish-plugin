@@ -47,7 +47,7 @@ fun jiraServicesCreatedMessage(servicesNames: Set<String>): String {
         |============================================================
         | The following Jira services have been created and configured:
         |
-        | ${servicesNames.joinToString("\n") { "• $it" }}
+        | ${servicesNames.joinToString(", ")}
         |
         | These services will be used for interacting with Jira API
         | and managing issue tracking during the build process.

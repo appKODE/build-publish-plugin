@@ -6,8 +6,7 @@ import okhttp3.OkHttpClient
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.gradle.api.GradleException
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.messages.applyProxyAuthMessage
 import ru.kode.android.build.publish.plugin.core.messages.cannotCreateHttpProxyMessage
 import ru.kode.android.build.publish.plugin.core.messages.cannotCreateHttpsProxyMessage
@@ -25,39 +24,6 @@ import java.net.ProxySelector
 import java.net.SocketAddress
 import java.net.URI
 
-private val logger = Logging.getLogger("HttpClientExtensions")
-
-/**
- * Data class representing a network proxy.
- */
-data class NetworkProxy(
-    /**
-     * The host of the network proxy.
-     */
-    val host: String,
-    /**
-     * The port of the network proxy.
-     */
-    val port: String,
-    /**
-     * The username for the network proxy authentication, if any.
-     */
-    val user: String?,
-    /**
-     * The password for the network proxy authentication, if any.
-     */
-    val password: String?,
-    /**
-     * The non proxy hosts for the network proxy.
-     *
-     * Non proxy hosts are a list of hosts that should not be proxied.
-     * The format of the string is a comma separated list of hosts.
-     *
-     * Example: "localhost,127.0.0.1,example.com"
-     */
-    val nonProxyHosts: String? = null,
-)
-
 /**
  * Adds a network interceptor to the OkHttpClient.Builder that applies the first non-null proxy
  * returned by the [httpProxyProvider] and [httpsProxyProvider] functions.
@@ -71,7 +37,7 @@ data class NetworkProxy(
  */
 @Suppress("ComplexCondition") // Just checking for all proxy properties
 fun OkHttpClient.Builder.addProxyIfAvailable(
-    logger: Logger = ru.kode.android.build.publish.plugin.core.util.logger,
+    logger: PluginLogger,
     httpProxyProvider: (() -> NetworkProxy?) = { createHttpProxy(logger) },
     httpsProxyProvider: (() -> NetworkProxy?) = { createHttpsProxy(logger) },
 ): OkHttpClient.Builder {
@@ -123,7 +89,7 @@ fun OkHttpClient.Builder.addProxyIfAvailable(
  * @param httpsProxyProvider a function that returns the first non-null [NetworkProxy] for an HTTPS request
  */
 private class DynamicProxySelector(
-    private val logger: Logger,
+    private val logger: PluginLogger,
     private val httpProxyProvider: (() -> NetworkProxy?),
     private val httpsProxyProvider: (() -> NetworkProxy?),
 ) : ProxySelector() {
@@ -187,7 +153,7 @@ fun createPartFromString(value: String): RequestBody {
  * @param logger the logger used for logging
  * @return the created [NetworkProxy] for HTTPS requests, or `null` if the proxy cannot be created
  */
-private fun createHttpsProxy(logger: Logger): NetworkProxy? {
+private fun createHttpsProxy(logger: PluginLogger): NetworkProxy? {
     val host = getEnvOrProperty("https.proxyHost")
     val port = getEnvOrProperty("https.proxyPort")
     return if (host != null && port != null) {
@@ -211,7 +177,7 @@ private fun createHttpsProxy(logger: Logger): NetworkProxy? {
  * @param logger the logger used for logging
  * @return the created [NetworkProxy] for HTTP requests, or `null` if the proxy cannot be created
  */
-private fun createHttpProxy(logger: Logger): NetworkProxy? {
+private fun createHttpProxy(logger: PluginLogger): NetworkProxy? {
     val host = getEnvOrProperty("http.proxyHost")
     val port = getEnvOrProperty("http.proxyPort")
     return if (host != null && port != null) {
@@ -238,3 +204,34 @@ private fun createHttpProxy(logger: Logger): NetworkProxy? {
 private fun getEnvOrProperty(key: String): String? {
     return System.getenv(key) ?: System.getProperty(key)
 }
+
+/**
+ * Data class representing a network proxy.
+ */
+data class NetworkProxy(
+    /**
+     * The host of the network proxy.
+     */
+    val host: String,
+    /**
+     * The port of the network proxy.
+     */
+    val port: String,
+    /**
+     * The username for the network proxy authentication, if any.
+     */
+    val user: String?,
+    /**
+     * The password for the network proxy authentication, if any.
+     */
+    val password: String?,
+    /**
+     * The non proxy hosts for the network proxy.
+     *
+     * Non proxy hosts are a list of hosts that should not be proxied.
+     * The format of the string is a comma separated list of hosts.
+     *
+     * Example: "localhost,127.0.0.1,example.com"
+     */
+    val nonProxyHosts: String? = null,
+)

@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
+import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -11,6 +12,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.telegram.config.DestinationTelegramBotConfig
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.work.TelegramUploadWork
@@ -42,6 +44,16 @@ abstract class TelegramDistributionTask
          */
         @get:Internal
         abstract val service: Property<TelegramService>
+
+        /**
+         * The logger service used to log messages during the task execution.
+         *
+         * This service provides logging capabilities for the task.
+         *
+         * @see LoggerService
+         */
+        @get:ServiceReference
+        abstract val loggerService: Property<LoggerService>
 
         /**
          * The APK/bundle file to be distributed.
@@ -84,6 +96,7 @@ abstract class TelegramDistributionTask
             workQueue.submit(TelegramUploadWork::class.java) { parameters ->
                 parameters.distributionFile.set(distributionFile)
                 parameters.service.set(service)
+                parameters.loggerService.set(loggerService)
                 parameters.destinationBots.set(destinationBots)
             }
         }

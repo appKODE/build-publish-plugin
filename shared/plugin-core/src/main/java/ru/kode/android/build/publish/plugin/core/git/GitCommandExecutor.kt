@@ -3,9 +3,9 @@ package ru.kode.android.build.publish.plugin.core.git
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
 import org.gradle.api.GradleException
-import org.gradle.internal.cc.base.logger
 import ru.kode.android.build.publish.plugin.core.enity.CommitRange
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.messages.cannotReturnTagMessage
 import ru.kode.android.build.publish.plugin.core.messages.couldNotFindProvidedBuildTagMessage
 import ru.kode.android.build.publish.plugin.core.messages.finTagsByRegexAfterSortingMessage
@@ -28,6 +28,7 @@ import org.ajoberstar.grgit.Tag as GrgitTag
  */
 class GitCommandExecutor(
     private val grgit: Grgit,
+    private val logger: PluginLogger,
 ) {
     /**
      * Extracts lines containing the specified key from commit messages within a given range.
@@ -145,8 +146,8 @@ class GitCommandExecutor(
         return tagsList
             .also { tags -> logger.info(findTagsByRegexBeforeFilterMessage(tags)) }
             .filter { tag ->
-                tag.name.matches(buildTagRegex) && tag.commit.id.isNotBlank()
-                    && commitsLog.any { it.id == tag.commit.id }
+                tag.name.matches(buildTagRegex) && tag.commit.id.isNotBlank() &&
+                    commitsLog.any { it.id == tag.commit.id }
             }
             .also { tags -> logger.info(findTagsByRegexAfterFilterMessage(buildTagRegex, tags)) }
             .sortedWith(
@@ -154,7 +155,7 @@ class GitCommandExecutor(
                     val index = commitsLog.indexOfFirst { it.id == tag.commit.id }
                     if (index >= 0) -index else Int.MIN_VALUE
                 }.thenByDescending { tag ->
-                    tag.getBuildNumber(buildTagRegex)
+                    tag.getBuildNumber(buildTagRegex, logger)
                 },
             )
             .also { tags -> logger.info(finTagsByRegexAfterSortingMessage(tags)) }
@@ -194,7 +195,7 @@ class GitCommandExecutor(
                         val index = commitsLog.indexOfFirst { it.id == tag.commit.id }
                         if (index >= 0) -index else Int.MIN_VALUE
                     }.thenByDescending { tag ->
-                        tag.getBuildNumber(buildTagRegex)
+                        tag.getBuildNumber(buildTagRegex, logger)
                     },
                 )
                 .distinctBy { it.commit.id }
@@ -249,8 +250,8 @@ class GitCommandExecutor(
             .forEach { (lastTag, previousTag) ->
                 val lastTagCommit = findCommit(lastTag.commit.id)
                 val previousTagCommit = findCommit(previousTag.commit.id)
-                val lastTagBuildNumber = lastTag.getBuildNumber(buildTagRegex)
-                val previousTagBuildNumber = previousTag.getBuildNumber(buildTagRegex)
+                val lastTagBuildNumber = lastTag.getBuildNumber(buildTagRegex, logger)
+                val previousTagBuildNumber = previousTag.getBuildNumber(buildTagRegex, logger)
 
                 if (previousTagCommit.dateTime.isAfter(lastTagCommit.dateTime) ||
                     previousTagBuildNumber >= lastTagBuildNumber

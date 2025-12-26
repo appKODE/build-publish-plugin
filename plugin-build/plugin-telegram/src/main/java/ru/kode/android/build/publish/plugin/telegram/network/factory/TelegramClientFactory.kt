@@ -5,7 +5,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
-import org.gradle.api.logging.Logger
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
 import ru.kode.android.build.publish.plugin.telegram.messages.failedToParseRetryMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.reachedMaxTriesMessage
@@ -31,7 +31,7 @@ internal object TelegramClientFactory {
      * @return An instance of OkHttpClient.
      */
     fun build(
-        logger: Logger,
+        logger: PluginLogger,
         json: Json,
     ): OkHttpClient {
         val loggingInterceptor =
@@ -67,7 +67,7 @@ private class DelayInterceptor(private val delayMs: Long) : Interceptor {
  */
 private class RetryAfterInterceptor(
     private val json: Json,
-    private val logger: Logger,
+    private val logger: PluginLogger,
     private val maxRetries: Int = 3,
 ) : Interceptor {
     @Suppress("TooGenericExceptionCaught")

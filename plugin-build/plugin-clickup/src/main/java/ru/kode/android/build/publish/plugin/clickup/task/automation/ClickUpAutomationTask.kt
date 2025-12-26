@@ -5,6 +5,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -19,6 +20,7 @@ import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddFixV
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddTagToTaskWork
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import javax.inject.Inject
 
 /**
@@ -52,6 +54,16 @@ abstract class ClickUpAutomationTask
          */
         @get:Internal
         abstract val service: Property<ClickUpService>
+
+        /**
+         * The logger service used to log messages during task execution.
+         *
+         * This service is used to log messages related to the task execution.
+         *
+         * @see LoggerService
+         */
+        @get:ServiceReference
+        abstract val loggerService: Property<LoggerService>
 
         /**
          * The name of the ClickUp workspace to operate on.
@@ -178,15 +190,12 @@ abstract class ClickUpAutomationTask
                     .findAll(changelog)
                     .mapTo(mutableSetOf()) { it.groupValues[0] }
             if (issues.isEmpty()) {
-                logger.info(issuesNotFoundMessage())
+                loggerService.get().info(issuesNotFoundMessage())
             } else {
                 val fixVersionFieldId =
                     service.flatMap { service ->
                         workspaceName
                             .zip(fixVersionFieldName) { workspaceName, fixVersionFieldName ->
-                                workspaceName to fixVersionFieldName
-                            }
-                            .map { (workspaceName, fixVersionFieldName) ->
                                 service.getCustomFieldId(workspaceName, fixVersionFieldName)
                             }
                     }

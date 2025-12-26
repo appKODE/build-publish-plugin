@@ -1,17 +1,14 @@
 package ru.kode.android.build.publish.plugin.foundation.service.git
 
 import org.ajoberstar.grgit.gradle.GrgitService
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.core.git.GitChangelogBuilder
 import ru.kode.android.build.publish.plugin.core.git.GitCommandExecutor
 import ru.kode.android.build.publish.plugin.core.git.GitRepository
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import javax.inject.Inject
-
-private val logger: Logger = Logging.getLogger(GitExecutorService::class.java)
 
 /**
  * A Gradle build service that provides Git repository operations.
@@ -37,6 +34,11 @@ abstract class GitExecutorService
              * The underlying Grgit service used for Git operations
              */
             val grgitService: Property<GrgitService>
+
+            /**
+             * The logger service used for logging in the Git executor service
+             */
+            val loggerService: Property<LoggerService>
         }
 
         protected abstract val executorProperty: Property<GitCommandExecutor>
@@ -47,14 +49,18 @@ abstract class GitExecutorService
 
         init {
             executorProperty.set(
-                parameters.grgitService.map { grGitService ->
-                    GitCommandExecutor(grGitService.grgit)
+                parameters.grgitService.zip(parameters.loggerService) { grgitService, logger ->
+                    GitCommandExecutor(grgitService.grgit, logger)
                 },
             )
 
-            repositoryProperty.set(executorProperty!!.map { GitRepository(it) })
+            repositoryProperty.set(executorProperty.map { GitRepository(it) })
 
-            gitChangelogBuilderProperty.set(repositoryProperty!!.map { GitChangelogBuilder(it, logger) })
+            gitChangelogBuilderProperty.set(
+                repositoryProperty.zip(parameters.loggerService) { repository, logger ->
+                    GitChangelogBuilder(repository, logger)
+                },
+            )
         }
 
         /**

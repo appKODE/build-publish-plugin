@@ -1,10 +1,10 @@
 package ru.kode.android.build.publish.plugin.confluence.controller.factory
 
-import org.gradle.api.logging.Logger
 import ru.kode.android.build.publish.plugin.confluence.controller.ConfluenceController
 import ru.kode.android.build.publish.plugin.confluence.controller.ConfluenceControllerImpl
 import ru.kode.android.build.publish.plugin.confluence.network.factory.ConfluenceApiFactory
 import ru.kode.android.build.publish.plugin.confluence.network.factory.ConfluenceClientFactory
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.util.NetworkProxy
 
 /**
@@ -25,7 +25,7 @@ object ConfluenceControllerFactory {
         baseUrl: String,
         username: String,
         password: String,
-        logger: Logger,
+        logger: PluginLogger,
         proxy: () -> NetworkProxy,
     ): ConfluenceController {
         return ConfluenceControllerImpl(

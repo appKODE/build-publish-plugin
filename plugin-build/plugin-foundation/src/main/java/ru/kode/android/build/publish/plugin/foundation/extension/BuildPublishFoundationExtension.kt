@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.foundation.extension
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
@@ -26,6 +27,19 @@ import javax.inject.Inject
 abstract class BuildPublishFoundationExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
+        /**
+         * Enables verbose logging for the build and publish plugins.
+         *
+         * If set to `true`, the plugin will print more detailed logs during the build process.
+         *
+         * Default value is `false`.
+         *
+         * @see BuildPublishConfigurableExtension.verboseLogging
+         */
+        val verboseLogging: Property<Boolean> =
+            objectFactory.property(Boolean::class.java)
+                .convention(false)
+
         /**
          * Container for output configurations, keyed by build type.
          *

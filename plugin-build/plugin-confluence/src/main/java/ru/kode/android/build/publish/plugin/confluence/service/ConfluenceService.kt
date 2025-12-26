@@ -1,8 +1,6 @@
 package ru.kode.android.build.publish.plugin.confluence.service
 
 import okhttp3.OkHttpClient
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
@@ -12,6 +10,7 @@ import ru.kode.android.build.publish.plugin.confluence.network.api.ConfluenceApi
 import ru.kode.android.build.publish.plugin.confluence.network.factory.ConfluenceApiFactory
 import ru.kode.android.build.publish.plugin.confluence.network.factory.ConfluenceClientFactory
 import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import java.io.File
 import javax.inject.Inject
 
@@ -45,9 +44,15 @@ abstract class ConfluenceService
              * The authentication credentials for the Confluence API, typically username and password
              */
             val credentials: Property<BasicAuthCredentials>
-        }
 
-        private val logger: Logger = Logging.getLogger("Confluence")
+            /**
+             * The logger service for logging events related to the Confluence service.
+             *
+             * This logger service is used to log events related to the Confluence service,
+             * such as network requests, authentication errors, etc.
+             */
+            val loggerService: Property<LoggerService>
+        }
 
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
         internal abstract val apiProperty: Property<ConfluenceApi>
@@ -56,10 +61,12 @@ abstract class ConfluenceService
 
         init {
             okHttpClientProperty.set(
-                parameters.credentials.flatMap { it.username }
-                    .zip(parameters.credentials.flatMap { it.password }) { username, password ->
-                        ConfluenceClientFactory.build(username, password, logger)
-                    },
+                parameters.loggerService.flatMap { logger ->
+                    parameters.credentials.flatMap { it.username }
+                        .zip(parameters.credentials.flatMap { it.password }) { username, password ->
+                            ConfluenceClientFactory.build(username, password, logger)
+                        }
+                },
             )
             apiProperty.set(
                 okHttpClientProperty.zip(parameters.baseUrl) { client, baseUrl ->

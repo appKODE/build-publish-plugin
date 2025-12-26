@@ -2,11 +2,10 @@ package ru.kode.android.build.publish.plugin.telegram.task.changelog
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
+import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -15,6 +14,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.telegram.config.DestinationTelegramBotConfig
 import ru.kode.android.build.publish.plugin.telegram.messages.failedToReadChangelogFile
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
@@ -44,8 +44,6 @@ abstract class SendTelegramChangelogTask
     constructor(
         private val workerExecutor: WorkerExecutor,
     ) : DefaultTask() {
-        private val logger: Logger = Logging.getLogger(this::class.java)
-
         init {
             description = "Task to send changelog for Telegram"
             group = BasePlugin.BUILD_GROUP
@@ -62,6 +60,18 @@ abstract class SendTelegramChangelogTask
          */
         @get:Internal
         abstract val service: Property<TelegramService>
+
+        /**
+         * The logger service property provides access to the logger service used for logging operations
+         * within the task.
+         *
+         * This property is internal and should not be directly accessed by other plugins. Rather, it is
+         * injected by Gradle when the task is created and configured.
+         *
+         * @see LoggerService For the actual logger service implementation
+         */
+        @get:ServiceReference
+        abstract val loggerService: Property<LoggerService>
 
         /**
          * The changelog file property contains the path to the file containing the changelog text to be sent.
@@ -184,7 +194,7 @@ abstract class SendTelegramChangelogTask
             val changelogFile = changelogFile.asFile.orNull
             val changelog = changelogFile?.readText()
             if (changelog.isNullOrEmpty()) {
-                logger.error(failedToReadChangelogFile(changelogFile))
+                loggerService.get().error(failedToReadChangelogFile(changelogFile))
             } else {
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
                 workQueue.submit(SendTelegramChangelogWork::class.java) { parameters ->
@@ -194,6 +204,7 @@ abstract class SendTelegramChangelogTask
                     parameters.userMentions.set(userMentions)
                     parameters.destinationBots.set(destinationBots)
                     parameters.service.set(service)
+                    parameters.loggerService.set(loggerService)
                     parameters.issueUrlPrefix.set(issueUrlPrefix)
                     parameters.issueNumberPattern.set(issueNumberPattern)
                 }

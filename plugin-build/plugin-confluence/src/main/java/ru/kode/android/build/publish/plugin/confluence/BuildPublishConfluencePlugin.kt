@@ -5,17 +5,16 @@ package ru.kode.android.build.publish.plugin.confluence
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.StopExecutionException
 import ru.kode.android.build.publish.plugin.confluence.extension.BuildPublishConfluenceExtension
-import ru.kode.android.build.publish.plugin.confluence.messages.extensionCreatedMessage
 import ru.kode.android.build.publish.plugin.confluence.messages.foundationPluginNotFoundException
 import ru.kode.android.build.publish.plugin.confluence.messages.noAuthConfigsMessage
 import ru.kode.android.build.publish.plugin.confluence.messages.registeringServicesMessage
 import ru.kode.android.build.publish.plugin.confluence.messages.servicesCreatedMessage
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceServiceExtension
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 
@@ -35,8 +34,6 @@ private const val SERVICE_EXTENSION_NAME = "confluenceServiceExtension"
  * including network services for API communication.
  */
 abstract class BuildPublishConfluencePlugin : Plugin<Project> {
-    private val logger = Logging.getLogger(this::class.java)
-
     override fun apply(project: Project) {
         val extension =
             project.extensions.create(
@@ -57,8 +54,6 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
             servicesProperty,
         )
 
-        logger.info(extensionCreatedMessage())
-
         if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
             throw StopExecutionException(foundationPluginNotFoundException())
         }
@@ -67,6 +62,12 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
             project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
 
         androidExtension.finalizeDsl {
+            val loggerProvider =
+                project.extensions.getByType(LoggerServiceExtension::class.java)
+                    .service
+
+            val logger = loggerProvider.get()
+
             if (extension.auth.isEmpty()) {
                 logger.info(noAuthConfigsMessage())
                 return@finalizeDsl
@@ -86,6 +87,7 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
                             it.maxParallelUsages.set(1)
                             it.parameters.credentials.set(authConfig.credentials)
                             it.parameters.baseUrl.set(authConfig.baseUrl)
+                            it.parameters.loggerService.set(loggerProvider)
                         }
 
                     name to service

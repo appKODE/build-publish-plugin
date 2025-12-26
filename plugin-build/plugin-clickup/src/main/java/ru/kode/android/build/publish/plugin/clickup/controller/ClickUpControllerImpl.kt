@@ -1,7 +1,6 @@
 package ru.kode.android.build.publish.plugin.clickup.controller
 
 import org.gradle.api.GradleException
-import org.gradle.api.logging.Logger
 import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpCustomField
 import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpList
 import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpSpace
@@ -23,12 +22,13 @@ import ru.kode.android.build.publish.plugin.clickup.network.api.ClickUpApi
 import ru.kode.android.build.publish.plugin.clickup.network.entity.AddFieldToTaskRequest
 import ru.kode.android.build.publish.plugin.clickup.network.entity.ClearCustomFieldRequest
 import ru.kode.android.build.publish.plugin.clickup.network.entity.CreateCustomFieldRequest
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.util.executeNoResult
 import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 
 internal class ClickUpControllerImpl(
     private val api: ClickUpApi,
-    private val logger: Logger,
+    private val logger: PluginLogger,
 ) : ClickUpController {
     /**
      * Retrieves the ID of a ClickUp custom field.
