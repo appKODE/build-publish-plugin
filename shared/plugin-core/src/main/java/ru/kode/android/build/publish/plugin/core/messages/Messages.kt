@@ -3,11 +3,34 @@ package ru.kode.android.build.publish.plugin.core.messages
 import okhttp3.Request
 import org.ajoberstar.grgit.Commit
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.enity.TagRange
 import java.io.File
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.URI
 import org.ajoberstar.grgit.Tag as GrgitTag
+
+fun buildingChangelogForTagRangeMessage(tagRange: TagRange): String {
+    return """
+        
+        |============================================================
+        |                 BUILDING CHANGELOG
+        |============================================================
+        | Building changelog for tag range
+        |
+        | Range: ${tagRange.asCommitRange()}
+        |
+        | Tags:
+        |   - Current: ${tagRange.currentBuildTag.name}
+        |   - Previous: ${tagRange.previousBuildTag?.name ?: "Not found"}
+        |
+        | Commit ranges:
+        |   - Current: ${tagRange.currentBuildTag.commitSha}
+        |   - Previous: ${tagRange.previousBuildTag?.commitSha ?: "Not found"}
+        |
+        |============================================================
+        """.trimMargin()
+}
 
 fun cannotCreateHttpProxyMessage(
     host: String?,

@@ -155,7 +155,7 @@ class GitCommandExecutor(
                     val index = commitsLog.indexOfFirst { it.id == tag.commit.id }
                     if (index >= 0) -index else Int.MIN_VALUE
                 }.thenByDescending { tag ->
-                    tag.getBuildNumber(buildTagRegex, logger)
+                    tag.getBuildNumber(buildTagRegex)
                 },
             )
             .also { tags -> logger.info(finTagsByRegexAfterSortingMessage(tags)) }
@@ -195,7 +195,7 @@ class GitCommandExecutor(
                         val index = commitsLog.indexOfFirst { it.id == tag.commit.id }
                         if (index >= 0) -index else Int.MIN_VALUE
                     }.thenByDescending { tag ->
-                        tag.getBuildNumber(buildTagRegex, logger)
+                        tag.getBuildNumber(buildTagRegex)
                     },
                 )
                 .distinctBy { it.commit.id }
@@ -250,8 +250,8 @@ class GitCommandExecutor(
             .forEach { (lastTag, previousTag) ->
                 val lastTagCommit = findCommit(lastTag.commit.id)
                 val previousTagCommit = findCommit(previousTag.commit.id)
-                val lastTagBuildNumber = lastTag.getBuildNumber(buildTagRegex, logger)
-                val previousTagBuildNumber = previousTag.getBuildNumber(buildTagRegex, logger)
+                val lastTagBuildNumber = lastTag.getBuildNumber(buildTagRegex)
+                val previousTagBuildNumber = previousTag.getBuildNumber(buildTagRegex)
 
                 if (previousTagCommit.dateTime.isAfter(lastTagCommit.dateTime) ||
                     previousTagBuildNumber >= lastTagBuildNumber

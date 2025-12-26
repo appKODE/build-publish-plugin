@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.core.git
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.enity.TagRange
 import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
+import ru.kode.android.build.publish.plugin.core.messages.buildingChangelogForTagRangeMessage
 import ru.kode.android.build.publish.plugin.core.messages.failedToBuildChangelogMessage
 
 /**
@@ -61,6 +62,7 @@ class GitChangelogBuilder(
             gitRepository.findTagRange(buildTag, buildTagPattern)
                 .also { if (it == null) logger.warn(failedToBuildChangelogMessage()) }
                 ?: return null
+        logger.info(buildingChangelogForTagRangeMessage(tagRange))
         return buildChangelog(
             tagRange,
             { gitRepository.markedCommitMessages(messageKey, excludeKey, tagRange) },
