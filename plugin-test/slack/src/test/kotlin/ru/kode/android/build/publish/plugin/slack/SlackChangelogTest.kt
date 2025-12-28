@@ -38,6 +38,8 @@ class SlackChangelogTest {
         projectDir = File(tempDir, "test-project")
         slackController = SlackControllerFactory.build(
             object : PluginLogger {
+                override val bodyLogging: Boolean get() = false
+
                 override fun info(message: String, exception: Throwable?) {
                     logger.info(message)
                 }

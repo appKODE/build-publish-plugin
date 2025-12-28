@@ -71,8 +71,8 @@ abstract class TelegramService
 
         init {
             clientProperty.set(
-                parameters.loggerService.map { logger ->
-                    TelegramClientFactory.build(logger, json)
+                parameters.loggerService.map { loggerService ->
+                    TelegramClientFactory.build(loggerService.logger, json)
                 },
             )
             retrofitBuilderProperty.set(
@@ -91,7 +91,7 @@ abstract class TelegramService
                 },
             )
             controllerProperty.set(
-                parameters.loggerService.flatMap { logger ->
+                parameters.loggerService.map { it.logger }.flatMap { logger ->
                     webhookApiProperty.zip(distributionApiProperty) { webhookApi, distributionApi ->
                         TelegramControllerImpl(webhookApi, distributionApi, logger)
                     }

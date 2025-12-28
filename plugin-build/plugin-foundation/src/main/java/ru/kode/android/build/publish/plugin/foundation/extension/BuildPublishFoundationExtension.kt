@@ -41,6 +41,18 @@ abstract class BuildPublishFoundationExtension
                 .convention(false)
 
         /**
+         * Enables body logging for the build and publish plugins.
+         *
+         * If set to `true`, the plugin will print the body of the HTTP request and response
+         * during the build process.
+         *
+         * Default value is `false`.
+         */
+        val bodyLogging: Property<Boolean> =
+            objectFactory.property(Boolean::class.java)
+                .convention(false)
+
+        /**
          * Container for output configurations, keyed by build type.
          *
          * This internal property holds all the output configurations for different build types.

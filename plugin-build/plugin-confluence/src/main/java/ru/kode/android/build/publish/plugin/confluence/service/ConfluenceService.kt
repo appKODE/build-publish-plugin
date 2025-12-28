@@ -61,7 +61,7 @@ abstract class ConfluenceService
 
         init {
             okHttpClientProperty.set(
-                parameters.loggerService.flatMap { logger ->
+                parameters.loggerService.map { it.logger }.flatMap { logger ->
                     parameters.credentials.flatMap { it.username }
                         .zip(parameters.credentials.flatMap { it.password }) { username, password ->
                             ConfluenceClientFactory.build(username, password, logger)

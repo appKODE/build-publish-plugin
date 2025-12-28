@@ -78,6 +78,9 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                 it.parameters.verboseLogging.set(
                     buildPublishFoundationExtension.verboseLogging,
                 )
+                it.parameters.bodyLogging.set(
+                    buildPublishFoundationExtension.bodyLogging,
+                )
             }
 
         project.extensions.create(

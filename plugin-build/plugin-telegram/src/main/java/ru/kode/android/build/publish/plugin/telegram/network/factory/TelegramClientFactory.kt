@@ -35,8 +35,17 @@ internal object TelegramClientFactory {
         json: Json,
     ): OkHttpClient {
         val loggingInterceptor =
-            HttpLoggingInterceptor { message -> logger.info(message) }.apply {
-                level = HttpLoggingInterceptor.Level.BODY
+            HttpLoggingInterceptor { message ->
+                if (!message.contains("Content-Disposition: form-data")) {
+                    logger.info(message)
+                }
+            }.apply {
+                level =
+                    if (logger.bodyLogging) {
+                        HttpLoggingInterceptor.Level.BODY
+                    } else {
+                        HttpLoggingInterceptor.Level.HEADERS
+                    }
             }
         return OkHttpClient.Builder()
             .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)

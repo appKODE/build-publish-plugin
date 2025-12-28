@@ -78,8 +78,17 @@ private fun buildClient(
     apply: (OkHttpClient.Builder) -> OkHttpClient.Builder,
 ): OkHttpClient {
     val loggingInterceptor =
-        HttpLoggingInterceptor { message -> logger.info(message) }.apply {
-            level = HttpLoggingInterceptor.Level.BODY
+        HttpLoggingInterceptor { message ->
+            if (!message.contains("Content-Disposition: form-data")) {
+                logger.info(message)
+            }
+        }.apply {
+            level =
+                if (logger.bodyLogging) {
+                    HttpLoggingInterceptor.Level.BODY
+                } else {
+                    HttpLoggingInterceptor.Level.HEADERS
+                }
         }
     return OkHttpClient.Builder()
         .protocols(listOf(Protocol.HTTP_1_1))

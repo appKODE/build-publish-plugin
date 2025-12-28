@@ -59,7 +59,7 @@ abstract class SlackService
 
         init {
             okHttpClientProperty.set(
-                parameters.loggerService.map { SlackClientFactory.build(it) },
+                parameters.loggerService.map { SlackClientFactory.build(it.logger) },
             )
             jsonProperty.set(
                 providerFactory.provider { Json { ignoreUnknownKeys = true } },
@@ -80,7 +80,7 @@ abstract class SlackService
                 },
             )
             controllerProperty.set(
-                parameters.loggerService.flatMap { logger ->
+                parameters.loggerService.map { it.logger }.flatMap { logger ->
                     jsonProperty.flatMap { json ->
                         apiProperty.zip(uploadApiProperty) { webhookApi, distributionApi ->
                             SlackControllerImpl(json, webhookApi, distributionApi, logger)

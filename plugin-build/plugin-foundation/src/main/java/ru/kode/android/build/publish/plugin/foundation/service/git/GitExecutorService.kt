@@ -49,7 +49,7 @@ abstract class GitExecutorService
 
         init {
             executorProperty.set(
-                parameters.grgitService.zip(parameters.loggerService) { grgitService, logger ->
+                parameters.grgitService.zip(parameters.loggerService.map { it.logger }) { grgitService, logger ->
                     GitCommandExecutor(grgitService.grgit, logger)
                 },
             )
@@ -57,7 +57,7 @@ abstract class GitExecutorService
             repositoryProperty.set(executorProperty.map { GitRepository(it) })
 
             gitChangelogBuilderProperty.set(
-                repositoryProperty.zip(parameters.loggerService) { repository, logger ->
+                repositoryProperty.zip(parameters.loggerService.map { it.logger }) { repository, logger ->
                     GitChangelogBuilder(repository, logger)
                 },
             )

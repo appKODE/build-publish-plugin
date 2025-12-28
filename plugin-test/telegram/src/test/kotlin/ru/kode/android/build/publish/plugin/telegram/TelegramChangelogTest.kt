@@ -39,6 +39,8 @@ class TelegramChangelogTest {
         projectDir = File(tempDir, "test-project")
         telegramController = TelegramControllerFactory.build(
             object : PluginLogger {
+                override val bodyLogging: Boolean get() = false
+
                 override fun info(message: String, exception: Throwable?) {
                     logger.info(message)
                 }

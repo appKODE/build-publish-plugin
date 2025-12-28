@@ -3,6 +3,8 @@ package ru.kode.android.build.publish.plugin.core.logger
 import org.gradle.api.logging.Logger
 
 interface PluginLogger {
+    val bodyLogging: Boolean
+
     fun info(
         message: String,
         exception: Throwable? = null,
@@ -21,6 +23,7 @@ interface PluginLogger {
 class DefaultPluginLogger(
     private val logger: Logger,
     private val verboseLogging: Boolean,
+    override val bodyLogging: Boolean,
 ) : PluginLogger {
     override fun info(
         message: String,

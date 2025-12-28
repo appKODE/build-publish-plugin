@@ -27,17 +27,26 @@ internal object JiraClientFactory {
         password: String,
         logger: PluginLogger,
     ): OkHttpClient {
+        val loggingInterceptor =
+            HttpLoggingInterceptor { message ->
+                if (!message.contains("Content-Disposition: form-data")) {
+                    logger.info(message)
+                }
+            }.apply {
+                level =
+                    if (logger.bodyLogging) {
+                        HttpLoggingInterceptor.Level.BODY
+                    } else {
+                        HttpLoggingInterceptor.Level.HEADERS
+                    }
+            }
         return OkHttpClient.Builder()
             .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .addInterceptor(AttachTokenInterceptor(username, password))
             .addProxyIfAvailable(logger)
-            .apply {
-                val loggingInterceptor = HttpLoggingInterceptor { message -> logger.info(message) }
-                loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-                addNetworkInterceptor(loggingInterceptor)
-            }
+            .addNetworkInterceptor(loggingInterceptor)
             .build()
     }
 }

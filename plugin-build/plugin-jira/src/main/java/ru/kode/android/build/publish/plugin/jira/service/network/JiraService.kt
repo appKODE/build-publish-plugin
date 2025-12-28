@@ -58,7 +58,7 @@ abstract class JiraService
             val username = parameters.credentials.flatMap { it.username }
             val password = parameters.credentials.flatMap { it.password }
             okHttpClientProperty.set(
-                parameters.loggerService.flatMap { logger ->
+                parameters.loggerService.map { it.logger }.flatMap { logger ->
                     username
                         .zip(password) { username, password ->
                             JiraClientFactory.build(username, password, logger)
@@ -72,7 +72,7 @@ abstract class JiraService
                     },
             )
             controllerProperty.set(
-                apiProperty.zip(parameters.loggerService) { api, logger ->
+                apiProperty.zip(parameters.loggerService.map { it.logger }) { api, logger ->
                     JiraControllerImpl(api, logger)
                 },
             )

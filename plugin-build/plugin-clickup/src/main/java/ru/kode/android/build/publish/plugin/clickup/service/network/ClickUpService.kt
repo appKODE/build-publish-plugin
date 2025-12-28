@@ -57,7 +57,7 @@ abstract class ClickUpService
 
         init {
             okHttpClientProperty.set(
-                parameters.token.zip(parameters.loggerService) { token, logger ->
+                parameters.token.zip(parameters.loggerService.map { it.logger }) { token, logger ->
                     val token = token.asFile.readText()
                     ClickUpClientFactory.build(token, logger)
                 },
@@ -68,7 +68,7 @@ abstract class ClickUpService
                 },
             )
             controllerProperty.set(
-                apiProperty.zip(parameters.loggerService) { api, logger ->
+                apiProperty.zip(parameters.loggerService.map { it.logger }) { api, logger ->
                     ClickUpControllerImpl(api, logger)
                 },
             )

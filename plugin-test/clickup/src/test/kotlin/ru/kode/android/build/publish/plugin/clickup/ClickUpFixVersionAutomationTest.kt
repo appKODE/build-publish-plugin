@@ -41,6 +41,8 @@ class ClickUpFixVersionAutomationTest {
         clickUpController = ClickUpControllerFactory.build(
             token = System.getProperty("CLICKUP_TOKEN"),
             logger = object : PluginLogger {
+                override val bodyLogging: Boolean get() = false
+
                 override fun info(message: String, exception: Throwable?) {
                     logger.info(message, exception)
                 }

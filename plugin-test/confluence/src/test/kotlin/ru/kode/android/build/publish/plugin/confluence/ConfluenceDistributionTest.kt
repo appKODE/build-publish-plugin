@@ -43,6 +43,8 @@ class ConfluenceDistributionTest {
             username = System.getProperty("CONFLUENCE_USER_NAME"),
             password = System.getProperty("CONFLUENCE_USER_PASSWORD"),
             logger = object : PluginLogger {
+                override val bodyLogging: Boolean get() = false
+
                 override fun info(message: String, exception: Throwable?) {
                     logger.info(message)
                 }

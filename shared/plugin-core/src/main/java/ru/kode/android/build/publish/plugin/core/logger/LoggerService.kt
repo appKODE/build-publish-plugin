@@ -22,38 +22,41 @@ abstract class LoggerService
     @Inject
     constructor(
         providerFactory: ProviderFactory,
-    ) : BuildService<LoggerService.Params>, PluginLogger {
+    ) : BuildService<LoggerService.Params> {
         interface Params : BuildServiceParameters {
             val verboseLogging: Property<Boolean>
+            val bodyLogging: Property<Boolean>
         }
 
         private val loggerProvider: Provider<PluginLogger> =
-            providerFactory.provider { Logging.getLogger("BuildPublish") }
-                .zip(parameters.verboseLogging) { logger, verbose ->
-                    DefaultPluginLogger(logger, verbose)
-                }
+            parameters.bodyLogging.flatMap { bodyLogging ->
+                providerFactory.provider { Logging.getLogger("BuildPublish") }
+                    .zip(parameters.verboseLogging) { logger, verboseLogging ->
+                        DefaultPluginLogger(logger, verboseLogging, bodyLogging)
+                    }
+            }
 
-        private val logger: PluginLogger get() = loggerProvider.get()
+        val logger: PluginLogger get() = loggerProvider.get()
 
-        override fun info(
+        fun info(
             message: String,
-            exception: Throwable?,
+            exception: Throwable? = null,
         ) {
-            logger.info(message)
+            logger.info(message, exception)
         }
 
-        override fun warn(message: String) {
+        fun warn(message: String) {
             logger.warn(message)
         }
 
-        override fun error(
+        fun error(
             message: String,
-            exception: Throwable?,
+            exception: Throwable? = null,
         ) {
             logger.error(message, exception)
         }
 
-        override fun quiet(message: String) {
+        fun quiet(message: String) {
             logger.quiet(message)
         }
     }
