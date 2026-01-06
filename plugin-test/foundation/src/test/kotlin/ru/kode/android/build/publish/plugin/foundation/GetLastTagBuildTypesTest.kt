@@ -11,13 +11,17 @@ import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
+import ru.kode.android.build.publish.plugin.test.utils.commitAmend
+import ru.kode.android.build.publish.plugin.test.utils.createAndSwitchBranch
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
+import ru.kode.android.build.publish.plugin.test.utils.currentBranch
 import ru.kode.android.build.publish.plugin.test.utils.findTag
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import ru.kode.android.build.publish.plugin.test.utils.runTaskWithFail
+import ru.kode.android.build.publish.plugin.test.utils.switchBranch
 import java.io.File
 import java.io.IOException
 
@@ -54,6 +58,412 @@ class GetLastTagBuildTypesTest {
         val expectedBuildNumber = "1"
         val expectedBuildVariant = "debug"
         val expectedTagName = "v1.0.1-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeeded",
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `creates tag file of debug build from one tag, one commit, build types only, different branches`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+        )
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
+        val givenTagName3 = "v1.0.3-debug"
+        val givenCommitMessage1 = "Initial commit"
+        val givenCommitMessage2 = "Update readme 1"
+        val givenCommitMessage3 = "Update readme 2"
+        val givenGetLastTagTask = "getLastTagDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+
+        git.addAllAndCommit(givenCommitMessage1)
+        git.tag.addNamed(givenTagName1)
+        git.createAndSwitchBranch("feature")
+        assertEquals(git.currentBranch(), "feature")
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage2)
+        git.tag.addNamed(givenTagName2)
+        git.switchBranch("master")
+        assertEquals(git.currentBranch(), "master")
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage3)
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val expectedCommitSha = git.tag.findTag(givenTagName3).id
+        val expectedBuildNumber = "3"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.3-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeeded",
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `creates tag file of debug build from one tag, one commit, build types only, amend first commit with branch switch`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+        )
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
+        val givenTagName3 = "v1.0.3-debug"
+        val givenCommitMessage1 = "Initial commit"
+        val givenCommitMessage2 = "Update readme 1"
+        val givenCommitMessage3 = "Update readme 2"
+        val givenGetLastTagTask = "getLastTagDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+
+        git.addAllAndCommit(givenCommitMessage1)
+        git.tag.addNamed(givenTagName1)
+        git.commitAmend("$givenCommitMessage1 amend")
+        git.createAndSwitchBranch("feature")
+        assertEquals(git.currentBranch(), "feature")
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage2)
+        git.tag.addNamed(givenTagName2)
+        git.switchBranch("master")
+        assertEquals(git.currentBranch(), "master")
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage3)
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val expectedCommitSha = git.tag.findTag(givenTagName3).id
+        val expectedBuildNumber = "3"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.3-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeeded",
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `creates tag file of debug build from one tag, one commit, build types only, amend first commit without branch switch`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+        )
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
+        val givenTagName3 = "v1.0.3-debug"
+        val givenCommitMessage1 = "Initial commit"
+        val givenCommitMessage2 = "Update readme 1"
+        val givenCommitMessage3 = "Update readme 2"
+        val givenGetLastTagTask = "getLastTagDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+
+        assertEquals(git.currentBranch(), "master")
+
+        git.addAllAndCommit(givenCommitMessage1)
+        git.tag.addNamed(givenTagName1)
+        git.commitAmend("$givenCommitMessage1 amend")
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage2)
+        git.tag.addNamed(givenTagName2)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage3)
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val expectedCommitSha = git.tag.findTag(givenTagName3).id
+        val expectedBuildNumber = "3"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.3-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeeded",
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `creates tag file of debug build from one tag, one commit, build types only, amend second commit with branch switch`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+        )
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
+        val givenTagName3 = "v1.0.3-debug"
+        val givenCommitMessage1 = "Initial commit"
+        val givenCommitMessage2 = "Update readme 1"
+        val givenCommitMessage3 = "Update readme 2"
+        val givenGetLastTagTask = "getLastTagDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+
+        git.addAllAndCommit(givenCommitMessage1)
+        git.tag.addNamed(givenTagName1)
+        git.createAndSwitchBranch("feature")
+        assertEquals(git.currentBranch(), "feature")
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage2)
+        git.tag.addNamed(givenTagName2)
+        git.commitAmend("$givenCommitMessage2 amend")
+        git.switchBranch("master")
+        assertEquals(git.currentBranch(), "master")
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage3)
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val expectedCommitSha = git.tag.findTag(givenTagName3).id
+        val expectedBuildNumber = "3"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.3-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeeded",
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `creates tag file of debug build from one tag, one commit, build types only, amend second commit without branch switch`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+        )
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
+        val givenTagName3 = "v1.0.3-debug"
+        val givenCommitMessage1 = "Initial commit"
+        val givenCommitMessage2 = "Update readme 1"
+        val givenCommitMessage3 = "Update readme 2"
+        val givenGetLastTagTask = "getLastTagDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+
+        assertEquals(git.currentBranch(), "master")
+
+        git.addAllAndCommit(givenCommitMessage1)
+        git.tag.addNamed(givenTagName1)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage2)
+        git.tag.addNamed(givenTagName2)
+        git.commitAmend("$givenCommitMessage2 amend")
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage3)
+        git.tag.addNamed(givenTagName3)
+
+        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val expectedCommitSha = git.tag.findTag(givenTagName3).id
+        val expectedBuildNumber = "3"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.3-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeeded",
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `creates tag file of debug build from one tag, one commit, build types only, amend last commit with branch switch`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+        )
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
+        val givenTagName3 = "v1.0.3-debug"
+        val givenCommitMessage1 = "Initial commit"
+        val givenCommitMessage2 = "Update readme 1"
+        val givenCommitMessage3 = "Update readme 2"
+        val givenGetLastTagTask = "getLastTagDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+
+        git.addAllAndCommit(givenCommitMessage1)
+        git.tag.addNamed(givenTagName1)
+        git.createAndSwitchBranch("feature")
+        assertEquals(git.currentBranch(), "feature")
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage2)
+        git.tag.addNamed(givenTagName2)
+        git.switchBranch("master")
+        assertEquals(git.currentBranch(), "master")
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage3)
+        git.tag.addNamed(givenTagName3)
+        git.commitAmend("$givenCommitMessage3 amend")
+
+        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val expectedCommitSha = git.tag.findTag(givenTagName3).id
+        val expectedBuildNumber = "3"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.3-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = expectedCommitSha,
+                message = "",
+                buildVersion = expectedBuildVersion,
+                buildVariant = expectedBuildVariant,
+                buildNumber = expectedBuildNumber.toInt(),
+            ).toJson()
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeeded",
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `creates tag file of debug build from one tag, one commit, build types only, amend last commit without branch switch`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+        )
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
+        val givenTagName3 = "v1.0.3-debug"
+        val givenCommitMessage1 = "Initial commit"
+        val givenCommitMessage2 = "Update readme 1"
+        val givenCommitMessage3 = "Update readme 2"
+        val givenGetLastTagTask = "getLastTagDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+
+        assertEquals(git.currentBranch(), "master")
+
+        git.addAllAndCommit(givenCommitMessage1)
+        git.tag.addNamed(givenTagName1)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage2)
+        git.tag.addNamed(givenTagName2)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage3)
+        git.tag.addNamed(givenTagName3)
+        git.commitAmend("$givenCommitMessage3 amend")
+
+        val result: BuildResult = projectDir.runTask(givenGetLastTagTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val expectedCommitSha = git.tag.findTag(givenTagName3).id
+        val expectedBuildNumber = "3"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.3-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             Tag.Build(

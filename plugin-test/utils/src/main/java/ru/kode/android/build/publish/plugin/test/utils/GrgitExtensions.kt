@@ -51,3 +51,31 @@ fun TagService.addNamedWithMessage(
 fun TagService.findTag(expectedTagName: String): Commit {
     return this.list().find { it.name == expectedTagName }!!.commit
 }
+
+fun Grgit.commitAmend(message: String) {
+    this.commit(
+        mapOf(
+            "amend" to true,
+            "message" to message
+        )
+    )
+}
+
+fun Grgit.switchBranch(name: String) {
+    this.checkout(
+        mapOf("branch" to name)
+    )
+}
+
+fun Grgit.createAndSwitchBranch(name: String) {
+    this.checkout(
+        mapOf(
+            "branch" to name,
+            "createBranch" to true
+        )
+    )
+}
+
+fun Grgit.currentBranch(): String {
+    return this.branch.current().name
+}

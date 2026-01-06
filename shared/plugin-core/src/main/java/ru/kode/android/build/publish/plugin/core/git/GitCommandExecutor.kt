@@ -125,43 +125,6 @@ class GitCommandExecutor(
     }
 
     /**
-     * Finds and sorts all Git tags that match the provided [buildTagRegex].
-     *
-     * This function:
-     * - Retrieves all tags from the repository.
-     * - Filters tags matching [buildTagRegex].
-     * - Sorts them in descending order by commit position in history and build number.
-     * - Returns the sorted list of matching [GrgitTag] objects.
-     *
-     * This method is internal and used by [findBuildTags].
-     *
-     * @param buildTagRegex the regex used to filter valid build tag names.
-     *
-     * @return a sorted list of [GrgitTag] objects matching the given regex.
-     */
-    private fun findTagsByRegex(buildTagRegex: Regex): List<GrgitTag> {
-        val commitsLog = grgit.log()
-        val tagsList = grgit.tag.list()
-
-        return tagsList
-            .also { tags -> logger.info(findTagsByRegexBeforeFilterMessage(tags)) }
-            .filter { tag ->
-                tag.name.matches(buildTagRegex) && tag.commit.id.isNotBlank() &&
-                    commitsLog.any { it.id == tag.commit.id }
-            }
-            .also { tags -> logger.info(findTagsByRegexAfterFilterMessage(buildTagRegex, tags)) }
-            .sortedWith(
-                compareByDescending<GrgitTag> { tag ->
-                    val index = commitsLog.indexOfFirst { it.id == tag.commit.id }
-                    if (index >= 0) -index else Int.MIN_VALUE
-                }.thenByDescending { tag ->
-                    tag.getBuildNumber(buildTagRegex)
-                },
-            )
-            .also { tags -> logger.info(finTagsByRegexAfterSortingMessage(tags)) }
-    }
-
-    /**
      * Finds up to two build tags (the current and previous ones) in the Git history
      * based on the provided [startTag] and [buildTagRegex].
      *
@@ -182,24 +145,8 @@ class GitCommandExecutor(
         startTag: Tag.Build,
         buildTagRegex: Regex,
     ): List<GrgitTag> {
-        val commitsLog = grgit.log()
-        val tagsList = grgit.tag.list()
-
         logger.info(findTagsByRangeBeforeSearchMessage(startTag))
-
-        val filteredAndSortedTags =
-            tagsList
-                .filter { it.name.matches(buildTagRegex) }
-                .sortedWith(
-                    compareByDescending<GrgitTag> { tag ->
-                        val index = commitsLog.indexOfFirst { it.id == tag.commit.id }
-                        if (index >= 0) -index else Int.MIN_VALUE
-                    }.thenByDescending { tag ->
-                        tag.getBuildNumber(buildTagRegex)
-                    },
-                )
-                .distinctBy { it.commit.id }
-
+        val filteredAndSortedTags = findTagsByRegex(buildTagRegex).distinctBy { it.commit.id }
         val startIndex = filteredAndSortedTags.indexOfFirst { it.commit.id == startTag.commitSha }
         if (startIndex < 0) {
             val availableTagNames = filteredAndSortedTags.joinToString { it.name }
@@ -217,6 +164,47 @@ class GitCommandExecutor(
         logger.info(findTagsByNameFoundTagsMessage(lastTwoTags))
 
         return lastTwoTags
+    }
+
+    /**
+     * Finds and sorts all Git tags that match the provided [buildTagRegex].
+     *
+     * This function:
+     * - Retrieves all tags from the repository.
+     * - Filters tags matching [buildTagRegex].
+     * - Sorts them in descending order by commit position in history and build number.
+     * - Returns the sorted list of matching [GrgitTag] objects.
+     *
+     * This method is internal and used by [findBuildTags].
+     *
+     * @param buildTagRegex the regex used to filter valid build tag names.
+     *
+     * @return a sorted list of [GrgitTag] objects matching the given regex.
+     */
+    private fun findTagsByRegex(buildTagRegex: Regex): List<GrgitTag> {
+        val commitsLog = grgit.log()
+        val tagsList = grgit.tag.list()
+        return tagsList
+            .also { tags ->
+                logger.info(findTagsByRegexBeforeFilterMessage(tags))
+            }
+            .filter { tag ->
+                tag.name.matches(buildTagRegex) && tag.commit.id.isNotBlank()
+            }
+            .also { tags ->
+                logger.info(findTagsByRegexAfterFilterMessage(buildTagRegex, tags))
+            }
+            .sortedWith(
+                compareByDescending<GrgitTag> { tag ->
+                    val index = commitsLog.indexOfFirst { it.id == tag.commit.id }
+                    if (index >= 0) -index else findCommit(tag.commit.id).dateTime.nano
+                }.thenByDescending { tag ->
+                    tag.getBuildNumber(buildTagRegex)
+                },
+            )
+            .also { tags ->
+                logger.info(finTagsByRegexAfterSortingMessage(tags))
+            }
     }
 
     /**

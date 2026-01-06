@@ -39,7 +39,7 @@ class TelegramChangelogTest {
         projectDir = File(tempDir, "test-project")
         telegramController = TelegramControllerFactory.build(
             object : PluginLogger {
-                override val bodyLogging: Boolean get() = false
+                override val bodyLogging: Boolean get() = true
 
                 override fun info(message: String, exception: Throwable?) {
                     logger.info(message)
@@ -628,6 +628,7 @@ class TelegramChangelogTest {
             ),
             foundationConfig =
                 FoundationConfig(
+                    bodyLogging = true,
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
@@ -869,6 +870,7 @@ class TelegramChangelogTest {
             ),
             foundationConfig =
                 FoundationConfig(
+                    bodyLogging = true,
                     output =
                         FoundationConfig.Output(
                             baseFileName = "ceb-android",

@@ -130,6 +130,9 @@ fun File.createAndroidProject(
         }
     val foundationConfigBlock = """
         buildPublishFoundation {
+            bodyLogging.set(${foundationConfig.bodyLogging})
+            verboseLogging.set(${foundationConfig.verboseLogging})
+            
             output {
                 common {
                     it.baseFileName.set("${foundationConfig.output.baseFileName}")
@@ -601,6 +604,8 @@ data class ProductFlavor(
 )
 
 data class FoundationConfig(
+    val bodyLogging: Boolean = false,
+    val verboseLogging: Boolean = true,
     val output: Output = Output(),
     val buildTypeOutput: Pair<String, Output>? = null,
     val changelog: Changelog = Changelog(),

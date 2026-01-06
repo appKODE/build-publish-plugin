@@ -13,23 +13,15 @@ import ru.kode.android.build.publish.plugin.telegram.messages.sendingMessageBotM
 import ru.kode.android.build.publish.plugin.telegram.messages.uploadFileStartedMessage
 import ru.kode.android.build.publish.plugin.telegram.network.api.TelegramDistributionApi
 import ru.kode.android.build.publish.plugin.telegram.network.api.TelegramWebhookApi
+import ru.kode.android.build.publish.plugin.telegram.network.entity.SendMessageRequest
 import ru.kode.android.build.publish.plugin.telegram.network.entity.TelegramMessage
 import java.io.File
-import java.net.URLEncoder
-import kotlin.sequences.forEach
-import kotlin.text.toRegex
 
 internal const val TELEGRAM_DEFAULT_BASE_RUL = "https://api.telegram.org"
-private const val SEND_MESSAGE_TO_CHAT_WEB_HOOK =
-    "%s/bot%s/sendMessage?chat_id=%s&text=%s&parse_mode=MarkdownV2&disable_web_page_preview=true"
-private const val SEND_MESSAGE_TO_TOPIC_WEB_HOOK =
-    "%s/bot%s/sendMessage?chat_id=%s&message_thread_id=%s&text=%s&parse_mode=MarkdownV2" +
-        "&disable_web_page_preview=true"
+private const val SEND_MESSAGE_TO_CHAT_WEB_HOOK = "%s/bot%s/sendMessage"
 private const val GET_MESSAGE_IN_CHAT_WEB_HOOK = "%s/bot%s/getUpdates"
 private const val SEND_DOCUMENT_WEB_HOOK = "%s/bot%s/sendDocument"
 private const val MESSAGE_MAX_LENGTH = 4096
-private const val ESCAPED_CHARACTERS =
-    "[_]|[*]|[\\[]|[\\]]|[(]|[)]|[~]|[`]|[>]|[#]|[+]|[=]|[|]|[{]|[}]|[.]|[!]|-"
 
 /**
  * The implementation of the TelegramController interface.
@@ -69,36 +61,13 @@ internal class TelegramControllerImpl(
         issueNumberPattern: String,
         bots: List<ChatSpecificTelegramBot>,
     ) {
-        val messageWithIssuesLinks =
-            message.formatIssues(
-                ESCAPED_CHARACTERS,
-                issueUrlPrefix,
-                issueNumberPattern,
-            )
+        val messageWithIssuesLinks = formatIssuesHtml(message, issueUrlPrefix, issueNumberPattern)
+        val htmlMessage = buildHtmlMessage(header, userMentions, messageWithIssuesLinks)
 
-        val escapedUserMentions =
-            userMentions
-                .joinToString(", ")
-                .escapeCharacters(ESCAPED_CHARACTERS)
-
-        val escapedHeader =
-            header
-                .replace(ESCAPED_CHARACTERS.toRegex()) { result -> "\\${result.value}" }
-
-        messageWithIssuesLinks
-            .chunked(MESSAGE_MAX_LENGTH)
-            .forEach { messageChunk ->
-                val richMessageChunk =
-                    buildString {
-                        append("*$escapedHeader*")
-                        appendLine()
-                        append(escapedUserMentions)
-                        appendLine()
-                        appendLine()
-                        append(messageChunk)
-                    }.formatMessage()
-                sendMessage(richMessageChunk, bots)
-            }
+        val chunks = htmlMessage.chunkedByLines(MESSAGE_MAX_LENGTH)
+        chunks.forEach { chunk ->
+            sendMessage(chunk, bots)
+        }
     }
 
     /**
@@ -222,148 +191,125 @@ internal class TelegramControllerImpl(
     }
 
     /**
-     * Sends a text message to the specified Telegram chats using the configured bots.
+     * Sends a message to each chat specified in the [bots] using the corresponding bot configuration.
      *
-     * This method sends a Markdown-formatted message to one or more Telegram chats
-     * using the specified bots. The message will be properly escaped for Telegram's
-     * MarkdownV2 format.
-     *
-     * @param message The message to send (supports MarkdownV2 formatting)
-     * @param destinationBots Set of destination bots and their respective chat configurations
-     *
-     * @throws IllegalStateException If no matching bot configuration is found
-     * @throws IOException If there's a network error while sending the message
-     *
-     * @see upload For sending files instead of text messages
+     * @param message The message to send to the chats.
+     * @param bots The list of [ChatSpecificTelegramBot] configurations specifying the chats and bot settings.
      */
     private fun sendMessage(
         message: String,
         bots: List<ChatSpecificTelegramBot>,
     ) {
         bots.forEach { bot ->
-            val topicId = bot.topicId
-            val baseUrl = bot.serverBaseUrl ?: TELEGRAM_DEFAULT_BASE_RUL
             val webhookUrl =
-                if (topicId.isNullOrEmpty()) {
-                    SEND_MESSAGE_TO_CHAT_WEB_HOOK.format(
-                        baseUrl,
-                        bot.id,
-                        bot.chatId,
-                        URLEncoder.encode(message, "utf-8"),
-                    )
-                } else {
-                    SEND_MESSAGE_TO_TOPIC_WEB_HOOK.format(
-                        baseUrl,
-                        bot.id,
-                        bot.chatId,
-                        topicId,
-                        URLEncoder.encode(message, "utf-8"),
-                    )
-                }
-            logger.info(sendingMessageBotMessage(bot.name, webhookUrl))
+                SEND_MESSAGE_TO_CHAT_WEB_HOOK.format(
+                    bot.serverBaseUrl
+                        ?: TELEGRAM_DEFAULT_BASE_RUL,
+                    bot.id,
+                )
 
+            logger.info(sendingMessageBotMessage(bot.name, webhookUrl))
             val authorization =
-                bot.basicAuth
-                    ?.let { Credentials.basic(it.username, it.password) }
-            webhookApi
-                .send(authorization, webhookUrl)
-                .executeNoResult()
-                .getOrThrow()
+                bot.basicAuth?.let {
+                    Credentials.basic(it.username, it.password)
+                }
+
+            webhookApi.send(
+                authorization,
+                webhookUrl,
+                SendMessageRequest(
+                    chat_id = bot.chatId,
+                    message_thread_id = bot.topicId,
+                    text = message,
+                    parse_mode = "HTML",
+                    disable_web_page_preview = true,
+                ),
+            ).executeNoResult().getOrThrow()
         }
     }
 }
 
 /**
- * Formats issue references in the message and escapes special characters.
+ * Builds an HTML message with the given [header], [userMentions] and [body].
  *
- * This method performs two main transformations:
- * 1. Converts issue references (e.g., #123) to clickable links using the configured URL pattern
- * 2. Escapes special characters that have special meaning in Telegram's MarkdownV2 format
- *
- * Example:
- * - Input: "Fixed issue #123"
- * - Output: "Fixed issue [#123](https://issuetracker.example.com/issue/123)"
- *
- * @param escapedCharacters Regex pattern of characters that need to be escaped
- * @return The formatted and escaped message text, ready to be sent to Telegram
- *
- * @see <a href="https://core.telegram.org/bots/api#markdownv2-style">Telegram MarkdownV2 Format</a>
+ * @param header The header of the message.
+ * @param userMentions The list of user mentions.
+ * @param body The body of the message.
+ * @return The HTML message.
  */
-private fun String.formatIssues(
-    escapedCharacters: String,
+private fun buildHtmlMessage(
+    header: String,
+    userMentions: List<String>,
+    body: String,
+): String {
+    val escapedHeader = escapeHtml(header)
+    val mentions = userMentions.joinToString(", ") { escapeHtml(it) }
+    return buildString {
+        appendLine("<b>$escapedHeader</b>")
+        appendLine(mentions)
+        appendLine()
+        body.lines().forEach { line ->
+            appendLine(line.trim())
+        }
+    }
+}
+
+/**
+ * Formats the given [message] by replacing all occurrences of issue numbers with hyperlinks to the
+ * specified [issueUrlPrefix].
+ *
+ * @param message The message to format.
+ * @param issueUrlPrefix The prefix URL for the issue tracker.
+ * @param issueNumberPattern The regular expression pattern to match issue numbers.
+ * @return The formatted message with issue numbers replaced with hyperlinks.
+ */
+private fun formatIssuesHtml(
+    message: String,
     issueUrlPrefix: String,
     issueNumberPattern: String,
 ): String {
     val issueRegexp = issueNumberPattern.toRegex()
-    val matchResults = issueRegexp.findAll(this).distinctBy { it.value }
-    var out = this.escapeCharacters(escapedCharacters)
+    var out = message
 
-    matchResults.forEach { matchResult ->
-        val formattedResult = matchResult.value.escapeCharacters(escapedCharacters)
-        val url = (issueUrlPrefix + matchResult.value).escapeCharacters(escapedCharacters)
-        val issueId = matchResult.value.escapeCharacters(escapedCharacters)
-        val link = "[$issueId]($url)"
-        out = out.replace(formattedResult, link)
+    issueRegexp.findAll(message).distinctBy { it.value }.forEach { match ->
+        val issueKey = match.value
+        val link = "<a href=\"$issueUrlPrefix$issueKey\">$issueKey</a>"
+        // Replace issue with formatted HTML link
+        out = out.replace(issueKey, link)
     }
     return out
 }
 
 /**
- * Splits a string into chunks of specified length, respecting word boundaries.
+ * Escapes special characters in the given [input] string to their HTML entities.
  *
- * This method ensures that the message is split in a way that maintains readability:
- * 1. First tries to split on the specified delimiter (default: newline)
- * 2. If a single line is still too long, falls back to splitting on spaces
- * 3. If a single word is too long, it will be split at the exact character limit
- *
- * @param chunkLength Maximum length of each chunk (in UTF-16 code units)
- * @param delimiter Character to prefer for splitting (defaults to newline)
- * @return List of string chunks, each within the specified length limit
- *
- * @throws IllegalArgumentException If chunkLength is less than or equal to 0
+ * @param input The input string to escape.
+ * @return The escaped string.
  */
-private fun String.chunked(
-    chunkLength: Int,
-    delimiter: Char = '\n',
-): List<String> {
+private fun escapeHtml(input: String): String {
+    return input.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+}
+
+/**
+ * Splits the string into lines of maximum [maxLength] characters.
+ *
+ * @param maxLength the maximum length of each line, excluding line breaks.
+ * @return a list of strings, each of which is less than or equal to [maxLength] characters.
+ */
+private fun String.chunkedByLines(maxLength: Int): List<String> {
     val result = mutableListOf<String>()
-    var currentIndex = 0
-    while (currentIndex < this.length) {
-        var nextNewlineIndex = currentIndex
-        var tempNewlineIndex = currentIndex
-        while (tempNewlineIndex < (currentIndex + chunkLength)) {
-            tempNewlineIndex = this.indexOf(delimiter, tempNewlineIndex + 1)
-            if (tempNewlineIndex == -1) {
-                val chunk = this.substring(currentIndex, nextNewlineIndex)
-                result.add(chunk)
-                return result
-            }
-            if (tempNewlineIndex <= (currentIndex + chunkLength)) {
-                nextNewlineIndex = tempNewlineIndex
-            }
+    val lines = this.lines()
+    var buffer = StringBuilder()
+    for (line in lines) {
+        if (buffer.length + line.length + 1 > maxLength) {
+            result += buffer.toString()
+            buffer = StringBuilder()
         }
-        val chunk = this.substring(currentIndex, nextNewlineIndex)
-        result.add(chunk)
-        currentIndex = nextNewlineIndex
+        if (buffer.isNotEmpty()) buffer.append("\n")
+        buffer.append(line)
     }
+    if (buffer.isNotEmpty()) result += buffer.toString()
     return result
-}
-
-/**
- * Formats the message by removing any Windows-style line breaks and escaping newline characters.
- *
- * @return The formatted message.
- */
-private fun String.formatMessage(): String {
-    return this.replace(Regex("(\r\n|\r|\n)"), "\n")
-}
-
-/**
- * Escapes the specified characters in the string.
- *
- * @param escapedCharacters The characters to be escaped.
- * @return The string with escaped characters.
- */
-private fun String.escapeCharacters(escapedCharacters: String): String {
-    return this.replace(escapedCharacters.toRegex()) { result -> "\\${result.value}" }
 }
