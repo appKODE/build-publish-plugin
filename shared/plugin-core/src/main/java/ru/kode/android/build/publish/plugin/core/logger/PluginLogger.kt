@@ -56,10 +56,6 @@ class DefaultPluginLogger(
     }
 
     override fun quiet(message: String) {
-        if (verboseLogging) {
-            logger.lifecycle(message)
-        } else {
-            logger.quiet(message)
-        }
+        logger.quiet(message)
     }
 }

@@ -88,7 +88,7 @@ internal abstract class GenerateTagWork
 
             when {
                 buildTag != null && isTagValid -> {
-                    logger.info(validBuildTagFoundMessage(buildTag, buildVariant))
+                    logger.quiet(validBuildTagFoundMessage(buildTag, buildVariant))
                     tagBuildOutput.writeText(buildTag.toJson())
                 }
 
@@ -99,7 +99,7 @@ internal abstract class GenerateTagWork
                 useStubsForTagAsFallback -> {
                     val tag = HardcodedTagGenerationStrategy.build(buildVariant)
                     tagBuildOutput.writeText(tag.toJson())
-                    logger.warn(usingStabMessage(buildVariant, buildTagPattern))
+                    logger.quiet(usingStabMessage(buildVariant, buildTagPattern))
                 }
 
                 else -> {

@@ -54,8 +54,6 @@ dependencies {
 }
 
 buildPublishFoundation {
-    verboseLogging.set(true)
-
     outputCommon {
         baseFileName.set("example-base-project-android")
     }

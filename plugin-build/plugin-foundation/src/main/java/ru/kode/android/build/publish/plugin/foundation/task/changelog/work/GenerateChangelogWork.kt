@@ -103,10 +103,10 @@ internal abstract class GenerateChangelogWork
 
             if (changelog.isNullOrBlank()) {
                 val noChangesMessage = noChangesChangelogMessage(currentBuildTag)
-                logger.info(changelogNotGeneratedMessage(buildTagPattern, currentBuildTag))
+                logger.quiet(changelogNotGeneratedMessage(buildTagPattern, currentBuildTag))
                 changelogOutput.writeText(noChangesMessage)
             } else {
-                logger.info(changelogGeneratedMessage(buildTagPattern, currentBuildTag))
+                logger.quiet(changelogGeneratedMessage(buildTagPattern, currentBuildTag))
                 changelogOutput.writeText(changelog)
             }
         }
