@@ -4,6 +4,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 
 /**
  * Configuration interface for a Slack bot that sends notifications.
@@ -45,6 +46,7 @@ interface SlackBotConfig {
      * @see <a href="https://api.slack.com/authentication/token-types#bot">Slack Bot Tokens</a>
      */
     @get:InputFile
+    @get:Optional
     val uploadApiTokenFile: RegularFileProperty
 
     /**

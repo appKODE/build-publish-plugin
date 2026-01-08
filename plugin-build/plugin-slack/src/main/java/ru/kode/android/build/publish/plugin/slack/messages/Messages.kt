@@ -2,6 +2,28 @@ package ru.kode.android.build.publish.plugin.slack.messages
 
 import ru.kode.android.build.publish.plugin.slack.EXTENSION_NAME
 
+fun uploadApiTokenRequiredMessage(): String {
+    return """
+        
+        |============================================================
+        |                 SLACK CONFIGURATION ERROR   
+        |============================================================
+        | The Slack plugin requires an upload API token file to be provided.
+        |
+        | REQUIRED ACTION:
+        | Add the following to your module's build.gradle.kts file:
+        |
+        | ${EXTENSION_NAME} {
+        |     bot {
+        |         common {
+        |             uploadApiTokenFile.set(File("path/to/your/token/file"))
+        |         }
+        |     }
+        | }
+        |============================================================
+        """.trimIndent()
+}
+
 fun servicesCreatedMessages(servicesNames: Set<String>): String {
     return """
         

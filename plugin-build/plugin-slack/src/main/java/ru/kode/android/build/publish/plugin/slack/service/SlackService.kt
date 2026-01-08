@@ -2,6 +2,7 @@ package ru.kode.android.build.publish.plugin.slack.service
 
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
+import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
@@ -12,6 +13,7 @@ import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.util.UploadError
 import ru.kode.android.build.publish.plugin.slack.controller.SlackController
 import ru.kode.android.build.publish.plugin.slack.controller.SlackControllerImpl
+import ru.kode.android.build.publish.plugin.slack.messages.uploadApiTokenRequiredMessage
 import ru.kode.android.build.publish.plugin.slack.network.SlackApi
 import ru.kode.android.build.publish.plugin.slack.network.SlackUploadApi
 import ru.kode.android.build.publish.plugin.slack.network.factory.SlackClientFactory
@@ -148,8 +150,11 @@ abstract class SlackService
             file: File,
             channels: List<String>,
         ) {
+            val uploadApiTokenFile =
+                parameters.uploadApiTokenFile.orNull
+                    ?: throw GradleException(uploadApiTokenRequiredMessage())
             controller.upload(
-                uploadToken = parameters.uploadApiTokenFile.get().asFile.readText(),
+                uploadToken = uploadApiTokenFile.asFile.readText(),
                 initialComment = initialComment,
                 file = file,
                 channels = channels,
