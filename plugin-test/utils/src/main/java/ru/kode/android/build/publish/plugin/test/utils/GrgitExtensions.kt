@@ -4,7 +4,11 @@ import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.service.BranchService
 import org.ajoberstar.grgit.service.TagService
+import org.ajoberstar.grgit.util.JGitUtil
+import org.eclipse.jgit.lib.PersonIdent
 import java.io.File
+import java.time.Instant
+import java.time.ZoneId
 
 fun Grgit.addAll() {
     this.add(mapOf("patterns" to setOf(".")))
@@ -35,6 +39,10 @@ fun TagService.addNamed(name: String) {
 
 fun BranchService.addNamed(name: String) {
     this.add(mapOf("name" to name))
+}
+
+fun TagService.addAnnotated(name: String) {
+    this.add(mapOf("name" to name, "annotate" to true))
 }
 
 fun Grgit.checkoutBranch(name: String) {
@@ -78,4 +86,26 @@ fun Grgit.createAndSwitchBranch(name: String) {
 
 fun Grgit.currentBranch(): String {
     return this.branch.current().name
+}
+
+fun Grgit.commitWithDate(message: String, date: Instant): Commit {
+    val author = PersonIdent(
+        "author",
+        "author@example.com",
+        date,
+        ZoneId.systemDefault()
+    )
+    val commit = this.repository.jgit.commit().apply {
+        this.message = message
+        this.author = author
+        this.committer = author
+    }.call()
+    return JGitUtil.convertCommit(this.repository, commit)
+}
+
+fun Grgit.checkoutCommitDetached(commitSha: String) {
+    val repo = this.repository.jgit
+    repo.checkout()
+        .setName(commitSha)
+        .call()
 }

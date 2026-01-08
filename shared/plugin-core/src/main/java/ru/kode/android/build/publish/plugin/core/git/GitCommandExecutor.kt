@@ -148,6 +148,7 @@ class GitCommandExecutor(
         logger.info(findTagsByRangeBeforeSearchMessage(startTag))
         val filteredAndSortedTags = findTagsByRegex(buildTagRegex).distinctBy { it.commit.id }
         val startIndex = filteredAndSortedTags.indexOfFirst { it.commit.id == startTag.commitSha }
+
         if (startIndex < 0) {
             val availableTagNames = filteredAndSortedTags.joinToString { it.name }
             throw GradleException(
@@ -184,27 +185,40 @@ class GitCommandExecutor(
     private fun findTagsByRegex(buildTagRegex: Regex): List<GrgitTag> {
         val commitsLog = grgit.log()
         val tagsList = grgit.tag.list()
+
         return tagsList
-            .also { tags ->
-                logger.info(findTagsByRegexBeforeFilterMessage(tags))
+            .also { tags -> logger.info(findTagsByRegexBeforeFilterMessage(tags)) }
+            .filter { tag -> tag.name.matches(buildTagRegex) }
+            .also { tags -> logger.info(findTagsByRegexAfterFilterMessage(buildTagRegex, tags)) }
+            .map { tag ->
+                val commit =
+                    try {
+                        findCommit(tag.commit.id)
+                    } catch (_: Exception) {
+                        null
+                    }
+                val commitIndex =
+                    commitsLog
+                        .indexOfFirst { it.id == tag.commit.id }
+                        .takeIf { it >= 0 }
+                        ?: -1
+                val commitTimeMs = commit?.dateTime?.toInstant()?.toEpochMilli() ?: 0L
+                val buildNumber = tag.getBuildNumber(buildTagRegex)
+                TagDetails(tag, commitIndex, commitTimeMs, buildNumber)
             }
-            .filter { tag ->
-                tag.name.matches(buildTagRegex) && tag.commit.id.isNotBlank()
+            .sortedWith { tagDetails1, tagDetails2 ->
+                if (tagDetails1.commitIndex >= 0 && tagDetails2.commitIndex >= 0) {
+                    if (tagDetails1.commitIndex != tagDetails2.commitIndex) {
+                        return@sortedWith tagDetails1.commitIndex.compareTo(tagDetails2.commitIndex)
+                    }
+                    if (tagDetails1.commitTimeMs != tagDetails2.commitTimeMs) {
+                        return@sortedWith tagDetails2.commitTimeMs.compareTo(tagDetails1.commitTimeMs)
+                    }
+                }
+                tagDetails2.buildNumber.compareTo(tagDetails1.buildNumber)
             }
-            .also { tags ->
-                logger.info(findTagsByRegexAfterFilterMessage(buildTagRegex, tags))
-            }
-            .sortedWith(
-                compareByDescending<GrgitTag> { tag ->
-                    val index = commitsLog.indexOfFirst { it.id == tag.commit.id }
-                    if (index >= 0) -index else findCommit(tag.commit.id).dateTime.nano
-                }.thenByDescending { tag ->
-                    tag.getBuildNumber(buildTagRegex)
-                },
-            )
-            .also { tags ->
-                logger.info(finTagsByRegexAfterSortingMessage(tags))
-            }
+            .map { it.tag }
+            .also { tags -> logger.info(finTagsByRegexAfterSortingMessage(tags)) }
     }
 
     /**
@@ -285,3 +299,14 @@ class GitCommandExecutor(
         return grgit.resolve.toCommit(commitSha)
     }
 }
+
+/**
+ * Represents the details of a Git tag, including its commit index, commit time in milliseconds,
+ * and build number.
+ */
+private data class TagDetails(
+    val tag: GrgitTag,
+    val commitIndex: Int,
+    val commitTimeMs: Long,
+    val buildNumber: Int,
+)

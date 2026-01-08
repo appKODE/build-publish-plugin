@@ -1283,7 +1283,7 @@ class FoundationAssembleTest {
 
     @Test
     @Throws(IOException::class)
-    fun `build succeed with last build number tag when different tags in between of android formated tags is used, incliding patch, different build version, correct build number order`() {
+    fun `build succeed with last build number tag when different tags in between of android formated tags is used, including patch, different build version, correct build number order`() {
         projectDir.createAndroidProject(
             buildTypes =
                 listOf(

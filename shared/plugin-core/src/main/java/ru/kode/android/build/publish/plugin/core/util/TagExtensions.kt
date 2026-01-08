@@ -40,14 +40,21 @@ fun Grgit.getCommitsByRange(range: CommitRange?): List<Commit> {
  * Extracts the build number from this [GrgitTag]'s name using the provided regular expression.
  */
 fun GrgitTag.getBuildNumber(regex: Regex): Int {
-    return this.name.extractIntBy(regex)
+    return this.name.getBuildNumber(regex)
 }
 
 /**
  * Extracts the build number from this [Tag]'s name using the provided regular expression.
  */
 fun Tag.getBuildNumber(regex: Regex): Int {
-    return this.name.extractIntBy(regex)
+    return this.name.getBuildNumber(regex)
+}
+
+/**
+ * Extracts the build number from this string using the provided regular expression.
+ */
+fun String.getBuildNumber(regex: Regex): Int {
+    return this.extractIntBy(regex)
 }
 
 /**

@@ -8,10 +8,16 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
+import ru.kode.android.build.publish.plugin.core.messages.finTagsByRegexAfterSortingMessage
+import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_TAG_PATTERN
+import ru.kode.android.build.publish.plugin.core.util.getBuildNumber
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
+import ru.kode.android.build.publish.plugin.test.utils.addAnnotated
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
+import ru.kode.android.build.publish.plugin.test.utils.checkoutCommitDetached
 import ru.kode.android.build.publish.plugin.test.utils.commitAmend
+import ru.kode.android.build.publish.plugin.test.utils.commitWithDate
 import ru.kode.android.build.publish.plugin.test.utils.createAndSwitchBranch
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.currentBranch
@@ -24,6 +30,9 @@ import ru.kode.android.build.publish.plugin.test.utils.runTaskWithFail
 import ru.kode.android.build.publish.plugin.test.utils.switchBranch
 import java.io.File
 import java.io.IOException
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import kotlin.text.format
 
 class GetLastTagBuildTypesTest {
     @TempDir
@@ -483,6 +492,86 @@ class GetLastTagBuildTypesTest {
             givenTagBuildFile.readText(),
             "Tags equality",
         )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `replays full git history with a lot of tags and selects latest valid tag by expected sorting`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("internal"),
+                BuildType("release"),
+            ),
+        )
+
+        val git = projectDir.initGit()
+        val actualTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+
+        git.addAllAndCommit("initial commit")
+
+        val logLines =
+            javaClass.classLoader
+                .getResourceAsStream("git/tag-diagnose.log")
+                ?.bufferedReader()
+                ?.readLines()
+                ?: error("tag-diagnose.log not found")
+
+        val tagEvents = parseHistory(logLines)
+        val commitMap = mutableMapOf<String, String>()
+
+        tagEvents
+            .sortedBy { it.createdAt.toInstant().toEpochMilli() }
+            .forEachIndexed { index, tag ->
+                val recreatedCommitSha = commitMap.getOrPut(tag.commitSha) {
+                    git.commitWithDate(
+                        message = "replay commit ${tag.commitSha.take(7)}",
+                        date = tag.createdAt.toInstant(),
+                    ).id
+                }
+
+                git.checkoutCommitDetached(recreatedCommitSha)
+
+                when (tag.type) {
+                    TagType.LIGHTWEIGHT ->
+                        git.tag.addNamed(tag.name)
+
+                    TagType.ANNOTATED ->
+                        git.tag.addAnnotated(tag.name)
+                }
+
+                if (tag.isBroken) {
+                    git.commitAmend("rewrite after ${tag.name}")
+                }
+            }
+
+        val result = projectDir.runTask("getLastTagInternal")
+
+        val buildTagRegex = DEFAULT_TAG_PATTERN.format("internal").toRegex()
+
+        result.output.contains(
+            finTagsByRegexAfterSortingMessage(
+                git.tag.list().sortedByDescending { it.name.getBuildNumber(buildTagRegex) }
+            )
+        )
+
+        assertTrue(result.output.contains("BUILD SUCCESSFUL"))
+
+        val expectedTagName = tagEvents
+            .maxBy { it.name.getBuildNumber(buildTagRegex) }
+            .name
+
+        val expectedTagBuildFile =
+            Tag.Build(
+                name = expectedTagName,
+                commitSha = git.tag.findTag(expectedTagName).id,
+                message = "",
+                buildVersion = expectedTagName.substringAfter("v").substringBeforeLast("."),
+                buildVariant = "internal",
+                buildNumber = expectedTagName.substringAfterLast(".").substringBeforeLast("-").toInt(),
+            ).toJson()
+
+        assertEquals(expectedTagBuildFile, actualTagBuildFile.readText())
     }
 
     @Test
@@ -1128,4 +1217,91 @@ class GetLastTagBuildTypesTest {
             "Tags equality",
         )
     }
+}
+
+private data class TagEvent(
+    val name: String,
+    val type: TagType,
+    val createdAt: ZonedDateTime,
+    val commitSha: String,
+    val isBroken: Boolean,
+)
+
+private enum class TagType {
+    LIGHTWEIGHT,
+    ANNOTATED,
+}
+
+private val TAG_HEADER_REGEX =
+    Regex("""^(\S+)\s*\[(OK|BROKEN)]\s*$""")
+
+private val TYPE_REGEX =
+    Regex("""^\s*type\s*:\s*(\w+)""")
+
+private val CREATED_REGEX =
+    Regex("""^\s*created\s*:\s*(.+)$""")
+
+private val COMMIT_REGEX =
+    Regex("""^\s*commit\s*:\s*([a-f0-9]{40})""")
+
+private fun parseHistory(lines: List<String>): List<TagEvent> {
+    val result = mutableListOf<TagEvent>()
+
+    var name: String? = null
+    var type: TagType? = null
+    var createdAt: ZonedDateTime? = null
+    var isBroken = false
+    var commitSha: String? = null
+
+    fun flush() {
+        if (name != null && type != null && createdAt != null && commitSha != null) {
+            result += TagEvent(
+                name = name!!,
+                type = type!!,
+                createdAt = createdAt!!,
+                commitSha = commitSha!!,
+                isBroken = isBroken,
+            )
+        }
+        name = null
+        type = null
+        createdAt = null
+        isBroken = false
+    }
+
+    for (rawLine in lines) {
+        val line = rawLine.trimStart()
+
+        if (line.isBlank()) {
+            flush()
+            continue
+        }
+
+        TAG_HEADER_REGEX.matchEntire(line)?.let {
+            flush()
+            name = it.groupValues[1]
+            isBroken = it.groupValues[2] == "BROKEN"
+            return@let
+        }
+
+        TYPE_REGEX.find(line)?.let {
+            type = when (it.groupValues[1]) {
+                "annotated" -> TagType.ANNOTATED
+                else -> TagType.LIGHTWEIGHT
+            }
+        }
+
+        CREATED_REGEX.find(line)?.let {
+            createdAt = ZonedDateTime.parse(
+                it.groupValues[1],
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z"),
+            )
+        }
+        COMMIT_REGEX.find(line)?.let {
+            commitSha = it.groupValues[1]
+        }
+    }
+
+    flush()
+    return result
 }
