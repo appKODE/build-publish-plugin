@@ -21,7 +21,7 @@ object BuildVersionNameStrategy : VersionNameStrategy {
     }
 }
 
-class BuildVersionNumberNameStrategy : VersionNameStrategy {
+object BuildVersionNumberNameStrategy : VersionNameStrategy {
     override fun build(
         buildVariant: BuildVariant,
         tag: Tag.Build?,
@@ -45,7 +45,7 @@ class FixedVersionNameStrategy(
     }
 }
 
-class BuildVersionVariantNameStrategy : VersionNameStrategy {
+object BuildVersionVariantNameStrategy : VersionNameStrategy {
     override fun build(
         buildVariant: BuildVariant,
         tag: Tag.Build?,
@@ -58,7 +58,7 @@ class BuildVersionVariantNameStrategy : VersionNameStrategy {
     }
 }
 
-class TagRawNameStrategy : VersionNameStrategy {
+object TagRawNameStrategy : VersionNameStrategy {
     override fun build(
         buildVariant: BuildVariant,
         tag: Tag.Build?,

@@ -23,6 +23,7 @@ fun File.createAndroidProject(
     telegramConfig: TelegramConfig? = null,
     topBuildFileContent: String? = null,
     import: String? = null,
+    configureApplicationVariants: Boolean = false
 ) {
     val topSettingsFile = this.getFile("settings.gradle")
     val topBuildFile = this.getFile("build.gradle")
@@ -77,6 +78,30 @@ fun File.createAndroidProject(
             }
             """
             }
+    val fullApplicationId = "\${fullApplicationId}"
+    val authority = "\${authority}"
+    val configureVariantsBlock =
+        """
+            applicationVariants.configureEach { variant ->
+                def buildTypeSuffix = variant.buildType.applicationIdSuffix ?: ""
+                def fullApplicationId = android.defaultConfig.applicationId + buildTypeSuffix
+            
+                def authority = "$fullApplicationId.provider"
+                variant.buildConfigField(
+                        "String",
+                        "FILE_PROVIDER_AUTHORITY",
+                        "\"$authority\""
+                )
+            
+                def mergedVariant = variant.getMergedFlavor()
+                mergedVariant.manifestPlaceholders.putAll([
+                        APPLICATION_ID          : fullApplicationId,
+                        FILE_PROVIDER_AUTHORITY : authority
+                ])
+            }
+        """
+            .takeIf { configureApplicationVariants }
+            .orEmpty()
     val flavorDimensionsBlock =
         productFlavors
             .takeIf { it.isNotEmpty() }
@@ -125,6 +150,8 @@ fun File.createAndroidProject(
                     ${config.useStubsForTagAsFallback?.let { "it.useStubsForTagAsFallback.set($it)" }.orEmpty()}
                     ${config.useDefaultsForVersionsAsFallback?.let { "it.useDefaultsForVersionsAsFallback.set($it)" }.orEmpty()}
                     ${config.buildTagPatternBuilderFunctions?.let { buildTagPatternBlock(it) }.orEmpty()}
+                    ${config.versionNameStrategy?.let { """it.versionNameStrategy { $it }""" }.orEmpty()}
+                    ${config.versionCodeStrategy?.let { """it.versionCodeStrategy { $it }""" }.orEmpty()}
                 }
         """
         }
@@ -137,6 +164,22 @@ fun File.createAndroidProject(
                     ${config.useStubsForTagAsFallback?.let { "it.useStubsForTagAsFallback.set($it)" }.orEmpty()}
                     ${config.useDefaultsForVersionsAsFallback?.let { "it.useDefaultsForVersionsAsFallback.set($it)" }.orEmpty()}
                     ${config.buildTagPatternBuilderFunctions?.let { buildTagPatternBlock(it) }.orEmpty()}
+                    ${config.versionNameStrategy?.let { """it.versionNameStrategy { $it }""" }.orEmpty()}
+                    ${config.versionCodeStrategy?.let { """it.versionCodeStrategy { $it }""" }.orEmpty()}
+                }
+        """
+        }
+    val buildTypeOutputBlock3 =
+        foundationConfig.buildTypeOutput3?.let { (name, config) ->
+            """
+                buildVariant("$name") {
+                    it.baseFileName.set("${config.baseFileName}")
+                    ${config.useVersionsFromTag?.let { "it.useVersionsFromTag.set($it)" }.orEmpty()}
+                    ${config.useStubsForTagAsFallback?.let { "it.useStubsForTagAsFallback.set($it)" }.orEmpty()}
+                    ${config.useDefaultsForVersionsAsFallback?.let { "it.useDefaultsForVersionsAsFallback.set($it)" }.orEmpty()}
+                    ${config.buildTagPatternBuilderFunctions?.let { buildTagPatternBlock(it) }.orEmpty()}
+                    ${config.versionNameStrategy?.let { """it.versionNameStrategy { $it }""" }.orEmpty()}
+                    ${config.versionCodeStrategy?.let { """it.versionCodeStrategy { $it }""" }.orEmpty()}
                 }
         """
         }
@@ -156,6 +199,7 @@ fun File.createAndroidProject(
         
                 ${buildTypeOutputBlock1.orEmpty()}
                 ${buildTypeOutputBlock2.orEmpty()}
+                ${buildTypeOutputBlock3.orEmpty()}
             }
             
             changelogCommon {
@@ -250,15 +294,15 @@ fun File.createAndroidProject(
             buildPublishPlay {
                 auth {
                     common {
-                        apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
-                        appId.set("${config.auth.appId}")
+                        it.apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
+                        it.appId.set("${config.auth.appId}")
                     }
                 }
             
                 distribution {
                     common {
-                        trackId.set("${config.distribution.trackId}")
-                        updatePriority.set(${config.distribution.updatePriority})
+                        it.trackId.set("${config.distribution.trackId}")
+                        it.updatePriority.set(${config.distribution.updatePriority})
                     }
                 }
             }
@@ -318,6 +362,7 @@ fun File.createAndroidProject(
             $defaultConfigBlock
             
             $buildTypesBlock
+            $configureVariantsBlock
             
             $flavorDimensionsBlock
             
@@ -622,6 +667,7 @@ data class FoundationConfig(
     val output: Output = Output(),
     val buildTypeOutput: Pair<String, Output>? = null,
     val buildTypeOutput2: Pair<String, Output>? = null,
+    val buildTypeOutput3: Pair<String, Output>? = null,
     val changelog: Changelog = Changelog(),
 ) {
     data class Output(
@@ -630,6 +676,8 @@ data class FoundationConfig(
         val useStubsForTagAsFallback: Boolean? = null,
         val useDefaultsForVersionsAsFallback: Boolean? = null,
         val buildTagPatternBuilderFunctions: List<String>? = null,
+        val versionNameStrategy: String? = null,
+        val versionCodeStrategy: String? = null,
     )
 
     data class Changelog(
@@ -637,6 +685,8 @@ data class FoundationConfig(
         val issueUrlPrefix: String = "https://jira.example.com/browse/",
         val commitMessageKey: String = "CHANGELOG",
         val excludeMessageKey: Boolean = true,
+        val versionNameStrategy: String? = null,
+        val versionCodeStrategy: String? = null,
     )
 }
 

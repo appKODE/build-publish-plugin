@@ -8,6 +8,7 @@ import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_BUILD_VERSION
@@ -19,6 +20,9 @@ import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.tagBuildFileProvider
+import ru.kode.android.build.publish.plugin.foundation.messages.resolvedApkOutputFileNameParamsMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionCodeParamsMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionNameMessage
 import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.PrintLastIncreasedTag
@@ -63,6 +67,12 @@ internal object TagTasksRegistrar {
         project: Project,
         params: LastTagTaskParams,
     ): LastTagTaskOutput {
+        val logger =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
+                .get()
+
         val lastBuildTag = project.registerGetLastTagTask(params)
 
         val versionCode: Provider<Int> =
@@ -81,6 +91,14 @@ internal object TagTasksRegistrar {
                 .flatMap { (versionsParamsPair, versionCodeStrategy) ->
                     val useVersionsFromTag = versionsParamsPair.first
                     val useDefaultVersionsAsFallback = versionsParamsPair.second
+                    logger.info(
+                        resolvedVersionCodeParamsMessage(
+                            useVersionsFromTag,
+                            useDefaultVersionsAsFallback,
+                            versionCodeStrategy,
+                            params.buildVariant.name,
+                        ),
+                    )
                     when {
                         useVersionsFromTag ->
                             lastBuildTag.map { tagBuildFile ->
@@ -112,6 +130,16 @@ internal object TagTasksRegistrar {
                 .flatMap { (paramsPair, outputApkNameStrategy) ->
                     val outputFileName = paramsPair.first
                     val useVersionsFromTag = paramsPair.second
+
+                    logger.info(
+                        resolvedApkOutputFileNameParamsMessage(
+                            outputFileName,
+                            useVersionsFromTag,
+                            outputApkNameStrategy,
+                            params.buildVariant.name,
+                        ),
+                    )
+
                     if (useVersionsFromTag) {
                         params.baseFileName
                             .zip(lastBuildTag) { baseFileName, tagBuildFile ->
@@ -146,6 +174,15 @@ internal object TagTasksRegistrar {
                 .flatMap { (versionsParamsPair, versionNameStrategy) ->
                     val useVersionsFromTag = versionsParamsPair.first
                     val useDefaultVersionsAsFallback = versionsParamsPair.second
+
+                    logger.info(
+                        resolvedVersionNameMessage(
+                            useVersionsFromTag,
+                            useDefaultVersionsAsFallback,
+                            versionNameStrategy,
+                            params.buildVariant.name,
+                        ),
+                    )
 
                     when {
                         useVersionsFromTag -> {

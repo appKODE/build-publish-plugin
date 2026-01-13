@@ -2572,6 +2572,295 @@ class FoundationAssembleTest {
 
     @Test
     @Throws(IOException::class)
+    fun `build succeed with no versions when useVersionsFromTag, useStubsForTagAsFallback, useDefaultsForVersionsAsFallback are disabled and tag exists, different types, multiple output configs, different strategies`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("internal"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
+            defaultConfig =
+                DefaultConfig(
+                    versionCode = null,
+                    versionName = null,
+                ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    buildTypeOutput = "googleDebug" to FoundationConfig.Output(
+                        baseFileName = "autotest",
+                        useVersionsFromTag = false
+                    ),
+                    buildTypeOutput2 = "googleInternal" to FoundationConfig.Output(
+                        baseFileName = "autotest",
+                        versionNameStrategy = "new BuildVersionNumberNameStrategy()"
+                    ),
+                    buildTypeOutput3 = "googleRelease" to FoundationConfig.Output(
+                        baseFileName = "autotest",
+                        useVersionsFromTag = false,
+                        useStubsForTagAsFallback = false,
+                        useDefaultsForVersionsAsFallback = false,
+                    )
+                ),
+            import = "import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberNameStrategy",
+            configureApplicationVariants = true
+        )
+        val givenTagNameDebug = "v1.0.321-googleDebug"
+        val givenTagNameRelease = "v3.1.2134-googleRelease"
+        val givenTagNameInternal1 = "v0.0.5-googleInternal"
+        val givenTagNameInternal2 = "v0.0.390-googleInternal"
+        val givenCommitMessage = "Initial commit"
+        val givenDebugAssembleTask = "assembleGoogleDebug"
+        val givenReleaseAssembleTask = "assembleGoogleRelease"
+        val givenInternalAssembleTask = "assembleGoogleInternal"
+        val git = projectDir.initGit()
+        val givenTagBuildFileDebug = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFileRelease = projectDir.getFile("app/build/tag-build-googleRelease.json")
+        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-googleInternal.json")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagNameInternal1)
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed("build/3.0.0-7265")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagNameDebug)
+        git.tag.addNamed(givenTagNameRelease)
+        git.tag.addNamed(givenTagNameInternal2)
+
+        val debugResult: BuildResult = projectDir.runTask(givenDebugAssembleTask)
+        val releaseResult: BuildResult = projectDir.runTask(givenReleaseAssembleTask)
+        val internalResult: BuildResult = projectDir.runTask(givenInternalAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileDebug = projectDir.getFile("app/build/outputs/apk/google/debug/autotest.apk")
+        val givenOutputFileDebugManifestProperties = givenOutputFileDebug.extractManifestProperties()
+
+        val internalApkDir = projectDir.getFile("app/build/outputs/apk/google/internal")
+        val givenOutputFileInternal = internalApkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-googleInternal-vc390-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
+        val givenOutputFileInternalManifestProperties = givenOutputFileInternal.extractManifestProperties()
+
+        val givenOutputFileRelease = projectDir.getFile("app/build/outputs/apk/google/release/autotest.apk")
+        val givenOutputFileReleaseManifestProperties = givenOutputFileRelease.extractManifestProperties()
+
+        val expectedDebugManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "0.0",
+            )
+        val expectedReleaseManifestProperties =
+            ManifestProperties(
+                versionCode = "",
+                versionName = "",
+            )
+        val expectedInternalManifestProperties =
+            ManifestProperties(
+                versionCode = "390",
+                versionName = "0.0.390",
+            )
+        assertTrue(
+            !debugResult.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug not executed",
+        )
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease not executed",
+        )
+        assertTrue(
+            internalResult.output.contains("Task :app:getLastTagGoogleInternal"),
+            "Task getLastTagGoogleInternal executed",
+        )
+        assertTrue(
+            debugResult.output.contains("BUILD SUCCESSFUL"),
+            "Debug build succeed",
+        )
+        assertTrue(
+            releaseResult.output.contains("BUILD SUCCESSFUL"),
+            "Release build succeed",
+        )
+        assertTrue(
+            internalResult.output.contains("BUILD SUCCESSFUL"),
+            "Internal build succeed",
+        )
+        assertTrue(!givenTagBuildFileDebug.exists(), "Debug tag file not exists")
+        assertTrue(givenOutputFileDebug.exists(), "Debug output file exists")
+        assertTrue(givenOutputFileDebug.length() > 0, "Debug output file is not empty")
+
+        assertTrue(!givenTagBuildFileRelease.exists(), "Release tag file not exists")
+        assertTrue(givenOutputFileRelease.exists(), "Release output file exists")
+        assertTrue(givenOutputFileRelease.length() > 0, "Release output file is not empty")
+
+        assertTrue(givenTagBuildFileInternal.exists(), "Internal tag file exists")
+        assertTrue(givenOutputFileInternal.exists(), "Internal output file exists")
+        assertTrue(givenOutputFileInternal.length() > 0, "Internal output file is not empty")
+
+        assertEquals(
+            expectedDebugManifestProperties,
+            givenOutputFileDebugManifestProperties,
+            "Debug manifest properties equality",
+        )
+        assertEquals(
+            expectedReleaseManifestProperties,
+            givenOutputFileReleaseManifestProperties,
+            "Release manifest properties equality",
+        )
+        assertEquals(
+            expectedInternalManifestProperties,
+            givenOutputFileInternalManifestProperties,
+            "Internal manifest properties equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with no versions when useVersionsFromTag, useStubsForTagAsFallback, useDefaultsForVersionsAsFallback are disabled and tag exists, different types, multiple output configs, different strategies, no flavors`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("internal"), BuildType("release")),
+            defaultConfig =
+                DefaultConfig(
+                    versionCode = null,
+                    versionName = null,
+                ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    buildTypeOutput = "debug" to FoundationConfig.Output(
+                        baseFileName = "autotest",
+                        useVersionsFromTag = false
+                    ),
+                    buildTypeOutput2 = "internal" to FoundationConfig.Output(
+                        baseFileName = "autotest",
+                        versionNameStrategy = "new BuildVersionNumberNameStrategy()"
+                    ),
+                    buildTypeOutput3 = "release" to FoundationConfig.Output(
+                        baseFileName = "autotest",
+                        useVersionsFromTag = false,
+                        useStubsForTagAsFallback = false,
+                        useDefaultsForVersionsAsFallback = false,
+                    )
+                ),
+            import = "import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberNameStrategy",
+            configureApplicationVariants = true
+        )
+        val givenTagNameDebug = "v1.0.321-debug"
+        val givenTagNameRelease = "v3.1.2134-release"
+        val givenTagNameInternal1 = "v0.0.5-internal"
+        val givenTagNameInternal2 = "v0.0.390-internal"
+        val givenCommitMessage = "Initial commit"
+        val givenDebugAssembleTask = "assembleDebug"
+        val givenReleaseAssembleTask = "assembleRelease"
+        val givenInternalAssembleTask = "assembleInternal"
+        val git = projectDir.initGit()
+        val givenTagBuildFileDebug = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFileRelease = projectDir.getFile("app/build/tag-build-release.json")
+        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-internal.json")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagNameInternal1)
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed("build/3.0.0-7265")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagNameDebug)
+        git.tag.addNamed(givenTagNameRelease)
+        git.tag.addNamed(givenTagNameInternal2)
+
+        val debugResult: BuildResult = projectDir.runTask(givenDebugAssembleTask)
+        val releaseResult: BuildResult = projectDir.runTask(givenReleaseAssembleTask)
+        val internalResult: BuildResult = projectDir.runTask(givenInternalAssembleTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileDebug = projectDir.getFile("app/build/outputs/apk/debug/autotest.apk")
+        val givenOutputFileDebugManifestProperties = givenOutputFileDebug.extractManifestProperties()
+
+        val internalApkDir = projectDir.getFile("app/build/outputs/apk/internal")
+        val givenOutputFileInternal = internalApkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-internal-vc390-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
+        val givenOutputFileInternalManifestProperties = givenOutputFileInternal.extractManifestProperties()
+
+        val givenOutputFileRelease = projectDir.getFile("app/build/outputs/apk/release/autotest.apk")
+        val givenOutputFileReleaseManifestProperties = givenOutputFileRelease.extractManifestProperties()
+
+        val expectedDebugManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "0.0",
+            )
+        val expectedReleaseManifestProperties =
+            ManifestProperties(
+                versionCode = "",
+                versionName = "",
+            )
+        val expectedInternalManifestProperties =
+            ManifestProperties(
+                versionCode = "390",
+                versionName = "0.0.390",
+            )
+        assertTrue(
+            !debugResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug not executed",
+        )
+        assertTrue(
+            !releaseResult.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease not executed",
+        )
+        assertTrue(
+            internalResult.output.contains("Task :app:getLastTagInternal"),
+            "Task getLastTagInternal executed",
+        )
+        assertTrue(
+            debugResult.output.contains("BUILD SUCCESSFUL"),
+            "Debug build succeed",
+        )
+        assertTrue(
+            releaseResult.output.contains("BUILD SUCCESSFUL"),
+            "Release build succeed",
+        )
+        assertTrue(
+            internalResult.output.contains("BUILD SUCCESSFUL"),
+            "Internal build succeed",
+        )
+        assertTrue(!givenTagBuildFileDebug.exists(), "Debug tag file not exists")
+        assertTrue(givenOutputFileDebug.exists(), "Debug output file exists")
+        assertTrue(givenOutputFileDebug.length() > 0, "Debug output file is not empty")
+
+        assertTrue(!givenTagBuildFileRelease.exists(), "Release tag file not exists")
+        assertTrue(givenOutputFileRelease.exists(), "Release output file exists")
+        assertTrue(givenOutputFileRelease.length() > 0, "Release output file is not empty")
+
+        assertTrue(givenTagBuildFileInternal.exists(), "Internal tag file exists")
+        assertTrue(givenOutputFileInternal.exists(), "Internal output file exists")
+        assertTrue(givenOutputFileInternal.length() > 0, "Internal output file is not empty")
+
+        assertEquals(
+            expectedDebugManifestProperties,
+            givenOutputFileDebugManifestProperties,
+            "Debug manifest properties equality",
+        )
+        assertEquals(
+            expectedReleaseManifestProperties,
+            givenOutputFileReleaseManifestProperties,
+            "Release manifest properties equality",
+        )
+        assertEquals(
+            expectedInternalManifestProperties,
+            givenOutputFileInternalManifestProperties,
+            "Internal manifest properties equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
     fun `build succeed with no versions when useVersionsFromTag, useStubsForTagAsFallback, useDefaultsForVersionsAsFallback are disabled and tag exists, different types, multiple output configs, with default config`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("internal"), BuildType("release")),

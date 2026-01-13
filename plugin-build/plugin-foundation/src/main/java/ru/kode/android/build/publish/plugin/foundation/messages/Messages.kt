@@ -2,8 +2,107 @@ package ru.kode.android.build.publish.plugin.foundation.messages
 
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
+import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import ru.kode.android.build.publish.plugin.foundation.EXTENSION_NAME
 import java.io.File
+
+fun resolvedOutputConfig(
+    configName: String,
+    buildVariant: String,
+): String {
+    return """
+        
+        |============================================================
+        |               RESOLVED OUTPUT CONFIGURATION   
+        |============================================================
+        | The output configuration has been successfully
+        | resolved and applied.
+        |
+        |  • Configuration name: $configName
+        |  • Build variant: $buildVariant
+        |
+        | This configuration will be used to generate
+        | build artifacts for the specified variant.
+        |============================================================
+        """.trimIndent()
+}
+
+fun resolvedVersionCodeParamsMessage(
+    useVersionsFromTag: Boolean,
+    useDefaultVersionsAsFallback: Boolean,
+    versionCodeStrategy: VersionCodeStrategy,
+    buildVariant: String,
+): String {
+    return """
+        
+        |============================================================
+        |             RESOLVED VERSION CODE CONFIGURATION   
+        |============================================================
+        | The versionCode configuration has been successfully
+        | resolved with the following parameters:
+        |
+        |  • useVersionsFromTag: $useVersionsFromTag
+        |  • useDefaultVersionsAsFallback: $useDefaultVersionsAsFallback
+        |  • versionCodeStrategy: $versionCodeStrategy
+        |  • buildVariant: $buildVariant
+        |
+        | These values will be used to determine the final
+        | versionCode during the build process.
+        |============================================================
+        """.trimIndent()
+}
+
+fun resolvedApkOutputFileNameParamsMessage(
+    outputFileName: String,
+    useVersionsFromTag: Boolean,
+    outputApkNameStrategy: OutputApkNameStrategy,
+    buildVariant: String,
+): String {
+    return """
+        
+        |============================================================
+        |          RESOLVED APK OUTPUT NAME CONFIGURATION   
+        |============================================================
+        | The APK output file name configuration has been
+        | successfully resolved with the following parameters:
+        |
+        |  • outputFileName: $outputFileName
+        |  • useVersionsFromTag: $useVersionsFromTag
+        |  • outputApkNameStrategy: $outputApkNameStrategy
+        |  • buildVariant: $buildVariant
+        |
+        | These settings determine how the final APK file
+        | name will be generated during the build process.
+        |============================================================
+        """.trimIndent()
+}
+
+fun resolvedVersionNameMessage(
+    useVersionsFromTag: Boolean,
+    useDefaultVersionsAsFallback: Boolean,
+    versionNameStrategy: VersionNameStrategy,
+    buildVariant: String,
+): String {
+    return """
+        
+        |============================================================
+        |             RESOLVED VERSION NAME CONFIGURATION   
+        |============================================================
+        | The versionName configuration has been successfully
+        | resolved with the following parameters:
+        |
+        |  • useVersionsFromTag: $useVersionsFromTag
+        |  • useDefaultVersionsAsFallback: $useDefaultVersionsAsFallback
+        |  • versionNameStrategy: $versionNameStrategy
+        |  • buildVariant: $buildVariant
+        |
+        | These values will be used to compute the final
+        | versionName applied to the build artifact.
+        |============================================================
+        """.trimIndent()
+}
 
 fun outputConfigShouldBeDefinedMessage(): String {
     return """

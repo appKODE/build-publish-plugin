@@ -25,6 +25,7 @@ import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.foundation.config.OutputConfig
 import ru.kode.android.build.publish.plugin.foundation.extension.BuildPublishFoundationExtension
 import ru.kode.android.build.publish.plugin.foundation.messages.configureExtensionMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.resolvedOutputConfig
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServicePlugin
 import ru.kode.android.build.publish.plugin.foundation.task.ChangelogTasksRegistrar
 import ru.kode.android.build.publish.plugin.foundation.task.GenerateChangelogTaskParams
@@ -117,6 +118,11 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             buildPublishFoundationExtension
                                 .output
                                 .getByNameOrRequiredCommon(buildVariant.name)
+                                .also {
+                                    logger.info(
+                                        resolvedOutputConfig(it.name, buildVariant.name),
+                                    )
+                                }
                         }
 
                     val buildTagPattern =
