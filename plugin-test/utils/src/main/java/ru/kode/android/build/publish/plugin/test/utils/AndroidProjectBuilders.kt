@@ -116,11 +116,23 @@ fun File.createAndroidProject(
             }
         """
         }
-    val buildTypeOutputBlock =
+    val buildTypeOutputBlock1 =
         foundationConfig.buildTypeOutput?.let { (name, config) ->
             """
                 buildVariant("$name") {
-                    it.baseFileName.set("${foundationConfig.output.baseFileName}")
+                    it.baseFileName.set("${config.baseFileName}")
+                    ${config.useVersionsFromTag?.let { "it.useVersionsFromTag.set($it)" }.orEmpty()}
+                    ${config.useStubsForTagAsFallback?.let { "it.useStubsForTagAsFallback.set($it)" }.orEmpty()}
+                    ${config.useDefaultsForVersionsAsFallback?.let { "it.useDefaultsForVersionsAsFallback.set($it)" }.orEmpty()}
+                    ${config.buildTagPatternBuilderFunctions?.let { buildTagPatternBlock(it) }.orEmpty()}
+                }
+        """
+        }
+    val buildTypeOutputBlock2 =
+        foundationConfig.buildTypeOutput2?.let { (name, config) ->
+            """
+                buildVariant("$name") {
+                    it.baseFileName.set("${config.baseFileName}")
                     ${config.useVersionsFromTag?.let { "it.useVersionsFromTag.set($it)" }.orEmpty()}
                     ${config.useStubsForTagAsFallback?.let { "it.useStubsForTagAsFallback.set($it)" }.orEmpty()}
                     ${config.useDefaultsForVersionsAsFallback?.let { "it.useDefaultsForVersionsAsFallback.set($it)" }.orEmpty()}
@@ -142,7 +154,8 @@ fun File.createAndroidProject(
                     ${foundationConfig.output.buildTagPatternBuilderFunctions?.let { buildTagPatternBlock(it) }.orEmpty()}
                 }
         
-                ${buildTypeOutputBlock.orEmpty()}
+                ${buildTypeOutputBlock1.orEmpty()}
+                ${buildTypeOutputBlock2.orEmpty()}
             }
             
             changelogCommon {
@@ -608,6 +621,7 @@ data class FoundationConfig(
     val verboseLogging: Boolean = true,
     val output: Output = Output(),
     val buildTypeOutput: Pair<String, Output>? = null,
+    val buildTypeOutput2: Pair<String, Output>? = null,
     val changelog: Changelog = Changelog(),
 ) {
     data class Output(

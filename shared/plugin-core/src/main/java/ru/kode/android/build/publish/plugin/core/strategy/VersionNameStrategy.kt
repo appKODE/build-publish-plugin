@@ -21,6 +21,19 @@ object BuildVersionNameStrategy : VersionNameStrategy {
     }
 }
 
+class BuildVersionNumberNameStrategy : VersionNameStrategy {
+    override fun build(
+        buildVariant: BuildVariant,
+        tag: Tag.Build?,
+    ): String {
+        return if (tag != null) {
+            "${tag.buildVersion}.${tag.buildNumber}"
+        } else {
+            "$DEFAULT_BUILD_VERSION.$DEFAULT_VERSION_CODE"
+        }
+    }
+}
+
 class FixedVersionNameStrategy(
     val versionNameProvider: () -> String,
 ) : VersionNameStrategy {
@@ -32,7 +45,7 @@ class FixedVersionNameStrategy(
     }
 }
 
-class VariantAwareStrategy : VersionNameStrategy {
+class BuildVersionVariantNameStrategy : VersionNameStrategy {
     override fun build(
         buildVariant: BuildVariant,
         tag: Tag.Build?,
@@ -40,16 +53,16 @@ class VariantAwareStrategy : VersionNameStrategy {
         return if (tag != null) {
             "${tag.buildVersion}-${buildVariant.name}"
         } else {
-            DEFAULT_BUILD_VERSION
+            "$DEFAULT_BUILD_VERSION-${buildVariant.name}"
         }
     }
 }
 
-class TagFullVersionNameStrategy : VersionNameStrategy {
+class TagRawNameStrategy : VersionNameStrategy {
     override fun build(
         buildVariant: BuildVariant,
         tag: Tag.Build?,
     ): String {
-        return tag?.name ?: DEFAULT_BUILD_VERSION
+        return tag?.name ?: DEFAULT_TAG_NAME
     }
 }
