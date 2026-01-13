@@ -68,7 +68,7 @@ sealed class Tag {
          */
         override val message: String?,
         /**
-         * The parsed build version (e.g., "1.0.0")
+         * The parsed build version (e.g., "1.0")
          */
         val buildVersion: String,
         /**
@@ -76,7 +76,7 @@ sealed class Tag {
          */
         val buildVariant: String,
         /**
-         *  The build number extracted from the tag
+         *  The build number extracted from the tag (e.g. "1")
          */
         val buildNumber: Int,
     ) : Tag() {

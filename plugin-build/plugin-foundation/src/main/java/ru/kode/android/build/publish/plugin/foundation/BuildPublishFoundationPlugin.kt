@@ -5,9 +5,6 @@ package ru.kode.android.build.publish.plugin.foundation
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.impl.VariantOutputImpl
-import com.android.build.gradle.AppExtension
-import com.android.build.gradle.AppPlugin
-import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
@@ -20,20 +17,16 @@ import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_NAME
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_TAG_PATTERN
-import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.util.changelogFileProvider
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
-import ru.kode.android.build.publish.plugin.core.util.getCommon
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.foundation.config.OutputConfig
 import ru.kode.android.build.publish.plugin.foundation.extension.BuildPublishFoundationExtension
 import ru.kode.android.build.publish.plugin.foundation.messages.configureExtensionMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.outputConfigShouldBeDefinedMessage
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServicePlugin
 import ru.kode.android.build.publish.plugin.foundation.task.ChangelogTasksRegistrar
-import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_NAME
 import ru.kode.android.build.publish.plugin.foundation.task.GenerateChangelogTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.LastTagTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.PrintLastIncreasedTagTaskParams
@@ -305,40 +298,5 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                 }
             },
         )
-        androidExtension.finalizeDsl {
-            val outputConfig =
-                buildPublishFoundationExtension.output.getCommon()
-                    ?: throw GradleException(outputConfigShouldBeDefinedMessage())
-            val useDefaultsForVersionsAsFallback =
-                outputConfig
-                    .useDefaultsForVersionsAsFallback
-                    .getOrElse(true)
-
-            project.plugins.all { plugin ->
-                when (plugin) {
-                    is AppPlugin -> {
-                        if (useDefaultsForVersionsAsFallback) {
-                            val appExtension = project.extensions.getByType(AppExtension::class.java)
-                            appExtension.configure()
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-/**
- * Configures the Android application extension with default version information.
- *
- * Sets default versionCode and versionName if not explicitly configured.
- * These values are used as fallbacks when version information cannot be determined from Git tags.
- *
- * @receiver The Android application extension to configure
- */
-private fun AppExtension.configure() {
-    defaultConfig {
-        it.versionCode = DEFAULT_VERSION_CODE
-        it.versionName = DEFAULT_VERSION_NAME
     }
 }
