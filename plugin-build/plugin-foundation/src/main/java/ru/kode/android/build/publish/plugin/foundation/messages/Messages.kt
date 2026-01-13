@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.foundation.messages
 
+import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
@@ -7,6 +8,162 @@ import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import ru.kode.android.build.publish.plugin.foundation.EXTENSION_NAME
 import java.io.File
+
+fun formDefaultVersionCodeMessage(buildVariant: BuildVariant): String {
+    return """
+        
+        |============================================================
+        |             FORMING DEFAULT VERSION CODE   
+        |============================================================
+        | A default versionCode is being generated
+        | for the specified build variant.
+        |
+        |  • Build variant: $buildVariant
+        |
+        | The default versionCode will be used when
+        | no tag-based or custom strategy is applied.
+        |============================================================
+        """.trimIndent()
+}
+
+fun formNullVersionCodeMessage(buildVariant: BuildVariant): String {
+    return """
+        
+        |============================================================
+        |               FORMING NULL VERSION CODE   
+        |============================================================
+        | No versionCode will be assigned for the
+        | specified build variant.
+        |
+        |  • Build variant: $buildVariant
+        |
+        | This typically indicates that versionCode
+        | resolution has been explicitly disabled.
+        |============================================================
+        """.trimIndent()
+}
+
+fun formDefaultVersionNameMessage(buildVariant: BuildVariant): String {
+    return """
+        
+        |============================================================
+        |             FORMING DEFAULT VERSION NAME   
+        |============================================================
+        | A default versionName is being generated
+        | for the specified build variant.
+        |
+        |  • Build variant: $buildVariant
+        |
+        | The default versionName will be used when
+        | no tag-based or custom strategy is applied.
+        |============================================================
+        """.trimIndent()
+}
+
+fun formNullVersionNameMessage(buildVariant: BuildVariant): String {
+    return """
+        
+        |============================================================
+        |               FORMING NULL VERSION NAME   
+        |============================================================
+        | No versionName will be assigned for the
+        | specified build variant.
+        |
+        |  • Build variant: $buildVariant
+        |
+        | This typically indicates that versionName
+        | resolution has been explicitly disabled.
+        |============================================================
+        """.trimIndent()
+}
+
+fun formRichVersionNameMessage(
+    buildVariant: BuildVariant,
+    tag: Tag.Build?,
+): String {
+    return """
+        
+        |============================================================
+        |                FORMING RICH VERSION NAME   
+        |============================================================
+        | A rich versionName is being generated using
+        | the following inputs:
+        |
+        |  • Build variant: $buildVariant
+        |  • Build tag: $tag
+        |
+        | The resulting versionName will incorporate
+        | variant- and tag-based metadata.
+        |============================================================
+        """.trimIndent()
+}
+
+fun formRichVersionCodeMessage(
+    buildVariant: BuildVariant,
+    tag: Tag.Build?,
+): String {
+    return """
+        
+        |============================================================
+        |              FORMING RICH VERSION CODE   
+        |============================================================
+        | A rich versionCode is being generated using
+        | the following inputs:
+        |
+        |  • Build variant: $buildVariant
+        |  • Build tag: $tag
+        |
+        | The resulting versionCode will reflect
+        | variant- and tag-specific information.
+        |============================================================
+        """.trimIndent()
+}
+
+fun formSimpleApkFileNameMessage(
+    buildVariant: BuildVariant,
+    baseFileName: String,
+): String {
+    return """
+        
+        |============================================================
+        |              FORMING SIMPLE APK FILE NAME   
+        |============================================================
+        | A simple APK file name strategy has been
+        | selected.
+        |
+        |  • Build variant: $buildVariant
+        |  • Base file name: $baseFileName
+        |
+        | No additional metadata will be appended
+        | to the final APK file name.
+        |============================================================
+        """.trimIndent()
+}
+
+fun formRichApkFileNameMessage(
+    buildVariant: BuildVariant,
+    outputFileName: String,
+    tag: Tag.Build?,
+    baseFileName: String,
+): String {
+    return """
+        
+        |============================================================
+        |               FORMING RICH APK FILE NAME   
+        |============================================================
+        | A rich APK file name is being generated using
+        | the following inputs:
+        |
+        |  • Build variant: $buildVariant
+        |  • Output file name: $outputFileName
+        |  • Build tag: $tag
+        |  • Base file name: $baseFileName
+        |
+        | The final APK name will include versioning
+        | and build-specific metadata.
+        |============================================================
+        """.trimIndent()
+}
 
 fun resolvedOutputConfig(
     configName: String,

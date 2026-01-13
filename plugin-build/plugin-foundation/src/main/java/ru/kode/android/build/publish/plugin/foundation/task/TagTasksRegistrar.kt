@@ -20,6 +20,14 @@ import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.tagBuildFileProvider
+import ru.kode.android.build.publish.plugin.foundation.messages.formDefaultVersionCodeMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.formDefaultVersionNameMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.formNullVersionCodeMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.formNullVersionNameMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.formRichApkFileNameMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.formRichVersionCodeMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.formRichVersionNameMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.formSimpleApkFileNameMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.resolvedApkOutputFileNameParamsMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionCodeParamsMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionNameMessage
@@ -108,11 +116,20 @@ internal object TagTasksRegistrar {
                                     } else {
                                         null
                                     }
+                                logger.info(formRichVersionCodeMessage(params.buildVariant, tag))
                                 versionCodeStrategy.build(params.buildVariant, tag)
                             }
 
-                        useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_CODE }
-                        else -> project.provider { null }
+                        useDefaultVersionsAsFallback ->
+                            project.provider {
+                                logger.info(formDefaultVersionCodeMessage(params.buildVariant))
+                                DEFAULT_VERSION_CODE
+                            }
+                        else ->
+                            project.provider {
+                                logger.info(formNullVersionCodeMessage(params.buildVariant))
+                                null
+                            }
                     }
                 }
 
@@ -149,10 +166,21 @@ internal object TagTasksRegistrar {
                                     } else {
                                         null
                                     }
+                                logger.info(
+                                    formRichApkFileNameMessage(
+                                        params.buildVariant,
+                                        outputFileName,
+                                        tag,
+                                        baseFileName,
+                                    ),
+                                )
                                 outputApkNameStrategy.build(outputFileName, tag, baseFileName)
                             }
                     } else {
                         params.baseFileName.map { baseFileName ->
+                            logger.info(
+                                formSimpleApkFileNameMessage(params.buildVariant, baseFileName),
+                            )
                             SimpleApkNamingStrategy.build(outputFileName, null, baseFileName)
                         }
                     }
@@ -193,6 +221,7 @@ internal object TagTasksRegistrar {
                                     } else {
                                         null
                                     }
+                                logger.info(formRichVersionNameMessage(params.buildVariant, tag))
                                 versionNameStrategy.build(
                                     params.buildVariant,
                                     tag,
@@ -200,8 +229,16 @@ internal object TagTasksRegistrar {
                             }
                         }
 
-                        useDefaultVersionsAsFallback -> project.provider { DEFAULT_VERSION_NAME }
-                        else -> project.provider { null }
+                        useDefaultVersionsAsFallback ->
+                            project.provider {
+                                logger.info(formDefaultVersionNameMessage(params.buildVariant))
+                                DEFAULT_VERSION_NAME
+                            }
+                        else ->
+                            project.provider {
+                                logger.info(formNullVersionNameMessage(params.buildVariant))
+                                null
+                            }
                     }
                 }
 
