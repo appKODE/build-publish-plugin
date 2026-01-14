@@ -4,6 +4,7 @@ import okhttp3.Request
 import org.ajoberstar.grgit.Commit
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.enity.TagRange
+import ru.kode.android.build.publish.plugin.core.util.utcDateTime
 import java.io.File
 import java.net.InetSocketAddress
 import java.net.Proxy
@@ -226,26 +227,6 @@ fun proxyCredsNotSpecified(): String {
         """.trimMargin()
 }
 
-fun String.tagPartsByRegexMessage(
-    regex: Regex,
-    strings: List<String>,
-): String {
-    return """
-        
-        |============================================================
-        |                      TAG PARSING RESULT     
-        |============================================================
-        | Tag: $this
-        | Regex: $regex
-        |
-        | Extracted parts:
-        |  ${strings.joinToString(", ") { it }}
-        |
-        | Total parts found: ${strings.size}
-        |============================================================
-        """.trimMargin()
-}
-
 fun requiredConfigurationNotFoundMessage(
     name: String,
     defaultName: String,
@@ -299,14 +280,27 @@ fun failedToBuildChangelogMessage(): String {
 
 fun cannotReturnTagMessage(
     previousTagBuildNumber: Int,
-    lastTag: GrgitTag,
-    lastTagCommit: Commit,
-    lastTagBuildNumber: Int,
     previousTag: GrgitTag,
     previousTagCommit: Commit,
+    lastTagBuildNumber: Int,
+    lastTag: GrgitTag,
+    lastTagCommit: Commit,
 ): String {
+    val isPreviousCommitDateGreater =
+        previousTagCommit.utcDateTime()
+            .isAfter(lastTagCommit.utcDateTime())
+    val isPreviousCommitBuildNumberGreater = previousTagBuildNumber >= lastTagBuildNumber
+
+    val possibleCauses =
+        buildList {
+            if (isPreviousCommitDateGreater) add("Commit date of previous tag is after the last tag")
+            if (isPreviousCommitBuildNumberGreater) add("Build number of previous tag is >= last tag")
+            if (!isPreviousCommitDateGreater && !isPreviousCommitBuildNumberGreater) {
+                add("Version number was decreased or git history is inconsistent")
+            }
+        }.mapIndexed { index, cause -> "   ${index + 1}. $cause" }.joinToString("\n")
+
     return """
-        
         |============================================================
         |             ️   INVALID TAG ORDER DETECTED   ️   
         |============================================================
@@ -315,19 +309,17 @@ fun cannotReturnTagMessage(
         | LAST TAG (should be newer):
         |   - Name: ${lastTag.name}
         |   - Commit: ${lastTag.commit.id.take(7)}
-        |   - Date: ${lastTagCommit.dateTime}
+        |   - Date: ${previousTagCommit.utcDateTime()}
         |   - Build: $lastTagBuildNumber
         |
         | PREVIOUS TAG (should be older):
         |   - Name: ${previousTag.name}
         |   - Commit: ${previousTag.commit.id.take(7)}
-        |   - Date: ${previousTagCommit.dateTime}
+        |   - Date: ${previousTagCommit.utcDateTime()}
         |   - Build: $previousTagBuildNumber
         |
         | POSSIBLE CAUSES:
-        |   1. The commit date of the previous tag is after the last tag
-        |   2. The build number of the previous tag is >= last tag
-        |   3. The version number was decreased by mistake
+        |$possibleCauses
         |
         | ACTION REQUIRED:
         |   1. Ensure build numbers always increase with each release

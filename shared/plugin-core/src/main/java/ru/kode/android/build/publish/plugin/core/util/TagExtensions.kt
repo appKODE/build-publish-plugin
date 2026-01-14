@@ -4,6 +4,8 @@ import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
 import ru.kode.android.build.publish.plugin.core.enity.CommitRange
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import org.ajoberstar.grgit.Tag as GrgitTag
 
 private const val UNKNOWN_COMMIT_INDEX = -1
@@ -35,6 +37,8 @@ fun Grgit.getCommitsByRange(range: CommitRange?): List<Commit> {
         else -> this.log { options -> options.range(range.sha1, range.sha2) }
     }
 }
+
+fun Commit.utcDateTime(): ZonedDateTime = this.dateTime.withZoneSameLocal(ZoneOffset.UTC)
 
 /**
  * Extracts the build number from this [GrgitTag]'s name using the provided regular expression.

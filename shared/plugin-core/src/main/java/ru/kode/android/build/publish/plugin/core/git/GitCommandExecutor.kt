@@ -15,6 +15,7 @@ import ru.kode.android.build.publish.plugin.core.messages.findTagsByRegexAfterFi
 import ru.kode.android.build.publish.plugin.core.messages.findTagsByRegexBeforeFilterMessage
 import ru.kode.android.build.publish.plugin.core.util.getBuildNumber
 import ru.kode.android.build.publish.plugin.core.util.getCommitsByRange
+import ru.kode.android.build.publish.plugin.core.util.utcDateTime
 import org.ajoberstar.grgit.Tag as GrgitTag
 
 /**
@@ -202,7 +203,7 @@ class GitCommandExecutor(
                         .indexOfFirst { it.id == tag.commit.id }
                         .takeIf { it >= 0 }
                         ?: -1
-                val commitTimeMs = commit?.dateTime?.toInstant()?.toEpochMilli() ?: 0L
+                val commitTimeMs = commit?.utcDateTime()?.toInstant()?.toEpochMilli() ?: 0L
                 val buildNumber = tag.getBuildNumber(buildTagRegex)
                 TagDetails(tag, commitIndex, commitTimeMs, buildNumber)
             }
@@ -255,17 +256,17 @@ class GitCommandExecutor(
                 val lastTagBuildNumber = lastTag.getBuildNumber(buildTagRegex)
                 val previousTagBuildNumber = previousTag.getBuildNumber(buildTagRegex)
 
-                if (previousTagCommit.dateTime.isAfter(lastTagCommit.dateTime) ||
+                if (previousTagCommit.utcDateTime().isAfter(lastTagCommit.utcDateTime()) ||
                     previousTagBuildNumber >= lastTagBuildNumber
                 ) {
                     throw GradleException(
                         cannotReturnTagMessage(
-                            previousTagBuildNumber,
-                            lastTag,
-                            lastTagCommit,
-                            lastTagBuildNumber,
-                            previousTag,
-                            previousTagCommit,
+                            previousTagBuildNumber = previousTagBuildNumber,
+                            previousTag = previousTag,
+                            previousTagCommit = previousTagCommit,
+                            lastTag = lastTag,
+                            lastTagCommit = lastTagCommit,
+                            lastTagBuildNumber = lastTagBuildNumber,
                         ),
                     )
                 }
