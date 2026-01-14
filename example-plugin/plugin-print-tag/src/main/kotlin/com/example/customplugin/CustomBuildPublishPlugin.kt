@@ -60,8 +60,10 @@ abstract class CustomBuildPublishExtension
                 "printTagExample${input.buildVariant.capitalizedName()}",
                 PrintLastTagTask::class.java
             ) {
-                it.buildTagFile.set(input.output.lastBuildTagFile)
+                it.buildTagFile.set(input.output.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
                 it.message.set(messageConfig.additionalText)
+
+                it.dependsOn(input.output.lastBuildTagFileProvider)
             }
         }
     }

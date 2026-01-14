@@ -1,10 +1,11 @@
 package ru.kode.android.build.publish.plugin.jira.task
 
 import org.gradle.api.Project
-import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
@@ -79,8 +80,8 @@ private fun Project.registerJiraTasks(
             "$JIRA_AUTOMATION_TASK${params.buildVariant.capitalizedName()}",
             JiraAutomationTask::class.java,
         ) {
-            it.buildTagFile.set(params.lastBuildTagFile)
-            it.changelogFile.set(params.changelogFile)
+            it.buildTagFile.set(params.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
+            it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
             it.issueNumberPattern.set(params.issueNumberPattern)
             it.projectKey.set(automationConfig.projectKey)
             it.labelPattern.set(automationConfig.labelPattern)
@@ -89,6 +90,7 @@ private fun Project.registerJiraTasks(
             it.targetStatusName.set(automationConfig.targetStatusName)
 
             it.usesService(service)
+            it.dependsOn(params.lastBuildTagFileProvider, params.changelogFileProvider)
         }
     } else {
         null
@@ -110,9 +112,9 @@ internal data class JiraAutomationTaskParams(
     /**
      * Provider for the changelog file containing commit messages
      */
-    val changelogFile: Provider<RegularFile>,
+    val changelogFileProvider: TaskProvider<out GenerateChangelogTaskOutput>,
     /**
      * Provider for the file containing the last build tag
      */
-    val lastBuildTagFile: Provider<RegularFile>,
+    val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
 )

@@ -171,8 +171,8 @@ abstract class BuildPublishJiraExtension
                     JiraAutomationTaskParams(
                         buildVariant = input.buildVariant,
                         issueNumberPattern = input.changelog.issueNumberPattern,
-                        changelogFile = input.changelog.file,
-                        lastBuildTagFile = input.output.lastBuildTagFile,
+                        changelogFileProvider = input.changelog.fileProvider,
+                        lastBuildTagFileProvider = input.output.lastBuildTagFileProvider,
                     ),
             )
         }

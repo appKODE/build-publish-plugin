@@ -1,10 +1,11 @@
 package ru.kode.android.build.publish.plugin.foundation.task
 
 import org.gradle.api.Project
-import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.changelogFileProvider
 import ru.kode.android.build.publish.plugin.foundation.task.changelog.GenerateChangelogTask
@@ -36,7 +37,7 @@ internal object ChangelogTasksRegistrar {
     internal fun registerGenerateChangelogTask(
         project: Project,
         params: GenerateChangelogTaskParams,
-    ): TaskProvider<GenerateChangelogTask> {
+    ): TaskProvider<out GenerateChangelogTaskOutput> {
         return project.registerGenerateChangelogTask(params)
     }
 }
@@ -53,7 +54,7 @@ internal object ChangelogTasksRegistrar {
  * @return A [Provider] that will contain the generated changelog file
  */
 @Suppress("MaxLineLength") // One parameter function
-private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskParams): TaskProvider<GenerateChangelogTask> {
+private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskParams): TaskProvider<out GenerateChangelogTaskOutput> {
     val buildVariant = params.buildVariant
     val changelogFile = project.changelogFileProvider(buildVariant.name)
     return tasks.register(
@@ -64,7 +65,9 @@ private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskP
         it.excludeMessageKey.set(params.excludeMessageKey)
         it.buildTagPattern.set(params.buildTagPattern)
         it.changelogFile.set(changelogFile)
-        it.buildTagFile.set(params.lastBuildTagFile)
+        it.buildTagFile.set(params.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
+
+        it.dependsOn(params.lastBuildTagFileProvider)
     }
 }
 
@@ -92,5 +95,5 @@ internal data class GenerateChangelogTaskParams(
     /**
      * Provider for the file containing the last tag information
      */
-    val lastBuildTagFile: Provider<RegularFile>,
+    val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
 )

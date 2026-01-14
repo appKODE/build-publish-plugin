@@ -154,8 +154,6 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 ),
                         )
 
-                    val lastBuildTagFile = lastBuildTagProvider.flatMap { it.tagBuildFile }
-
                     val apkOutputFileNameProvider =
                         TagTasksRegistrar.registerComputeApkOutputFileNameTask(
                             project,
@@ -254,7 +252,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                         params =
                             PrintLastIncreasedTagTaskParams(
                                 buildVariant = buildVariant,
-                                lastBuildTagFile = lastBuildTagFile,
+                                lastBuildTagFileProvider = lastBuildTagProvider,
                             ),
                     )
 
@@ -282,14 +280,9 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                         },
                                     buildTagPattern = buildTagPattern,
                                     buildVariant = buildVariant,
-                                    lastBuildTagFile = lastBuildTagFile,
+                                    lastBuildTagFileProvider = lastBuildTagProvider,
                                 ),
                         )
-
-                    val changelogFile =
-                        changelogFileProvider.map {
-                            project.layout.projectDirectory.file(it.outputs.files.singleFile.path)
-                        }
 
                     val apkFileProvider: Provider<RegularFile> =
                         apkOutputFileName
@@ -335,7 +328,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                                         it.commitMessageKey
                                                             .orElse(project.providers.provider { null })
                                                     },
-                                                file = changelogFile,
+                                                fileProvider = changelogFileProvider,
                                             ),
                                         output =
                                             ExtensionInput.Output(
@@ -345,8 +338,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                                 buildTagPattern =
                                                     outputConfigProvider
                                                         .flatMap { it.buildTagPattern },
-                                                lastBuildTagFile = lastBuildTagFile,
-                                                changelogFileName = changelogFile,
+                                                lastBuildTagFileProvider = lastBuildTagProvider,
                                                 apkFile = apkFileProvider,
                                                 bundleFile = bundleFileProvider,
                                             ),

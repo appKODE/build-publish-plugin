@@ -282,8 +282,8 @@ abstract class BuildPublishTelegramExtension
                             issueNumberPattern = input.changelog.issueNumberPattern,
                             issueUrlPrefix = input.changelog.issueUrlPrefix,
                             buildVariant = input.buildVariant,
-                            changelogFile = input.changelog.file,
-                            lastBuildTagFile = input.output.lastBuildTagFile,
+                            changelogFileProvider = input.changelog.fileProvider,
+                            lastBuildTagFileProvider = input.output.lastBuildTagFileProvider,
                         ),
                 )
             }
@@ -295,7 +295,6 @@ abstract class BuildPublishTelegramExtension
                         TelegramApkDistributionTaskParams(
                             baseFileName = input.output.baseFileName,
                             buildVariant = input.buildVariant,
-                            lastBuildTag = input.output.lastBuildTagFile,
                             apkOutputFile = input.output.apkFile,
                         ),
                 )
@@ -307,7 +306,6 @@ abstract class BuildPublishTelegramExtension
                         TelegramBundleDistributionTaskParams(
                             baseFileName = input.output.baseFileName,
                             buildVariant = input.buildVariant,
-                            lastBuildTag = input.output.lastBuildTagFile,
                             bundleOutputFile = input.output.bundleFile,
                         ),
                 )

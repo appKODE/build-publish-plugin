@@ -215,8 +215,8 @@ abstract class BuildPublishSlackExtension
                             issueNumberPattern = input.changelog.issueNumberPattern,
                             issueUrlPrefix = input.changelog.issueUrlPrefix,
                             buildVariant = input.buildVariant,
-                            changelogFile = input.changelog.file,
-                            lastBuildTagFile = input.output.lastBuildTagFile,
+                            changelogFileProvider = input.changelog.fileProvider,
+                            lastBuildTagFileProvider = input.output.lastBuildTagFileProvider,
                         ),
                 )
             }
@@ -229,7 +229,7 @@ abstract class BuildPublishSlackExtension
                         SlackApkDistributionTaskParams(
                             baseFileName = input.output.baseFileName,
                             buildVariant = input.buildVariant,
-                            lastBuildTagFile = input.output.lastBuildTagFile,
+                            lastBuildTagFileProvider = input.output.lastBuildTagFileProvider,
                             apkOutputFile = input.output.apkFile,
                         ),
                 )
@@ -241,7 +241,7 @@ abstract class BuildPublishSlackExtension
                         SlackBundleDistributionTaskParams(
                             baseFileName = input.output.baseFileName,
                             buildVariant = input.buildVariant,
-                            lastBuildTagFile = input.output.lastBuildTagFile,
+                            lastBuildTagFileProvider = input.output.lastBuildTagFileProvider,
                             bundleOutputFile = input.output.bundleFile,
                         ),
                 )

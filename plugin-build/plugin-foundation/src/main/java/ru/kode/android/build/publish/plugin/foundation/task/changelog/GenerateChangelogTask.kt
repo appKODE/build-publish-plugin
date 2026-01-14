@@ -7,13 +7,13 @@ import org.gradle.api.provider.Property
 import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
 import ru.kode.android.build.publish.plugin.foundation.task.changelog.work.GenerateChangelogWork
 import javax.inject.Inject
@@ -33,10 +33,11 @@ abstract class GenerateChangelogTask
     @Inject
     constructor(
         private val workerExecutor: WorkerExecutor,
-    ) : DefaultTask() {
+    ) : GenerateChangelogTaskOutput() {
         init {
             description = "Generates a changelog file based on Git commit history"
             group = BasePlugin.BUILD_GROUP
+            outputs.upToDateWhen { false }
         }
 
         /**
@@ -133,19 +134,6 @@ abstract class GenerateChangelogTask
             description = "Pattern used to match Git tags for versioning",
         )
         abstract val buildTagPattern: Property<String>
-
-        /**
-         * The output file where the generated changelog will be saved.
-         *
-         * The changelog will be written in a format suitable for use by
-         * other tools and tasks, such as Firebase App Distribution.
-         */
-        @get:OutputFile
-        @get:Option(
-            option = "changelogFile",
-            description = "The output file where the generated changelog will be saved",
-        )
-        abstract val changelogFile: RegularFileProperty
 
         /**
          * Executes the changelog generation process.

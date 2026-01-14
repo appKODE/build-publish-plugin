@@ -6,6 +6,8 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
+import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
@@ -136,8 +138,8 @@ private fun Project.registerSendSlackChangelogTask(
                 .get()
                 .getByNameOrCommon(params.buildVariant.name)
 
-        it.changelogFile.set(params.changelogFile)
-        it.buildTagFile.set(params.lastBuildTagFile)
+        it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
+        it.buildTagFile.set(params.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
         it.issueUrlPrefix.set(params.issueUrlPrefix)
         it.issueNumberPattern.set(params.issueNumberPattern)
         it.baseOutputFileName.set(params.baseFileName)
@@ -147,6 +149,7 @@ private fun Project.registerSendSlackChangelogTask(
         it.service.set(service)
 
         it.usesService(service)
+        it.dependsOn(params.lastBuildTagFileProvider, params.changelogFileProvider)
     }
 }
 
@@ -175,11 +178,12 @@ private fun Project.registerApkSlackDistributionTask(
 
         it.distributionFile.set(params.apkOutputFile)
         it.destinationChannels.set(distributionConfig.destinationChannels)
-        it.buildTagFile.set(params.lastBuildTagFile)
+        it.buildTagFile.set(params.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
         it.baseOutputFileName.set(params.baseFileName)
         it.service.set(service)
 
         it.usesService(service)
+        it.dependsOn(params.lastBuildTagFileProvider)
     }
 }
 
@@ -208,11 +212,12 @@ private fun Project.registerBundleSlackDistributionTask(
 
         it.distributionFile.set(params.bundleOutputFile)
         it.destinationChannels.set(distributionConfig.destinationChannels)
-        it.buildTagFile.set(params.lastBuildTagFile)
+        it.buildTagFile.set(params.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
         it.baseOutputFileName.set(params.baseFileName)
         it.service.set(service)
 
         it.usesService(service)
+        it.dependsOn(params.lastBuildTagFileProvider)
     }
 }
 
@@ -227,11 +232,11 @@ internal data class SlackChangelogTaskParams(
     /**
      * The file containing the changelog to send
      */
-    val changelogFile: Provider<RegularFile>,
+    val changelogFileProvider: TaskProvider<out GenerateChangelogTaskOutput>,
     /**
      * File containing the last build tag for change tracking
      */
-    val lastBuildTagFile: Provider<RegularFile>,
+    val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
     /**
      * Base URL for issue links
      */
@@ -261,7 +266,7 @@ internal data class SlackApkDistributionTaskParams(
     /**
      * File containing the last build tag for change tracking
      */
-    val lastBuildTagFile: Provider<RegularFile>,
+    val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
     /**
      * Base name to use for the build in notifications
      */
@@ -283,7 +288,7 @@ internal data class SlackBundleDistributionTaskParams(
     /**
      * File containing the last build tag for change tracking
      */
-    val lastBuildTagFile: Provider<RegularFile>,
+    val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
     /**
      * Base name to use for the build in notifications
      */

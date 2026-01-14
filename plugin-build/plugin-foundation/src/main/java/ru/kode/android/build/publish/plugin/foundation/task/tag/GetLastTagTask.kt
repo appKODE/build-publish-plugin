@@ -1,18 +1,17 @@
 package ru.kode.android.build.publish.plugin.foundation.task.tag
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
 import ru.kode.android.build.publish.plugin.foundation.task.tag.work.GenerateTagWork
 import javax.inject.Inject
@@ -34,7 +33,7 @@ abstract class GetLastTagTask
     @Inject
     constructor(
         private val workerExecutor: WorkerExecutor,
-    ) : DefaultTask() {
+    ) : GetLastTagTaskOutput() {
         init {
             description = "Retrieves the last Git tag matching a specific pattern for a build variant"
             group = BasePlugin.BUILD_GROUP
@@ -98,18 +97,6 @@ abstract class GetLastTagTask
             description = "Use default values if no matching tag is found (prevents build failures)",
         )
         abstract val useStubsForTagAsFallback: Property<Boolean>
-
-        /**
-         * The output file where tag information will be written in JSON format.
-         *
-         * The JSON file will contain information about the found tag.
-         */
-        @get:OutputFile
-        @get:Option(
-            option = "tagBuildFile",
-            description = "Output JSON file containing information about the found build tag",
-        )
-        abstract val tagBuildFile: RegularFileProperty
 
         /**
          * Executes the task to find and process the last Git tag.

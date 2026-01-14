@@ -5,6 +5,7 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
 import ru.kode.android.build.publish.plugin.play.config.PlayDistributionConfig
@@ -65,11 +66,13 @@ private fun Project.registerPlayDistributionTask(
                 .networkServices
                 .flatMapByNameOrCommon(params.buildVariant.name)
 
-        it.buildTagFile.set(params.lastBuildTagFile)
+        it.buildTagFile.set(params.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
         it.distributionFile.set(params.bundleOutputFile)
         it.trackId.set(distributionConfig.trackId)
         it.updatePriority.set(distributionConfig.updatePriority)
         it.networkService.set(networkService)
+
+        it.dependsOn(params.lastBuildTagFileProvider)
     }
 }
 
@@ -88,5 +91,5 @@ internal data class PlayTaskParams(
     /**
      * File containing the last build tag for change tracking
      */
-    val lastBuildTagFile: Provider<RegularFile>,
+    val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
 )

@@ -2,7 +2,6 @@ package ru.kode.android.build.publish.plugin.clickup.task
 
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAutomationConfig
@@ -10,6 +9,8 @@ import ru.kode.android.build.publish.plugin.clickup.messages.propertiesNotApplie
 import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtension
 import ru.kode.android.build.publish.plugin.clickup.task.automation.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 
@@ -86,13 +87,15 @@ private fun Project.registerClickUpTasks(
             ClickUpAutomationTask::class.java,
         ) {
             it.workspaceName.set(automationConfig.workspaceName)
-            it.buildTagFile.set(params.lastBuildTagFile)
-            it.changelogFile.set(params.changelogFile)
+            it.buildTagFile.set(params.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
+            it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
             it.issueNumberPattern.set(params.issueNumberPattern)
             it.fixVersionPattern.set(automationConfig.fixVersionPattern)
             it.fixVersionFieldName.set(automationConfig.fixVersionFieldName)
             it.tagPattern.set(automationConfig.tagPattern)
             it.service.set(service)
+
+            it.dependsOn(params.lastBuildTagFileProvider, params.changelogFileProvider)
         }
     } else {
         null
@@ -116,9 +119,9 @@ internal data class ClickUpAutomationTaskParams(
     /**
      * The file containing the changelog for this build
      */
-    val changelogFile: Provider<RegularFile>,
+    val changelogFileProvider: TaskProvider<out GenerateChangelogTaskOutput>,
     /**
      * A file used to store the last build tag for change detection
      */
-    val lastBuildTagFile: Provider<RegularFile>,
+    val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
 )

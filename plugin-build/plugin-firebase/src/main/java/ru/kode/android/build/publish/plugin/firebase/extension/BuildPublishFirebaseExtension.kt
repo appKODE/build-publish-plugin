@@ -108,7 +108,7 @@ abstract class BuildPublishFirebaseExtension
                     },
                 )
                 groups.set(distributionConfig.testerGroups.map { it.joinToString(",") })
-                releaseNotesFile.set(input.output.changelogFileName.map { it.asFile.path })
+                releaseNotesFile.set(input.changelog.fileProvider.map { it.changelogFile.get().asFile.path })
             } ?: throw GradleException(appDistributionConfigNotFoundMessage(buildVariantName))
         }
     }

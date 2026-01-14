@@ -2,7 +2,6 @@ package ru.kode.android.build.publish.plugin.foundation.task
 
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
-import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
@@ -10,6 +9,7 @@ import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_BUILD_VERSION
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.apkOutputFileNameProvider
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.tagBuildFileProvider
@@ -217,7 +217,9 @@ private fun Project.registerComputeVersionNameTask(params: ComputeVersionNamePar
 private fun Project.registerPrintLastIncreasedTagTask(params: PrintLastIncreasedTagTaskParams): TaskProvider<PrintLastIncreasedTag> {
     val taskName = "$PRINT_LAST_INCREASED_TAG_TASK_PREFIX${params.buildVariant.capitalizedName()}"
     return tasks.register(taskName, PrintLastIncreasedTag::class.java) { task ->
-        task.buildTagFile.set(params.lastBuildTagFile)
+        task.buildTagFile.set(params.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
+
+        task.dependsOn(params.lastBuildTagFileProvider)
     }
 }
 
@@ -314,7 +316,7 @@ internal data class PrintLastIncreasedTagTaskParams(
     /**
      * Provider for the file containing the last build tag information
      */
-    val lastBuildTagFile: Provider<RegularFile>,
+    val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
 )
 
 /**

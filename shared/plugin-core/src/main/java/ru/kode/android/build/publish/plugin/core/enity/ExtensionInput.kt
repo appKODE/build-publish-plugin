@@ -2,6 +2,9 @@ package ru.kode.android.build.publish.plugin.core.enity
 
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
+import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
 
 /**
  * Container class that holds all the input data required for build and publish operations.
@@ -39,7 +42,7 @@ data class ExtensionInput(
         /**
          * Provider for the changelog file
          */
-        val file: Provider<RegularFile>,
+        val fileProvider: TaskProvider<out GenerateChangelogTaskOutput>,
     )
 
     /**
@@ -57,11 +60,7 @@ data class ExtensionInput(
         /**
          * File that stores the last build tag
          */
-        val lastBuildTagFile: Provider<RegularFile>,
-        /**
-         * Name of the changelog file name
-         */
-        val changelogFileName: Provider<RegularFile>,
+        val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
         /**
          * Provider for the APK file location
          */
