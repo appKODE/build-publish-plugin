@@ -154,10 +154,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 ),
                         )
 
-                    val lastBuildTagFile =
-                        lastBuildTagProvider.map {
-                            project.layout.projectDirectory.file(it.outputs.files.singleFile.path)
-                        }
+                    val lastBuildTagFile = lastBuildTagProvider.flatMap { it.tagBuildFile }
 
                     val apkOutputFileNameProvider =
                         TagTasksRegistrar.registerComputeApkOutputFileNameTask(
@@ -285,7 +282,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                         },
                                     buildTagPattern = buildTagPattern,
                                     buildVariant = buildVariant,
-                                    lastTagFile = lastBuildTagFile,
+                                    lastBuildTagFile = lastBuildTagFile,
                                 ),
                         )
 

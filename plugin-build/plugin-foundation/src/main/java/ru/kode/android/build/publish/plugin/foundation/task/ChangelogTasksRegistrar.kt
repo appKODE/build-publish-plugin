@@ -64,7 +64,7 @@ private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskP
         it.excludeMessageKey.set(params.excludeMessageKey)
         it.buildTagPattern.set(params.buildTagPattern)
         it.changelogFile.set(changelogFile)
-        it.buildTagFile.set(params.lastTagFile)
+        it.buildTagFile.set(params.lastBuildTagFile)
     }
 }
 
@@ -92,5 +92,5 @@ internal data class GenerateChangelogTaskParams(
     /**
      * Provider for the file containing the last tag information
      */
-    val lastTagFile: Provider<RegularFile>,
+    val lastBuildTagFile: Provider<RegularFile>,
 )

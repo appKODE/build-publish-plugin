@@ -1,5 +1,5 @@
 [versions]
-buildPublishPlugin = "1.1.10"
+buildPublishPlugin = "1.1.11"
 buildPublishShared = "1.0.11"
 kotlin = "2.3.0"
 agp = "8.13.2"
