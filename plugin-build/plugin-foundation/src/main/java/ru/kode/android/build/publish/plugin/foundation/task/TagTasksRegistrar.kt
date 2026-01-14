@@ -4,41 +4,30 @@ import org.gradle.api.Project
 import org.gradle.api.file.Directory
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
-import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
-import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy
-import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_BUILD_VERSION
-import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
-import ru.kode.android.build.publish.plugin.core.strategy.SimpleApkNamingStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
-import ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
+import ru.kode.android.build.publish.plugin.core.util.apkOutputFileNameProvider
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.tagBuildFileProvider
-import ru.kode.android.build.publish.plugin.foundation.messages.formDefaultVersionCodeMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.formDefaultVersionNameMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.formNullVersionCodeMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.formNullVersionNameMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.formRichApkFileNameMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.formRichVersionCodeMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.formRichVersionNameMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.formSimpleApkFileNameMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.resolvedApkOutputFileNameParamsMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionCodeParamsMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionNameMessage
+import ru.kode.android.build.publish.plugin.core.util.versionCodeFileProvider
+import ru.kode.android.build.publish.plugin.core.util.versionNameProvider
 import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
+import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeApkOutputFileNameTask
+import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeVersionCodeTask
+import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeVersionNameTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.PrintLastIncreasedTag
 
 internal const val PRINT_LAST_INCREASED_TAG_TASK_PREFIX = "printLastIncreasedTag"
 internal const val RENAME_APK_TASK_PREFIX = "renameApk"
-
 internal const val GET_LAST_TAG_TASK_PREFIX = "getLastTag"
+internal const val COMPUTE_VERSION_CODE_TASK_PREFIX = "computeVersionCode"
+internal const val COMPUTE_APK_OUTPUT_FILENAME_TASK_PREFIX = "computeApkOutputFileName"
+internal const val COMPUTE_VERSION_NAME_TASK_PREFIX = "computeVersionName"
 
 const val DEFAULT_VERSION_NAME = DEFAULT_BUILD_VERSION
 
@@ -71,183 +60,32 @@ internal object TagTasksRegistrar {
      *
      * @return [LastTagTaskOutput] containing version information and the last build tag file
      */
-    internal fun registerLastTagTask(
+    internal fun registerGetLastTagTask(
         project: Project,
         params: LastTagTaskParams,
-    ): LastTagTaskOutput {
-        val logger =
-            project.extensions
-                .getByType(LoggerServiceExtension::class.java)
-                .service
-                .get()
+    ): TaskProvider<GetLastTagTask> {
+        return project.registerGetLastTagTask(params)
+    }
 
-        val lastBuildTag = project.registerGetLastTagTask(params)
+    internal fun registerComputeVersionCodeTask(
+        project: Project,
+        params: ComputeVersionCodeParams,
+    ): TaskProvider<ComputeVersionCodeTask> {
+        return project.registerComputeVersionCodeTask(params)
+    }
 
-        val versionCode: Provider<Int> =
-            params.useVersionsFromTag
-                .zip(
-                    params.useDefaultsForVersionsAsFallback,
-                ) { useVersionsFromTag, useDefaultVersionsAsFallback ->
-                    useVersionsFromTag to useDefaultVersionsAsFallback
-                }
-                .zip(
-                    params.versionCodeStrategy
-                        .orElse(project.provider { BuildVersionCodeStrategy }),
-                ) { versionsParamsPair, versionCodeStrategy ->
-                    versionsParamsPair to versionCodeStrategy
-                }
-                .flatMap { (versionsParamsPair, versionCodeStrategy) ->
-                    val useVersionsFromTag = versionsParamsPair.first
-                    val useDefaultVersionsAsFallback = versionsParamsPair.second
-                    logger.info(
-                        resolvedVersionCodeParamsMessage(
-                            useVersionsFromTag,
-                            useDefaultVersionsAsFallback,
-                            versionCodeStrategy,
-                            params.buildVariant.name,
-                        ),
-                    )
-                    when {
-                        useVersionsFromTag ->
-                            lastBuildTag.map { tagBuildFile ->
-                                val tag =
-                                    if (tagBuildFile.asFile.exists()) {
-                                        fromJson(tagBuildFile.asFile)
-                                    } else {
-                                        null
-                                    }
-                                logger.info(formRichVersionCodeMessage(params.buildVariant, tag))
-                                versionCodeStrategy.build(params.buildVariant, tag)
-                            }
+    internal fun registerComputeApkOutputFileNameTask(
+        project: Project,
+        params: ComputeApkOutputFileNameParams,
+    ): TaskProvider<ComputeApkOutputFileNameTask> {
+        return project.registerComputeApkOutputFileNameTask(params)
+    }
 
-                        useDefaultVersionsAsFallback ->
-                            project.provider {
-                                logger.info(formDefaultVersionCodeMessage(params.buildVariant))
-                                DEFAULT_VERSION_CODE
-                            }
-                        else ->
-                            project.provider {
-                                logger.info(formNullVersionCodeMessage(params.buildVariant))
-                                null
-                            }
-                    }
-                }
-
-        val apkOutputFileName: Provider<String> =
-            params.apkOutputFileName
-                .zip(params.useVersionsFromTag) { apkOutputFileName, useVersionsFromTag ->
-                    apkOutputFileName to useVersionsFromTag
-                }
-                .zip(
-                    params.outputApkNameStrategy
-                        .orElse(project.provider { VersionedApkNamingStrategy }),
-                ) { paramsPair, outputApkNameStrategy ->
-                    paramsPair to outputApkNameStrategy
-                }
-                .flatMap { (paramsPair, outputApkNameStrategy) ->
-                    val outputFileName = paramsPair.first
-                    val useVersionsFromTag = paramsPair.second
-
-                    logger.info(
-                        resolvedApkOutputFileNameParamsMessage(
-                            outputFileName,
-                            useVersionsFromTag,
-                            outputApkNameStrategy,
-                            params.buildVariant.name,
-                        ),
-                    )
-
-                    if (useVersionsFromTag) {
-                        params.baseFileName
-                            .zip(lastBuildTag) { baseFileName, tagBuildFile ->
-                                val tag =
-                                    if (tagBuildFile.asFile.exists()) {
-                                        fromJson(tagBuildFile.asFile)
-                                    } else {
-                                        null
-                                    }
-                                logger.info(
-                                    formRichApkFileNameMessage(
-                                        params.buildVariant,
-                                        outputFileName,
-                                        tag,
-                                        baseFileName,
-                                    ),
-                                )
-                                outputApkNameStrategy.build(outputFileName, tag, baseFileName)
-                            }
-                    } else {
-                        params.baseFileName.map { baseFileName ->
-                            logger.info(
-                                formSimpleApkFileNameMessage(params.buildVariant, baseFileName),
-                            )
-                            SimpleApkNamingStrategy.build(outputFileName, null, baseFileName)
-                        }
-                    }
-                }
-
-        val versionName: Provider<String> =
-            params.useVersionsFromTag
-                .zip(
-                    params.useDefaultsForVersionsAsFallback,
-                ) { useVersionsFromTag, useDefaultVersionsAsFallback ->
-                    useVersionsFromTag to useDefaultVersionsAsFallback
-                }
-                .zip(
-                    params.versionNameStrategy
-                        .orElse(project.provider { BuildVersionNameStrategy }),
-                ) { versionsParamsPair, versionNameStrategy ->
-                    versionsParamsPair to versionNameStrategy
-                }
-                .flatMap { (versionsParamsPair, versionNameStrategy) ->
-                    val useVersionsFromTag = versionsParamsPair.first
-                    val useDefaultVersionsAsFallback = versionsParamsPair.second
-
-                    logger.info(
-                        resolvedVersionNameMessage(
-                            useVersionsFromTag,
-                            useDefaultVersionsAsFallback,
-                            versionNameStrategy,
-                            params.buildVariant.name,
-                        ),
-                    )
-
-                    when {
-                        useVersionsFromTag -> {
-                            lastBuildTag.map { tagBuildFile ->
-                                val tag =
-                                    if (tagBuildFile.asFile.exists()) {
-                                        fromJson(tagBuildFile.asFile)
-                                    } else {
-                                        null
-                                    }
-                                logger.info(formRichVersionNameMessage(params.buildVariant, tag))
-                                versionNameStrategy.build(
-                                    params.buildVariant,
-                                    tag,
-                                )
-                            }
-                        }
-
-                        useDefaultVersionsAsFallback ->
-                            project.provider {
-                                logger.info(formDefaultVersionNameMessage(params.buildVariant))
-                                DEFAULT_VERSION_NAME
-                            }
-                        else ->
-                            project.provider {
-                                logger.info(formNullVersionNameMessage(params.buildVariant))
-                                null
-                            }
-                    }
-                }
-
-        return LastTagTaskOutput(
-            versionName = versionName,
-            versionCode = versionCode,
-            apkOutputFileName = apkOutputFileName,
-            lastBuildTagFile = lastBuildTag,
-        )
+    internal fun registerComputeVersionNameTask(
+        project: Project,
+        params: ComputeVersionNameParams,
+    ): TaskProvider<ComputeVersionNameTask> {
+        return project.registerComputeVersionNameTask(params)
     }
 
     /**
@@ -262,7 +100,7 @@ internal object TagTasksRegistrar {
         project: Project,
         params: PrintLastIncreasedTagTaskParams,
     ): TaskProvider<PrintLastIncreasedTag> {
-        return project.tasks.registerPrintLastIncreasedTagTask(params)
+        return project.registerPrintLastIncreasedTagTask(params)
     }
 
     internal fun registerRenameApkTask(
@@ -293,7 +131,7 @@ private fun Project.registerRenameApkTask(params: RenameApkTaskParams): TaskProv
  * @param params Configuration parameters for the task
  * @return A [Provider] for the generated JSON file containing the last tag information
  */
-private fun Project.registerGetLastTagTask(params: LastTagTaskParams): Provider<RegularFile> {
+private fun Project.registerGetLastTagTask(params: LastTagTaskParams): TaskProvider<GetLastTagTask> {
     val variant = params.buildVariant
     val tagBuildFile = project.tagBuildFileProvider(variant.name)
     val taskName = "$GET_LAST_TAG_TASK_PREFIX${variant.capitalizedName()}"
@@ -303,8 +141,65 @@ private fun Project.registerGetLastTagTask(params: LastTagTaskParams): Provider<
         task.buildVariantName.set(variant.name)
         task.buildTagPattern.set(params.buildTagPattern)
         task.useStubsForTagAsFallback.set(params.useStubsForTagAsFallback)
-    }.map {
-        project.layout.projectDirectory.file(it.outputs.files.singleFile.path)
+    }
+}
+
+@Suppress("MaxLineLength") // One parameter function
+private fun Project.registerComputeVersionCodeTask(params: ComputeVersionCodeParams): TaskProvider<ComputeVersionCodeTask> {
+    val variant = params.buildVariant
+    val taskName = "$COMPUTE_VERSION_CODE_TASK_PREFIX${variant.capitalizedName()}"
+    val versionCodeFile = project.versionCodeFileProvider(variant.name)
+
+    val lastBuildTag = params.lastBuildTagProvider.flatMap { it.tagBuildFile }
+    return tasks.register(taskName, ComputeVersionCodeTask::class.java) { task ->
+        task.tagBuildFile.set(lastBuildTag)
+        task.versionCodeFile.set(versionCodeFile)
+        task.useVersionsFromTag.set(params.useVersionsFromTag)
+        task.useDefaultsForFallback.set(params.useDefaultsForVersionsAsFallback)
+        task.buildVariant.set(variant)
+        task.versionCodeStrategy.set(params.versionCodeStrategy)
+
+        task.dependsOn(params.lastBuildTagProvider)
+    }
+}
+
+private fun Project.registerComputeApkOutputFileNameTask(
+    params: ComputeApkOutputFileNameParams,
+): TaskProvider<ComputeApkOutputFileNameTask> {
+    val variant = params.buildVariant
+    val taskName = "$COMPUTE_APK_OUTPUT_FILENAME_TASK_PREFIX${variant.capitalizedName()}"
+    val apkOutputFileNameFile = project.apkOutputFileNameProvider(variant.name)
+
+    val lastBuildTag = params.lastBuildTagProvider.flatMap { it.tagBuildFile }
+    return tasks.register(taskName, ComputeApkOutputFileNameTask::class.java) { task ->
+        task.apkOutputFileName.set(params.apkOutputFileName)
+        task.useVersionsFromTag.set(params.useVersionsFromTag)
+        task.baseFileName.set(params.baseFileName)
+        task.tagBuildFile.set(lastBuildTag)
+        task.buildVariant.set(variant)
+        task.outputApkNameStrategy.set(params.outputApkNameStrategy)
+        task.apkOutputFileNameFile.set(apkOutputFileNameFile)
+
+        task.dependsOn(params.lastBuildTagProvider)
+    }
+}
+
+@Suppress("MaxLineLength") // One parameter function
+private fun Project.registerComputeVersionNameTask(params: ComputeVersionNameParams): TaskProvider<ComputeVersionNameTask> {
+    val variant = params.buildVariant
+    val taskName = "$COMPUTE_VERSION_NAME_TASK_PREFIX${variant.capitalizedName()}"
+    val versionNameFile = project.versionNameProvider(variant.name)
+
+    val lastBuildTag = params.lastBuildTagProvider.flatMap { it.tagBuildFile }
+    return tasks.register(taskName, ComputeVersionNameTask::class.java) { task ->
+        task.useVersionsFromTag.set(params.useVersionsFromTag)
+        task.useDefaultsForVersionsAsFallback.set(params.useDefaultsForVersionsAsFallback)
+        task.tagBuildFile.set(lastBuildTag)
+        task.buildVariant.set(variant)
+        task.versionNameStrategy.set(params.versionNameStrategy)
+        task.versionNameFile.set(versionNameFile)
+
+        task.dependsOn(params.lastBuildTagProvider)
     }
 }
 
@@ -319,39 +214,72 @@ private fun Project.registerGetLastTagTask(params: LastTagTaskParams): Provider<
  * @return A [TaskProvider] for the registered [PrintLastIncreasedTag] task
  */
 @Suppress("MaxLineLength") // One parameter function
-private fun TaskContainer.registerPrintLastIncreasedTagTask(params: PrintLastIncreasedTagTaskParams): TaskProvider<PrintLastIncreasedTag> {
+private fun Project.registerPrintLastIncreasedTagTask(params: PrintLastIncreasedTagTaskParams): TaskProvider<PrintLastIncreasedTag> {
     val taskName = "$PRINT_LAST_INCREASED_TAG_TASK_PREFIX${params.buildVariant.capitalizedName()}"
-    return register(taskName, PrintLastIncreasedTag::class.java) { task ->
+    return tasks.register(taskName, PrintLastIncreasedTag::class.java) { task ->
         task.buildTagFile.set(params.lastBuildTagFile)
     }
 }
 
 /**
- * Data class containing the output of the last tag task.
- */
-internal data class LastTagTaskOutput(
-    /**
-     * Provider for the version name, or null if not applicable
-     */
-    val versionName: Provider<String>,
-    /**
-     * Provider for the version code, or null if not applicable
-     */
-    val versionCode: Provider<Int>,
-    /**
-     * Provider for the formatted APK output file name
-     */
-    val apkOutputFileName: Provider<String>,
-    /**
-     * Provider for the file containing the last build tag information
-     */
-    val lastBuildTagFile: Provider<RegularFile>,
-)
-
-/**
  * Configuration parameters for the last tag task.
  */
 internal data class LastTagTaskParams(
+    /**
+     * The build variant to process
+     */
+    val buildVariant: BuildVariant,
+    /**
+     * Whether to use stubs when tag is not found
+     */
+    val useStubsForTagAsFallback: Provider<Boolean>,
+    /**
+     * The pattern to match build tags against
+     */
+    val buildTagPattern: Provider<String>,
+)
+
+internal data class ComputeVersionCodeParams(
+    /**
+     * The build variant to process
+     */
+    val buildVariant: BuildVariant,
+    /**
+     * Whether to use versions from the Git tag
+     */
+    val useVersionsFromTag: Provider<Boolean>,
+    /**
+     * Whether to use default versions as fallback
+     */
+    val useDefaultsForVersionsAsFallback: Provider<Boolean>,
+    /**
+     * Provider for the version code mapper.
+     */
+    val versionCodeStrategy: Provider<VersionCodeStrategy>,
+    val lastBuildTagProvider: TaskProvider<GetLastTagTask>,
+)
+
+internal data class ComputeVersionNameParams(
+    /**
+     * The build variant to process
+     */
+    val buildVariant: BuildVariant,
+    /**
+     * Whether to use versions from the Git tag
+     */
+    val useVersionsFromTag: Provider<Boolean>,
+    /**
+     * Whether to use default versions as fallback
+     */
+    val useDefaultsForVersionsAsFallback: Provider<Boolean>,
+    /**
+     * Provider for the version name mapper.
+     */
+    val versionNameStrategy: Provider<VersionNameStrategy>,
+    val lastBuildTagProvider: TaskProvider<GetLastTagTask>,
+)
+
+internal data class ComputeApkOutputFileNameParams(
     /**
      * The build variant to process
      */
@@ -369,29 +297,10 @@ internal data class LastTagTaskParams(
      */
     val baseFileName: Provider<String>,
     /**
-     * Whether to use default versions as fallback
-     */
-    val useDefaultsForVersionsAsFallback: Provider<Boolean>,
-    /**
-     * Whether to use stubs when tag is not found
-     */
-    val useStubsForTagAsFallback: Provider<Boolean>,
-    /**
-     * The pattern to match build tags against
-     */
-    val buildTagPattern: Provider<String>,
-    /**
-     * Provider for the version name mapper.
-     */
-    val versionNameStrategy: Provider<VersionNameStrategy>,
-    /**
-     * Provider for the version code mapper.
-     */
-    val versionCodeStrategy: Provider<VersionCodeStrategy>,
-    /**
      * Provider for the output APK name mapper.
      */
     val outputApkNameStrategy: Provider<OutputApkNameStrategy>,
+    val lastBuildTagProvider: TaskProvider<GetLastTagTask>,
 )
 
 /**

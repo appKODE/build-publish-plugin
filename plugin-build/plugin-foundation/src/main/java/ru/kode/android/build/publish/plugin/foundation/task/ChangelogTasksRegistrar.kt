@@ -3,8 +3,10 @@ package ru.kode.android.build.publish.plugin.foundation.task
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
+import ru.kode.android.build.publish.plugin.core.util.changelogFileProvider
 import ru.kode.android.build.publish.plugin.foundation.task.changelog.GenerateChangelogTask
 
 internal const val GENERATE_CHANGELOG_TASK_PREFIX = "generateChangelog"
@@ -34,7 +36,7 @@ internal object ChangelogTasksRegistrar {
     internal fun registerGenerateChangelogTask(
         project: Project,
         params: GenerateChangelogTaskParams,
-    ): Provider<RegularFile> {
+    ): TaskProvider<GenerateChangelogTask> {
         return project.registerGenerateChangelogTask(params)
     }
 }
@@ -50,18 +52,19 @@ internal object ChangelogTasksRegistrar {
  *
  * @return A [Provider] that will contain the generated changelog file
  */
-private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskParams): Provider<RegularFile> {
+@Suppress("MaxLineLength") // One parameter function
+private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskParams): TaskProvider<GenerateChangelogTask> {
+    val buildVariant = params.buildVariant
+    val changelogFile = project.changelogFileProvider(buildVariant.name)
     return tasks.register(
-        "$GENERATE_CHANGELOG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "$GENERATE_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
         GenerateChangelogTask::class.java,
     ) {
         it.commitMessageKey.set(params.commitMessageKey)
         it.excludeMessageKey.set(params.excludeMessageKey)
         it.buildTagPattern.set(params.buildTagPattern)
-        it.changelogFile.set(params.changelogFile)
+        it.changelogFile.set(changelogFile)
         it.buildTagFile.set(params.lastTagFile)
-    }.map {
-        project.layout.projectDirectory.file(it.outputs.files.singleFile.path)
     }
 }
 
@@ -86,10 +89,6 @@ internal data class GenerateChangelogTaskParams(
      * The build variant to generate the changelog for
      */
     val buildVariant: BuildVariant,
-    /**
-     * Provider for the output file where the changelog was written
-     */
-    val changelogFile: Provider<RegularFile>,
     /**
      * Provider for the file containing the last tag information
      */

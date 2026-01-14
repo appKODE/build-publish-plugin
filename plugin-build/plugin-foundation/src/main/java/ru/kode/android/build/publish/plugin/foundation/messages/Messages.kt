@@ -9,6 +9,69 @@ import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import ru.kode.android.build.publish.plugin.foundation.EXTENSION_NAME
 import java.io.File
 
+fun computedVersionNameMessage(
+    buildVariant: BuildVariant,
+    versionName: String?,
+): String {
+    return """
+        
+        |============================================================
+        |             COMPUTED VERSION NAME RESULT
+        |============================================================
+        | The version name has been successfully
+        | computed for the current build.
+        |
+        |  • Build variant: $buildVariant
+        |  • Version name: $versionName
+        |
+        | This value will be used as the final
+        | versionName for the generated artifact.
+        |============================================================
+        """.trimIndent()
+}
+
+fun computedVersionCodeMessage(
+    buildVariant: BuildVariant,
+    code: Int?,
+): String {
+    return """
+        
+        |============================================================
+        |             COMPUTED VERSION CODE RESULT
+        |============================================================
+        | The version code has been finalized
+        | for the current build configuration.
+        |
+        |  • Build variant: $buildVariant
+        |  • Version code: $code
+        |
+        | This code uniquely identifies the build
+        | for update and distribution purposes.
+        |============================================================
+        """.trimIndent()
+}
+
+fun computedApkOutputFileNameMessage(
+    buildVariant: BuildVariant,
+    apkOutputFileName: String,
+): String {
+    return """
+        
+        |============================================================
+        |          COMPUTED APK OUTPUT FILE NAME
+        |============================================================
+        | The final APK output file name has
+        | been computed.
+        |
+        |  • Build variant: $buildVariant
+        |  • APK file name: $apkOutputFileName
+        |
+        | This file name will be used for the
+        | generated APK artifact on disk.
+        |============================================================
+        """.trimIndent()
+}
+
 fun formDefaultVersionCodeMessage(buildVariant: BuildVariant): String {
     return """
         

@@ -12,3 +12,18 @@ fun Project.tagBuildFileProvider(variantName: String): Provider<RegularFile> {
     return project.layout.buildDirectory
         .file("tag-build-$variantName.json")
 }
+
+fun Project.versionCodeFileProvider(variantName: String): Provider<RegularFile> {
+    return project.layout.buildDirectory
+        .file("version-code-$variantName.txt")
+}
+
+fun Project.apkOutputFileNameProvider(variantName: String): Provider<RegularFile> {
+    return project.layout.buildDirectory
+        .file("apk-output-filename-$variantName.txt")
+}
+
+fun Project.versionNameProvider(variantName: String): Provider<RegularFile> {
+    return project.layout.buildDirectory
+        .file("version-name-$variantName.txt")
+}

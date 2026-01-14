@@ -103,7 +103,8 @@ internal abstract class GenerateTagWork
                 }
 
                 else -> {
-                    throw GradleException(tagNotCreatedMessage(buildVariant, buildTagPattern))
+                    tagBuildOutput.writeText("")
+                    logger.quiet(tagNotCreatedMessage(buildVariant, buildTagPattern))
                 }
             }
         }

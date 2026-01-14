@@ -1885,14 +1885,14 @@ class FoundationAssembleTest {
                 versionName = DEFAULT_VERSION_NAME,
             )
         assertTrue(
-            !result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed",
+            result.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
-        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
@@ -1937,14 +1937,14 @@ class FoundationAssembleTest {
                 versionName = DEFAULT_VERSION_NAME,
             )
         assertTrue(
-            !result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed",
+            result.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
-        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
@@ -1990,7 +1990,7 @@ class FoundationAssembleTest {
             result.output.contains("BUILD FAILED"),
             "Build failed",
         )
-        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
         assertTrue(!givenOutputFile.exists(), "Output file not exists")
     }
 
@@ -2107,14 +2107,14 @@ class FoundationAssembleTest {
                 versionName = DEFAULT_VERSION_NAME,
             )
         assertTrue(
-            !result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed",
+            result.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
-        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
@@ -2162,14 +2162,14 @@ class FoundationAssembleTest {
                 versionName = DEFAULT_VERSION_NAME,
             )
         assertTrue(
-            !result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed",
+            result.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
-        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
@@ -2221,14 +2221,14 @@ class FoundationAssembleTest {
                 versionName = "",
             )
         assertTrue(
-            !result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed",
+            result.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
-        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
@@ -2282,14 +2282,14 @@ class FoundationAssembleTest {
                 versionName = "",
             )
         assertTrue(
-            !result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed",
+            result.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
-        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
@@ -2385,8 +2385,8 @@ class FoundationAssembleTest {
             "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
-            !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed",
+            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease executed",
         )
         assertTrue(
             internalResult.output.contains("Task :app:getLastTagGoogleInternal"),
@@ -2408,7 +2408,7 @@ class FoundationAssembleTest {
         assertTrue(givenOutputFileDebug.exists(), "Debug output file exists")
         assertTrue(givenOutputFileDebug.length() > 0, "Debug output file is not empty")
 
-        assertTrue(!givenTagBuildFileRelease.exists(), "Release tag file not exists")
+        assertTrue(givenTagBuildFileRelease.exists(), "Release tag file exists")
         assertTrue(givenOutputFileRelease.exists(), "Release output file exists")
         assertTrue(givenOutputFileRelease.length() > 0, "Release output file is not empty")
 
@@ -2518,12 +2518,12 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            !debugResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed",
+            debugResult.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
-            !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed",
+            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease executed",
         )
         assertTrue(
             internalResult.output.contains("Task :app:getLastTagGoogleInternal"),
@@ -2541,11 +2541,11 @@ class FoundationAssembleTest {
             internalResult.output.contains("BUILD SUCCESSFUL"),
             "Internal build succeed",
         )
-        assertTrue(!givenTagBuildFileDebug.exists(), "Debug tag file not exists")
+        assertTrue(givenTagBuildFileDebug.exists(), "Debug tag file not exists")
         assertTrue(givenOutputFileDebug.exists(), "Debug output file exists")
         assertTrue(givenOutputFileDebug.length() > 0, "Debug output file is not empty")
 
-        assertTrue(!givenTagBuildFileRelease.exists(), "Release tag file not exists")
+        assertTrue(givenTagBuildFileRelease.exists(), "Release tag file not exists")
         assertTrue(givenOutputFileRelease.exists(), "Release output file exists")
         assertTrue(givenOutputFileRelease.length() > 0, "Release output file is not empty")
 
@@ -2567,6 +2567,116 @@ class FoundationAssembleTest {
             expectedInternalManifestProperties,
             givenOutputFileInternalManifestProperties,
             "Internal manifest properties equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with no versions when useVersionsFromTag, useStubsForTagAsFallback, useDefaultsForVersionsAsFallback are disabled and tag exists, different types, multiple output configs and builds`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("internal"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
+            defaultConfig =
+                DefaultConfig(
+                    versionCode = null,
+                    versionName = null,
+                ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                            useVersionsFromTag = false,
+                            useStubsForTagAsFallback = false,
+                            useDefaultsForVersionsAsFallback = false,
+                        ),
+                    buildTypeOutput = "googleInternal" to FoundationConfig.Output(
+                        baseFileName = "autotest",
+                        useVersionsFromTag = true,
+                        useStubsForTagAsFallback = true,
+                        useDefaultsForVersionsAsFallback = true,
+                    ),
+                    buildTypeOutput2 = "googleRelease" to FoundationConfig.Output(
+                        baseFileName = "autotest",
+                        useVersionsFromTag = false,
+                        useStubsForTagAsFallback = false,
+                        useDefaultsForVersionsAsFallback = false,
+                    )
+                ),
+        )
+        val givenTagNameInternal1 = "v1.0.321-googleInternal"
+        val givenTagNameInternal2 = "v1.0.322-googleInternal"
+        val givenCommitMessage = "Initial commit"
+        val givenInternalAssembleTask = "assembleGoogleInternal"
+        val git = projectDir.initGit()
+        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-googleInternal.json")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagNameInternal1)
+
+        val internalResult1: BuildResult = projectDir.runTask(givenInternalAssembleTask)
+
+        val internalApkDir = projectDir.getFile("app/build/outputs/apk/google/internal")
+        val givenOutputFileInternal1 = internalApkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-googleInternal-vc321-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
+        val givenOutputFileInternalManifestProperties1 = givenOutputFileInternal1.extractManifestProperties()
+
+        val expectedInternalManifestProperties1 =
+            ManifestProperties(
+                versionCode = "321",
+                versionName = "1.0",
+            )
+
+        git.tag.addNamed(givenTagNameInternal2)
+
+        val internalResult2: BuildResult = projectDir.runTask(givenInternalAssembleTask)
+
+        val givenOutputFileInternal2 = internalApkDir.listFiles()
+            ?.first { it.name.matches(Regex("autotest-googleInternal-vc322-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
+        val givenOutputFileInternalManifestProperties2 = givenOutputFileInternal2.extractManifestProperties()
+
+        val expectedInternalManifestProperties2 =
+            ManifestProperties(
+                versionCode = "322",
+                versionName = "1.0",
+            )
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        assertTrue(
+            internalResult1.output.contains("Task :app:getLastTagGoogleInternal"),
+            "Task getLastTagGoogleInternal executed",
+        )
+        assertTrue(
+            internalResult1.output.contains("BUILD SUCCESSFUL"),
+            "Internal build succeed",
+        )
+        assertTrue(givenTagBuildFileInternal.exists(), "Internal tag file exists")
+        assertTrue(givenOutputFileInternal1.exists(), "Internal output file exists")
+        assertTrue(givenOutputFileInternal1.length() > 0, "Internal output file is not empty")
+        assertEquals(
+            expectedInternalManifestProperties1,
+            givenOutputFileInternalManifestProperties1,
+            "Internal manifest properties equality",
+        )
+
+        assertTrue(
+            internalResult2.output.contains("Task :app:getLastTagGoogleInternal"),
+            "Task getLastTagGoogleInternal 2 executed",
+        )
+        assertTrue(
+            internalResult2.output.contains("BUILD SUCCESSFUL"),
+            "Internal build 2 succeed",
+        )
+        assertTrue(givenTagBuildFileInternal.exists(), "Internal tag file exists")
+        assertTrue(givenOutputFileInternal2.exists(), "Internal output file exists")
+        assertTrue(givenOutputFileInternal2.length() > 0, "Internal output file is not empty")
+        assertEquals(
+            expectedInternalManifestProperties2,
+            givenOutputFileInternalManifestProperties2,
+            "Internal manifest 2 properties equality",
         )
     }
 
@@ -2663,12 +2773,12 @@ class FoundationAssembleTest {
                 versionName = "0.0.390",
             )
         assertTrue(
-            !debugResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed",
+            debugResult.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
-            !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed",
+            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease executed",
         )
         assertTrue(
             internalResult.output.contains("Task :app:getLastTagGoogleInternal"),
@@ -2686,11 +2796,11 @@ class FoundationAssembleTest {
             internalResult.output.contains("BUILD SUCCESSFUL"),
             "Internal build succeed",
         )
-        assertTrue(!givenTagBuildFileDebug.exists(), "Debug tag file not exists")
+        assertTrue(givenTagBuildFileDebug.exists(), "Debug tag file exists")
         assertTrue(givenOutputFileDebug.exists(), "Debug output file exists")
         assertTrue(givenOutputFileDebug.length() > 0, "Debug output file is not empty")
 
-        assertTrue(!givenTagBuildFileRelease.exists(), "Release tag file not exists")
+        assertTrue(givenTagBuildFileRelease.exists(), "Release tag file exists")
         assertTrue(givenOutputFileRelease.exists(), "Release output file exists")
         assertTrue(givenOutputFileRelease.length() > 0, "Release output file is not empty")
 
@@ -2807,12 +2917,12 @@ class FoundationAssembleTest {
                 versionName = "0.0.390",
             )
         assertTrue(
-            !debugResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug not executed",
+            debugResult.output.contains("Task :app:getLastTagDebug"),
+            "Task getLastTagDebug executed",
         )
         assertTrue(
-            !releaseResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            releaseResult.output.contains("Task :app:getLastTagRelease"),
+            "Task getLastTagRelease executed",
         )
         assertTrue(
             internalResult.output.contains("Task :app:getLastTagInternal"),
@@ -2830,11 +2940,11 @@ class FoundationAssembleTest {
             internalResult.output.contains("BUILD SUCCESSFUL"),
             "Internal build succeed",
         )
-        assertTrue(!givenTagBuildFileDebug.exists(), "Debug tag file not exists")
+        assertTrue(givenTagBuildFileDebug.exists(), "Debug tag exists")
         assertTrue(givenOutputFileDebug.exists(), "Debug output file exists")
         assertTrue(givenOutputFileDebug.length() > 0, "Debug output file is not empty")
 
-        assertTrue(!givenTagBuildFileRelease.exists(), "Release tag file not exists")
+        assertTrue(givenTagBuildFileRelease.exists(), "Release tag file exists")
         assertTrue(givenOutputFileRelease.exists(), "Release output file exists")
         assertTrue(givenOutputFileRelease.length() > 0, "Release output file is not empty")
 
@@ -2941,12 +3051,12 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            !debugResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed",
+            debugResult.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
-            !releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease not executed",
+            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
+            "Task getLastTagGoogleRelease executed",
         )
         assertTrue(
             internalResult.output.contains("Task :app:getLastTagGoogleInternal"),
@@ -2964,11 +3074,11 @@ class FoundationAssembleTest {
             internalResult.output.contains("BUILD SUCCESSFUL"),
             "Internal build succeed",
         )
-        assertTrue(!givenTagBuildFileDebug.exists(), "Debug tag file not exists")
+        assertTrue(givenTagBuildFileDebug.exists(), "Debug tag file exists")
         assertTrue(givenOutputFileDebug.exists(), "Debug output file exists")
         assertTrue(givenOutputFileDebug.length() > 0, "Debug output file is not empty")
 
-        assertTrue(!givenTagBuildFileRelease.exists(), "Release tag file not exists")
+        assertTrue(givenTagBuildFileRelease.exists(), "Release tag file exists")
         assertTrue(givenOutputFileRelease.exists(), "Release output file exists")
         assertTrue(givenOutputFileRelease.length() > 0, "Release output file is not empty")
 
@@ -3035,14 +3145,14 @@ class FoundationAssembleTest {
                 versionName = "v.1.0.10",
             )
         assertTrue(
-            !result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed",
+            result.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
-        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(
@@ -3096,14 +3206,14 @@ class FoundationAssembleTest {
                 versionName = "v.1.0.10",
             )
         assertTrue(
-            !result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug not executed",
+            result.output.contains("Task :app:getLastTagGoogleDebug"),
+            "Task getLastTagGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
-        assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
         assertTrue(givenOutputFile.exists(), "Output file exists")
         assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
         assertEquals(

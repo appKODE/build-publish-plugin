@@ -3,6 +3,7 @@
 package ru.kode.android.build.publish.plugin.foundation
 
 import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.impl.VariantOutputImpl
 import org.gradle.api.Plugin
@@ -17,7 +18,6 @@ import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_NAME
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_TAG_PATTERN
-import ru.kode.android.build.publish.plugin.core.util.changelogFileProvider
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.core.util.serviceName
@@ -28,6 +28,9 @@ import ru.kode.android.build.publish.plugin.foundation.messages.configureExtensi
 import ru.kode.android.build.publish.plugin.foundation.messages.resolvedOutputConfig
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServicePlugin
 import ru.kode.android.build.publish.plugin.foundation.task.ChangelogTasksRegistrar
+import ru.kode.android.build.publish.plugin.foundation.task.ComputeApkOutputFileNameParams
+import ru.kode.android.build.publish.plugin.foundation.task.ComputeVersionCodeParams
+import ru.kode.android.build.publish.plugin.foundation.task.ComputeVersionNameParams
 import ru.kode.android.build.publish.plugin.foundation.task.GenerateChangelogTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.LastTagTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.PrintLastIncreasedTagTaskParams
@@ -63,6 +66,9 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
         val androidExtension =
             project.extensions
                 .getByType(ApplicationAndroidComponentsExtension::class.java)
+
+        val androidDsl =
+            project.extensions.getByType(ApplicationExtension::class.java)
 
         val loggerServiceProvider =
             project.gradle.sharedServices.registerIfAbsent(
@@ -132,11 +138,30 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 .map { it.format(buildVariant.name) }
                         }
 
-                    val lastTagTaskOutput =
-                        TagTasksRegistrar.registerLastTagTask(
+                    val lastBuildTagProvider =
+                        TagTasksRegistrar.registerGetLastTagTask(
                             project,
                             params =
                                 LastTagTaskParams(
+                                    buildVariant = buildVariant,
+                                    useStubsForTagAsFallback =
+                                        outputConfigProvider
+                                            .flatMap { it.useStubsForTagAsFallback }
+                                            .orElse(true),
+                                    buildTagPattern = buildTagPattern,
+                                ),
+                        )
+
+                    val lastBuildTagFile =
+                        lastBuildTagProvider.map {
+                            project.layout.projectDirectory.file(it.outputs.files.singleFile.path)
+                        }
+
+                    val apkOutputFileNameProvider =
+                        TagTasksRegistrar.registerComputeApkOutputFileNameTask(
+                            project,
+                            params =
+                                ComputeApkOutputFileNameParams(
                                     buildVariant = buildVariant,
                                     apkOutputFileName = variantOutput.outputFileName,
                                     useVersionsFromTag =
@@ -146,28 +171,62 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                     baseFileName =
                                         outputConfigProvider
                                             .flatMap { it.baseFileName },
+                                    outputApkNameStrategy =
+                                        outputConfigProvider
+                                            .flatMap { it.outputApkNameStrategy },
+                                    lastBuildTagProvider = lastBuildTagProvider,
+                                ),
+                        )
+
+                    val versionCodeProvider =
+                        TagTasksRegistrar.registerComputeVersionCodeTask(
+                            project,
+                            params =
+                                ComputeVersionCodeParams(
+                                    buildVariant = buildVariant,
+                                    useVersionsFromTag =
+                                        outputConfigProvider
+                                            .flatMap { it.useVersionsFromTag }
+                                            .orElse(true),
                                     useDefaultsForVersionsAsFallback =
                                         outputConfigProvider
                                             .flatMap { it.useDefaultsForVersionsAsFallback }
                                             .orElse(true),
-                                    useStubsForTagAsFallback =
-                                        outputConfigProvider
-                                            .flatMap { it.useStubsForTagAsFallback }
-                                            .orElse(true),
-                                    buildTagPattern = buildTagPattern,
-                                    versionNameStrategy =
-                                        outputConfigProvider
-                                            .flatMap { it.versionNameStrategy },
                                     versionCodeStrategy =
                                         outputConfigProvider
                                             .flatMap { it.versionCodeStrategy },
-                                    outputApkNameStrategy =
+                                    lastBuildTagProvider = lastBuildTagProvider,
+                                ),
+                        )
+
+                    val versionNameProvider =
+                        TagTasksRegistrar.registerComputeVersionNameTask(
+                            project,
+                            params =
+                                ComputeVersionNameParams(
+                                    buildVariant = buildVariant,
+                                    useVersionsFromTag =
                                         outputConfigProvider
-                                            .flatMap { it.outputApkNameStrategy },
+                                            .flatMap { it.useVersionsFromTag }
+                                            .orElse(true),
+                                    useDefaultsForVersionsAsFallback =
+                                        outputConfigProvider
+                                            .flatMap { it.useDefaultsForVersionsAsFallback }
+                                            .orElse(true),
+                                    versionNameStrategy =
+                                        outputConfigProvider
+                                            .flatMap { it.versionNameStrategy },
+                                    lastBuildTagProvider = lastBuildTagProvider,
                                 ),
                         )
 
                     val apkDirProvider = variant.artifacts.get(SingleArtifact.APK)
+
+                    val apkOutputFileName =
+                        apkOutputFileNameProvider
+                            .map { task ->
+                                task.apkOutputFileNameFile.get().asFile.readText()
+                            }
 
                     val renameApkTaskProvider =
                         TagTasksRegistrar.registerRenameApkTask(
@@ -175,11 +234,11 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             RenameApkTaskParams(
                                 inputDir = apkDirProvider,
                                 buildVariant = buildVariant,
-                                outputFileName = lastTagTaskOutput.apkOutputFileName,
+                                outputFileName = apkOutputFileName,
                             ),
                         )
 
-                    val renameTransformationRequest =
+                    val renameApkTransformationRequest =
                         variant.artifacts.use(renameApkTaskProvider)
                             .wiredWithDirectories(
                                 RenameApkTask::inputDir,
@@ -187,16 +246,14 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             )
                             .toTransformMany(SingleArtifact.APK)
 
-                    renameApkTaskProvider.configure { it.transformationRequest.set(renameTransformationRequest) }
-
-                    val bundleFileProvider = variant.artifacts.get(SingleArtifact.BUNDLE)
+                    renameApkTaskProvider.configure { it.transformationRequest.set(renameApkTransformationRequest) }
 
                     TagTasksRegistrar.registerPrintLastIncreasedTagTask(
                         project = project,
                         params =
                             PrintLastIncreasedTagTaskParams(
                                 buildVariant = buildVariant,
-                                lastBuildTagFile = lastTagTaskOutput.lastBuildTagFile,
+                                lastBuildTagFile = lastBuildTagFile,
                             ),
                     )
 
@@ -207,15 +264,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 .getByNameOrNullableCommon(buildVariant.name)
                         }
 
-                    val apkOutputFileProvider: Provider<RegularFile> =
-                        lastTagTaskOutput.apkOutputFileName
-                            .zip(renameApkTaskProvider.flatMap { it.outputDir }) { outputFileName, outputDir ->
-                                outputDir.file(outputFileName)
-                            }
-
-                    val changelogFileProvider = project.changelogFileProvider(buildVariant.name)
-
-                    val changelogFile =
+                    val changelogFileProvider =
                         ChangelogTasksRegistrar.registerGenerateChangelogTask(
                             project = project,
                             params =
@@ -232,10 +281,36 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                         },
                                     buildTagPattern = buildTagPattern,
                                     buildVariant = buildVariant,
-                                    changelogFile = changelogFileProvider,
-                                    lastTagFile = lastTagTaskOutput.lastBuildTagFile,
+                                    lastTagFile = lastBuildTagFile,
                                 ),
                         )
+
+                    val changelogFile =
+                        changelogFileProvider.map {
+                            project.layout.projectDirectory.file(it.outputs.files.singleFile.path)
+                        }
+
+                    val versionCode =
+                        versionCodeProvider.map { task ->
+                            task.versionCodeFile.get().asFile.readText().toIntOrNull()
+                                ?: androidDsl.defaultConfig.versionCode
+                                ?: 0
+                        }
+
+                    val versionName =
+                        versionNameProvider.map { task ->
+                            task.versionNameFile.get().asFile.readText().ifBlank {
+                                androidDsl.defaultConfig.versionName
+                            }.orEmpty()
+                        }
+
+                    val apkFileProvider: Provider<RegularFile> =
+                        apkOutputFileName
+                            .zip(renameApkTaskProvider.flatMap { it.outputDir }) { outputFileName, outputDir ->
+                                outputDir.file(outputFileName)
+                            }
+
+                    val bundleFileProvider = variant.artifacts.get(SingleArtifact.BUNDLE)
 
                     project.extensions.extensionsSchema
                         .filter { schema ->
@@ -283,11 +358,11 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                                 buildTagPattern =
                                                     outputConfigProvider
                                                         .flatMap { it.buildTagPattern },
-                                                lastBuildTagFile = lastTagTaskOutput.lastBuildTagFile,
-                                                versionName = lastTagTaskOutput.versionName,
-                                                versionCode = lastTagTaskOutput.versionCode,
+                                                lastBuildTagFile = lastBuildTagFile,
+                                                versionName = versionName,
+                                                versionCode = versionCode,
                                                 changelogFileName = changelogFile,
-                                                apkFile = apkOutputFileProvider,
+                                                apkFile = apkFileProvider,
                                                 bundleFile = bundleFileProvider,
                                             ),
                                         buildVariant = buildVariant,
@@ -295,12 +370,8 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 variant = variant,
                             )
                         }
-                    if (lastTagTaskOutput.versionCode.isPresent) {
-                        variantOutput.versionCode.set(lastTagTaskOutput.versionCode)
-                    }
-                    if (lastTagTaskOutput.versionName.isPresent) {
-                        variantOutput.versionName.set(lastTagTaskOutput.versionName)
-                    }
+                    variantOutput.versionCode.set(versionCode)
+                    variantOutput.versionName.set(versionName)
                 }
             },
         )
