@@ -226,8 +226,10 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
 
                     val apkOutputFileName =
                         apkOutputFileNameProvider
-                            .map { task ->
-                                task.apkOutputFileNameFile.get().asFile.readText()
+                            .flatMap { provider ->
+                                provider.apkOutputFileNameFile.map {
+                                    it.asFile.readText()
+                                }
                             }
 
                     val renameApkTaskProvider =
