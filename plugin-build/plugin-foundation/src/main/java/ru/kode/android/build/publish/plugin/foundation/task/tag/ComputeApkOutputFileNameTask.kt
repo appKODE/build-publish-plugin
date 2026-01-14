@@ -22,7 +22,6 @@ import ru.kode.android.build.publish.plugin.foundation.messages.formSimpleApkFil
 import ru.kode.android.build.publish.plugin.foundation.messages.resolvedApkOutputFileNameParamsMessage
 
 abstract class ComputeApkOutputFileNameTask : DefaultTask() {
-
     init {
         group = BasePlugin.BUILD_GROUP
         outputs.upToDateWhen { false }

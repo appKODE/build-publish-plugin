@@ -47,14 +47,6 @@ data class ExtensionInput(
      */
     data class Output(
         /**
-         * The version name of the build (e.g., "1.0.0")
-         */
-        val versionName: Provider<String>,
-        /**
-         * The version code of the build (e.g., 100)
-         */
-        val versionCode: Provider<Int>,
-        /**
          * Base name used for generated output files
          */
         val baseFileName: Provider<String>,

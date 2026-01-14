@@ -111,6 +111,8 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                     name = it.second,
                                 )
                             },
+                        defaultVersionCode = androidDsl.defaultConfig.versionCode,
+                        defaultVersionName = androidDsl.defaultConfig.versionName,
                     )
 
                 val variantOutput =
@@ -290,20 +292,6 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             project.layout.projectDirectory.file(it.outputs.files.singleFile.path)
                         }
 
-                    val versionCode =
-                        versionCodeProvider.map { task ->
-                            task.versionCodeFile.get().asFile.readText().toIntOrNull()
-                                ?: androidDsl.defaultConfig.versionCode
-                                ?: 0
-                        }
-
-                    val versionName =
-                        versionNameProvider.map { task ->
-                            task.versionNameFile.get().asFile.readText().ifBlank {
-                                androidDsl.defaultConfig.versionName
-                            }.orEmpty()
-                        }
-
                     val apkFileProvider: Provider<RegularFile> =
                         apkOutputFileName
                             .zip(renameApkTaskProvider.flatMap { it.outputDir }) { outputFileName, outputDir ->
@@ -359,8 +347,6 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                                     outputConfigProvider
                                                         .flatMap { it.buildTagPattern },
                                                 lastBuildTagFile = lastBuildTagFile,
-                                                versionName = versionName,
-                                                versionCode = versionCode,
                                                 changelogFileName = changelogFile,
                                                 apkFile = apkFileProvider,
                                                 bundleFile = bundleFileProvider,
@@ -370,8 +356,17 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 variant = variant,
                             )
                         }
-                    variantOutput.versionCode.set(versionCode)
-                    variantOutput.versionName.set(versionName)
+
+                    variantOutput.versionCode.set(
+                        versionCodeProvider.flatMap { provider ->
+                            provider.versionCodeFile.map { it.asFile.readText().toIntOrNull() }
+                        },
+                    )
+                    variantOutput.versionName.set(
+                        versionNameProvider.flatMap { provider ->
+                            provider.versionNameFile.map { it.asFile.readText() }
+                        },
+                    )
                 }
             },
         )

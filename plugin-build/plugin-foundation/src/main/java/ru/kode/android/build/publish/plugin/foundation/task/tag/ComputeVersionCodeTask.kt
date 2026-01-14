@@ -23,7 +23,6 @@ import ru.kode.android.build.publish.plugin.foundation.messages.formRichVersionC
 import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionCodeParamsMessage
 
 abstract class ComputeVersionCodeTask : DefaultTask() {
-
     init {
         group = BasePlugin.BUILD_GROUP
         outputs.upToDateWhen { false }
@@ -69,7 +68,7 @@ abstract class ComputeVersionCodeTask : DefaultTask() {
             ),
         )
 
-        val code: Int? =
+        val code: Int =
             when {
                 useVersionsFromTag -> {
                     val tag =
@@ -87,13 +86,13 @@ abstract class ComputeVersionCodeTask : DefaultTask() {
                 }
                 else -> {
                     loggerService.info(formNullVersionCodeMessage(buildVariant))
-                    null
+                    buildVariant.defaultVersionCode ?: 0
                 }
             }
 
         val file = versionCodeFile.get().asFile
         file.parentFile.mkdirs()
-        file.writeText(code?.toString().orEmpty())
+        file.writeText(code.toString())
         logger.info(computedVersionCodeMessage(buildVariant, code))
     }
 }

@@ -6,3 +6,15 @@ plugins {
     alias(libs.plugins.firebaseAppdistribution) apply false
     alias(libs.plugins.publish) apply false
 }
+
+tasks.register("assemble", Delete::class.java) {
+    dependsOnRecursivelyByName(this, "assemble")
+}
+
+val dependsOnRecursivelyByName = { task: Task, name: String ->
+    subprojects {
+        this.tasks.matching { it.name == name }.forEach { t ->
+            task.dependsOn(t)
+        }
+    }
+}

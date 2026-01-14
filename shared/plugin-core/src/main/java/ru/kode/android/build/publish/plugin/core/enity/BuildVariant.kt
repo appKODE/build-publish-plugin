@@ -25,6 +25,8 @@ data class BuildVariant(
      * The list is empty if no flavor is configured.
      */
     val productFlavors: List<ProductFlavor>,
+    val defaultVersionCode: Int?,
+    val defaultVersionName: String?,
 ) {
     /**
      * Represents a product flavor in an Android project.

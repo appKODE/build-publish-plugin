@@ -23,7 +23,6 @@ import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionN
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_NAME
 
 abstract class ComputeVersionNameTask : DefaultTask() {
-
     init {
         group = BasePlugin.BUILD_GROUP
         outputs.upToDateWhen { false }
@@ -89,7 +88,7 @@ abstract class ComputeVersionNameTask : DefaultTask() {
 
                 else -> {
                     logger.info(formNullVersionNameMessage(buildVariant))
-                    null
+                    buildVariant.defaultVersionName
                 }
             }
 
