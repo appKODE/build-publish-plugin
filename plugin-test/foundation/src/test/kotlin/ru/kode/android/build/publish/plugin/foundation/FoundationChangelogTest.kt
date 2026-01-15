@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.foundation.messages.noChangedDetectedSinceStartMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.noChangesDetectedSinceBuildMessage
@@ -65,7 +66,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -99,13 +100,17 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -113,16 +118,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -183,7 +188,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -217,13 +222,17 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = givenTagMessage,
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = givenTagMessage,
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -231,16 +240,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -303,7 +312,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -337,13 +346,17 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -351,16 +364,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -425,7 +438,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -459,13 +472,17 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -473,16 +490,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -547,7 +564,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -581,13 +598,17 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -595,16 +616,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -669,7 +690,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -703,13 +724,17 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -717,16 +742,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -791,7 +816,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -825,13 +850,17 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -839,16 +868,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -914,7 +943,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -948,13 +977,17 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -962,16 +995,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -1037,7 +1070,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1071,13 +1104,17 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = givenTagMessage,
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = givenTagMessage,
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -1085,16 +1122,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -1160,7 +1197,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1193,13 +1230,17 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -1207,8 +1248,8 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             result.output.contains("Task :app:generateChangelogDebug"),
@@ -1218,7 +1259,7 @@ class FoundationChangelogTest {
             result.output
                 .split("\n")
                 .filter {
-                    it.contains("Task :app:getLastTagDebug") ||
+                    it.contains("Task :app:getLastTagSnapshotDebug") ||
                         it.contains("Task :app:generateChangelogDebug")
                 }
                 .size,
@@ -1256,7 +1297,7 @@ class FoundationChangelogTest {
         )
     }
 
-    // TODO: Should we trigger assemble automatically before getLastTag?
+    // TODO: Should we trigger assemble automatically before getLastTagSnapshot?
     @Test
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and formed using message key with one tag`() {
@@ -1284,7 +1325,7 @@ class FoundationChangelogTest {
         val givenTagName = "v1.0.1-debug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1315,18 +1356,22 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
 
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -1385,7 +1430,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1419,13 +1464,17 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -1433,16 +1482,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -1506,7 +1555,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1539,13 +1588,17 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -1553,8 +1606,8 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             result.output.contains("Task :app:generateChangelogDebug"),
@@ -1564,7 +1617,7 @@ class FoundationChangelogTest {
             result.output
                 .split("\n")
                 .filter {
-                    it.contains("Task :app:getLastTagDebug") ||
+                    it.contains("Task :app:getLastTagSnapshotDebug") ||
                         it.contains("Task :app:generateChangelogDebug")
                 }
                 .size,
@@ -1601,7 +1654,7 @@ class FoundationChangelogTest {
         )
     }
 
-    // TODO: Should we trigger assemble automatically before getLastTag?
+    // TODO: Should we trigger assemble automatically before getLastTagSnapshot?
     @Test
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and partially formed using message key with one tag`() {
@@ -1629,7 +1682,7 @@ class FoundationChangelogTest {
         val givenTagName = "v1.0.1-debug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1660,18 +1713,22 @@ class FoundationChangelogTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
 
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -1730,7 +1787,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1771,19 +1828,32 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.2-debug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-debug",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -1791,16 +1861,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -1867,7 +1937,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -1908,19 +1978,32 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.2-debug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = givenTagMessage2,
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-debug",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = givenTagMessage2,
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -1928,16 +2011,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -2004,7 +2087,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2045,19 +2128,32 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.2-debug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-debug",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -2065,16 +2161,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -2135,7 +2231,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2175,19 +2271,32 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.2-debug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-debug",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -2195,8 +2304,8 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             result.output.contains("Task :app:generateChangelogDebug"),
@@ -2206,7 +2315,7 @@ class FoundationChangelogTest {
             result.output
                 .split("\n")
                 .filter {
-                    it.contains("Task :app:getLastTagDebug") ||
+                    it.contains("Task :app:getLastTagSnapshotDebug") ||
                         it.contains("Task :app:generateChangelogDebug")
                 }
                 .size,
@@ -2244,7 +2353,7 @@ class FoundationChangelogTest {
         )
     }
 
-    // TODO: Should we trigger assemble automatically before getLastTag?
+    // TODO: Should we trigger assemble automatically before getLastTagSnapshot?
     @Test
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and formed using message key with 2 tags`() {
@@ -2273,7 +2382,7 @@ class FoundationChangelogTest {
         val givenTagName2 = "v1.0.2-debug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2311,24 +2420,37 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.2-debug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-debug",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                )
             ).toJson()
 
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -2388,7 +2510,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2429,19 +2551,32 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.2-debug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-debug",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -2449,16 +2584,16 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
             "Build succeed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -2523,7 +2658,7 @@ class FoundationChangelogTest {
         val givenAssembleTask = "assembleDebug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2563,19 +2698,32 @@ class FoundationChangelogTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.2-debug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-debug",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -2583,8 +2731,8 @@ class FoundationChangelogTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             result.output.contains("Task :app:generateChangelogDebug"),
@@ -2594,7 +2742,7 @@ class FoundationChangelogTest {
             result.output
                 .split("\n")
                 .filter {
-                    it.contains("Task :app:getLastTagDebug") ||
+                    it.contains("Task :app:getLastTagSnapshotDebug") ||
                         it.contains("Task :app:generateChangelogDebug")
                 }
                 .size,
@@ -2631,7 +2779,7 @@ class FoundationChangelogTest {
         )
     }
 
-    // TODO: Should we trigger assemble automatically before getLastTag?
+    // TODO: Should we trigger assemble automatically before getLastTagSnapshot?
     @Test
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and partially formed using message key with 2 tags`() {
@@ -2660,7 +2808,7 @@ class FoundationChangelogTest {
         val givenTagName2 = "v1.0.2-debug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2698,24 +2846,37 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.2-debug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-debug",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                )
             ).toJson()
 
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -2745,7 +2906,7 @@ class FoundationChangelogTest {
         assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
-    // TODO: Should we trigger assemble automatically before getLastTag?
+    // TODO: Should we trigger assemble automatically before getLastTagSnapshot?
     @Test
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and partially formed using message key with 3 tags, some of them on the same commit`() {
@@ -2775,7 +2936,7 @@ class FoundationChangelogTest {
         val givenTagName3 = "v1.0.3-debug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2814,24 +2975,37 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "3"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.3-debug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.3-debug",
+                    commitSha = git.tag.findTag(givenTagName3).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 3,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.2-debug",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 2,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                )
             ).toJson()
 
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -2861,7 +3035,7 @@ class FoundationChangelogTest {
         assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
-    // TODO: Should we trigger assemble automatically before getLastTag?
+    // TODO: Should we trigger assemble automatically before getLastTagSnapshot?
     @Test
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and partially formed using message key with 3 described tags, all of them on the some commit`() {
@@ -2894,7 +3068,7 @@ class FoundationChangelogTest {
         val givenTagMessage3 = "Third build"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -2933,24 +3107,30 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "3"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.3-debug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = givenTagMessage3,
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.3-debug",
+                    commitSha = git.tag.findTag(givenTagName3).id,
+                    message = givenTagMessage3,
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 3,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.2-debug",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = givenTagMessage2,
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 2,
+                ),
+                previousOnDifferentCommit = null
             ).toJson()
 
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -2983,7 +3163,7 @@ class FoundationChangelogTest {
         assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
-    // TODO: Should we trigger assemble automatically before getLastTag?
+    // TODO: Should we trigger assemble automatically before getLastTagSnapshot?
     @Test
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and partially formed using message key with 3 tags, all of them on the some commit`() {
@@ -3013,7 +3193,7 @@ class FoundationChangelogTest {
         val givenTagName3 = "v1.0.3-debug"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -3052,24 +3232,30 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "3"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.3-debug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.3-debug",
+                    commitSha = git.tag.findTag(givenTagName3).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 3,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.2-debug",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 2,
+                ),
+                previousOnDifferentCommit = null
             ).toJson()
 
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),
@@ -3101,7 +3287,7 @@ class FoundationChangelogTest {
         assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
-    // TODO: Should we trigger assemble automatically before getLastTag?
+    // TODO: Should we trigger assemble automatically before getLastTagSnapshot?
     @Test
     @Throws(IOException::class)
     fun `generate changelog without assemble if all commits exists and partially formed using message key with 3 described tags, some of them on the same commit`() {
@@ -3134,7 +3320,7 @@ class FoundationChangelogTest {
         val givenTagMessage3 = "Third build"
         val givenChangelogTask = "generateChangelogDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
@@ -3173,24 +3359,37 @@ class FoundationChangelogTest {
             ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
             ?: false
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "3"
-        val expectedBuildVariant = "debug"
-        val expectedTagName = "v1.0.3-debug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = givenTagMessage3,
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.3-debug",
+                    commitSha = git.tag.findTag(givenTagName3).id,
+                    message = givenTagMessage3,
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 3,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.2-debug",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = givenTagMessage2,
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 2,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-debug",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = givenTagMessage1,
+                    buildVersion = "1.0",
+                    buildVariant = "debug",
+                    buildNumber = 1,
+                )
             ).toJson()
 
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("Task :app:generateChangelogDebug"),

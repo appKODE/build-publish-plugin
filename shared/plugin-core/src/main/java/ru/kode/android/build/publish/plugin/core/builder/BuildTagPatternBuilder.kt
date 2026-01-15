@@ -15,9 +15,9 @@ private const val ANY_OPTIONAL_SYMBOLS_PART = "([A-Za-z0-9]+)?"
  * Builder for constructing a regular expression pattern for matching build tags.
  *
  * The resulting pattern can capture version numbers and build variants.
- * It should be used to configure [ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagTask] with the correct pattern.
+ * It should be used to configure [ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagSnapshotTask] with the correct pattern.
  *
- * @see ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagTask
+ * @see ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagSnapshotTask
  */
 class BuildTagPatternBuilder {
     private val parts = mutableListOf<String>()

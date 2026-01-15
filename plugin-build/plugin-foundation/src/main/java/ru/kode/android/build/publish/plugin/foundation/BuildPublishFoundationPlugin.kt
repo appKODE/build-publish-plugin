@@ -32,7 +32,7 @@ import ru.kode.android.build.publish.plugin.foundation.task.ComputeApkOutputFile
 import ru.kode.android.build.publish.plugin.foundation.task.ComputeVersionCodeParams
 import ru.kode.android.build.publish.plugin.foundation.task.ComputeVersionNameParams
 import ru.kode.android.build.publish.plugin.foundation.task.GenerateChangelogTaskParams
-import ru.kode.android.build.publish.plugin.foundation.task.LastTagTaskParams
+import ru.kode.android.build.publish.plugin.foundation.task.LastTagSnapshotTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.PrintLastIncreasedTagTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.RenameApkTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.TagTasksRegistrar
@@ -140,11 +140,11 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 .map { it.format(buildVariant.name) }
                         }
 
-                    val lastBuildTagProvider =
-                        TagTasksRegistrar.registerGetLastTagTask(
+                    val buildTagSnapshotProvider =
+                        TagTasksRegistrar.registerGetLastTagSnapshotTask(
                             project,
                             params =
-                                LastTagTaskParams(
+                                LastTagSnapshotTaskParams(
                                     buildVariant = buildVariant,
                                     useStubsForTagAsFallback =
                                         outputConfigProvider
@@ -171,7 +171,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                     outputApkNameStrategy =
                                         outputConfigProvider
                                             .flatMap { it.outputApkNameStrategy },
-                                    lastBuildTagProvider = lastBuildTagProvider,
+                                    buildTagSnapshotProvider = buildTagSnapshotProvider,
                                 ),
                         )
 
@@ -192,7 +192,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                     versionCodeStrategy =
                                         outputConfigProvider
                                             .flatMap { it.versionCodeStrategy },
-                                    lastBuildTagProvider = lastBuildTagProvider,
+                                    buildTagSnapshotProvider = buildTagSnapshotProvider,
                                 ),
                         )
 
@@ -213,7 +213,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                     versionNameStrategy =
                                         outputConfigProvider
                                             .flatMap { it.versionNameStrategy },
-                                    lastBuildTagProvider = lastBuildTagProvider,
+                                    buildTagSnapshotProvider = buildTagSnapshotProvider,
                                 ),
                         )
 
@@ -252,7 +252,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                         params =
                             PrintLastIncreasedTagTaskParams(
                                 buildVariant = buildVariant,
-                                lastBuildTagFileProvider = lastBuildTagProvider,
+                                buildTagSnapshotProvider = buildTagSnapshotProvider,
                             ),
                     )
 
@@ -280,7 +280,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                         },
                                     buildTagPattern = buildTagPattern,
                                     buildVariant = buildVariant,
-                                    lastBuildTagFileProvider = lastBuildTagProvider,
+                                    buildTagSnapshotProvider = buildTagSnapshotProvider,
                                 ),
                         )
 
@@ -338,7 +338,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                                 buildTagPattern =
                                                     outputConfigProvider
                                                         .flatMap { it.buildTagPattern },
-                                                lastBuildTagFileProvider = lastBuildTagProvider,
+                                                buildTagSnapshotProvider = buildTagSnapshotProvider,
                                                 apkFile = apkFileProvider,
                                                 bundleFile = bundleFileProvider,
                                             ),

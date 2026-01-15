@@ -150,11 +150,11 @@ class TelegramLookupTest {
             ?: false
 
         assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagRelease"),
+            !changelogResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagDebug"),
+            !changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug not executed",
         )
         assertTrue(
@@ -258,11 +258,11 @@ class TelegramLookupTest {
             ?: false
 
         assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagRelease"),
+            !changelogResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagDebug"),
+            !changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug not executed",
         )
         assertTrue(
@@ -372,11 +372,11 @@ class TelegramLookupTest {
             ?: false
 
         assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagRelease"),
+            !changelogResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagDebug"),
+            !changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug not executed",
         )
         assertTrue(
@@ -478,11 +478,11 @@ class TelegramLookupTest {
             ?: false
 
         assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagRelease"),
+            !changelogResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagDebug"),
+            !changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug not executed",
         )
         assertTrue(
@@ -591,11 +591,11 @@ class TelegramLookupTest {
             ?: false
 
         assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagRelease"),
+            !changelogResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagDebug"),
+            !changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug not executed",
         )
         assertTrue(

@@ -40,7 +40,7 @@ internal interface GenerateChangelogParameters : WorkParameters {
     /**
      * JSON file containing information about the last build tag
      */
-    val tagBuildFile: RegularFileProperty
+    val buildTagSnapshotFile: RegularFileProperty
 
     /**
      * The output file where the changelog will be written
@@ -79,19 +79,18 @@ internal abstract class GenerateChangelogWork
             val messageKey = parameters.commitMessageKey.get()
             val excludeMessageKey = parameters.excludeMessageKey.get()
             val buildTagPattern = parameters.buildTagPattern.get()
-            val currentBuildTag = fromJson(parameters.tagBuildFile.asFile.get())
+            val tagSnapshot = fromJson(parameters.buildTagSnapshotFile.asFile.get())
             val logger = parameters.loggerService.get()
 
             val changelog =
                 parameters.gitExecutorService.get()
                     .gitChangelogBuilder
-                    .buildForTag(
+                    .buildForSnapshot(
                         messageKey,
                         excludeMessageKey,
-                        currentBuildTag,
-                        buildTagPattern,
-                        defaultValueSupplier = { tagRange ->
-                            val previousBuildName = tagRange.previousBuildTag?.name
+                        tagSnapshot,
+                        defaultValueSupplier = { tagSnapshot ->
+                            val previousBuildName = tagSnapshot.previous?.name
                             if (previousBuildName != null) {
                                 noChangesDetectedSinceBuildMessage(previousBuildName)
                             } else {
@@ -100,6 +99,7 @@ internal abstract class GenerateChangelogWork
                         },
                     )
             val changelogOutput = parameters.changelogFile.asFile.get()
+            val currentBuildTag = tagSnapshot.current
 
             if (changelog.isNullOrBlank()) {
                 val noChangesMessage = noChangesChangelogMessage(currentBuildTag)

@@ -1,6 +1,7 @@
 plugins {
     id("kotlin-convention")
     id("maven-publish")
+    id("org.jetbrains.kotlin.plugin.serialization")
     alias(libs.plugins.vanniktech.maven.publish)
 }
 
@@ -13,6 +14,7 @@ dependencies {
     implementation(libs.grgitCore)
     implementation(libs.okhttp)
     implementation(libs.retrofit)
+    implementation(libs.serializationJson)
 }
 
 mavenPublishing {

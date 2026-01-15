@@ -147,7 +147,7 @@ abstract class BuildPublishPlayExtension
                     PlayTaskParams(
                         buildVariant = input.buildVariant,
                         bundleOutputFile = input.output.bundleFile,
-                        lastBuildTagFileProvider = input.output.lastBuildTagFileProvider,
+                        buildTagSnapshotProvider = input.output.buildTagSnapshotProvider,
                     ),
             )
         }

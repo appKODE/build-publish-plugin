@@ -76,10 +76,10 @@ abstract class PlayDistributionTask
          */
         @get:InputFile
         @get:Option(
-            option = "tagBuildFile",
+            option = "buildTagSnapshotFile",
             description = "Json contains info about tag build",
         )
-        abstract val buildTagFile: RegularFileProperty
+        abstract val buildTagSnapshotFile: RegularFileProperty
 
         /**
          * The track ID of the target app. This is the name of the release track
@@ -135,8 +135,8 @@ abstract class PlayDistributionTask
                     "file ${distributionFile.path} is not bundle, not possible to deploy it to Google Play",
                 )
             }
-            val tag = fromJson(buildTagFile.asFile.get())
-            val releaseName = "${tag.name}(${tag.buildVersion}.${tag.buildNumber})"
+            val currentBuildTag = fromJson(buildTagSnapshotFile.asFile.get()).current
+            val releaseName = "${currentBuildTag.name}(${currentBuildTag.buildVersion}.${currentBuildTag.buildNumber})"
             val trackId = trackId.orNull ?: "internal"
             val updatePriority = updatePriority.orNull ?: 0
 

@@ -5,7 +5,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
-import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.changelogFileProvider
 import ru.kode.android.build.publish.plugin.foundation.task.changelog.GenerateChangelogTask
@@ -65,9 +65,9 @@ private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskP
         it.excludeMessageKey.set(params.excludeMessageKey)
         it.buildTagPattern.set(params.buildTagPattern)
         it.changelogFile.set(changelogFile)
-        it.buildTagFile.set(params.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
+        it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
 
-        it.dependsOn(params.lastBuildTagFileProvider)
+        it.dependsOn(params.buildTagSnapshotProvider)
     }
 }
 
@@ -95,5 +95,5 @@ internal data class GenerateChangelogTaskParams(
     /**
      * Provider for the file containing the last tag information
      */
-    val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
+    val buildTagSnapshotProvider: Provider<out GetLastTagSnapshotTaskOutput>,
 )

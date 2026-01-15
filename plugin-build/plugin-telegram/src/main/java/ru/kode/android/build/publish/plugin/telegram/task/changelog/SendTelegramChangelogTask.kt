@@ -94,10 +94,10 @@ abstract class SendTelegramChangelogTask
          */
         @get:InputFile
         @get:Option(
-            option = "buildTagFile",
+            option = "buildTagSnapshotFile",
             description = "Json contains info about tag build",
         )
-        abstract val buildTagFile: RegularFileProperty
+        abstract val buildTagSnapshotFile: RegularFileProperty
 
         /**
          * The base output file name property specifies the base name used for the build output.
@@ -189,7 +189,7 @@ abstract class SendTelegramChangelogTask
          */
         @TaskAction
         fun sendChangelog() {
-            val currentBuildTag = fromJson(buildTagFile.asFile.get())
+            val currentBuildTag = fromJson(buildTagSnapshotFile.asFile.get()).current
 
             val changelogFile = changelogFile.asFile.orNull
             val changelog = changelogFile?.readText()

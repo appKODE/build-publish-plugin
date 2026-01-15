@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.strategy.HardcodedTagGenerationStrategy
@@ -60,7 +61,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -82,13 +83,17 @@ class FoundationAssembleTest {
         val expectedTagName = "v1.0.321-googleDebug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -96,8 +101,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -142,7 +147,7 @@ class FoundationAssembleTest {
 
         val git = projectDir.initGit()
 
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
 
         projectDir.getFile("app/README.md").writeText("This is test project 1")
 
@@ -195,19 +200,32 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName3).id
-        val expectedBuildNumber = "167"
-        val expectedBuildVariant = "internal"
-        val expectedTagName = "v1.0.167-internal"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.167-internal",
+                    commitSha = git.tag.findTag(givenTagName3).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "internal",
+                    buildNumber = 167,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.166-internal",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "internal",
+                    buildNumber = 166,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.166-internal",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "internal",
+                    buildNumber = 166,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -215,8 +233,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagInternal"),
-            "Task getLastTagInternal executed",
+            result.output.contains("Task :app:getLastTagSnapshotInternal"),
+            "Task getLastTagSnapshotInternal executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -254,7 +272,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -276,13 +294,17 @@ class FoundationAssembleTest {
         val expectedTagName = "v1.0.1.321-googleDebug"
         val expectedBuildVersion = "1.0.1"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -290,8 +312,8 @@ class FoundationAssembleTest {
                 versionName = "1.0.1",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -330,7 +352,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -352,13 +374,17 @@ class FoundationAssembleTest {
         val expectedTagName = "v1.0.321-googleDebug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -366,8 +392,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -404,7 +430,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
 
@@ -419,15 +445,19 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedTagBuildFile = HardcodedTagGenerationStrategy.build("googleDebug").toJson()
+        val expectedTagBuildFile = BuildTagSnapshot(
+            current = HardcodedTagGenerationStrategy.build("googleDebug"),
+            previousInOrder = null,
+            previousOnDifferentCommit = null
+        ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = DEFAULT_VERSION_CODE.toString(),
                 versionName = DEFAULT_VERSION_NAME,
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -465,7 +495,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
 
@@ -480,15 +510,19 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedTagBuildFile = HardcodedTagGenerationStrategy.build("googleDebug").toJson()
+        val expectedTagBuildFile = BuildTagSnapshot(
+            current = HardcodedTagGenerationStrategy.build("googleDebug"),
+            previousInOrder = null,
+            previousOnDifferentCommit = null
+        ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = DEFAULT_VERSION_CODE.toString(),
                 versionName = DEFAULT_VERSION_NAME,
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -536,7 +570,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -565,19 +599,32 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName5).id
-        val expectedBuildNumber = "209"
-        val expectedBuildVariant = "internal"
-        val expectedTagName = "v0.0.209-internal"
-        val expectedBuildVersion = "0.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v0.0.209-internal",
+                    commitSha = git.tag.findTag(givenTagName5).id,
+                    message = "",
+                    buildVersion = "0.0",
+                    buildVariant = "internal",
+                    buildNumber = 209,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v0.0.208-internal",
+                    commitSha = git.tag.findTag(givenTagName4).id,
+                    message = "",
+                    buildVersion = "0.0",
+                    buildVariant = "internal",
+                    buildNumber = 208,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v0.0.208-internal",
+                    commitSha = git.tag.findTag(givenTagName4).id,
+                    message = "",
+                    buildVersion = "0.0",
+                    buildVariant = "internal",
+                    buildNumber = 208,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -585,8 +632,8 @@ class FoundationAssembleTest {
                 versionName = "0.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagInternal"),
-            "Task getLastTagInternal executed",
+            result.output.contains("Task :app:getLastTagSnapshotInternal"),
+            "Task getLastTagSnapshotInternal executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -632,7 +679,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-release.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -656,19 +703,32 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "release"
-        val expectedTagName = "v1.0.1-release"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.1-release",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 1,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.0-release",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 0,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.0-release",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 0,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -676,8 +736,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease executed",
+            result.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -723,7 +783,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-release.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -745,19 +805,32 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName2).id
-        val expectedBuildNumber = "1"
-        val expectedBuildVariant = "release"
-        val expectedTagName = "v1.0.1-release"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.1-release",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 1,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.0-release",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 0,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.0-release",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 0,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -765,8 +838,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease executed",
+            result.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -821,7 +894,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-release.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -845,19 +918,32 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName3).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "release"
-        val expectedTagName = "v1.0.2-release-androidAuto"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-release-androidAuto",
+                    commitSha = git.tag.findTag(givenTagName3).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-release",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-release",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 1,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -865,8 +951,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease executed",
+            result.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -921,7 +1007,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-release.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -943,19 +1029,32 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName3).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "release"
-        val expectedTagName = "v1.0.2-release-androidAuto"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                Tag.Build(
+                    name = "v1.0.2-release-androidAuto",
+                    commitSha = git.tag.findTag(givenTagName3).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-release",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.0-release",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 0,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -963,8 +1062,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease executed",
+            result.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -1019,7 +1118,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-release.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1043,19 +1142,32 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName3).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "release"
-        val expectedTagName = "v1.0.2-release"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-release",
+                    commitSha = git.tag.findTag(givenTagName3).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-release-androidAuto",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-release-androidAuto",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 1,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -1063,8 +1175,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease executed",
+            result.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -1119,7 +1231,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-release.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-release.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1142,19 +1254,32 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName3).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "release"
-        val expectedTagName = "v1.0.2-release"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-release",
+                    commitSha = git.tag.findTag(givenTagName3).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-release-androidAuto",
+                    commitSha = git.tag.findTag(givenTagName2).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.0-release",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "release",
+                    buildNumber = 0,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -1162,8 +1287,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease executed",
+            result.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -1211,7 +1336,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1240,19 +1365,32 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName5).id
-        val expectedBuildNumber = "209"
-        val expectedBuildVariant = "internal"
-        val expectedTagName = "v0.0.209-internal"
-        val expectedBuildVersion = "0.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v0.0.209-internal",
+                    commitSha = git.tag.findTag(givenTagName5).id,
+                    message = "",
+                    buildVersion = "0.0",
+                    buildVariant = "internal",
+                    buildNumber = 209,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v2.0.208-internal",
+                    commitSha = git.tag.findTag(givenTagName4).id,
+                    message = "",
+                    buildVersion = "2.0",
+                    buildVariant = "internal",
+                    buildNumber = 208,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v2.0.208-internal",
+                    commitSha = git.tag.findTag(givenTagName4).id,
+                    message = "",
+                    buildVersion = "2.0",
+                    buildVariant = "internal",
+                    buildNumber = 208,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -1260,8 +1398,8 @@ class FoundationAssembleTest {
                 versionName = "0.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagInternal"),
-            "Task getLastTagInternal executed",
+            result.output.contains("Task :app:getLastTagSnapshotInternal"),
+            "Task getLastTagSnapshotInternal executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -1309,7 +1447,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1338,19 +1476,32 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName5).id
-        val expectedBuildNumber = "209"
-        val expectedBuildVariant = "internal"
-        val expectedTagName = "v0.0.209-internal"
-        val expectedBuildVersion = "0.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v0.0.209-internal",
+                    commitSha = git.tag.findTag(givenTagName5).id,
+                    message = "",
+                    buildVersion = "0.0",
+                    buildVariant = "internal",
+                    buildNumber = 209,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v2.0.209.208-internal",
+                    commitSha = git.tag.findTag(givenTagName4).id,
+                    message = "",
+                    buildVersion = "2.0.209",
+                    buildVariant = "internal",
+                    buildNumber = 208,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v2.0.209.208-internal",
+                    commitSha = git.tag.findTag(givenTagName4).id,
+                    message = "",
+                    buildVersion = "2.0.209",
+                    buildVariant = "internal",
+                    buildNumber = 208,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -1358,8 +1509,8 @@ class FoundationAssembleTest {
                 versionName = "0.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagInternal"),
-            "Task getLastTagInternal executed",
+            result.output.contains("Task :app:getLastTagSnapshotInternal"),
+            "Task getLastTagSnapshotInternal executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -1407,7 +1558,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1432,19 +1583,32 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName5).id
-        val expectedBuildNumber = "209"
-        val expectedBuildVariant = "internal"
-        val expectedTagName = "v0.0.209-internal"
-        val expectedBuildVersion = "0.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                Tag.Build(
+                    name = "v0.0.209-internal",
+                    commitSha = git.tag.findTag(givenTagName5).id,
+                    message = "",
+                    buildVersion = "0.0",
+                    buildVariant = "internal",
+                    buildNumber = 209,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v2.0.208-internal",
+                    commitSha = git.tag.findTag(givenTagName4).id,
+                    message = "",
+                    buildVersion = "2.0",
+                    buildVariant = "internal",
+                    buildNumber = 208,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.206-internal",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "internal",
+                    buildNumber = 206,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -1452,8 +1616,8 @@ class FoundationAssembleTest {
                 versionName = "0.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagInternal"),
-            "Task getLastTagInternal executed",
+            result.output.contains("Task :app:getLastTagSnapshotInternal"),
+            "Task getLastTagSnapshotInternal executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -1501,7 +1665,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1526,19 +1690,32 @@ class FoundationAssembleTest {
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
-        val expectedCommitSha = git.tag.findTag(givenTagName4).id
-        val expectedBuildNumber = "209"
-        val expectedBuildVariant = "internal"
-        val expectedTagName = "v2.0.209-internal"
-        val expectedBuildVersion = "2.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v2.0.209-internal",
+                    commitSha = git.tag.findTag(givenTagName4).id,
+                    message = "",
+                    buildVersion = "2.0",
+                    buildVariant = "internal",
+                    buildNumber = 209,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v0.0.208-internal",
+                    commitSha = git.tag.findTag(givenTagName3).id,
+                    message = "",
+                    buildVersion = "0.0",
+                    buildVariant = "internal",
+                    buildNumber = 208,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.206-internal",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "internal",
+                    buildNumber = 206,
+                )
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -1546,8 +1723,8 @@ class FoundationAssembleTest {
                 versionName = "2.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagInternal"),
-            "Task getLastTagInternal executed",
+            result.output.contains("Task :app:getLastTagSnapshotInternal"),
+            "Task getLastTagSnapshotInternal executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -1595,7 +1772,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1620,19 +1797,32 @@ class FoundationAssembleTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedCommitSha1 = git.tag.findTag(givenTagName4).id
-        val expectedBuildNumber1 = "208"
-        val expectedBuildVariant1 = "internal"
-        val expectedTagName1 = "v2.0.208-internal"
-        val expectedBuildVersion1 = "2.0"
         val expectedTagBuildFile1 =
-            Tag.Build(
-                name = expectedTagName1,
-                commitSha = expectedCommitSha1,
-                message = "",
-                buildVersion = expectedBuildVersion1,
-                buildVariant = expectedBuildVariant1,
-                buildNumber = expectedBuildNumber1.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v2.0.208-internal",
+                    commitSha = git.tag.findTag(givenTagName4).id,
+                    message = "",
+                    buildVersion = "2.0",
+                    buildVariant = "internal",
+                    buildNumber = 208,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v3.0.207-internal",
+                    commitSha = git.tag.findTag(givenTagName3).id,
+                    message = "",
+                    buildVersion = "3.0",
+                    buildVariant = "internal",
+                    buildNumber = 207,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.206-internal",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "internal",
+                    buildNumber = 206,
+                )
             ).toJson()
         val expectedManifestProperties1 =
             ManifestProperties(
@@ -1640,8 +1830,8 @@ class FoundationAssembleTest {
                 versionName = "2.0",
             )
         assertTrue(
-            assemble1.output.contains("Task :app:getLastTagInternal"),
-            "Task getLastTagInternal executed",
+            assemble1.output.contains("Task :app:getLastTagSnapshotInternal"),
+            "Task getLastTagSnapshotInternal executed",
         )
         assertTrue(
             assemble1.output.contains("BUILD SUCCESSFUL"),
@@ -1670,19 +1860,32 @@ class FoundationAssembleTest {
             ?: throw AssertionError("Output file not found")
         val givenOutputFileManifestProperties2 = givenOutputFile2.extractManifestProperties()
 
-        val expectedCommitSha2 = git.tag.findTag(givenTagName5).id
-        val expectedBuildNumber2 = "209"
-        val expectedBuildVariant2 = "internal"
-        val expectedTagName2 = "v0.0.209-internal"
-        val expectedBuildVersion2 = "0.0"
         val expectedTagBuildFile2 =
-            Tag.Build(
-                name = expectedTagName2,
-                commitSha = expectedCommitSha2,
-                message = "",
-                buildVersion = expectedBuildVersion2,
-                buildVariant = expectedBuildVariant2,
-                buildNumber = expectedBuildNumber2.toInt(),
+            BuildTagSnapshot(
+                Tag.Build(
+                    name = "v0.0.209-internal",
+                    commitSha = git.tag.findTag(givenTagName5).id,
+                    message = "",
+                    buildVersion = "0.0",
+                    buildVariant = "internal",
+                    buildNumber = 209,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v2.0.208-internal",
+                    commitSha = git.tag.findTag(givenTagName4).id,
+                    message = "",
+                    buildVersion = "2.0",
+                    buildVariant = "internal",
+                    buildNumber = 208,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.206-internal",
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "internal",
+                    buildNumber = 206,
+                )
             ).toJson()
         val expectedManifestProperties2 =
             ManifestProperties(
@@ -1690,8 +1893,8 @@ class FoundationAssembleTest {
                 versionName = "0.0",
             )
         assertTrue(
-            assemble2.output.contains("Task :app:getLastTagInternal"),
-            "Task getLastTagInternal executed",
+            assemble2.output.contains("Task :app:getLastTagSnapshotInternal"),
+            "Task getLastTagSnapshotInternal executed",
         )
         assertTrue(
             assemble2.output.contains("BUILD SUCCESSFUL"),
@@ -1739,7 +1942,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1767,8 +1970,8 @@ class FoundationAssembleTest {
             ?: false
 
         assertTrue(
-            result.output.contains("Task :app:getLastTagInternal"),
-            "Task getLastTagInternal executed",
+            result.output.contains("Task :app:getLastTagSnapshotInternal"),
+            "Task getLastTagSnapshotInternal executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),
@@ -1806,7 +2009,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -1837,8 +2040,8 @@ class FoundationAssembleTest {
             ?: false
 
         assertTrue(
-            result.output.contains("Task :app:getLastTagInternal"),
-            "Task getLastTagInternal executed",
+            result.output.contains("Task :app:getLastTagSnapshotInternal"),
+            "Task getLastTagSnapshotInternal executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),
@@ -1867,7 +2070,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest.apk")
 
         git.addAllAndCommit(givenCommitMessage)
@@ -1885,8 +2088,8 @@ class FoundationAssembleTest {
                 versionName = DEFAULT_VERSION_NAME,
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -1920,7 +2123,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest.apk")
 
         git.addAllAndCommit(givenCommitMessage)
@@ -1937,8 +2140,8 @@ class FoundationAssembleTest {
                 versionName = DEFAULT_VERSION_NAME,
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -1973,7 +2176,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest.apk")
 
         git.addAllAndCommit(givenCommitMessage)
@@ -1983,8 +2186,8 @@ class FoundationAssembleTest {
         projectDir.getFile("app").printFilesRecursively()
 
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),
@@ -2014,7 +2217,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -2036,13 +2239,17 @@ class FoundationAssembleTest {
         val expectedTagName = "v1.0.321-googleDebug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -2050,8 +2257,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -2090,7 +2297,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest.apk")
 
         git.addAllAndCommit(givenCommitMessage)
@@ -2107,8 +2314,8 @@ class FoundationAssembleTest {
                 versionName = DEFAULT_VERSION_NAME,
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -2144,7 +2351,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest.apk")
 
         git.addAllAndCommit(givenCommitMessage)
@@ -2162,8 +2369,8 @@ class FoundationAssembleTest {
                 versionName = DEFAULT_VERSION_NAME,
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -2204,7 +2411,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest.apk")
 
         git.addAllAndCommit(givenCommitMessage)
@@ -2221,8 +2428,8 @@ class FoundationAssembleTest {
                 versionName = "",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -2264,7 +2471,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest.apk")
 
         git.addAllAndCommit(givenCommitMessage)
@@ -2282,8 +2489,8 @@ class FoundationAssembleTest {
                 versionName = "",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -2335,9 +2542,9 @@ class FoundationAssembleTest {
         val givenReleaseAssembleTask = "assembleGoogleRelease"
         val givenInternalAssembleTask = "assembleGoogleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFileDebug = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenTagBuildFileRelease = projectDir.getFile("app/build/tag-build-googleRelease.json")
-        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-googleInternal.json")
+        val givenTagBuildFileDebug = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
+        val givenTagBuildFileRelease = projectDir.getFile("app/build/tag-build-snapshot-googleRelease.json")
+        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-snapshot-googleInternal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagNameDebug)
@@ -2381,16 +2588,16 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            debugResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            debugResult.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
-            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease executed",
+            releaseResult.output.contains("Task :app:getLastTagSnapshotGoogleRelease"),
+            "Task getLastTagSnapshotGoogleRelease executed",
         )
         assertTrue(
-            internalResult.output.contains("Task :app:getLastTagGoogleInternal"),
-            "Task getLastTagGoogleInternal executed",
+            internalResult.output.contains("Task :app:getLastTagSnapshotGoogleInternal"),
+            "Task getLastTagSnapshotGoogleInternal executed",
         )
         assertTrue(
             debugResult.output.contains("BUILD SUCCESSFUL"),
@@ -2475,9 +2682,9 @@ class FoundationAssembleTest {
         val givenReleaseAssembleTask = "assembleGoogleRelease"
         val givenInternalAssembleTask = "assembleGoogleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFileDebug = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenTagBuildFileRelease = projectDir.getFile("app/build/tag-build-googleRelease.json")
-        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-googleInternal.json")
+        val givenTagBuildFileDebug = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
+        val givenTagBuildFileRelease = projectDir.getFile("app/build/tag-build-snapshot-googleRelease.json")
+        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-snapshot-googleInternal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagNameDebug)
@@ -2518,16 +2725,16 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            debugResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            debugResult.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
-            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease executed",
+            releaseResult.output.contains("Task :app:getLastTagSnapshotGoogleRelease"),
+            "Task getLastTagSnapshotGoogleRelease executed",
         )
         assertTrue(
-            internalResult.output.contains("Task :app:getLastTagGoogleInternal"),
-            "Task getLastTagGoogleInternal executed",
+            internalResult.output.contains("Task :app:getLastTagSnapshotGoogleInternal"),
+            "Task getLastTagSnapshotGoogleInternal executed",
         )
         assertTrue(
             debugResult.output.contains("BUILD SUCCESSFUL"),
@@ -2609,7 +2816,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenInternalAssembleTask = "assembleGoogleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-googleInternal.json")
+        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-snapshot-googleInternal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagNameInternal1)
@@ -2646,8 +2853,8 @@ class FoundationAssembleTest {
         projectDir.getFile("app").printFilesRecursively()
 
         assertTrue(
-            internalResult1.output.contains("Task :app:getLastTagGoogleInternal"),
-            "Task getLastTagGoogleInternal executed",
+            internalResult1.output.contains("Task :app:getLastTagSnapshotGoogleInternal"),
+            "Task getLastTagSnapshotGoogleInternal executed",
         )
         assertTrue(
             internalResult1.output.contains("BUILD SUCCESSFUL"),
@@ -2663,8 +2870,8 @@ class FoundationAssembleTest {
         )
 
         assertTrue(
-            internalResult2.output.contains("Task :app:getLastTagGoogleInternal"),
-            "Task getLastTagGoogleInternal 2 executed",
+            internalResult2.output.contains("Task :app:getLastTagSnapshotGoogleInternal"),
+            "Task getLastTagSnapshotGoogleInternal 2 executed",
         )
         assertTrue(
             internalResult2.output.contains("BUILD SUCCESSFUL"),
@@ -2724,9 +2931,9 @@ class FoundationAssembleTest {
         val givenReleaseAssembleTask = "assembleGoogleRelease"
         val givenInternalAssembleTask = "assembleGoogleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFileDebug = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenTagBuildFileRelease = projectDir.getFile("app/build/tag-build-googleRelease.json")
-        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-googleInternal.json")
+        val givenTagBuildFileDebug = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
+        val givenTagBuildFileRelease = projectDir.getFile("app/build/tag-build-snapshot-googleRelease.json")
+        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-snapshot-googleInternal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagNameInternal1)
@@ -2773,16 +2980,16 @@ class FoundationAssembleTest {
                 versionName = "0.0.390",
             )
         assertTrue(
-            debugResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            debugResult.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
-            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease executed",
+            releaseResult.output.contains("Task :app:getLastTagSnapshotGoogleRelease"),
+            "Task getLastTagSnapshotGoogleRelease executed",
         )
         assertTrue(
-            internalResult.output.contains("Task :app:getLastTagGoogleInternal"),
-            "Task getLastTagGoogleInternal executed",
+            internalResult.output.contains("Task :app:getLastTagSnapshotGoogleInternal"),
+            "Task getLastTagSnapshotGoogleInternal executed",
         )
         assertTrue(
             debugResult.output.contains("BUILD SUCCESSFUL"),
@@ -2868,9 +3075,9 @@ class FoundationAssembleTest {
         val givenReleaseAssembleTask = "assembleRelease"
         val givenInternalAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFileDebug = projectDir.getFile("app/build/tag-build-debug.json")
-        val givenTagBuildFileRelease = projectDir.getFile("app/build/tag-build-release.json")
-        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-internal.json")
+        val givenTagBuildFileDebug = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
+        val givenTagBuildFileRelease = projectDir.getFile("app/build/tag-build-snapshot-release.json")
+        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagNameInternal1)
@@ -2917,16 +3124,16 @@ class FoundationAssembleTest {
                 versionName = "0.0.390",
             )
         assertTrue(
-            debugResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            debugResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
-            releaseResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease executed",
+            releaseResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease executed",
         )
         assertTrue(
-            internalResult.output.contains("Task :app:getLastTagInternal"),
-            "Task getLastTagInternal executed",
+            internalResult.output.contains("Task :app:getLastTagSnapshotInternal"),
+            "Task getLastTagSnapshotInternal executed",
         )
         assertTrue(
             debugResult.output.contains("BUILD SUCCESSFUL"),
@@ -3008,9 +3215,9 @@ class FoundationAssembleTest {
         val givenReleaseAssembleTask = "assembleGoogleRelease"
         val givenInternalAssembleTask = "assembleGoogleInternal"
         val git = projectDir.initGit()
-        val givenTagBuildFileDebug = projectDir.getFile("app/build/tag-build-googleDebug.json")
-        val givenTagBuildFileRelease = projectDir.getFile("app/build/tag-build-googleRelease.json")
-        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-googleInternal.json")
+        val givenTagBuildFileDebug = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
+        val givenTagBuildFileRelease = projectDir.getFile("app/build/tag-build-snapshot-googleRelease.json")
+        val givenTagBuildFileInternal = projectDir.getFile("app/build/tag-build-snapshot-googleInternal.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagNameDebug)
@@ -3051,16 +3258,16 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            debugResult.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            debugResult.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
-            releaseResult.output.contains("Task :app:getLastTagGoogleRelease"),
-            "Task getLastTagGoogleRelease executed",
+            releaseResult.output.contains("Task :app:getLastTagSnapshotGoogleRelease"),
+            "Task getLastTagSnapshotGoogleRelease executed",
         )
         assertTrue(
-            internalResult.output.contains("Task :app:getLastTagGoogleInternal"),
-            "Task getLastTagGoogleInternal executed",
+            internalResult.output.contains("Task :app:getLastTagSnapshotGoogleInternal"),
+            "Task getLastTagSnapshotGoogleInternal executed",
         )
         assertTrue(
             debugResult.output.contains("BUILD SUCCESSFUL"),
@@ -3128,7 +3335,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest.apk")
 
         git.addAllAndCommit(givenCommitMessage)
@@ -3145,8 +3352,8 @@ class FoundationAssembleTest {
                 versionName = "v.1.0.10",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -3188,7 +3395,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
         val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest.apk")
 
         git.addAllAndCommit(givenCommitMessage)
@@ -3206,8 +3413,8 @@ class FoundationAssembleTest {
                 versionName = "v.1.0.10",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagGoogleDebug"),
-            "Task getLastTagGoogleDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -3251,7 +3458,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleCabinetDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-cabinetDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -3273,8 +3480,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagCabinetDebug"),
-            "Task getLastTagCabinetDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotCabinetDebug"),
+            "Task getLastTagSnapshotCabinetDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -3316,7 +3523,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleCabinetDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-cabinetDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -3331,8 +3538,8 @@ class FoundationAssembleTest {
             ?: false
 
         assertTrue(
-            !result.output.contains("Task :app:getLastTagCabinetDebug"),
-            "Task getLastTagCabinetDebug not executed",
+            !result.output.contains("Task :app:getLastTagSnapshotCabinetDebug"),
+            "Task getLastTagSnapshotCabinetDebug not executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),
@@ -3369,7 +3576,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleCabinetDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-cabinetDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -3384,8 +3591,8 @@ class FoundationAssembleTest {
             ?: false
 
         assertTrue(
-            !result.output.contains("Task :app:getLastTagCabinetDebug"),
-            "Task getLastTagCabinetDebug not executed",
+            !result.output.contains("Task :app:getLastTagSnapshotCabinetDebug"),
+            "Task getLastTagSnapshotCabinetDebug not executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),
@@ -3422,7 +3629,7 @@ class FoundationAssembleTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleCabinetDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-cabinetDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -3437,8 +3644,8 @@ class FoundationAssembleTest {
             ?: false
 
         assertTrue(
-            !result.output.contains("Task :app:getLastTagCabinetDebug"),
-            "Task getLastTagCabinetDebug not executed",
+            !result.output.contains("Task :app:getLastTagSnapshotCabinetDebug"),
+            "Task getLastTagSnapshotCabinetDebug not executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),
@@ -3487,7 +3694,7 @@ class FoundationAssembleTest {
         val given3CommitMessage = "Add README 2"
         val givenAssembleTask = "assembleCabinetDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-cabinetDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-cabinetDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -3515,8 +3722,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagCabinetDebug"),
-            "Task getLastTagCabinetDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotCabinetDebug"),
+            "Task getLastTagSnapshotCabinetDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -3587,7 +3794,7 @@ class FoundationAssembleTest {
         val given3CommitMessage = "Add README 2"
         val givenAssembleTask = "assembleFinanceDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-financeDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-financeDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -3615,8 +3822,8 @@ class FoundationAssembleTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagFinanceDebug"),
-            "Task getLastTagFinanceDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotFinanceDebug"),
+            "Task getLastTagSnapshotFinanceDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),

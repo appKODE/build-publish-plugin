@@ -2,8 +2,8 @@ package ru.kode.android.build.publish.plugin.core.messages
 
 import okhttp3.Request
 import org.ajoberstar.grgit.Commit
+import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.enity.Tag
-import ru.kode.android.build.publish.plugin.core.enity.TagRange
 import ru.kode.android.build.publish.plugin.core.util.utcDateTime
 import java.io.File
 import java.net.InetSocketAddress
@@ -11,7 +11,7 @@ import java.net.Proxy
 import java.net.URI
 import org.ajoberstar.grgit.Tag as GrgitTag
 
-fun buildingChangelogForTagRangeMessage(tagRange: TagRange): String {
+fun buildingChangelogForTagRangeMessage(buildTagSnapshot: BuildTagSnapshot): String {
     return """
         
         |============================================================
@@ -19,15 +19,15 @@ fun buildingChangelogForTagRangeMessage(tagRange: TagRange): String {
         |============================================================
         | Building changelog for tag range
         |
-        | Range: ${tagRange.asCommitRange()}
+        | Range: ${buildTagSnapshot.asCommitRange()}
         |
         | Tags:
-        |   - Current: ${tagRange.currentBuildTag.name}
-        |   - Previous: ${tagRange.previousBuildTag?.name ?: "Not found"}
+        |   - Current: ${buildTagSnapshot.current.name}
+        |   - Previous: ${buildTagSnapshot.previous?.name ?: "Not found"}
         |
         | Commit ranges:
-        |   - Current: ${tagRange.currentBuildTag.commitSha}
-        |   - Previous: ${tagRange.previousBuildTag?.commitSha ?: "Not found"}
+        |   - Current: ${buildTagSnapshot.current.commitSha}
+        |   - Previous: ${buildTagSnapshot.previous?.commitSha ?: "Not found"}
         |
         |============================================================
         """.trimMargin()
@@ -255,29 +255,6 @@ fun requiredConfigurationNotFoundMessage(
         """.trimMargin()
 }
 
-fun failedToBuildChangelogMessage(): String {
-    return """
-        
-        |============================================================
-        |                CHANGELOG GENERATION FAILED     
-        |============================================================
-        | Could not generate changelog
-        |
-        | REASON: No build tags found in the repository
-        |
-        | This typically happens when:
-        |   - The repository has no tags
-        |   - The tag pattern doesn't match any existing tags
-        |   - The git history is empty
-        |
-        | ACTION REQUIRED:
-        |   1. Verify that your repository has tags
-        |   2. Check if the tag pattern matches your tag format
-        |   3. Ensure you have the correct git history
-        |============================================================
-        """.trimMargin()
-}
-
 fun cannotReturnTagMessage(
     previousTagBuildNumber: Int,
     previousTag: GrgitTag,
@@ -331,93 +308,6 @@ fun cannotReturnTagMessage(
         |   - MINOR: New features (backward compatible)
         |   - PATCH: Bug fixes (backward compatible, optional)
         |   - BUILD: Incremental build number (must always increase)
-        |============================================================
-        """.trimMargin()
-}
-
-fun findTagsByNameFoundTagsMessage(lastTwoTags: List<GrgitTag>): String {
-    val tagsMessage =
-        lastTwoTags.joinToString("\n") {
-            "|  - ${it.name.padEnd(30)} (${it.commit.id.take(7)})"
-        }
-    return """
-        
-        |============================================================
-        |            FOUND ${lastTwoTags.size} TAGS BY NAME
-        |============================================================
-        | The following tags were found in the repository:
-        |
-        $tagsMessage
-        |
-        | These tags will be used for version comparison and changelog
-        | generation in the build process.
-        |============================================================
-        """.trimMargin()
-}
-
-fun couldNotFindProvidedBuildTagMessage(
-    startTag: Tag.Build,
-    buildTagRegex: Regex,
-    availableTagNames: String,
-): String {
-    val availableTagsMessage =
-        if (availableTagNames.isEmpty()) {
-            "None"
-        } else {
-            availableTagNames.count { it == ',' } + 1
-        }
-    val noMatchingTagsMessage =
-        if (availableTagNames.isNotEmpty()) {
-            "|  - " + availableTagNames.split(",").joinToString("\n|  - ")
-        } else {
-            "|  No matching tags found"
-        }
-    return """
-        
-        |============================================================
-        |                 ️   BUILD TAG NOT FOUND   ️  
-        |============================================================
-        | Could not find the specified build tag in git history
-        |
-        | TAG DETAILS:
-        |   - Name: '${startTag.name}'
-        |   - Commit: ${startTag.commitSha.take(7)}
-        |   - Regex: $buildTagRegex
-        |
-        | AVAILABLE TAGS ($availableTagsMessage):
-        $noMatchingTagsMessage
-        |
-        | POSSIBLE CAUSES:
-        |   1. The tag doesn't exist in the repository
-        |   2. The tag doesn't match the expected pattern
-        |   3. The repository doesn't have any tags
-        |
-        | ACTION REQUIRED:
-        |   1. Verify the tag exists: git tag | grep '${startTag.name}'
-        |   2. Check your tag pattern in build configuration
-        |   3. Ensure you have fetched all tags from remote
-        |
-        | TIP: Use 'git fetch --tags' to ensure all remote tags are available
-        |============================================================
-        """.trimMargin()
-}
-
-fun findTagsByRangeBeforeSearchMessage(startTag: Tag.Build): String {
-    return """
-        
-        |============================================================
-        |                     STARTING TAG SEARCH    
-        |============================================================
-        | Starting tag search from: ${startTag.name}
-        |
-        | This tag will be used as the starting point for finding
-        | the range of commits to include in the changelog.
-        |
-        | TAG DETAILS:
-        |   - Commit: ${startTag.commitSha.take(7)}
-        |
-        | The search will look for all tags reachable from this point
-        | back to the beginning of the repository history.
         |============================================================
         """.trimMargin()
 }

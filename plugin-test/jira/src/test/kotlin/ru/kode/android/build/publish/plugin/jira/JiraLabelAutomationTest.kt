@@ -110,11 +110,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagDebug"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug not executed",
         )
         assertTrue(
@@ -203,11 +203,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -316,11 +316,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -423,11 +423,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -536,11 +536,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -643,11 +643,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -756,11 +756,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -863,11 +863,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -976,11 +976,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -1080,11 +1080,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagRelease"),
+            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            automationResult.output.contains("Task :app:getLastTagDebug"),
+            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -1186,11 +1186,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagRelease"),
+            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            automationResult.output.contains("Task :app:getLastTagDebug"),
+            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -1285,11 +1285,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -1398,11 +1398,11 @@ class JiraLabelAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(

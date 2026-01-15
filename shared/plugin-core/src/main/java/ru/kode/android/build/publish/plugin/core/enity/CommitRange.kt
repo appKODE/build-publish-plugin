@@ -7,7 +7,7 @@ package ru.kode.android.build.publish.plugin.core.enity
  * like generating changelogs or determining which commits to include in a release. The range is
  * exclusive of the starting commit (sha1) and inclusive of the ending commit (sha2).
  *
- * @see TagRange
+ * @see BuildTagSnapshot
  * @see GitCommandExecutor For usage in Git operations
  */
 data class CommitRange(

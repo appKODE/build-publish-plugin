@@ -62,8 +62,8 @@ abstract class SlackDistributionTask
          * The build tag file property contains metadata about the current build.
          */
         @get:InputFile
-        @get:Option(option = "buildTagFile", description = "Json contains info about tag build")
-        abstract val buildTagFile: RegularFileProperty
+        @get:Option(option = "buildTagSnapshotFile", description = "Json contains info about tag build")
+        abstract val buildTagSnapshotFile: RegularFileProperty
 
         /**
          * The base output file name property specifies the name prefix for the uploaded file.
@@ -121,7 +121,7 @@ abstract class SlackDistributionTask
          */
         @TaskAction
         fun upload() {
-            val currentBuildTag = fromJson(buildTagFile.asFile.get())
+            val currentBuildTag = fromJson(buildTagSnapshotFile.asFile.get()).current
             val workQueue: WorkQueue = workerExecutor.noIsolation()
             workQueue.submit(SlackUploadWork::class.java) { parameters ->
                 parameters.distributionFile.set(distributionFile)

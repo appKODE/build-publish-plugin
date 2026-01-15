@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.core.enity
 
+import kotlinx.serialization.Serializable
 import org.gradle.api.GradleException
 import ru.kode.android.build.publish.plugin.core.messages.noVariantMessage
 
@@ -11,6 +12,7 @@ private val NUMBER_REGEX = Regex("\\d+")
  * This sealed class serves as the base for different types of Git tags used throughout the build system.
  * It provides common properties like the tag name, commit SHA, and optional message.
  */
+@Serializable
 sealed class Tag {
     /**
      * The name of the tag (e.g., "v1.0.0")
@@ -33,6 +35,7 @@ sealed class Tag {
      * This is used for tags that don't follow the build versioning pattern
      * and don't need special processing.
      */
+    @Serializable
     data class Generic(
         /**
          * The name of the tag
@@ -54,6 +57,7 @@ sealed class Tag {
      * This class extends [Tag] with build-specific metadata extracted from the tag name,
      * following the pattern: `{prefix}.{buildNumber}-{variant}`
      */
+    @Serializable
     data class Build(
         /**
          * The full tag name (e.g., "app.42-debug")

@@ -13,6 +13,7 @@ import com.google.api.services.androidpublisher.model.ExpansionFile
 import com.google.api.services.androidpublisher.model.InAppProduct
 import com.google.api.services.androidpublisher.model.Track
 import ru.kode.android.build.publish.plugin.core.util.APK_FILE_EXTENSION
+import ru.kode.android.build.publish.plugin.core.util.capitalized
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -219,7 +220,7 @@ internal class DefaultPlayPublisher(
                     println("Uploading $thing: ${(it.progress * 100).roundToInt()}% complete")
 
                 MediaHttpUploader.UploadState.MEDIA_COMPLETE ->
-                    println("${thing.capitalize()} upload complete")
+                    println("${thing.capitalized()} upload complete")
 
                 else -> {}
             }

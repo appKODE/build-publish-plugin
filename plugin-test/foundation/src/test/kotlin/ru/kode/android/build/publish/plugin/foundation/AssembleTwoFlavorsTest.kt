@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.FoundationConfig
@@ -63,7 +64,7 @@ class AssembleTwoFlavorsTest {
         git.tag.addNamed(givenTagName2)
 
         val demoDebugResult = projectDir.runTask("assembleDemoDebug")
-        val givenDemoDebugTagFile = projectDir.getFile("app/build/tag-build-demoDebug.json")
+        val givenDemoDebugTagFile = projectDir.getFile("app/build/tag-build-snapshot-demoDebug.json")
 
         val debugApkDir = projectDir.getFile("app/build/outputs/apk/demo/debug")
         val givenDebugOutputFile = debugApkDir.listFiles()
@@ -73,7 +74,7 @@ class AssembleTwoFlavorsTest {
         val givenDebugOutputFileManifestProperties = givenDebugOutputFile.extractManifestProperties()
 
         val proReleaseResult = projectDir.runTask("assembleProRelease")
-        val givenProReleaseTagFile = projectDir.getFile("app/build/tag-build-proRelease.json")
+        val givenProReleaseTagFile = projectDir.getFile("app/build/tag-build-snapshot-proRelease.json")
 
         val releaseApkDir = projectDir.getFile("app/build/outputs/apk/pro/release")
         val givenReleaseOutputFile = releaseApkDir.listFiles()
@@ -84,15 +85,18 @@ class AssembleTwoFlavorsTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedDemoDebugCommitSha = git.tag.findTag(givenTagName1).id
         val expectedDemoDebugTagFile =
-            Tag.Build(
-                name = givenTagName1,
-                commitSha = expectedDemoDebugCommitSha,
-                message = "",
-                buildVersion = "1.0",
-                buildVariant = "demoDebug",
-                buildNumber = 1,
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = givenTagName1,
+                    commitSha = git.tag.findTag(givenTagName1).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "demoDebug",
+                    buildNumber = 1,
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedProDebugManifestProperties =
             ManifestProperties(
@@ -100,12 +104,12 @@ class AssembleTwoFlavorsTest {
                 versionName = "1.0",
             )
         assertTrue(
-            demoDebugResult.output.contains("Task :app:getLastTagDemoDebug"),
-            "Task getLastTagDemoDebug executed",
+            demoDebugResult.output.contains("Task :app:getLastTagSnapshotDemoDebug"),
+            "Task getLastTagSnapshotDemoDebug executed",
         )
         assertTrue(
-            !demoDebugResult.output.contains("Task :app:getLastTagProRelease"),
-            "Task getLastTagProRelease not executed",
+            !demoDebugResult.output.contains("Task :app:getLastTagSnapshotProRelease"),
+            "Task getLastTagSnapshotProRelease not executed",
         )
         assertTrue(
             demoDebugResult.output.contains("BUILD SUCCESSFUL"),
@@ -126,13 +130,17 @@ class AssembleTwoFlavorsTest {
 
         val expectedProReleaseCommitSha = git.tag.findTag(givenTagName2).id
         val expectedProReleaseTagFile =
-            Tag.Build(
-                name = givenTagName2,
-                commitSha = expectedProReleaseCommitSha,
-                message = "",
-                buildVersion = "1.0",
-                buildVariant = "proRelease",
-                buildNumber = 2,
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = givenTagName2,
+                    commitSha = expectedProReleaseCommitSha,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "proRelease",
+                    buildNumber = 2,
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedProReleaseManifestProperties =
             ManifestProperties(
@@ -140,12 +148,12 @@ class AssembleTwoFlavorsTest {
                 versionName = "1.0",
             )
         assertTrue(
-            !proReleaseResult.output.contains("Task :app:getLastTagDemoDebug"),
-            "Task getLastTagDemoDebug not executed",
+            !proReleaseResult.output.contains("Task :app:getLastTagSnapshotDemoDebug"),
+            "Task getLastTagSnapshotDemoDebug not executed",
         )
         assertTrue(
-            proReleaseResult.output.contains("Task :app:getLastTagProRelease"),
-            "Task getLastTagProRelease executed",
+            proReleaseResult.output.contains("Task :app:getLastTagSnapshotProRelease"),
+            "Task getLastTagSnapshotProRelease executed",
         )
         assertTrue(
             proReleaseResult.output.contains("BUILD SUCCESSFUL"),
@@ -188,7 +196,7 @@ class AssembleTwoFlavorsTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleDemoFreeDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-demoFreeDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-demoFreeDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -210,13 +218,17 @@ class AssembleTwoFlavorsTest {
         val expectedBuildVersion = "1.0"
 
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
@@ -224,12 +236,12 @@ class AssembleTwoFlavorsTest {
                 versionName = "1.0",
             )
         assertTrue(
-            result.output.contains("Task :app:getLastTagDemoFreeDebug"),
-            "Task getLastTagDemoFreeDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotDemoFreeDebug"),
+            "Task getLastTagSnapshotDemoFreeDebug executed",
         )
         assertTrue(
-            !result.output.contains("Task :app:getLastTagDemoFreeRelease"),
-            "Task getLastTagDemoFreeRelease not executed",
+            !result.output.contains("Task :app:getLastTagSnapshotDemoFreeRelease"),
+            "Task getLastTagSnapshotDemoFreeRelease not executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -273,7 +285,7 @@ class AssembleTwoFlavorsTest {
         val givenCommitMessage = "Initial commit"
         val givenAssembleTask = "assembleDemoFreeDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-demoFreeDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-demoFreeDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -287,12 +299,12 @@ class AssembleTwoFlavorsTest {
             ?: false
 
         assertTrue(
-            result.output.contains("Task :app:getLastTagDemoFreeDebug"),
-            "Task getLastTagDemoFreeDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotDemoFreeDebug"),
+            "Task getLastTagSnapshotDemoFreeDebug executed",
         )
         assertTrue(
-            !result.output.contains("Task :app:getLastTagDemoFreeRelease"),
-            "Task getLastTagDemoFreeRelease not executed",
+            !result.output.contains("Task :app:getLastTagSnapshotDemoFreeRelease"),
+            "Task getLastTagSnapshotDemoFreeRelease not executed",
         )
         assertTrue(
             result.output.contains("BUILD FAILED"),

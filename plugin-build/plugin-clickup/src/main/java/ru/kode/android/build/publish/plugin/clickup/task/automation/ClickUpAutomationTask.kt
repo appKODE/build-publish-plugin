@@ -86,10 +86,10 @@ abstract class ClickUpAutomationTask
          */
         @get:InputFile
         @get:Option(
-            option = "buildTagFile",
+            option = "buildTagSnapshotFile",
             description = "JSON file containing build tag information",
         )
-        abstract val buildTagFile: RegularFileProperty
+        abstract val buildTagSnapshotFile: RegularFileProperty
 
         /**
          * The changelog file containing commit messages and issue references.
@@ -183,7 +183,7 @@ abstract class ClickUpAutomationTask
          */
         @TaskAction
         fun processClickUpTasks() {
-            val currentBuildTag = fromJson(buildTagFile.asFile.get())
+            val currentBuildTag = fromJson(buildTagSnapshotFile.asFile.get()).current
             val changelog = changelogFile.asFile.get().readText()
             val issues =
                 Regex(issueNumberPattern.get())

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.ProductFlavor
@@ -41,9 +42,9 @@ class GetLastTagOneFlavorTest {
         )
         val givenTagName = "v1.0.1-googleDebug"
         val givenCommitMessage = "Initial commit"
-        val givenGetLastTagTask = "getLastTagGoogleDebug"
+        val givenGetLastTagTask = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -58,13 +59,17 @@ class GetLastTagOneFlavorTest {
         val expectedTagName = "v1.0.1-googleDebug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -88,9 +93,9 @@ class GetLastTagOneFlavorTest {
         val givenSecondTagName = "v1.0.2-googleDebug"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
-        val givenGetLastTagTask = "getLastTagGoogleDebug"
+        val givenGetLastTagTask = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenFirstTagName)
@@ -102,19 +107,32 @@ class GetLastTagOneFlavorTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedCommitSha = git.tag.findTag(givenSecondTagName).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.0.2-googleDebug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-googleDebug",
+                    commitSha = git.tag.findTag(givenSecondTagName).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "googleDebug",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-googleDebug",
+                    commitSha = git.tag.findTag(givenFirstTagName).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "googleDebug",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.1-googleDebug",
+                    commitSha = git.tag.findTag(givenFirstTagName).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "googleDebug",
+                    buildNumber = 1,
+                )
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -137,9 +155,9 @@ class GetLastTagOneFlavorTest {
         val givenFirstTagName = "v1.0.1-googleDebug"
         val givenSecondTagName = "v1.0.2-googleDebug"
         val givenFirstCommitMessage = "Initial commit"
-        val givenGetLastTagTask = "getLastTagGoogleDebug"
+        val givenGetLastTagTask = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenFirstTagName)
@@ -149,19 +167,25 @@ class GetLastTagOneFlavorTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedCommitSha = git.tag.findTag(givenSecondTagName).id
-        val expectedBuildNumber = "2"
-        val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.0.2-googleDebug"
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.2-googleDebug",
+                    commitSha = git.tag.findTag(givenSecondTagName).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "googleDebug",
+                    buildNumber = 2,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.1-googleDebug",
+                    commitSha = git.tag.findTag(givenFirstTagName).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "googleDebug",
+                    buildNumber = 1,
+                ),
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -185,9 +209,9 @@ class GetLastTagOneFlavorTest {
         val givenSecondTagName = "v1.2.1-googleDebug"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
-        val givenGetLastTagTask = "getLastTagGoogleDebug"
+        val givenGetLastTagTask = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenFirstTagName)
@@ -216,9 +240,9 @@ class GetLastTagOneFlavorTest {
         val givenFirstTagName = "v1.0.1-googleDebug"
         val givenSecondTagName = "v1.2.1-googleDebug"
         val givenFirstCommitMessage = "Initial commit"
-        val givenGetLastTagTask = "getLastTagGoogleDebug"
+        val givenGetLastTagTask = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenFirstTagName)
@@ -246,9 +270,9 @@ class GetLastTagOneFlavorTest {
         val givenSecondTagName = "v1.0.1-googleDebug"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
-        val givenGetLastTagTask = "getLastTagGoogleDebug"
+        val givenGetLastTagTask = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenFirstTagName)
@@ -277,9 +301,9 @@ class GetLastTagOneFlavorTest {
         val givenFirstTagName = "v1.2.1-googleDebug"
         val givenSecondTagName = "v1.0.1-googleDebug"
         val givenFirstCommitMessage = "Initial commit"
-        val givenGetLastTagTask = "getLastTagGoogleDebug"
+        val givenGetLastTagTask = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenFirstTagName)
@@ -307,9 +331,9 @@ class GetLastTagOneFlavorTest {
         val givenSecondTagName = "v1.0.1-googleDebug"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
-        val givenGetLastTagTask = "getLastTagGoogleDebug"
+        val givenGetLastTagTask = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenFirstTagName)
@@ -338,10 +362,10 @@ class GetLastTagOneFlavorTest {
         val givenTagNameDebug = "v1.0.1-googleDebug"
         val givenTagNameRelease = "v1.0.1-googleRelease"
         val givenCommitMessage = "Initial commit"
-        val givenGetLastTagTaskRelease = "getLastTagGoogleRelease"
-        val givenGetLastTagTaskDebug = "getLastTagGoogleDebug"
+        val givenGetLastTagTaskRelease = "getLastTagSnapshotGoogleRelease"
+        val givenGetLastTagTaskDebug = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleRelease.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleRelease.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagNameDebug)
@@ -358,13 +382,17 @@ class GetLastTagOneFlavorTest {
         val expectedTagName = "v1.0.1-googleRelease"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
@@ -388,10 +416,10 @@ class GetLastTagOneFlavorTest {
         val givenTagNameRelease = "v1.0.1-googleRelease"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
-        val givenGetLastTagTaskRelease = "getLastTagGoogleRelease"
-        val givenGetLastTagTaskDebug = "getLastTagGoogleDebug"
+        val givenGetLastTagTaskRelease = "getLastTagSnapshotGoogleRelease"
+        val givenGetLastTagTaskDebug = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleRelease.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleRelease.json")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenTagNameDebug)
@@ -410,13 +438,17 @@ class GetLastTagOneFlavorTest {
         val expectedTagName = "v1.0.1-googleRelease"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
@@ -439,10 +471,10 @@ class GetLastTagOneFlavorTest {
         val givenTagNameDebug = "v1.0.2-googleDebug"
         val givenTagNameRelease = "v1.0.1-googleRelease"
         val givenFirstCommitMessage = "Initial commit"
-        val givenGetLastTagTaskRelease = "getLastTagGoogleRelease"
-        val givenGetLastTagTaskDebug = "getLastTagGoogleDebug"
+        val givenGetLastTagTaskRelease = "getLastTagSnapshotGoogleRelease"
+        val givenGetLastTagTaskDebug = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleRelease.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleRelease.json")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenTagNameDebug)
@@ -459,13 +491,17 @@ class GetLastTagOneFlavorTest {
         val expectedTagName = "v1.0.1-googleRelease"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
@@ -489,10 +525,10 @@ class GetLastTagOneFlavorTest {
         val givenTagNameRelease = "v1.0.1-googleRelease"
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README"
-        val givenGetLastTagTaskRelease = "getLastTagGoogleRelease"
-        val givenGetLastTagTaskDebug = "getLastTagGoogleDebug"
+        val givenGetLastTagTaskRelease = "getLastTagSnapshotGoogleRelease"
+        val givenGetLastTagTaskDebug = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleRelease.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleRelease.json")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(givenTagNameDebug)
@@ -511,13 +547,17 @@ class GetLastTagOneFlavorTest {
         val expectedTagName = "v1.0.1-googleRelease"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
@@ -543,9 +583,9 @@ class GetLastTagOneFlavorTest {
         val givenFirstCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README N1"
         val givenThirdCommitMessage = "Add README N2"
-        val givenGetLastTagTask = "getLastTagGoogleDebug"
+        val givenGetLastTagTask = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenFirstCommitMessage)
         git.tag.addNamed(given1TagNameDebug)
@@ -560,19 +600,32 @@ class GetLastTagOneFlavorTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedBuildNumber = "100"
-        val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.0.100-googleDebug"
-        val expectedCommitSha = git.tag.findTag(expectedTagName).id
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.100-googleDebug",
+                    commitSha = git.tag.findTag(given3TagNameDebug).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "googleDebug",
+                    buildNumber = 100,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.99-googleDebug",
+                    commitSha = git.tag.findTag(given2TagNameDebug).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "googleDebug",
+                    buildNumber = 99,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.0.99-googleDebug",
+                    commitSha = git.tag.findTag(given2TagNameDebug).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "googleDebug",
+                    buildNumber = 99,
+                )
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
@@ -596,9 +649,9 @@ class GetLastTagOneFlavorTest {
         val given2TagNameDebug = "v1.0.99-googleDebug"
         val given3TagNameDebug = "v1.0.100-googleDebug"
         val givenCommitMessage = "Initial commit"
-        val givenGetLastTagTask = "getLastTagGoogleDebug"
+        val givenGetLastTagTask = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(given1TagNameDebug)
@@ -609,19 +662,25 @@ class GetLastTagOneFlavorTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedBuildNumber = "100"
-        val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.0.100-googleDebug"
-        val expectedCommitSha = git.tag.findTag(expectedTagName).id
-        val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.0.100-googleDebug",
+                    commitSha = git.tag.findTag(given3TagNameDebug).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "googleDebug",
+                    buildNumber = 100,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.0.99-googleDebug",
+                    commitSha = git.tag.findTag(given2TagNameDebug).id,
+                    message = "",
+                    buildVersion = "1.0",
+                    buildVariant = "googleDebug",
+                    buildNumber = 99,
+                ),
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
@@ -647,9 +706,9 @@ class GetLastTagOneFlavorTest {
         val givenFistCommitMessage = "Initial commit"
         val givenSecondCommitMessage = "Add README N1"
         val givenThirdCommitMessage = "Add README N2"
-        val givenGetLastTagTask = "getLastTagGoogleDebug"
+        val givenGetLastTagTask = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenFistCommitMessage)
         git.tag.addNamed(given1TagNameDebug)
@@ -664,19 +723,32 @@ class GetLastTagOneFlavorTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedBuildNumber = "100"
-        val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.1.100-googleDebug"
-        val expectedCommitSha = git.tag.findTag(expectedTagName).id
-        val expectedBuildVersion = "1.1"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                Tag.Build(
+                    name = "v1.1.100-googleDebug",
+                    commitSha = git.tag.findTag(given3TagNameDebug).id,
+                    message = "",
+                    buildVersion = "1.1",
+                    buildVariant = "googleDebug",
+                    buildNumber = 100,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.1.99-googleDebug",
+                    commitSha = git.tag.findTag(given2TagNameDebug).id,
+                    message = "",
+                    buildVersion = "1.1",
+                    buildVariant = "googleDebug",
+                    buildNumber = 99,
+                ),
+                previousOnDifferentCommit = Tag.Build(
+                    name = "v1.1.99-googleDebug",
+                    commitSha = git.tag.findTag(given2TagNameDebug).id,
+                    message = "",
+                    buildVersion = "1.1",
+                    buildVariant = "googleDebug",
+                    buildNumber = 99,
+                )
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),
@@ -700,9 +772,9 @@ class GetLastTagOneFlavorTest {
         val given2TagNameDebug = "v1.1.99-googleDebug"
         val given3TagNameDebug = "v1.1.100-googleDebug"
         val givenCommitMessage = "Initial commit"
-        val givenGetLastTagTask = "getLastTagGoogleDebug"
+        val givenGetLastTagTask = "getLastTagSnapshotGoogleDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-googleDebug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(given1TagNameDebug)
@@ -713,19 +785,25 @@ class GetLastTagOneFlavorTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
-        val expectedBuildNumber = "100"
-        val expectedBuildVariant = "googleDebug"
-        val expectedTagName = "v1.1.100-googleDebug"
-        val expectedCommitSha = git.tag.findTag(expectedTagName).id
-        val expectedBuildVersion = "1.1"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = "v1.1.100-googleDebug",
+                    commitSha = git.tag.findTag(given3TagNameDebug).id,
+                    message = "",
+                    buildVersion = "1.1",
+                    buildVariant = "googleDebug",
+                    buildNumber = 100,
+                ),
+                previousInOrder = Tag.Build(
+                    name = "v1.1.99-googleDebug",
+                    commitSha = git.tag.findTag(given2TagNameDebug).id,
+                    message = "",
+                    buildVersion = "1.1",
+                    buildVariant = "googleDebug",
+                    buildNumber = 99,
+                ),
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             releaseResult.output.contains("BUILD SUCCESSFUL"),

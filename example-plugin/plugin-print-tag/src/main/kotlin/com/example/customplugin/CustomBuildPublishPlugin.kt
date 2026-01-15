@@ -60,10 +60,10 @@ abstract class CustomBuildPublishExtension
                 "printTagExample${input.buildVariant.capitalizedName()}",
                 PrintLastTagTask::class.java
             ) {
-                it.buildTagFile.set(input.output.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
+                it.buildTagSnapshotFile.set(input.output.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
                 it.message.set(messageConfig.additionalText)
 
-                it.dependsOn(input.output.lastBuildTagFileProvider)
+                it.dependsOn(input.output.buildTagSnapshotProvider)
             }
         }
     }
@@ -93,14 +93,14 @@ abstract class PrintLastTagTask
 
         @get:InputFile
         @get:Option(
-            option = "buildTagFile",
+            option = "buildTagSnapshotFile",
             description = "Path to a JSON file containing build metadata (name, number, variant).",
         )
-        abstract val buildTagFile: RegularFileProperty
+        abstract val buildTagSnapshotFile: RegularFileProperty
 
         @TaskAction
         fun getLastTag() {
-            val currentBuildTag = fromJson(buildTagFile.asFile.get())
+            val currentBuildTag = fromJson(buildTagSnapshotFile.asFile.get()).current
             println("Last tag name: ${currentBuildTag.name} (message: ${message.get()})")
         }
     }

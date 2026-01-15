@@ -5,7 +5,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.options.Option
 
-abstract class GetLastTagTaskOutput : DefaultTask() {
+abstract class GetLastTagSnapshotTaskOutput : DefaultTask() {
     /**
      * The output file where tag information will be written in JSON format.
      *
@@ -13,8 +13,8 @@ abstract class GetLastTagTaskOutput : DefaultTask() {
      */
     @get:OutputFile
     @get:Option(
-        option = "tagBuildFile",
+        option = "buildTagSnapshotFile",
         description = "Output JSON file containing information about the found build tag",
     )
-    abstract val tagBuildFile: RegularFileProperty
+    abstract val buildTagSnapshotFile: RegularFileProperty
 }

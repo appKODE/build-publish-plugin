@@ -46,7 +46,7 @@ abstract class ComputeApkOutputFileNameTask : DefaultTask() {
     abstract val baseFileName: Property<String>
 
     @get:InputFile
-    abstract val tagBuildFile: RegularFileProperty
+    abstract val buildTagSnapshotFile: RegularFileProperty
 
     @get:OutputFile
     abstract val apkOutputFileNameFile: RegularFileProperty
@@ -60,7 +60,7 @@ abstract class ComputeApkOutputFileNameTask : DefaultTask() {
         val baseFileName = baseFileName.get()
         val buildVariant = buildVariant.get()
         val strategy = outputApkNameStrategy.orNull ?: VersionedApkNamingStrategy
-        val tagBuildFile = tagBuildFile.get()
+        val tagSnapshot = buildTagSnapshotFile.get()
 
         logger.info(
             resolvedApkOutputFileNameParamsMessage(
@@ -74,8 +74,8 @@ abstract class ComputeApkOutputFileNameTask : DefaultTask() {
         val apkOutputFileName =
             if (useVersionsFromTag) {
                 val tag =
-                    if (useVersionsFromTag && tagBuildFile.asFile.exists()) {
-                        fromJson(tagBuildFile.asFile)
+                    if (useVersionsFromTag && tagSnapshot.asFile.exists()) {
+                        fromJson(tagSnapshot.asFile).current
                     } else {
                         null
                     }

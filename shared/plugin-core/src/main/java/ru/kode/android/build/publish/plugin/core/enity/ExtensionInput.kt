@@ -4,7 +4,7 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
-import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 
 /**
  * Container class that holds all the input data required for build and publish operations.
@@ -60,7 +60,7 @@ data class ExtensionInput(
         /**
          * File that stores the last build tag
          */
-        val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
+        val buildTagSnapshotProvider: Provider<out GetLastTagSnapshotTaskOutput>,
         /**
          * Provider for the APK file location
          */

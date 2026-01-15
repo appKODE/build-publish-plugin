@@ -108,12 +108,12 @@ class FirebaseDistributionTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
@@ -216,12 +216,12 @@ class FirebaseDistributionTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagInternal"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotInternal"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
@@ -311,12 +311,12 @@ class FirebaseDistributionTest {
             ?: false
 
         assertTrue(
-            !distributionResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !distributionResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            !distributionResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug not executed",
+            !distributionResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug not executed",
         )
         assertTrue(
             distributionResult.output.contains("BUILD FAILED"),
@@ -398,12 +398,12 @@ class FirebaseDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
@@ -497,12 +497,12 @@ class FirebaseDistributionTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
@@ -594,12 +594,12 @@ class FirebaseDistributionTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
@@ -691,12 +691,12 @@ class FirebaseDistributionTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
@@ -784,12 +784,12 @@ class FirebaseDistributionTest {
             ?: false
 
         assertTrue(
-            !generateChangelogResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !generateChangelogResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            generateChangelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            generateChangelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             generateChangelogResult.output.contains("BUILD SUCCESSFUL"),
@@ -883,12 +883,12 @@ class FirebaseDistributionTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),

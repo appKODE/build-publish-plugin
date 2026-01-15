@@ -5,6 +5,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
@@ -17,12 +18,12 @@ import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorSe
 import javax.inject.Inject
 
 /**
- * Defines the parameters required for the [GenerateTagWork] task.
+ * Defines the parameters required for the [GenerateTagSnapshotWork] task.
  *
  * This interface extends Gradle's [WorkParameters] and provides all necessary
  * configuration for generating build tag information.
  */
-internal interface GenerateTagParameters : WorkParameters {
+internal interface GenerateTagSnapshotParameters : WorkParameters {
     /**
      * The name of the build variant (e.g., 'debug', 'release')
      */
@@ -36,7 +37,7 @@ internal interface GenerateTagParameters : WorkParameters {
     /**
      * The output file where tag information will be written
      */
-    val tagBuildFile: RegularFileProperty
+    val buildTagSnapshotFile: RegularFileProperty
 
     /**
      * Service for executing Git commands
@@ -66,22 +67,24 @@ internal interface GenerateTagParameters : WorkParameters {
  * The work is performed in a background thread to avoid blocking the main Gradle build thread.
  *
  * @see WorkAction
- * @see GenerateTagParameters
+ * @see GenerateTagSnapshotParameters
  */
-internal abstract class GenerateTagWork
+internal abstract class GenerateTagSnapshotWork
     @Inject
-    constructor() : WorkAction<GenerateTagParameters> {
+    constructor() : WorkAction<GenerateTagSnapshotParameters> {
         override fun execute() {
             val buildVariant = parameters.buildVariant.get()
             val buildTagPattern = parameters.buildTagPattern.get()
-            val tagBuildOutput = parameters.tagBuildFile.asFile.get()
+            val buildTagSnapshotOutput = parameters.buildTagSnapshotFile.asFile.get()
             val useStubsForTagAsFallback = parameters.useStubsForTagAsFallback.get()
             val logger = parameters.loggerService.get()
 
-            val buildTag =
+            val buildTagSnapshot =
                 parameters.gitExecutorService.get()
                     .repository
-                    .findRecentBuildTag(buildVariant, buildTagPattern)
+                    .findTagSnapshot(buildVariant, buildTagPattern)
+
+            val buildTag = buildTagSnapshot?.current
 
             // NOTE: 0 or negative values for build number are invalid — project will fail
             val isTagValid = buildTag != null && buildTag.buildNumber >= DEFAULT_VERSION_CODE
@@ -89,7 +92,7 @@ internal abstract class GenerateTagWork
             when {
                 buildTag != null && isTagValid -> {
                     logger.quiet(validBuildTagFoundMessage(buildTag, buildVariant))
-                    tagBuildOutput.writeText(buildTag.toJson())
+                    buildTagSnapshotOutput.writeText(buildTagSnapshot.toJson())
                 }
 
                 buildTag != null && !isTagValid -> {
@@ -97,13 +100,18 @@ internal abstract class GenerateTagWork
                 }
 
                 useStubsForTagAsFallback -> {
-                    val tag = HardcodedTagGenerationStrategy.build(buildVariant)
-                    tagBuildOutput.writeText(tag.toJson())
+                    buildTagSnapshotOutput.writeText(
+                        BuildTagSnapshot(
+                            current = HardcodedTagGenerationStrategy.build(buildVariant),
+                            previousInOrder = null,
+                            previousOnDifferentCommit = null,
+                        ).toJson(),
+                    )
                     logger.quiet(usingStabMessage(buildVariant, buildTagPattern))
                 }
 
                 else -> {
-                    tagBuildOutput.writeText("")
+                    buildTagSnapshotOutput.writeText("")
                     logger.quiet(tagNotCreatedMessage(buildVariant, buildTagPattern))
                 }
             }

@@ -71,8 +71,8 @@ abstract class JiraAutomationTask
          * This file is used to extract version information for fix versions and labels.
          */
         @get:InputFile
-        @get:Option(option = "buildTagFile", description = "JSON file containing build tag information")
-        abstract val buildTagFile: RegularFileProperty
+        @get:Option(option = "buildTagSnapshotFile", description = "JSON file containing build tag information")
+        abstract val buildTagSnapshotFile: RegularFileProperty
 
         /**
          * File containing the changelog for this build.
@@ -160,7 +160,7 @@ abstract class JiraAutomationTask
          */
         @TaskAction
         fun executeAutomation() {
-            val currentBuildTag = fromJson(buildTagFile.asFile.get())
+            val currentBuildTag = fromJson(buildTagSnapshotFile.asFile.get()).current
             val changelog = changelogFile.asFile.get().readText()
             val issues =
                 Regex(issueNumberPattern.get())

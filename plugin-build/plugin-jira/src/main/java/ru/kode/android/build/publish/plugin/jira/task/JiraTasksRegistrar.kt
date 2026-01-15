@@ -5,7 +5,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
-import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
@@ -80,7 +80,7 @@ private fun Project.registerJiraTasks(
             "$JIRA_AUTOMATION_TASK${params.buildVariant.capitalizedName()}",
             JiraAutomationTask::class.java,
         ) {
-            it.buildTagFile.set(params.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
+            it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
             it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
             it.issueNumberPattern.set(params.issueNumberPattern)
             it.projectKey.set(automationConfig.projectKey)
@@ -90,7 +90,7 @@ private fun Project.registerJiraTasks(
             it.targetStatusName.set(automationConfig.targetStatusName)
 
             it.usesService(service)
-            it.dependsOn(params.lastBuildTagFileProvider, params.changelogFileProvider)
+            it.dependsOn(params.buildTagSnapshotProvider, params.changelogFileProvider)
         }
     } else {
         null
@@ -116,5 +116,5 @@ internal data class JiraAutomationTaskParams(
     /**
      * Provider for the file containing the last build tag
      */
-    val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
+    val buildTagSnapshotProvider: Provider<out GetLastTagSnapshotTaskOutput>,
 )

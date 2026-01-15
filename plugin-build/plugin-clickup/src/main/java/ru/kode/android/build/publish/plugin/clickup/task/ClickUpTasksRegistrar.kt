@@ -10,7 +10,7 @@ import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtens
 import ru.kode.android.build.publish.plugin.clickup.task.automation.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
-import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 
@@ -87,7 +87,7 @@ private fun Project.registerClickUpTasks(
             ClickUpAutomationTask::class.java,
         ) {
             it.workspaceName.set(automationConfig.workspaceName)
-            it.buildTagFile.set(params.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
+            it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
             it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
             it.issueNumberPattern.set(params.issueNumberPattern)
             it.fixVersionPattern.set(automationConfig.fixVersionPattern)
@@ -95,7 +95,7 @@ private fun Project.registerClickUpTasks(
             it.tagPattern.set(automationConfig.tagPattern)
             it.service.set(service)
 
-            it.dependsOn(params.lastBuildTagFileProvider, params.changelogFileProvider)
+            it.dependsOn(params.buildTagSnapshotProvider, params.changelogFileProvider)
         }
     } else {
         null
@@ -123,5 +123,5 @@ internal data class ClickUpAutomationTaskParams(
     /**
      * A file used to store the last build tag for change detection
      */
-    val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
+    val buildTagSnapshotProvider: Provider<out GetLastTagSnapshotTaskOutput>,
 )

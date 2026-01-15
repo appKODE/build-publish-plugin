@@ -69,10 +69,10 @@ abstract class GenerateChangelogTask
          */
         @get:InputFile
         @get:Option(
-            option = "buildTagFile",
+            option = "buildTagSnapshotFile",
             description = "JSON file containing build tag information",
         )
-        abstract val buildTagFile: RegularFileProperty
+        abstract val buildTagSnapshotFile: RegularFileProperty
 
         /**
          * The key used to filter relevant commit messages.
@@ -155,7 +155,7 @@ abstract class GenerateChangelogTask
                 parameters.commitMessageKey.set(commitMessageKey)
                 parameters.excludeMessageKey.set(excludeMessageKey)
                 parameters.buildTagPattern.set(buildTagPattern)
-                parameters.tagBuildFile.set(buildTagFile)
+                parameters.buildTagSnapshotFile.set(buildTagSnapshotFile)
                 parameters.changelogFile.set(changelogFile)
                 parameters.gitExecutorService.set(gitExecutorService)
                 parameters.loggerService.set(loggerService)

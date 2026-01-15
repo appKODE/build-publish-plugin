@@ -283,7 +283,7 @@ abstract class BuildPublishTelegramExtension
                             issueUrlPrefix = input.changelog.issueUrlPrefix,
                             buildVariant = input.buildVariant,
                             changelogFileProvider = input.changelog.fileProvider,
-                            lastBuildTagFileProvider = input.output.lastBuildTagFileProvider,
+                            buildTagSnapshotProvider = input.output.buildTagSnapshotProvider,
                         ),
                 )
             }

@@ -183,11 +183,11 @@ class JiraAllAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
@@ -39,7 +40,7 @@ class PrintLastIncreasedTagTest {
         val givenCommitMessage = "Initial commit"
         val givenGetLastTagTask = "printLastIncreasedTagDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -54,21 +55,25 @@ class PrintLastIncreasedTagTest {
         val expectedTagName = "v1.1.1-debug"
         val expectedBuildVersion = "1.1"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeeded",
         )
         assertTrue(
-            result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             result.output.contains("v1.1.2-debug"),
@@ -91,7 +96,7 @@ class PrintLastIncreasedTagTest {
         val givenCommitMessage = "Initial commit"
         val givenGetLastTagTask = "printLastIncreasedTagDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -106,21 +111,25 @@ class PrintLastIncreasedTagTest {
         val expectedTagName = "v0.1.1-debug"
         val expectedBuildVersion = "0.1"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeeded",
         )
         assertTrue(
-            result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             result.output.contains("v0.1.2-debug"),
@@ -143,7 +152,7 @@ class PrintLastIncreasedTagTest {
         val givenCommitMessage = "Initial commit"
         val givenGetLastTagTask = "printLastIncreasedTagDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -158,21 +167,25 @@ class PrintLastIncreasedTagTest {
         val expectedTagName = "v1.0.1-debug"
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeeded",
         )
         assertTrue(
-            result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             result.output.contains("v1.0.2-debug"),
@@ -195,7 +208,7 @@ class PrintLastIncreasedTagTest {
         val givenCommitMessage = "Initial commit"
         val givenGetLastTagTask = "printLastIncreasedTagDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -210,21 +223,25 @@ class PrintLastIncreasedTagTest {
         val expectedTagName = "v0.0.1-debug"
         val expectedBuildVersion = "0.0"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeeded",
         )
         assertTrue(
-            result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             result.output.contains("v0.0.2-debug"),
@@ -247,7 +264,7 @@ class PrintLastIncreasedTagTest {
         val givenCommitMessage = "Initial commit"
         val givenGetLastTagTask = "printLastIncreasedTagDebug"
         val git = projectDir.initGit()
-        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-debug.json")
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName)
@@ -262,21 +279,25 @@ class PrintLastIncreasedTagTest {
         val expectedTagName = "v0.0.1.1-debug"
         val expectedBuildVersion = "0.0.1"
         val expectedTagBuildFile =
-            Tag.Build(
-                name = expectedTagName,
-                commitSha = expectedCommitSha,
-                message = "",
-                buildVersion = expectedBuildVersion,
-                buildVariant = expectedBuildVariant,
-                buildNumber = expectedBuildNumber.toInt(),
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
             ).toJson()
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
             "Build succeeded",
         )
         assertTrue(
-            result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             result.output.contains("v0.0.1.2-debug"),

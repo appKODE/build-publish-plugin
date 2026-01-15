@@ -3,14 +3,12 @@ package ru.kode.android.build.publish.plugin.core.git
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
 import org.gradle.api.GradleException
+import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.enity.CommitRange
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.messages.cannotReturnTagMessage
-import ru.kode.android.build.publish.plugin.core.messages.couldNotFindProvidedBuildTagMessage
 import ru.kode.android.build.publish.plugin.core.messages.finTagsByRegexAfterSortingMessage
-import ru.kode.android.build.publish.plugin.core.messages.findTagsByNameFoundTagsMessage
-import ru.kode.android.build.publish.plugin.core.messages.findTagsByRangeBeforeSearchMessage
 import ru.kode.android.build.publish.plugin.core.messages.findTagsByRegexAfterFilterMessage
 import ru.kode.android.build.publish.plugin.core.messages.findTagsByRegexBeforeFilterMessage
 import ru.kode.android.build.publish.plugin.core.util.getBuildNumber
@@ -72,100 +70,52 @@ class GitCommandExecutor(
      * @return a list of [Tag.Generic] objects representing the most recent matching build tags,
      *         or `null` if no matching tags are found.
      */
-    fun findBuildTags(
+    fun findSnapshot(
+        buildVariant: String,
         buildTagRegex: Regex,
-        limitResultCount: Int,
-    ): List<Tag>? {
+    ): BuildTagSnapshot? {
         val allTags = findTagsByRegex(buildTagRegex)
-        val lastTags = allTags.take(limitResultCount + 1)
-        if (lastTags.isNotEmpty()) validateTags(lastTags, buildTagRegex)
-        return lastTags
-            .map { tag ->
-                Tag.Generic(
-                    name = tag.name,
-                    commitSha = tag.commit.id,
-                    message = tag.fullMessage,
-                )
-            }
-            .ifEmpty { null }
-    }
+        val lastTwoTags = allTags.take(2)
+        if (lastTwoTags.isNotEmpty()) validateTags(lastTwoTags, buildTagRegex)
 
-    /**
-     * Finds the range of tags starting from the given [buildTag] and including
-     * the previous matching tag according to [buildTagRegex].
-     *
-     * This function retrieves and filters tags by the given regex, sorts them by commit order
-     * and build number, validates them, and then determines the two most recent tags relevant
-     * to the provided [buildTag].
-     *
-     * The result typically contains the current tag and its immediate predecessor in history,
-     * represented as [Tag.Generic] objects.
-     *
-     * @param buildTag the starting build tag from which to find the range.
-     * @param buildTagRegex the regular expression used to match valid build tag names.
-     *
-     * @return a list of up to two [Tag.Generic] objects (the current and previous tags),
-     *         or `null` if no matching tags are found.
-     */
-    fun findTagRange(
-        buildTag: Tag.Build,
-        buildTagRegex: Regex,
-    ): List<Tag>? {
-        val tags = findTagsByRange(buildTag, buildTagRegex)
-        if (tags.isNotEmpty()) validateTags(tags, buildTagRegex)
-
-        return tags
-            .map { tag ->
-                Tag.Generic(
-                    name = tag.name,
-                    commitSha = tag.commit.id,
-                    message = tag.fullMessage,
-                )
-            }
-            .ifEmpty { null }
-    }
-
-    /**
-     * Finds up to two build tags (the current and previous ones) in the Git history
-     * based on the provided [startTag] and [buildTagRegex].
-     *
-     * The function filters all tags by regex, sorts them by commit order and build number,
-     * and finds the index of [startTag] in that ordered list. It then extracts the sublist
-     * containing [startTag] and its immediate predecessor (if available).
-     *
-     * Throws a [GradleException] if the [startTag] cannot be found in the Git history.
-     *
-     * @param startTag the current build tag to start from when determining the range.
-     * @param buildTagRegex the regex used to identify valid build tags.
-     *
-     * @return a list of up to two [GrgitTag] objects (the current and previous tags).
-     *
-     * @throws GradleException if the provided [startTag] cannot be found in the repository.
-     */
-    private fun findTagsByRange(
-        startTag: Tag.Build,
-        buildTagRegex: Regex,
-    ): List<GrgitTag> {
-        logger.info(findTagsByRangeBeforeSearchMessage(startTag))
-        val filteredAndSortedTags = findTagsByRegex(buildTagRegex).distinctBy { it.commit.id }
-        val startIndex = filteredAndSortedTags.indexOfFirst { it.commit.id == startTag.commitSha }
-
-        if (startIndex < 0) {
-            val availableTagNames = filteredAndSortedTags.joinToString { it.name }
-            throw GradleException(
-                couldNotFindProvidedBuildTagMessage(startTag, buildTagRegex, availableTagNames),
+        val lastTag = allTags.firstOrNull()
+        return lastTag?.let { lastGitTag ->
+            val previousInOrder = lastTwoTags.getOrNull(1)
+            val previousOnDifferentCommit = allTags.firstOrNull { it.commit.id != lastTag.commit.id }
+            BuildTagSnapshot(
+                current =
+                    Tag.Build(
+                        Tag.Generic(
+                            name = lastGitTag.name,
+                            commitSha = lastGitTag.commit.id,
+                            message = lastGitTag.fullMessage,
+                        ),
+                        buildVariant,
+                    ),
+                previousInOrder =
+                    previousInOrder?.let {
+                        Tag.Build(
+                            Tag.Generic(
+                                name = it.name,
+                                commitSha = it.commit.id,
+                                message = it.fullMessage,
+                            ),
+                            buildVariant,
+                        )
+                    },
+                previousOnDifferentCommit =
+                    previousOnDifferentCommit?.let {
+                        Tag.Build(
+                            Tag.Generic(
+                                name = it.name,
+                                commitSha = it.commit.id,
+                                message = it.fullMessage,
+                            ),
+                            buildVariant,
+                        )
+                    },
             )
         }
-
-        val lastTwoTags =
-            filteredAndSortedTags.subList(
-                startIndex,
-                minOf(startIndex + 2, filteredAndSortedTags.size),
-            )
-
-        logger.info(findTagsByNameFoundTagsMessage(lastTwoTags))
-
-        return lastTwoTags
     }
 
     /**
@@ -177,7 +127,7 @@ class GitCommandExecutor(
      * - Sorts them in descending order by commit position in history and build number.
      * - Returns the sorted list of matching [GrgitTag] objects.
      *
-     * This method is internal and used by [findBuildTags].
+     * This method is internal and used by [findSnapshot].
      *
      * @param buildTagRegex the regex used to filter valid build tag names.
      *

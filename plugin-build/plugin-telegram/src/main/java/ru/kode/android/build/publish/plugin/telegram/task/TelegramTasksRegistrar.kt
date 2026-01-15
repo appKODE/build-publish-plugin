@@ -7,7 +7,7 @@ import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
-import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
@@ -203,7 +203,7 @@ private fun Project.registerSendTelegramChangelogTask(
                 .getByNameOrCommon(params.buildVariant.name)
 
         it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
-        it.buildTagFile.set(params.lastBuildTagFileProvider.flatMap { it.tagBuildFile })
+        it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
         it.issueUrlPrefix.set(params.issueUrlPrefix)
         it.issueNumberPattern.set(params.issueNumberPattern)
         it.baseOutputFileName.set(params.baseFileName)
@@ -212,7 +212,7 @@ private fun Project.registerSendTelegramChangelogTask(
         it.service.set(service)
 
         it.usesService(service)
-        it.dependsOn(params.lastBuildTagFileProvider, params.changelogFileProvider)
+        it.dependsOn(params.buildTagSnapshotProvider, params.changelogFileProvider)
     }
 }
 
@@ -376,7 +376,7 @@ internal data class TelegramChangelogTaskParams(
     /**
      * File containing the last build tag information.
      */
-    val lastBuildTagFileProvider: Provider<out GetLastTagTaskOutput>,
+    val buildTagSnapshotProvider: Provider<out GetLastTagSnapshotTaskOutput>,
 )
 
 /**

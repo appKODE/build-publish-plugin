@@ -19,7 +19,7 @@ import ru.kode.android.build.publish.plugin.core.util.replaceLast
  *
  * ## Usage
  * ```
- * ./gradlew printLastIncreasedTag --buildTagFile=path/to/build-tag.json
+ * ./gradlew printLastIncreasedTag --buildTagSnapshotFile=path/to/build-tag.json
  * ```
  *
  * @see DefaultTask
@@ -41,10 +41,10 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
      */
     @get:InputFile
     @get:Option(
-        option = "buildTagFile",
+        option = "buildTagSnapshotFile",
         description = "JSON file containing information about the last build tag",
     )
-    abstract val buildTagFile: RegularFileProperty
+    abstract val buildTagSnapshotFile: RegularFileProperty
 
     /**
      * Executes the task to print the next incremented build tag.
@@ -59,7 +59,7 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
      */
     @TaskAction
     fun printTag() {
-        val lastBuildTag = fromJson(buildTagFile.asFile.get())
+        val lastBuildTag = fromJson(buildTagSnapshotFile.asFile.get()).current
         val currentBuildNumber = lastBuildTag.buildNumber.toString()
         val increasedBuildNumber = lastBuildTag.buildNumber.inc().toString()
         val nextBuildTag =

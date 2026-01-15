@@ -157,11 +157,11 @@ class TelegramChangelogTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -262,11 +262,11 @@ class TelegramChangelogTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -377,11 +377,11 @@ class TelegramChangelogTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -492,11 +492,11 @@ class TelegramChangelogTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -604,11 +604,11 @@ class TelegramChangelogTest {
             ?: false
 
         assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagRelease"),
+            !changelogResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -715,11 +715,11 @@ class TelegramChangelogTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -842,11 +842,11 @@ class TelegramChangelogTest {
             ?: false
 
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagRelease"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease executed",
         )
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagDebug"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug not executed",
         )
         assertTrue(
@@ -970,11 +970,11 @@ class TelegramChangelogTest {
             ?: false
 
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagRelease"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease executed",
         )
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagDebug"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug not executed",
         )
         assertTrue(
@@ -1032,11 +1032,11 @@ class TelegramChangelogTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagDebug"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug not executed",
         )
         assertTrue(

@@ -45,6 +45,19 @@ class FixedVersionNameStrategy(
     }
 }
 
+object BuildVersionNumberVariantNameStrategy : VersionNameStrategy {
+    override fun build(
+        buildVariant: BuildVariant,
+        tag: Tag.Build?,
+    ): String {
+        return if (tag != null) {
+            "${tag.buildVersion}.${tag.buildNumber}-${buildVariant.name}"
+        } else {
+            "$DEFAULT_BUILD_VERSION-${buildVariant.name}"
+        }
+    }
+}
+
 object BuildVersionVariantNameStrategy : VersionNameStrategy {
     override fun build(
         buildVariant: BuildVariant,

@@ -180,7 +180,7 @@ abstract class BuildPublishClickUpExtension
                         buildVariant = input.buildVariant,
                         issueNumberPattern = input.changelog.issueNumberPattern,
                         changelogFileProvider = input.changelog.fileProvider,
-                        lastBuildTagFileProvider = input.output.lastBuildTagFileProvider,
+                        buildTagSnapshotProvider = input.output.buildTagSnapshotProvider,
                     ),
             )
         }

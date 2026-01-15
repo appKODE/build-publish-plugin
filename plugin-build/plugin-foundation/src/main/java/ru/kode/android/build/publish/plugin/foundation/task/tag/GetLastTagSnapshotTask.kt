@@ -11,9 +11,9 @@ import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
-import ru.kode.android.build.publish.plugin.core.task.GetLastTagTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
-import ru.kode.android.build.publish.plugin.foundation.task.tag.work.GenerateTagWork
+import ru.kode.android.build.publish.plugin.foundation.task.tag.work.GenerateTagSnapshotWork
 import javax.inject.Inject
 
 /**
@@ -26,14 +26,14 @@ import javax.inject.Inject
  * - Writing the tag information to a JSON file
  *
  * @see DefaultTask
- * @see GenerateTagWork
+ * @see GenerateTagSnapshotWork
  */
 @DisableCachingByDefault
-abstract class GetLastTagTask
+abstract class GetLastTagSnapshotTask
     @Inject
     constructor(
         private val workerExecutor: WorkerExecutor,
-    ) : GetLastTagTaskOutput() {
+    ) : GetLastTagSnapshotTaskOutput() {
         init {
             description = "Retrieves the last Git tag matching a specific pattern for a build variant"
             group = BasePlugin.BUILD_GROUP
@@ -103,19 +103,19 @@ abstract class GetLastTagTask
          *
          * This method:
          * 1. Creates a work queue for background processing
-         * 2. Submits a [GenerateTagWork] task with the configured parameters
+         * 2. Submits a [GenerateTagSnapshotWork] task with the configured parameters
          * 3. Waits for the work to complete
          *
          * The actual tag processing is done in a separate worker thread to avoid
          * blocking the main Gradle build thread during Git operations.
          *
-         * @see GenerateTagWork
+         * @see GenerateTagSnapshotWork
          */
         @TaskAction
         fun getLastTag() {
             val workQueue: WorkQueue = workerExecutor.noIsolation()
-            workQueue.submit(GenerateTagWork::class.java) { parameters ->
-                parameters.tagBuildFile.set(tagBuildFile)
+            workQueue.submit(GenerateTagSnapshotWork::class.java) { parameters ->
+                parameters.buildTagSnapshotFile.set(buildTagSnapshotFile)
                 parameters.buildVariant.set(buildVariantName)
                 parameters.buildTagPattern.set(buildTagPattern)
                 parameters.gitExecutorService.set(gitExecutorService)

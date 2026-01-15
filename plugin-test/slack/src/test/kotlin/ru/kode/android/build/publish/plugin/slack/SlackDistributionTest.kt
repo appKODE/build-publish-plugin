@@ -135,12 +135,12 @@ class SlackDistributionTest {
 
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
@@ -236,12 +236,12 @@ class SlackDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !changelogResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             changelogResult.output.contains("BUILD SUCCESSFUL"),
@@ -336,12 +336,12 @@ class SlackDistributionTest {
             ?: false
 
         assertTrue(
-            !result.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !result.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            result.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            result.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             result.output.contains("BUILD SUCCESSFUL"),
@@ -434,12 +434,12 @@ class SlackDistributionTest {
             ?: false
 
         assertTrue(
-            !distributionResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !distributionResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            distributionResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            distributionResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             distributionResult.output.contains("BUILD SUCCESSFUL"),
@@ -517,12 +517,12 @@ class SlackDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
@@ -585,12 +585,12 @@ class SlackDistributionTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug not executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD FAILED"),

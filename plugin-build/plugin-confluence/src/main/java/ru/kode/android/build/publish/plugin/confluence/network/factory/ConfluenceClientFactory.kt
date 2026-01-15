@@ -1,11 +1,13 @@
 package ru.kode.android.build.publish.plugin.confluence.network.factory
 
 import okhttp3.ConnectionPool
+import okhttp3.ConnectionSpec
 import okhttp3.Credentials
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Response
+import okhttp3.TlsVersion
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.EOFException
 import okio.IOException
@@ -90,8 +92,14 @@ private fun buildClient(
                     HttpLoggingInterceptor.Level.HEADERS
                 }
         }
+    val tls =
+        ConnectionSpec.Builder(ConnectionSpec.COMPATIBLE_TLS)
+            .tlsVersions(TlsVersion.TLS_1_2)
+            .build()
+
     return OkHttpClient.Builder()
         .protocols(listOf(Protocol.HTTP_1_1))
+        .connectionSpecs(listOf(tls))
         .connectionPool(ConnectionPool(0, 1, TimeUnit.SECONDS))
         .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
         .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
@@ -141,7 +149,7 @@ private class RetryHandshakeInterceptor(
         var attempt = 0
         var lastException: IOException? = null
 
-        while (attempt <= maxRetries) {
+        while (attempt < maxRetries) {
             try {
                 return chain.proceed(request)
             } catch (e: SSLHandshakeException) {

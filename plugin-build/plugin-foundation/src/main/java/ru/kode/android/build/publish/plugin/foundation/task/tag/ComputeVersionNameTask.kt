@@ -44,7 +44,7 @@ abstract class ComputeVersionNameTask : DefaultTask() {
     abstract val useDefaultsForVersionsAsFallback: Property<Boolean>
 
     @get:InputFile
-    abstract val tagBuildFile: RegularFileProperty
+    abstract val buildTagSnapshotFile: RegularFileProperty
 
     @get:OutputFile
     abstract val versionNameFile: RegularFileProperty
@@ -57,7 +57,7 @@ abstract class ComputeVersionNameTask : DefaultTask() {
         val useFallback = useDefaultsForVersionsAsFallback.get()
         val buildVariant = buildVariant.get()
         val strategy = versionNameStrategy.orNull ?: BuildVersionNameStrategy
-        val tagBuildFile = tagBuildFile.get()
+        val tagSnapshot = buildTagSnapshotFile.get()
 
         logger.info(
             resolvedVersionNameMessage(
@@ -72,8 +72,8 @@ abstract class ComputeVersionNameTask : DefaultTask() {
             when {
                 useVersionsFromTag -> {
                     val tag =
-                        if (tagBuildFile.asFile.exists()) {
-                            fromJson(tagBuildFile.asFile)
+                        if (tagSnapshot.asFile.exists()) {
+                            fromJson(tagSnapshot.asFile).current
                         } else {
                             null
                         }

@@ -88,10 +88,10 @@ abstract class SendSlackChangelogTask
          */
         @get:InputFile
         @get:Option(
-            option = "buildTagFile",
+            option = "buildTagSnapshotFile",
             description = "Json contains info about tag build",
         )
-        abstract val buildTagFile: RegularFileProperty
+        abstract val buildTagSnapshotFile: RegularFileProperty
 
         /**
          * A property that holds a reference to the base output file name.
@@ -206,7 +206,7 @@ abstract class SendSlackChangelogTask
          */
         @TaskAction
         fun sendChangelog() {
-            val currentBuildTag = fromJson(buildTagFile.asFile.get())
+            val currentBuildTag = fromJson(buildTagSnapshotFile.asFile.get()).current
             val changelog = changelogFile.orNull?.asFile?.readText()
             if (changelog.isNullOrEmpty()) {
                 loggerService.get().error(changelogFileNotFoundMessage())

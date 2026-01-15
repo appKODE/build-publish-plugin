@@ -38,7 +38,7 @@ abstract class ComputeVersionCodeTask : DefaultTask() {
     abstract val versionCodeStrategy: Property<VersionCodeStrategy>
 
     @get:InputFile
-    abstract val tagBuildFile: RegularFileProperty
+    abstract val buildTagSnapshotFile: RegularFileProperty
 
     @get:Input
     abstract val useVersionsFromTag: Property<Boolean>
@@ -55,7 +55,7 @@ abstract class ComputeVersionCodeTask : DefaultTask() {
         val versionCodeStrategy = versionCodeStrategy.orNull ?: BuildVersionCodeStrategy
         val useVersionsFromTag = useVersionsFromTag.get()
         val useDefaultVersionsAsFallback = useDefaultsForFallback.get()
-        val tagBuildFile = tagBuildFile.get()
+        val tagSnapshot = buildTagSnapshotFile.get()
 
         val loggerService = loggerService.get()
 
@@ -68,12 +68,12 @@ abstract class ComputeVersionCodeTask : DefaultTask() {
             ),
         )
 
-        val code: Int =
+        val versionCode: Int =
             when {
                 useVersionsFromTag -> {
                     val tag =
-                        if (tagBuildFile.asFile.exists()) {
-                            fromJson(tagBuildFile.asFile)
+                        if (tagSnapshot.asFile.exists()) {
+                            fromJson(tagSnapshot.asFile).current
                         } else {
                             null
                         }
@@ -92,7 +92,7 @@ abstract class ComputeVersionCodeTask : DefaultTask() {
 
         val file = versionCodeFile.get().asFile
         file.parentFile.mkdirs()
-        file.writeText(code.toString())
-        logger.info(computedVersionCodeMessage(buildVariant, code))
+        file.writeText(versionCode.toString())
+        logger.info(computedVersionCodeMessage(buildVariant, versionCode))
     }
 }

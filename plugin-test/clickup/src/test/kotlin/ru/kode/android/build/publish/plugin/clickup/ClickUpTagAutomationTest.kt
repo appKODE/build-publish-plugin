@@ -107,12 +107,12 @@ class ClickUpTagAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug not executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD FAILED"),
@@ -204,12 +204,12 @@ class ClickUpTagAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
@@ -321,12 +321,12 @@ class ClickUpTagAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
@@ -430,12 +430,12 @@ class ClickUpTagAutomationTest {
             ?: false
 
         assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            automationResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             automationResult.output.contains("BUILD SUCCESSFUL"),
@@ -541,12 +541,12 @@ class ClickUpTagAutomationTest {
             ?: false
 
         assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            automationResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             automationResult.output.contains("BUILD SUCCESSFUL"),
@@ -649,12 +649,12 @@ class ClickUpTagAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
@@ -767,12 +767,12 @@ class ClickUpTagAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             assembleResult.output.contains("BUILD SUCCESSFUL"),
@@ -877,12 +877,12 @@ class ClickUpTagAutomationTest {
             ?: false
 
         assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            automationResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             automationResult.output.contains("BUILD SUCCESSFUL"),
@@ -989,12 +989,12 @@ class ClickUpTagAutomationTest {
             ?: false
 
         assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagRelease"),
-            "Task getLastTagRelease not executed",
+            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
         )
         assertTrue(
-            automationResult.output.contains("Task :app:getLastTagDebug"),
-            "Task getLastTagDebug executed",
+            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
         )
         assertTrue(
             automationResult.output.contains("BUILD SUCCESSFUL"),

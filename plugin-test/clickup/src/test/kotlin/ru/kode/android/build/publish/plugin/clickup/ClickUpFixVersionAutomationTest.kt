@@ -143,11 +143,11 @@ class ClickUpFixVersionAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -254,11 +254,11 @@ class ClickUpFixVersionAutomationTest {
             ?: false
 
         assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagRelease"),
+            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            automationResult.output.contains("Task :app:getLastTagDebug"),
+            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -361,11 +361,11 @@ class ClickUpFixVersionAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -470,11 +470,11 @@ class ClickUpFixVersionAutomationTest {
             ?: false
 
         assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagRelease"),
+            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            automationResult.output.contains("Task :app:getLastTagDebug"),
+            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -576,11 +576,11 @@ class ClickUpFixVersionAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -684,11 +684,11 @@ class ClickUpFixVersionAutomationTest {
             ?: false
 
         assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagRelease"),
+            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            automationResult.output.contains("Task :app:getLastTagDebug"),
+            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(
@@ -785,11 +785,11 @@ class ClickUpFixVersionAutomationTest {
             ?: false
 
         assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagRelease"),
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
         )
         assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagDebug"),
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
             "Task getLastTagDebug executed",
         )
         assertTrue(

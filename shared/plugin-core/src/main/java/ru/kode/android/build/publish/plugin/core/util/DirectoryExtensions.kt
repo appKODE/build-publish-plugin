@@ -8,9 +8,9 @@ fun Project.changelogFileProvider(variantName: String): Provider<RegularFile> {
     return this.layout.buildDirectory.file("changelog-$variantName.txt")
 }
 
-fun Project.tagBuildFileProvider(variantName: String): Provider<RegularFile> {
+fun Project.tagBuildSnapshotFileProvider(variantName: String): Provider<RegularFile> {
     return project.layout.buildDirectory
-        .file("tag-build-$variantName.json")
+        .file("tag-build-snapshot-$variantName.json")
 }
 
 fun Project.versionCodeFileProvider(variantName: String): Provider<RegularFile> {
