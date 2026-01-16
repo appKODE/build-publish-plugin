@@ -79,6 +79,7 @@ private fun Project.registerApkConfluenceDistributionTask(
 
         it.distributionFile.set(params.apkOutputFile)
         it.pageId.set(distributionConfig.pageId)
+        it.compressed.set(distributionConfig.compressed)
         it.service.set(service)
 
         it.usesService(service)
@@ -111,6 +112,7 @@ private fun Project.registerBundleConfluenceDistributionTask(
 
         it.distributionFile.set(params.bundleOutputFile)
         it.pageId.set(distributionConfig.pageId)
+        it.compressed.set(distributionConfig.compressed)
         it.service.set(service)
 
         it.usesService(service)

@@ -431,6 +431,7 @@ private fun confluenceDistributionBlock(distribution: ConfluenceConfig.Distribut
     return """
            distribution {
                 common {
+                    it.compressed.set(${distribution.compressed})
                     it.pageId.set("${distribution.pageId}")
                 }
            }
@@ -484,6 +485,7 @@ private fun telegramDistributionBlock(distribution: TelegramConfig.Distribution)
     return """
                         distribution {
                            common {
+                               it.compressed.set(${distribution.compressed})
                                ${distribution.destinationBots.joinToString("\n") { telegramDestinationBotBlock(it) }}
                            } 
                         }
@@ -717,6 +719,7 @@ data class ConfluenceConfig(
     )
 
     data class Distribution(
+        val compressed: Boolean = false,
         val pageId: String,
     )
 }
@@ -816,6 +819,7 @@ data class TelegramConfig(
     )
 
     data class Distribution(
+        val compressed: Boolean = false,
         val destinationBots: List<DestinationBot>,
     )
 

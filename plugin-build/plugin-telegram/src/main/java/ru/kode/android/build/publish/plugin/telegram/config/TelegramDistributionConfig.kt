@@ -2,8 +2,10 @@ package ru.kode.android.build.publish.plugin.telegram.config
 
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import javax.inject.Inject
 
 /**
@@ -26,6 +28,18 @@ abstract class TelegramDistributionConfig
          * Used to match a configuration to a build variant (or to the common configuration).
          */
         abstract val name: String
+
+        /**
+         * Whether to compress the distribution file before sending.
+         *
+         * When set to `true`, the file will be compressed before being sent to Telegram.
+         * This can help reduce upload time for large files.
+         *
+         * Default: `false`
+         */
+        @get:Input
+        @get:Optional
+        abstract val compressed: Property<Boolean>
 
         /**
          * Internal set of destination bot configurations.

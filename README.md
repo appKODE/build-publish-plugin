@@ -1974,6 +1974,7 @@ buildPublishTelegram {
 
     distribution {
         common {
+            compressed.set(true)
             destinationBot {
                 botName.set("main")
                 chatName("releases")
@@ -2026,6 +2027,7 @@ buildPublishTelegram {
 
     distribution {
         common {
+            it.compressed.set(true)
             it.destinationBot {
                 it.botName.set('main')
                 it.chatName('releases')
@@ -2114,6 +2116,10 @@ Properties (applies to each `TelegramDistributionConfig`):
   - **What it does**: Selects bot + chats where the artifact will be uploaded.
   - **Note**: The task uploads the file you provide (APK or AAB) to all configured destinations.
 
+- **`compressed`** *(optional, default `false`)*
+  - **What it does**: Compresses the distribution file to a `.zip` before upload.
+  - **Why you might need it**: Can reduce upload time for large artifacts.
+
 ##### Lookup (`buildPublishTelegram { lookup { ... } }`)
 
 Lookup is an optional helper task to debug/verify your bot/chat/topic configuration.
@@ -2138,6 +2144,7 @@ Properties (applies to `TelegramLookupConfig`):
 - **`telegramDistributionUpload<Variant>` / `telegramDistributionUploadBundle<Variant>`** supports (CLI options):
   - `--distributionFile=/abs/path/to/app.apk` (or `.aab`)
   - `--destinationBots=<json>`
+  - `--compressed=true`
 
 - **`telegramLookup<Variant>`** supports (CLI options):
   - `--botName=main`
@@ -2423,6 +2430,7 @@ buildPublishConfluence {
     distribution {
         common {
             pageId.set("12345678")
+            compressed.set(true)
         }
     }
 }
@@ -2450,6 +2458,7 @@ buildPublishConfluence {
     distribution {
         common {
             it.pageId.set('12345678')
+            it.compressed.set(true)
         }
     }
 }
@@ -2472,6 +2481,7 @@ buildPublishConfluence {
     distribution {
         common {
             pageId.set("12345678")
+            compressed.set(true)
         }
 
         buildVariant("release") {
@@ -2496,6 +2506,7 @@ buildPublishConfluence {
     distribution {
         common {
             it.pageId.set('12345678')
+            it.compressed.set(true)
         }
 
         buildVariant('release') {
@@ -2548,11 +2559,16 @@ Properties (applies to each `ConfluenceDistributionConfig`):
   - **How to get**: It is part of the page URL, for example:
     - `.../wiki/spaces/SPACE/pages/12345678/Page+Title` → `pageId = 12345678`
 
+- **`compressed`** *(optional, default `false`)*
+  - **What it does**: Compresses the distribution file to a `.zip` before upload.
+  - **Why you might need it**: Can reduce upload time for large artifacts.
+
 ##### Task options
 
 - **`confluenceDistributionUpload<Variant>` / `confluenceDistributionUploadBundle<Variant>`** supports (CLI options):
   - `--distributionFile=/abs/path/to/app.apk` (or `.aab`)
   - `--pageId=12345678`
+  - `--compressed=true`
 
 ---
 

@@ -94,6 +94,7 @@ buildPublishConfluence {
 
     distribution {
         common {
+            compressed.set(true)
             pageId.set("123435")
         }
     }

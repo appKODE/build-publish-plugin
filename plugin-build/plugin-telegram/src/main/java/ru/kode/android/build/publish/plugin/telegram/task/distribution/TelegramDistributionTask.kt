@@ -8,6 +8,7 @@ import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
@@ -69,6 +70,22 @@ abstract class TelegramDistributionTask
         abstract val distributionFile: RegularFileProperty
 
         /**
+         * Whether to compress the distribution file before sending.
+         *
+         * When set to `true`, the file will be compressed before being sent to Telegram.
+         * This can help reduce upload time for large files.
+         *
+         * Default: `false`
+         */
+        @get:Input
+        @get:Optional
+        @get:Option(
+            option = "compressed",
+            description = "Whether to compress the distribution file before sending",
+        )
+        internal abstract val compressed: Property<Boolean>
+
+        /**
          * Set of configured Telegram bots and their destination chats.
          *
          * Each [DestinationTelegramBotConfig] contains the bot and chat names where the file should be sent.
@@ -97,6 +114,7 @@ abstract class TelegramDistributionTask
                 parameters.distributionFile.set(distributionFile)
                 parameters.service.set(service)
                 parameters.loggerService.set(loggerService)
+                parameters.compressed.set(compressed)
                 parameters.destinationBots.set(destinationBots)
             }
         }

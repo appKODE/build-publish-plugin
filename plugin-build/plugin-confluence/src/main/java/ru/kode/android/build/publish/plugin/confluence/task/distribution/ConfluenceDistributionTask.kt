@@ -8,6 +8,7 @@ import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.WorkQueue
@@ -64,6 +65,22 @@ abstract class ConfluenceDistributionTask
         abstract val distributionFile: RegularFileProperty
 
         /**
+         * Whether to compress the distribution file before uploading.
+         *
+         * When set to `true`, the file will be compressed before being uploaded to Confluence.
+         * This can help reduce upload time for large files.
+         *
+         * Default: `false`
+         */
+        @get:Input
+        @get:Optional
+        @get:Option(
+            option = "compressed",
+            description = "Whether to compress the distribution file before sending",
+        )
+        internal abstract val compressed: Property<Boolean>
+
+        /**
          * The ID of the Confluence page where the file should be uploaded.
          *
          * This property is wired from the Confluence distribution configuration when the task is registered.
@@ -93,6 +110,7 @@ abstract class ConfluenceDistributionTask
                 parameters.pageId.set(pageId)
                 parameters.service.set(service)
                 parameters.loggerService.set(loggerService)
+                parameters.compressed.set(compressed)
             }
         }
     }

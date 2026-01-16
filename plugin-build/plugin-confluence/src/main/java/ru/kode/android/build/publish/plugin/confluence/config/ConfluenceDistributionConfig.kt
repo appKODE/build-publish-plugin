@@ -2,6 +2,7 @@ package ru.kode.android.build.publish.plugin.confluence.config
 
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 /**
  * Configuration for publishing Android build information to Confluence.
@@ -23,4 +24,16 @@ interface ConfluenceDistributionConfig {
      */
     @get:Input
     val pageId: Property<String>
+
+    /**
+     * Whether to compress the distribution file before sending.
+     *
+     * When set to `true`, the file will be compressed before being sent to Confluence.
+     * This can help reduce upload time for large files.
+     *
+     * Default: `false`
+     */
+    @get:Input
+    @get:Optional
+    val compressed: Property<Boolean>
 }

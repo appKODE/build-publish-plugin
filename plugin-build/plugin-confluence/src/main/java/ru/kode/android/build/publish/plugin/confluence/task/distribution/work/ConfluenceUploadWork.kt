@@ -8,6 +8,7 @@ import ru.kode.android.build.publish.plugin.confluence.messages.uploadFailedMess
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.util.RequestError
+import ru.kode.android.build.publish.plugin.core.zip.zipped
 
 /**
  * Parameters required for the Confluence upload work action.
@@ -32,6 +33,11 @@ interface ConfluenceUploadParameters : WorkParameters {
      * The logger service used to log messages during the upload process.
      */
     val loggerService: Property<LoggerService>
+
+    /**
+     * Whether to compress the file before uploading to Confluence.
+     */
+    val compressed: Property<Boolean>
 }
 
 /**
@@ -45,9 +51,11 @@ internal abstract class ConfluenceUploadWork : WorkAction<ConfluenceUploadParame
     override fun execute() {
         val service = parameters.service.get()
         val logger = parameters.loggerService.get()
+        val compressed = parameters.compressed.orElse(false).get()
 
         try {
-            val distributionFile = parameters.outputFile.asFile.get()
+            val outputFile = parameters.outputFile.asFile.get()
+            val distributionFile = if (compressed) outputFile.zipped() else outputFile
             service.uploadFile(
                 pageId = parameters.pageId.get(),
                 file = distributionFile,

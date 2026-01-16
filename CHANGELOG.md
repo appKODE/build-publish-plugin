@@ -12,6 +12,9 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.1
+- Add Telegram and Confluence distribution compression option, by default it is disabled
+
 ### 1.2.0
 **Breaking changes**
 - Introduce modular `build-publish-novo-*` plugin suite (apply only required integrations)

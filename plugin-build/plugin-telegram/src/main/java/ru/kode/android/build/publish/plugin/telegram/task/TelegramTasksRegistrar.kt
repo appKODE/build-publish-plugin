@@ -253,6 +253,7 @@ private fun Project.registerTelegramUploadAokTask(
 
         it.distributionFile.set(params.apkOutputFile)
         it.destinationBots.set(distributionConfig.destinationBots.map { it.mapToEntity().toJson() })
+        it.compressed.set(distributionConfig.compressed)
         it.service.set(service)
 
         it.usesService(service)
@@ -295,6 +296,7 @@ private fun Project.registerTelegramBundleUploadTask(
 
         it.distributionFile.set(params.bundleOutputFile)
         it.destinationBots.set(distributionConfig.destinationBots.map { it.mapToEntity().toJson() })
+        it.compressed.set(distributionConfig.compressed)
         it.service.set(service)
 
         it.usesService(service)

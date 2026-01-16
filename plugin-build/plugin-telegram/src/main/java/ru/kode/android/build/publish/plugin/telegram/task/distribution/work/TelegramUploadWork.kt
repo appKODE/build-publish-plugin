@@ -6,6 +6,7 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.util.RequestError
+import ru.kode.android.build.publish.plugin.core.zip.zipped
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.destinationTelegramBotsFromJson
 import ru.kode.android.build.publish.plugin.telegram.messages.telegramUploadFailedMessage
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
@@ -36,6 +37,11 @@ internal interface TelegramUploadParameters : WorkParameters {
      * The logger service instance for logging debug and error messages
      */
     val loggerService: Property<LoggerService>
+
+    /**
+     * Whether to compress the distribution file before uploading.
+     */
+    val compressed: Property<Boolean>
 }
 
 /**
@@ -58,10 +64,16 @@ internal abstract class TelegramUploadWork : WorkAction<TelegramUploadParameters
     override fun execute() {
         val service = parameters.service.get()
         val logger = parameters.loggerService.get()
+        val compressed = parameters.compressed.orElse(false).get()
         try {
+            val destinationBots =
+                parameters.destinationBots
+                    .map { destinationTelegramBotsFromJson(it) }
+            val outputFIle = parameters.distributionFile.asFile.get()
+            val distributionFile = if (compressed) outputFIle.zipped() else outputFIle
             service.upload(
-                parameters.distributionFile.asFile.get(),
-                destinationBots = parameters.destinationBots.map { destinationTelegramBotsFromJson(it) }.get(),
+                distributionFile,
+                destinationBots = destinationBots.get(),
             )
         } catch (ex: RequestError.UploadTimeout) {
             logger.error(telegramUploadFailedMessage(), ex)

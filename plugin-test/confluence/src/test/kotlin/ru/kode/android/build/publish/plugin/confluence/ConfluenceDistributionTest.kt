@@ -263,6 +263,125 @@ class ConfluenceDistributionTest {
     }
 
     @Test
+    @Throws(IOException::class)
+    @Disabled // It disabled because proxy server is unstable and can be failed because of SSLHandshakeException
+    fun `confluence apk build distribution available with distribution config with proxy, compressed`() {
+        val pageId = System.getProperty("CONFLUENCE_PAGE_ID")
+
+        val beforeAutomationAttachments = confluenceController.getAttachments(pageId)
+        val beforeAutomationComments = confluenceController.getComments(pageId)
+
+        beforeAutomationComments.forEach {
+            confluenceController.removeComment(it.id)
+        }
+
+        beforeAutomationAttachments.forEach {
+            confluenceController.removeAttachment(it.id)
+        }
+
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("release")
+            ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog = FoundationConfig.Changelog(
+                        issueNumberPattern = "CEB-\\\\d+",
+                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
+                    )
+                ),
+            confluenceConfig = ConfluenceConfig(
+                auth = ConfluenceConfig.Auth(
+                    baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
+                    username = System.getProperty("CONFLUENCE_USER_NAME"),
+                    password = System.getProperty("CONFLUENCE_USER_PASSWORD")
+                ),
+                distribution = ConfluenceConfig.Distribution(
+                    pageId = pageId,
+                    compressed = true
+                )
+            ),
+            topBuildFileContent = """
+                plugins {
+                    id 'ru.kode.android.build-publish-novo.foundation' apply false
+                }
+            """.trimIndent()
+        )
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleDebug"
+        val givenConfluenceDistributionTask = "confluenceDistributionUploadDebug"
+        val git = projectDir.initGit()
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+
+        getChangelog()
+            .split("\n")
+            .forEachIndexed { index, changelogLine ->
+                val givenCommitMessageN = """
+                Add $index change in codebase
+                
+                CHANGELOG: $changelogLine
+                """.trimIndent()
+                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                git.addAllAndCommit(givenCommitMessageN)
+            }
+        git.tag.addNamed(givenTagName2)
+
+        val proxyProps = mapOf(
+            "https.proxyUser" to System.getProperty("PROXY_USER"),
+            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+            "https.proxyHost" to System.getProperty("PROXY_HOST"),
+            "https.proxyPort" to System.getProperty("PROXY_PORT")
+        )
+
+        val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask, proxyProps)
+        val distributionResult: BuildResult = projectDir.runTask(givenConfluenceDistributionTask, proxyProps)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
+        assertTrue(
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("BUILD SUCCESSFUL"),
+            "Build successful",
+        )
+        assertTrue(
+            distributionResult.output.contains("BUILD SUCCESSFUL"),
+            "Confluence distribution successful"
+        )
+        assertTrue(givenOutputFileExists, "Output file exists")
+
+        val afterAutomationAttachments = confluenceController.getAttachments(pageId)
+        val afterAutomationComments = confluenceController.getComments(pageId)
+
+        assertTrue {
+            afterAutomationAttachments.last().fileName.contains("autotest-debug-vc2-$currentDate.zip")
+        }
+        assertTrue {
+            afterAutomationComments.last().html.contains("autotest-debug-vc2-$currentDate.zip")
+        }
+    }
+
+    @Test
     @Disabled // It disabled because proxy server is unstable and can be failed because of SSLHandshakeException
     @Throws(IOException::class)
     fun `confluence apk build distribution available with distribution config with proxy without assemble`() {
