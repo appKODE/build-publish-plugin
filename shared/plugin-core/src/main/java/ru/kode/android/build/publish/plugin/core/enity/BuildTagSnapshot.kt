@@ -21,10 +21,26 @@ data class BuildTagSnapshot(
      * The previous tag in the snapshot (exclusive), or null if this is the first build
      */
     private val previousInOrder: Tag.Build?,
+    /**
+     * The previous tag in the snapshot (exclusive), or null if this is the first build.
+     *
+     * This tag is guaranteed to have a different commit than the current tag.
+     */
     private val previousOnDifferentCommit: Tag.Build?,
 ) {
+    /**
+     * The previous tag in the snapshot (exclusive), or null if this is the first build.
+     *
+     * This tag is guaranteed to have a different commit than the current tag.
+     */
     val previous: Tag.Build? get() = previousOnDifferentCommit
 
+    /**
+     * Indicates whether the current and previous tags reference the same commit.
+     *
+     * @return `true` if the current and previous tags reference the same commit,
+     *         `false` otherwise.
+     */
     val pointSameCommit: Boolean get() = current.commitSha == previousOnDifferentCommit?.commitSha
 
     /**

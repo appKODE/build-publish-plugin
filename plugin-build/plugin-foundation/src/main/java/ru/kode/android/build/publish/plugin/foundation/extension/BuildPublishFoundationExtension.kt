@@ -33,8 +33,6 @@ abstract class BuildPublishFoundationExtension
          * If set to `true`, the plugin will print more detailed logs during the build process.
          *
          * Default value is `false`.
-         *
-         * @see BuildPublishConfigurableExtension.verboseLogging
          */
         val verboseLogging: Property<Boolean> =
             objectFactory.property(Boolean::class.java)
@@ -115,7 +113,10 @@ abstract class BuildPublishFoundationExtension
         /**
          * Configures output settings for different build variants.
          *
-         * @param configurationAction The action to configure the output container
+         * Use this to declare per-variant (and common) output settings such as tag pattern,
+         * version strategies, and APK naming.
+         *
+         * @param configurationAction The action to configure the output container.
          * @see OutputConfig
          */
         fun output(configurationAction: Action<BuildPublishDomainObjectContainer<OutputConfig>>) {
@@ -126,7 +127,10 @@ abstract class BuildPublishFoundationExtension
         /**
          * Configures changelog settings for different build variants.
          *
-         * @param configurationAction The action to configure the changelog container
+         * Use this to declare per-variant (and common) changelog parsing settings such as
+         * issue number extraction and commit message markers.
+         *
+         * @param configurationAction The action to configure the changelog container.
          * @see ChangelogConfig
          */
         fun changelog(configurationAction: Action<BuildPublishDomainObjectContainer<ChangelogConfig>>) {

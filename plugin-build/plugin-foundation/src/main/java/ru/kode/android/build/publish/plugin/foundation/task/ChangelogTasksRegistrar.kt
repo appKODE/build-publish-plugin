@@ -32,7 +32,7 @@ internal object ChangelogTasksRegistrar {
      * @param project The Gradle project
      * @param params Configuration parameters for the task
      *
-     * @return A [Provider] that will contain the generated changelog file
+     * @return A [TaskProvider] for the registered [GenerateChangelogTask].
      */
     internal fun registerGenerateChangelogTask(
         project: Project,
@@ -51,7 +51,7 @@ internal object ChangelogTasksRegistrar {
  *
  * @param params Configuration parameters for the task
  *
- * @return A [Provider] that will contain the generated changelog file
+ * @return A [TaskProvider] for the registered [GenerateChangelogTask].
  */
 @Suppress("MaxLineLength") // One parameter function
 private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskParams): TaskProvider<out GenerateChangelogTaskOutput> {

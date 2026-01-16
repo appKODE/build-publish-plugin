@@ -17,31 +17,63 @@ import ru.kode.android.build.publish.plugin.core.util.utcDateTime
 import org.ajoberstar.grgit.Tag as GrgitTag
 
 /**
- * Executes Git commands and provides high-level Git operations.
+ * Executes Git commands and provides high-level Git operations for the build system.
  *
- * This class serves as a wrapper around the Grgit library to perform common Git operations
- * needed during the build and publish process, such as extracting commit messages and managing tags.
+ * This class serves as a wrapper around the Grgit library, offering a more convenient and type-safe
+ * API for common Git operations needed during the build and publish process. It handles tasks such as:
  *
- * @property grgit The Grgit instance used to execute Git commands
- * @see Grgit For more information about the underlying Git operations
+ * - Extracting and filtering commit messages for changelog generation
+ * - Finding and parsing build tags
+ * - Managing commit ranges and version information
+ * - Validating tag formats and consistency
+ *
+ * The class is designed to work within the build pipeline and provides detailed logging for debugging
+ * and traceability purposes.
+ *
+ * @see Grgit For more information about the underlying Git operations.
+ * @see BuildTagSnapshot For information about the structure of build tag snapshots.
+ * @see Tag For details about how tags are represented in the system.
  */
 class GitCommandExecutor(
+    /**
+     * The Grgit instance used to execute Git commands. This provides access to the
+     * underlying Git repository.
+     */
     private val grgit: Grgit,
+    /**
+     * The logger instance used for recording debug and error information.
+     */
     private val logger: PluginLogger,
 ) {
     /**
-     * Extracts lines containing the specified key from commit messages within a given range.
+     * Extracts commit messages containing a specific key from a range of commits.
      *
-     * This method retrieves all commits in the specified range and filters their commit messages
-     * to find lines containing the provided key. This is commonly used to extract changelog entries
-     * that follow a specific format.
+     * This method retrieves all commits within the specified range and filters their commit messages
+     * to find lines containing the provided key. It's primarily used to extract changelog entries
+     * that follow a specific format (e.g., lines starting with "CHANGELOG:").
      *
-     * @param key The string to search for in commit messages (case-sensitive)
-     * @param range The range of commits to search through, or null to search all commits
+     * The search is performed line-by-line within each commit message, and only lines containing
+     * the exact [key] (case-sensitive) are included in the results.
      *
-     * @return A list of matching lines from commit messages
+     * @param key The string to search for in commit messages. Only lines containing this exact
+     *            string will be included in the results.
+     * @param range The range of commits to search through. If `null`, all commits in the repository
+     *              will be considered.
+     *
+     * @return A list of strings, where each string is a line from a commit message that contains
+     *         the specified [key]. The order of results follows the commit history (newest first).
+     *
      * @throws org.eclipse.jgit.api.errors.GitAPIException If there's an error accessing the Git repository
-     * @see CommitRange For information about how commit ranges are specified
+     *                                                     or processing the commit history.
+     *
+     * @sample
+     * ```kotlin
+     * // Find all changelog entries between two tags
+     * val changes = gitCommandExecutor.extractMarkedCommitMessages(
+     *     key = "CHANGELOG:",
+     *     range = CommitRange(from = "v1.0.0", to = "HEAD")
+     * )
+     * ```
      */
     fun extractMarkedCommitMessages(
         key: String,
@@ -56,19 +88,37 @@ class GitCommandExecutor(
     }
 
     /**
-     * Finds build tags in the repository that match the given [buildTagRegex].
+     * Finds and parses build tags matching the specified pattern for a given build variant.
      *
-     * This function retrieves all Git tags, filters them using [buildTagRegex], validates
-     * them (if any exist), and sorts them by recency and build number. It then limits the
-     * number of results according to [limitResultCount] and maps each tag to a [Tag.Generic].
+     * This method performs a comprehensive search for Git tags that match the provided regular expression
+     * and are associated with the specified build variant. It handles:
      *
-     * Logging is performed at each stage for debugging and traceability.
+     * 1. Filtering tags using the provided regex pattern
+     * 2. Validating the format of matching tags
+     * 3. Sorting tags by commit date (newest first)
+     * 4. Creating a [BuildTagSnapshot] with the most recent tag and its predecessor
      *
-     * @param buildTagRegex the regular expression used to match valid build tag names.
-     * @param limitResultCount the maximum number of tags to return after sorting.
+     * The method is designed to be fault-tolerant and will log detailed information about the search
+     * process for debugging purposes.
      *
-     * @return a list of [Tag.Generic] objects representing the most recent matching build tags,
+     * @param buildVariant The build variant to search for (e.g., "debug", "release").
+     * @param buildTagRegex The regular expression used to match and parse build tag names.
+     *                     The pattern should include capture groups for version components.
+     *
+     * @return A [BuildTagSnapshot] containing the most recent matching tag and its predecessor,
      *         or `null` if no matching tags are found.
+     *
+     * @throws IllegalArgumentException If the [buildTagRegex] is invalid or if matching tags
+     *                                 don't conform to the expected format.
+     *
+     * @sample
+     * ```kotlin
+     * // Find the most recent build tag for the release variant
+     * val snapshot = gitCommandExecutor.findSnapshot(
+     *     buildVariant = "release",
+     *     buildTagRegex = "app\\.(\\d+)\\.(\\d+)\\.(\\d+)-release".toRegex()
+     * )
+     * ```
      */
     fun findSnapshot(
         buildVariant: String,
@@ -119,19 +169,35 @@ class GitCommandExecutor(
     }
 
     /**
-     * Finds and sorts all Git tags that match the provided [buildTagRegex].
+     * Finds and processes Git tags that match the specified regular expression.
      *
-     * This function:
-     * - Retrieves all tags from the repository.
-     * - Filters tags matching [buildTagRegex].
-     * - Sorts them in descending order by commit position in history and build number.
-     * - Returns the sorted list of matching [GrgitTag] objects.
+     * This function performs the following operations:
+     * 1. Retrieves all tags from the Git repository
+     * 2. Filters them using the provided [buildTagRegex]
+     * 3. Extracts commit information for each matching tag
+     * 4. Sorts the tags by commit date and build number
+     * 5. Returns the specified number of most recent tags
      *
-     * This method is internal and used by [findSnapshot].
+     * The function includes detailed logging at each step for debugging and monitoring purposes.
+     * It handles errors gracefully by skipping tags that can't be processed and logging the issues.
      *
-     * @param buildTagRegex the regex used to filter valid build tag names.
+     * @param buildTagRegex The regular expression used to filter tag names. Only tags matching
+     *                     this pattern will be included in the results.
      *
-     * @return a sorted list of [GrgitTag] objects matching the given regex.
+     * @return A list of [GrgitTag] objects representing the matching tags, sorted by commit date
+     *         (newest first) and then by build number. Returns an empty list if no matching tags
+     *         are found or if an error occurs.
+     *
+     * @see GrgitTag For information about the structure of Git tags.
+     * @see getBuildNumber For details on how build numbers are extracted from tag names.
+     *
+     * @sample
+     * ```kotlin
+     * // Find the 5 most recent version tags
+     * val versionTags = findTagsByRegex(
+     *     buildTagRegex = "v\\d+\\.\\d+\\.\\d+".toRegex()
+     * )
+     * ```
      */
     private fun findTagsByRegex(buildTagRegex: Regex): List<GrgitTag> {
         val commitsLog = grgit.log()
@@ -254,6 +320,14 @@ class GitCommandExecutor(
 /**
  * Represents the details of a Git tag, including its commit index, commit time in milliseconds,
  * and build number.
+ *
+ * This data class is used internally by [GitCommandExecutor] to store and sort tag information.
+ * It's not meant to be used directly by clients of the library.
+ *
+ * @property tag The original Git tag.
+ * @property commitIndex The index of the commit in the Git history.
+ * @property commitTimeMs The commit time in milliseconds since epoch.
+ * @property buildNumber The build number extracted from the tag name.
  */
 private data class TagDetails(
     val tag: GrgitTag,

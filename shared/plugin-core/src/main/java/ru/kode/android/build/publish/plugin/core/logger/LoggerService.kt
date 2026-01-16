@@ -67,5 +67,10 @@ abstract class LoggerService
  * This extension provides access to the [LoggerService] for plugins.
  */
 abstract class LoggerServiceExtension(
+    /**
+     * Provider for the [LoggerService].
+     *
+     * This provider provides access to the [LoggerService] for plugins.
+     */
     val service: Provider<LoggerService>,
 )

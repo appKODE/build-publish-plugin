@@ -8,6 +8,15 @@ import org.gradle.util.internal.VersionNumber
 import ru.kode.android.build.publish.plugin.foundation.messages.mustBeUsedWithAndroidMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.mustBeUsedWithVersionMessage
 
+/**
+ * Validates that the plugin is applied to a supported Android project.
+ *
+ * The foundation plugin requires:
+ * - The `com.android.application` plugin to be applied
+ * - A minimum Android Gradle Plugin version
+ *
+ * If the project is not supported, the build is stopped by throwing [StopExecutionException].
+ */
 @Suppress("ThrowsCount") // block to throws exceptions on apply
 internal fun Project.stopExecutionIfNotSupported() {
     if (AgpVersions.CURRENT < AgpVersions.VERSION_7_0_4) {
@@ -18,6 +27,9 @@ internal fun Project.stopExecutionIfNotSupported() {
     }
 }
 
+/**
+ * Resolved Android Gradle Plugin versions used by the support check.
+ */
 internal object AgpVersions {
     val CURRENT: VersionNumber = VersionNumber.parse(ANDROID_GRADLE_PLUGIN_VERSION).baseVersion
     val VERSION_7_0_4: VersionNumber = VersionNumber.parse("7.0.4")

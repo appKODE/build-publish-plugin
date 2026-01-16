@@ -39,6 +39,11 @@ import ru.kode.android.build.publish.plugin.foundation.task.TagTasksRegistrar
 import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
 import ru.kode.android.build.publish.plugin.foundation.validate.stopExecutionIfNotSupported
 
+/**
+ * Name of the foundation extension exposed by this plugin.
+ *
+ * In build scripts this extension is configured via `buildPublishFoundation { ... }`.
+ */
 const val EXTENSION_NAME = "buildPublishFoundation"
 
 /**
@@ -53,6 +58,10 @@ const val EXTENSION_NAME = "buildPublishFoundation"
  *
  * It applies the [GitExecutorServicePlugin] and sets up the necessary task graph
  * for version management and changelog generation based on Git history.
+ *
+ * Additionally, for every Android variant it invokes all registered extensions that implement
+ * [BuildPublishConfigurableExtension] by calling their [BuildPublishConfigurableExtension.configure]
+ * method and passing an [ExtensionInput] with resolved providers.
  */
 abstract class BuildPublishFoundationPlugin : Plugin<Project> {
     @Suppress("LongMethod") // Just big creation methods

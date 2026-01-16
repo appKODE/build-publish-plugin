@@ -34,8 +34,10 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
     /**
      * The JSON file containing information about the last build tag.
      *
-     * This file should contain a JSON object with the following structure:
-     * The task will increment the build number and print the new tag name.
+     * This file is typically produced by
+     * [ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagSnapshotTask]. The task
+     * reads the snapshot, increments the build number of the current tag and prints the next tag
+     * name to standard output.
      *
      * @see RegularFileProperty
      */
@@ -54,8 +56,6 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
      * 2. Increments the build number
      * 3. Generates the next tag by replacing the build number in the tag name
      * 4. Prints the new tag to standard output
-     *
-     * @throws Exception if there's an error reading the build tag file or processing the tag
      */
     @TaskAction
     fun printTag() {

@@ -154,6 +154,16 @@ abstract class OutputConfig {
         versionCodeStrategy.set(action())
     }
 
+    /**
+     * Configures the strategy used to generate the final APK output file name.
+     *
+     * The strategy may include version/tag metadata (if enabled by [useVersionsFromTag]) and the
+     * user-provided [baseFileName].
+     *
+     * @param action Supplier that returns the desired [OutputApkNameStrategy] implementation.
+     *
+     * @see OutputApkNameStrategy
+     */
     fun outputApkNameStrategy(action: () -> OutputApkNameStrategy) {
         outputApkNameStrategy.set(action())
     }

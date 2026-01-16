@@ -58,7 +58,7 @@ internal object TagTasksRegistrar {
      * @param project The Gradle project
      * @param params Configuration parameters for the task
      *
-     * @return [LastTagTaskOutput] containing version information and the last build tag file
+     * @return A [TaskProvider] for the registered [GetLastTagSnapshotTask].
      */
     internal fun registerGetLastTagSnapshotTask(
         project: Project,
@@ -67,6 +67,18 @@ internal object TagTasksRegistrar {
         return project.registerGetLastTagSnapshotTask(params)
     }
 
+    /**
+     * Registers a task that computes `versionCode` for the given build variant.
+     *
+     * The task reads a tag snapshot file produced by [GetLastTagSnapshotTask] and writes the
+     * computed version code into a file in the build directory. The Android variant output then
+     * consumes that value.
+     *
+     * @param project The Gradle project.
+     * @param params Configuration parameters for the task.
+     *
+     * @return A [TaskProvider] for the registered [ComputeVersionCodeTask].
+     */
     internal fun registerComputeVersionCodeTask(
         project: Project,
         params: ComputeVersionCodeParams,
@@ -74,6 +86,18 @@ internal object TagTasksRegistrar {
         return project.registerComputeVersionCodeTask(params)
     }
 
+    /**
+     * Registers a task that computes the final APK output file name for the given build variant.
+     *
+     * The task can include version/tag metadata (if enabled) and writes the resulting name into a
+     * file in the build directory. The rename task later reads that file to perform the actual
+     * artifact rename.
+     *
+     * @param project The Gradle project.
+     * @param params Configuration parameters for the task.
+     *
+     * @return A [TaskProvider] for the registered [ComputeApkOutputFileNameTask].
+     */
     internal fun registerComputeApkOutputFileNameTask(
         project: Project,
         params: ComputeApkOutputFileNameParams,
@@ -81,6 +105,18 @@ internal object TagTasksRegistrar {
         return project.registerComputeApkOutputFileNameTask(params)
     }
 
+    /**
+     * Registers a task that computes `versionName` for the given build variant.
+     *
+     * The task reads a tag snapshot file produced by [GetLastTagSnapshotTask] and writes the
+     * computed version name into a file in the build directory. The Android variant output then
+     * consumes that value.
+     *
+     * @param project The Gradle project.
+     * @param params Configuration parameters for the task.
+     *
+     * @return A [TaskProvider] for the registered [ComputeVersionNameTask].
+     */
     internal fun registerComputeVersionNameTask(
         project: Project,
         params: ComputeVersionNameParams,
@@ -103,6 +139,14 @@ internal object TagTasksRegistrar {
         return project.registerPrintLastIncreasedTagTask(params)
     }
 
+    /**
+     * Registers a task that performs the final APK rename/copy for the given build variant.
+     *
+     * @param project The Gradle project.
+     * @param params Configuration parameters for the task.
+     *
+     * @return A [TaskProvider] for the registered [RenameApkTask].
+     */
     internal fun registerRenameApkTask(
         project: Project,
         params: RenameApkTaskParams,
@@ -111,6 +155,12 @@ internal object TagTasksRegistrar {
     }
 }
 
+/**
+ * Registers a [RenameApkTask] for the given [params].
+ *
+ * The task is wired as an AGP artifact transform and will copy the produced APK into the output
+ * directory with a computed file name.
+ */
 @Suppress("MaxLineLength")
 private fun Project.registerRenameApkTask(params: RenameApkTaskParams): TaskProvider<RenameApkTask> {
     val variant = params.buildVariant
@@ -129,7 +179,7 @@ private fun Project.registerRenameApkTask(params: RenameApkTaskParams): TaskProv
  * "tag-build-snapshot-${params.buildVariant.name}.json".
  *
  * @param params Configuration parameters for the task
- * @return A [Provider] for the generated JSON file containing the last tag information
+ * @return A [TaskProvider] for the registered [GetLastTagSnapshotTask]
  */
 @Suppress("MaxLineLength") // One parameter function
 private fun Project.registerGetLastTagSnapshotTask(params: LastTagSnapshotTaskParams): TaskProvider<GetLastTagSnapshotTask> {
@@ -145,6 +195,9 @@ private fun Project.registerGetLastTagSnapshotTask(params: LastTagSnapshotTaskPa
     }
 }
 
+/**
+ * Registers a [ComputeVersionCodeTask] task for the given [params].
+ */
 @Suppress("MaxLineLength") // One parameter function
 private fun Project.registerComputeVersionCodeTask(params: ComputeVersionCodeParams): TaskProvider<ComputeVersionCodeTask> {
     val variant = params.buildVariant
@@ -156,7 +209,7 @@ private fun Project.registerComputeVersionCodeTask(params: ComputeVersionCodePar
         task.buildTagSnapshotFile.set(buildTagSnapshotFile)
         task.versionCodeFile.set(versionCodeFile)
         task.useVersionsFromTag.set(params.useVersionsFromTag)
-        task.useDefaultsForFallback.set(params.useDefaultsForVersionsAsFallback)
+        task.useDefaultsForVersionsAsFallback.set(params.useDefaultsForVersionsAsFallback)
         task.buildVariant.set(variant)
         task.versionCodeStrategy.set(params.versionCodeStrategy)
 
@@ -164,6 +217,9 @@ private fun Project.registerComputeVersionCodeTask(params: ComputeVersionCodePar
     }
 }
 
+/**
+ * Registers a [ComputeApkOutputFileNameTask] task for the given [params].
+ */
 private fun Project.registerComputeApkOutputFileNameTask(
     params: ComputeApkOutputFileNameParams,
 ): TaskProvider<ComputeApkOutputFileNameTask> {
@@ -185,6 +241,9 @@ private fun Project.registerComputeApkOutputFileNameTask(
     }
 }
 
+/**
+ * Registers a [ComputeVersionNameTask] task for the given [params].
+ */
 @Suppress("MaxLineLength") // One parameter function
 private fun Project.registerComputeVersionNameTask(params: ComputeVersionNameParams): TaskProvider<ComputeVersionNameTask> {
     val variant = params.buildVariant
@@ -242,6 +301,9 @@ internal data class LastTagSnapshotTaskParams(
     val buildTagPattern: Provider<String>,
 )
 
+/**
+ * Parameters used to register a [ComputeVersionCodeTask] for a specific [buildVariant].
+ */
 internal data class ComputeVersionCodeParams(
     /**
      * The build variant to process
@@ -259,9 +321,15 @@ internal data class ComputeVersionCodeParams(
      * Provider for the version code mapper.
      */
     val versionCodeStrategy: Provider<VersionCodeStrategy>,
+    /**
+     * Task that produces a tag snapshot file used as an input for version calculation.
+     */
     val buildTagSnapshotProvider: TaskProvider<GetLastTagSnapshotTask>,
 )
 
+/**
+ * Parameters used to register a [ComputeVersionNameTask] for a specific [buildVariant].
+ */
 internal data class ComputeVersionNameParams(
     /**
      * The build variant to process
@@ -279,9 +347,15 @@ internal data class ComputeVersionNameParams(
      * Provider for the version name mapper.
      */
     val versionNameStrategy: Provider<VersionNameStrategy>,
+    /**
+     * Task that produces a tag snapshot file used as an input for version calculation.
+     */
     val buildTagSnapshotProvider: TaskProvider<GetLastTagSnapshotTask>,
 )
 
+/**
+ * Parameters used to register a [ComputeApkOutputFileNameTask] for a specific [buildVariant].
+ */
 internal data class ComputeApkOutputFileNameParams(
     /**
      * The build variant to process
@@ -303,6 +377,9 @@ internal data class ComputeApkOutputFileNameParams(
      * Provider for the output APK name mapper.
      */
     val outputApkNameStrategy: Provider<OutputApkNameStrategy>,
+    /**
+     * Task that produces a tag snapshot file used as an input for naming.
+     */
     val buildTagSnapshotProvider: TaskProvider<GetLastTagSnapshotTask>,
 )
 

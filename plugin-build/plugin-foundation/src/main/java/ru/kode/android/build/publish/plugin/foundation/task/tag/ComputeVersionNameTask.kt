@@ -22,39 +22,77 @@ import ru.kode.android.build.publish.plugin.foundation.messages.formRichVersionN
 import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionNameMessage
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_NAME
 
+/**
+ * Computes the `versionName` value for a specific Android build variant.
+ *
+ * The task reads a tag snapshot file (produced by [ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagSnapshotTask]) and derives a version
+ * name using a configured [VersionNameStrategy]. Depending on the flags, it can:
+ * - Use the tag-derived value
+ * - Fall back to a default constant
+ * - Or fall back to the Android DSL defaults attached to [BuildVariant]
+ *
+ * The computed version name is written to [versionNameFile] as plain text and later consumed by
+ * the Android variant configuration.
+ */
 abstract class ComputeVersionNameTask : DefaultTask() {
     init {
         group = BasePlugin.BUILD_GROUP
         outputs.upToDateWhen { false }
     }
 
+    /**
+     * Provides structured logging for the task execution.
+     */
     @get:ServiceReference
     abstract val loggerService: Property<LoggerService>
 
+    /**
+     * The Android build variant for which the version name is calculated.
+     */
     @get:Internal
     abstract val buildVariant: Property<BuildVariant>
 
+    /**
+     * Strategy used to build the final version name.
+     *
+     * If not set, [BuildVersionNameStrategy] is used.
+     */
     @get:Internal
     abstract val versionNameStrategy: Property<VersionNameStrategy>
 
+    /**
+     * Whether to compute the version name using the Git tag snapshot.
+     */
     @get:Input
     abstract val useVersionsFromTag: Property<Boolean>
 
+    /**
+     * Whether to fall back to [DEFAULT_VERSION_NAME] when tag-based versioning is disabled.
+     */
     @get:Input
     abstract val useDefaultsForVersionsAsFallback: Property<Boolean>
 
+    /**
+     * JSON file with the last build tag snapshot.
+     */
     @get:InputFile
     abstract val buildTagSnapshotFile: RegularFileProperty
 
+    /**
+     * Output file containing the computed version name.
+     */
     @get:OutputFile
     abstract val versionNameFile: RegularFileProperty
 
+    /**
+     * Performs the computation and writes the result into [versionNameFile].
+     */
     @TaskAction
     fun compute() {
         val logger = loggerService.get()
 
         val useVersionsFromTag = useVersionsFromTag.get()
-        val useFallback = useDefaultsForVersionsAsFallback.get()
+        val useDefaultsForVersionsAsFallback = useDefaultsForVersionsAsFallback.get()
         val buildVariant = buildVariant.get()
         val strategy = versionNameStrategy.orNull ?: BuildVersionNameStrategy
         val tagSnapshot = buildTagSnapshotFile.get()
@@ -62,7 +100,7 @@ abstract class ComputeVersionNameTask : DefaultTask() {
         logger.info(
             resolvedVersionNameMessage(
                 useVersionsFromTag,
-                useFallback,
+                useDefaultsForVersionsAsFallback,
                 strategy,
                 buildVariant.name,
             ),
@@ -81,7 +119,7 @@ abstract class ComputeVersionNameTask : DefaultTask() {
                     strategy.build(buildVariant, tag)
                 }
 
-                useFallback -> {
+                useDefaultsForVersionsAsFallback -> {
                     logger.info(formDefaultVersionNameMessage(buildVariant))
                     DEFAULT_VERSION_NAME
                 }

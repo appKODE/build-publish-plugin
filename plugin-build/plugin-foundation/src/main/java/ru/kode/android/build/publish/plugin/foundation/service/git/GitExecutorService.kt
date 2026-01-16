@@ -41,10 +41,19 @@ abstract class GitExecutorService
             val loggerService: Property<LoggerService>
         }
 
+        /**
+         * Lazily created [GitCommandExecutor] instance.
+         */
         protected abstract val executorProperty: Property<GitCommandExecutor>
 
+        /**
+         * Lazily created [GitRepository] facade built on top of [executorProperty].
+         */
         protected abstract val repositoryProperty: Property<GitRepository>
 
+        /**
+         * Lazily created [GitChangelogBuilder] built on top of [repositoryProperty].
+         */
         protected abstract val gitChangelogBuilderProperty: Property<GitChangelogBuilder>
 
         init {

@@ -22,39 +22,78 @@ import ru.kode.android.build.publish.plugin.foundation.messages.formNullVersionC
 import ru.kode.android.build.publish.plugin.foundation.messages.formRichVersionCodeMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionCodeParamsMessage
 
+/**
+ * Computes the `versionCode` value for a specific Android build variant.
+ *
+ * The task reads a tag snapshot file (produced by
+ * [ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagSnapshotTask]) and derives a
+ * version code using a configured [VersionCodeStrategy]. Depending on the flags, it can:
+ * - Use the tag-derived value
+ * - Fall back to [DEFAULT_VERSION_CODE]
+ * - Or fall back to the Android DSL defaults attached to [BuildVariant]
+ *
+ * The computed version code is written to [versionCodeFile] as plain text and later consumed by
+ * the Android variant configuration.
+ */
 abstract class ComputeVersionCodeTask : DefaultTask() {
     init {
         group = BasePlugin.BUILD_GROUP
         outputs.upToDateWhen { false }
     }
 
+    /**
+     * Provides structured logging for the task execution.
+     */
     @get:ServiceReference
     abstract val loggerService: Property<LoggerService>
 
+    /**
+     * The Android build variant for which the version code is calculated.
+     */
     @get:Internal
     abstract val buildVariant: Property<BuildVariant>
 
+    /**
+     * Strategy used to build the final version code.
+     *
+     * If not set, [BuildVersionCodeStrategy] is used.
+     */
     @get:Internal
     abstract val versionCodeStrategy: Property<VersionCodeStrategy>
 
+    /**
+     * JSON file with the last build tag snapshot.
+     */
     @get:InputFile
     abstract val buildTagSnapshotFile: RegularFileProperty
 
+    /**
+     * Whether to compute the version code using the Git tag snapshot.
+     */
     @get:Input
     abstract val useVersionsFromTag: Property<Boolean>
 
+    /**
+     * Whether to fall back to [DEFAULT_VERSION_CODE] when tag-based versioning is disabled.
+     */
     @get:Input
-    abstract val useDefaultsForFallback: Property<Boolean>
+    abstract val useDefaultsForVersionsAsFallback: Property<Boolean>
 
+    /**
+     * Output file containing the computed version code.
+     */
     @get:OutputFile
     abstract val versionCodeFile: RegularFileProperty
 
+    /**
+     * Performs the computation and writes the result into [versionCodeFile].
+     */
     @TaskAction
     fun compute() {
         val buildVariant = buildVariant.get()
         val versionCodeStrategy = versionCodeStrategy.orNull ?: BuildVersionCodeStrategy
         val useVersionsFromTag = useVersionsFromTag.get()
-        val useDefaultVersionsAsFallback = useDefaultsForFallback.get()
+        val useDefaultsForVersionsAsFallback = useDefaultsForVersionsAsFallback.get()
         val tagSnapshot = buildTagSnapshotFile.get()
 
         val loggerService = loggerService.get()
@@ -62,7 +101,7 @@ abstract class ComputeVersionCodeTask : DefaultTask() {
         loggerService.info(
             resolvedVersionCodeParamsMessage(
                 useVersionsFromTag,
-                useDefaultVersionsAsFallback,
+                useDefaultsForVersionsAsFallback,
                 versionCodeStrategy,
                 buildVariant.name,
             ),
@@ -80,7 +119,7 @@ abstract class ComputeVersionCodeTask : DefaultTask() {
                     loggerService.info(formRichVersionCodeMessage(buildVariant, tag))
                     versionCodeStrategy.build(buildVariant, tag)
                 }
-                useDefaultVersionsAsFallback -> {
+                useDefaultsForVersionsAsFallback -> {
                     loggerService.info(formDefaultVersionCodeMessage(buildVariant))
                     DEFAULT_VERSION_CODE
                 }

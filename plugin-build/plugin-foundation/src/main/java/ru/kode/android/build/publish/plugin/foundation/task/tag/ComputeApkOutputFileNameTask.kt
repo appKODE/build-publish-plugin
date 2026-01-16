@@ -21,36 +21,73 @@ import ru.kode.android.build.publish.plugin.foundation.messages.formRichApkFileN
 import ru.kode.android.build.publish.plugin.foundation.messages.formSimpleApkFileNameMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.resolvedApkOutputFileNameParamsMessage
 
+/**
+ * Computes the final output APK file name for a specific Android build variant.
+ *
+ * The task can optionally incorporate version/tag metadata (from
+ * [ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagSnapshotTask]) using an
+ * [OutputApkNameStrategy]. The computed name is written to [apkOutputFileNameFile] as plain text
+ * and later used by tasks that rename/move the produced APK.
+ */
 abstract class ComputeApkOutputFileNameTask : DefaultTask() {
     init {
         group = BasePlugin.BUILD_GROUP
         outputs.upToDateWhen { false }
     }
 
+    /**
+     * Provides structured logging for the task execution.
+     */
     @get:ServiceReference
     abstract val loggerService: Property<LoggerService>
 
+    /**
+     * The Android build variant for which the output file name is calculated.
+     */
     @get:Internal
     abstract val buildVariant: Property<BuildVariant>
 
+    /**
+     * Strategy used to build the final APK file name.
+     *
+     * If not set, [VersionedApkNamingStrategy] is used.
+     */
     @get:Internal
     abstract val outputApkNameStrategy: Property<OutputApkNameStrategy>
 
+    /**
+     * The original output file name produced by the Android build.
+     */
     @get:Input
     abstract val apkOutputFileName: Property<String>
 
+    /**
+     * Whether to include tag/version data when building the final file name.
+     */
     @get:Input
     abstract val useVersionsFromTag: Property<Boolean>
 
+    /**
+     * User-defined base name (prefix) for the produced APK file.
+     */
     @get:Input
     abstract val baseFileName: Property<String>
 
+    /**
+     * JSON file with the last build tag snapshot.
+     */
     @get:InputFile
     abstract val buildTagSnapshotFile: RegularFileProperty
 
+    /**
+     * Output file containing the computed APK file name.
+     */
     @get:OutputFile
     abstract val apkOutputFileNameFile: RegularFileProperty
 
+    /**
+     * Performs the computation and writes the result into [apkOutputFileNameFile].
+     */
     @TaskAction
     fun compute() {
         val logger = loggerService.get()

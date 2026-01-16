@@ -9,6 +9,12 @@ import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import ru.kode.android.build.publish.plugin.foundation.EXTENSION_NAME
 import java.io.File
 
+/**
+ * Human-readable messages used by the foundation plugin.
+ *
+ * These helpers return formatted text (mostly multi-line blocks) used for Gradle logging and
+ * user-visible diagnostics during version/tag resolution, changelog generation and artifact naming.
+ */
 fun computedVersionNameMessage(
     buildVariant: BuildVariant,
     versionName: String?,
@@ -30,6 +36,9 @@ fun computedVersionNameMessage(
         """.trimIndent()
 }
 
+/**
+ * Message printed after `versionCode` has been computed for a specific [buildVariant].
+ */
 fun computedVersionCodeMessage(
     buildVariant: BuildVariant,
     code: Int?,
@@ -51,6 +60,9 @@ fun computedVersionCodeMessage(
         """.trimIndent()
 }
 
+/**
+ * Message printed after the final APK output file name has been computed.
+ */
 fun computedApkOutputFileNameMessage(
     buildVariant: BuildVariant,
     apkOutputFileName: String,
@@ -72,6 +84,9 @@ fun computedApkOutputFileNameMessage(
         """.trimIndent()
 }
 
+/**
+ * Message printed when a default `versionCode` fallback is being used.
+ */
 fun formDefaultVersionCodeMessage(buildVariant: BuildVariant): String {
     return """
         
@@ -89,6 +104,9 @@ fun formDefaultVersionCodeMessage(buildVariant: BuildVariant): String {
         """.trimIndent()
 }
 
+/**
+ * Message printed when no explicit `versionCode` is produced and DSL defaults are used.
+ */
 fun formNullVersionCodeMessage(buildVariant: BuildVariant): String {
     return """
         
@@ -106,6 +124,9 @@ fun formNullVersionCodeMessage(buildVariant: BuildVariant): String {
         """.trimIndent()
 }
 
+/**
+ * Message printed when a default `versionName` fallback is being used.
+ */
 fun formDefaultVersionNameMessage(buildVariant: BuildVariant): String {
     return """
         
@@ -123,6 +144,9 @@ fun formDefaultVersionNameMessage(buildVariant: BuildVariant): String {
         """.trimIndent()
 }
 
+/**
+ * Message printed when no explicit `versionName` is produced and DSL defaults are used.
+ */
 fun formNullVersionNameMessage(buildVariant: BuildVariant): String {
     return """
         
@@ -140,6 +164,9 @@ fun formNullVersionNameMessage(buildVariant: BuildVariant): String {
         """.trimIndent()
 }
 
+/**
+ * Message printed when a rich/tag-based `versionName` is being computed.
+ */
 fun formRichVersionNameMessage(
     buildVariant: BuildVariant,
     tag: Tag.Build?,
@@ -161,6 +188,9 @@ fun formRichVersionNameMessage(
         """.trimIndent()
 }
 
+/**
+ * Message printed when a rich/tag-based `versionCode` is being computed.
+ */
 fun formRichVersionCodeMessage(
     buildVariant: BuildVariant,
     tag: Tag.Build?,
@@ -182,6 +212,9 @@ fun formRichVersionCodeMessage(
         """.trimIndent()
 }
 
+/**
+ * Message printed when a simple APK naming strategy (without tag metadata) is used.
+ */
 fun formSimpleApkFileNameMessage(
     buildVariant: BuildVariant,
     baseFileName: String,
@@ -203,6 +236,9 @@ fun formSimpleApkFileNameMessage(
         """.trimIndent()
 }
 
+/**
+ * Message printed when a rich APK naming strategy (with tag metadata) is used.
+ */
 fun formRichApkFileNameMessage(
     buildVariant: BuildVariant,
     outputFileName: String,
@@ -228,6 +264,9 @@ fun formRichApkFileNameMessage(
         """.trimIndent()
 }
 
+/**
+ * Message printed when an [OutputConfig] has been resolved for a specific build variant.
+ */
 fun resolvedOutputConfig(
     configName: String,
     buildVariant: String,
@@ -249,6 +288,9 @@ fun resolvedOutputConfig(
         """.trimIndent()
 }
 
+/**
+ * Message printed with resolved inputs used to compute `versionCode`.
+ */
 fun resolvedVersionCodeParamsMessage(
     useVersionsFromTag: Boolean,
     useDefaultVersionsAsFallback: Boolean,
@@ -274,6 +316,9 @@ fun resolvedVersionCodeParamsMessage(
         """.trimIndent()
 }
 
+/**
+ * Message printed with resolved inputs used to compute the APK output file name.
+ */
 fun resolvedApkOutputFileNameParamsMessage(
     outputFileName: String,
     useVersionsFromTag: Boolean,
@@ -299,6 +344,9 @@ fun resolvedApkOutputFileNameParamsMessage(
         """.trimIndent()
 }
 
+/**
+ * Message printed with resolved inputs used to compute `versionName`.
+ */
 fun resolvedVersionNameMessage(
     useVersionsFromTag: Boolean,
     useDefaultVersionsAsFallback: Boolean,
@@ -324,6 +372,9 @@ fun resolvedVersionNameMessage(
         """.trimIndent()
 }
 
+/**
+ * Error message shown when no output configuration was provided in the DSL.
+ */
 fun outputConfigShouldBeDefinedMessage(): String {
     return """
         
@@ -347,6 +398,9 @@ fun outputConfigShouldBeDefinedMessage(): String {
         """.trimIndent()
 }
 
+/**
+ * Informational message printed when a [BuildPublishConfigurableExtension] is being configured.
+ */
 fun configureExtensionMessage(
     extensionName: String,
     variantName: String,
@@ -365,6 +419,9 @@ fun configureExtensionMessage(
         """.trimIndent()
 }
 
+/**
+ * Error message shown when the plugin is applied to a non-Android application project.
+ */
 fun mustBeUsedWithAndroidMessage(): String {
     return """
         
@@ -388,6 +445,9 @@ fun mustBeUsedWithAndroidMessage(): String {
         """.trimIndent()
 }
 
+/**
+ * Error message shown when the Android Gradle Plugin version is below the required minimum.
+ */
 fun mustBeUsedWithVersionMessage(): String {
     return """
         
@@ -412,6 +472,9 @@ fun mustBeUsedWithVersionMessage(): String {
         """.trimIndent()
 }
 
+/**
+ * Error message printed when the tag snapshot file cannot be created and stub fallback is disabled.
+ */
 fun tagNotCreatedMessage(
     buildVariant: String,
     buildTagPattern: String,
@@ -445,6 +508,9 @@ fun tagNotCreatedMessage(
         """.trimIndent()
 }
 
+/**
+ * Informational message printed when a stub tag is used instead of a real Git tag.
+ */
 fun usingStabMessage(
     buildVariant: String,
     buildTagPattern: String,
@@ -467,6 +533,9 @@ fun usingStabMessage(
         """.trimIndent()
 }
 
+/**
+ * Error message printed when a found build tag is considered invalid for the current variant.
+ */
 fun invalidTagMessage(
     buildTag: Tag.Build,
     buildVariant: String,
@@ -506,6 +575,9 @@ fun invalidTagMessage(
         """.trimIndent()
 }
 
+/**
+ * Informational message printed when a valid build tag is found for a given build variant.
+ */
 fun validBuildTagFoundMessage(
     buildTag: Tag.Build,
     buildVariant: String,
@@ -525,6 +597,9 @@ fun validBuildTagFoundMessage(
         """.trimIndent()
 }
 
+/**
+ * Message printed when an APK file is being copied/renamed into its final location.
+ */
 fun renameApkMessage(
     inputFile: File,
     targetOutputFileName: String,
@@ -547,6 +622,9 @@ fun renameApkMessage(
         """.trimIndent()
 }
 
+/**
+ * Default changelog message used when there is no previous build tag.
+ */
 fun noChangedDetectedSinceStartMessage(): String {
     return """
         
@@ -567,6 +645,9 @@ fun noChangedDetectedSinceStartMessage(): String {
         """.trimIndent().trim()
 }
 
+/**
+ * Default changelog message used when there are no changes since a previous build tag.
+ */
 fun noChangesDetectedSinceBuildMessage(previousBuildName: String): String {
     return """
         
@@ -586,6 +667,9 @@ fun noChangesDetectedSinceBuildMessage(previousBuildName: String): String {
         """.trimIndent().trim()
 }
 
+/**
+ * Message printed when a changelog has been generated successfully.
+ */
 fun changelogGeneratedMessage(
     buildTagPattern: String,
     currentBuildTag: Tag.Build,
@@ -608,6 +692,9 @@ fun changelogGeneratedMessage(
         """.trimIndent()
 }
 
+/**
+ * Message printed when changelog generation produced no meaningful output.
+ */
 fun changelogNotGeneratedMessage(
     buildTagPattern: String,
     currentBuildTag: Tag.Build,
@@ -631,6 +718,9 @@ fun changelogNotGeneratedMessage(
         """.trimIndent()
 }
 
+/**
+ * Default changelog message written to the output file when there are no changes between builds.
+ */
 fun noChangesChangelogMessage(currentBuildTag: Tag.Build): String {
     return """
         

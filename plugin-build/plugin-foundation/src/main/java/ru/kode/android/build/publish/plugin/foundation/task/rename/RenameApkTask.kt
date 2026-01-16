@@ -18,8 +18,8 @@ import javax.inject.Inject
 /**
  * A task for renaming an APK file.
  *
- * This task is used to rename an APK file to a specified name. The task takes the input APK file
- * and renames it to the specified name in the output directory.
+ * This task is wired as an Android Gradle Plugin artifact transform. It takes the produced APK
+ * (from [inputDir]) and copies it into [outputDir] with the name provided via [outputFileName].
  */
 abstract class RenameApkTask
     @Inject
@@ -45,8 +45,7 @@ abstract class RenameApkTask
         /**
          * The directory containing the input APK file.
          *
-         * The task will rename the file with the name specified in [outputFileName]
-         * in this directory.
+         * This is a directory produced by AGP that contains the built APK artifact.
          */
         @get:InputDirectory
         abstract val inputDir: DirectoryProperty
@@ -54,8 +53,7 @@ abstract class RenameApkTask
         /**
          * The directory to which the renamed APK file will be written.
          *
-         * The task will rename the file with the name specified in [outputFileName]
-         * in this directory.
+         * This is the output directory of the artifact transform.
          */
         @get:OutputDirectory
         abstract val outputDir: DirectoryProperty
