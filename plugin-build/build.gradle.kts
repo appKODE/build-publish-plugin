@@ -3,11 +3,11 @@ plugins {
     alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.publish) apply false
     alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.serialization) apply false
 }
 
 allprojects {
     group = "ru.kode.android"
-    version = "1.3.0-alpha18"
 }
 
 val dependsOnRecursivelyByName = { task: Task, name: String ->

@@ -14,9 +14,42 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    environment: verify
     env:
       GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
       GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
+      JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+      JIRA_USER_NAME: ${{ secrets.JIRA_USER_NAME }}
+      JIRA_USER_PASSWORD: ${{ secrets.JIRA_USER_PASSWORD }}
+      JIRA_PROJECT_ID: ${{ secrets.JIRA_PROJECT_ID }}
+      TELEGRAM_BOT_ID: ${{ secrets.TELEGRAM_BOT_ID }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      TELEGRAM_CHAT_FORUM_ID: ${{ secrets.TELEGRAM_CHAT_FORUM_ID }}
+      TELEGRAM_CHAT_FORUM_TOPIC_ID: ${{ secrets.TELEGRAM_CHAT_FORUM_TOPIC_ID }}
+      TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+      TELEGRAM_LOOKUP_CHAT_ID: ${{ secrets.TELEGRAM_LOOKUP_CHAT_ID }}
+      TELEGRAM_LOOKUP_CHAT_FORUM_ID: ${{ secrets.TELEGRAM_LOOKUP_CHAT_FORUM_ID }}
+      TELEGRAM_LOOKUP_CHAT_FORUM_TOPIC_ID: ${{ secrets.TELEGRAM_LOOKUP_CHAT_FORUM_TOPIC_ID }}
+      TELEGRAM_LOOKUP_CHANNEL_ID: ${{ secrets.TELEGRAM_LOOKUP_CHANNEL_ID }}
+      TELEGRAM_BOT_SERVER_BASE_URL: ${{ secrets.TELEGRAM_BOT_SERVER_BASE_URL }}
+      TELEGRAM_BOT_SERVER_USERNAME: ${{ secrets.TELEGRAM_BOT_SERVER_USERNAME }}
+      TELEGRAM_BOT_SERVER_PASSWORD: ${{ secrets.TELEGRAM_BOT_SERVER_PASSWORD }}
+      PROXY_HOST: ${{ secrets.PROXY_HOST }}
+      PROXY_PASSWORD: ${{ secrets.PROXY_PASSWORD }}
+      PROXY_USER: ${{ secrets.PROXY_USER }}
+      PROXY_PORT: ${{ secrets.PROXY_PORT }}
+      CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
+      CONFLUENCE_USER_NAME: ${{ secrets.CONFLUENCE_USER_NAME }}
+      CONFLUENCE_USER_PASSWORD: ${{ secrets.CONFLUENCE_USER_PASSWORD }}
+      CONFLUENCE_PAGE_ID: ${{ secrets.CONFLUENCE_PAGE_ID }}
+      CLICKUP_TOKEN: ${{ secrets.CLICKUP_TOKEN }}
+      CLICKUP_BASE_URL: ${{ secrets.CLICKUP_BASE_URL }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      SLACK_ICON_URL: ${{ secrets.SLACK_ICON_URL }}
+      SLACK_UPLOAD_API_TOKEN: ${{ secrets.SLACK_UPLOAD_API_TOKEN }}
+      SLACK_DISTRIBUTION_CHANNEL: ${{ secrets.SLACK_DISTRIBUTION_CHANNEL }}
+      FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+      FIREBASE_APP_ID_INTERNAL: ${{ secrets.FIREBASE_APP_ID_INTERNAL }}
     if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
     steps:
       - name: Checkout Repo
@@ -35,7 +68,51 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '17'
+      - name: Create Firebase config files
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            pwsh -NoProfile -Command "
+              mkdir -Force plugin-test\firebase
+              \$googleBase64 = [System.Environment]::GetEnvironmentVariable('GOOGLE_SERVICES_BASE64') -replace '\s',''
+              [System.IO.File]::WriteAllBytes('plugin-test\firebase\google-services.json',[System.Convert]::FromBase64String(\$googleBase64))
+              \$serviceBase64 = [System.Environment]::GetEnvironmentVariable('SERVICE_CREDENTIALS_BASE64') -replace '\s',''
+              [System.IO.File]::WriteAllBytes('plugin-test\firebase\service-credentials.json',[System.Convert]::FromBase64String(\$serviceBase64))
+            "
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            mkdir -p plugin-test/firebase
+            echo "$GOOGLE_SERVICES_BASE64" | tr -d '\n' | base64 -D > plugin-test/firebase/google-services.json
+            echo "$SERVICE_CREDENTIALS_BASE64" | tr -d '\n' | base64 -D > plugin-test/firebase/service-credentials.json
+          else
+            # Linux
+            mkdir -p plugin-test/firebase
+            echo "$GOOGLE_SERVICES_BASE64" | tr -d '\n' | base64 --decode > plugin-test/firebase/google-services.json
+            echo "$SERVICE_CREDENTIALS_BASE64" | tr -d '\n' | base64 --decode > plugin-test/firebase/service-credentials.json
+          fi
+        env:
+          GOOGLE_SERVICES_BASE64: ${{ secrets.GOOGLE_SERVICES_BASE64 }}
+          SERVICE_CREDENTIALS_BASE64: ${{ secrets.SERVICE_CREDENTIALS_BASE64 }}
       - name: Run Gradle tasks
+        id: gradle_run
         run: ./gradlew preMerge --continue
+        continue-on-error: true
+      - name: Run tests
+        id: gradle_tests
+        run: ./gradlew :plugin-test:test --continue
+        continue-on-error: true
+      - name: Upload Gradle Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ matrix.os }}
+          path: |
+            **/build/reports/tests/test/
+            **/build/reports/problems/
+          if-no-files-found: warn
       - name: Stop Gradle
         run: ./gradlew --stop
+      - name: Fail if gradle tasks failed
+        if: steps.gradle_run.outcome != 'success' || steps.gradle_tests.outcome != 'success'
+        run: |
+          echo "❌ Some Gradle tasks failed. Check the uploaded reports for details."
+          exit 1

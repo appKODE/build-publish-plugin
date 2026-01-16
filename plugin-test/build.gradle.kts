@@ -1,0 +1,39 @@
+@Suppress("DSL_SCOPE_VIOLATION")
+plugins {
+    alias(libs.plugins.kotlin) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.grgit) apply false
+    alias(libs.plugins.agp) apply false
+}
+
+allprojects {
+    group = "ru.kode.android"
+}
+
+val dependsOnRecursivelyByName = { task: Task, name: String ->
+    subprojects {
+        this.tasks.matching { it.name == name }.forEach { t ->
+            task.dependsOn(t)
+        }
+    }
+}
+
+tasks.register("clean", Delete::class.java) {
+    delete(layout.buildDirectory)
+    dependsOnRecursivelyByName(this, "clean")
+}
+
+tasks.register("preMerge") {
+    group = "verification"
+
+    dependsOnRecursivelyByName(this, "check")
+    dependsOnRecursivelyByName(this, "validatePlugins")
+    dependsOnRecursivelyByName(this, "ktlintFormat")
+    dependsOnRecursivelyByName(this, "detektDebug")
+}
+
+tasks.register("test") {
+    group = "test"
+
+    dependsOnRecursivelyByName(this, "test")
+}

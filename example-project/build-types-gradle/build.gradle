@@ -1,0 +1,85 @@
+import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberNameStrategy
+
+plugins {
+    id 'com.android.application'
+    id 'com.google.firebase.appdistribution'
+    id 'ru.kode.android.build-publish-novo.foundation'
+    id 'ru.kode.android.build-publish-novo.telegram'
+    id 'ru.kode.android.build-publish-novo.clickup'
+}
+
+android {
+    namespace = "ru.kode.android.build.types.example"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.example.build.types.android"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        debug
+        release
+    }
+}
+
+buildPublishFoundation {
+    output {
+        common {
+           it.baseFileName = "base-project-android"
+           it.versionNameStrategy { new BuildVersionNumberNameStrategy() }
+        }
+    }
+
+    changelogCommon {
+        issueNumberPattern = "BASE-\\d+"
+        issueUrlPrefix = "https://jira.exmaple.ru/browse/"
+        commitMessageKey = "CHANGELOG"
+    }
+}
+
+buildPublishTelegram {
+    bots {
+        common {
+            it.bot("ChangelogBot") {
+                botServerBaseUrl.set("test")
+                botServerAuth.password.set("test")
+                botServerAuth.username.set("test")
+                botId.set("test")
+                chat("ChangelogTest") {
+                    chatId = "testid"
+                }
+            }
+        }
+    }
+    changelog {
+        common {
+            it.userMentions("@user1", '@user2')
+            it.destinationBot {
+                botName = "ChangelogBot"
+                chatNames("ChangelogTest")
+            }
+        }
+    }
+}
+
+buildPublishClickUp {
+    auth {
+        common {
+            it.apiTokenFile = project.file("clickup-token.txt")
+        }
+    }
+
+    automation {
+        common {
+            it.workspaceName.set("Ilia Nekrasov's Workspace")
+            it.fixVersionPattern = "fix_%2\$s_%1\$s"
+            it.fixVersionFieldName = "Fix version"
+            it.tagPattern = "test_tag_name"
+        }
+    }
+}
+

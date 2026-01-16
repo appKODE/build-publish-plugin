@@ -17,10 +17,9 @@ dependencyResolutionManagement {
 
 rootProject.name = ("build-publish")
 
-include(":example:app")
-include(":example:build-types")
-include(":example:build-types-gradle")
-include(":example:dimensions")
-include(":example:flavors")
+includeBuild("shared")
+includeBuild("example-project")
+includeBuild("example-plugin")
 includeBuild("plugin-build")
+includeBuild("plugin-test")
 includeBuild("build-conventions")

@@ -1,38 +1,42 @@
 [versions]
-kotlin = "1.9.23"
-agp = "8.3.1"
-detekt = "1.23.5"
+buildPublishPlugin = "1.2.1"
+buildPublishShared = "1.2.0"
+kotlin = "2.3.0"
+agp = "8.13.2"
+detekt = "1.23.8"
 ktlint = "12.1.0"
-firebaseAppdistribution = "4.2.0"
-grgit = "5.0.0"
-publish = "1.2.1"
-okhttp = "4.12.0"
-moshi = "1.15.0"
-retrofit = "2.9.0"
-junit = "4.13.2"
-ksp = "1.9.23-1.0.19"
+firebaseAppdistribution = "5.2.0"
+grgit = "5.3.3"
+publish = "2.0.0"
+okhttp = "5.3.2"
+retrofit = "3.0.0"
+retrofitSerialzation = "1.0.0"
+junit = "6.0.2"
+ksp = "2.3.4"
 play-publish = "v3-rev20231115-2.0.0"
-google-auth = "1.20.0"
+googleAuth = "1.41.0"
+kotlinxSerialization = "1.9.0"
+vanniktechMavenPublish = "0.35.0"
 
 [libraries]
 agp = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
-moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
-moshiCodgen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
 okhttpLogging = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
 firebaseAppdistribution = { module = "com.google.firebase:firebase-appdistribution-gradle", version.ref = "firebaseAppdistribution" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
-retrofitMoshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
+retrofitSerialization = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofitSerialzation" }
 grgitCore = { module = "org.ajoberstar.grgit:grgit-core", version.ref = "grgit" }
 grgitGradle = { module = "org.ajoberstar.grgit:grgit-gradle", version.ref = "grgit" }
-junit = { module = "junit:junit", version.ref = "junit" }
+junitBom = { module = "org.junit:junit-bom", version.ref = "junit" }
+serializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+plugin-core = { group = "ru.kode.android", name = "build-publish-novo-core", version.ref = "buildPublishShared" }
 
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 ktlint-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
 detekt-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 ksp-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 play-publish = { module = "com.google.apis:google-api-services-androidpublisher", version.ref = "play-publish" }
-google-auth = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "google-auth" }
+google-auth = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "googleAuth" }
 
 [plugins]
 agp = { id = "com.android.application", version.ref = "agp" }
@@ -41,3 +45,5 @@ grgit = { id = "org.ajoberstar.grgit", version.ref = "grgit" }
 publish = { id = "com.gradle.plugin-publish", version.ref = "publish" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktechMavenPublish" }

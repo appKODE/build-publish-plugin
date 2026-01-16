@@ -1,0 +1,3625 @@
+    v0.0.1-internal    [OK]
+      type     : lightweight
+      created  : 2023-08-22 17:43:03 +0200
+      commit   : 540a932766dc36e43daa5c2137714c133d8ff178
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.1-release     [OK]
+      type     : lightweight
+      created  : 2023-08-22 18:36:53 +0200
+      commit   : 8c8b931b4bab124467eb46e42511ca13a3532948
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.10-internal   [OK]
+      type     : lightweight
+      created  : 2023-10-06 18:55:57 +0200
+      commit   : f349dccdb4aaeab6f3f6bd050933875d82463b5b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.10-release    [OK]
+      type     : lightweight
+      created  : 2024-08-06 18:35:11 +0200
+      commit   : 9413fe76b448d5219796ed9e511696f881382174
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.100-internal  [OK]
+      type     : lightweight
+      created  : 2024-02-19 12:11:41 +0200
+      commit   : e8c1fb02f7281234ff303991a6eca5fc8cfb195b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.101-internal  [OK]
+      type     : lightweight
+      created  : 2024-02-19 16:58:50 +0200
+      commit   : 7bb5fd6c125e94b8c46aa68358207b5e318790cb
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.102-internal  [OK]
+      type     : lightweight
+      created  : 2024-02-19 23:25:47 +0200
+      commit   : 06809029980d9a5ab5340fda3f3ba80d44b52fb8
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.103-internal  [OK]
+      type     : lightweight
+      created  : 2024-02-21 00:38:55 +0200
+      commit   : 3b90b169886203022ec277a373fcae426745ed9e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.104-internal  [OK]
+      type     : lightweight
+      created  : 2024-02-21 23:57:01 +0200
+      commit   : c64454117706afd25b85b1d361d3785b39b6f039
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.105-internal  [OK]
+      type     : lightweight
+      created  : 2024-02-23 09:45:40 +0300
+      commit   : 99982e84d32b1a950b23bb8b939c756fc109de22
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.106-internal  [OK]
+      type     : lightweight
+      created  : 2024-02-25 18:28:50 +0000
+      commit   : a5119c6d68f8a56462098e428127ef87ea9a6299
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.107-internal  [OK]
+      type     : annotated
+      created  : 2024-02-26 07:45:03 +0000
+      commit   : d9e4b056f860d229557324804bbf29391ebd03cb
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.108-internal  [OK]
+      type     : lightweight
+      created  : 2024-02-26 11:11:47 +0200
+      commit   : e09daab78b5b477eac0a8acee9c8126f7a026307
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.109-internal  [OK]
+      type     : lightweight
+      created  : 2024-02-26 11:11:47 +0200
+      commit   : e09daab78b5b477eac0a8acee9c8126f7a026307
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.11-internal   [OK]
+      type     : lightweight
+      created  : 2023-10-13 16:01:09 +0200
+      commit   : 7e98cfbace9755fc0a72db738dd209930c03def3
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.11-release    [OK]
+      type     : lightweight
+      created  : 2024-08-07 16:32:20 +0200
+      commit   : ec86b24e5a24894b9715361f0fd99b584f6a1a08
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.110-internal  [OK]
+      type     : lightweight
+      created  : 2024-02-27 11:19:19 +0300
+      commit   : 5c3a2b57fbca96fd5c2ff39740ff34d3e120ccf1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.111-internal  [OK]
+      type     : lightweight
+      created  : 2024-02-28 23:49:18 +0200
+      commit   : 100da1c4a566c4495707544888d5c8722dd10dce
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.112-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-01 00:01:46 +0200
+      commit   : 6eb6f96eaa36be866ceb88dae614f43aa2a718da
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.113-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-03 14:32:59 +0300
+      commit   : 90ac0a6e70d71f6be6c065cbfc5d1e9e6119342d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.114-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-04 23:10:29 +0200
+      commit   : a7bf4f618cd3e2b15820a34c5b5aee759be334c6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.115-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-06 01:01:16 +0200
+      commit   : 464145040649c759b3690935ec09c654256e7b0f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.116-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-06 01:01:16 +0200
+      commit   : 464145040649c759b3690935ec09c654256e7b0f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.117-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-06 01:01:16 +0200
+      commit   : 464145040649c759b3690935ec09c654256e7b0f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.118-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-06 01:01:16 +0200
+      commit   : 464145040649c759b3690935ec09c654256e7b0f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.119-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-11 23:00:30 +0200
+      commit   : 9e2cfc3eba2ffe7c43cbb751d6d7d12311e19a14
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.12-internal   [BROKEN]
+      type     : lightweight
+      created  : 2023-10-19 16:51:30 +0200
+      commit   : b403a8529031d1bcd2140bedfccb6a2186b20ca2
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.12-release    [OK]
+      type     : lightweight
+      created  : 2024-09-04 17:19:08 +0700
+      commit   : 1254acfd7186177a435d1e939b050814a66cb9bd
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.120-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-12 22:37:01 +0200
+      commit   : 157082b2bdaec7b0dd419f2c280665439d4399d9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.121-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-14 06:40:11 +0000
+      commit   : 0e7ce7634e8d4304ae6e1d63d930d9c48321a5d5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.122-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-14 21:31:01 +0000
+      commit   : a1e0e83c5cfd359d26ee3590b677abe481a4c3a4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.123-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-17 18:24:05 +0200
+      commit   : 218563ffe1fca773f39767a894308f34fd8a79da
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.124-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-18 13:00:59 +0200
+      commit   : bd23ca35415abc0359412e8510b46c17b29166fe
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.125-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-18 15:02:45 +0200
+      commit   : be1a91c32d787b7b63ded8570a1addf57bf9573a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.126-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-19 17:57:07 +0200
+      commit   : 6effbab8e2cf37c4cfd18d23c87affcdcb76f479
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.127-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-20 12:56:58 +0200
+      commit   : 954bc4105de134950ffbe4bbbcd684966b3a6dd9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.128-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-21 23:23:02 +0200
+      commit   : 4b98adf54f93d1c04cd2eb9f52889f1e94d26b1e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.129-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-24 23:42:51 +0200
+      commit   : c27a58941ee2ad52ccd8f61fee30175bdbca4dfb
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.13-internal   [OK]
+      type     : lightweight
+      created  : 2023-10-19 17:14:36 +0200
+      commit   : 25b2eba83cd4632e5447025e1801748c013f8128
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.13-release    [OK]
+      type     : lightweight
+      created  : 2024-09-04 16:27:05 +0000
+      commit   : f8ca0fbb3fa3ca52114c84b38b8060ac26d3ef15
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.130-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-25 18:55:32 +0200
+      commit   : 9cf311aa936a4386850988d6dada4dcb7a1edce5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.131-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-26 16:35:43 +0300
+      commit   : 8a2e0ceb96240793f7243b21c66fbc5e78722775
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.132-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-27 13:58:45 +0000
+      commit   : 3598134c12e1aaec7a717e24da4995b4fe81cb7d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.133-internal  [OK]
+      type     : annotated
+      created  : 2024-03-28 08:58:29 +0000
+      commit   : 60ce37ed63b4b324a2a18a2040f209b0563193eb
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.134-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-28 14:43:40 +0200
+      commit   : 1eb4274e1705fabe9f2cce00f8f5596f2e28e6fe
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.135-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-28 14:43:40 +0200
+      commit   : 1eb4274e1705fabe9f2cce00f8f5596f2e28e6fe
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.136-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-29 11:48:38 +0000
+      commit   : 71c474d2fae1d34ffc6a7c19f214285e9aa3940d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.137-internal  [OK]
+      type     : lightweight
+      created  : 2024-03-29 11:48:38 +0000
+      commit   : 71c474d2fae1d34ffc6a7c19f214285e9aa3940d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.138-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-02 18:26:36 +0300
+      commit   : e01c550bfb9a81487c1c5683b0cc2b6330767cf9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.139-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-02 18:26:36 +0300
+      commit   : e01c550bfb9a81487c1c5683b0cc2b6330767cf9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.14-internal   [OK]
+      type     : lightweight
+      created  : 2023-10-20 19:44:32 +0200
+      commit   : d0ef0b02ef7d011ce0b270a58090b6cc42f47879
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.14-release    [OK]
+      type     : lightweight
+      created  : 2024-10-23 17:32:16 +0700
+      commit   : 48d9b938f00d52d2b72244362148334d41a381e1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.140-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-04 16:53:25 +0000
+      commit   : 3669161f8756c63b6299ac663fb839e52fbd6213
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.141-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-04 16:53:25 +0000
+      commit   : 3669161f8756c63b6299ac663fb839e52fbd6213
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.142-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-08 12:54:20 +0200
+      commit   : 8e14dda4dc37bcf44e84fe968db7ccf95d03eab5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.143-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-08 13:47:10 +0200
+      commit   : 8689ecdbacdef11c6f95709bf7a0f97eea4a47da
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.144-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-09 12:19:54 +0200
+      commit   : 530262142f624112ee35500961be7da4fe7d9603
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.145-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-09 12:19:54 +0200
+      commit   : 530262142f624112ee35500961be7da4fe7d9603
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.146-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-10 13:31:23 +0000
+      commit   : 57018d93334e69f97ce1529cd32858bc39470e45
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.147-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-10 13:31:23 +0000
+      commit   : 57018d93334e69f97ce1529cd32858bc39470e45
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.148-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-12 17:55:51 +0300
+      commit   : 68d3431dbd385ca6ebc30880dadfa3b54f4e85b1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.149-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-12 17:55:51 +0300
+      commit   : 68d3431dbd385ca6ebc30880dadfa3b54f4e85b1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.15-internal   [OK]
+      type     : lightweight
+      created  : 2023-10-20 19:44:32 +0200
+      commit   : d0ef0b02ef7d011ce0b270a58090b6cc42f47879
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.15-release    [OK]
+      type     : lightweight
+      created  : 2024-10-23 18:07:37 +0700
+      commit   : a02e6759b57938a4c6a4bd525a4e1cc153d72f33
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.150-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-16 18:33:22 +0000
+      commit   : 83bff5776586fa169d94f9d51556889c08f469e0
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.151-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-18 00:34:08 +0200
+      commit   : 2d4d83b39fe2e39ea520b6abf3480626d76d6633
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.152-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-18 00:34:08 +0200
+      commit   : 2d4d83b39fe2e39ea520b6abf3480626d76d6633
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.153-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-18 18:04:54 +0200
+      commit   : b9b242ed4a7df4f9e5c6c600f89eb0d71be400c2
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.154-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-19 16:34:52 +0200
+      commit   : aa2eefcbbe87a7f41f2db682e1031f0404f6e222
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.155-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-19 16:34:52 +0200
+      commit   : aa2eefcbbe87a7f41f2db682e1031f0404f6e222
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.156-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-23 18:12:06 +0200
+      commit   : 614c4d3f26a9a4d8f706e08b99ef1614510578c7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.157-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-23 18:12:06 +0200
+      commit   : 614c4d3f26a9a4d8f706e08b99ef1614510578c7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.158-internal  [OK]
+      type     : lightweight
+      created  : 2024-04-23 18:12:06 +0200
+      commit   : 614c4d3f26a9a4d8f706e08b99ef1614510578c7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.159-internal  [OK]
+      type     : lightweight
+      created  : 2024-05-03 16:20:26 +0200
+      commit   : a2bda9115ecf2f951159965ab64b2b7eca779673
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.16-internal   [OK]
+      type     : lightweight
+      created  : 2023-10-24 17:59:21 +0000
+      commit   : 282d67483dbb8aa70642837a95c7abc982df268e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.16-release    [BROKEN]
+      type     : annotated
+      created  : 2024-12-02 16:39:30 +0000
+      commit   : 6b46c36a0371d699b9fe63e5a408494b8d5faa94
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.160-internal  [OK]
+      type     : lightweight
+      created  : 2024-05-08 01:35:27 +0200
+      commit   : f27e93d7a02adc0171dc6bb4a88c397846e41a94
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.161-internal  [OK]
+      type     : lightweight
+      created  : 2024-05-14 14:02:27 +0200
+      commit   : 825a9b096f4cb3f011126149be45a9d87a895e13
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.162-internal  [OK]
+      type     : lightweight
+      created  : 2024-05-21 10:15:11 +0200
+      commit   : 777468513e592115c1f27d606e27d7afb9ab6006
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.163-internal  [OK]
+      type     : lightweight
+      created  : 2024-05-27 14:57:07 +0200
+      commit   : 94bfffc87a0d9fa3715f005bf5c1a23883078135
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.164-internal  [OK]
+      type     : lightweight
+      created  : 2024-05-29 00:39:29 +0200
+      commit   : 5db7c5ea88230d39f77067ee976d16a22668d5d9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.165-internal  [OK]
+      type     : lightweight
+      created  : 2024-05-29 13:38:57 +0200
+      commit   : df4024d4fc1761e82b6b18a9349eb6856e1943e0
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.166-internal  [OK]
+      type     : lightweight
+      created  : 2024-05-29 13:38:57 +0200
+      commit   : df4024d4fc1761e82b6b18a9349eb6856e1943e0
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.167-internal  [OK]
+      type     : lightweight
+      created  : 2024-05-29 13:38:57 +0200
+      commit   : df4024d4fc1761e82b6b18a9349eb6856e1943e0
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.168-internal  [OK]
+      type     : lightweight
+      created  : 2024-05-29 13:38:57 +0200
+      commit   : df4024d4fc1761e82b6b18a9349eb6856e1943e0
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.169-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-06 02:09:00 +0200
+      commit   : 8a4abf186317732a4bb14c80ee6aa13ba7dc9c0d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.17-internal   [OK]
+      type     : lightweight
+      created  : 2023-10-25 19:41:55 +0200
+      commit   : 789273e4d82ef5d3585993ee0eb298de8df598df
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.17-release    [OK]
+      type     : lightweight
+      created  : 2024-12-10 06:29:30 +0000
+      commit   : 1deeda7153987cfc49c4accaa8538c498e395b78
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.170-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-07 00:39:15 +0200
+      commit   : 0572455f1c5b87965f82a33e90f4e2be8a35e786
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.171-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-07 18:35:10 +0200
+      commit   : ca497d1d54d3365e3860dbf37abc0e4fda2529f0
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.172-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-11 00:58:04 +0200
+      commit   : 2065dd8f5a44148157f039e10d861a59b56dd692
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.173-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-11 13:59:04 +0200
+      commit   : 84298440dec80617cfb8627bc9d3aa3c0cc5925f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.174-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-11 13:59:04 +0200
+      commit   : 84298440dec80617cfb8627bc9d3aa3c0cc5925f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.175-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-15 17:09:53 +0200
+      commit   : e891d962dfce6bb9d4878be9b5ae4a114f3f8065
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.176-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-18 18:10:17 +0200
+      commit   : 41f196d31610e27ef4785a2cf51467aefac8bc3b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.177-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-20 00:31:08 +0200
+      commit   : 04c47cd2215965d9dd60c4a2e00f8ce564edc9a9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.178-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-21 00:25:35 +0200
+      commit   : 6529808ecf3eecbe3ed9d9dd9bbd525144d20a88
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.179-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-21 16:45:09 +0200
+      commit   : 4617a67500acd8e6ca353db6e343641773870d2d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.18-internal   [OK]
+      type     : lightweight
+      created  : 2023-10-26 16:06:33 +0000
+      commit   : 720519d775fec4c1ed628592b864f9a821dcda44
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.18-release    [OK]
+      type     : lightweight
+      created  : 2025-02-14 17:46:32 +0700
+      commit   : 9cef034f7d3d4a6087cd5d7217448b5ed31f26a7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.180-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-21 16:45:09 +0200
+      commit   : 4617a67500acd8e6ca353db6e343641773870d2d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.181-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-25 15:50:36 +0200
+      commit   : aa559275f01cc213bbcd290e0449ba8565ae1cbe
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.182-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-25 15:50:36 +0200
+      commit   : aa559275f01cc213bbcd290e0449ba8565ae1cbe
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.183-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-25 15:50:36 +0200
+      commit   : aa559275f01cc213bbcd290e0449ba8565ae1cbe
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.184-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-26 15:32:31 +0200
+      commit   : 02d0faf44941acdfc0bd0b2149f2c3da488d0170
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.185-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-26 17:13:53 +0200
+      commit   : 3a225a3cdc8a328504af8ad227670a417081f4fd
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.186-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-27 17:12:31 +0200
+      commit   : 43e2c607b2813a56ec79c4e8e3abb27ae6b1cc2f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.187-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-27 17:12:31 +0200
+      commit   : 43e2c607b2813a56ec79c4e8e3abb27ae6b1cc2f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.188-internal  [OK]
+      type     : lightweight
+      created  : 2024-06-27 17:12:31 +0200
+      commit   : 43e2c607b2813a56ec79c4e8e3abb27ae6b1cc2f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.189-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-01 14:25:30 +0200
+      commit   : 77d332fcae48fac7e0e36accf1211d08fe123e9f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.19-internal   [OK]
+      type     : lightweight
+      created  : 2023-10-26 16:06:33 +0000
+      commit   : 720519d775fec4c1ed628592b864f9a821dcda44
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.19-release    [OK]
+      type     : lightweight
+      created  : 2025-02-19 14:35:27 +0700
+      commit   : a1afb390c9b5a41ab898bc12e3fd4ed759747b04
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.190-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-01 14:25:30 +0200
+      commit   : 77d332fcae48fac7e0e36accf1211d08fe123e9f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.191-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-01 14:25:30 +0200
+      commit   : 77d332fcae48fac7e0e36accf1211d08fe123e9f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.192-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-03 17:35:42 +0200
+      commit   : 74b68e6c50314bbe3a819446679bda5efa22f448
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.193-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-03 17:35:42 +0200
+      commit   : 74b68e6c50314bbe3a819446679bda5efa22f448
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.194-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-04 19:10:20 +0200
+      commit   : 6842de50753bbd97cc78b0412d58f4a900120995
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.195-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-04 19:10:20 +0200
+      commit   : 6842de50753bbd97cc78b0412d58f4a900120995
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.196-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-06 16:51:46 +0200
+      commit   : 5c2d40a785827b7977e77310d1ef93088820c65c
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.197-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-09 00:09:14 +0200
+      commit   : 80b9d4e097cc04427b51d9080baf8eed4ab9e10a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.198-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-11 18:25:30 +0200
+      commit   : 638cd6a13f1563a3e82d9c684ae7c364a22d790f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.199-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-12 10:35:16 +0200
+      commit   : 5a9cdddfc780178c8023bf27e095da646141dfbc
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.2-internal    [OK]
+      type     : lightweight
+      created  : 2023-08-22 18:13:29 +0200
+      commit   : 7e905b9e05c95b4ad329cd52bb64e2ea2781a3b2
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.2-release     [OK]
+      type     : lightweight
+      created  : 2024-06-18 18:10:17 +0200
+      commit   : 41f196d31610e27ef4785a2cf51467aefac8bc3b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.20-internal   [OK]
+      type     : lightweight
+      created  : 2023-10-30 19:02:38 +0200
+      commit   : 7fe47d1cfe0c8a5258cae11958f288bbdc2e8756
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.20-release    [OK]
+      type     : lightweight
+      created  : 2025-02-25 15:22:56 +0700
+      commit   : a866986b3a48b66931a12b0314422bd25edb4599
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.200-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-12 15:27:04 +0200
+      commit   : 3174efdc0a2e97791455cd49a651bed0504a2ac6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.201-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-17 23:54:59 +0200
+      commit   : 321b14c651dd4221446d5449d213a0959d3a4ab0
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.202-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-19 16:20:21 +0200
+      commit   : 16346b7c0826fc0ed4ea02f5a885b2f77aab0fc8
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.203-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-23 08:36:43 +0000
+      commit   : 76abdac7bdc9c5b7f915e1f826b3da640a23651b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.204-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-23 17:37:42 +0200
+      commit   : bbaeca9021084e22cc27052a1e997fa0cf015a77
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.205-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-24 11:28:20 +0200
+      commit   : d40ac4f587ec4cbab9f571618dac361b3d31757a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.206-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-24 12:19:14 +0200
+      commit   : 6e839e82771999554ac1d92134c513b9dd509b02
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.207-internal  [OK]
+      type     : lightweight
+      created  : 2024-07-25 11:26:49 +0200
+      commit   : 73aa8dd411117eddc763b7c33b96d5caa9264637
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.208-internal  [OK]
+      type     : lightweight
+      created  : 2024-08-04 20:42:45 +0200
+      commit   : 4eb0832c191d380c98ab86b7f5b67d545c18307d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.209-internal  [OK]
+      type     : lightweight
+      created  : 2024-08-05 16:49:51 +0000
+      commit   : 4d377115871048b5f6adbc31284d42841102bbda
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.21-internal   [OK]
+      type     : lightweight
+      created  : 2023-10-31 23:06:00 +0200
+      commit   : 966282f0f71cbb8c11e5f66cc8e8d3667c13d3d8
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.21-release    [OK]
+      type     : lightweight
+      created  : 2025-03-03 11:48:30 +0700
+      commit   : 7957a4e23c501c1f2f21fb20547064ca5e31d794
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.210-internal  [OK]
+      type     : lightweight
+      created  : 2024-08-06 18:35:11 +0200
+      commit   : 9413fe76b448d5219796ed9e511696f881382174
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.211-internal  [OK]
+      type     : lightweight
+      created  : 2024-08-07 16:32:20 +0200
+      commit   : ec86b24e5a24894b9715361f0fd99b584f6a1a08
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.212-internal  [OK]
+      type     : lightweight
+      created  : 2024-08-07 16:32:20 +0200
+      commit   : ec86b24e5a24894b9715361f0fd99b584f6a1a08
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.213-internal  [OK]
+      type     : lightweight
+      created  : 2024-08-08 15:55:57 +0200
+      commit   : 678d68279e91fc3d3bcf52f8c7572aebc6e6d90b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.214-internal  [OK]
+      type     : lightweight
+      created  : 2024-08-13 16:25:00 +0200
+      commit   : a0e72c2791009de71ea59a65499ab52d23e732fe
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.215-internal  [OK]
+      type     : lightweight
+      created  : 2024-08-15 14:04:36 +0200
+      commit   : c416fa049b823d9b392ab0deb124858efb5cc6fc
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.216-internal  [OK]
+      type     : lightweight
+      created  : 2024-08-15 22:21:29 +0200
+      commit   : 5c76454f9bb35c0b794ef36b16f539a296696533
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.217-internal  [OK]
+      type     : annotated
+      created  : 2024-08-26 08:22:37 +0000
+      commit   : c2eedc04601e13896e4547b08ca4c734d9941310
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.218-internal  [OK]
+      type     : lightweight
+      created  : 2024-08-29 12:09:44 +0200
+      commit   : 06c307715c3daceee5ba013cfb337a9664184216
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.219-internal  [OK]
+      type     : lightweight
+      created  : 2024-09-02 08:49:09 +0200
+      commit   : 6b2d45fcc28b83f3d68531ea5f3f063fef93d793
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.22-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-01 18:04:33 +0200
+      commit   : c228477cd795f1d17d58f7938e07f90426e63cc1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.22-release    [OK]
+      type     : lightweight
+      created  : 2025-03-03 09:59:34 +0000
+      commit   : ecab8684dba3f325b49e580ec562dacb7593e0c6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.220-internal  [OK]
+      type     : lightweight
+      created  : 2024-09-04 16:27:05 +0000
+      commit   : f8ca0fbb3fa3ca52114c84b38b8060ac26d3ef15
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.221-internal  [OK]
+      type     : lightweight
+      created  : 2024-09-13 11:08:14 +0000
+      commit   : 2d8d73d07cbfdec7ee39f67f04b550b09bfbacc1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.222-internal  [OK]
+      type     : lightweight
+      created  : 2024-09-17 17:31:39 +0700
+      commit   : 0583ae04b26f46a0c2c4ddd284a92b614712f5d3
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.223-internal  [OK]
+      type     : lightweight
+      created  : 2024-09-19 10:25:28 +0000
+      commit   : 5a9133f512cae2e4e2534629d255b7e5f53b009b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.224-internal  [OK]
+      type     : lightweight
+      created  : 2024-09-25 14:24:34 +0200
+      commit   : 35d1231dc916e824ebe273d3bfea3ae7d0aee37a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.225-internal  [OK]
+      type     : lightweight
+      created  : 2024-10-16 09:58:56 +0000
+      commit   : 14b1e1587c3040d34adac99802e5f8d40fe29d64
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.226-internal  [OK]
+      type     : lightweight
+      created  : 2024-10-18 10:31:06 +0000
+      commit   : 441c66254efe6f80eebb55603b9ae82618c46098
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.227-internal  [OK]
+      type     : lightweight
+      created  : 2024-10-21 12:28:29 +0000
+      commit   : 99d2360dfb062db41960074263386fb7d96660a4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.228-internal  [OK]
+      type     : lightweight
+      created  : 2024-10-23 09:41:37 +0000
+      commit   : da3452b49ceb1b259d5b25f708ae24c3c6e6832e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.229-internal  [OK]
+      type     : lightweight
+      created  : 2024-10-24 12:21:06 +0000
+      commit   : 9db498310761aabdb865181c01eb94b69a6a2e4d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.23-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-03 09:26:57 +0200
+      commit   : a3628063b539b28125cea73b1aa8a56c584908ad
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.23-release    [OK]
+      type     : lightweight
+      created  : 2025-03-04 11:14:47 +0000
+      commit   : d0b3d7011030ca216cfe515c0f9275823b743c60
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.230-internal  [OK]
+      type     : lightweight
+      created  : 2024-10-25 17:39:20 +0700
+      commit   : e6486260863686fc15e3943cf8f35e197c6faa88
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.231-internal  [OK]
+      type     : lightweight
+      created  : 2024-10-28 18:22:38 +0700
+      commit   : 08c59294216b1cc28c46d25647608c6086450b20
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.232-internal  [OK]
+      type     : lightweight
+      created  : 2024-10-30 17:27:57 +0700
+      commit   : b50bf1a15e80199aa0d4157e6bc50ee49a2ca777
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.233-internal  [OK]
+      type     : lightweight
+      created  : 2024-10-31 17:04:38 +0700
+      commit   : 0e5ef779a5c1102c6ea218c81b96264728d360f0
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.234-internal  [OK]
+      type     : lightweight
+      created  : 2024-11-02 17:59:41 +0700
+      commit   : 26e66ce875270689ba34becae3c2e21230474d28
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.235-internal  [OK]
+      type     : lightweight
+      created  : 2024-11-12 18:18:22 +0700
+      commit   : d97c5c52599bcaded6ca395c4d811eb8b4cb8a82
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.236-internal  [OK]
+      type     : lightweight
+      created  : 2024-11-15 09:17:20 +0000
+      commit   : d2d79f8ef8450e61979cd6995db4a2bbd83e1fdd
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.237-internal  [OK]
+      type     : lightweight
+      created  : 2024-11-20 11:36:09 +0700
+      commit   : 5ae8f41982cf09425128d504e1a56f36c5d56172
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.238-internal  [OK]
+      type     : lightweight
+      created  : 2024-11-25 09:03:05 +0000
+      commit   : e76c26c8103de18c139ecaf5ff0433abfc6b58bc
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.239-internal  [OK]
+      type     : lightweight
+      created  : 2024-11-26 11:10:59 +0000
+      commit   : e53ee2fb0702d165684daf7e17f6339c025696ba
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.24-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-03 18:59:10 +0200
+      commit   : 858aac6a39c200f361094588a895d0cec4c0d62c
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.24-release    [OK]
+      type     : lightweight
+      created  : 2025-03-05 11:49:00 +0300
+      commit   : f409f176758dc6f6b196b8d5dc666a60795e8874
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.240-internal  [OK]
+      type     : lightweight
+      created  : 2024-11-28 04:23:39 +0000
+      commit   : c7e2ef97557c5f93f4d1c21425686a90f5d53c1f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.241-internal  [OK]
+      type     : lightweight
+      created  : 2024-11-28 17:49:22 +0700
+      commit   : 6e05268ffdd1b1f300f2090c154d803d6d16e19e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.242-internal  [OK]
+      type     : lightweight
+      created  : 2024-12-09 15:49:53 +0700
+      commit   : 72d3e538cd80f720700302341cfb95ea04650e47
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.243-internal  [OK]
+      type     : lightweight
+      created  : 2024-12-10 06:29:30 +0000
+      commit   : 1deeda7153987cfc49c4accaa8538c498e395b78
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.244-internal  [OK]
+      type     : lightweight
+      created  : 2024-12-11 15:55:59 +0200
+      commit   : 36cea08a6336758fc6b1702f3a2804aa8f6ad043
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.245-internal  [OK]
+      type     : lightweight
+      created  : 2024-12-19 07:11:26 +0000
+      commit   : 7e6b1f57578ad68d5eb28f90c8ae626e3a2c1de5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.246-internal  [OK]
+      type     : lightweight
+      created  : 2024-12-20 12:39:57 +0700
+      commit   : 3c93bf249fed7491824bdd4ee6a9552c33a94938
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.247-internal  [OK]
+      type     : lightweight
+      created  : 2024-12-20 14:16:08 +0700
+      commit   : 58111e9f762d24f306a7d72a1b8aeb5c4776f3ac
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.248-internal  [OK]
+      type     : lightweight
+      created  : 2024-12-20 16:58:42 +0700
+      commit   : 1c0569f723e7e9b2a6c565f87f000174ceed50e9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.249-internal  [OK]
+      type     : lightweight
+      created  : 2024-12-24 14:57:14 +0700
+      commit   : a081a30226565130d2d49f25c27d78f1a8a89672
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.25-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-06 20:10:33 +0000
+      commit   : 5a8882c51367ba7c39a0d66e1fe1a5d36b9da427
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.25-release    [OK]
+      type     : lightweight
+      created  : 2025-03-07 17:16:32 +0700
+      commit   : 690ea7732a71918a50da3e837a734abaac5417dc
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.250-internal  [OK]
+      type     : lightweight
+      created  : 2024-12-26 17:58:01 +0700
+      commit   : 7549f76a8f321aec499488678fb3d1dc96ad0023
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.251-internal  [OK]
+      type     : lightweight
+      created  : 2024-12-28 17:02:38 +0700
+      commit   : d0099ab2d36478eaccd7a3784135460409185eb0
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.252-internal  [OK]
+      type     : lightweight
+      created  : 2025-01-16 15:24:25 +0700
+      commit   : 3f51b5be38d45efee8f81a7df294dac9392bf6a4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.253-internal  [OK]
+      type     : lightweight
+      created  : 2025-01-20 14:50:14 +0700
+      commit   : 03e7e533c79f2af5d3b5607d13a6e58f1e66630b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.254-internal  [OK]
+      type     : lightweight
+      created  : 2025-01-24 14:28:00 +0700
+      commit   : ad7d17289045fdb8e0b83be165b85b32a4f968d6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.255-internal  [OK]
+      type     : lightweight
+      created  : 2025-01-30 11:37:24 +0700
+      commit   : 9de780ba915131dfdf074c0b3353faef7b8f1aae
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.256-internal  [OK]
+      type     : lightweight
+      created  : 2025-01-30 14:03:07 +0700
+      commit   : c0d99977bde8a648e10c0fbd46c5521d1a45df78
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.257-internal  [OK]
+      type     : lightweight
+      created  : 2025-02-03 16:14:52 +0700
+      commit   : 058408afecc694ec9b8cfff7cc9eb07604c620a2
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.258-internal  [OK]
+      type     : lightweight
+      created  : 2025-02-07 17:14:20 +0700
+      commit   : 21b50f007131d48b43b8d92a55691743c4c31c0b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.259-internal  [OK]
+      type     : lightweight
+      created  : 2025-02-11 15:19:28 +0700
+      commit   : df5f8a62ca752e25525d8762b89cf467dee2a0e1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.26-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-07 16:32:15 +0000
+      commit   : bf6d8244c424f4eab51c13787d7bd7ed626371c9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.26-release    [OK]
+      type     : lightweight
+      created  : 2025-03-11 15:26:22 +0700
+      commit   : f228489899fd55b8504ca9773100e8657a67b959
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.260-internal  [OK]
+      type     : lightweight
+      created  : 2025-02-13 12:37:50 +0700
+      commit   : 3e9a852ad1593477f7fd77fb4a86aeffb7aa41c5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.261-internal  [OK]
+      type     : lightweight
+      created  : 2025-02-13 17:21:06 +0700
+      commit   : 674faaccf5afffb0577df0d2a248664589d395e1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.262-internal  [OK]
+      type     : lightweight
+      created  : 2025-02-14 16:41:18 +0700
+      commit   : dba49fdf53a9a856e006f71179714d36900dd0db
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.263-internal  [OK]
+      type     : lightweight
+      created  : 2025-02-19 14:35:27 +0700
+      commit   : a1afb390c9b5a41ab898bc12e3fd4ed759747b04
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.264-internal  [OK]
+      type     : lightweight
+      created  : 2025-02-21 09:37:27 +0000
+      commit   : f2f1b37d558f1833200920bec6d081779cbfc12f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.265-internal  [OK]
+      type     : lightweight
+      created  : 2025-02-24 16:41:18 +0700
+      commit   : 1561b0fd1ea60d630e1083e5d11923fb31a260a8
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.266-internal  [OK]
+      type     : lightweight
+      created  : 2025-02-25 15:22:56 +0700
+      commit   : a866986b3a48b66931a12b0314422bd25edb4599
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.267-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-03 11:48:30 +0700
+      commit   : 7957a4e23c501c1f2f21fb20547064ca5e31d794
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.268-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-03 09:59:34 +0000
+      commit   : ecab8684dba3f325b49e580ec562dacb7593e0c6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.269-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-04 03:29:49 +0000
+      commit   : 105641a0cf5229e7b78d65a37462fada3c0521b7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.27-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-08 09:49:04 +0000
+      commit   : 66f835c3881622b27da5ff504610090b811e449d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.27-release    [OK]
+      type     : lightweight
+      created  : 2025-03-13 10:30:35 +0000
+      commit   : 25f5ada47d4b4b8aa01c920339679feadc4542b9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.270-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-04 11:14:47 +0000
+      commit   : d0b3d7011030ca216cfe515c0f9275823b743c60
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.271-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-05 11:49:00 +0300
+      commit   : f409f176758dc6f6b196b8d5dc666a60795e8874
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.272-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-07 17:16:32 +0700
+      commit   : 690ea7732a71918a50da3e837a734abaac5417dc
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.273-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-11 15:26:22 +0700
+      commit   : f228489899fd55b8504ca9773100e8657a67b959
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.274-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-13 10:30:35 +0000
+      commit   : 25f5ada47d4b4b8aa01c920339679feadc4542b9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.275-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-14 13:27:38 +0700
+      commit   : 79939ac17955d0d709c0669c42f298b475c0f71f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.276-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-14 12:56:31 +0000
+      commit   : 57225c85d39476626f4481cb5fab2474cd899439
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.277-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-18 12:31:45 +0700
+      commit   : dcc87398733a7d0cfcc41e1d9eccb586661081b4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.278-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-18 12:39:26 +0000
+      commit   : 70ea0b53c5efa52b461448b412b085a0ab77ba22
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.279-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-19 16:11:06 +0700
+      commit   : 8d5f33c32908950ec10db2b245439a6e69a6bc5d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.28-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-09 20:44:20 +0300
+      commit   : f56fe114acddd296ddd27be329a4bbec74821bc7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.28-release    [OK]
+      type     : lightweight
+      created  : 2025-03-14 12:56:31 +0000
+      commit   : 57225c85d39476626f4481cb5fab2474cd899439
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.280-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-19 18:05:20 +0700
+      commit   : 733560fcc826646d366b09a88824ed20f4fdc39c
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.281-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-21 17:28:47 +0700
+      commit   : a007218b0630f0117da56749064020a2babd7e19
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.282-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-24 20:14:39 +0700
+      commit   : 18ec2d07be0e99d6cce26650d9197b14d82a4e6a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.283-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-26 16:43:35 +0700
+      commit   : a6bee2a7777f0449d9405aaf13011e625463d723
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.284-internal  [OK]
+      type     : lightweight
+      created  : 2025-03-28 17:17:41 +0700
+      commit   : 4dc502a889b9d83d1df92c4e0ff070e66af9fa50
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.285-internal  [OK]
+      type     : lightweight
+      created  : 2025-04-03 16:47:50 +0700
+      commit   : d7859a6e629804092c7cd5c84cb8e4875bd50704
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.286-internal  [OK]
+      type     : lightweight
+      created  : 2025-04-04 14:49:10 +0700
+      commit   : 4e326385d2126c1c48190cc26dae530b6b87291b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.287-internal  [OK]
+      type     : lightweight
+      created  : 2025-04-11 07:28:33 +0000
+      commit   : 94eec64eb9f8c16f2fad3e2c3abf165493077d0a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.288-internal  [BROKEN]
+      type     : annotated
+      created  : 2025-04-16 10:38:14 +0000
+      commit   : 22fbba9fb951ce41cd413f4b84b520b682ff56d2
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.289-internal  [OK]
+      type     : lightweight
+      created  : 2025-04-23 06:46:16 +0000
+      commit   : c85596a5faeb887f3759c81c3c5dbb32f49d4b9c
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.29-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-11 06:08:24 +0000
+      commit   : ac21d8fe5ec0d9a1e0b7006e3f0de83780c937d7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.29-release    [OK]
+      type     : lightweight
+      created  : 2025-03-18 12:39:26 +0000
+      commit   : 70ea0b53c5efa52b461448b412b085a0ab77ba22
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.290-internal  [OK]
+      type     : lightweight
+      created  : 2025-04-25 11:23:50 +0700
+      commit   : 895edcb89dc92eaf8cd574d70933d6db8b01cba3
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.291-internal  [OK]
+      type     : lightweight
+      created  : 2025-04-25 18:36:27 +0700
+      commit   : dee9902dc2194a3c8f2bc32733974edaa21646a5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.292-internal  [OK]
+      type     : lightweight
+      created  : 2025-04-28 14:32:52 +0700
+      commit   : 54e135b00d034341df79c30e02bce7ee7e84db07
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.293-internal  [OK]
+      type     : lightweight
+      created  : 2025-04-29 11:01:28 +0000
+      commit   : d5ac2e37362b36d8073c362b05d6ccaf7289fe9f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.294-internal  [OK]
+      type     : lightweight
+      created  : 2025-04-30 17:27:40 +0700
+      commit   : 024881e10b749cfa96d185760e01999a422afc19
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.295-internal  [OK]
+      type     : lightweight
+      created  : 2025-05-06 16:13:53 +0700
+      commit   : 4652b981692c97c7f50cdfca041d2b0ed4268518
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.296-internal  [OK]
+      type     : lightweight
+      created  : 2025-05-07 17:30:34 +0700
+      commit   : f03014d6ab93fe3d25a3f6c86881a892c9373b99
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.297-internal  [OK]
+      type     : lightweight
+      created  : 2025-05-12 17:38:25 +0700
+      commit   : c76e0342ea65ff4a4be87de94881de309cb116d6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.298-internal  [OK]
+      type     : lightweight
+      created  : 2025-05-14 17:36:26 +0700
+      commit   : 93dc672d22e6613cb1bca1d6572a565fb96de1e6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.299-internal  [OK]
+      type     : lightweight
+      created  : 2025-05-16 14:40:16 +0700
+      commit   : 7e1005de76646d3c50c9d7bc1ae3cc5460e5d105
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.3-internal    [OK]
+      type     : lightweight
+      created  : 2023-08-22 18:13:29 +0200
+      commit   : 7e905b9e05c95b4ad329cd52bb64e2ea2781a3b2
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.3-release     [OK]
+      type     : lightweight
+      created  : 2024-06-18 18:10:17 +0200
+      commit   : 41f196d31610e27ef4785a2cf51467aefac8bc3b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.30-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-14 00:53:31 +0200
+      commit   : 601e9a4c3d977c6e13f0a4a406bc402a03e85f25
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.30-release    [OK]
+      type     : lightweight
+      created  : 2025-03-19 16:11:06 +0700
+      commit   : 8d5f33c32908950ec10db2b245439a6e69a6bc5d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.300-internal  [OK]
+      type     : lightweight
+      created  : 2025-05-20 03:04:42 +0000
+      commit   : 69fd7abbfdf92748e243f8f1567e8dc22013aca0
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.301-internal  [OK]
+      type     : lightweight
+      created  : 2025-05-21 03:22:28 +0000
+      commit   : 72b940380043586da611e0f3266520ba43b07bb2
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.302-internal  [OK]
+      type     : lightweight
+      created  : 2025-05-27 08:10:32 +0000
+      commit   : 675f819ec49868bf1950b517eb9ebf35f472eeee
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.303-internal  [OK]
+      type     : lightweight
+      created  : 2025-05-27 14:33:43 +0200
+      commit   : 06c43ba434082c37396f81a80f567ef337ac7c85
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.304-internal  [OK]
+      type     : lightweight
+      created  : 2025-06-02 18:01:30 +0700
+      commit   : 73f4a490e5bc5bc002d7c7f97a9b1e24387796e1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.305-internal  [OK]
+      type     : lightweight
+      created  : 2025-06-03 14:54:25 +0700
+      commit   : 5738166ef2346dc97d9529f94eb149a1fa9a6a5f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.306-internal  [BROKEN]
+      type     : annotated
+      created  : 2025-06-03 10:15:06 +0000
+      commit   : 3f2fa5c8995354b946cbe67d9854e8d261809882
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.307-internal  [OK]
+      type     : lightweight
+      created  : 2025-06-04 12:59:59 +0700
+      commit   : bf349e0d4d3bb5c97e338bc4f2f9b20a7673ef90
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.308-internal  [OK]
+      type     : lightweight
+      created  : 2025-06-04 17:17:31 +0700
+      commit   : 1be9049e74f43ce098b7c74401ff263de5408f67
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.309-internal  [OK]
+      type     : annotated
+      created  : 2025-06-06 16:20:47 +0000
+      commit   : 318dcd8a395d6f27228fc9473036d0e2c6d57645
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.31-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-14 22:12:50 +0200
+      commit   : 91d49f344cf18023ed249781b22b16f2a90d09bb
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.31-release    [OK]
+      type     : lightweight
+      created  : 2025-03-19 18:05:20 +0700
+      commit   : 733560fcc826646d366b09a88824ed20f4fdc39c
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.310-internal  [OK]
+      type     : lightweight
+      created  : 2025-06-10 08:34:05 +0000
+      commit   : 29fb3dbb26fd4cce744fac42e2778a00dc0382e1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.311-internal  [OK]
+      type     : lightweight
+      created  : 2025-06-19 10:46:12 +0700
+      commit   : aad14a1fe3c094730f4133eca253f7ab46ba094f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.312-internal  [OK]
+      type     : lightweight
+      created  : 2025-06-19 16:06:15 +0700
+      commit   : 215497e616a5b87203743bbf023f08828dec7939
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.313-internal  [OK]
+      type     : annotated
+      created  : 2025-06-25 13:33:01 +0000
+      commit   : 57fe39448dc09d5b0fec73d2b3203bf683cb38e6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.314-internal  [OK]
+      type     : annotated
+      created  : 2025-07-01 13:08:40 +0000
+      commit   : ca87c56e8ae2479a13cccf42c7eea9d78c5eeed9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.315-internal  [OK]
+      type     : annotated
+      created  : 2025-07-07 13:40:22 +0000
+      commit   : d82622c2d824314c08c6fa17f745696e5c4dc555
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.316-internal  [OK]
+      type     : annotated
+      created  : 2025-07-09 12:23:50 +0000
+      commit   : 0dfadf8a324dbe01669395a8863bf4e4150679ab
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.317-internal  [OK]
+      type     : lightweight
+      created  : 2025-07-16 11:08:28 +0000
+      commit   : ff4d7aafc49c2246a6173a02cafc89edfdb9dd88
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.318-internal  [OK]
+      type     : lightweight
+      created  : 2025-07-18 10:32:50 +0200
+      commit   : b889859a13e69af1c7bfb90bb6475b206140913f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.319-internal  [OK]
+      type     : lightweight
+      created  : 2025-07-22 10:50:18 +0700
+      commit   : 09d3fef9576e8a52e48f335ce136e73a959babd4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.32-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-14 22:12:50 +0200
+      commit   : 91d49f344cf18023ed249781b22b16f2a90d09bb
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.32-release    [OK]
+      type     : lightweight
+      created  : 2025-03-21 17:28:47 +0700
+      commit   : a007218b0630f0117da56749064020a2babd7e19
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.320-internal  [OK]
+      type     : annotated
+      created  : 2025-07-23 13:57:31 +0000
+      commit   : d55b926d747c092fd060f90d01705f8eaba8eeb4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.321-internal  [OK]
+      type     : lightweight
+      created  : 2025-07-24 12:34:03 +0700
+      commit   : 29ae50db5b23c67677cea16d09f1b251b8829852
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.322-internal  [OK]
+      type     : lightweight
+      created  : 2025-07-25 16:30:57 +0700
+      commit   : 0967a18ba3819936c6509dd6384484f55e1b67d4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.323-internal  [OK]
+      type     : lightweight
+      created  : 2025-07-27 13:02:59 +0100
+      commit   : bf6508f813fa0bec2db6d5b9b62a198eb1e53152
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.324-internal  [OK]
+      type     : lightweight
+      created  : 2025-07-27 13:02:59 +0100
+      commit   : bf6508f813fa0bec2db6d5b9b62a198eb1e53152
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.325-internal  [OK]
+      type     : lightweight
+      created  : 2025-07-28 18:32:01 +0700
+      commit   : e7f57655ae8f79b9ffcae7b837986e5279cef96e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.326-internal  [OK]
+      type     : lightweight
+      created  : 2025-07-28 18:32:01 +0700
+      commit   : e7f57655ae8f79b9ffcae7b837986e5279cef96e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.327-internal  [OK]
+      type     : lightweight
+      created  : 2025-07-29 14:43:46 +0700
+      commit   : a401dec3f1dd2291f86445ac7321221f5b87c69d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.328-internal  [OK]
+      type     : lightweight
+      created  : 2025-07-30 17:54:47 +0700
+      commit   : bc412be331b0cc682c5c1078d0944997dd6a7a38
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.329-internal  [OK]
+      type     : lightweight
+      created  : 2025-07-31 14:52:15 +0700
+      commit   : 6bb33e5e60826b7e6bd46952996d46cbeb4baaae
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.33-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-16 19:03:31 +0200
+      commit   : 1e4513067b76ec2320f5eb36813f6e71095ded79
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.33-release    [OK]
+      type     : lightweight
+      created  : 2025-03-24 20:14:39 +0700
+      commit   : 18ec2d07be0e99d6cce26650d9197b14d82a4e6a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.330-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-01 09:39:49 +0000
+      commit   : c70f218e232cfe89b31c405b3c1cc3a0a67c22a7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.331-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-04 15:42:14 +0200
+      commit   : 8083fb57832a9f9ad674e13c56684857f8bc4178
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.332-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-04 15:42:14 +0200
+      commit   : 8083fb57832a9f9ad674e13c56684857f8bc4178
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.333-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-04 15:42:14 +0200
+      commit   : 8083fb57832a9f9ad674e13c56684857f8bc4178
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.334-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-07 16:38:57 +0400
+      commit   : 9da50b51628e41841412afdfd630211995066997
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.335-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-08 18:12:11 +0400
+      commit   : d36bfbb028faf337671d0335124bbc0c660915a5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.336-internal  [BROKEN]
+      type     : annotated
+      created  : 2025-08-11 19:37:20 +0000
+      commit   : 6e2e9a382126254a59d0aaae76d29e73c3c3c58a
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.337-internal  [BROKEN]
+      type     : annotated
+      created  : 2025-08-11 20:21:28 +0000
+      commit   : 87bf3b6e691ee8d1b7d238265460e20f7dc4edd8
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.338-internal  [BROKEN]
+      type     : annotated
+      created  : 2025-08-12 07:31:15 +0000
+      commit   : b953f40cda79eb9fa56ca6f55fd89b6e2b4c1115
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.339-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-12 13:55:00 +0000
+      commit   : 57090c7884ac6d1b235d080f497be5f4493fa93c
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.34-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-17 12:37:25 +0000
+      commit   : 2aa83fc4436e49251f89a28888e15de9ab99061e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.34-release    [OK]
+      type     : lightweight
+      created  : 2025-03-26 16:43:35 +0700
+      commit   : a6bee2a7777f0449d9405aaf13011e625463d723
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.340-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-12 19:33:46 +0400
+      commit   : 58289db9f3a6a8aadd36a8fae08f68387c9eaf23
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.341-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-12 19:33:46 +0400
+      commit   : 58289db9f3a6a8aadd36a8fae08f68387c9eaf23
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.342-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-13 16:20:44 +0200
+      commit   : 24f0ead3a4adfa275b4e78b82f3ba4f928154ccd
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.343-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-14 15:58:07 +0200
+      commit   : 0da98f67c56fb3b207114b6afe2dd2de349394de
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.344-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-15 09:33:58 +0200
+      commit   : 9006fda05d33a97b227b824fa1b21ccb0a1737f6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.345-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-15 16:42:55 +0200
+      commit   : b8b1b9cf6b2d0b430d6e550a110ebf0ba2968152
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.346-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-15 16:42:55 +0200
+      commit   : b8b1b9cf6b2d0b430d6e550a110ebf0ba2968152
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.347-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-19 21:00:25 +0700
+      commit   : 3fa5c8e6f8bbffb47c9e48183801b61fdda7e350
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.348-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-20 18:58:34 +0700
+      commit   : c6147bfee401c2d4450ffcef680df26314f0ec32
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.349-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-21 17:49:13 +0700
+      commit   : 11ace1aeb0455bac6e47f83484c978394233dfbb
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.35-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-21 00:29:13 +0200
+      commit   : d0b0cd4f08fda12b3ea103e53ee13505ee438e98
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.35-release    [OK]
+      type     : lightweight
+      created  : 2025-03-28 17:17:41 +0700
+      commit   : 4dc502a889b9d83d1df92c4e0ff070e66af9fa50
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.350-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-22 17:02:04 +0700
+      commit   : e22e9748a992ef16919621d6f5fcf1e4da1d9c51
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.351-internal  [BROKEN]
+      type     : annotated
+      created  : 2025-08-25 10:41:51 +0000
+      commit   : feab067803803fab743d2675b8ba6d16cab52e6f
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.352-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-25 18:10:17 +0700
+      commit   : b0456d93486c7582c58b3b464242056436ffbf3a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.353-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-25 18:10:17 +0700
+      commit   : b0456d93486c7582c58b3b464242056436ffbf3a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.354-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-25 18:10:17 +0700
+      commit   : b0456d93486c7582c58b3b464242056436ffbf3a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.355-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-27 18:34:50 +0700
+      commit   : d6e80b63e63927b33645a51dfdee819ba7dde7c3
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.356-internal  [OK]
+      type     : lightweight
+      created  : 2025-08-28 16:05:27 +0700
+      commit   : 3979a5f01d2422b0a6a4ada90c60a656c648b334
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.357-internal  [BROKEN]
+      type     : annotated
+      created  : 2025-08-29 12:30:53 +0000
+      commit   : eee72528f7fc66bda11cf428ab901048322bd069
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.358-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-03 18:22:28 +0700
+      commit   : c4c96562fc3f253a1418af207f17462eb141cbb8
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.359-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-04 09:47:33 +0000
+      commit   : 4de7bc955863c2ce115a8e547a183655f0fd352f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.36-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-21 18:00:04 +0000
+      commit   : 7c4b1bb4ff0c83b996dfced6dd8145dfead5679d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.36-release    [OK]
+      type     : lightweight
+      created  : 2025-04-03 16:47:50 +0700
+      commit   : d7859a6e629804092c7cd5c84cb8e4875bd50704
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.360-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-04 09:47:33 +0000
+      commit   : 4de7bc955863c2ce115a8e547a183655f0fd352f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.361-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-05 15:40:22 +0700
+      commit   : d7c789a68dabe5a24e010875ac8e43938b25f20d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.362-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-05 17:56:16 +0700
+      commit   : 9c70d944f596c8a48822acc2a75454bacdb0bd3b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.363-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-05 14:56:58 +0000
+      commit   : a493d0e75e7120b594a59ccb2742903c9adde189
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.364-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-08 16:20:27 +0400
+      commit   : 17268df148463425980f6e0e6fffdc7c8fcf1a5d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.365-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-09 16:27:46 +0700
+      commit   : 7c8587076825556c8921aeb0a29501ec34470e84
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.366-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-10 18:22:56 +0700
+      commit   : e0936b87ac326b96ea35ee887c458dbdaf1b3874
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.367-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-10 18:22:56 +0700
+      commit   : e0936b87ac326b96ea35ee887c458dbdaf1b3874
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.368-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-10 18:22:56 +0700
+      commit   : e0936b87ac326b96ea35ee887c458dbdaf1b3874
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.369-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-12 09:16:16 +0000
+      commit   : 5d3a3d342d5b321465f8f0e3314f23424a206415
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.37-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-22 23:59:49 +0200
+      commit   : ad54d43b4be70ab7a971b8ecffd9c036c3c1208f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.37-release    [OK]
+      type     : lightweight
+      created  : 2025-04-03 17:48:20 +0700
+      commit   : 7d80a3ceb85e203831eda763d129144326855d99
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.370-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-12 09:16:16 +0000
+      commit   : 5d3a3d342d5b321465f8f0e3314f23424a206415
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.371-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-15 11:41:11 +0400
+      commit   : c253fad97e531dd0f92505ca875df2dea97bbebd
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.372-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-17 19:28:14 +0200
+      commit   : 30d7587cb5eca1bcc5a31783799cdd98121250a7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.373-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-18 13:48:42 +0000
+      commit   : 0b7d6a485d24e9837deec6139d6e637f83dc240b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.374-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-18 13:48:42 +0000
+      commit   : 0b7d6a485d24e9837deec6139d6e637f83dc240b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.375-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-19 13:29:14 +0200
+      commit   : bfb767e4dfc1ab6ccb93777d5016255c38f17621
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.376-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-19 16:38:48 +0200
+      commit   : c1df8df404d010372876490c5c82178474d860b6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.377-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-19 16:38:48 +0200
+      commit   : c1df8df404d010372876490c5c82178474d860b6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.378-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-23 14:09:37 +0200
+      commit   : a28155f394dcc02eb5ff03613ad2654f711e5b13
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.379-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-23 14:09:37 +0200
+      commit   : a28155f394dcc02eb5ff03613ad2654f711e5b13
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.38-demo       [BROKEN]
+      type     : lightweight
+      created  : 2025-04-04 18:04:09 +0100
+      commit   : d04e675b6e43a289153b210def651745e7cebdf1
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.38-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-23 17:21:08 +0000
+      commit   : 9dcf7a7f4c27f18aaec0f15d3a27234c8ac0f6c2
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.38-release    [OK]
+      type     : lightweight
+      created  : 2025-04-04 14:49:10 +0700
+      commit   : 4e326385d2126c1c48190cc26dae530b6b87291b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.380-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-24 18:07:23 +0400
+      commit   : a45f65ebb3ec5f21b58618f3edb8080b8603267b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.381-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-25 11:46:18 +0000
+      commit   : 542c592a20e56368eacd6d259f36c930844ec607
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.382-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-25 11:46:18 +0000
+      commit   : 542c592a20e56368eacd6d259f36c930844ec607
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.383-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-26 16:02:39 +0200
+      commit   : 09546074982a804ecc306931ee702ea90e1a9ee1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.384-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-29 17:09:12 +0200
+      commit   : 6dea1b9b851dc5488175160e7de27ea3ec4452d4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.385-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-29 17:09:12 +0200
+      commit   : 6dea1b9b851dc5488175160e7de27ea3ec4452d4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.386-internal  [OK]
+      type     : lightweight
+      created  : 2025-09-29 17:09:12 +0200
+      commit   : 6dea1b9b851dc5488175160e7de27ea3ec4452d4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.387-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-02 21:19:57 +0400
+      commit   : 2360573d87c89af6d3dba6a2f5510ffa3f6a9b80
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.388-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-03 09:55:47 +0200
+      commit   : 744e97b6c7c5fe7000bb673660918731406798b7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.389-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-06 18:42:06 +0400
+      commit   : 8b7239ee73c46afe6e9f6d9a9ae52f255b625467
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.39-demo       [BROKEN]
+      type     : lightweight
+      created  : 2025-04-10 16:02:05 +0200
+      commit   : 46f8a7813464a785e2ab34072a6920f4ef110858
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.39-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-26 17:24:07 +0200
+      commit   : fd4566ab866e44f31fcecdd3211b4d4b56121ca8
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.39-release    [BROKEN]
+      type     : annotated
+      created  : 2025-05-21 11:01:15 +0000
+      commit   : 195f90277b75fe8f326d773c754c7f09bacf5e95
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.390-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-07 11:34:38 +0400
+      commit   : 7667091ab48248fe90a411837cfd56586945ea27
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.391-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-08 22:19:43 +0400
+      commit   : 780ad5264afb13d6e9848245977c6fe4b3b1aaf3
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.392-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-09 08:38:09 +0000
+      commit   : 7acbe6f1048288d9af057fbc790105079b50bbf7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.393-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-10 18:42:37 +0400
+      commit   : a2de083c8f9a2b27a8bb4148ca069a4855dc27f8
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.394-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-13 17:33:03 +0200
+      commit   : 8c09e03f94394edb35d1ae4cfc325fedafed16b2
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.395-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-14 20:56:55 +0400
+      commit   : 8c6c675d5a89390eeea5c655e5cf6337b13cd4a4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.396-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-15 12:04:56 +0400
+      commit   : 159b699fc18b42feb4b3136dcd54a256d03b3d41
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.397-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-15 13:20:58 +0200
+      commit   : 98f8dad4c5365d5626f9782ea98959c96b5d17ce
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.398-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-16 11:15:15 +0200
+      commit   : 932699d88ba825385eebdb7b6fde03ca12c536a2
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.399-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-16 21:01:12 +0400
+      commit   : ae4ffff855b7bd9f8e5c8f4c6728de76de0f2cea
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.4-internal    [BROKEN]
+      type     : lightweight
+      created  : 2023-08-22 18:33:51 +0200
+      commit   : cfcdc4c9f46c1452b4a6711a0c9b6377e157c603
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.4-release     [OK]
+      type     : lightweight
+      created  : 2024-06-25 15:50:36 +0200
+      commit   : aa559275f01cc213bbcd290e0449ba8565ae1cbe
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.40-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-04-15 16:01:18 +0000
+      commit   : 22fbba9fb951ce41cd413f4b84b520b682ff56d2
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.40-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-27 22:04:40 +0000
+      commit   : eed8dabdbf8029032a1d6df2e54f8398fdfa0871
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.40-release    [BROKEN]
+      type     : annotated
+      created  : 2025-05-21 11:48:56 +0000
+      commit   : 17a4d5b99fa196c9c6296e5db2972b6413511ae0
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.400-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-16 21:01:12 +0400
+      commit   : ae4ffff855b7bd9f8e5c8f4c6728de76de0f2cea
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.401-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-20 19:40:57 +0400
+      commit   : beb8d9f18749333864fcbbee9ffd643ec05d85d6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.402-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-21 17:17:01 +0400
+      commit   : 9d3b90cc231e4a85bc98df7b1abaa68ea0955155
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.403-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-22 18:32:56 +0400
+      commit   : 40c6d771b90309b77e55f367c843d646ee92921f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.404-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-23 14:45:13 +0400
+      commit   : 04a57333fb28aa701d25505efacfc9ce655dfdb9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.405-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-24 17:36:23 +0400
+      commit   : cfdb5e6f1454e752ea6349c8e436b1efc8eb7209
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.406-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-24 16:55:57 +0200
+      commit   : 6bfb13cc644998408f043115ee67c2e31e4b9c57
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.407-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-24 16:55:57 +0200
+      commit   : 6bfb13cc644998408f043115ee67c2e31e4b9c57
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.408-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-29 23:06:51 +0400
+      commit   : 0772272b867fe5c38ce7edf1e31fe6f9d4e38b02
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.409-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-30 09:22:51 +0200
+      commit   : b56db8b8a5319cb24c0d2257e3cf7a80a61ca36f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.41-demo       [BROKEN]
+      type     : lightweight
+      created  : 2025-04-16 17:31:30 +0200
+      commit   : 85dcec41a110b03c00685f6525b6fb32f3d89976
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.41-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-28 17:04:38 +0000
+      commit   : 0b0f945680b4a2fe882a65a40b3f26c6a8d5d209
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.41-release    [OK]
+      type     : annotated
+      created  : 2025-06-04 06:21:27 +0000
+      commit   : bf349e0d4d3bb5c97e338bc4f2f9b20a7673ef90
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.410-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-30 12:15:34 +0400
+      commit   : 1f4ade47663ddec321347d0e947e10420cb90fb5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.411-internal  [OK]
+      type     : lightweight
+      created  : 2025-10-31 19:06:37 +0400
+      commit   : 053c85150b719f35aec4cd10215a1def76497b24
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.412-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-01 16:50:33 +0400
+      commit   : 2f2a73aed10e31be4d5d4390bd041ed82c4df64d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.413-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-01 16:50:33 +0400
+      commit   : 2f2a73aed10e31be4d5d4390bd041ed82c4df64d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.414-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-01 16:50:33 +0400
+      commit   : 2f2a73aed10e31be4d5d4390bd041ed82c4df64d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.415-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-01 16:50:33 +0400
+      commit   : 2f2a73aed10e31be4d5d4390bd041ed82c4df64d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.416-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-06 05:27:22 +0000
+      commit   : 8b4bb4b4e0a9c91faec624614e81a9a935863853
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.417-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-06 14:43:04 +0200
+      commit   : 948e7ba8fc0b90471b26b5f9b6e988d75baddb40
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.418-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-07 16:43:58 +0400
+      commit   : 974050284f312ec27c43b2445efce8b636db9274
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.419-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-07 16:43:58 +0400
+      commit   : 974050284f312ec27c43b2445efce8b636db9274
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.42-demo       [OK]
+      type     : lightweight
+      created  : 2025-04-23 06:46:16 +0000
+      commit   : c85596a5faeb887f3759c81c3c5dbb32f49d4b9c
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.42-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-29 21:06:02 +0000
+      commit   : 031c2de7034b65a4fa7badde6c613fdcc3be24fa
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.42-release    [BROKEN]
+      type     : annotated
+      created  : 2025-06-04 06:23:32 +0000
+      commit   : 24b5bd4625da12c7b38c40b067952de95144754c
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.420-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-10 21:15:14 +0000
+      commit   : f7c747f7d56a5fa409869560774eac91dfc85f76
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.421-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-11 10:52:03 +0400
+      commit   : 6e9b3249d48800bd3289ee44ee48a625e1f30d82
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.422-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-12 09:58:28 +0000
+      commit   : cb41f4a486e652fd7ca189d84371204de9a9d2cf
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.423-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-13 14:29:02 +0000
+      commit   : 70b351ca52f926045742b38633fdab6a8eee10f7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.424-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-14 12:51:44 +0400
+      commit   : f31cb4d5d966a43312817004fa0f2ac8327f6f79
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.425-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-17 14:18:11 +0000
+      commit   : b5493638c9046562d681a6760ff9cbc7d0047541
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.426-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-18 06:11:44 +0000
+      commit   : 3acca571b70d832e2c7107f05204a939c92af1a4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.427-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-18 06:11:44 +0000
+      commit   : 3acca571b70d832e2c7107f05204a939c92af1a4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.428-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-19 13:52:16 +0000
+      commit   : 248e2cd51fa18149ca2eb9bc38213a1307dd9844
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.429-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-20 12:10:26 +0000
+      commit   : 8489b08a807866d9637b0bb7c6b23653f4224f60
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.43-demo       [OK]
+      type     : lightweight
+      created  : 2025-04-25 18:36:27 +0700
+      commit   : dee9902dc2194a3c8f2bc32733974edaa21646a5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.43-internal   [OK]
+      type     : lightweight
+      created  : 2023-11-30 16:00:21 +0200
+      commit   : 90c46f1f3a01df0a1078f6f48c717550e31e93cb
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.43-release    [OK]
+      type     : annotated
+      created  : 2025-06-04 10:56:17 +0000
+      commit   : 1be9049e74f43ce098b7c74401ff263de5408f67
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.430-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-20 16:03:48 +0200
+      commit   : 01e290befa11ad0b2895bd514a6e930485b470f3
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.431-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-21 06:43:43 +0000
+      commit   : 4940d97311f55f9eb2b946ad651635c9c1d7fdfe
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.432-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-21 06:43:43 +0000
+      commit   : 4940d97311f55f9eb2b946ad651635c9c1d7fdfe
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.433-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-21 06:43:43 +0000
+      commit   : 4940d97311f55f9eb2b946ad651635c9c1d7fdfe
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.434-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-25 11:55:52 +0000
+      commit   : 62899af0735f85f2c7b61ad403be566d4709093b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.435-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-27 02:38:29 +0200
+      commit   : d5b8cb6cf5dc73582c09bbd1640d26b157d26937
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.436-internal  [OK]
+      type     : annotated
+      created  : 2025-11-27 10:20:38 +0000
+      commit   : fd9b680b2c988a2762b822ba327e3e8ff6c2b58d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.437-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-27 19:07:50 +0200
+      commit   : 6b04c1e516f33f0cbb344321a7e49395b6c41bb4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.438-internal  [OK]
+      type     : annotated
+      created  : 2025-11-28 09:25:38 +0000
+      commit   : 62e738631155d9b4b6a179d4f4f49d1a04746c15
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.439-internal  [OK]
+      type     : lightweight
+      created  : 2025-11-28 10:51:45 +0200
+      commit   : 62e738631155d9b4b6a179d4f4f49d1a04746c15
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.44-demo       [OK]
+      type     : lightweight
+      created  : 2025-04-28 14:32:52 +0700
+      commit   : 54e135b00d034341df79c30e02bce7ee7e84db07
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.44-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-02 21:56:20 +0200
+      commit   : 3db688c45e88e22956dea9ff0e2980a8f009a6a5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.44-release    [BROKEN]
+      type     : annotated
+      created  : 2025-06-04 11:00:11 +0000
+      commit   : 7540e538413fb59ae742ab9916227e8b670d3cbd
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.440-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-01 10:02:29 +0200
+      commit   : 70cc3cf000ead1796bca361b7afe3744a2e16b68
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.441-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-02 00:37:40 +0000
+      commit   : c7de1627bf28cbed1c4fe0ddba3317f1a456a5b2
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.442-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-02 12:54:01 +0000
+      commit   : c254e0be8e18a391c1c58671a5e924c2e818eb7a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.443-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-03 06:23:23 +0000
+      commit   : 001edeffd49a22b914c1e12d7609e3715a50f4f2
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.444-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-03 14:27:07 +0200
+      commit   : 1fa7edcf609e61e7dfe9716ad36d94be431ef558
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.445-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-03 14:27:07 +0200
+      commit   : 1fa7edcf609e61e7dfe9716ad36d94be431ef558
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.446-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-03 14:27:07 +0200
+      commit   : 1fa7edcf609e61e7dfe9716ad36d94be431ef558
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.447-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-05 10:40:08 +0000
+      commit   : 1415a6dcf4b11f898e6d220c7ebf84fb29a227d5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.448-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-05 10:40:08 +0000
+      commit   : 1415a6dcf4b11f898e6d220c7ebf84fb29a227d5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.449-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-09 05:17:19 +0000
+      commit   : bb6e43fa64e1ae518c0278146442fa1b0f028e21
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.45-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-04-28 10:15:12 +0000
+      commit   : dcafd772a808a3bbc004727b530e13fdb4cef66b
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.45-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-04 15:59:31 +0000
+      commit   : 3f9513a65827f155f9c09adbdc8a1f9fc1e74867
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.45-release    [OK]
+      type     : annotated
+      created  : 2025-06-04 12:16:43 +0000
+      commit   : 1be9049e74f43ce098b7c74401ff263de5408f67
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.450-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-09 05:17:19 +0000
+      commit   : bb6e43fa64e1ae518c0278146442fa1b0f028e21
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.451-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-10 07:14:26 +0000
+      commit   : 4895b35c4caf71055d683bdaa5353b3ea7adf23e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.452-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-10 23:55:19 +0000
+      commit   : 0f0b2bf8475b5d49d444017faf0799e5e947bab7
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.453-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-11 09:04:11 +0000
+      commit   : 6d8e676c2ed2448b4f6331f4d709cccceab9dec6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.454-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-12 06:46:51 +0000
+      commit   : 95fcdcf2b2e4d47a0ab3fa41e0b5c49a05d21d27
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.455-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-15 01:48:47 +0000
+      commit   : 73527c26747e4c0801ba4593e4bb8bdc6c66b7df
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.456-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-15 01:48:47 +0000
+      commit   : 73527c26747e4c0801ba4593e4bb8bdc6c66b7df
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.457-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-15 01:48:47 +0000
+      commit   : 73527c26747e4c0801ba4593e4bb8bdc6c66b7df
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.458-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-15 12:39:45 +0000
+      commit   : dee54968f0efc734526b1c4349e62cfb429d9085
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.459-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-18 12:06:44 +0000
+      commit   : 5fa3a274c512b4555cc0f87501c528bcb138390c
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.46-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-04-29 11:29:52 +0000
+      commit   : 73394ddff1f386c8c4f95d299c821ad24cd61f76
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.46-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-05 17:21:57 +0200
+      commit   : 4f40d1ada0fb91c61dd60a1f6c78d2750a765d6f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.46-release    [OK]
+      type     : annotated
+      created  : 2025-06-06 16:19:28 +0000
+      commit   : 318dcd8a395d6f27228fc9473036d0e2c6d57645
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.460-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-19 07:19:20 +0200
+      commit   : 4bd120b1d4a88698309a12bfa4abd79b4e5ce38e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.461-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-22 02:46:48 +0000
+      commit   : 4aa6cb458efd71b623e524c642b22e94737f8bb8
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.462-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-22 10:10:01 +0000
+      commit   : efb2649e77f633241d485958636a0a1e9bef27a6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.463-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-22 14:22:58 +0000
+      commit   : 92abc7e5ab0762ae880e87720205b901da1b419f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.464-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-23 20:57:12 +0000
+      commit   : e846061bfc0c9cc902366ab0952e4c9c8dac8fed
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.465-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-24 20:04:49 +0000
+      commit   : b1f77e322406a2f1d50c5ef9f5189ce75b6e97b3
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.466-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-24 20:04:49 +0000
+      commit   : b1f77e322406a2f1d50c5ef9f5189ce75b6e97b3
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.467-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-26 15:00:22 +0200
+      commit   : feac5cddb204603e287a07ca1ee00d322f70dc69
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.468-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-29 18:28:27 +0200
+      commit   : 6b551cfa08aa7a905f993a64da393b7d46f73c57
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.469-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-30 14:34:36 +0000
+      commit   : 50eac2aa429620c218f9f13f658721c701d2f024
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.47-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-04-30 11:03:52 +0000
+      commit   : c3d0df7948f46546b321d0d19bb2ece3d69b83f4
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.47-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-06 22:09:12 +0000
+      commit   : db18b1a6cd6eb48f57f4b63d9a3ad40236bdb842
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.47-release    [BROKEN]
+      type     : lightweight
+      created  : 2025-06-08 11:34:55 +0200
+      commit   : eec6f1059848d8ec3c1afdea6c092d40514793a9
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.470-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-30 14:34:36 +0000
+      commit   : 50eac2aa429620c218f9f13f658721c701d2f024
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.471-internal  [OK]
+      type     : lightweight
+      created  : 2025-12-30 14:34:36 +0000
+      commit   : 50eac2aa429620c218f9f13f658721c701d2f024
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.472-internal  [BROKEN]
+      type     : lightweight
+      created  : 2026-01-06 22:23:29 +0000
+      commit   : 03431c8aef6c6cddb47b62e58cb0cdc8543321f4
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.473-internal  [BROKEN]
+      type     : lightweight
+      created  : 2026-01-06 22:23:29 +0000
+      commit   : 03431c8aef6c6cddb47b62e58cb0cdc8543321f4
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.474-internal  [BROKEN]
+      type     : lightweight
+      created  : 2026-01-07 13:18:07 +0000
+      commit   : 90a805dcd42c3771a9f1f01495e09c6fb864eaca
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.475-internal  [OK]
+      type     : lightweight
+      created  : 2026-01-07 14:09:53 +0000
+      commit   : 02d6e974b23329c5aa3992d5518d9dd437c58aa4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.476-internal  [OK]
+      type     : lightweight
+      created  : 2026-01-07 14:09:53 +0000
+      commit   : 02d6e974b23329c5aa3992d5518d9dd437c58aa4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.477-internal  [OK]
+      type     : lightweight
+      created  : 2026-01-07 14:09:53 +0000
+      commit   : 02d6e974b23329c5aa3992d5518d9dd437c58aa4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.478-internal  [OK]
+      type     : lightweight
+      created  : 2026-01-07 14:09:53 +0000
+      commit   : 02d6e974b23329c5aa3992d5518d9dd437c58aa4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.48-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-05-06 09:44:55 +0000
+      commit   : 1a1de47fc7776fd7078839f5ec8bd245a7b6c7cf
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.48-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-07 14:47:43 +0200
+      commit   : d2a027cd97297da639cfefa19708ad07c689ffac
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.48-release    [BROKEN]
+      type     : annotated
+      created  : 2025-06-10 14:25:17 +0000
+      commit   : 092107dea2bf4f9a72749c7860f80b18db46abe7
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.49-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-05-07 10:45:20 +0000
+      commit   : 27eedb8b067440f5dacb63213bf38b3f082723f2
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.49-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-10 13:41:29 +0000
+      commit   : 74329904adfceb740c8e7319df914fa5a7125eba
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.49-release    [OK]
+      type     : annotated
+      created  : 2025-06-10 14:25:42 +0000
+      commit   : 29fb3dbb26fd4cce744fac42e2778a00dc0382e1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.5-internal    [OK]
+      type     : lightweight
+      created  : 2023-08-22 18:13:29 +0200
+      commit   : 7e905b9e05c95b4ad329cd52bb64e2ea2781a3b2
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.5-release     [OK]
+      type     : lightweight
+      created  : 2024-06-26 17:13:53 +0200
+      commit   : 3a225a3cdc8a328504af8ad227670a417081f4fd
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.50-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-05-16 08:06:49 +0000
+      commit   : bf2d96e51c30997a5efd9bf20b4c827b90269d96
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.50-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-11 22:00:50 +0000
+      commit   : 1d31d9efa6c6bc22a5b7ee76efa0e73e2d150fa9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.50-release    [BROKEN]
+      type     : annotated
+      created  : 2025-06-25 13:33:46 +0000
+      commit   : 596d75d9529f484ae5d3114d344bceeb7da3e9bb
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.51-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-05-27 08:13:29 +0000
+      commit   : 8523e5b7ef88866fca1654ae0f9618c612373955
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.51-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-12 13:34:43 +0000
+      commit   : fc15d1855168a349e3b0da9f4d40ef2a62694c41
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.51-release    [OK]
+      type     : annotated
+      created  : 2025-06-25 13:53:05 +0000
+      commit   : 57fe39448dc09d5b0fec73d2b3203bf683cb38e6
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.52-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-05-27 12:44:27 +0000
+      commit   : 6bc301f556dfaf5d559eb11f8550478bb4fe8b20
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.52-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-12 16:17:55 +0200
+      commit   : 8be88b3da8fbac958a6e77f88b4466e536a26178
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.53-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-05-27 14:55:52 +0000
+      commit   : cddb3ff4c9be31fcf4a8f6b01824b61cf7cc0259
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.53-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-12 18:25:03 +0200
+      commit   : 59e92cb69d989bb7c3e16a6f3a3e29680917bc89
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.54-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-06-02 11:25:07 +0000
+      commit   : 5629d7da4e2c2b4f3c332156cf0aa0b40377aba2
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.54-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-14 00:10:49 +0200
+      commit   : 04d170ca7c5a9bea72f7d9ab35bd8ce209436c05
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.55-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-06-04 11:29:29 +0000
+      commit   : 7540e538413fb59ae742ab9916227e8b670d3cbd
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.55-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-14 19:19:38 +0200
+      commit   : 228d95984e561f4bbe57f1f4910ae59a8099a390
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.56-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-06-19 09:58:02 +0000
+      commit   : 94cd7941a5b97e4a74946cbf0ca86d5a214cf110
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.56-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-14 21:38:07 +0200
+      commit   : 2919f112b06812d272b4e3bdc5ad2e214fa29c7e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.57-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-07-22 04:29:20 +0000
+      commit   : 0fd43a32e19b200bdc42bfe534aaf1fd944a29c0
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.57-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-14 23:56:16 +0200
+      commit   : 3e607691dd91c4b41cb13f8ecd590f067aad9b69
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.58-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-07-28 11:51:02 +0000
+      commit   : 6de1941fe0157aa13718df61b513b93695e49a6b
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.58-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-15 11:50:54 +0200
+      commit   : a160b323b4888377fa30f90ed49a59729a8e954b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.58-release    [OK]
+      type     : annotated
+      created  : 2025-07-30 05:58:15 +0000
+      commit   : a401dec3f1dd2291f86445ac7321221f5b87c69d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.59-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-16 11:38:50 +0200
+      commit   : 839efad82562494e72da4928a789f978336314e5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.59-release    [BROKEN]
+      type     : annotated
+      created  : 2025-07-30 05:59:41 +0000
+      commit   : a99ef5d2efdd3b05d3f59a935e83b08e3ab88840
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.6-internal    [OK]
+      type     : lightweight
+      created  : 2023-08-22 18:36:53 +0200
+      commit   : 8c8b931b4bab124467eb46e42511ca13a3532948
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.6-release     [OK]
+      type     : lightweight
+      created  : 2024-06-27 17:12:31 +0200
+      commit   : 43e2c607b2813a56ec79c4e8e3abb27ae6b1cc2f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.60-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-19 05:58:59 +0200
+      commit   : 69aa406757b2eea52a0fb9c3245bcf9fa2ad042d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.60-release    [BROKEN]
+      type     : annotated
+      created  : 2025-07-30 17:20:16 +0000
+      commit   : add743b4394d6c3c439ddb0273b60db480749ef9
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.61-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-19 22:53:16 +0200
+      commit   : 67e130f1349d62018831eb85ffc399acb25f5886
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.61-release    [BROKEN]
+      type     : annotated
+      created  : 2025-07-30 17:23:18 +0000
+      commit   : f10edc01e2bc30a9d37b47691dff4af2d336dc9d
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.0.62-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-19 22:53:16 +0200
+      commit   : 67e130f1349d62018831eb85ffc399acb25f5886
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.63-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-22 05:59:56 +0000
+      commit   : aeb526a47212105ff595dcdd996e1463442f025c
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.64-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-22 10:06:48 +0200
+      commit   : a9121ef1094e030435b8605d3a761187b8d5633a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.65-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-22 15:12:00 +0300
+      commit   : 7ffda6645856e4edbaf9edd727c2dcc96031fbb4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.66-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-25 13:21:04 +0200
+      commit   : 8a6dbf0eb995054d7a974d0cde358df7cb74e0d1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.67-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-26 15:42:16 +0200
+      commit   : e9ee5a57b599b0077b61ddac5c58b440169d1ae4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.68-internal   [OK]
+      type     : lightweight
+      created  : 2023-12-27 16:41:55 +0000
+      commit   : 6d179caa3b084641757798b396d2da30078920ca
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.69-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-09 14:22:12 +0000
+      commit   : 4f0e4f23cb34b732a5a8d98895b13f78cd440894
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.7-internal    [OK]
+      type     : lightweight
+      created  : 2023-08-22 19:43:06 +0200
+      commit   : e7f9a9a3cc7972c75a168cb36f8b55f843cebca9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.7-release     [OK]
+      type     : lightweight
+      created  : 2024-07-03 17:35:42 +0200
+      commit   : 74b68e6c50314bbe3a819446679bda5efa22f448
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.70-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-10 15:40:24 +0300
+      commit   : 0a6ed4cc7267582a7199fa69d6edaf75030f2e89
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.71-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-12 01:15:02 +0300
+      commit   : 9ec51aa8730f4a9cfdc1ba39f80a138af00d9270
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.72-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-12 01:15:02 +0300
+      commit   : 9ec51aa8730f4a9cfdc1ba39f80a138af00d9270
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.73-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-15 18:18:46 +0200
+      commit   : a07c6a9082fee42b39f314dcdb9f0b51c780ac06
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.74-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-16 16:26:17 +0200
+      commit   : 41345ad6f71cac664df73df8037ea88900274447
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.75-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-16 16:26:17 +0200
+      commit   : 41345ad6f71cac664df73df8037ea88900274447
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.76-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-18 15:54:36 +0200
+      commit   : a99ad0ea95eab28179a8830e28992c61ce311135
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.77-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-18 15:54:36 +0200
+      commit   : a99ad0ea95eab28179a8830e28992c61ce311135
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.78-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-22 23:02:31 +0000
+      commit   : 82e6568eb361b0b6ddcd42f178c1cb6fad7a6ba5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.79-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-23 12:53:06 +0200
+      commit   : 6a05cc05c3ecd9bd95ca14c9370419b59e04f67a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.8-internal    [OK]
+      type     : lightweight
+      created  : 2023-08-22 19:51:47 +0200
+      commit   : 830384a8b6f2ade27132f61cb5f1fa17eebc5bac
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.8-release     [OK]
+      type     : lightweight
+      created  : 2024-07-17 23:54:59 +0200
+      commit   : 321b14c651dd4221446d5449d213a0959d3a4ab0
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.80-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-24 21:45:01 +0200
+      commit   : 95b250fd05a7451e54da10e961778f7bb5ea37f9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.81-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-25 14:04:17 +0000
+      commit   : ce37cb0707bfd9eaf6f8dc6e4543a41d06ddd45a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.82-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-26 16:45:47 +0200
+      commit   : bf5be2e46f4e3ea90c09ea13620b90488839939f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.83-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-29 19:13:11 +0200
+      commit   : a3f625a8df5a2b21441f67082828a2f742f30868
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.84-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-30 12:07:20 +0000
+      commit   : ac7a1d7bba73eae2eeeb2b81920a51c9c6c774c9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.85-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-31 14:56:51 +0200
+      commit   : ad50f091b8c446ce877dc9cb936606bc92d3005a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.86-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-31 14:56:51 +0200
+      commit   : ad50f091b8c446ce877dc9cb936606bc92d3005a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.87-internal   [OK]
+      type     : lightweight
+      created  : 2024-01-31 14:56:51 +0200
+      commit   : ad50f091b8c446ce877dc9cb936606bc92d3005a
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.88-internal   [OK]
+      type     : lightweight
+      created  : 2024-02-02 08:35:56 +0200
+      commit   : 29804c5c465207993246e96a97bc5f082ad2f635
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.89-internal   [OK]
+      type     : lightweight
+      created  : 2024-02-02 20:41:02 +0200
+      commit   : 6fc69a3f79c3e366f06e215c2a9b1314deddfb78
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.9-internal    [OK]
+      type     : lightweight
+      created  : 2023-09-22 16:28:02 +0200
+      commit   : 5fe321ff58291147f1b862de1b76cf8837f3738b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.9-release     [OK]
+      type     : lightweight
+      created  : 2024-07-24 12:19:14 +0200
+      commit   : 6e839e82771999554ac1d92134c513b9dd509b02
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.90-internal   [OK]
+      type     : lightweight
+      created  : 2024-02-05 11:18:22 +0000
+      commit   : 14a3dc56eeff84b89cc9892b294057cc991f2f43
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.91-internal   [OK]
+      type     : lightweight
+      created  : 2024-02-05 11:18:22 +0000
+      commit   : 14a3dc56eeff84b89cc9892b294057cc991f2f43
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.92-internal   [OK]
+      type     : lightweight
+      created  : 2024-02-07 22:32:10 +0200
+      commit   : 0c0ce14c2ccafd66a263be497ba699a5c8ab28f2
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.93-internal   [OK]
+      type     : lightweight
+      created  : 2024-02-08 19:37:58 +0200
+      commit   : f09b6d372138f3a608fc4a33ea6c42d10e49f9c9
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.94-internal   [OK]
+      type     : lightweight
+      created  : 2024-02-11 22:38:34 +0000
+      commit   : adf13f2d18598c598b8d50cef051eb3bbe154a4e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.95-internal   [OK]
+      type     : lightweight
+      created  : 2024-02-12 15:00:44 +0200
+      commit   : f9a80f885b9e858f07ce5dad3b8860b22ccf5c8d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.96-internal   [OK]
+      type     : lightweight
+      created  : 2024-02-14 00:06:28 +0200
+      commit   : 516d3e8dee3c8083980e661cb01f6f3fb64c9442
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.97-internal   [OK]
+      type     : lightweight
+      created  : 2024-02-15 00:32:41 +0200
+      commit   : 8401925eac123917139e87c528c1c45aa331c5cb
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.98-internal   [OK]
+      type     : lightweight
+      created  : 2024-02-15 14:08:26 +0200
+      commit   : 14203698642ecc091d838a12576741d0f649499e
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.0.99-internal   [OK]
+      type     : lightweight
+      created  : 2024-02-16 13:48:26 +0200
+      commit   : 0e736c2f4ab02a7df97225711616bdfff354b063
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.62-demo       [OK]
+      type     : lightweight
+      created  : 2025-08-08 11:17:04 +0100
+      commit   : 3927dd66cbcedaccb9e3adffc8ee2ba7bac6838d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.62-release    [OK]
+      type     : lightweight
+      created  : 2025-08-08 11:17:04 +0100
+      commit   : 3927dd66cbcedaccb9e3adffc8ee2ba7bac6838d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.63-demo       [OK]
+      type     : lightweight
+      created  : 2025-08-08 18:12:11 +0400
+      commit   : d36bfbb028faf337671d0335124bbc0c660915a5
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.63-release    [OK]
+      type     : lightweight
+      created  : 2025-08-08 13:14:43 +0100
+      commit   : aa1bfb17d04291425c2e4891245350c524d68916
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.63-releaseGoogle [OK]
+      type     : lightweight
+      created  : 2025-08-08 13:14:43 +0100
+      commit   : aa1bfb17d04291425c2e4891245350c524d68916
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.64-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-08-12 08:33:30 +0000
+      commit   : b953f40cda79eb9fa56ca6f55fd89b6e2b4c1115
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.1.64-releaseGoogle [OK]
+      type     : lightweight
+      created  : 2025-08-08 13:49:07 +0100
+      commit   : 5ae20b6361c80a277cc36e4eafba57dadcb18b80
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.65-demo       [OK]
+      type     : lightweight
+      created  : 2025-08-12 12:37:30 +0000
+      commit   : d8c666b7fd6ece15928bab6a7eae142756faeed4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.65-releaseGoogle [OK]
+      type     : lightweight
+      created  : 2025-08-08 13:49:07 +0100
+      commit   : 5ae20b6361c80a277cc36e4eafba57dadcb18b80
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.65-releaseRuStore [OK]
+      type     : lightweight
+      created  : 2025-08-08 13:49:07 +0100
+      commit   : 5ae20b6361c80a277cc36e4eafba57dadcb18b80
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.66-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-08-13 11:39:57 +0000
+      commit   : add743b4394d6c3c439ddb0273b60db480749ef9
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.1.67-demo       [BROKEN]
+      type     : annotated
+      created  : 2025-08-13 12:22:21 +0000
+      commit   : 8d91c23e5e7c2975f74c858d4bcd0b426d74c4bf
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.1.68-demo       [OK]
+      type     : lightweight
+      created  : 2025-09-03 18:22:28 +0700
+      commit   : c4c96562fc3f253a1418af207f17462eb141cbb8
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.69-demo       [OK]
+      type     : lightweight
+      created  : 2025-09-04 09:47:33 +0000
+      commit   : 4de7bc955863c2ce115a8e547a183655f0fd352f
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.70-demo       [OK]
+      type     : lightweight
+      created  : 2025-09-05 15:40:22 +0700
+      commit   : d7c789a68dabe5a24e010875ac8e43938b25f20d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.70-releaseGoogle [OK]
+      type     : lightweight
+      created  : 2025-09-05 15:40:22 +0700
+      commit   : d7c789a68dabe5a24e010875ac8e43938b25f20d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.70-releaseRuStore [OK]
+      type     : lightweight
+      created  : 2025-09-05 15:40:22 +0700
+      commit   : d7c789a68dabe5a24e010875ac8e43938b25f20d
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.71-demo       [OK]
+      type     : lightweight
+      created  : 2025-09-05 17:56:16 +0700
+      commit   : 9c70d944f596c8a48822acc2a75454bacdb0bd3b
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.71-releaseGoogle [OK]
+      type     : lightweight
+      created  : 2025-09-05 14:56:58 +0000
+      commit   : a493d0e75e7120b594a59ccb2742903c9adde189
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.71-releaseRuStore [OK]
+      type     : lightweight
+      created  : 2025-09-05 14:56:58 +0000
+      commit   : a493d0e75e7120b594a59ccb2742903c9adde189
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.72-demo       [OK]
+      type     : lightweight
+      created  : 2025-09-05 14:56:58 +0000
+      commit   : a493d0e75e7120b594a59ccb2742903c9adde189
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.72-releaseGoogle [BROKEN]
+      type     : lightweight
+      created  : 2025-09-29 23:38:57 +0200
+      commit   : 3ceb25d8269c22654ebf1fdef087aba4a299511e
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.1.72-releaseRuStore [BROKEN]
+      type     : lightweight
+      created  : 2025-09-29 23:38:57 +0200
+      commit   : 3ceb25d8269c22654ebf1fdef087aba4a299511e
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.1.73-demo       [OK]
+      type     : lightweight
+      created  : 2025-09-19 13:29:14 +0200
+      commit   : bfb767e4dfc1ab6ccb93777d5016255c38f17621
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.74-demo       [OK]
+      type     : lightweight
+      created  : 2025-09-24 08:48:07 +0000
+      commit   : 459bc3e4295dac696e4bd24d163d624a04efba10
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.74-releaseGoogle [BROKEN]
+      type     : lightweight
+      created  : 2025-11-24 18:49:03 +0200
+      commit   : 2d536d21fef988a9b1401670e5618be9711b5c78
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.1.74-releaseRuStore [BROKEN]
+      type     : lightweight
+      created  : 2025-11-24 18:49:03 +0200
+      commit   : 2d536d21fef988a9b1401670e5618be9711b5c78
+      branches : — orphaned (not in any local branch) —
+      reason   : commit unreachable (force push / rewritten history)
+
+   v0.1.75-demo       [OK]
+      type     : lightweight
+      created  : 2025-09-25 11:46:18 +0000
+      commit   : 542c592a20e56368eacd6d259f36c930844ec607
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.75-releaseGoogle [OK]
+      type     : lightweight
+      created  : 2026-01-07 14:09:53 +0000
+      commit   : 02d6e974b23329c5aa3992d5518d9dd437c58aa4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.75-releaseRuStore [OK]
+      type     : lightweight
+      created  : 2026-01-07 14:09:53 +0000
+      commit   : 02d6e974b23329c5aa3992d5518d9dd437c58aa4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.76-demo       [OK]
+      type     : lightweight
+      created  : 2025-09-26 16:02:39 +0200
+      commit   : 09546074982a804ecc306931ee702ea90e1a9ee1
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.77-demo       [OK]
+      type     : lightweight
+      created  : 2025-09-29 17:09:12 +0200
+      commit   : 6dea1b9b851dc5488175160e7de27ea3ec4452d4
+      branches : (HEAD detached at 02d6e974b)
+
+   v0.1.78-demo       [OK]
+      type     : lightweight
+      created  : 2025-11-21 06:43:43 +0000
+      commit   : 4940d97311f55f9eb2b946ad651635c9c1d7fdfe
+      branches : (HEAD detached at 02d6e974b)
+
+git describe sanity check:
+   git describe → v0.0.475-internal
+
+═══════════════════════════════════════════════════════════
+                        DIAGNOSIS
+═══════════════════════════════════════════════════════════
+❌ Orphaned / BROKEN tags detected:
+   - v0.0.12-internal
+   - v0.0.16-release
+   - v0.0.288-internal
+   - v0.0.306-internal
+   - v0.0.336-internal
+   - v0.0.337-internal
+   - v0.0.338-internal
+   - v0.0.351-internal
+   - v0.0.357-internal
+   - v0.0.38-demo
+   - v0.0.39-demo
+   - v0.0.39-release
+   - v0.0.4-internal
+   - v0.0.40-demo
+   - v0.0.40-release
+   - v0.0.41-demo
+   - v0.0.42-release
+   - v0.0.44-release
+   - v0.0.45-demo
+   - v0.0.46-demo
+   - v0.0.47-demo
+   - v0.0.47-release
+   - v0.0.472-internal
+   - v0.0.473-internal
+   - v0.0.474-internal
+   - v0.0.48-demo
+   - v0.0.48-release
+   - v0.0.49-demo
+   - v0.0.50-demo
+   - v0.0.50-release
+   - v0.0.51-demo
+   - v0.0.52-demo
+   - v0.0.53-demo
+   - v0.0.54-demo
+   - v0.0.55-demo
+   - v0.0.56-demo
+   - v0.0.57-demo
+   - v0.0.58-demo
+   - v0.0.59-release
+   - v0.0.60-release
+   - v0.0.61-release
+   - v0.1.64-demo
+   - v0.1.66-demo
+   - v0.1.67-demo
+   - v0.1.72-releaseGoogle
+   - v0.1.72-releaseRuStore
+   - v0.1.74-releaseGoogle
+   - v0.1.74-releaseRuStore
