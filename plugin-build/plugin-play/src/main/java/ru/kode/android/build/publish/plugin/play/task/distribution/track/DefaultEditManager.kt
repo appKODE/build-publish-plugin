@@ -8,6 +8,12 @@ import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.Res
 import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.has
 import java.io.File
 
+/**
+ * Default [EditManager] implementation backed by [InternalPlayPublisher].
+ *
+ * This implementation uploads artifacts into an existing edit and delegates track operations to
+ * a [TrackManager].
+ */
 internal class DefaultEditManager(
     private val publisher: InternalPlayPublisher,
     private val tracks: TrackManager,

@@ -6,7 +6,7 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException
 internal sealed class EditResponse {
     /** Response for a successful edit request. */
     internal data class Success(
-        /** The id of the edit in question. */
+        /** The ID of the edit in question. */
         val id: String,
     ) : EditResponse()
 
@@ -14,12 +14,14 @@ internal sealed class EditResponse {
     internal data class Failure(
         private val e: GoogleJsonResponseException,
     ) : EditResponse() {
-        /** @return true if the app wasn't found in the Play Console, false otherwise */
+        /**
+         * Returns `true` when the request failed because the app doesn't exist in Play Console.
+         */
         fun isNewApp(): Boolean = e has "applicationNotFound"
     }
 }
 
-/** Response for an commit request. */
+/** Response for a commit request. */
 internal sealed class CommitResponse {
     /** Response for a successful commit request. */
     internal object Success : CommitResponse()
@@ -48,6 +50,8 @@ internal data class GppProduct(
 
 /** Response for a product update request. */
 internal data class UpdateProductResponse(
-    /** @return true if the product doesn't exist and needs to be created, false otherwise. */
+    /**
+     * Whether the product doesn't exist and needs to be created.
+     */
     val needsCreating: Boolean,
 )

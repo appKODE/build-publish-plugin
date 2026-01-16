@@ -2,6 +2,9 @@ package ru.kode.android.build.publish.plugin.confluence.network.entity
 
 import kotlinx.serialization.Serializable
 
+/**
+ * Confluence API response for listing page comments.
+ */
 @Serializable
 internal data class CommentResponse(
     val results: List<Comment>,

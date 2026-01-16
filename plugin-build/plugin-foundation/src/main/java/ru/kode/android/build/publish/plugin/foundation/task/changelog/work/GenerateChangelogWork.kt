@@ -22,7 +22,7 @@ import javax.inject.Inject
  */
 internal interface GenerateChangelogParameters : WorkParameters {
     /**
-     *  The key used to filter relevant commit messages
+     * The key used to filter relevant commit messages.
      */
     val commitMessageKey: Property<String>
 

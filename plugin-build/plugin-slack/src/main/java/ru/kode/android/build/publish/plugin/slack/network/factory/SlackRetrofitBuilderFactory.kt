@@ -6,7 +6,13 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 
+/**
+ * Factory for creating a preconfigured [Retrofit.Builder] for Slack API requests.
+ */
 internal object SlackRetrofitBuilderFactory {
+    /**
+     * Builds a [Retrofit.Builder] using the provided HTTP client and JSON serializer.
+     */
     fun build(
         client: OkHttpClient,
         json: Json,

@@ -13,6 +13,11 @@ import org.gradle.api.tasks.Input
  * to configure changelog notifications for different build variants.
  */
 abstract class SlackChangelogConfig {
+    /**
+     * Name of this changelog configuration.
+     *
+     * Used to match a configuration to a build variant (or to the common configuration).
+     */
     abstract val name: String
 
     /**

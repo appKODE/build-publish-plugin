@@ -23,6 +23,14 @@ import java.lang.IllegalStateException
 import java.security.KeyStore
 import java.util.concurrent.TimeUnit
 
+/**
+ * Creates an [AndroidPublisher] client using the given service account credentials.
+ *
+ * The caller is responsible for supplying a stream containing a valid JSON credentials file.
+ * Proxy and trust store configuration is picked up from standard JVM system properties.
+ *
+ * @throws IllegalStateException if credential parsing fails
+ */
 @Suppress("TooGenericExceptionCaught") // Exception is rethrown with proper message
 internal fun createPublisher(credentials: InputStream): AndroidPublisher {
     val transport = buildTransport()
@@ -46,6 +54,9 @@ internal fun createPublisher(credentials: InputStream): AndroidPublisher {
     ).setApplicationName("PLUGIN_NAME").build()
 }
 
+/**
+ * Checks whether this response exception contains an error entry with the given `reason`.
+ */
 internal infix fun GoogleJsonResponseException.has(error: String) = details?.errors.orEmpty().any { it.reason == error }
 
 private fun buildTransport(): HttpTransport {

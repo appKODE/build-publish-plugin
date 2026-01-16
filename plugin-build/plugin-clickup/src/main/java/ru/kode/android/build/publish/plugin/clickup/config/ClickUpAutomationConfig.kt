@@ -24,7 +24,10 @@ interface ClickUpAutomationConfig {
     /**
      * Pattern used to format version numbers for ClickUp tasks.
      *
-     * This pattern is used to format the version number when setting fix versions in ClickUp.
+     * This pattern is formatted using `String.format(...)` and receives:
+     * - `buildVersion`
+     * - `buildNumber`
+     * - `buildVariant`
      */
     @get:Input
     @get:Optional
@@ -33,7 +36,8 @@ interface ClickUpAutomationConfig {
     /**
      * The name of the custom field used for fix versions in ClickUp.
      *
-     * This is the name of the custom field in ClickUp where the fix version will be set.
+     * The task resolves this field name to a ClickUp custom field id using [workspaceName]
+     * and updates the field value for each task.
      */
     @get:Input
     @get:Optional
@@ -45,6 +49,11 @@ interface ClickUpAutomationConfig {
      * This tag will be added to all tasks that are processed during the build.
      * It's typically set to the version name or build number to track which
      * release a task was included in.
+     *
+     * This pattern is formatted using `String.format(...)` and receives:
+     * - `buildVersion`
+     * - `buildNumber`
+     * - `buildVariant`
      */
     @get:Input
     @get:Optional

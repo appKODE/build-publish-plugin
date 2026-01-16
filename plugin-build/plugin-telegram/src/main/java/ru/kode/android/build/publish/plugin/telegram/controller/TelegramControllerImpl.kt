@@ -40,13 +40,16 @@ internal class TelegramControllerImpl(
     /**
      * Sends a text message to the specified Telegram chats using the configured bots in chunks.
      *
-     * This method sends a Markdown-formatted message to one or more Telegram chats
+     * This method sends an HTML-formatted message to one or more Telegram chats
      * using the specified bots. The message will be split into chunks if it exceeds the maximum
      * length allowed by Telegram. The chunks will be separated by newlines.
      *
-     * @param message The message to send (supports MarkdownV2 formatting)
-     * @param bots List of bot configurations
-     * @param destinationBots Set of destination bots and their respective chat configurations
+     * @param message The message body to send
+     * @param header Header text shown at the top of the message
+     * @param userMentions User mentions to include at the top of the message
+     * @param issueUrlPrefix URL prefix used to build links to issues
+     * @param issueNumberPattern Regex pattern used to find issue keys inside the message
+     * @param bots List of bot+chat destinations
      *
      * @throws IllegalStateException If no matching bot configuration is found
      * @throws IOException If there's a network error while sending the message
@@ -77,12 +80,12 @@ internal class TelegramControllerImpl(
      * The file will be sent as a document, and a caption can be included.
      *
      * @param file The file to upload
-     * @param destinationBots Set of destination bots and their respective chat configurations
+     * @param bots List of bot+chat destinations
      *
      * @throws IllegalStateException If no matching bot configuration is found
      * @throws IOException If there's a network error or the file cannot be read
      *
-     * @see sendMessage For sending text messages without file attachments
+     * @see send For sending text messages without file attachments
      */
     override fun upload(
         file: File,
@@ -126,7 +129,9 @@ internal class TelegramControllerImpl(
      *
      * This method fetches the last message from the specified Telegram chat.
      *
-     * @param bot The [ChatSpecificTelegramBot] configuration.
+     * @param botId The ID of the bot to use for retrieving the message.
+     * @param chatName The name of the chat to retrieve the last message from.
+     * @param topicName The name of the topic to retrieve the last message from; if null, retrieves the last message from the chat.
      * @return The last [TelegramMessage] if available, otherwise null.
      */
     override fun getLastMessage(

@@ -9,6 +9,9 @@ import ru.kode.android.build.publish.plugin.clickup.network.api.ClickUpApi
 
 private const val API_BASE_URL = "https://api.clickup.com/api/"
 
+/**
+ * Factory for creating a [ClickUpApi] Retrofit client.
+ */
 internal object ClickUpApiFactory {
     fun build(client: OkHttpClient): ClickUpApi {
         val contentType = "application/json".toMediaType()

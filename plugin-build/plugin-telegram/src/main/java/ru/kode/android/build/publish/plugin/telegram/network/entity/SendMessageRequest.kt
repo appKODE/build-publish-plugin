@@ -2,6 +2,9 @@ package ru.kode.android.build.publish.plugin.telegram.network.entity
 
 import kotlinx.serialization.Serializable
 
+/**
+ * Request payload for Telegram Bot API `sendMessage`.
+ */
 @Serializable
 data class SendMessageRequest(
     val chat_id: String,

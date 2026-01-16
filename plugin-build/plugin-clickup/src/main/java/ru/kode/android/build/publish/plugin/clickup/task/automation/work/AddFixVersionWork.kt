@@ -14,7 +14,7 @@ import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpServi
  */
 internal interface AddFixVersionParameters : WorkParameters {
     /**
-     *  issues The set of ClickUp task IDs to update
+     * The set of ClickUp task IDs to update.
      */
     val issues: SetProperty<String>
 

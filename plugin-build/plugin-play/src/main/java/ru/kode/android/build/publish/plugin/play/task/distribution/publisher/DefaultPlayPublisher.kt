@@ -17,6 +17,9 @@ import ru.kode.android.build.publish.plugin.core.util.capitalized
 import java.io.File
 import kotlin.math.roundToInt
 
+/**
+ * Default [InternalPlayPublisher] implementation backed by the Google [AndroidPublisher] client.
+ */
 internal class DefaultPlayPublisher(
     private val publisher: AndroidPublisher,
     override val appId: String,

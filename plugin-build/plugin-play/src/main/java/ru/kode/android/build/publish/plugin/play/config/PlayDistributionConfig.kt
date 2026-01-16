@@ -11,6 +11,11 @@ import org.gradle.api.tasks.Input
  * configure how the app should be published to different tracks.
  */
 interface PlayDistributionConfig {
+    /**
+     * Name of this distribution configuration.
+     *
+     * Used to match a configuration to a build variant (or to the common configuration).
+     */
     val name: String
 
     /**
@@ -31,14 +36,11 @@ interface PlayDistributionConfig {
     /**
      * The priority of the update for the app.
      *
-     * This determines how quickly the update is rolled out to users.
-     * Higher values indicate higher priority.
+     * This is the in-app update priority passed to Google Play.
+     * Valid values are in the range `0..5`.
      *
-     * - `0` - Default priority (no special treatment)
-     * - `1` - High priority (faster rollout)
-     * - `2` - Critical priority (immediate rollout)
-     *
-     * Note: Higher priority updates may be subject to rate limiting by Google Play.
+     * - `0` - Default priority
+     * - `5` - Highest priority
      *
      * @see <a href="https://developer.android.com/reference/com/google/api/services/androidpublisher/model/TrackRelease#setInAppUpdatePriority(java.lang.Integer)">Google Play Developer API Reference</a>
      */

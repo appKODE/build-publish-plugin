@@ -15,6 +15,9 @@ import ru.kode.android.build.publish.plugin.confluence.network.entity.AddComment
 import ru.kode.android.build.publish.plugin.confluence.network.entity.AttachmentResponse
 import ru.kode.android.build.publish.plugin.confluence.network.entity.CommentResponse
 
+/**
+ * Retrofit API definition for the Confluence REST endpoints used by this plugin.
+ */
 internal interface ConfluenceApi {
     @Multipart
     @POST("rest/api/content/{pageId}/child/attachment")

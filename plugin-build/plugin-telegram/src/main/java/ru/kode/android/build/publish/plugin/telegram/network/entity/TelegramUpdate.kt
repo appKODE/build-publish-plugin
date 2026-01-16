@@ -2,6 +2,9 @@ package ru.kode.android.build.publish.plugin.telegram.network.entity
 
 import kotlinx.serialization.Serializable
 
+/**
+ * Telegram update item returned by `getUpdates`.
+ */
 @Serializable
 internal data class TelegramUpdate(
     val update_id: Long,

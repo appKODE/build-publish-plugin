@@ -6,11 +6,26 @@ import com.google.api.services.androidpublisher.model.TrackRelease
 import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.InternalPlayPublisher
 import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.ReleaseStatus
 
+/**
+ * Manages Play Console release tracks within an existing edit.
+ *
+ * Implementations are responsible for creating/updating [Track] payloads (including releases)
+ * and delegating API calls to an [InternalPlayPublisher].
+ */
 internal interface TrackManager {
+    /**
+     * Updates (publishes) the given set of artifacts to a track.
+     */
     fun update(config: UpdateConfig)
 
+    /**
+     * Promotes a release from one track to another.
+     */
     fun promote(config: PromoteConfig)
 
+    /**
+     * Base configuration shared between update/promote operations.
+     */
     data class BaseConfig(
         val releaseStatus: ReleaseStatus? = null,
         val userFraction: Double? = null,
@@ -20,6 +35,9 @@ internal interface TrackManager {
         val releaseName: String?,
     )
 
+    /**
+     * Parameters for updating a track with a new release.
+     */
     data class UpdateConfig(
         val trackName: String,
         val versionCodes: List<Long>,
@@ -27,6 +45,9 @@ internal interface TrackManager {
         val base: BaseConfig,
     )
 
+    /**
+     * Parameters for promoting an existing release between tracks.
+     */
     data class PromoteConfig(
         val promoteTrackName: String,
         val fromTrackName: String,
@@ -35,6 +56,9 @@ internal interface TrackManager {
     )
 }
 
+/**
+ * Default [TrackManager] implementation backed by [InternalPlayPublisher].
+ */
 internal class DefaultTrackManager(
     private val publisher: InternalPlayPublisher,
     private val editId: String,

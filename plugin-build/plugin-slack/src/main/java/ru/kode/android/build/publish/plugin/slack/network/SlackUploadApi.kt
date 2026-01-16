@@ -16,7 +16,13 @@ import retrofit2.http.Url
 import ru.kode.android.build.publish.plugin.slack.network.entity.SlackCompleteUploadUrlResponse
 import ru.kode.android.build.publish.plugin.slack.network.entity.SlackGetUploadUrlResponse
 
+/**
+ * Retrofit API for Slack external file upload flow.
+ */
 internal interface SlackUploadApi {
+    /**
+     * Requests an upload URL for an external file upload.
+     */
     @GET("files.getUploadURLExternal")
     fun getUploadUrl(
         @Header("Authorization") authorisation: String,
@@ -24,6 +30,9 @@ internal interface SlackUploadApi {
         @Query("length") length: Long,
     ): Call<SlackGetUploadUrlResponse>
 
+    /**
+     * Uploads the file content to the provided upload URL.
+     */
     @POST
     @Multipart
     fun upload(
@@ -33,6 +42,9 @@ internal interface SlackUploadApi {
         @Part filePart: MultipartBody.Part,
     ): Call<ResponseBody>
 
+    /**
+     * Completes the upload and shares the file into the provided channels.
+     */
     @FormUrlEncoded
     @POST("files.completeUploadExternal")
     fun completeUploading(

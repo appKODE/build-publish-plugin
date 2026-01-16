@@ -8,7 +8,16 @@ import java.util.concurrent.TimeUnit
 
 private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L
 
+/**
+ * Factory for creating an [OkHttpClient] configured for Slack API requests.
+ */
 internal object SlackClientFactory {
+    /**
+     * Builds an [OkHttpClient] with logging and optional proxy support.
+     *
+     * @param logger the logger to use for logging HTTP requests and responses
+     * @return an [OkHttpClient] instance configured for Slack API requests
+     */
     fun build(logger: PluginLogger): OkHttpClient {
         val loggingInterceptor =
             HttpLoggingInterceptor { message ->

@@ -9,7 +9,13 @@ import retrofit2.http.Url
 import ru.kode.android.build.publish.plugin.telegram.network.entity.SendMessageRequest
 import ru.kode.android.build.publish.plugin.telegram.network.entity.TelegramUpdateResponse
 
+/**
+ * Retrofit API for Telegram Bot API endpoints used by the plugin.
+ */
 internal interface TelegramWebhookApi {
+    /**
+     * Sends a message to a chat.
+     */
     @POST
     fun send(
         @Header("Authorization") authorisation: String?,
@@ -17,6 +23,9 @@ internal interface TelegramWebhookApi {
         @Body body: SendMessageRequest,
     ): Call<Unit>
 
+    /**
+     * Fetches updates for a bot.
+     */
     @GET
     fun getUpdates(
         @Header("Authorization") authorization: String?,

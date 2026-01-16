@@ -72,7 +72,7 @@ internal interface SendTelegramChangelogParameters : WorkParameters {
  *
  * The message format is as follows:
  * ```
- * *AppName 1.0.0*
+ * <b>AppName 1.0.0</b>
  * @user1 @user2
  *
  * - Fixed issue #123

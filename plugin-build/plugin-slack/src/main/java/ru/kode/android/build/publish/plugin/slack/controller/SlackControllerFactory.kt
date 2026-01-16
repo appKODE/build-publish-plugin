@@ -7,7 +7,13 @@ import ru.kode.android.build.publish.plugin.slack.network.factory.SlackRetrofitB
 import ru.kode.android.build.publish.plugin.slack.network.factory.SlackUploadApiFactory
 import ru.kode.android.build.publish.plugin.slack.network.factory.SlackWebhookApiFactory
 
+/**
+ * Factory for creating [SlackController] instances.
+ */
 object SlackControllerFactory {
+    /**
+     * Builds a default [SlackController] implementation.
+     */
     fun build(logger: PluginLogger): SlackController {
         val json = Json { ignoreUnknownKeys = true }
         val client = SlackClientFactory.build(logger)

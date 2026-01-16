@@ -2,6 +2,9 @@ package ru.kode.android.build.publish.plugin.clickup.network.entity
 
 import kotlinx.serialization.Serializable
 
+/**
+ * ClickUp API response for retrieving a task.
+ */
 @Serializable
 internal data class GetTaskResponse(
     val id: String,

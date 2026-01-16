@@ -42,9 +42,10 @@ internal class SlackControllerImpl(
      * 2. Uploads the file content to the provided URL
      * 3. Completes the upload and shares the file in the specified channels
      *
-     * @param initialComment The base name to use for the uploaded file
+     * @param uploadToken Slack API token used for uploading files
+     * @param initialComment The build name or identifier to include in the comment
      * @param file The file to upload
-     * @param channels Set of channel IDs or names where the file should be shared
+     * @param channels List of channel IDs or names where the file should be shared
      *
      * @throws UploadError if any step of the upload process fails
      */
@@ -115,6 +116,8 @@ internal class SlackControllerImpl(
      * @param userMentions Optional user mentions to include in the message
      * @param iconUrl URL of the icon to display with the message
      * @param attachmentColor Color code for the message attachment (e.g., "#36a64f" for green)
+     * @param issueUrlPrefix URL prefix used to build links to issues
+     * @param issueNumberPattern Regex pattern used to find issue keys inside the changelog
      *
      * @throws Exception if the webhook request fails
      */

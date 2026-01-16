@@ -35,6 +35,9 @@ abstract class SlackService
     constructor(
         providerFactory: ProviderFactory,
     ) : BuildService<SlackService.Params> {
+        /**
+         * Configuration parameters for [SlackService].
+         */
         interface Params : BuildServiceParameters {
             /**
              * The incoming webhook URL for sending messages
@@ -52,11 +55,34 @@ abstract class SlackService
             val loggerService: Property<LoggerService>
         }
 
+        /**
+         * Lazily-created OkHttp client used for Slack API calls.
+         */
         internal abstract val okHttpClientProperty: Property<OkHttpClient>
+
+        /**
+         * Lazily-created Retrofit builder configured with converters and HTTP client.
+         */
         internal abstract val retrofitProperty: Property<Retrofit.Builder>
+
+        /**
+         * Lazily-created JSON serializer used for Slack payloads.
+         */
         internal abstract val jsonProperty: Property<Json>
+
+        /**
+         * Lazily-created webhook API.
+         */
         internal abstract val apiProperty: Property<SlackApi>
+
+        /**
+         * Lazily-created upload API.
+         */
         internal abstract val uploadApiProperty: Property<SlackUploadApi>
+
+        /**
+         * Lazily-created controller that implements Slack operations.
+         */
         internal abstract val controllerProperty: Property<SlackController>
 
         init {
@@ -107,6 +133,8 @@ abstract class SlackService
          * @param userMentions Optional user mentions to include in the message
          * @param iconUrl URL of the icon to display with the message
          * @param attachmentColor Color code for the message attachment (e.g., "#36a64f" for green)
+         * @param issueUrlPrefix URL prefix used to build links to issues
+         * @param issueNumberPattern Regex pattern used to find issue keys inside the changelog
          *
          * @throws Exception if the webhook request fails
          */

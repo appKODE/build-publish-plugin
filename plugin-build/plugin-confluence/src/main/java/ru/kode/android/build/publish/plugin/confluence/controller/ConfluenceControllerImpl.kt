@@ -11,9 +11,10 @@ import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 import java.io.File
 
 /**
- * Controller for interacting with the Jira API.
+ * Default implementation of [ConfluenceController] backed by [ConfluenceApi].
  *
- * @param api The Jira API implementation
+ * @param baseUrl Base URL of the Confluence instance (used to build download links)
+ * @param api Retrofit API used to perform Confluence REST requests
  */
 internal class ConfluenceControllerImpl(
     private val baseUrl: String,

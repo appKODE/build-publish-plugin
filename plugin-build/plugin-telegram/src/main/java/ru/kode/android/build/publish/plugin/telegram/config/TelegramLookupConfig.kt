@@ -11,6 +11,11 @@ import org.gradle.api.tasks.Optional
  * build variants.
  */
 abstract class TelegramLookupConfig {
+    /**
+     * Name of this lookup configuration.
+     *
+     * Used to match a configuration to a build variant (or to the common configuration).
+     */
     abstract val name: String
 
     /**

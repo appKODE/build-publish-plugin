@@ -36,7 +36,7 @@ abstract class ConfluenceService
          */
         interface Params : BuildServiceParameters {
             /**
-             *  The base URL of the Confluence instance (e.g., "https://your-domain.atlassian.net/wiki/")
+             * The base URL of the Confluence instance (e.g., "https://your-domain.atlassian.net/wiki/")
              */
             val baseUrl: Property<String>
 

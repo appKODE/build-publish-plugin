@@ -76,7 +76,7 @@ abstract class GetLastTagSnapshotTask
         /**
          * The pattern used to filter Git tags.
          *
-         * This pattern is used with `git describe --match` to find relevant tags.
+         * Tags are discovered from the repository and then filtered using this regular expression.
          */
         @get:Input
         @get:Option(

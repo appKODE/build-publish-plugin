@@ -14,6 +14,11 @@ import org.gradle.api.tasks.Optional
  * to configure bot settings for different build variants.
  */
 interface SlackBotConfig {
+    /**
+     * Name of this bot configuration.
+     *
+     * Used to match a configuration to a build variant (or to the common configuration).
+     */
     val name: String
 
     /**

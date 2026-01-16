@@ -11,8 +11,11 @@ import ru.kode.android.build.publish.plugin.firebase.extension.BuildPublishFireb
 internal const val EXTENSION_NAME = "buildPublishFirebase"
 
 /**
- * Gradle plugin that configures Firebase App Distribution
- * using variant-aware Android Components API.
+ * Gradle plugin that configures Firebase App Distribution using the Android Components API.
+ *
+ * The plugin creates the [BuildPublishFirebaseExtension] and, if at least one distribution config
+ * is declared, applies the official Firebase App Distribution Gradle plugin ([AppDistributionPlugin])
+ * so that [com.google.firebase.appdistribution.gradle.AppDistributionVariantExtension] is available.
  */
 abstract class BuildPublishFirebasePlugin : Plugin<Project> {
     override fun apply(project: Project) {

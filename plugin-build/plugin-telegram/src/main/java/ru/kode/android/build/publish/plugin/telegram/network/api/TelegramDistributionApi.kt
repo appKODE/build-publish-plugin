@@ -11,7 +11,13 @@ import retrofit2.http.PartMap
 import retrofit2.http.Url
 import ru.kode.android.build.publish.plugin.telegram.network.entity.TelegramUploadResponse
 
+/**
+ * Retrofit API for uploading files (documents) via Telegram Bot API.
+ */
 internal interface TelegramDistributionApi {
+    /**
+     * Uploads a document to a chat.
+     */
     @POST
     @Multipart
     fun upload(

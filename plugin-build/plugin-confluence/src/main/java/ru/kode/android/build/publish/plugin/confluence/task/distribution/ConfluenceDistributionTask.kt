@@ -53,7 +53,8 @@ abstract class ConfluenceDistributionTask
         /**
          * The distribution file to be uploaded to Confluence.
          *
-         * This property is expected to be set by the user in the build script.
+         * This property is wired by the plugin when the task is registered.
+         * It can be overridden via CLI using the task option.
          */
         @get:InputFile
         @get:Option(
@@ -65,8 +66,8 @@ abstract class ConfluenceDistributionTask
         /**
          * The ID of the Confluence page where the file should be uploaded.
          *
-         * This property is expected to be set by the user in the build script.
-         * For example, `pageId.set("12345678")` would set the page ID to "12345678".
+         * This property is wired from the Confluence distribution configuration when the task is registered.
+         * It can be overridden via CLI using the task option.
          */
         @get:Input
         @get:Option(

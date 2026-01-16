@@ -2,6 +2,9 @@ package ru.kode.android.build.publish.plugin.jira.network.entity
 
 import kotlinx.serialization.Serializable
 
+/**
+ * Jira API request body for adding a fix version to an issue.
+ */
 @Serializable
 internal data class AddFixVersionRequest(
     val update: Update,

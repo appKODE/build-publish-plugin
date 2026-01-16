@@ -51,6 +51,9 @@ abstract class PlayNetworkService
             val loggerService: Property<LoggerService>
         }
 
+        /**
+         * Lazily-created Play publisher client used to interact with the Google Play Developer API.
+         */
         internal abstract val publisherProperty: Property<InternalPlayPublisher>
 
         init {
@@ -80,7 +83,7 @@ abstract class PlayNetworkService
          * @param file The app bundle file to upload
          * @param trackId The track to publish to (e.g., 'internal', 'alpha', 'beta', 'production')
          * @param releaseName The name of this release (visible in Play Console)
-         * @param priority The update priority (0 = no rollout, 1 = 100% rollout)
+         * @param priority The in-app update priority (0..5)
          *
          * @throws IllegalStateException if the upload process fails at any step
          */

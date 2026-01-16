@@ -86,8 +86,10 @@ abstract class JiraAutomationTask
         /**
          * Regular expression pattern used to extract Jira issue numbers from the changelog.
          *
-         * The pattern should include a capturing group that matches the full issue key
-         * (e.g., "([A-Z]+-\\d+)" for issue keys like "PROJECT-123").
+         * The pattern should match a Jira issue key inside the changelog.
+         * For example, if your Jira tasks are referenced as `PROJECT-123`, the pattern could be `[A-Z]+-\\d+`.
+         *
+         * Note: the task uses the full match (`MatchResult.groupValues[0]`) as the Jira issue key.
          */
         @get:Input
         @get:Option(
@@ -111,7 +113,11 @@ abstract class JiraAutomationTask
         /**
          * Pattern for generating labels to add to Jira issues.
          *
-         * The pattern can include placeholders that will be replaced with values from the build tag.
+         * This pattern is formatted using `String.format(...)` and receives:
+         * - `buildVersion`
+         * - `buildNumber`
+         * - `buildVariant`
+         *
          * If not specified, no labels will be added.
          */
         @get:Input
@@ -125,7 +131,11 @@ abstract class JiraAutomationTask
         /**
          * Pattern for generating fix version names to add to Jira issues.
          *
-         * The pattern can include placeholders that will be replaced with values from the build tag.
+         * This pattern is formatted using `String.format(...)` and receives:
+         * - `buildVersion`
+         * - `buildNumber`
+         * - `buildVariant`
+         *
          * If not specified, no fix versions will be set.
          */
         @get:Input

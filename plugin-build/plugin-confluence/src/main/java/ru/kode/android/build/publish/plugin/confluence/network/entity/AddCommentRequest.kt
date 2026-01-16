@@ -2,6 +2,9 @@ package ru.kode.android.build.publish.plugin.confluence.network.entity
 
 import kotlinx.serialization.Serializable
 
+/**
+ * Confluence API request body for creating a comment.
+ */
 @Serializable
 internal data class AddCommentRequest(
     val type: String,

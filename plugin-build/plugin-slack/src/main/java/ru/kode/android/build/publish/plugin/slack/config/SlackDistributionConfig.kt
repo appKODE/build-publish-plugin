@@ -12,6 +12,11 @@ import org.gradle.api.tasks.Input
  * to configure distribution settings for different build variants.
  */
 abstract class SlackDistributionConfig {
+    /**
+     * Name of this distribution configuration.
+     *
+     * Used to match a configuration to a build variant (or to the common configuration).
+     */
     abstract val name: String
 
     /**

@@ -9,6 +9,9 @@ import java.util.concurrent.TimeUnit
 
 private const val HTTP_CONNECT_TIMEOUT_SECONDS = 60L
 
+/**
+ * Factory for creating an [OkHttpClient] configured for ClickUp API calls.
+ */
 internal object ClickUpClientFactory {
     fun build(
         token: String,

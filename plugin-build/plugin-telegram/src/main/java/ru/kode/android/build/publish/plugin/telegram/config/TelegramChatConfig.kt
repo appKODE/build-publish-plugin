@@ -13,6 +13,11 @@ import org.gradle.api.tasks.Optional
  * @see TelegramBotConfig For how to register chat configurations
  */
 abstract class TelegramChatConfig {
+    /**
+     * Name of this chat configuration.
+     *
+     * Used to reference the chat from destination configurations.
+     */
     abstract val name: String
 
     /**

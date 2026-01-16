@@ -107,10 +107,10 @@ abstract class ClickUpAutomationTask
         /**
          * Regular expression pattern used to extract issue numbers from the changelog.
          *
-         * The pattern should include a capturing group that matches the issue number.
-         * For example, if your issues are referenced as `#123`, the pattern could be `#(\\d+)`.
+         * The pattern should match a ClickUp task id inside the changelog.
+         * For example, if your ClickUp tasks are referenced as `#123`, the pattern could be `#\\d+`.
          *
-         * The first capturing group will be used as the issue number when making API calls.
+         * Note: the task uses the full match (`MatchResult.groupValues[0]`) as the ClickUp task id.
          */
         @get:Input
         @get:Option(
@@ -122,11 +122,12 @@ abstract class ClickUpAutomationTask
         /**
          * Pattern used to format the fix version for ClickUp tasks.
          *
-         * This pattern can include placeholders that will be replaced with actual values:
-         * - `{0}` will be replaced with the build version
-         * - `{1}` will be replaced with the build number
+         * This pattern is formatted using `String.format(...)` and receives:
+         * - `buildVersion`
+         * - `buildNumber`
+         * - `buildVariant`
          *
-         * Example: `"{0} ({1})"` might result in `"1.2.3 (456)"`
+         * Example: `"%s (%d)"` might result in `"1.2.3 (456)"`
          *
          * If specified, [fixVersionFieldName] must also be provided.
          */
@@ -139,10 +140,10 @@ abstract class ClickUpAutomationTask
         abstract val fixVersionPattern: Property<String>
 
         /**
-         * The ID of the custom field in ClickUp where the fix version is stored.
+         * The name of the custom field in ClickUp where the fix version is stored.
          *
-         * This is the identifier of the custom field in ClickUp where the version
-         * (formatted according to [fixVersionPattern]) will be set.
+         * The task uses [workspaceName] + this field name to resolve the custom field id
+         * and then updates the field value.
          *
          * If specified, [fixVersionPattern] must also be provided.
          */
@@ -159,6 +160,11 @@ abstract class ClickUpAutomationTask
          *
          * This tag will be added to all tasks that are found in the changelog.
          * It's typically used to mark which release a task was included in.
+         *
+         * This pattern is formatted using `String.format(...)` and receives:
+         * - `buildVersion`
+         * - `buildNumber`
+         * - `buildVariant`
          *
          * If not specified, no tags will be added to tasks.
          */
@@ -213,6 +219,7 @@ abstract class ClickUpAutomationTask
          *
          * @param currentBuildTag The current build tag containing version and build number
          * @param issues The set of issue numbers to update
+         * @param fieldId Provider of ClickUp custom field id to update
          */
         private fun WorkQueue.submitUpdateVersionIfPresent(
             currentBuildTag: Tag.Build,

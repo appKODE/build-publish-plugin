@@ -35,9 +35,9 @@ abstract class BuildPublishFirebaseExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
         /**
-         * Container for distribution configurations, keyed by build type.
+         * Container for Firebase App Distribution configurations.
          *
-         * This internal property holds all the distribution configurations for different build types.
+         * Configs are selected by build variant name (with support for a `common` config).
          * Use the [distribution] and [distributionCommon] methods to configure these settings in your build script.
          */
         val distribution: NamedDomainObjectContainer<FirebaseDistributionConfig> =
@@ -84,6 +84,14 @@ abstract class BuildPublishFirebaseExtension
             common(distribution, configurationAction)
         }
 
+        /**
+         * Configures the official Firebase App Distribution variant extension.
+         *
+         * This method is called for each Android variant and sets:
+         * - `appId`, `serviceCredentialsFile`, and `artifactType` from [FirebaseDistributionConfig]
+         * - `groups` from configured tester groups
+         * - `releaseNotesFile` from the build-publish changelog output
+         */
         override fun configure(
             project: Project,
             input: ExtensionInput,

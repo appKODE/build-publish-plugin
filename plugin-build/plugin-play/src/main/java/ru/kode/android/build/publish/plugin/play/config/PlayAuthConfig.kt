@@ -13,6 +13,11 @@ import org.gradle.api.tasks.InputFile
  * configure API access to the Google Play Developer API.
  */
 interface PlayAuthConfig {
+    /**
+     * Name of this authentication configuration.
+     *
+     * Used to match a configuration to a build variant (or to the common configuration).
+     */
     val name: String
 
     /**
@@ -28,7 +33,7 @@ interface PlayAuthConfig {
      * 4. Follow the instructions to create and download the JSON key file
      *
      * Required permissions:
-     * - `com.android.vublisher` scope
+     * - `androidpublisher` scope
      * - Appropriate access level in Google Play Console
      *
      * @see <a href="https://developers.google.com/android-publisher/getting_started#setting_up_api_access">Setting up API access</a>

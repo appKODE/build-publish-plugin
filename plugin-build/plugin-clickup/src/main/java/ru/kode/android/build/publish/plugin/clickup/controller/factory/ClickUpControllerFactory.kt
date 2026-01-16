@@ -6,6 +6,9 @@ import ru.kode.android.build.publish.plugin.clickup.network.factory.ClickUpApiFa
 import ru.kode.android.build.publish.plugin.clickup.network.factory.ClickUpClientFactory
 import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 
+/**
+ * Factory for constructing a fully configured [ClickUpController] instance.
+ */
 object ClickUpControllerFactory {
     fun build(
         token: String,

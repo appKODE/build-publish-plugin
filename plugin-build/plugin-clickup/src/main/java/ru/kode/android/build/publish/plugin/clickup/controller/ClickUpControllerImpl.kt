@@ -26,6 +26,14 @@ import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.util.executeNoResult
 import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 
+/**
+ * Default implementation of [ClickUpController] backed by [ClickUpApi].
+ *
+ * This implementation:
+ * - Maps Retrofit API DTOs into small internal entities used by tasks
+ * - Performs basic discovery for workspace/team/space/list when resolving custom fields
+ * - Logs network failures using the provided [PluginLogger]
+ */
 internal class ClickUpControllerImpl(
     private val api: ClickUpApi,
     private val logger: PluginLogger,
@@ -62,7 +70,7 @@ internal class ClickUpControllerImpl(
      * Deletes a custom field from a list.
      *
      * @param workspaceName The name of the workspace where the custom field is located.
-     * @param fieldId The name of the custom field.
+     * @param fieldId The id of the custom field.
      * @throws GradleException If the custom field is not found in the list or if the list is not found in the workspace.
      */
     override fun deleteCustomFieldFromList(

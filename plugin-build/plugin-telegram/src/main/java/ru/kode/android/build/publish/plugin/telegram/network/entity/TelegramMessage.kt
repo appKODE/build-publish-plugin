@@ -2,6 +2,9 @@ package ru.kode.android.build.publish.plugin.telegram.network.entity
 
 import kotlinx.serialization.Serializable
 
+/**
+ * Telegram message model returned by the Bot API.
+ */
 @Serializable
 internal data class TelegramMessage(
     val message_id: Long,

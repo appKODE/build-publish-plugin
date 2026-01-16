@@ -18,13 +18,18 @@ interface JiraAutomationConfig {
     /**
      * The Key of the Jira project to use for version management and fix version updates.
      *
-     * This property is required if fix version updates are enabled.
+     * This property is required if fix version updates or status transitions are enabled.
      */
     @get:Input
     val projectKey: Property<String>
 
     /**
      * Pattern for labels to be added to Jira issues.
+     *
+     * This pattern is formatted using `String.format(...)` and receives:
+     * - `buildVersion`
+     * - `buildNumber`
+     * - `buildVariant`
      */
     @get:Input
     @get:Optional
@@ -34,7 +39,11 @@ interface JiraAutomationConfig {
      * Pattern for fix versions to be set on Jira issues.
      *
      * The version will be created in Jira if it doesn't already exist.
-     * Supports the same variable substitution as [labelPattern].
+     *
+     * This pattern is formatted using `String.format(...)` and receives:
+     * - `buildVersion`
+     * - `buildNumber`
+     * - `buildVariant`
      */
     @get:Input
     @get:Optional

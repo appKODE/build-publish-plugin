@@ -60,7 +60,7 @@ abstract class OutputConfig {
     /**
      * Whether to use default version values when [useVersionsFromTag] is false.
      *
-     * When enabled, the plugin will use default version code (1) and version name (1.0)
+     * When enabled, the plugin will use default version code (1) and version name (0.0)
      * when version information cannot be obtained from Git tags.
      *
      * Default: `true`

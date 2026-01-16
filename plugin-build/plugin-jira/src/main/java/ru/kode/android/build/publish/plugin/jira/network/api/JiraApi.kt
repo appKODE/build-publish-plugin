@@ -22,17 +22,40 @@ import ru.kode.android.build.publish.plugin.jira.network.entity.RemoveFixVersion
 import ru.kode.android.build.publish.plugin.jira.network.entity.RemoveLabelRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.SetStatusRequest
 
+/**
+ * Retrofit API definition for the Jira REST endpoints used by this plugin.
+ */
 internal interface JiraApi {
+    /**
+     * Retrieves a project by its ID or key.
+     *
+     * @param projectIdOrKey the ID or key of the project to retrieve
+     * @return a Call containing the retrieved project
+     */
     @GET("project/{projectIdOrKey}")
     fun getProject(
         @Path("projectIdOrKey") projectIdOrKey: String,
     ): Call<GetProjectResponse>
 
+    /**
+     * Creates a new version in Jira.
+     *
+     * @param request the request containing the version details
+     * @return a Call containing the result of the version creation
+     */
     @POST("version")
     fun createVersion(
         @Body request: CreateVersionRequest,
     ): Call<Unit>
 
+    /**
+     * Deletes a version in Jira.
+     *
+     * @param versionId the ID of the version to delete
+     * @param moveFixIssuesTo the ID of the version to move fixed issues to (optional)
+     * @param moveAffectedIssuesTo the ID of the version to move affected issues to (optional)
+     * @return a Call containing the result of the version deletion
+     */
     @DELETE("version/{versionId}")
     fun deleteVersion(
         @Path("versionId") versionId: String,

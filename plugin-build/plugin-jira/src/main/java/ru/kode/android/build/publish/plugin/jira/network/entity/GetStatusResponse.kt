@@ -2,6 +2,9 @@ package ru.kode.android.build.publish.plugin.jira.network.entity
 
 import kotlinx.serialization.Serializable
 
+/**
+ * Jira API response for retrieving issue status details.
+ */
 @Serializable
 internal data class GetStatusResponse(
     val fields: Fields,

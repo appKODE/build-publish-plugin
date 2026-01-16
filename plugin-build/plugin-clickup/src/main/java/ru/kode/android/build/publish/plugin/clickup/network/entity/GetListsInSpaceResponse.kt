@@ -2,6 +2,9 @@ package ru.kode.android.build.publish.plugin.clickup.network.entity
 
 import kotlinx.serialization.Serializable
 
+/**
+ * ClickUp API response for listing lists inside a space.
+ */
 @Serializable
 data class GetListsInSpaceResponse(
     val lists: List<ListInSpaceMinimal>,

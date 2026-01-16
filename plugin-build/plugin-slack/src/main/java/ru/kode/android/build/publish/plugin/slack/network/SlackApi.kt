@@ -7,7 +7,13 @@ import retrofit2.http.POST
 import retrofit2.http.Url
 import ru.kode.android.build.publish.plugin.slack.network.entity.SlackChangelogBody
 
+/**
+ * Retrofit API for sending messages via Slack incoming webhooks.
+ */
 internal interface SlackApi {
+    /**
+     * Sends a message payload to the given incoming webhook URL.
+     */
     @Headers("Content-Type:application/json")
     @POST
     fun send(

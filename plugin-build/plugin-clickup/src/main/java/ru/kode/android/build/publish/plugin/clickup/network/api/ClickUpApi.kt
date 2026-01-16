@@ -17,6 +17,9 @@ import ru.kode.android.build.publish.plugin.clickup.network.entity.GetSpacesResp
 import ru.kode.android.build.publish.plugin.clickup.network.entity.GetTaskResponse
 import ru.kode.android.build.publish.plugin.clickup.network.entity.GetTeamsResponse
 
+/**
+ * Retrofit API definition for the ClickUp REST endpoints used by this plugin.
+ */
 internal interface ClickUpApi {
     @POST("v2/list/{list_id}/field")
     fun createCustomField(

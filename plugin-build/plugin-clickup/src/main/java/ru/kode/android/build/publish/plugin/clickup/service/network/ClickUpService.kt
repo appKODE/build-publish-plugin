@@ -36,8 +36,8 @@ abstract class ClickUpService
          */
         interface Params : BuildServiceParameters {
             /**
-             *  A file containing the ClickUp API token for authentication.
-             *  The file should contain the token as plain text with no additional formatting.
+             * A file containing the ClickUp API token for authentication.
+             * The file should contain the token as plain text with no additional formatting.
              */
             val token: RegularFileProperty
 

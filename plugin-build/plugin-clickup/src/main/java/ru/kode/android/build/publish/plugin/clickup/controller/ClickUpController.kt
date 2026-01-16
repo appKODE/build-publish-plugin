@@ -4,6 +4,9 @@ import org.gradle.api.GradleException
 import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpTaskFields
 import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpTaskTags
 
+/**
+ * High-level ClickUp operations used by tasks in this plugin.
+ */
 interface ClickUpController {
     /**
      * Adds a tag to a ClickUp task.

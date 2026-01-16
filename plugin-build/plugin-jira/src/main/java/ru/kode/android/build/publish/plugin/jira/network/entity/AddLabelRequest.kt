@@ -2,6 +2,9 @@ package ru.kode.android.build.publish.plugin.jira.network.entity
 
 import kotlinx.serialization.Serializable
 
+/**
+ * Jira API request body for adding a label to an issue.
+ */
 @Serializable
 internal data class AddLabelRequest(
     val update: Update,

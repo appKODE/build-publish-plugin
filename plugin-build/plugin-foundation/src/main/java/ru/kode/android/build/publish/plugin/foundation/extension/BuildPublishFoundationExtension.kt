@@ -51,18 +51,18 @@ abstract class BuildPublishFoundationExtension
                 .convention(false)
 
         /**
-         * Container for output configurations, keyed by build type.
+         * Container for output configurations.
          *
-         * This internal property holds all the output configurations for different build types.
+         * Configs are selected by build variant name (with support for a `common` config).
          * Use the [output] and [outputCommon] methods to configure these settings in your build script.
          */
         internal val output: NamedDomainObjectContainer<OutputConfig> =
             objectFactory.domainObjectContainer(OutputConfig::class.java)
 
         /**
-         * Container for changelog configurations, keyed by build type.
+         * Container for changelog configurations.
          *
-         * This internal property holds all the changelog configurations for different build types.
+         * Configs are selected by build variant name (with support for a `common` config).
          * Use the [changelog] and [changelogCommon] methods to configure these settings in your build script.
          */
         internal val changelog: NamedDomainObjectContainer<ChangelogConfig> =
