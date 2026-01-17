@@ -23,7 +23,8 @@ fun File.createAndroidProject(
     telegramConfig: TelegramConfig? = null,
     topBuildFileContent: String? = null,
     import: String? = null,
-    configureApplicationVariants: Boolean = false
+    configureApplicationVariants: Boolean = false,
+    agpVersion: String = "8.11.1",
 ) {
     val topSettingsFile = this.getFile("settings.gradle")
     val topBuildFile = this.getFile("build.gradle")
@@ -47,7 +48,7 @@ fun File.createAndroidProject(
                 gradlePluginPortal()
             }
             plugins {
-                id("com.android.application") version "8.11.1"
+                id("com.android.application") version "$agpVersion"
             }
         }
     
