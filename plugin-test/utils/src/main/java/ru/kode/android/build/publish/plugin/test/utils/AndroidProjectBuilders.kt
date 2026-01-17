@@ -1,7 +1,9 @@
 package ru.kode.android.build.publish.plugin.test.utils
 
+import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
@@ -9,7 +11,7 @@ import java.io.IOException
 
 @Suppress("LongMethod", "CyclomaticComplexMethod", "CascadingCallWrapping")
 fun File.createAndroidProject(
-    compileSdk: Int = 34,
+    compileSdk: Int = 36,
     buildTypes: List<BuildType>,
     productFlavors: List<ProductFlavor> = listOf(),
     defaultConfig: DefaultConfig? = DefaultConfig(),
@@ -24,7 +26,6 @@ fun File.createAndroidProject(
     topBuildFileContent: String? = null,
     import: String? = null,
     configureApplicationVariants: Boolean = false,
-    agpVersion: String = "8.11.1",
 ) {
     val topSettingsFile = this.getFile("settings.gradle")
     val topBuildFile = this.getFile("build.gradle")
@@ -32,9 +33,9 @@ fun File.createAndroidProject(
     val androidManifestFile = this.getFile("app/src/main/AndroidManifest.xml")
 
     if (topBuildFileContent != null) {
-        println("--- CORE BUILD.GRADLE START ---")
+        println("--- ${topBuildFile.path} START ---")
         println(topBuildFileContent)
-        println("--- CORE BUILD.GRADLE END ---")
+        println("--- ${topBuildFile.path} END ---")
         topBuildFile.writeText(topBuildFileContent)
     }
 
@@ -42,13 +43,9 @@ fun File.createAndroidProject(
         """
         pluginManagement {
             repositories {
-                mavenLocal()
                 google()
                 mavenCentral()
                 gradlePluginPortal()
-            }
-            plugins {
-                id("com.android.application") version "$agpVersion"
             }
         }
     
@@ -64,45 +61,45 @@ fun File.createAndroidProject(
         rootProject.name = "My Application"
         include(":app")
         """.trimIndent()
+            .also {
+                println("--- ${topSettingsFile.path} START ---")
+                println(it)
+                println("--- ${topBuildFile.path} END ---")
+            }
     writeFile(topSettingsFile, topSettingsFileContent)
+
+    val fullApplicationId = "\${fullApplicationId}"
+    val authority = "\${authority}"
+    val buildTypeBuilder = { type: BuildType ->
+        """
+                ${type.name} {
+                    def fullApplicationId = ${type.appId?.let { "\"$it\"" } ?: """android.defaultConfig.applicationId + ".${type.name}""""}
+                    def authority = "$fullApplicationId.provider"
+        
+                    debuggable true
+                    ${type.applicationIdSuffix?.let { "applicationIdSuffix \"$it\"" } ?: ""}
+                    buildConfigField "String", "FILE_PROVIDER_AUTHORITY", "\"$authority\""
+                    manifestPlaceholders = [
+                          APPLICATION_ID          : fullApplicationId,
+                          FILE_PROVIDER_AUTHORITY : authority
+                    ]
+                }
+        """.takeIf { configureApplicationVariants } ?: type.name
+    }
     val buildTypesBlock =
         buildTypes
             .joinToString(separator = "\n") {
                 """
-                ${it.name} 
+                ${buildTypeBuilder(it)}
             """
             }
             .let {
                 """
             buildTypes {
-            $it
+            $it 
             }
             """
             }
-    val fullApplicationId = "\${fullApplicationId}"
-    val authority = "\${authority}"
-    val configureVariantsBlock =
-        """
-            applicationVariants.configureEach { variant ->
-                def buildTypeSuffix = variant.buildType.applicationIdSuffix ?: ""
-                def fullApplicationId = android.defaultConfig.applicationId + buildTypeSuffix
-            
-                def authority = "$fullApplicationId.provider"
-                variant.buildConfigField(
-                        "String",
-                        "FILE_PROVIDER_AUTHORITY",
-                        "\"$authority\""
-                )
-            
-                def mergedVariant = variant.getMergedFlavor()
-                mergedVariant.manifestPlaceholders.putAll([
-                        APPLICATION_ID          : fullApplicationId,
-                        FILE_PROVIDER_AUTHORITY : authority
-                ])
-            }
-        """
-            .takeIf { configureApplicationVariants }
-            .orEmpty()
     val flavorDimensionsBlock =
         productFlavors
             .takeIf { it.isNotEmpty() }
@@ -357,19 +354,19 @@ fun File.createAndroidProject(
         
         android {
             namespace = "ru.kode.test"
-
+            buildFeatures.buildConfig = true
+            
             compileSdk $compileSdk
         
             $defaultConfigBlock
             
             $buildTypesBlock
-            $configureVariantsBlock
             
             $flavorDimensionsBlock
             
             $productFlavorsBlock
         }
-                
+        
         $foundationConfigBlock
         
         $jiraConfigBlock
@@ -385,20 +382,29 @@ fun File.createAndroidProject(
         $slackConfigBlock
         
         $telegramConfigBlock
-        
+                
         """.trimIndent()
             .removeEmptyLines()
             .also {
-                println("--- APP BUILD.GRADLE START ---")
+                println("--- ${appBuildFile.path} START ---")
                 println(it)
-                println("--- APP BUILD.GRADLE END ---")
+                println("--- ${appBuildFile.path} END ---")
             }
     writeFile(appBuildFile, appBuildFileContent)
     val androidManifestFileContent =
         """
         <?xml version="1.0" encoding="utf-8"?>
-        <manifest />
-        """.trimIndent()
+        
+        <manifest 
+                xmlns:android="http://schemas.android.com/apk/res/android">
+            <application
+                android:label="Test App" />
+        </manifest>
+        """.trimIndent().apply {
+            println("--- ${androidManifestFile.path} START ---")
+            println(this)
+            println("--- ${androidManifestFile.path} END ---")
+        }
     writeFile(androidManifestFile, androidManifestFileContent)
 }
 
@@ -589,7 +595,7 @@ fun File.printFilesRecursively(prefix: String = "") {
             val ext = it.extension
             ext.contains("apk") || ext.contains("json") || ext.contains("aab") || ext.contains("txt")
         },
-        filterDirectory = { it.endsWith("build") || it.path.contains("outputs") || it.path.contains("renamed") },
+        filterDirectory = { it.endsWith("build") || it.path.contains("outputs") || it.path.contains("renamed")|| it.path.contains("intermediates") },
     )
     println("--- FILES END ---")
 }
@@ -602,7 +608,9 @@ fun File.getFile(path: String): File {
 
 fun File.runTask(
     task: String,
-    systemProperties: Map<String, String> = emptyMap()
+    systemProperties: Map<String, String> = emptyMap(),
+    agpClasspath: List<File> = emptyList(),
+    gradleVersion: String = "9.2.1"
 ): BuildResult {
     val args = mutableListOf(task).apply {
         add("--info")
@@ -614,14 +622,23 @@ fun File.runTask(
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(args)
-        .withPluginClasspath()
+        .apply {
+            if (agpClasspath.isNotEmpty()) {
+                withPluginClasspath(prepareClasspath(agpClasspath))
+            } else {
+                withPluginClasspath()
+            }
+        }
+        .withGradleVersion(gradleVersion)
         .forwardOutput()
         .build()
 }
 
 fun File.runTasks(
     vararg tasks: String,
-    systemProperties: Map<String, String> = emptyMap()
+    systemProperties: Map<String, String> = emptyMap(),
+    agpClasspath: List<File> = emptyList(),
+    gradleVersion: String = "9.2.1"
 ): BuildResult {
     val args = tasks.toMutableList().apply {
         add("--info")
@@ -630,17 +647,27 @@ fun File.runTasks(
             add("-D$key=$value")
         }
     }
+
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(args)
-        .withPluginClasspath()
+        .apply {
+            if (agpClasspath.isNotEmpty()) {
+                withPluginClasspath(prepareClasspath(agpClasspath))
+            } else {
+                withPluginClasspath()
+            }
+        }
+        .withGradleVersion(gradleVersion)
         .forwardOutput()
         .build()
 }
 
 fun File.runTaskWithFail(
     task: String,
-    systemProperties: Map<String, String> = emptyMap()
+    systemProperties: Map<String, String> = emptyMap(),
+    agpClasspath: List<File> = emptyList(),
+    gradleVersion: String = "9.2.1"
 ): BuildResult {
     val args = mutableListOf(task, "--info").apply {
         systemProperties.forEach { (key, value) ->
@@ -650,13 +677,54 @@ fun File.runTaskWithFail(
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(args)
-        .withPluginClasspath()
+        .apply {
+            if (agpClasspath.isNotEmpty()) {
+                withPluginClasspath(prepareClasspath(agpClasspath))
+            } else {
+                withPluginClasspath()
+            }
+        }
+        .withGradleVersion(gradleVersion)
         .forwardOutput()
         .buildAndFail()
 }
 
+private fun prepareClasspath(agpClassPath: List<File>): List<File> {
+    val pluginClasspath: List<File> = PluginUnderTestMetadataReading.readImplementationClasspath()
+    val filteredClasspath = pluginClasspath.filter { file ->
+        val name = file.name.lowercase()
+        !name.startsWith("gradle") ||
+            !name.contains("android") ||
+            !name.contains("agp")
+    }
+    println("Filtered ${filteredClasspath.size} classpath items, adding ${agpClassPath.size} AGP JARs")
+    return filteredClasspath + agpClassPath
+}
+
+fun resolveRequiredAgpJars(agpVersion: String): List<File> {
+    val project = ProjectBuilder.builder()
+        .withName("temp-resolver")
+        .build()
+
+    project.buildscript.repositories.apply {
+        google()
+        mavenCentral()
+    }
+
+    val pluginClasspath = project.buildscript.configurations.getByName("classpath").apply {
+        dependencies.clear()
+        dependencies.add(project.dependencies.create("com.android.tools.build:gradle:$agpVersion"))
+        dependencies.add(project.dependencies.create("com.android.application:com.android.application.gradle.plugin:$agpVersion"))
+    }.resolve()
+
+    return pluginClasspath.toList()
+}
+
+
 data class BuildType(
     val name: String,
+    val appId: String? = null,
+    val applicationIdSuffix: String? = ".${name}",
 )
 
 data class ProductFlavor(
@@ -795,8 +863,8 @@ data class DefaultConfig(
     val applicationId: String = "com.example.build.types.android",
     val versionCode: Int? = 1,
     val versionName: String? = "1.0",
-    val minSdk: Int = 31,
-    val targetSdk: Int = 34,
+    val minSdk: Int = 26,
+    val targetSdk: Int = 36,
 )
 
 data class TelegramConfig(
@@ -810,6 +878,7 @@ data class TelegramConfig(
         val chatName: String,
         val topicName: String?
     )
+
     data class Bots(
         val bots: List<Bot>,
     )

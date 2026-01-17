@@ -17,5 +17,5 @@ abstract class GitExecutorServiceExtension(
      * A provider for the [GitExecutorService] instance.
      * This allows for lazy initialization and proper Gradle configuration caching.
      */
-    val executorService: Provider<GitExecutorService>,
+    val service: Provider<GitExecutorService>,
 )

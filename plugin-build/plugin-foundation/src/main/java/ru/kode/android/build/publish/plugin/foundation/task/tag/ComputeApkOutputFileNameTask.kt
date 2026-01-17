@@ -4,7 +4,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
-import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -38,7 +37,7 @@ abstract class ComputeApkOutputFileNameTask : DefaultTask() {
     /**
      * Provides structured logging for the task execution.
      */
-    @get:ServiceReference
+    @get:Internal
     abstract val loggerService: Property<LoggerService>
 
     /**

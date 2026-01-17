@@ -15,8 +15,9 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttpLogging)
     implementation(libs.retrofit)
-    implementation(libs.agp)
     implementation(libs.firebaseAppdistribution)
+
+    compileOnly(libs.agp)
 }
 
 gradlePlugin {

@@ -4,7 +4,6 @@ import com.android.build.api.artifact.ArtifactTransformationRequest
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
@@ -31,7 +30,7 @@ abstract class RenameApkTask
          *
          * @see LoggerService
          */
-        @get:ServiceReference
+        @get:Internal
         abstract val loggerService: Property<LoggerService>
 
         /**

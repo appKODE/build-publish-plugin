@@ -11,7 +11,9 @@ plugins {
 
 android {
     namespace = "ru.kode.android.app"
-    compileSdk = 34
+    compileSdk {
+        version = release(36)
+    }
 
     defaultConfig {
         applicationId = "com.example.dimensions.android"

@@ -12,6 +12,13 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.2
+- Decouple logic from specific gradle version implementation 
+- Replace ServiceReference with Internal to support older Gradle versions
+- Increase min required Gradle version from 7.0.4 to 7.4.0
+- Add usesService for tasks where it was missed 
+- Move AGP version tests to the separate module and fix logic to resolve and specify required versions 
+
 ### 1.2.1
 - Add Telegram and Confluence distribution compression option, by default it is disabled
 
@@ -37,6 +44,9 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 ---
 
 ## 📦 build-publish-novo-core
+
+### 1.2.1
+- Decouple logic from specific gradle version implementation
 
 ### 1.2.0
 - Shared core library used by all `novo` plugins

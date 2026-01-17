@@ -201,6 +201,10 @@ private fun Project.registerSendTelegramChangelogTask(
                 .services
                 .get()
                 .getByNameOrCommon(params.buildVariant.name)
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
 
         it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
         it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
@@ -210,8 +214,11 @@ private fun Project.registerSendTelegramChangelogTask(
         it.userMentions.set(changelogConfig.userMentions)
         it.destinationBots.set(changelogConfig.destinationBots.map { it.mapToEntity().toJson() })
         it.service.set(service)
+        it.loggerService.set(loggerService)
 
         it.usesService(service)
+        it.usesService(loggerService)
+
         it.dependsOn(params.buildTagSnapshotProvider, params.changelogFileProvider)
     }
 }
@@ -250,13 +257,19 @@ private fun Project.registerTelegramUploadAokTask(
                 .services
                 .get()
                 .getByNameOrCommon(params.buildVariant.name)
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
 
         it.distributionFile.set(params.apkOutputFile)
         it.destinationBots.set(distributionConfig.destinationBots.map { it.mapToEntity().toJson() })
         it.compressed.set(distributionConfig.compressed)
         it.service.set(service)
+        it.loggerService.set(loggerService)
 
         it.usesService(service)
+        it.usesService(loggerService)
     }
 }
 
@@ -293,13 +306,19 @@ private fun Project.registerTelegramBundleUploadTask(
                 .services
                 .get()
                 .getByNameOrCommon(params.buildVariant.name)
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
 
         it.distributionFile.set(params.bundleOutputFile)
         it.destinationBots.set(distributionConfig.destinationBots.map { it.mapToEntity().toJson() })
         it.compressed.set(distributionConfig.compressed)
         it.service.set(service)
+        it.loggerService.set(loggerService)
 
         it.usesService(service)
+        it.usesService(loggerService)
     }
 }
 
@@ -337,12 +356,19 @@ private fun Project.registerTelegramLookupTask(
                 .get()
                 .getByNameOrCommon(params.buildVariant.name)
 
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
+
         it.botName.set(distributionConfig.botName)
         it.chatName.set(distributionConfig.chatName)
         it.topicName.set(distributionConfig.topicName)
         it.service.set(service)
+        it.loggerService.set(loggerService)
 
         it.usesService(service)
+        it.usesService(loggerService)
     }
 }
 

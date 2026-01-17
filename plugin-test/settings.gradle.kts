@@ -24,6 +24,7 @@ dependencyResolutionManagement {
 rootProject.name = ("ru.kode.android.build.publish.plugin-test")
 
 include("foundation")
+include("agp-versions")
 include("jira")
 include("telegram")
 include("confluence")

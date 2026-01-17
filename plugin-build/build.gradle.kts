@@ -31,3 +31,9 @@ tasks.register("preMerge") {
     dependsOnRecursivelyByName(this, "ktlintFormat")
     dependsOnRecursivelyByName(this, "detektDebug")
 }
+
+tasks.register("publishToMavenLocal") {
+    group = "publish"
+
+    dependsOnRecursivelyByName(this, "publishToMavenLocal")
+}

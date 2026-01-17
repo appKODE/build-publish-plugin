@@ -385,7 +385,6 @@ class TelegramLookupTest {
         )
         assertTrue(!givenOutputFileExists, "Output file not exists")
         val expectedMessage = botWithoutChatMessage("ChangelogBot")
-        println(expectedMessage)
         assertTrue(
             changelogResult.output.contains(
                 expectedMessage.replace("|", "  |"),

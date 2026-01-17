@@ -4,7 +4,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
-import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
@@ -42,7 +41,7 @@ abstract class TelegramLookupTask : DefaultTask() {
      *
      * @see LoggerService
      */
-    @get:ServiceReference
+    @get:Internal
     abstract val loggerService: Property<LoggerService>
 
     /**

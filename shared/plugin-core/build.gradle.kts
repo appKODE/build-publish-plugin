@@ -10,11 +10,12 @@ version = libs.versions.buildPublishShared.get()
 
 dependencies {
     implementation(gradleApi())
-    implementation(libs.agp)
     implementation(libs.grgitCore)
     implementation(libs.okhttp)
     implementation(libs.retrofit)
     implementation(libs.serializationJson)
+
+    compileOnly(libs.agp)
 }
 
 mavenPublishing {

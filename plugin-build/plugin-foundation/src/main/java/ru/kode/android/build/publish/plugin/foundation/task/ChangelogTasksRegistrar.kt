@@ -4,10 +4,12 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.changelogFileProvider
+import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServiceExtension
 import ru.kode.android.build.publish.plugin.foundation.task.changelog.GenerateChangelogTask
 
 internal const val GENERATE_CHANGELOG_TASK_PREFIX = "generateChangelog"
@@ -61,11 +63,25 @@ private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskP
         "$GENERATE_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
         GenerateChangelogTask::class.java,
     ) {
+        val gitService =
+            project.extensions
+                .getByType(GitExecutorServiceExtension::class.java)
+                .service
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
+
         it.commitMessageKey.set(params.commitMessageKey)
         it.excludeMessageKey.set(params.excludeMessageKey)
         it.buildTagPattern.set(params.buildTagPattern)
         it.changelogFile.set(changelogFile)
         it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
+        it.gitExecutorService.set(gitService)
+        it.loggerService.set(loggerService)
+
+        it.usesService(gitService)
+        it.usesService(loggerService)
 
         it.dependsOn(params.buildTagSnapshotProvider)
     }

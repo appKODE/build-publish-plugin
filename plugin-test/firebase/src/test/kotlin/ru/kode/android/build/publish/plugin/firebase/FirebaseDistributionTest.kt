@@ -43,7 +43,7 @@ class FirebaseDistributionTest {
 
         projectDir.createAndroidProject(
             buildTypes = listOf(
-                BuildType("debug"),
+                BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
                 BuildType("release")
             ),
             foundationConfig =
@@ -71,6 +71,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -142,7 +143,7 @@ class FirebaseDistributionTest {
 
         projectDir.createAndroidProject(
             defaultConfig = DefaultConfig(
-                applicationId = "com.example.build.types.android.internal",
+                applicationId = "com.example.build.types.android",
             ),
             buildTypes = listOf(
                 BuildType("debug"),
@@ -179,6 +180,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-internal"
         val givenTagName2 = "v1.0.2-internal"
@@ -278,6 +280,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -365,6 +368,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -460,6 +464,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -528,7 +533,7 @@ class FirebaseDistributionTest {
 
         projectDir.createAndroidProject(
             buildTypes = listOf(
-                BuildType("debug"),
+                BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
                 BuildType("release")
             ),
             foundationConfig =
@@ -556,6 +561,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -656,6 +662,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -749,6 +756,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -818,7 +826,7 @@ class FirebaseDistributionTest {
 
         projectDir.createAndroidProject(
             buildTypes = listOf(
-                BuildType("debug"),
+                BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
                 BuildType("release")
             ),
             foundationConfig =
@@ -846,6 +854,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"

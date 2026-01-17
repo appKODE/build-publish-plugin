@@ -7,6 +7,7 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.agp)
     implementation("ru.kode.android:plugin-foundation")
     implementation("ru.kode.android:plugin-telegram")
 
@@ -14,7 +15,6 @@ dependencies {
     testImplementation(project(":utils"))
 
     testImplementation(gradleApi())
-    testImplementation(libs.agp)
     testImplementation(libs.grgitCore)
     testImplementation(libs.grgitGradle)
 

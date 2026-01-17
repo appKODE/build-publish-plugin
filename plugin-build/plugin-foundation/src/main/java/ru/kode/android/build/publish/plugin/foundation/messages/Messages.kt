@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.foundation.messages
 
+import com.android.build.api.AndroidPluginVersion
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
@@ -8,6 +9,8 @@ import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import ru.kode.android.build.publish.plugin.foundation.EXTENSION_NAME
 import java.io.File
+
+private val VERSION_NUMBER_REGEX = Regex("""\d+(?:\.\d+)+""")
 
 /**
  * Human-readable messages used by the foundation plugin.
@@ -448,21 +451,22 @@ fun mustBeUsedWithAndroidMessage(): String {
 /**
  * Error message shown when the Android Gradle Plugin version is below the required minimum.
  */
-fun mustBeUsedWithVersionMessage(): String {
+fun mustBeUsedWithVersionMessage(version: AndroidPluginVersion): String {
+    val version = VERSION_NUMBER_REGEX.find(version.toString())?.value
     return """
         
         |============================================================
         |         UNSUPPORTED ANDROID GRADLE PLUGIN VERSION   
         |============================================================
-        | This plugin requires Android Gradle Plugin version 7.4 
+        | This plugin requires Android Gradle Plugin version $version 
         | or higher.
         |
         | REQUIRED ACTION:
-        |  1. Update your project's build.gradle.kts to use AGP 7.4 
+        |  1. Update your project's build.gradle.kts to use AGP $version 
         |     or later:
         |
         |  plugins {
-        |      id("com.android.application") version "7.4.0"
+        |      id("com.android.application") version "$version"
         |      // Or a newer version
         |  }
         |

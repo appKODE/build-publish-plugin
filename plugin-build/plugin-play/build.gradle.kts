@@ -14,9 +14,9 @@ dependencies {
     implementation(gradleApi())
     implementation(libs.play.publish)
     implementation(libs.google.auth)
-    implementation(libs.agp)
 
-    implementation(project(":plugin-foundation"))
+    compileOnly(libs.agp)
+    compileOnly(project(":plugin-foundation"))
 }
 
 gradlePlugin {
