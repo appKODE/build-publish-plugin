@@ -9,6 +9,7 @@ import ru.kode.android.build.publish.plugin.clickup.messages.propertiesNotApplie
 import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtension
 import ru.kode.android.build.publish.plugin.clickup.task.automation.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
@@ -74,18 +75,21 @@ private fun Project.registerClickUpTasks(
         throw GradleException(propertiesNotAppliedMessage())
     }
 
-    val service =
-        project.extensions
-            .getByType(ClickUpServiceExtension::class.java)
-            .services
-            .get()
-            .getByNameOrCommon(params.buildVariant.name)
-
     return if (fixVersionIsPresent || automationConfig.tagPattern.isPresent) {
         tasks.register(
             "$CLICK_UP_AUTOMATION_TASK${params.buildVariant.capitalizedName()}",
             ClickUpAutomationTask::class.java,
         ) {
+            val service =
+                project.extensions
+                    .getByType(ClickUpServiceExtension::class.java)
+                    .services
+                    .get()
+                    .getByNameOrCommon(params.buildVariant.name)
+            val loggerService =
+                project.extensions
+                    .getByType(LoggerServiceExtension::class.java)
+                    .service
             it.workspaceName.set(automationConfig.workspaceName)
             it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
             it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
@@ -94,6 +98,10 @@ private fun Project.registerClickUpTasks(
             it.fixVersionFieldName.set(automationConfig.fixVersionFieldName)
             it.tagPattern.set(automationConfig.tagPattern)
             it.service.set(service)
+            it.loggerService.set(loggerService)
+
+            it.usesService(service)
+            it.usesService(loggerService)
 
             it.dependsOn(params.buildTagSnapshotProvider, params.changelogFileProvider)
         }

@@ -5,13 +5,13 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.agp)
     implementation("ru.kode.android:plugin-foundation")
 
     testImplementation("ru.kode.android:plugin-core")
     testImplementation(project(":utils"))
 
     testImplementation(gradleApi())
-    testImplementation(libs.agp)
     testImplementation(libs.grgitCore)
     testImplementation(libs.grgitGradle)
 

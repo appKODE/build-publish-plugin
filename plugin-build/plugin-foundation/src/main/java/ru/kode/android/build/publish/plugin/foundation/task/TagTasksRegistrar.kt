@@ -5,6 +5,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_BUILD_VERSION
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
@@ -15,6 +16,7 @@ import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.tagBuildSnapshotFileProvider
 import ru.kode.android.build.publish.plugin.core.util.versionCodeFileProvider
 import ru.kode.android.build.publish.plugin.core.util.versionNameProvider
+import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServiceExtension
 import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeApkOutputFileNameTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeVersionCodeTask
@@ -166,8 +168,16 @@ private fun Project.registerRenameApkTask(params: RenameApkTaskParams): TaskProv
     val variant = params.buildVariant
     val taskName = "$RENAME_APK_TASK_PREFIX${variant.capitalizedName()}"
     return tasks.register(taskName, RenameApkTask::class.java) { task ->
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
+
         task.outputFileName.set(params.outputFileName)
         task.inputDir.set(params.inputDir)
+        task.loggerService.set(loggerService)
+
+        task.usesService(loggerService)
     }
 }
 
@@ -188,10 +198,24 @@ private fun Project.registerGetLastTagSnapshotTask(params: LastTagSnapshotTaskPa
     val taskName = "$GET_LAST_TAG_SNAPSHOT_TASK_PREFIX${variant.capitalizedName()}"
 
     return tasks.register(taskName, GetLastTagSnapshotTask::class.java) { task ->
+        val gitService =
+            project.extensions
+                .getByType(GitExecutorServiceExtension::class.java)
+                .service
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
+
         task.buildTagSnapshotFile.set(tagBuildSnapshotFile)
         task.buildVariantName.set(variant.name)
         task.buildTagPattern.set(params.buildTagPattern)
         task.useStubsForTagAsFallback.set(params.useStubsForTagAsFallback)
+        task.gitExecutorService.set(gitService)
+        task.loggerService.set(loggerService)
+
+        task.usesService(gitService)
+        task.usesService(loggerService)
     }
 }
 
@@ -206,13 +230,20 @@ private fun Project.registerComputeVersionCodeTask(params: ComputeVersionCodePar
 
     val buildTagSnapshotFile = params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile }
     return tasks.register(taskName, ComputeVersionCodeTask::class.java) { task ->
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
+
         task.buildTagSnapshotFile.set(buildTagSnapshotFile)
         task.versionCodeFile.set(versionCodeFile)
         task.useVersionsFromTag.set(params.useVersionsFromTag)
         task.useDefaultsForVersionsAsFallback.set(params.useDefaultsForVersionsAsFallback)
         task.buildVariant.set(variant)
         task.versionCodeStrategy.set(params.versionCodeStrategy)
+        task.loggerService.set(loggerService)
 
+        task.usesService(loggerService)
         task.dependsOn(params.buildTagSnapshotProvider)
     }
 }
@@ -229,6 +260,11 @@ private fun Project.registerComputeApkOutputFileNameTask(
 
     val buildTagSnapshotFile = params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile }
     return tasks.register(taskName, ComputeApkOutputFileNameTask::class.java) { task ->
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
+
         task.apkOutputFileName.set(params.apkOutputFileName)
         task.useVersionsFromTag.set(params.useVersionsFromTag)
         task.baseFileName.set(params.baseFileName)
@@ -236,6 +272,9 @@ private fun Project.registerComputeApkOutputFileNameTask(
         task.buildVariant.set(variant)
         task.outputApkNameStrategy.set(params.outputApkNameStrategy)
         task.apkOutputFileNameFile.set(apkOutputFileNameFile)
+        task.loggerService.set(loggerService)
+
+        task.usesService(loggerService)
 
         task.dependsOn(params.buildTagSnapshotProvider)
     }
@@ -252,12 +291,20 @@ private fun Project.registerComputeVersionNameTask(params: ComputeVersionNamePar
 
     val buildTagSnapshotFile = params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile }
     return tasks.register(taskName, ComputeVersionNameTask::class.java) { task ->
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
+
         task.useVersionsFromTag.set(params.useVersionsFromTag)
         task.useDefaultsForVersionsAsFallback.set(params.useDefaultsForVersionsAsFallback)
         task.buildTagSnapshotFile.set(buildTagSnapshotFile)
         task.buildVariant.set(variant)
         task.versionNameStrategy.set(params.versionNameStrategy)
         task.versionNameFile.set(versionNameFile)
+        task.loggerService.set(loggerService)
+
+        task.usesService(loggerService)
 
         task.dependsOn(params.buildTagSnapshotProvider)
     }

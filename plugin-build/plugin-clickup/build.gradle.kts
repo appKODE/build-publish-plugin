@@ -17,10 +17,10 @@ dependencies {
     implementation(libs.okhttpLogging)
     implementation(libs.retrofit)
     implementation(libs.retrofitSerialization)
-    implementation(libs.agp)
     implementation(libs.serializationJson)
 
-    implementation(project(":plugin-foundation"))
+    compileOnly(libs.agp)
+    compileOnly(project(":plugin-foundation"))
 }
 
 gradlePlugin {

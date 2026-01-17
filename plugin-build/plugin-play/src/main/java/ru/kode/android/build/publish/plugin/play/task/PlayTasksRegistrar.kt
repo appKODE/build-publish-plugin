@@ -7,7 +7,7 @@ import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.flatMapByNameOrCommon
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.play.config.PlayDistributionConfig
 import ru.kode.android.build.publish.plugin.play.service.PlayServiceExtension
 import ru.kode.android.build.publish.plugin.play.task.distribution.PlayDistributionTask
@@ -64,13 +64,16 @@ private fun Project.registerPlayDistributionTask(
             extensions
                 .getByType(PlayServiceExtension::class.java)
                 .networkServices
-                .flatMapByNameOrCommon(params.buildVariant.name)
+                .get()
+                .getByNameOrCommon(params.buildVariant.name)
 
         it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
         it.distributionFile.set(params.bundleOutputFile)
         it.trackId.set(distributionConfig.trackId)
         it.updatePriority.set(distributionConfig.updatePriority)
         it.networkService.set(networkService)
+
+        it.usesService(networkService)
 
         it.dependsOn(params.buildTagSnapshotProvider)
     }

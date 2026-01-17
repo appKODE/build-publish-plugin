@@ -1,12 +1,13 @@
 package ru.kode.android.build.publish.plugin.foundation.validate
 
+import com.android.build.api.AndroidPluginVersion
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
-import com.android.builder.model.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
-import org.gradle.util.internal.VersionNumber
 import ru.kode.android.build.publish.plugin.foundation.messages.mustBeUsedWithAndroidMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.mustBeUsedWithVersionMessage
+import ru.kode.android.build.publish.plugin.foundation.validate.AgpVersions.MIN_VERSION
 
 /**
  * Validates that the plugin is applied to a supported Android project.
@@ -19,8 +20,14 @@ import ru.kode.android.build.publish.plugin.foundation.messages.mustBeUsedWithVe
  */
 @Suppress("ThrowsCount") // block to throws exceptions on apply
 internal fun Project.stopExecutionIfNotSupported() {
-    if (AgpVersions.CURRENT < AgpVersions.VERSION_7_0_4) {
-        throw StopExecutionException(mustBeUsedWithVersionMessage())
+    val androidComponents =
+        extensions.findByType(AndroidComponentsExtension::class.java)
+            ?: return
+
+    val current: AndroidPluginVersion = androidComponents.pluginVersion
+    val minVersion = MIN_VERSION
+    if (current < minVersion) {
+        throw StopExecutionException(mustBeUsedWithVersionMessage(minVersion))
     }
     if (!plugins.hasPlugin(AppPlugin::class.java)) {
         throw StopExecutionException(mustBeUsedWithAndroidMessage())
@@ -30,7 +37,6 @@ internal fun Project.stopExecutionIfNotSupported() {
 /**
  * Resolved Android Gradle Plugin versions used by the support check.
  */
-internal object AgpVersions {
-    val CURRENT: VersionNumber = VersionNumber.parse(ANDROID_GRADLE_PLUGIN_VERSION).baseVersion
-    val VERSION_7_0_4: VersionNumber = VersionNumber.parse("7.0.4")
+object AgpVersions {
+    val MIN_VERSION = AndroidPluginVersion(7, 4, 0)
 }
