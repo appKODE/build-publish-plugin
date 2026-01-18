@@ -25,9 +25,10 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
     testLogging {
+        val isCI = System.getenv("CI") == "true"
         showStackTraces = true
         showExceptions = true
         showCauses = true
-        showStandardStreams = true
+        showStandardStreams = !isCI
     }
 }

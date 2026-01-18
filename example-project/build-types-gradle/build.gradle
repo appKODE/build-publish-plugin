@@ -32,7 +32,7 @@ buildPublishFoundation {
     output {
         common {
            it.baseFileName = "base-project-android"
-           it.versionNameStrategy { new BuildVersionNumberNameStrategy() }
+           it.versionNameStrategy { BuildVersionNumberNameStrategy.INSTANCE }
         }
     }
 

@@ -88,7 +88,7 @@ class ConfluenceDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -145,7 +145,6 @@ class ConfluenceDistributionTest {
     }
 
     @Test
-    @Disabled // It disabled because proxy server is unstable and can be failed because of SSLHandshakeException
     @Throws(IOException::class)
     fun `confluence apk build distribution available with distribution config with proxy`() {
         val pageId = System.getProperty("CONFLUENCE_PAGE_ID")
@@ -173,7 +172,7 @@ class ConfluenceDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -291,7 +290,7 @@ class ConfluenceDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -410,7 +409,7 @@ class ConfluenceDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -522,7 +521,7 @@ class ConfluenceDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -638,7 +637,7 @@ class ConfluenceDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -721,7 +720,7 @@ class ConfluenceDistributionTest {
 
 private fun getChangelog(): String {
     return """
-[CEB-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
-[CEB-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
+[TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
+[TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
     """.trimIndent()
 }

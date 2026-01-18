@@ -78,7 +78,7 @@ class SlackDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -171,7 +171,7 @@ class SlackDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -272,7 +272,7 @@ class SlackDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -372,7 +372,7 @@ class SlackDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -466,7 +466,7 @@ class SlackDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -609,7 +609,7 @@ class SlackDistributionTest {
 
 private fun getChangelog(): String {
     return """
-[CEB-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
-[CEB-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
+[TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
+[TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
     """.trimIndent()
 }

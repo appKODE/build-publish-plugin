@@ -9,6 +9,8 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 
+private val IS_CI get() = System.getenv("CI") == "true"
+
 @Suppress("LongMethod", "CyclomaticComplexMethod", "CascadingCallWrapping")
 fun File.createAndroidProject(
     compileSdk: Int = 36,
@@ -613,7 +615,7 @@ fun File.runTask(
     gradleVersion: String = "9.2.1"
 ): BuildResult {
     val args = mutableListOf(task).apply {
-        add("--info")
+        if (IS_CI) add("--info")
         add("--stacktrace")
         systemProperties.forEach { (key, value) ->
             add("-D$key=$value")
@@ -641,7 +643,7 @@ fun File.runTasks(
     gradleVersion: String = "9.2.1"
 ): BuildResult {
     val args = tasks.toMutableList().apply {
-        add("--info")
+        if (IS_CI) add("--info")
         add("--stacktrace")
         systemProperties.forEach { (key, value) ->
             add("-D$key=$value")
@@ -669,7 +671,8 @@ fun File.runTaskWithFail(
     agpClasspath: List<File> = emptyList(),
     gradleVersion: String = "9.2.1"
 ): BuildResult {
-    val args = mutableListOf(task, "--info").apply {
+    val args = mutableListOf(task, "--stacktrace").apply {
+        if (IS_CI) add("--info")
         systemProperties.forEach { (key, value) ->
             add("-D$key=$value")
         }
