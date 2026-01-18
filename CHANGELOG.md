@@ -12,6 +12,9 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.3
+- Add support of agp 9.0.0
+
 ### 1.2.2
 - Decouple logic from specific gradle version implementation 
 - Replace ServiceReference with Internal to support older Gradle versions

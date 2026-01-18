@@ -126,11 +126,15 @@ class AssembleAgpVersionsTest {
         val givenAssembleTask = "assembleGoogleDebug"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
-        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest.apk")
+        val givenOutputFile = projectDir.getFile("app/build/intermediates/apk/renameApkGoogleDebug/autotest.apk")
 
         git.addAllAndCommit(givenCommitMessage)
 
-        val result: BuildResult = projectDir.runTask(givenAssembleTask, agpClasspath = agpClasspath)
+        val result: BuildResult = projectDir.runTask(
+            givenAssembleTask,
+            agpClasspath = agpClasspath,
+            gradleVersion = "7.5"
+        )
 
         projectDir.getFile("app").printFilesRecursively()
 
