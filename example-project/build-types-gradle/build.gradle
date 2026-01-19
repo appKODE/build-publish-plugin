@@ -10,14 +10,16 @@ plugins {
 
 android {
     namespace = "ru.kode.android.build.types.example"
-    compileSdk 34
+    compileSdk {
+        version = release(36)
+    }
 
     defaultConfig {
-        applicationId "com.example.build.types.android"
-        minSdk 26
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        applicationId = "com.example.build.types.android"
+        minSdk = 26
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
     }
 
     buildTypes {
@@ -30,7 +32,7 @@ buildPublishFoundation {
     output {
         common {
            it.baseFileName = "base-project-android"
-           it.versionNameStrategy { new BuildVersionNumberNameStrategy() }
+           it.versionNameStrategy { BuildVersionNumberNameStrategy.INSTANCE }
         }
     }
 

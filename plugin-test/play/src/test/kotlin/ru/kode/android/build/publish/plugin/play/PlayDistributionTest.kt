@@ -26,13 +26,6 @@ class PlayDistributionTest {
     @Test
     @Throws(IOException::class)
     fun `play build distribution available with distribution`() {
-
+        // TODO: Add real test implementation
     }
-}
-
-private fun getChangelog(): String {
-    return """
-[CEB-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
-[CEB-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
-    """.trimIndent()
 }

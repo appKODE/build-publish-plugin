@@ -3,8 +3,8 @@ package ru.kode.android.build.publish.plugin.foundation.task.tag
 import org.gradle.api.DefaultTask
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
-import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
@@ -47,7 +47,7 @@ abstract class GetLastTagSnapshotTask
          *
          * @see GitExecutorService
          */
-        @get:ServiceReference
+        @get:Internal
         abstract val gitExecutorService: Property<GitExecutorService>
 
         /**
@@ -57,7 +57,7 @@ abstract class GetLastTagSnapshotTask
          *
          * @see LoggerService
          */
-        @get:ServiceReference
+        @get:Internal
         abstract val loggerService: Property<LoggerService>
 
         /**

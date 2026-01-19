@@ -12,9 +12,10 @@ base {
 
 dependencies {
     implementation(gradleApi())
-    implementation(libs.agp)
     implementation(libs.grgitCore)
     implementation(libs.grgitGradle)
+
+    compileOnly(libs.agp)
 }
 
 gradlePlugin {

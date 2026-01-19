@@ -567,7 +567,7 @@ class FoundationAssembleTest {
         val givenTagName4 = "v0.0.208-internal"
         val givenTagName5 = "v0.0.209-internal"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
@@ -585,7 +585,7 @@ class FoundationAssembleTest {
         git.tag.addNamed(givenTagName4)
 
         projectDir.getFile("app/README3.md").writeText("This is test project 3")
-        git.addAllAndCommit("[CEB-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
+        git.addAllAndCommit("[TEST-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
         git.tag.addNamed(givenTagName5)
 
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
@@ -676,7 +676,7 @@ class FoundationAssembleTest {
         val givenTagName2 = "v1.0.1-release"
         val givenTagName3 = "v1.0.2-release-androidAuto"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-release.json")
@@ -780,7 +780,7 @@ class FoundationAssembleTest {
         val givenTagName2 = "v1.0.1-release"
         val givenTagName3 = "v1.0.2-release-androidAuto"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-release.json")
@@ -891,7 +891,7 @@ class FoundationAssembleTest {
         val givenTagName2 = "v1.0.1-release"
         val givenTagName3 = "v1.0.2-release-androidAuto"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-release.json")
@@ -1004,7 +1004,7 @@ class FoundationAssembleTest {
         val givenTagName2 = "v1.0.1-release"
         val givenTagName3 = "v1.0.2-release-androidAuto"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-release.json")
@@ -1115,7 +1115,7 @@ class FoundationAssembleTest {
         val givenTagName2 = "v1.0.1-release-androidAuto"
         val givenTagName3 = "v1.0.2-release"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-release.json")
@@ -1228,7 +1228,7 @@ class FoundationAssembleTest {
         val givenTagName2 = "v1.0.1-release-androidAuto"
         val givenTagName3 = "v1.0.2-release"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleRelease"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-release.json")
@@ -1333,7 +1333,7 @@ class FoundationAssembleTest {
         val givenTagName4 = "v2.0.208-internal"
         val givenTagName5 = "v0.0.209-internal"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
@@ -1351,7 +1351,7 @@ class FoundationAssembleTest {
         git.tag.addNamed(givenTagName4)
 
         projectDir.getFile("app/README3.md").writeText("This is test project 3")
-        git.addAllAndCommit("[CEB-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
+        git.addAllAndCommit("[TEST-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
         git.tag.addNamed(givenTagName5)
 
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
@@ -1444,7 +1444,7 @@ class FoundationAssembleTest {
         val givenTagName4 = "v2.0.209.208-internal"
         val givenTagName5 = "v0.0.209-internal"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
@@ -1462,7 +1462,7 @@ class FoundationAssembleTest {
         git.tag.addNamed(givenTagName4)
 
         projectDir.getFile("app/README3.md").writeText("This is test project 3")
-        git.addAllAndCommit("[CEB-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
+        git.addAllAndCommit("[TEST-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
         git.tag.addNamed(givenTagName5)
 
         val result: BuildResult = projectDir.runTask(givenAssembleTask)
@@ -1555,7 +1555,7 @@ class FoundationAssembleTest {
         val givenTagName4 = "v2.0.208-internal"
         val givenTagName5 = "v0.0.209-internal"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
@@ -1662,7 +1662,7 @@ class FoundationAssembleTest {
         val givenTagName4 = "v2.0.209-internal"
         val givenTagName5 = "v0.0.208-internal"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
@@ -1769,7 +1769,7 @@ class FoundationAssembleTest {
         val givenTagName4 = "v2.0.208-internal"
         val givenTagName5 = "v0.0.209-internal"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
@@ -1939,7 +1939,7 @@ class FoundationAssembleTest {
         val givenTagName4 = "v1.0.209-internal"
         val givenTagName5 = "v1.0.208-internal"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
@@ -1957,7 +1957,7 @@ class FoundationAssembleTest {
         git.tag.addNamed(givenTagName4)
 
         projectDir.getFile("app/README3.md").writeText("This is test project 3")
-        git.addAllAndCommit("[CEB-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
+        git.addAllAndCommit("[TEST-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
         git.tag.addNamed(givenTagName5)
 
         val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)
@@ -2006,7 +2006,7 @@ class FoundationAssembleTest {
         val givenTagName4 = "v1.0.209-internal"
         val givenTagName5 = "v1.0.208-internal"
 
-        val givenCommitMessage = "[CEB-1854] Fix invalid system bars background on web form screen"
+        val givenCommitMessage = "[TEST-1854] Fix invalid system bars background on web form screen"
         val givenAssembleTask = "assembleInternal"
         val git = projectDir.initGit()
         val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-internal.json")
@@ -2027,7 +2027,7 @@ class FoundationAssembleTest {
         Thread.sleep(1000L)
 
         projectDir.getFile("app/README3.md").writeText("This is test project 3")
-        git.addAllAndCommit("[CEB-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
+        git.addAllAndCommit("[TEST-1815] [ios] Открытие вклада. При переходе в форму с экрана продуктов")
         git.tag.addNamed(givenTagName5)
 
         val result: BuildResult = projectDir.runTaskWithFail(givenAssembleTask)

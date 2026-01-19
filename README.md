@@ -321,14 +321,14 @@ import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberName
 buildPublishFoundation {
     output {
         buildVariant("internal") {
-            baseFileName = "ceb-android"
+            baseFileName = "android"
             versionNameStrategy { BuildVersionNumberNameStrategy }
         }
     }
 }
 ```
 
-Groovy DSL (`build.gradle`): **strategies must be instantiated** (use `new ...()`):
+Groovy DSL (`build.gradle`): Kotlin `object` strategies are referenced via `INSTANCE` (no `new`), while class strategies must be instantiated (use `new ...()`):
 
 ```groovy
 import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberNameStrategy
@@ -336,8 +336,8 @@ import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberName
 buildPublishFoundation {
   output {
     buildVariant('internal') {
-      baseFileName = 'ceb-android'
-      versionNameStrategy { new BuildVersionNumberNameStrategy() }
+      baseFileName = 'android'
+      versionNameStrategy { BuildVersionNumberNameStrategy.INSTANCE }
     }
   }
 }
@@ -1034,15 +1034,15 @@ buildPublishFoundation {
             it.useDefaultsForVersionsAsFallback.set(true)
 
             it.versionNameStrategy {
-              new ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberVariantNameStrategy()
+              ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberVariantNameStrategy.INSTANCE
             }
 
             it.versionCodeStrategy {
-                new ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy()
+                ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy.INSTANCE
             }
 
             it.outputApkNameStrategy {
-                new ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy()
+                ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy.INSTANCE
             }
         }
 
@@ -1097,6 +1097,7 @@ Properties (applies to each `OutputConfig`):
 - **`useStubsForTagAsFallback`** *(default: `true`)*
   - **What it does**: If no matching Git tag is found, allows the build to continue using stub tag values.
   - **Why you need it**: Useful for first CI runs / new branches where tags aren’t present yet.
+  - **Implementation detail**: Stub tag values are generated via `ru.kode.android.build.publish.plugin.core.strategy.HardcodedTagGenerationStrategy`.
   - **If disabled**: Missing tags typically cause the tag snapshot task to fail.
 
 - **`useDefaultsForVersionsAsFallback`** *(default: `true`)*
@@ -1113,34 +1114,74 @@ Properties (applies to each `OutputConfig`):
 - **`versionNameStrategy { ... }`**
   - **What it does**: Defines how `versionName` is computed from a resolved tag.
   - **Why you need it**: Different projects encode different info into tags.
-  - **Groovy DSL note**: In Groovy (`build.gradle`) the strategy must be created with `new`, for example
-    `versionNameStrategy { new BuildVersionNumberNameStrategy() }`.
+  - **Groovy DSL note**: Kotlin `object` strategies are referenced via `INSTANCE` (no `new`), for example
+    `versionNameStrategy { BuildVersionNumberNameStrategy.INSTANCE }`.
   - **Common choices**:
     - `ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNameStrategy`
     - `ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberNameStrategy`
     - `ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberVariantNameStrategy`
     - `ru.kode.android.build.publish.plugin.core.strategy.BuildVersionVariantNameStrategy`
     - `ru.kode.android.build.publish.plugin.core.strategy.TagRawNameStrategy`
+    - `ru.kode.android.build.publish.plugin.core.strategy.FixedVersionNameStrategy { ... }`
+  - **Examples** (assume `buildVariant.name = "release"`, tag present: `tag.buildVersion = "1.2"`, `tag.buildNumber = 42`, `tag.name = "v1.2.42-release"`; tag missing: `tag = null`):
+    - `BuildVersionNameStrategy`
+      - tag present: `1.2`
+      - tag missing: `0.0`
+    - `BuildVersionNumberNameStrategy`
+      - tag present: `1.2.42`
+      - tag missing: `0.0.1`
+    - `BuildVersionNumberVariantNameStrategy`
+      - tag present: `1.2.42-release`
+      - tag missing: `0.0-release`
+    - `BuildVersionVariantNameStrategy`
+      - tag present: `1.2-release`
+      - tag missing: `0.0-release`
+    - `TagRawNameStrategy`
+      - tag present: `v1.2.42-release`
+      - tag missing: `v0.0.1-release`
+    - `FixedVersionNameStrategy { "my-fixed" }`
+      - tag present: `my-fixed`
+      - tag missing: `my-fixed`
 
 - **`versionCodeStrategy { ... }`**
   - **What it does**: Defines how `versionCode` is computed from a resolved tag.
   - **Why you need it**: Allows you to encode semantic versioning or fixed version code rules.
-  - **Groovy DSL note**: Use `new` when the strategy is a class, for example
-    `versionCodeStrategy { new BuildVersionCodeStrategy() }`.
+  - **Groovy DSL note**: Kotlin `object` strategies are referenced via `INSTANCE` (no `new`), for example
+    `versionCodeStrategy { BuildVersionCodeStrategy.INSTANCE }`.
   - **Common choices**:
     - `ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy`
     - `ru.kode.android.build.publish.plugin.core.strategy.SemanticVersionFlattenedCodeStrategy`
     - `ru.kode.android.build.publish.plugin.core.strategy.FixedVersionCodeStrategy { ... }`
+  - **Examples** (assume tag present: `tag.buildVersion = "1.2"`, `tag.buildNumber = 42`; tag missing: `tag = null`):
+    - `BuildVersionCodeStrategy`
+      - tag present: `42`
+      - tag missing: `1`
+    - `SemanticVersionFlattenedCodeStrategy` (formula: `(major * 1000 + minor) * 1000 + buildNumber`)
+      - tag present (`1.2` + `42`): `1002042`
+      - tag missing: `1`
+    - `FixedVersionCodeStrategy { 10000 }`
+      - tag present: `10000`
+      - tag missing: `10000`
 
 - **`outputApkNameStrategy { ... }`**
   - **What it does**: Defines how the final APK file name is computed.
   - **Why you need it**: Produces consistent artifact names for distribution/upload steps.
-  - **Groovy DSL note**: Use `new` when the strategy is a class, for example
-    `outputApkNameStrategy { new VersionedApkNamingStrategy() }`.
+  - **Groovy DSL note**: Kotlin `object` strategies are referenced via `INSTANCE` (no `new`), for example
+    `outputApkNameStrategy { VersionedApkNamingStrategy.INSTANCE }`.
   - **Common choices**:
     - `ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy`
     - `ru.kode.android.build.publish.plugin.core.strategy.SimpleApkNamingStrategy`
     - `ru.kode.android.build.publish.plugin.core.strategy.FixedApkNamingStrategy { ... }`
+  - **Examples** (assume `baseFileName = "app"`, `outputFileName = "app-release.apk"`, and tag present: `tag.buildVariant = "release"`, `tag.buildNumber = 42`; tag missing: `tag = null`):
+    - `VersionedApkNamingStrategy`
+      - tag present: `app-release-vc42-<DATE>.apk` (date format: `ddMMyyyy`)
+      - tag missing: `app-<DATE>.apk`
+    - `SimpleApkNamingStrategy`
+      - tag present: `app.apk`
+      - tag missing: `app.apk`
+    - `FixedApkNamingStrategy { "my-fixed" }`
+      - tag present: `my-fixed.apk`
+      - tag missing: `my-fixed.apk`
 
 ##### Changelog (`buildPublishFoundation { changelog { ... } }`)
 

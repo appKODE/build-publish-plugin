@@ -137,6 +137,10 @@ private fun Project.registerSendSlackChangelogTask(
                 .services
                 .get()
                 .getByNameOrCommon(params.buildVariant.name)
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
 
         it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
         it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
@@ -147,8 +151,11 @@ private fun Project.registerSendSlackChangelogTask(
         it.userMentions.set(changelogConfig.userMentions)
         it.attachmentColor.set(changelogConfig.attachmentColor)
         it.service.set(service)
+        it.loggerService.set(loggerService)
 
         it.usesService(service)
+        it.usesService(loggerService)
+
         it.dependsOn(params.buildTagSnapshotProvider, params.changelogFileProvider)
     }
 }
@@ -175,14 +182,21 @@ private fun Project.registerApkSlackDistributionTask(
                 .services
                 .get()
                 .getByNameOrCommon(params.buildVariant.name)
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
 
         it.distributionFile.set(params.apkOutputFile)
         it.destinationChannels.set(distributionConfig.destinationChannels)
         it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
         it.baseOutputFileName.set(params.baseFileName)
         it.service.set(service)
+        it.loggerService.set(loggerService)
 
         it.usesService(service)
+        it.usesService(loggerService)
+
         it.dependsOn(params.buildTagSnapshotProvider)
     }
 }
@@ -209,14 +223,21 @@ private fun Project.registerBundleSlackDistributionTask(
                 .services
                 .get()
                 .getByNameOrCommon(params.buildVariant.name)
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
 
         it.distributionFile.set(params.bundleOutputFile)
         it.destinationChannels.set(distributionConfig.destinationChannels)
         it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
         it.baseOutputFileName.set(params.baseFileName)
         it.service.set(service)
+        it.loggerService.set(loggerService)
 
         it.usesService(service)
+        it.usesService(loggerService)
+
         it.dependsOn(params.buildTagSnapshotProvider)
     }
 }

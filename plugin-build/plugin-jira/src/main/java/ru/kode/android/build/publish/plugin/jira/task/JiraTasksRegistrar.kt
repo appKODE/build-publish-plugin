@@ -4,6 +4,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
@@ -75,6 +76,10 @@ private fun Project.registerJiraTasks(
                 .services
                 .get()
                 .getByNameOrCommon(params.buildVariant.name)
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
 
         tasks.register(
             "$JIRA_AUTOMATION_TASK${params.buildVariant.capitalizedName()}",
@@ -85,11 +90,14 @@ private fun Project.registerJiraTasks(
             it.issueNumberPattern.set(params.issueNumberPattern)
             it.projectKey.set(automationConfig.projectKey)
             it.labelPattern.set(automationConfig.labelPattern)
-            it.service.set(service)
             it.fixVersionPattern.set(automationConfig.fixVersionPattern)
             it.targetStatusName.set(automationConfig.targetStatusName)
+            it.service.set(service)
+            it.loggerService.set(loggerService)
 
             it.usesService(service)
+            it.usesService(loggerService)
+
             it.dependsOn(params.buildTagSnapshotProvider, params.changelogFileProvider)
         }
     } else {

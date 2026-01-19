@@ -3,7 +3,6 @@
 package ru.kode.android.build.publish.plugin.foundation
 
 import com.android.build.api.artifact.SingleArtifact
-import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.impl.VariantOutputImpl
 import org.gradle.api.Plugin
@@ -76,9 +75,6 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
             project.extensions
                 .getByType(ApplicationAndroidComponentsExtension::class.java)
 
-        val androidDsl =
-            project.extensions.getByType(ApplicationExtension::class.java)
-
         val loggerServiceProvider =
             project.gradle.sharedServices.registerIfAbsent(
                 project.serviceName(LOGGER_SERVICE_NAME),
@@ -120,8 +116,8 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                     name = it.second,
                                 )
                             },
-                        defaultVersionCode = androidDsl.defaultConfig.versionCode,
-                        defaultVersionName = androidDsl.defaultConfig.versionName,
+                        defaultVersionCode = project.getDefaultVersionCode(),
+                        defaultVersionName = project.getDefaultVersionName(),
                     )
 
                 val variantOutput =
@@ -370,5 +366,33 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                 }
             },
         )
+    }
+}
+
+private fun Project.getDefaultVersionName(): String? {
+    return try {
+        extensions
+            .getByType(com.android.build.api.dsl.ApplicationExtension::class.java)
+            .defaultConfig
+            .versionName
+    } catch (_: Throwable) {
+        extensions
+            .getByType(com.android.build.gradle.AppExtension::class.java)
+            .defaultConfig
+            .versionName
+    }
+}
+
+private fun Project.getDefaultVersionCode(): Int? {
+    return try {
+        extensions
+            .getByType(com.android.build.api.dsl.ApplicationExtension::class.java)
+            .defaultConfig
+            .versionCode
+    } catch (_: Throwable) {
+        extensions
+            .getByType(com.android.build.gradle.AppExtension::class.java)
+            .defaultConfig
+            .versionCode
     }
 }

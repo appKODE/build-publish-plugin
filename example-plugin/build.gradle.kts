@@ -2,6 +2,7 @@
 plugins {
     alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.publish) apply false
+    alias(libs.plugins.agp) apply false
 }
 
 allprojects {

@@ -7,6 +7,7 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.agp)
     implementation("ru.kode.android:plugin-foundation")
     implementation("ru.kode.android:plugin-clickup")
 
@@ -14,7 +15,6 @@ dependencies {
     testImplementation(project(":utils"))
 
     testImplementation(gradleApi())
-    testImplementation(libs.agp)
     testImplementation(libs.grgitCore)
     testImplementation(libs.grgitGradle)
 
@@ -36,10 +36,11 @@ tasks.test {
 
     useJUnitPlatform()
     testLogging {
+        val isCI = System.getenv("CI") == "true"
         showStackTraces = true
         showExceptions = true
         showCauses = true
-        showStandardStreams = true
+        showStandardStreams = !isCI
     }
 }
 

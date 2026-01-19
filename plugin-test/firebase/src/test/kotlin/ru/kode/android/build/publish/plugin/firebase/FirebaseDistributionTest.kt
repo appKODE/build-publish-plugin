@@ -43,7 +43,7 @@ class FirebaseDistributionTest {
 
         projectDir.createAndroidProject(
             buildTypes = listOf(
-                BuildType("debug"),
+                BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
                 BuildType("release")
             ),
             foundationConfig =
@@ -53,7 +53,7 @@ class FirebaseDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -71,6 +71,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -142,7 +143,7 @@ class FirebaseDistributionTest {
 
         projectDir.createAndroidProject(
             defaultConfig = DefaultConfig(
-                applicationId = "com.example.build.types.android.internal",
+                applicationId = "com.example.build.types.android",
             ),
             buildTypes = listOf(
                 BuildType("debug"),
@@ -155,7 +156,7 @@ class FirebaseDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -179,6 +180,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-internal"
         val givenTagName2 = "v1.0.2-internal"
@@ -260,7 +262,7 @@ class FirebaseDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -278,6 +280,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -347,7 +350,7 @@ class FirebaseDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -365,6 +368,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -442,7 +446,7 @@ class FirebaseDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -460,6 +464,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -528,7 +533,7 @@ class FirebaseDistributionTest {
 
         projectDir.createAndroidProject(
             buildTypes = listOf(
-                BuildType("debug"),
+                BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
                 BuildType("release")
             ),
             foundationConfig =
@@ -538,7 +543,7 @@ class FirebaseDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -556,6 +561,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -638,7 +644,7 @@ class FirebaseDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -656,6 +662,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -731,7 +738,7 @@ class FirebaseDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -749,6 +756,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -818,7 +826,7 @@ class FirebaseDistributionTest {
 
         projectDir.createAndroidProject(
             buildTypes = listOf(
-                BuildType("debug"),
+                BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
                 BuildType("release")
             ),
             foundationConfig =
@@ -828,7 +836,7 @@ class FirebaseDistributionTest {
                             baseFileName = "autotest",
                         ),
                     changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "CEB-\\\\d+",
+                        issueNumberPattern = "TEST-\\\\d+",
                         issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
                     )
                 ),
@@ -846,6 +854,7 @@ class FirebaseDistributionTest {
                 }
             """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -909,7 +918,7 @@ class FirebaseDistributionTest {
 
 private fun getChangelog(): String {
     return """
-[CEB-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
-[CEB-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
+[TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
+[TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
     """.trimIndent()
 }

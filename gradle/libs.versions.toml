@@ -1,8 +1,8 @@
 [versions]
-buildPublishPlugin = "1.2.1"
-buildPublishShared = "1.2.0"
+buildPublishPlugin = "1.2.3"
+buildPublishShared = "1.2.1"
 kotlin = "2.3.0"
-agp = "8.13.2"
+agp = "9.0.0"
 detekt = "1.23.8"
 ktlint = "12.1.0"
 firebaseAppdistribution = "5.2.0"

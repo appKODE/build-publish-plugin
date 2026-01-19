@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.grgit) apply false
-    alias(libs.plugins.agp) apply false
 }
 
 allprojects {

@@ -8,6 +8,7 @@ import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceDistribu
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceServiceExtension
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.ConfluenceDistributionTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 
@@ -76,13 +77,19 @@ private fun Project.registerApkConfluenceDistributionTask(
                 .services
                 .get()
                 .getByNameOrCommon(params.buildVariant.name)
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
 
         it.distributionFile.set(params.apkOutputFile)
         it.pageId.set(distributionConfig.pageId)
         it.compressed.set(distributionConfig.compressed)
         it.service.set(service)
+        it.loggerService.set(loggerService)
 
         it.usesService(service)
+        it.usesService(loggerService)
     }
 }
 
@@ -109,13 +116,19 @@ private fun Project.registerBundleConfluenceDistributionTask(
                 .services
                 .get()
                 .getByNameOrCommon(params.buildVariant.name)
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
 
         it.distributionFile.set(params.bundleOutputFile)
         it.pageId.set(distributionConfig.pageId)
         it.compressed.set(distributionConfig.compressed)
         it.service.set(service)
+        it.loggerService.set(loggerService)
 
         it.usesService(service)
+        it.usesService(loggerService)
     }
 }
 
