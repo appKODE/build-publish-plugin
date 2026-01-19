@@ -6,7 +6,10 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.google.firebase.appdistribution.gradle.AppDistributionPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.StopExecutionException
 import ru.kode.android.build.publish.plugin.firebase.extension.BuildPublishFirebaseExtension
+import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
+import ru.kode.android.build.publish.plugin.firebase.messages.mustApplyFoundationPluginMessage
 
 internal const val EXTENSION_NAME = "buildPublishFirebase"
 
@@ -21,6 +24,10 @@ abstract class BuildPublishFirebasePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val androidComponents =
             project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
+
+        if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
+            throw StopExecutionException(mustApplyFoundationPluginMessage())
+        }
 
         val buildPublishFirebaseExtension =
             project.extensions.create(

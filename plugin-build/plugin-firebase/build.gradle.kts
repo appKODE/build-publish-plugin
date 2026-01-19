@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.firebaseAppdistribution)
 
     compileOnly(libs.agp)
+    compileOnly(project(":plugin-foundation"))
 }
 
 gradlePlugin {
