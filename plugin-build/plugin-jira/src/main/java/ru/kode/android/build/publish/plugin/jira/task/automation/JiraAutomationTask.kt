@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.jira.task.automation
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
@@ -16,7 +17,9 @@ import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.build.publish.plugin.jira.controller.mappers.destinationJiraAuthsFromJson
 import ru.kode.android.build.publish.plugin.jira.messages.issuesNoFoundMessage
+import ru.kode.android.build.publish.plugin.jira.messages.noMatchingDestinationAuthMessage
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddFixVersionWork
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddLabelWork
@@ -47,9 +50,7 @@ abstract class JiraAutomationTask
         }
 
         /**
-         * The Jira network service used to communicate with the Jira API.
-         *
-         * This is an internal property that's automatically wired up by the plugin.
+         * Jira service for this build variant.
          */
         @get:Internal
         abstract val service: Property<JiraService>
@@ -96,18 +97,6 @@ abstract class JiraAutomationTask
             description = "Regex pattern to extract Jira issue numbers from changelog",
         )
         abstract val issueNumberPattern: Property<String>
-
-        /**
-         * The Key of the Jira project to create versions in.
-         *
-         * This is only required if fix version automation is enabled.
-         */
-        @get:Input
-        @get:Option(
-            option = "projectKey",
-            description = "Key of the Jira project for version management",
-        )
-        abstract val projectKey: Property<String>
 
         /**
          * Pattern for generating labels to add to Jira issues.
@@ -159,6 +148,10 @@ abstract class JiraAutomationTask
         @get:Optional
         abstract val targetStatusName: Property<String>
 
+        @get:Input
+        @get:Optional
+        internal abstract val destinationAuths: Property<String>
+
         /**
          * Executes the Jira automation task.
          *
@@ -179,17 +172,39 @@ abstract class JiraAutomationTask
             if (issues.isEmpty()) {
                 loggerService.get().info(issuesNoFoundMessage())
             } else {
-                val projectId =
-                    service.flatMap { service ->
-                        projectKey.map { projectKey ->
-                            service.getProjectId(projectKey.uppercase())
+                val destinationAuthEntities =
+                    destinationAuths
+                        .orNull
+                        ?.let { destinationJiraAuthsFromJson(it) }
+                        .orEmpty()
+                val authNameByProjectKey =
+                    destinationAuthEntities
+                        .flatMap { destinationAuth ->
+                            destinationAuth.projectKeys.map { projectKey ->
+                                projectKey.uppercase() to destinationAuth.authName
+                            }
                         }
+                        .toMap()
+
+                val issuesByProjectKey =
+                    issues.groupByTo(mutableMapOf()) { issueKey ->
+                        issueKey.substringBefore("-").uppercase()
                     }
 
+                val service = this.service
                 val workQueue: WorkQueue = workerExecutor.noIsolation()
-                workQueue.submitUpdateLabelIfPresent(currentBuildTag, issues)
-                workQueue.submitUpdateVersionIfPresent(currentBuildTag, issues, projectId)
-                workQueue.submitUpdateStatusIfPresent(issues)
+
+                issuesByProjectKey.forEach { (projectKey, projectIssuesList) ->
+                    val projectIssues = projectIssuesList.toSet()
+
+                    val authName =
+                        authNameByProjectKey[projectKey]
+                            ?: throw GradleException(noMatchingDestinationAuthMessage(projectKey))
+
+                    workQueue.submitUpdateLabelIfPresent(currentBuildTag, projectIssues, authName, service)
+                    workQueue.submitUpdateVersionIfPresent(currentBuildTag, projectIssues, projectKey, authName, service)
+                    workQueue.submitUpdateStatusIfPresent(projectIssues, projectKey, authName, service)
+                }
             }
         }
 
@@ -201,19 +216,24 @@ abstract class JiraAutomationTask
          *
          * @param issues The set of issue numbers to update
          */
-        private fun WorkQueue.submitUpdateStatusIfPresent(issues: Set<String>) {
+        private fun WorkQueue.submitUpdateStatusIfPresent(
+            issues: Set<String>,
+            projectKey: String,
+            authName: String,
+            service: Provider<JiraService>,
+        ) {
             if (targetStatusName.isPresent) {
                 val statusTransitionId =
                     service.flatMap { service ->
-                        projectKey
-                            .zip(targetStatusName) { projectKey, statusName ->
-                                service.getStatusTransitionId(projectKey, statusName, issues.toList())
+                        targetStatusName.map { statusName ->
+                            service.getStatusTransitionId(authName, projectKey, statusName, issues.toList())
                             }
                     }
 
                 submit(SetStatusWork::class.java) { parameters ->
                     parameters.issues.set(issues)
                     parameters.statusTransitionId.set(statusTransitionId)
+                    parameters.authName.set(authName)
                     parameters.service.set(service)
                     parameters.loggerService.set(loggerService)
                 }
@@ -232,7 +252,9 @@ abstract class JiraAutomationTask
         private fun WorkQueue.submitUpdateVersionIfPresent(
             currentBuildTag: Tag.Build,
             issues: Set<String>,
-            projectId: Provider<Long>,
+            projectKey: String,
+            authName: String,
+            service: Provider<JiraService>,
         ) {
             if (fixVersionPattern.isPresent) {
                 val version =
@@ -246,7 +268,8 @@ abstract class JiraAutomationTask
                 submit(AddFixVersionWork::class.java) { parameters ->
                     parameters.issues.set(issues)
                     parameters.version.set(version)
-                    parameters.projectId.set(projectId)
+                    parameters.projectKey.set(projectKey)
+                    parameters.authName.set(authName)
                     parameters.service.set(service)
                 }
             }
@@ -264,6 +287,8 @@ abstract class JiraAutomationTask
         private fun WorkQueue.submitUpdateLabelIfPresent(
             currentBuildTag: Tag.Build,
             issues: Set<String>,
+            authName: String,
+            service: Provider<JiraService>,
         ) {
             if (labelPattern.isPresent) {
                 val label =
@@ -277,6 +302,7 @@ abstract class JiraAutomationTask
                 submit(AddLabelWork::class.java) { parameters ->
                     parameters.issues.set(issues)
                     parameters.label.set(label)
+                    parameters.authName.set(authName)
                     parameters.service.set(service)
                 }
             }

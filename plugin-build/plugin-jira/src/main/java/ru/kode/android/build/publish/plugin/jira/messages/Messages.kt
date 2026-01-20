@@ -27,6 +27,140 @@ fun pluginInitializedMessage(
         """.trimIndent()
 }
 
+fun noMatchingJiraAuthForProjectKeyMessage(projectKey: String): String {
+    return """
+        
+        |============================================================
+        |     NO MATCHING JIRA AUTH FOR PROJECT KEY
+        |============================================================
+        | Project key: $projectKey
+        |
+        | REQUIRED ACTION:
+        | Add projectKeys("$projectKey") to one of your Jira auth configs, e.g.:
+        |
+        | $EXTENSION_NAME {
+        |   auths {
+        |     common {
+        |       auth("<authName>") {
+        |         // baseUrl + credentials
+        |         projectKeys("$projectKey")
+        |       }
+        |     }
+        |   }
+        | }
+        |============================================================
+        """.trimIndent()
+}
+
+fun jiraAuthEncodeToJsonFailedMessage(): String {
+    return """
+        
+        |============================================================
+        |        FAILED TO ENCODE JIRA AUTH CONFIG
+        |============================================================
+        | Failed to encode Jira auth configuration to JSON.
+        | This is an internal plugin error.
+        |============================================================
+        """.trimIndent()
+}
+
+fun jiraAuthJsonParsingFailedMessage(json: String): String {
+    return """
+        
+        |============================================================
+        |        FAILED TO PARSE JIRA AUTH JSON
+        |============================================================
+        | Failed to parse Jira auth configuration from JSON.
+        |
+        | JSON:
+        | $json
+        |
+        | This is an internal plugin error.
+        |============================================================
+        """.trimIndent()
+}
+
+fun destinationAuthEncodeToJsonFailedMessage(): String {
+    return """
+        
+        |============================================================
+        |        FAILED TO ENCODE JIRA DESTINATION AUTH CONFIG
+        |============================================================
+        | Failed to encode Jira destinationAuth configuration to JSON.
+        | This is an internal plugin error.
+        |
+        | RECOMMENDED ACTIONS:
+        |  1. Check that destinationAuth config values are valid
+        |  2. Try cleaning Gradle build cache
+        |  3. If the issue persists, report it with full build logs
+        |============================================================
+        """.trimIndent()
+}
+
+fun destinationAuthJsonParsingFailedMessage(json: String): String {
+    return """
+        
+        |============================================================
+        |        FAILED TO PARSE JIRA DESTINATION AUTH JSON
+        |============================================================
+        | Failed to parse Jira destinationAuth configuration from JSON.
+        |
+        | JSON:
+        | $json
+        |
+        | This is an internal plugin error.
+        |============================================================
+        """.trimIndent()
+}
+
+fun noMatchingDestinationAuthMessage(projectKey: String): String {
+    return """
+        
+        |============================================================
+        |     NO MATCHING destinationAuth FOR JIRA PROJECT KEY
+        |============================================================
+        | Project key: $projectKey
+        |
+        | REQUIRED ACTION:
+        | Add a destinationAuth mapping to Jira automation config, e.g.:
+        |
+        | $EXTENSION_NAME {
+        |   automation {
+        |     common {
+        |       destinationAuth {
+        |         authName = "<authConfigName>"
+        |         projectKeys("$projectKey")
+        |       }
+        |     }
+        |   }
+        | }
+        |============================================================
+        """.trimIndent()
+}
+
+fun noMatchingJiraServiceMessage(authName: String): String {
+    return """
+        
+        |============================================================
+        |           NO MATCHING JIRA AUTH CONFIGURATION
+        |============================================================
+        | Could not find Jira auth configuration with name: $authName
+        |
+        | REQUIRED ACTION:
+        | Ensure that you have a corresponding auth config defined:
+        |
+        | $EXTENSION_NAME {
+        |   auth {
+        |     common {
+        |       // or buildVariant("<variant>")
+        |       // configuration name must match destinationAuth.authName
+        |     }
+        |   }
+        | }
+        |============================================================
+        """.trimIndent()
+}
+
 fun registeringServicesMessage(): String {
     return """
         

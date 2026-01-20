@@ -1,8 +1,12 @@
 package ru.kode.android.build.publish.plugin.jira.config
 
+import org.gradle.api.Action
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+import javax.inject.Inject
 
 /**
  * Configuration for Jira automation rules that can be applied during the build process.
@@ -12,16 +16,23 @@ import org.gradle.api.tasks.Optional
  * - Adding labels based on build information
  * - Updating fix versions
  */
-interface JiraAutomationConfig {
-    val name: String
+abstract class JiraAutomationConfig
+    @Inject
+    constructor(
+        private val objects: ObjectFactory,
+    ) {
 
-    /**
-     * The Key of the Jira project to use for version management and fix version updates.
-     *
-     * This property is required if fix version updates or status transitions are enabled.
-     */
+    abstract val name: String
+
     @get:Input
-    val projectKey: Property<String>
+    @get:Optional
+    internal abstract val destinationAuths: SetProperty<DestinationJiraAuthConfig>
+
+    fun destinationAuth(action: Action<DestinationJiraAuthConfig>) {
+        val destinationAuth = objects.newInstance(DestinationJiraAuthConfig::class.java)
+        action.execute(destinationAuth)
+        destinationAuths.add(destinationAuth)
+    }
 
     /**
      * Pattern for labels to be added to Jira issues.
@@ -33,7 +44,7 @@ interface JiraAutomationConfig {
      */
     @get:Input
     @get:Optional
-    val labelPattern: Property<String>
+    abstract val labelPattern: Property<String>
 
     /**
      * Pattern for fix versions to be set on Jira issues.
@@ -47,7 +58,7 @@ interface JiraAutomationConfig {
      */
     @get:Input
     @get:Optional
-    val fixVersionPattern: Property<String>
+    abstract val fixVersionPattern: Property<String>
 
     /**
      * The name of the target status to which issues will be transitioned.
@@ -57,5 +68,5 @@ interface JiraAutomationConfig {
      */
     @get:Input
     @get:Optional
-    val targetStatusName: Property<String>
+    abstract val targetStatusName: Property<String>
 }

@@ -8,10 +8,12 @@ import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
+import ru.kode.android.build.publish.plugin.jira.controller.mappers.mapToEntity
+import ru.kode.android.build.publish.plugin.jira.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
 import ru.kode.android.build.publish.plugin.jira.task.automation.JiraAutomationTask
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 
 internal const val JIRA_AUTOMATION_TASK = "jiraAutomation"
 
@@ -70,7 +72,7 @@ private fun Project.registerJiraTasks(
         automationConfig.fixVersionPattern.isPresent ||
         automationConfig.targetStatusName.isPresent
     ) {
-        val service =
+        val services =
             project.extensions
                 .getByType(JiraServiceExtension::class.java)
                 .services
@@ -88,14 +90,14 @@ private fun Project.registerJiraTasks(
             it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
             it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
             it.issueNumberPattern.set(params.issueNumberPattern)
-            it.projectKey.set(automationConfig.projectKey)
             it.labelPattern.set(automationConfig.labelPattern)
             it.fixVersionPattern.set(automationConfig.fixVersionPattern)
             it.targetStatusName.set(automationConfig.targetStatusName)
-            it.service.set(service)
+            it.destinationAuths.set(automationConfig.destinationAuths.map { destinationAuths -> destinationAuths.mapToEntity().toJson() })
+            it.service.set(services)
             it.loggerService.set(loggerService)
 
-            it.usesService(service)
+            it.usesService(services)
             it.usesService(loggerService)
 
             it.dependsOn(params.buildTagSnapshotProvider, params.changelogFileProvider)

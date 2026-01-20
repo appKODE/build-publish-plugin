@@ -21,6 +21,8 @@ internal interface SetStatusParameters : WorkParameters {
      */
     val issues: SetProperty<String>
 
+    val authName: Property<String>
+
     /**
      * The ID of the status transition to apply to the issues
      */
@@ -58,10 +60,11 @@ internal abstract class SetStatusWork : WorkAction<SetStatusParameters> {
         val issues = parameters.issues.get()
         val service = parameters.service.get()
         val logger = parameters.loggerService.get()
+        val authName = parameters.authName.get()
 
         issues.forEach { issue ->
             try {
-                service.setStatus(issue, parameters.statusTransitionId.get())
+                service.setStatus(authName, issue, parameters.statusTransitionId.get())
             } catch (ex: UploadError) {
                 logger.info(failedToUpdateStatusMessage(issue), ex)
             }

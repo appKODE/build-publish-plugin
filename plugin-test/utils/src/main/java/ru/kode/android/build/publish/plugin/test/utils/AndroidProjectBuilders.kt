@@ -250,7 +250,7 @@ fun File.createAndroidProject(
                     """
                 buildVariant("$name") {
                     it.serviceCredentialsFile = project.file("${config.serviceCredentialsFilePath}")
-                    it.appId.set("${config.appId}")
+                    ${config.appId?.let { "it.appId.set(\"$it\")" }.orEmpty()}
                     it.artifactType.set(${config.artifactType})
                     ${config.testerGroups?.let { """it.testerGroups(${it.joinToString { "\"$it\"" }})""" }.orEmpty()}
                 }
@@ -261,7 +261,7 @@ fun File.createAndroidProject(
             distribution {
                 common {
                     it.serviceCredentialsFile = project.file("${config.distributionCommon.serviceCredentialsFilePath}")
-                    it.appId.set("${config.distributionCommon.appId}")
+                    ${config.distributionCommon.appId?.let { "it.appId.set(\"$it\")" }.orEmpty()}
                     it.artifactType.set(${config.distributionCommon.artifactType})
                     ${config.distributionCommon.testerGroups?.let { """it.testerGroups(${it.joinToString { "\"$it\"" }})""" }.orEmpty()}
                 }
@@ -273,17 +273,40 @@ fun File.createAndroidProject(
 
     val jiraConfigBlock =
         jiraConfig?.let { config ->
+            val jiraAutomationConfigBlock =
+                config.automation
+                    ?.let { automation ->
+                        val destinationAuths =
+                            automation.destinationAuths
+                                .takeIf { it.isNotEmpty() }
+                                ?: config.auth.projectKeys
+                                    .takeIf { it.isNotEmpty() }
+                                    ?.let { projectKeys ->
+                                        listOf(
+                                            JiraConfig.DestinationAuth(
+                                                authName = "common",
+                                                projectKeys = projectKeys,
+                                            ),
+                                        )
+                                    }
+                                    .orEmpty()
+                        jiraAutomationBlock(automation.copy(destinationAuths = destinationAuths))
+                    }
+                    .orEmpty()
             """
         buildPublishJira {
-            auth {
+            auths {
                 common {
-                    it.baseUrl.set("${config.auth.baseUrl}")
-                    it.credentials.username.set("${config.auth.username}")
-                    it.credentials.password.set("${config.auth.password}")
+                    it.auth("common") { auth ->
+                        auth.baseUrl.set("${config.auth.baseUrl}")
+                        auth.credentials.username.set("${config.auth.username}")
+                        auth.credentials.password.set("${config.auth.password}")
+                        ${config.auth.projectKeys.takeIf { it.isNotEmpty() }?.let { "auth.projectKeys(${it.joinToString { "\"$it\"" }})" }.orEmpty()}
+                    }
                 }
             }
                 
-            ${config.automation?.let { jiraAutomationBlock(it) }.orEmpty()}
+            $jiraAutomationConfigBlock
         }
             """
         }.orEmpty()
@@ -414,12 +437,21 @@ private fun jiraAutomationBlock(automation: JiraConfig.Automation): String {
     return """
             automation {
                 common {
-                    it.projectKey.set("${automation.projectKey}")
-                    ${automation.fixVersionPattern?.let { """it.fixVersionPattern.set("$it")""" }.orEmpty()}
-                    ${automation.labelPattern?.let { """it.labelPattern.set("$it")""" }.orEmpty()}
-                    ${automation.targetStatusName?.let { """it.targetStatusName.set("$it")""" }.orEmpty()}
+                    ${automation.destinationAuths.joinToString(separator = "\n") { jiraDestinationAuthBlock(it) }}
+                    ${automation.fixVersionPattern?.let { """it.fixVersionPattern.set(\"$it\")""".replace("\\\"", "\"") }.orEmpty()}
+                    ${automation.labelPattern?.let { """it.labelPattern.set(\"$it\")""".replace("\\\"", "\"") }.orEmpty()}
+                    ${automation.targetStatusName?.let { """it.targetStatusName.set(\"$it\")""".replace("\\\"", "\"") }.orEmpty()}
                 }
             }
+    """
+}
+
+private fun jiraDestinationAuthBlock(destinationAuth: JiraConfig.DestinationAuth): String {
+    return """
+                    it.destinationAuth { auth ->
+                        auth.authName.set("${destinationAuth.authName}")
+                        auth.projectKeys(${destinationAuth.projectKeys.joinToString { "\"$it\"" }})
+                    }
     """
 }
 
@@ -803,7 +835,7 @@ data class FirebaseConfig(
     data class Distribution(
         val serviceCredentialsFilePath: String,
         val artifactType: String,
-        val appId: String,
+        val appId: String?,
         val testerGroups: List<String>?,
     )
 }
@@ -816,13 +848,19 @@ data class JiraConfig(
         val baseUrl: String,
         val username: String,
         val password: String,
+        val projectKeys: List<String> = emptyList(),
     )
 
     data class Automation(
-        val projectKey: String,
+        val destinationAuths: List<DestinationAuth> = emptyList(),
         val labelPattern: String?,
         val fixVersionPattern: String?,
         val targetStatusName: String?,
+    )
+
+    data class DestinationAuth(
+        val authName: String,
+        val projectKeys: List<String>,
     )
 }
 

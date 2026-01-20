@@ -99,10 +99,10 @@ class JiraStatusAutomationTest {
                 auth = JiraConfig.Auth(
                     baseUrl = System.getProperty("JIRA_BASE_URL"),
                     username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+                    password = System.getProperty("JIRA_USER_PASSWORD"),
+                    projectKeys = listOf(projectKey),
                 ),
                 automation = JiraConfig.Automation(
-                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = null,
                     targetStatusName = targetAutomationStatusName
@@ -220,10 +220,10 @@ class JiraStatusAutomationTest {
                 auth = JiraConfig.Auth(
                     baseUrl = System.getProperty("JIRA_BASE_URL"),
                     username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+                    password = System.getProperty("JIRA_USER_PASSWORD"),
+                    projectKeys = listOf(projectKey),
                 ),
                 automation = JiraConfig.Automation(
-                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = null,
                     targetStatusName = targetAutomationStatusName1
@@ -351,10 +351,10 @@ class JiraStatusAutomationTest {
                 auth = JiraConfig.Auth(
                     baseUrl = System.getProperty("JIRA_BASE_URL"),
                     username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+                    password = System.getProperty("JIRA_USER_PASSWORD"),
+                    projectKeys = listOf(projectKey),
                 ),
                 automation = JiraConfig.Automation(
-                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = null,
                     targetStatusName = targetAutomationStatusName
@@ -504,10 +504,10 @@ class JiraStatusAutomationTest {
                 auth = JiraConfig.Auth(
                     baseUrl = System.getProperty("JIRA_BASE_URL"),
                     username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+                    password = System.getProperty("JIRA_USER_PASSWORD"),
+                    projectKeys = listOf(projectKey),
                 ),
                 automation = JiraConfig.Automation(
-                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = null,
                     targetStatusName = targetAutomationStatusName.lowercase()

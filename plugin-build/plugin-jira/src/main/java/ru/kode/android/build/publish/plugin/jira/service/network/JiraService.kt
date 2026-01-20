@@ -1,16 +1,19 @@
 package ru.kode.android.build.publish.plugin.jira.service.network
 
-import okhttp3.OkHttpClient
+import org.gradle.api.GradleException
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.JiraControllerImpl
-import ru.kode.android.build.publish.plugin.jira.network.api.JiraApi
+import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraAuth
+import ru.kode.android.build.publish.plugin.jira.controller.mappers.jiraAuthFromJson
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraApiFactory
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraClientFactory
+import ru.kode.android.build.publish.plugin.jira.messages.noMatchingJiraAuthForProjectKeyMessage
+import ru.kode.android.build.publish.plugin.jira.messages.noMatchingJiraServiceMessage
 import javax.inject.Inject
 
 /**
@@ -33,14 +36,10 @@ abstract class JiraService
          */
         interface Params : BuildServiceParameters {
             /**
-             * The base URL of the Jira instance (e.g., "https://your-domain.atlassian.net")
+             * A list of configured Jira auths that can be used for making requests.
+             * Each auth is serialized as JSON.
              */
-            val baseUrl: Property<String>
-
-            /**
-             * The authentication credentials for the Jira API, containing username and password/token
-             */
-            val credentials: Property<BasicAuthCredentials>
+            val auths: ListProperty<String>
 
             /**
              * The logger service for logging messages during network operations.
@@ -48,37 +47,49 @@ abstract class JiraService
             val loggerService: Property<LoggerService>
         }
 
-        internal abstract val okHttpClientProperty: Property<OkHttpClient>
+        private val auths: List<JiraAuth>
+            get() =
+                parameters.auths
+                    .map { it.map { json -> jiraAuthFromJson(json) } }
+                    .get()
 
-        internal abstract val apiProperty: Property<JiraApi>
-
-        internal abstract val controllerProperty: Property<JiraController>
-
-        init {
-            val username = parameters.credentials.flatMap { it.username }
-            val password = parameters.credentials.flatMap { it.password }
-            okHttpClientProperty.set(
-                parameters.loggerService.map { it.logger }.flatMap { logger ->
-                    username
-                        .zip(password) { username, password ->
-                            JiraClientFactory.build(username, password, logger)
-                        }
-                },
-            )
-            apiProperty.set(
-                okHttpClientProperty
-                    .zip(parameters.baseUrl) { client, baseUrl ->
-                        JiraApiFactory.build(client, baseUrl)
-                    },
-            )
-            controllerProperty.set(
-                apiProperty.zip(parameters.loggerService.map { it.logger }) { api, logger ->
-                    JiraControllerImpl(api, logger)
-                },
-            )
+        private fun resolveAuthByProjectKey(projectKey: String): JiraAuth {
+            val normalizedProjectKey = projectKey.uppercase()
+            return auths.firstOrNull { auth ->
+                auth.projectKeys.map { it.uppercase() }.contains(normalizedProjectKey)
+            } ?: throw GradleException(noMatchingJiraAuthForProjectKeyMessage(projectKey))
         }
 
-        private val controller: JiraController get() = controllerProperty.get()
+        private fun resolveAuthByName(authName: String): JiraAuth {
+            return auths.firstOrNull { it.name == authName }
+                ?: throw GradleException(noMatchingJiraServiceMessage(authName))
+        }
+
+        private fun resolveAuthByIssueKey(issueKey: String): JiraAuth {
+            val projectKey = issueKey.substringBefore("-").uppercase()
+            return resolveAuthByProjectKey(projectKey)
+        }
+
+        private fun buildController(auth: JiraAuth): JiraController {
+            val logger = parameters.loggerService.get().logger
+            val basicAuth = auth.basicAuth
+                ?: throw GradleException("Jira auth '${auth.name}' has no credentials")
+            val client = JiraClientFactory.build(basicAuth.username, basicAuth.password, logger)
+            val api = JiraApiFactory.build(client, auth.baseUrl)
+            return JiraControllerImpl(api, logger)
+        }
+
+        private fun controllerForProjectKey(projectKey: String): JiraController {
+            return buildController(resolveAuthByProjectKey(projectKey))
+        }
+
+        private fun controllerForAuthName(authName: String): JiraController {
+            return buildController(resolveAuthByName(authName))
+        }
+
+        private fun controllerForIssueKey(issueKey: String): JiraController {
+            return buildController(resolveAuthByIssueKey(issueKey))
+        }
 
         /**
          * Retrieves the ID of the status with the given name in the specified project,
@@ -97,7 +108,16 @@ abstract class JiraService
             statusName: String,
             issues: List<String>,
         ): String {
-            return controller.getStatusTransitionId(projectKey, statusName, issues)
+            return controllerForProjectKey(projectKey).getStatusTransitionId(projectKey, statusName, issues)
+        }
+
+        fun getStatusTransitionId(
+            authName: String,
+            projectKey: String,
+            statusName: String,
+            issues: List<String>,
+        ): String {
+            return controllerForAuthName(authName).getStatusTransitionId(projectKey, statusName, issues)
         }
 
         /**
@@ -111,7 +131,14 @@ abstract class JiraService
          * @throws JiraApiException If the Jira API returns an error
          */
         fun getProjectId(projectKey: String): Long {
-            return controller.getProjectId(projectKey)
+            return controllerForProjectKey(projectKey).getProjectId(projectKey)
+        }
+
+        fun getProjectId(
+            authName: String,
+            projectKey: String,
+        ): Long {
+            return controllerForAuthName(authName).getProjectId(projectKey)
         }
 
         /**
@@ -127,7 +154,15 @@ abstract class JiraService
             issueKey: String,
             statusTransitionId: String,
         ) {
-            controller.setIssueStatus(issueKey, statusTransitionId)
+            controllerForIssueKey(issueKey).setIssueStatus(issueKey, statusTransitionId)
+        }
+
+        fun setStatus(
+            authName: String,
+            issueKey: String,
+            statusTransitionId: String,
+        ) {
+            controllerForAuthName(authName).setIssueStatus(issueKey, statusTransitionId)
         }
 
         /**
@@ -143,7 +178,15 @@ abstract class JiraService
             issueKey: String,
             label: String,
         ) {
-            controller.addIssueLabel(issueKey, label)
+            controllerForIssueKey(issueKey).addIssueLabel(issueKey, label)
+        }
+
+        fun addLabel(
+            authName: String,
+            issueKey: String,
+            label: String,
+        ) {
+            controllerForAuthName(authName).addIssueLabel(issueKey, label)
         }
 
         /**
@@ -156,10 +199,20 @@ abstract class JiraService
          * @throws JiraApiException If the Jira API returns an error or version already exists
          */
         fun createVersion(
-            projectId: Long,
+            projectKey: String,
             version: String,
         ) {
-            controller.createProjectVersion(projectId, version)
+            val projectId = getProjectId(projectKey)
+            controllerForProjectKey(projectKey).createProjectVersion(projectId, version)
+        }
+
+        fun createVersion(
+            authName: String,
+            projectKey: String,
+            version: String,
+        ) {
+            val projectId = getProjectId(authName, projectKey)
+            controllerForAuthName(authName).createProjectVersion(projectId, version)
         }
 
         /**
@@ -175,6 +228,14 @@ abstract class JiraService
             issueKey: String,
             version: String,
         ) {
-            controller.addIssueFixVersion(issueKey, version)
+            controllerForIssueKey(issueKey).addIssueFixVersion(issueKey, version)
+        }
+
+        fun addFixVersion(
+            authName: String,
+            issueKey: String,
+            version: String,
+        ) {
+            controllerForAuthName(authName).addIssueFixVersion(issueKey, version)
         }
     }

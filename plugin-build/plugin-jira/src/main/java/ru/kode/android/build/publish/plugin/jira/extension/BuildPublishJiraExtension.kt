@@ -12,7 +12,7 @@ import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfi
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
-import ru.kode.android.build.publish.plugin.jira.config.JiraAuthConfig
+import ru.kode.android.build.publish.plugin.jira.config.JiraAuthsConfig
 import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
 import ru.kode.android.build.publish.plugin.jira.messages.needToProvideAuthConfigMessage
 import ru.kode.android.build.publish.plugin.jira.messages.needToProvideAutomationConfigMessage
@@ -37,11 +37,10 @@ abstract class BuildPublishJiraExtension
         /**
          * Container for Jira authentication configurations.
          *
-         * Each configuration defines how to authenticate with a Jira instance.
-         * Multiple configurations can be defined for different environments.
+         * Each configuration defines a set of named auth items for a build variant.
          */
-        internal val auth: NamedDomainObjectContainer<JiraAuthConfig> =
-            objectFactory.domainObjectContainer(JiraAuthConfig::class.java)
+        internal val auths: NamedDomainObjectContainer<JiraAuthsConfig> =
+            objectFactory.domainObjectContainer(JiraAuthsConfig::class.java)
 
         /**
          * Container for Jira automation rule configurations.
@@ -59,8 +58,8 @@ abstract class BuildPublishJiraExtension
          * @return The matching [JiraAuthConfig]
          * @throws UnknownDomainObjectException If no configuration exists with the given name
          */
-        val authConfig: (buildName: String) -> JiraAuthConfig = { buildName ->
-            auth.getByNameOrRequiredCommon(buildName)
+        val authsConfig: (buildName: String) -> JiraAuthsConfig = { buildName ->
+            auths.getByNameOrRequiredCommon(buildName)
         }
 
         /**
@@ -69,8 +68,8 @@ abstract class BuildPublishJiraExtension
          * @param buildName The name of the build variant or configuration
          * @return The matching [JiraAuthConfig], or null if not found
          */
-        val authConfigOrNull: (buildName: String) -> JiraAuthConfig? = { buildName ->
-            auth.getByNameOrNullableCommon(buildName)
+        val authsConfigOrNull: (buildName: String) -> JiraAuthsConfig? = { buildName ->
+            auths.getByNameOrNullableCommon(buildName)
         }
 
         /**
@@ -100,11 +99,11 @@ abstract class BuildPublishJiraExtension
          * @param configurationAction The configuration action to apply to the auth container
          * @see JiraAuthConfig For available configuration options
          */
-        fun auth(
+        fun auths(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<JiraAuthConfig>>,
+            configurationAction: Action<BuildPublishDomainObjectContainer<JiraAuthsConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(auth)
+            val container = BuildPublishDomainObjectContainer(auths)
             configurationAction.execute(container)
         }
 
@@ -127,8 +126,8 @@ abstract class BuildPublishJiraExtension
          *
          * @param configurationAction The configuration action to apply to all auth configurations
          */
-        fun authCommon(configurationAction: Action<JiraAuthConfig>) {
-            common(auth, configurationAction)
+        fun authsCommon(configurationAction: Action<JiraAuthsConfig>) {
+            common(auths, configurationAction)
         }
 
         /**
@@ -156,7 +155,7 @@ abstract class BuildPublishJiraExtension
         ) {
             val variantName = input.buildVariant.name
 
-            if (auth.isEmpty()) {
+            if (auths.isEmpty()) {
                 throw GradleException(needToProvideAuthConfigMessage(variantName))
             }
 

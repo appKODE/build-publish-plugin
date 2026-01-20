@@ -18,6 +18,8 @@ internal interface AddLabelParameters : WorkParameters {
      */
     val issues: SetProperty<String>
 
+    val authName: Property<String>
+
     /**
      * The label to add to the specified issues
      */
@@ -46,9 +48,10 @@ internal abstract class AddLabelWork : WorkAction<AddLabelParameters> {
         val service = parameters.service.get()
         val issues = parameters.issues.get()
         val label = parameters.label.get()
+        val authName = parameters.authName.get()
 
         issues.forEach { issue ->
-            service.addLabel(issue, label)
+            service.addLabel(authName, issue, label)
         }
     }
 }
