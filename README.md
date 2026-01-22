@@ -712,6 +712,9 @@ plugins {
 For CI/CD it is recommended to configure credentials via **environment variables** and wire them into plugin
 configuration using Gradle’s `ProviderFactory`:
 
+The actual environment variable names are up to you — the plugin just consumes whatever value you pass into the DSL.
+Examples in this README use names like `JIRA_API_TOKEN` / `CONFLUENCE_API_TOKEN` or `CONFLUENCE_USER_PASSWORD`, but you can standardize them however you prefer in your CI.
+
 - `providers.environmentVariable("...")` is lazy (safe for configuration avoidance).
 - You can validate values early and fail the build with a clear message.
 
@@ -1258,6 +1261,7 @@ Publish builds to Firebase App Distribution with support for multiple variants a
 
 1. Add Firebase configuration to your project:
    - Add `google-services.json` to your app module
+     - **Where to get it**: Firebase Console `Project settings -> General -> Your apps` (register an Android app if needed, then download `google-services.json`).
    - Add Firebase App Distribution plugin to your root build script (so the plugin is on the classpath):
 
      Kotlin DSL:
@@ -1396,6 +1400,7 @@ Properties (applies to each `FirebaseDistributionConfig`):
 - **`serviceCredentialsFile`** *(required)*
   - **What it does**: Service account JSON used to authenticate uploads.
   - **Why you need it**: Upload requires server-side credentials.
+  - **Where to get it**: Firebase Console `Project settings -> Service accounts -> Generate new private key` (download the JSON).
   - **How to use**: Store outside VCS and pass via `file("...")`.
 
 - **`artifactType`** *(required)*
@@ -1408,6 +1413,7 @@ Properties (applies to each `FirebaseDistributionConfig`):
 - **`testerGroup("...")` / `testerGroups(...)`** *(optional)*
   - **What it does**: Defines which Firebase tester groups receive the release.
   - **Why you need it**: Automates targeting QA/beta groups.
+  - **Where to get it**: Firebase Console `App Distribution -> Testers & groups` (create a group if needed, then use the group name).
   - **Notes**: Groups must exist in Firebase Console.
 
 ---
@@ -1556,10 +1562,12 @@ Properties (applies to each `PlayAuthConfig`):
 - **`appId`** *(required)*
   - **What it does**: The applicationId / package name of the app in Google Play Console.
   - **Why you need it**: Used to target the correct app when calling Play Developer API.
+  - **Where to get it**: Your app module `applicationId` (Android Gradle config) / the package name shown in Google Play Console for the app.
 
 - **`apiTokenFile`** *(required)*
   - **What it does**: Service account JSON key file.
   - **Why you need it**: Required to authenticate Play Developer API requests.
+  - **Where to get it**: Google Play Console `Setup -> API access` (create/link a service account, then create/download a JSON key).
   - **How to use**: Store outside VCS and pass via `file("...")`.
 
 ##### Distribution (`buildPublishPlay { distribution { ... } }`)
@@ -1575,6 +1583,7 @@ Properties (applies to each `PlayDistributionConfig`):
   - **What it does**: Target track to publish to.
   - **Why you need it**: Different tracks are used for internal/alpha/beta/production flows.
   - **Typical values**: `internal`, `alpha`, `beta`, `production`.
+  - **Where to get it**: Pick the track you use in Google Play Console (`Testing` / `Production`). The id is typically one of the values above.
 
 - **`updatePriority`** *(default: `0`)*
   - **What it does**: In-app update priority (`0..5`) sent with the release.
@@ -1805,14 +1814,17 @@ Properties (applies to each `SlackBotConfig`):
 - **`webhookUrl`** *(required)*
   - **What it does**: Slack Incoming Webhook URL used to post changelog messages.
   - **Why you need it**: Used by `sendSlackChangelog<Variant>`.
+  - **Where to get it**: Create/configure an app at https://api.slack.com/apps, enable **Incoming Webhooks**, then add a webhook to your workspace and copy the URL.
 
 - **`uploadApiTokenFile`** *(required for file uploads)*
   - **What it does**: File containing a Slack bot/user token for file uploads.
   - **Why you need it**: Required by `slackDistributionUpload*` tasks.
+  - **Where to get it**: In your Slack app settings, add required OAuth scopes (at least `files:write`), install the app to the workspace, then copy the **Bot User OAuth Token** (usually `xoxb-...`). Store the token in a local file.
 
 - **`iconUrl`** *(required for changelog messages)*
   - **What it does**: Icon URL for Slack message sender.
   - **Why you need it**: Used by `sendSlackChangelog<Variant>`.
+  - **Where to get it**: Any publicly accessible image URL (for example a hosted PNG in your company CDN or a GitHub raw URL).
 
 ##### Changelog (`buildPublishSlack { changelog { ... } }`)
 
@@ -1833,6 +1845,7 @@ Properties (applies to each `SlackDistributionConfig`):
 - **`destinationChannel(...)` / `destinationChannels(...)`** *(required to create upload tasks)*
   - **What it does**: Sets channels where artifacts will be shared.
   - **Common values**: `#releases`, `#android-team`.
+  - **Where to get it**: Slack channel name as shown in the UI (including the leading `#`). Ensure your app/bot has access to post/upload in that channel.
 
 ##### Task options
 
@@ -2130,10 +2143,14 @@ Chats (inside `bot("...") { chat("...") { ... } }`):
 - **`chatId`** *(required)*
   - **What it does**: Telegram chat identifier.
   - **Typical values**: `@channelusername`, `-1001234567890`, `123456789`.
+  - **How to get**:
+    - Public channel: use its username (for example `@your_channel`).
+    - Private groups/channels or topics: use the `telegramLookup<Variant>` helper task described above to print the numeric `chatId` / `topicId`.
 
 - **`topicId`** *(optional)*
   - **What it does**: Thread/topic id in a forum-style chat.
   - **Why you need it**: To send messages to a specific topic.
+  - **How to get**: Use `telegramLookup<Variant>` (topics exist only for forum-style group chats).
 
 ##### Changelog (`buildPublishTelegram { changelog { ... } }`)
 
@@ -2385,6 +2402,7 @@ Properties (applies to each `JiraAuthConfig`):
 - **`credentials.password`** *(required)*
   - **What it does**: Password or API token.
   - **Recommendation**: For Jira Cloud use an API token.
+  - **Where to get it (Jira Cloud)**: Atlassian account settings `Security -> API tokens -> Create API token` (use the token as the password).
 
 ##### Automation (`buildPublishJira { automation { ... } }`)
 
@@ -2393,6 +2411,7 @@ Properties (applies to each `JiraAutomationConfig`):
 - **`projectKey`** *(required)*
   - **What it does**: Jira project key (e.g. `PROJ`).
   - **Why you need it**: Required for version management and status transition lookup.
+  - **Where to get it**: Jira project key shown in the project sidebar / project settings, and also in issue keys/URLs (e.g. `https://.../browse/PROJ-123` → `projectKey = PROJ`).
 
 - **`labelPattern`** *(optional)*
   - **What it does**: Adds a computed label to each issue found in the changelog.
@@ -2407,6 +2426,7 @@ Properties (applies to each `JiraAutomationConfig`):
 - **`targetStatusName`** *(optional)*
   - **What it does**: Transitions issues to the given status (by looking up a matching transition).
   - **Example**: `Ready for QA`, `Ready for Release`.
+  - **Where to get it**: The exact Jira status name from your project workflow. It must be a valid transition from the issue’s current status (you can verify via the issue UI `Transitions` menu).
 
 ##### Task options (`jiraAutomation<Variant>`)
 
@@ -2590,6 +2610,7 @@ Properties (applies to each `ConfluenceAuthConfig`):
 - **`credentials.password`** *(required)*
   - **What it does**: Password or API token.
   - **Recommendation**: For Confluence Cloud use an API token.
+  - **Where to get it (Confluence Cloud)**: Atlassian account settings `Security -> API tokens -> Create API token` (use the token as the password).
 
 ##### Distribution (`buildPublishConfluence { distribution { ... } }`)
 
@@ -2790,6 +2811,7 @@ Properties (applies to each `ClickUpAuthConfig`):
 - **`apiTokenFile`** *(required)*
   - **What it does**: File containing your ClickUp API token.
   - **Why you need it**: Used to authenticate ClickUp API requests.
+  - **Where to get it**: ClickUp UI `Profile picture (bottom-left) -> Apps -> Developer API -> Generate`.
   - **Notes**: Keep it out of VCS.
 
 ##### Automation (`buildPublishClickUp { automation { ... } }`)
@@ -2799,6 +2821,7 @@ Properties (applies to each `ClickUpAutomationConfig`):
 - **`workspaceName`** *(required)*
   - **What it does**: ClickUp workspace name.
   - **Why you need it**: Used to resolve custom field ids for fix version updates.
+  - **Where to get it**: The workspace name shown in ClickUp’s workspace switcher (top-left in the UI).
 
 - **`tagPattern`** *(optional)*
   - **What it does**: Adds a tag to each ClickUp task referenced in the changelog.
@@ -2813,6 +2836,7 @@ Properties (applies to each `ClickUpAutomationConfig`):
 - **`fixVersionFieldName`** *(optional, requires `fixVersionPattern`)*
   - **What it does**: Name of the ClickUp custom field where fix version will be written.
   - **Example**: `Fix Version`.
+  - **Where to get it**: The exact custom field name configured in your ClickUp space/list (Custom Fields settings). The plugin matches by name.
 
 ##### Task options (`clickUpAutomation<Variant>`)
 
