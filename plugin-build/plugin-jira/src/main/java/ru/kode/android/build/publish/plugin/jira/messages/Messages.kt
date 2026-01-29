@@ -3,7 +3,7 @@ package ru.kode.android.build.publish.plugin.jira.messages
 import ru.kode.android.build.publish.plugin.jira.EXTENSION_NAME
 
 fun pluginInitializedMessage(
-    authNames: Set<String>,
+    endpointNames: Set<String>,
     automationNames: Set<String>,
 ): String {
     return """
@@ -14,8 +14,8 @@ fun pluginInitializedMessage(
         | Jira plugin has been initialized with the following 
         | configurations:
         |
-        | Authentication Configurations: 
-        | ${if (authNames.isEmpty()) "None" else authNames.joinToString(", ")}
+        | Endpoints Configurations: 
+        | ${if (endpointNames.isEmpty()) "None" else endpointNames.joinToString(", ")}
         | Automation Configurations: 
         | ${if (automationNames.isEmpty()) "None" else automationNames.joinToString(", ")}
         |
@@ -23,6 +23,140 @@ fun pluginInitializedMessage(
         |  1. Verify the configurations above match your Jira setup
         |  2. Check the logs for any warnings or errors
         |  3. Run your build to test the integration
+        |============================================================
+        """.trimIndent()
+}
+
+fun noMatchingJiraEndpointForProjectKeyMessage(projectKey: String): String {
+    return """
+        
+        |============================================================
+        |     NO MATCHING JIRA ENDPOINT FOR PROJECT KEY
+        |============================================================
+        | Project key: $projectKey
+        |
+        | REQUIRED ACTION:
+        | Add projectKeys("$projectKey") to one of your Jira endpoint configs, e.g.:
+        |
+        | $EXTENSION_NAME {
+        |   endpoints {
+        |     common {
+        |       endpoint("<endpointName>") {
+        |         // baseUrl + credentials
+        |         projectKeys("$projectKey")
+        |       }
+        |     }
+        |   }
+        | }
+        |============================================================
+        """.trimIndent()
+}
+
+fun jiraEndpointEncodeToJsonFailedMessage(): String {
+    return """
+         
+         |============================================================
+         |        FAILED TO ENCODE JIRA ENDPOINT CONFIG
+        |============================================================
+        | Failed to encode Jira endpoint configuration to JSON.
+        | This is an internal plugin error.
+        |============================================================
+        """.trimIndent()
+}
+
+fun jiraEndpointJsonParsingFailedMessage(json: String): String {
+    return """
+         
+         |============================================================
+         |        FAILED TO PARSE JIRA ENDPOINT JSON
+        |============================================================
+        | Failed to parse Jira endpoint configuration from JSON.
+        |
+        | JSON:
+        | $json
+        |
+        | This is an internal plugin error.
+        |============================================================
+        """.trimIndent()
+}
+
+fun noMatchingJiraEndpointMessage(endpointName: String): String {
+    return """
+        
+        |============================================================
+        |           NO MATCHING JIRA ENDPOINT CONFIGURATION
+        |============================================================
+        | Could not find Jira endpoint configuration with name: $endpointName
+        |
+        | REQUIRED ACTION:
+        | Ensure that you have a corresponding endpoint config defined:
+        |
+        | $EXTENSION_NAME {
+        |   endpoints {
+        |     common {
+        |       // or buildVariant("<variant>")
+        |       // configuration name must match destinationEndpoint.endpointName
+        |     }
+        |   }
+        | }
+        |============================================================
+        """.trimIndent()
+}
+
+fun destinationEndpointEncodeToJsonFailedMessage(): String {
+    return """
+         
+         |============================================================
+         |        FAILED TO ENCODE JIRA DESTINATION ENDPOINT CONFIG
+        |============================================================
+        | Failed to encode Jira destinationEndpoint configuration to JSON.
+        | This is an internal plugin error.
+        |
+        | RECOMMENDED ACTIONS:
+        |  1. Check that destinationEndpoint config values are valid
+        |  2. Try cleaning Gradle build cache
+        |  3. If the issue persists, report it with full build logs
+        |============================================================
+        """.trimIndent()
+}
+
+fun destinationEndpointJsonParsingFailedMessage(json: String): String {
+    return """
+         
+         |============================================================
+         |        FAILED TO PARSE JIRA DESTINATION ENDPOINT JSON
+        |============================================================
+        | Failed to parse Jira destinationEndpoint configuration from JSON.
+        |
+        | JSON:
+        | $json
+        |
+        | This is an internal plugin error.
+        |============================================================
+        """.trimIndent()
+}
+
+fun noMatchingDestinationEndpointMessage(projectKey: String): String {
+    return """
+        
+        |============================================================
+        |     NO MATCHING DESTINATION ENDPOINT FOR JIRA PROJECT KEY
+        |============================================================
+        | Project key: $projectKey
+        |
+        | REQUIRED ACTION:
+        | Add a destinationEndpoint mapping to Jira automation config, e.g.:
+        |
+        | $EXTENSION_NAME {
+        |   automation {
+        |     common {
+        |       destinationEndpoint {
+        |         endpointName = "<endpointConfigName>"
+        |         projectKeys("$projectKey")
+        |       }
+        |     }
+        |   }
+        | }
         |============================================================
         """.trimIndent()
 }
@@ -55,29 +189,31 @@ fun jiraServicesCreatedMessage(servicesNames: Set<String>): String {
         """.trimIndent()
 }
 
-fun noAuthConfigsMessage(): String {
+fun noEndpointsConfigsMessage(): String {
     return """
         
         |============================================================
-        |              NO JIRA AUTH CONFIGURATIONS FOUND   
+        |            NO JIRA ENDPOINT CONFIGURATIONS FOUND   
         |============================================================
-        | No Jira authentication configurations were found in your 
+        | No Jira endpoint configurations were found in your 
         | build script.
         | The service map will remain empty and Jira integration will 
         | be disabled.
         |
         | TO ENABLE JIRA INTEGRATION:
         |  1. Add a 'jira' configuration block to your build script
-        |  2. Configure at least one authentication method
+        |  2. Configure at least one endpoint
         |
         | Example configuration:
         |
         | $EXTENSION_NAME {
-        |     auth {
-        |         common {
-        |             // Auth settings here
-        |         }
+        |   endpoints {
+        |     common {
+        |       endpoint("<endpointName>") {
+        |         // baseUrl + credentials
+        |       }
         |     }
+        |   }
         | }
         |
         | NOTE: 
@@ -105,30 +241,6 @@ fun mustApplyFoundationPluginMessage(): String {
         |
         | Make sure to replace <version> with the correct version 
         | number.
-        |============================================================
-        """.trimIndent()
-}
-
-fun serviceExtensionCreatedMessage(): String {
-    return """
-        
-        |============================================================
-        |                 JIRA EXTENSION INITIALIZED   
-        |============================================================
-        | JiraServiceExtension has been created but no configuration
-        | has been provided yet.
-        |
-        | NEXT STEPS:
-        |  1. Configure your Jira settings in the build script
-        |  2. Set up authentication and automation blocks
-        |  3. Apply the configuration using the 'jira' extension
-        |
-        | Example configuration:
-        |
-        |  $EXTENSION_NAME {
-        |      auth { ... }
-        |      automation { ... }
-        |  }
         |============================================================
         """.trimIndent()
 }
@@ -203,26 +315,28 @@ fun needToProvideAutomationConfigMessage(variantName: String): String {
         """.trimIndent()
 }
 
-fun needToProvideAuthConfigMessage(variantName: String): String {
+fun needToProvideEndpointsConfigMessage(variantName: String): String {
     return """
         
         |============================================================
-        |                   MISSING AUTHENTICATION   
+        |              MISSING ENDPOINT CONFIGURATION   
         |============================================================
-        | No Jira authentication configuration found for build variant: 
+        | No Jira endpoint configuration found for build variant: 
         | $variantName
         |
         | REQUIRED ACTION:
-        | You must provide authentication details to use Jira 
+        | You must provide endpoint details to use Jira 
         | integration.
         |
         | EXAMPLE CONFIGURATION:
         |
         | $EXTENSION_NAME {
         |     common { // or buildVariant($variantName)
-        |         auth {
-        |             // Your auth settings here
+        |       endpoints {
+        |         endpoint("<endpointName>") {
+        |           // baseUrl + credentials
         |         }
+        |       }
         |     }
         | }
         |

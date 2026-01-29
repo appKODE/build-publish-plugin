@@ -10,6 +10,8 @@ import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutp
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
+import ru.kode.android.build.publish.plugin.jira.controller.mappers.mapToEntity
+import ru.kode.android.build.publish.plugin.jira.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
 import ru.kode.android.build.publish.plugin.jira.task.automation.JiraAutomationTask
 
@@ -88,10 +90,15 @@ private fun Project.registerJiraTasks(
             it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
             it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
             it.issueNumberPattern.set(params.issueNumberPattern)
-            it.projectKey.set(automationConfig.projectKey)
             it.labelPattern.set(automationConfig.labelPattern)
             it.fixVersionPattern.set(automationConfig.fixVersionPattern)
             it.targetStatusName.set(automationConfig.targetStatusName)
+            it.destinationEndpoints.set(
+                automationConfig.destinationEndpoints.map {
+                        destinationEndpoints ->
+                    destinationEndpoints.mapToEntity().toJson()
+                },
+            )
             it.service.set(service)
             it.loggerService.set(loggerService)
 

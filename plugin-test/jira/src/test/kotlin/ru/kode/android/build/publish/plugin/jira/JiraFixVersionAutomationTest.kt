@@ -85,10 +85,10 @@ class JiraFixVersionAutomationTest {
                 auth = JiraConfig.Auth(
                     baseUrl = System.getProperty("JIRA_BASE_URL"),
                     username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+                    password = System.getProperty("JIRA_USER_PASSWORD"),
+                    projectKeys = listOf(projectKey),
                 ),
                 automation = JiraConfig.Automation(
-                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
                     targetStatusName = null
@@ -199,10 +199,10 @@ class JiraFixVersionAutomationTest {
                 auth = JiraConfig.Auth(
                     baseUrl = System.getProperty("JIRA_BASE_URL"),
                     username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+                    password = System.getProperty("JIRA_USER_PASSWORD"),
+                    projectKeys = listOf(projectKey),
                 ),
                 automation = JiraConfig.Automation(
-                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
                     targetStatusName = null
@@ -312,10 +312,10 @@ class JiraFixVersionAutomationTest {
                 auth = JiraConfig.Auth(
                     baseUrl = System.getProperty("JIRA_BASE_URL"),
                     username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+                    password = System.getProperty("JIRA_USER_PASSWORD"),
+                    projectKeys = listOf(projectKey),
                 ),
                 automation = JiraConfig.Automation(
-                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
                     targetStatusName = null
@@ -425,10 +425,10 @@ class JiraFixVersionAutomationTest {
                 auth = JiraConfig.Auth(
                     baseUrl = System.getProperty("JIRA_BASE_URL"),
                     username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+                    password = System.getProperty("JIRA_USER_PASSWORD"),
+                    projectKeys = listOf(projectKey),
                 ),
                 automation = JiraConfig.Automation(
-                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
                     targetStatusName = null
@@ -532,10 +532,10 @@ class JiraFixVersionAutomationTest {
                 auth = JiraConfig.Auth(
                     baseUrl = System.getProperty("JIRA_BASE_URL"),
                     username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+                    password = System.getProperty("JIRA_USER_PASSWORD"),
+                    projectKeys = listOf(projectKey),
                 ),
                 automation = JiraConfig.Automation(
-                    projectKey = projectKey,
                     labelPattern = null,
                     fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
                     targetStatusName = null

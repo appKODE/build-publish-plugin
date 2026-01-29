@@ -67,21 +67,40 @@ buildPublishFoundation {
 }
 
 buildPublishJira {
-    auth {
+    endpoints {
         common {
-            baseUrl.set("https://jira.atlassian.com")
-            credentials.username.set("test_user_default")
-            credentials.password.set("test_password_default")
+            endpoint("self-hosted") {
+                baseUrl.set("https://jira.atlassian.com")
+                credentials.username.set("test_user_default")
+                credentials.password.set("test_password_default")
+                projectKeys("AT", "BT", "CT")
+            }
+            endpoint("remote") {
+                baseUrl.set("https://jira.atlassian.com")
+                credentials.username.set("test_user_default")
+                credentials.password.set("test_password_default")
+                projectKeys("XT")
+            }
         }
         buildVariant("release") {
-            baseUrl.set("https://jira.atlassian.com")
-            credentials.username.set("test_user_release")
-            credentials.password.set("test_password_release")
+            endpoint("remote") {
+                baseUrl.set("https://jira.atlassian.com")
+                credentials.username.set("test_user_default")
+                credentials.password.set("test_password_default")
+                projectKeys("AT", "BT", "CT")
+            }
         }
     }
     automation {
         common {
-            projectKey.set("AT")
+            destinationEndpoint {
+                endpointName.set("self-hosted")
+                projectKeys("AT", "BT")
+            }
+            destinationEndpoint {
+                endpointName.set("remote")
+                projectKeys("XT")
+            }
             fixVersionPattern.set("fix_%2\$s_%1\$s")
         }
     }

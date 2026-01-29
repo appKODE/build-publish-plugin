@@ -14,9 +14,14 @@ import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
  */
 internal interface AddFixVersionParameters : WorkParameters {
     /**
-     * The numeric ID of the Jira project where the version will be created
+     * The Jira project key where the version will be created
      */
-    val projectId: Property<Long>
+    val projectKey: Property<String>
+
+    /**
+     * The name of the Jira endpoint configuration to use for API requests
+     */
+    val endpointName: Property<String>
 
     /**
      * The set of Jira issue keys to update (e.g., ["PROJ-123", "PROJ-456"])
@@ -53,11 +58,12 @@ internal abstract class AddFixVersionWork : WorkAction<AddFixVersionParameters> 
         val service = parameters.service.get()
         val issues = parameters.issues.get()
         val version = parameters.version.get()
-        val projectId = parameters.projectId.get()
+        val projectKey = parameters.projectKey.get()
+        val endpointName = parameters.endpointName.get()
 
-        service.createVersion(projectId, version)
+        service.createVersion(endpointName, projectKey, version)
         issues.forEach { issue ->
-            service.addFixVersion(issue, version)
+            service.addFixVersion(endpointName, issue, version)
         }
     }
 }

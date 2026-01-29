@@ -19,6 +19,11 @@ internal interface AddLabelParameters : WorkParameters {
     val issues: SetProperty<String>
 
     /**
+     * The name of the Jira endpoint to use for API communication
+     */
+    val endpointName: Property<String>
+
+    /**
      * The label to add to the specified issues
      */
     val label: Property<String>
@@ -46,9 +51,10 @@ internal abstract class AddLabelWork : WorkAction<AddLabelParameters> {
         val service = parameters.service.get()
         val issues = parameters.issues.get()
         val label = parameters.label.get()
+        val endpointName = parameters.endpointName.get()
 
         issues.forEach { issue ->
-            service.addLabel(issue, label)
+            service.addLabel(endpointName, issue, label)
         }
     }
 }

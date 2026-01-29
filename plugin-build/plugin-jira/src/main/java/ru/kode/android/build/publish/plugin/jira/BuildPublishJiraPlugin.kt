@@ -10,10 +10,12 @@ import org.gradle.api.tasks.StopExecutionException
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
+import ru.kode.android.build.publish.plugin.jira.controller.mappers.mapToEntity
+import ru.kode.android.build.publish.plugin.jira.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.jira.extension.BuildPublishJiraExtension
 import ru.kode.android.build.publish.plugin.jira.messages.jiraServicesCreatedMessage
 import ru.kode.android.build.publish.plugin.jira.messages.mustApplyFoundationPluginMessage
-import ru.kode.android.build.publish.plugin.jira.messages.noAuthConfigsMessage
+import ru.kode.android.build.publish.plugin.jira.messages.noEndpointsConfigsMessage
 import ru.kode.android.build.publish.plugin.jira.messages.pluginInitializedMessage
 import ru.kode.android.build.publish.plugin.jira.messages.registeringServicesMessage
 import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
@@ -69,24 +71,23 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
 
             val logger = loggerProvider.get()
 
-            if (extension.auth.isEmpty()) {
-                logger.info(noAuthConfigsMessage())
+            if (extension.endpoints.isEmpty()) {
+                logger.info(noEndpointsConfigsMessage())
                 return@finalizeDsl
             }
 
             logger.info(registeringServicesMessage())
 
             val serviceMap =
-                extension.auth.associate { authConfig ->
-                    val name = authConfig.name
+                extension.endpoints.associate { endpointsConfig ->
+                    val name = endpointsConfig.name
                     val registered =
                         project.gradle.sharedServices.registerIfAbsent(
                             project.serviceName(SERVICE_NAME, name),
                             JiraService::class.java,
                         ) {
                             it.maxParallelUsages.set(1)
-                            it.parameters.credentials.set(authConfig.credentials)
-                            it.parameters.baseUrl.set(authConfig.baseUrl)
+                            it.parameters.endpoints.set(endpointsConfig.endpoints.map { it.mapToEntity().toJson() })
                             it.parameters.loggerService.set(loggerProvider)
                         }
                     name to registered
@@ -98,7 +99,7 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
 
             logger.info(
                 pluginInitializedMessage(
-                    extension.auth.names,
+                    extension.endpoints.names,
                     extension.automation.names,
                 ),
             )

@@ -17,8 +17,8 @@ internal object JiraClientFactory {
     /**
      * Builds an instance of OkHttpClient for Jira API communication with the necessary configuration.
      *
-     * @param username The username used for authentication with the Jira API.
-     * @param password The password used for authentication with the Jira API.
+     * @param username The username used for Jira API credentials.
+     * @param password The password used for Jira API credentials.
      * @param logger The logger used for logging HTTP requests and responses.
      * @return An instance of OkHttpClient.
      */
@@ -52,11 +52,11 @@ internal object JiraClientFactory {
 }
 
 /**
- * Interceptor that attaches the username and password as basic authentication
+ * Interceptor that attaches the username and password as basic credentials
  * to each request.
  *
- * @property username The username used for authentication.
- * @property password The password used for authentication.
+ * @property username The username used for credentials.
+ * @property password The password used for credentials.
  */
 private class AttachTokenInterceptor(
     private val username: String,

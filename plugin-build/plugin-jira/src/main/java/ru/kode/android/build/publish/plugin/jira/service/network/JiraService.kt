@@ -1,14 +1,17 @@
 package ru.kode.android.build.publish.plugin.jira.service.network
 
-import okhttp3.OkHttpClient
+import org.gradle.api.GradleException
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.JiraControllerImpl
-import ru.kode.android.build.publish.plugin.jira.network.api.JiraApi
+import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraEndpoint
+import ru.kode.android.build.publish.plugin.jira.controller.mappers.jiraEndpointFromJson
+import ru.kode.android.build.publish.plugin.jira.messages.noMatchingJiraEndpointForProjectKeyMessage
+import ru.kode.android.build.publish.plugin.jira.messages.noMatchingJiraEndpointMessage
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraApiFactory
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraClientFactory
 import javax.inject.Inject
@@ -16,7 +19,7 @@ import javax.inject.Inject
 /**
  * A Gradle build service that provides network operations for interacting with Jira's REST API.
  *
- * This service handles authentication, request/response serialization, and error handling
+ * This service handles credentials, request/response serialization, and error handling
  * for Jira API operations. It's designed to be used within Gradle build scripts to
  * automate Jira-related tasks as part of the build process.
 
@@ -33,14 +36,10 @@ abstract class JiraService
          */
         interface Params : BuildServiceParameters {
             /**
-             * The base URL of the Jira instance (e.g., "https://your-domain.atlassian.net")
+             * A list of configured Jira endpoints that can be used for making requests.
+             * Each endpoint is serialized as JSON.
              */
-            val baseUrl: Property<String>
-
-            /**
-             * The authentication credentials for the Jira API, containing username and password/token
-             */
-            val credentials: Property<BasicAuthCredentials>
+            val endpoints: ListProperty<String>
 
             /**
              * The logger service for logging messages during network operations.
@@ -48,37 +47,50 @@ abstract class JiraService
             val loggerService: Property<LoggerService>
         }
 
-        internal abstract val okHttpClientProperty: Property<OkHttpClient>
+        private val endpoints: List<JiraEndpoint>
+            get() =
+                parameters.endpoints
+                    .map { it.map { json -> jiraEndpointFromJson(json) } }
+                    .get()
 
-        internal abstract val apiProperty: Property<JiraApi>
-
-        internal abstract val controllerProperty: Property<JiraController>
-
-        init {
-            val username = parameters.credentials.flatMap { it.username }
-            val password = parameters.credentials.flatMap { it.password }
-            okHttpClientProperty.set(
-                parameters.loggerService.map { it.logger }.flatMap { logger ->
-                    username
-                        .zip(password) { username, password ->
-                            JiraClientFactory.build(username, password, logger)
-                        }
-                },
-            )
-            apiProperty.set(
-                okHttpClientProperty
-                    .zip(parameters.baseUrl) { client, baseUrl ->
-                        JiraApiFactory.build(client, baseUrl)
-                    },
-            )
-            controllerProperty.set(
-                apiProperty.zip(parameters.loggerService.map { it.logger }) { api, logger ->
-                    JiraControllerImpl(api, logger)
-                },
-            )
+        private fun resolveEndpointByProjectKey(projectKey: String): JiraEndpoint {
+            val normalizedProjectKey = projectKey.uppercase()
+            return endpoints.firstOrNull { endpoint ->
+                endpoint.projectKeys.map { it.uppercase() }.contains(normalizedProjectKey)
+            } ?: throw GradleException(noMatchingJiraEndpointForProjectKeyMessage(projectKey))
         }
 
-        private val controller: JiraController get() = controllerProperty.get()
+        private fun resolveEndpointByName(endpointName: String): JiraEndpoint {
+            return endpoints.firstOrNull { it.name == endpointName }
+                ?: throw GradleException(noMatchingJiraEndpointMessage(endpointName))
+        }
+
+        private fun resolveEndpointByIssueKey(issueKey: String): JiraEndpoint {
+            val projectKey = issueKey.substringBefore("-").uppercase()
+            return resolveEndpointByProjectKey(projectKey)
+        }
+
+        private fun buildController(endpoint: JiraEndpoint): JiraController {
+            val logger = parameters.loggerService.get().logger
+            val basicAuth =
+                endpoint.basicAuth
+                    ?: throw GradleException("Jira endpoint '${endpoint.name}' has no credentials")
+            val client = JiraClientFactory.build(basicAuth.username, basicAuth.password, logger)
+            val api = JiraApiFactory.build(client, endpoint.baseUrl)
+            return JiraControllerImpl(api, logger)
+        }
+
+        private fun controllerForProjectKey(projectKey: String): JiraController {
+            return buildController(resolveEndpointByProjectKey(projectKey))
+        }
+
+        private fun controllerForEndpointName(endpointName: String): JiraController {
+            return buildController(resolveEndpointByName(endpointName))
+        }
+
+        private fun controllerForIssueKey(issueKey: String): JiraController {
+            return buildController(resolveEndpointByIssueKey(issueKey))
+        }
 
         /**
          * Retrieves the ID of the status with the given name in the specified project,
@@ -97,7 +109,16 @@ abstract class JiraService
             statusName: String,
             issues: List<String>,
         ): String {
-            return controller.getStatusTransitionId(projectKey, statusName, issues)
+            return controllerForProjectKey(projectKey).getStatusTransitionId(projectKey, statusName, issues)
+        }
+
+        fun getStatusTransitionId(
+            endpointName: String,
+            projectKey: String,
+            statusName: String,
+            issues: List<String>,
+        ): String {
+            return controllerForEndpointName(endpointName).getStatusTransitionId(projectKey, statusName, issues)
         }
 
         /**
@@ -111,7 +132,14 @@ abstract class JiraService
          * @throws JiraApiException If the Jira API returns an error
          */
         fun getProjectId(projectKey: String): Long {
-            return controller.getProjectId(projectKey)
+            return controllerForProjectKey(projectKey).getProjectId(projectKey)
+        }
+
+        fun getProjectId(
+            endpointName: String,
+            projectKey: String,
+        ): Long {
+            return controllerForEndpointName(endpointName).getProjectId(projectKey)
         }
 
         /**
@@ -127,7 +155,15 @@ abstract class JiraService
             issueKey: String,
             statusTransitionId: String,
         ) {
-            controller.setIssueStatus(issueKey, statusTransitionId)
+            controllerForIssueKey(issueKey).setIssueStatus(issueKey, statusTransitionId)
+        }
+
+        fun setStatus(
+            endpointName: String,
+            issueKey: String,
+            statusTransitionId: String,
+        ) {
+            controllerForEndpointName(endpointName).setIssueStatus(issueKey, statusTransitionId)
         }
 
         /**
@@ -143,7 +179,15 @@ abstract class JiraService
             issueKey: String,
             label: String,
         ) {
-            controller.addIssueLabel(issueKey, label)
+            controllerForIssueKey(issueKey).addIssueLabel(issueKey, label)
+        }
+
+        fun addLabel(
+            endpointName: String,
+            issueKey: String,
+            label: String,
+        ) {
+            controllerForEndpointName(endpointName).addIssueLabel(issueKey, label)
         }
 
         /**
@@ -156,10 +200,20 @@ abstract class JiraService
          * @throws JiraApiException If the Jira API returns an error or version already exists
          */
         fun createVersion(
-            projectId: Long,
+            projectKey: String,
             version: String,
         ) {
-            controller.createProjectVersion(projectId, version)
+            val projectId = getProjectId(projectKey)
+            controllerForProjectKey(projectKey).createProjectVersion(projectId, version)
+        }
+
+        fun createVersion(
+            endpointName: String,
+            projectKey: String,
+            version: String,
+        ) {
+            val projectId = getProjectId(endpointName, projectKey)
+            controllerForEndpointName(endpointName).createProjectVersion(projectId, version)
         }
 
         /**
@@ -175,6 +229,14 @@ abstract class JiraService
             issueKey: String,
             version: String,
         ) {
-            controller.addIssueFixVersion(issueKey, version)
+            controllerForIssueKey(issueKey).addIssueFixVersion(issueKey, version)
+        }
+
+        fun addFixVersion(
+            endpointName: String,
+            issueKey: String,
+            version: String,
+        ) {
+            controllerForEndpointName(endpointName).addIssueFixVersion(issueKey, version)
         }
     }

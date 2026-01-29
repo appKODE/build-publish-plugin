@@ -14,10 +14,10 @@ import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
-import ru.kode.android.build.publish.plugin.jira.config.JiraAuthConfig
 import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
-import ru.kode.android.build.publish.plugin.jira.messages.needToProvideAuthConfigMessage
+import ru.kode.android.build.publish.plugin.jira.config.JiraEndpointsConfig
 import ru.kode.android.build.publish.plugin.jira.messages.needToProvideAutomationConfigMessage
+import ru.kode.android.build.publish.plugin.jira.messages.needToProvideEndpointsConfigMessage
 import ru.kode.android.build.publish.plugin.jira.task.JiraAutomationTaskParams
 import ru.kode.android.build.publish.plugin.jira.task.JiraTasksRegistrar
 import javax.inject.Inject
@@ -27,9 +27,9 @@ import javax.inject.Inject
  *
  * This extension provides configuration options for connecting to Jira and
  * automating Jira-related tasks during the build. It supports multiple
- * authentication configurations and automation rules.
+ * endpoint configurations and automation rules.
  *
- * @see JiraAuthConfig For authentication configuration options
+ * @see JiraEndpointsConfig For endpoint configuration options
  * @see JiraAutomationConfig For automation rule configuration options
  */
 @Suppress("UnnecessaryAbstractClass")
@@ -37,13 +37,12 @@ abstract class BuildPublishJiraExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
         /**
-         * Container for Jira authentication configurations.
+         * Container for Jira endpoints configurations.
          *
-         * Each configuration defines how to authenticate with a Jira instance.
-         * Multiple configurations can be defined for different environments.
+         * Each configuration defines a set of named endpoints items for a build variant.
          */
-        internal val auth: NamedDomainObjectContainer<JiraAuthConfig> =
-            objectFactory.domainObjectContainer(JiraAuthConfig::class.java)
+        internal val endpoints: NamedDomainObjectContainer<JiraEndpointsConfig> =
+            objectFactory.domainObjectContainer(JiraEndpointsConfig::class.java)
 
         /**
          * Container for Jira automation rule configurations.
@@ -55,24 +54,24 @@ abstract class BuildPublishJiraExtension
             objectFactory.domainObjectContainer(JiraAutomationConfig::class.java)
 
         /**
-         * Retrieves a Jira authentication configuration by name, throwing an exception if not found.
+         * Retrieves a Jira endpoint configuration by name, throwing an exception if not found.
          *
          * @param buildName The name of the build variant or configuration
-         * @return The matching [JiraAuthConfig]
+         * @return The matching [JiraEndpointsConfig]
          * @throws UnknownDomainObjectException If no configuration exists with the given name
          */
-        val authConfig: (buildName: String) -> JiraAuthConfig = { buildName ->
-            auth.getByNameOrRequiredCommon(buildName)
+        val endpointsConfig: (buildName: String) -> JiraEndpointsConfig = { buildName ->
+            endpoints.getByNameOrRequiredCommon(buildName)
         }
 
         /**
-         * Retrieves a Jira authentication configuration by name, returning null if not found.
+         * Retrieves a Jira endpoint configuration by name, returning null if not found.
          *
          * @param buildName The name of the build variant or configuration
-         * @return The matching [JiraAuthConfig], or null if not found
+         * @return The matching [JiraEndpointsConfig], or null if not found
          */
-        val authConfigOrNull: (buildName: String) -> JiraAuthConfig? = { buildName ->
-            auth.getByNameOrNullableCommon(buildName)
+        val endpointsConfigOrNull: (buildName: String) -> JiraEndpointsConfig? = { buildName ->
+            endpoints.getByNameOrNullableCommon(buildName)
         }
 
         /**
@@ -97,31 +96,17 @@ abstract class BuildPublishJiraExtension
         }
 
         /**
-         * Configures Jira authentication settings.
+         * Configures Jira endpoint settings.
          *
-         * @param configurationAction The configuration action to apply to the auth container
-         * @see JiraAuthConfig For available configuration options
+         * @param configurationAction The configuration action to apply to the endpoints container
+         * @see JiraEndpointsConfig For available configuration options
          */
-        fun auth(
+        fun endpoints(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<JiraAuthConfig>>,
+            configurationAction: Action<BuildPublishDomainObjectContainer<JiraEndpointsConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(auth)
+            val container = BuildPublishDomainObjectContainer(endpoints)
             configurationAction.execute(container)
-        }
-
-        /**
-         * Configures Jira authentication settings using a Groovy closure.
-         *
-         * @param configurationClosure The Groovy closure to apply to the auth container
-         * @see JiraAuthConfig For available configuration options
-         */
-        fun auth(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<JiraAuthConfig>>,
-        ) {
-            val container = BuildPublishDomainObjectContainer(auth)
-            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -153,29 +138,12 @@ abstract class BuildPublishJiraExtension
         }
 
         /**
-         * Applies configuration to all Jira authentication settings.
+         * Applies configuration to all Jira endpoint settings.
          *
-         * @param configurationAction The configuration action to apply to all auth configurations
+         * @param configurationAction The configuration action to apply to all endpoint configurations
          */
-        fun authCommon(configurationAction: Action<JiraAuthConfig>) {
-            common(auth, configurationAction)
-        }
-
-        /**
-         * Applies configuration to all Jira authentication settings using a Groovy closure.
-         *
-         * @param configurationClosure The Groovy closure to configure all auth configurations
-         */
-        fun authCommon(
-            @DelegatesTo(
-                value = JiraAuthConfig::class,
-                strategy = Closure.DELEGATE_FIRST,
-            )
-            configurationClosure: Closure<in JiraAuthConfig>,
-        ) {
-            common(auth) { target ->
-                configureGroovy(configurationClosure, target)
-            }
+        fun endpointsCommon(configurationAction: Action<JiraEndpointsConfig>) {
+            common(endpoints, configurationAction)
         }
 
         /**
@@ -223,8 +191,8 @@ abstract class BuildPublishJiraExtension
         ) {
             val variantName = input.buildVariant.name
 
-            if (auth.isEmpty()) {
-                throw GradleException(needToProvideAuthConfigMessage(variantName))
+            if (endpoints.isEmpty()) {
+                throw GradleException(needToProvideEndpointsConfigMessage(variantName))
             }
 
             val automationConfig =

@@ -22,6 +22,11 @@ internal interface SetStatusParameters : WorkParameters {
     val issues: SetProperty<String>
 
     /**
+     * The name of the Jira endpoint configuration to use for API requests
+     */
+    val endpointName: Property<String>
+
+    /**
      * The ID of the status transition to apply to the issues
      */
     val statusTransitionId: Property<String>
@@ -58,10 +63,11 @@ internal abstract class SetStatusWork : WorkAction<SetStatusParameters> {
         val issues = parameters.issues.get()
         val service = parameters.service.get()
         val logger = parameters.loggerService.get()
+        val endpointName = parameters.endpointName.get()
 
         issues.forEach { issue ->
             try {
-                service.setStatus(issue, parameters.statusTransitionId.get())
+                service.setStatus(endpointName, issue, parameters.statusTransitionId.get())
             } catch (ex: UploadError) {
                 logger.info(failedToUpdateStatusMessage(issue), ex)
             }

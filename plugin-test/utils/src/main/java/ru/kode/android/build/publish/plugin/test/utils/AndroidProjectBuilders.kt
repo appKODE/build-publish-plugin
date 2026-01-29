@@ -358,20 +358,40 @@ fun File.createAndroidProject(
 
     val jiraConfigBlock =
         jiraConfig?.let { config ->
-            val automation = config.automation?.let { automation ->
-                jiraAutomationBlock(automation)
-            }.orEmpty()
+            val jiraAutomationConfigBlock =
+                config.automation
+                    ?.let { automation ->
+                        val destinationEndpoints =
+                            automation.destinationEndpoints
+                                .takeIf { it.isNotEmpty() }
+                                ?: config.auth.projectKeys
+                                    .takeIf { it.isNotEmpty() }
+                                    ?.let { projectKeys ->
+                                        listOf(
+                                            JiraConfig.DestinationEndpoint(
+                                                endpointName = "common",
+                                                projectKeys = projectKeys,
+                                            ),
+                                        )
+                                    }
+                                    .orEmpty()
+                        jiraAutomationBlock(automation.copy(destinationEndpoints = destinationEndpoints))
+                    }
+                    .orEmpty()
             """
         buildPublishJira {
-            auth {
+            endpoints {
                 common {
-                    baseUrl.set("${config.auth.baseUrl}")
-                    credentials.username.set("${config.auth.username}")
-                    credentials.password.set("${config.auth.password}")
+                    it.endpoint("common") { endpoint ->
+                        endpoint.baseUrl.set("${config.auth.baseUrl}")
+                        endpoint.credentials.username.set("${config.auth.username}")
+                        endpoint.credentials.password.set("${config.auth.password}")
+                        ${config.auth.projectKeys.takeIf { it.isNotEmpty() }?.let { "endpoint.projectKeys(${it.joinToString { "\"$it\"" }})" }.orEmpty()}
+                    }
                 }
             }
                 
-            $automation
+            $jiraAutomationConfigBlock
         }
             """
         }.orEmpty()
@@ -518,12 +538,21 @@ private fun jiraAutomationBlock(automation: JiraConfig.Automation): String {
     return """
             automation {
                 common {
-                    projectKey.set("${automation.projectKey}")
+                    ${automation.destinationEndpoints.joinToString(separator = "\n") { endpoint -> jiraDestinationEndpointBlock(endpoint) }}
                     $pattern
                     $label
                     $statusName
                 }
             }
+    """
+}
+
+private fun jiraDestinationEndpointBlock(destinationEndpoint: JiraConfig.DestinationEndpoint): String {
+    return """
+                    it.destinationEndpoint { endpoint ->
+                        endpoint.endpointName.set("${destinationEndpoint.endpointName}")
+                        endpoint.projectKeys(${destinationEndpoint.projectKeys.joinToString { "\"$it\"" }})
+                    }
     """
 }
 
@@ -926,7 +955,7 @@ data class FirebaseConfig(
     data class Distribution(
         val serviceCredentialsFilePath: String,
         val artifactType: String,
-        val appId: String,
+        val appId: String?,
         val testerGroups: List<String>?,
     )
 }
@@ -939,13 +968,19 @@ data class JiraConfig(
         val baseUrl: String,
         val username: String,
         val password: String,
+        val projectKeys: List<String> = emptyList(),
     )
 
     data class Automation(
-        val projectKey: String,
+        val destinationEndpoints: List<DestinationEndpoint> = emptyList(),
         val labelPattern: String?,
         val fixVersionPattern: String?,
         val targetStatusName: String?,
+    )
+
+    data class DestinationEndpoint(
+        val endpointName: String,
+        val projectKeys: List<String>,
     )
 }
 

@@ -2277,18 +2277,23 @@ plugins {
 }
 
 buildPublishJira {
-    auth {
+    endpoints {
         common {
-            baseUrl.set("https://your-domain.atlassian.net")
-            credentials.username.set("your-email@example.com")
-            credentials.password.set(providers.environmentVariable("JIRA_API_TOKEN"))
+            endpoint("common") {
+                baseUrl.set("https://your-domain.atlassian.net")
+                credentials.username.set("your-email@example.com")
+                credentials.password.set(providers.environmentVariable("JIRA_API_TOKEN"))
+                projectKeys("PROJ")
+            }
         }
     }
 
     automation {
         common {
-            projectKey.set("PROJ")
-
+            destinationEndpoint {
+                endpointName.set("common")
+                projectKeys("PROJ")
+            }
             // Enable at least one automation action
             targetStatusName.set("Ready for QA")
         }
@@ -2307,18 +2312,22 @@ plugins {
 }
 
 buildPublishJira {
-    auth {
+    endpoints {
         common {
-            baseUrl.set('https://your-domain.atlassian.net')
-            credentials.username.set('your-email@example.com')
-            credentials.password.set(providers.environmentVariable('JIRA_API_TOKEN'))
+            endpoint('common') {
+                baseUrl.set('https://your-domain.atlassian.net')
+                credentials.username.set('your-email@example.com')
+                credentials.password.set(providers.environmentVariable('JIRA_API_TOKEN'))
+            }
         }
     }
 
     automation {
         common {
-            projectKey.set('PROJ')
-
+            destinationEndpoint {
+                endpointName.set('common')
+                projectKeys('PROJ')
+            }
             // Enable at least one automation action
             targetStatusName.set('Ready for QA')
         }
@@ -2332,18 +2341,22 @@ buildPublishJira {
 
 ```kotlin
 buildPublishJira {
-    auth {
+    endpoints {
         common {
-            baseUrl.set("https://your-domain.atlassian.net")
-            credentials.username.set("your-email@example.com")
-            credentials.password.set(providers.environmentVariable("JIRA_API_TOKEN"))
+            endpoint("common") {
+                baseUrl.set("https://your-domain.atlassian.net")
+                credentials.username.set("your-email@example.com")
+                credentials.password.set(providers.environmentVariable("JIRA_API_TOKEN"))
+            }
         }
     }
 
     automation {
         common {
-            projectKey.set("PROJ")
-
+            destinationEndpoint {
+                endpointName.set("common")
+                projectKeys("PROJ")
+            }
             // Label / fix version patterns use String.format(...)
             // format args order: buildVersion, buildNumber, buildVariant
             labelPattern.set("android-%s-%d")
@@ -2353,7 +2366,6 @@ buildPublishJira {
         }
 
         buildVariant("release") {
-            projectKey.set("PROJ")
             labelPattern.set("release-%s")
             fixVersionPattern.set("%s")
             targetStatusName.set("Ready for Release")
@@ -2366,18 +2378,22 @@ buildPublishJira {
 
 ```groovy
 buildPublishJira {
-    auth {
+    endpoints {
         common {
-            baseUrl.set('https://your-domain.atlassian.net')
-            credentials.username.set('your-email@example.com')
-            credentials.password.set(providers.environmentVariable('JIRA_API_TOKEN'))
+            endpoint('common') {
+                baseUrl.set('https://your-domain.atlassian.net')
+                credentials.username.set('your-email@example.com')
+                credentials.password.set(providers.environmentVariable('JIRA_API_TOKEN'))
+            }
         }
     }
 
     automation {
         common {
-            projectKey.set('PROJ')
-
+            destinationEndpoint {
+                endpointName.set('common')
+                projectKeys('PROJ')
+            }
             // format args order: buildVersion, buildNumber, buildVariant
             labelPattern.set('android-%s-%d')
             fixVersionPattern.set('%s')
@@ -2386,7 +2402,6 @@ buildPublishJira {
         }
 
         buildVariant('release') {
-            projectKey.set('PROJ')
             labelPattern.set('release-%s')
             fixVersionPattern.set('%s')
             targetStatusName.set('Ready for Release')
@@ -2402,8 +2417,9 @@ buildPublishJira {
 - **Foundation plugin is required**
   - The Jira plugin fails fast if `ru.kode.android.build-publish-novo.foundation` is not applied.
 
-- **Auth configuration is required**
-  - At least `auth.common { ... }` (internal common name is `default`) must be configured.
+- **Endpoint and routing configuration is required**
+  - At least one endpoint must be configured in `endpoints`.
+  - For each project key present in your changelog, you must configure a matching `destinationEndpoint { endpointName; projectKeys(...) }` mapping in `automation`.
 
 - **Automation configuration is required per variant**
   - If there is no matching `automation.common { ... }` or `automation.buildVariant("<name>") { ... }`, configuration fails.
@@ -2419,9 +2435,9 @@ buildPublishJira {
   - The task scans the generated changelog file using the foundation `issueNumberPattern`.
   - If no issues are found, the task logs an info message and does nothing.
 
-##### Auth (`buildPublishJira { auth { ... } }`)
+##### Endpoints (`buildPublishJira { endpoints { ... } }`)
 
-Properties (applies to each `JiraAuthConfig`):
+Properties (applies to each `JiraEndpointConfig`):
 
 - **`baseUrl`** *(required)*
   - **What it does**: Base URL of your Jira instance.
@@ -2468,7 +2484,6 @@ The task supports overriding inputs via CLI options:
 - `--buildTagSnapshotFile=/abs/path/to/tag.json`
 - `--changelogFile=/abs/path/to/changelog.md`
 - `--issueNumberPattern=([A-Z]+-\\d+)`
-- `--projectKey=PROJ`
 - `--labelPattern=android-%s-%d`
 - `--fixVersionPattern=%s`
 - `--targetStatusName=Ready for QA`
