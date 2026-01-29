@@ -12,6 +12,12 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.4
+- Fix issue with publishing Telegram changelog with html tags
+- Update README for Slack to add info how install token correctly for file uploading
+- Update README for buildTagPattern Gradle example 
+- Add logic to show show description and message in RequestError
+
 ### 1.2.3
 - Add support of agp 9.0.0
 

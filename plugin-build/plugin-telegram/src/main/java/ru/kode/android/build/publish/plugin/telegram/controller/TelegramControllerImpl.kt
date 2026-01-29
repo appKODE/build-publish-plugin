@@ -274,7 +274,7 @@ private fun formatIssuesHtml(
     issueNumberPattern: String,
 ): String {
     val issueRegexp = issueNumberPattern.toRegex()
-    var out = message
+    var out = escapeHtml(message)
 
     issueRegexp.findAll(message).distinctBy { it.value }.forEach { match ->
         val issueKey = match.value
@@ -292,7 +292,8 @@ private fun formatIssuesHtml(
  * @return The escaped string.
  */
 private fun escapeHtml(input: String): String {
-    return input.replace("&", "&amp;")
+    return input
+        .replace("&", "&amp;")
         .replace("<", "&lt;")
         .replace(">", "&gt;")
 }

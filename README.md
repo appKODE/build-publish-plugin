@@ -200,12 +200,12 @@ Groovy DSL (`build.gradle`):
 buildPublishFoundation {
     output {
         common {
-            it.buildTagPattern {
-                literal('v')
-                separator('.')
-                buildVersion()
-                separator('-')
-                buildVariantName()
+            it.buildTagPattern { builder ->
+                builder.literal('v')
+                builder.separator('.')
+                builder.buildVersion()
+                builder.separator('-')
+                builder.buildVariantName()
             }
         }
     }
@@ -1819,7 +1819,19 @@ Properties (applies to each `SlackBotConfig`):
 - **`uploadApiTokenFile`** *(required for file uploads)*
   - **What it does**: File containing a Slack bot/user token for file uploads.
   - **Why you need it**: Required by `slackDistributionUpload*` tasks.
-  - **Where to get it**: In your Slack app settings, add required OAuth scopes (at least `files:write`), install the app to the workspace, then copy the **Bot User OAuth Token** (usually `xoxb-...`). Store the token in a local file.
+  - **Where to get it**: In your Slack app settings, add required OAuth scopes (**`files:write` and `files:read`**), install (or re-install) the app to the workspace, then copy the **Bot User OAuth Token** (usually `xoxb-...`). Store the token in a local file.
+  - **Notes / required Slack setup for uploads**:
+    - **Add OAuth scopes**: Slack App settings -> **OAuth & Permissions** -> **Scopes** -> add:
+      - `files:write`
+      - `files:read`
+      - Link: https://api.slack.com/scopes
+    - **Reinstall the app after changing scopes**: after you change scopes, Slack requires re-installation for permissions to apply:
+      - Slack App settings -> **Settings** -> **Install App** -> click **Reinstall to Workspace** (or **Install to Workspace**)
+      - Link: https://api.slack.com/start/quickstart#installing
+    - **Add the app/bot to the destination channel**: the bot must be a member of the target channel (the one you configure via `destinationChannel(...)` / `destinationChannels(...)`):
+      - Open the channel in Slack UI
+      - Channel name menu -> **Integrations** -> **Add apps** -> add your app/bot
+      - Link: https://slack.com/help/articles/202035138-Add-apps-to-your-Slack-workspace
 
 - **`iconUrl`** *(required for changelog messages)*
   - **What it does**: Icon URL for Slack message sender.
