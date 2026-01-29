@@ -1,7 +1,11 @@
 package ru.kode.android.build.publish.plugin.core.util
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import retrofit2.Call
 import retrofit2.Response
+
+val errorJson = Json { ignoreUnknownKeys = true }
 
 inline fun <reified T : Any> Call<T>.executeWithResult(): Result<T> {
     return execute().toResult().map { it as T }
@@ -21,13 +25,19 @@ inline fun <reified T : Any?> Response<T>.toResult(): Result<T?> {
 }
 
 inline fun <reified T : Any?> Response<T>.mapError(): Result<T?> {
-    val reason = errorBody()?.string()
-    return if (reason?.contains("stream timeout") == true) {
+    val errorBody = errorBody()?.string()
+    val message =
+        errorBody
+            ?.takeIf { it.isNotBlank() }
+            ?.let { errorJson.decodeFromString<ApiErrorWithDescription>(it).description }
+            ?: message()
+    return if (errorBody?.contains("stream timeout") == true) {
         Result
             .failure(
                 RequestError.UploadTimeout(
                     code = code(),
-                    reason = reason,
+                    reason = errorBody,
+                    message = message,
                 ),
             )
     } else {
@@ -35,7 +45,8 @@ inline fun <reified T : Any?> Response<T>.mapError(): Result<T?> {
             .failure(
                 RequestError.Unknown(
                     code = code(),
-                    reason = reason,
+                    reason = errorBody,
+                    message = message,
                 ),
             )
     }
@@ -48,14 +59,21 @@ sealed class RequestError : Throwable() {
     data class Unknown(
         override val code: Int,
         override val reason: String?,
+        override val message: String?,
     ) : RequestError()
 
     data class UploadTimeout(
         override val code: Int,
         override val reason: String?,
+        override val message: String?,
     ) : RequestError()
 }
 
 data class UploadError(
     override val message: String,
 ) : Throwable(message)
+
+@Serializable
+data class ApiErrorWithDescription(
+    val description: String? = null,
+)
