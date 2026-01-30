@@ -3,6 +3,10 @@ package ru.kode.android.build.publish.plugin.foundation.config
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+import ru.kode.android.build.publish.plugin.core.strategy.AnnotatedTagMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.ChangelogMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.EmptyChangelogMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.NotGeneratedChangelogMessageStrategy
 
 /**
  * Configuration interface for changelog generation settings.
@@ -11,8 +15,8 @@ import org.gradle.api.tasks.Optional
  * Git commit history. It allows customization of how issue tracking is integrated
  * and which commits should be included in the changelog.
  */
-interface ChangelogConfig {
-    val name: String
+abstract class ChangelogConfig {
+    abstract val name: String
 
     /**
      * The regular expression pattern used to identify issue/ticket numbers in commit messages.
@@ -27,7 +31,7 @@ interface ChangelogConfig {
      * @see java.util.regex.Pattern
      */
     @get:Input
-    val issueNumberPattern: Property<String>
+    abstract val issueNumberPattern: Property<String>
 
     /**
      * The base URL of your issue tracker.
@@ -39,7 +43,7 @@ interface ChangelogConfig {
      * `https://jira.example.com/browse/TICKET-123`
      */
     @get:Input
-    val issueUrlPrefix: Property<String>
+    abstract val issueUrlPrefix: Property<String>
 
     /**
      * The commit message key used to identify commits that should be included in the changelog.
@@ -53,7 +57,7 @@ interface ChangelogConfig {
      * Note: The comparison is case-sensitive.
      */
     @get:Input
-    val commitMessageKey: Property<String>
+    abstract val commitMessageKey: Property<String>
 
     /**
      * If `true`, remove the configured [commitMessageKey] from commit messages
@@ -79,5 +83,101 @@ interface ChangelogConfig {
      */
     @get:Input
     @get:Optional
-    val excludeMessageKey: Property<Boolean>
+    abstract val excludeMessageKey: Property<Boolean>
+
+    /**
+     * Strategy for formatting annotated tag messages in the changelog output.
+     *
+     * This strategy determines how annotated tag messages are formatted when included
+     * in the generated changelog. Annotated tags in Git can contain messages that
+     * provide context about a release or version.
+     *
+     * @see AnnotatedTagMessageStrategy
+     */
+    @get:Input
+    @get:Optional
+    internal abstract val annotatedTagMessageStrategy: Property<AnnotatedTagMessageStrategy>
+
+    /**
+     * Strategy for formatting commit messages in the changelog output.
+     *
+     * This strategy determines how individual commit messages are formatted when included
+     * in the generated changelog. It allows customization of message formatting, filtering,
+     * and transformation.
+     *
+     * @see ChangelogMessageStrategy
+     */
+    @get:Input
+    @get:Optional
+    internal abstract val changelogMessageStrategy: Property<ChangelogMessageStrategy>
+
+    /**
+     * Strategy for generating changelog messages when no changes are detected.
+     *
+     * This strategy determines the message that appears in the changelog when there are
+     * no new commits between the current and previous build tags. It allows customization
+     * of the "no changes" message format.
+     *
+     * @see EmptyChangelogMessageStrategy
+     */
+    @get:Input
+    @get:Optional
+    internal abstract val emptyChangelogMessageStrategy: Property<EmptyChangelogMessageStrategy>
+
+    /**
+     * Strategy for generating changelog messages when the changelog could not be generated.
+     *
+     * This strategy determines the message that appears when the changelog generation
+     * process fails or cannot produce a valid changelog. It allows customization
+     * of the error or fallback message format.
+     *
+     * @see NotGeneratedChangelogMessageStrategy
+     */
+    @get:Input
+    @get:Optional
+    internal abstract val notGeneratedChangelogMessageStrategy: Property<NotGeneratedChangelogMessageStrategy>
+
+    /**
+     * Configures the strategy used to format annotated tag messages in the changelog.
+     *
+     * @param action Supplier that returns the desired [AnnotatedTagMessageStrategy] implementation.
+     *
+     * @see AnnotatedTagMessageStrategy
+     */
+    fun annotatedTagMessageStrategy(action: () -> AnnotatedTagMessageStrategy) {
+        annotatedTagMessageStrategy.set(action())
+    }
+
+    /**
+     * Configures the strategy used to format commit messages in the changelog.
+     *
+     * @param action Supplier that returns the desired [ChangelogMessageStrategy] implementation.
+     *
+     * @see ChangelogMessageStrategy
+     */
+    fun changelogMessageStrategy(action: () -> ChangelogMessageStrategy) {
+        changelogMessageStrategy.set(action())
+    }
+
+    /**
+     * Configures the strategy used to generate changelog messages when no changes are detected.
+     *
+     * @param action Supplier that returns the desired [EmptyChangelogMessageStrategy] implementation.
+     *
+     * @see EmptyChangelogMessageStrategy
+     */
+    fun emptyChangelogMessageStrategy(action: () -> EmptyChangelogMessageStrategy) {
+        emptyChangelogMessageStrategy.set(action())
+    }
+
+    /**
+     * Configures the strategy used to generate changelog messages when the changelog could not be generated.
+     *
+     * @param action Supplier that returns the desired [NotGeneratedChangelogMessageStrategy] implementation.
+     *
+     * @see NotGeneratedChangelogMessageStrategy
+     */
+    fun notGeneratedChangelogMessageStrategy(action: () -> NotGeneratedChangelogMessageStrategy) {
+        notGeneratedChangelogMessageStrategy.set(action())
+    }
 }

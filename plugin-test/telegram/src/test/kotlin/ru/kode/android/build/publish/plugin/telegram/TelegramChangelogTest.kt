@@ -1053,7 +1053,7 @@ class TelegramChangelogTest {
 
 private fun getLongChangelog(): String {
     return """
-[TEST-3241] Should be flled "Solar panek" (<Complect from request>)
+[TEST-3241] Should be filled "Solar panel" (<Part from request>)
 [TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
 [TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
 [TEST-3158] [Android] Goofy’s final SBP screen shows all the goofy statuses after he paid his cookie subscription

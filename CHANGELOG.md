@@ -12,6 +12,11 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.5
+- Add strategies to configure changelog message/annotated tag message/empty messages
+- Replace empty changelogs message to more compact versions
+- Add logic to map Markdown tags to HTML for Telegram to style correctly it
+
 ### 1.2.4
 - Fix issue with publishing Telegram changelog with html tags
 - Update README for Slack to add info how install token correctly for file uploading
@@ -53,6 +58,9 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 ---
 
 ## 📦 build-publish-novo-core
+
+### 1.2.2
+- Add strategies to configure changelog message/annotated tag message/empty messages
 
 ### 1.2.1
 - Decouple logic from specific gradle version implementation

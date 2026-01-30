@@ -415,10 +415,97 @@ class SlackChangelogTest {
         )
         assertTrue(!givenOutputFileExists, "Output file not exists")
     }
+
+    @Test
+    @Throws(IOException::class)
+    fun `slack empty changelog sending available with changelog config without proxy and custom server`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("release")
+            ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog = FoundationConfig.Changelog(
+                        issueNumberPattern = "TEST-\\\\d+",
+                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
+                    )
+                ),
+            slackConfig = SlackConfig(
+                bot = SlackConfig.Bot(
+                    webhookUrl = System.getProperty("SLACK_WEBHOOK_URL"),
+                    iconUrl = System.getProperty("SLACK_ICON_URL"),
+                    uploadApiTokenFilePath = null
+                ),
+                changelog = SlackConfig.Changelog(
+                    userMentions = listOf(
+                        "@melora_silvian_ar",
+                        "@renalt_meridun_rt",
+                        "@theronvale_miro_xt",
+                        "@corvann_elidra_qm",
+                        "@Marvilo7"
+                    ),
+                    attachmentColor = "#fff000"
+                ),
+                distribution = null
+            ),
+            topBuildFileContent = """
+                plugins {
+                    id 'ru.kode.android.build-publish-novo.foundation' apply false
+                }
+            """.trimIndent()
+        )
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
+        val givenCommitMessage = "Initial commit"
+        val givenCommitMessage2 = "Update something"
+        val givenAssembleTask = "assembleDebug"
+        val givenSlackChangelogTask = "sendSlackChangelogDebug"
+        val git = projectDir.initGit()
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+        projectDir.getFile("app/README.md").writeText("This is test project")
+        git.addAllAndCommit(givenCommitMessage2)
+        git.tag.addNamed(givenTagName2)
+
+        val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
+        val changelogResult: BuildResult = projectDir.runTask(givenSlackChangelogTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
+        assertTrue(
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagRelease not executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("BUILD SUCCESSFUL"),
+            "Build successful",
+        )
+        assertTrue(
+            changelogResult.output.contains("BUILD SUCCESSFUL"),
+            "Slack changelog successful"
+        )
+        assertTrue(givenOutputFileExists, "Output file exists")
+    }
 }
 
 private fun getLongChangelog(): String {
     return """
+[TEST-3241] Should be filled "Solar panel" (<Part from request>)
 [TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
 [TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
 [TEST-3158] [Android] Goofy’s final SBP screen shows all the goofy statuses after he paid his cookie subscription

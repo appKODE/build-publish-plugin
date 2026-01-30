@@ -4,11 +4,6 @@ import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 
 /**
- * Bullet point character used for formatting changelog entries.
- */
-private const val DOT_PREFIX = "•"
-
-/**
  * Provides high-level Git repository operations tailored for build and publish workflows.
  *
  * This class serves as a facade over [GitCommandExecutor], offering a more convenient API for
@@ -95,18 +90,9 @@ class GitRepository(
      */
     fun markedCommitMessages(
         messageKey: String,
-        excludeKey: Boolean,
         buildTagSnapshot: BuildTagSnapshot,
     ): List<String> {
         return gitCommandExecutor
             .extractMarkedCommitMessages(messageKey, buildTagSnapshot.asCommitRange())
-            .map { message ->
-                if (excludeKey) {
-                    val cleanMessage = message.replace(Regex("\\s*$messageKey:?\\s*"), "").trim()
-                    "$DOT_PREFIX $cleanMessage".trim()
-                } else {
-                    "$DOT_PREFIX $message".trim()
-                }
-            }
     }
 }

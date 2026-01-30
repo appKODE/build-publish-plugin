@@ -23,7 +23,7 @@ class GitChangelogBuilder(
      * Builds a changelog string for a given build tag by determining the tag range and collecting
      * commit messages between the tags.
      *
-     * This function first attempts to find a [BuildTagSnapshot] between the specified [snapshot] and the
+     * This function first attempts to find a [BuildTagSnapshot] between the specified [tagSnapshot] and the
      * previous matching build tag using [buildTagPattern]. If no valid tag range is found, a warning
      * is logged and `null` is returned.
      *
@@ -40,7 +40,7 @@ class GitChangelogBuilder(
      *
      * @param messageKey the key used to identify which commit messages to include in the changelog.
      * @param excludeKey whether to remove the [messageKey] from commit messages in the generated changelog.
-     * @param snapshot the build tag for which the changelog is being generated.
+     * @param tagSnapshot the build tag for which the changelog is being generated.
      * @param buildTagPattern the pattern used to find related build tags and determine the tag range.
      * @param defaultValueSupplier an optional function that supplies a default changelog string
      *        when no changelog can be built; receives the [TagRange] as input.
@@ -51,15 +51,19 @@ class GitChangelogBuilder(
     @Suppress("ReturnCount")
     fun buildForSnapshot(
         messageKey: String,
-        excludeKey: Boolean,
-        snapshot: BuildTagSnapshot,
-        defaultValueSupplier: ((BuildTagSnapshot) -> String?)? = null,
+        annotatedTagMessageBuilder: (String) -> String,
+        messageBuilder: (String) -> String,
+        tagSnapshot: BuildTagSnapshot,
     ): String? {
-        logger.info(buildingChangelogForTagRangeMessage(snapshot))
+        logger.info(buildingChangelogForTagRangeMessage(tagSnapshot))
         return buildChangelog(
-            snapshot,
-            { gitRepository.markedCommitMessages(messageKey, excludeKey, snapshot) },
-        ) ?: defaultValueSupplier?.invoke(snapshot)
+            snapshot = tagSnapshot,
+            annotatedTagMessageBuilder = annotatedTagMessageBuilder,
+            commitMessagesResolver = {
+                gitRepository.markedCommitMessages(messageKey, tagSnapshot)
+                    .map(messageBuilder)
+            },
+        )
     }
 
     /**
@@ -69,26 +73,27 @@ class GitChangelogBuilder(
      * the list of commit messages, each prefixed with a bullet point.
      *
      * @param snapshot The range of tags to include in the changelog
-     * @param markedCommitMessagesResolver Function that provides the list of commit messages
+     * @param commitMessagesResolver Function that provides the list of commit messages
      *
      * @return The formatted changelog string, or null if no messages are found
      */
     private fun buildChangelog(
         snapshot: BuildTagSnapshot,
-        markedCommitMessagesResolver: () -> List<String>,
+        annotatedTagMessageBuilder: (String) -> String,
+        commitMessagesResolver: () -> List<String>,
     ): String? {
         val messageBuilder =
             StringBuilder().apply {
                 val annotatedTagMessage = snapshot.current.message
                 if (annotatedTagMessage?.isNotBlank() == true) {
-                    appendLine("*$annotatedTagMessage*")
+                    appendLine(annotatedTagMessageBuilder(annotatedTagMessage))
                 }
             }
 
         // it can happen that 2 tags point to the same commit, so no extraction of changelog is necessary
         // (but remember, tags can be annotated - which is taken care of above)
         if (!snapshot.pointSameCommit) {
-            markedCommitMessagesResolver()
+            commitMessagesResolver()
                 .forEach { messageBuilder.appendLine(it) }
         }
         return messageBuilder.toString().takeIf { it.isNotBlank() }?.trim()

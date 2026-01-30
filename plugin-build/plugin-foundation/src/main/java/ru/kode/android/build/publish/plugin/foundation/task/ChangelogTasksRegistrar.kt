@@ -5,6 +5,10 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
+import ru.kode.android.build.publish.plugin.core.strategy.AnnotatedTagMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.ChangelogMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.EmptyChangelogMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.NotGeneratedChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
@@ -79,6 +83,10 @@ private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskP
         it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
         it.gitExecutorService.set(gitService)
         it.loggerService.set(loggerService)
+        it.annotatedTagMessageStrategy.set(params.annotatedTagMessageStrategy)
+        it.changelogMessageStrategy.set(params.changelogMessageStrategy)
+        it.emptyChangelogMessageStrategy.set(params.emptyChangelogMessageStrategy)
+        it.notGeneratedChangelogMessageStrategy.set(params.notGeneratedChangelogMessageStrategy)
 
         it.usesService(gitService)
         it.usesService(loggerService)
@@ -112,4 +120,20 @@ internal data class GenerateChangelogTaskParams(
      * Provider for the file containing the last tag information
      */
     val buildTagSnapshotProvider: Provider<out GetLastTagSnapshotTaskOutput>,
+    /**
+     * Strategy for formatting annotated tag messages in the changelog output.
+     */
+    val annotatedTagMessageStrategy: Provider<AnnotatedTagMessageStrategy>,
+    /**
+     * Strategy for formatting commit messages in the changelog output.
+     */
+    val changelogMessageStrategy: Provider<ChangelogMessageStrategy>,
+    /**
+     * Strategy for generating changelog messages when no changes are detected.
+     */
+    val emptyChangelogMessageStrategy: Provider<EmptyChangelogMessageStrategy>,
+    /**
+     * Strategy for generating changelog messages when the changelog could not be generated.
+     */
+    val notGeneratedChangelogMessageStrategy: Provider<NotGeneratedChangelogMessageStrategy>,
 )

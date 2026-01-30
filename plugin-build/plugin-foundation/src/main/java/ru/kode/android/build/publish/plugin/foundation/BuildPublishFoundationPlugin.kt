@@ -17,6 +17,10 @@ import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_NAME
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_TAG_PATTERN
+import ru.kode.android.build.publish.plugin.core.strategy.DecoratedAnnotatedTagMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.KeyAwareChangelogMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.NoChangesChangelogMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.NoChangesNotGeneratedChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.core.util.serviceName
@@ -286,6 +290,26 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                     buildTagPattern = buildTagPattern,
                                     buildVariant = buildVariant,
                                     buildTagSnapshotProvider = buildTagSnapshotProvider,
+                                    annotatedTagMessageStrategy =
+                                        changelogConfigProvider.flatMap {
+                                            it.annotatedTagMessageStrategy
+                                                .orElse(DecoratedAnnotatedTagMessageStrategy)
+                                        },
+                                    changelogMessageStrategy =
+                                        changelogConfigProvider.flatMap {
+                                            it.changelogMessageStrategy
+                                                .orElse(KeyAwareChangelogMessageStrategy)
+                                        },
+                                    emptyChangelogMessageStrategy =
+                                        changelogConfigProvider.flatMap {
+                                            it.emptyChangelogMessageStrategy
+                                                .orElse(NoChangesChangelogMessageStrategy)
+                                        },
+                                    notGeneratedChangelogMessageStrategy =
+                                        changelogConfigProvider.flatMap {
+                                            it.notGeneratedChangelogMessageStrategy
+                                                .orElse(NoChangesNotGeneratedChangelogMessageStrategy)
+                                        },
                                 ),
                         )
 

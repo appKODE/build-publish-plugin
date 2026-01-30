@@ -274,15 +274,15 @@ private fun formatIssuesHtml(
     issueNumberPattern: String,
 ): String {
     val issueRegexp = issueNumberPattern.toRegex()
-    var out = escapeHtml(message)
+    var formattedMessage = markdownToTelegramHtml(message)
 
     issueRegexp.findAll(message).distinctBy { it.value }.forEach { match ->
         val issueKey = match.value
         val link = "<a href=\"$issueUrlPrefix$issueKey\">$issueKey</a>"
         // Replace issue with formatted HTML link
-        out = out.replace(issueKey, link)
+        formattedMessage = formattedMessage.replace(issueKey, link)
     }
-    return out
+    return formattedMessage
 }
 
 /**
@@ -318,4 +318,72 @@ private fun String.chunkedByLines(maxLength: Int): List<String> {
     }
     if (buffer.isNotEmpty()) result += buffer.toString()
     return result
+}
+
+/**
+ * Converts Markdown-formatted text to Telegram-compatible HTML.
+ *
+ * This function handles the following Markdown elements:
+ * - Fenced code blocks (```) → `<pre><code>...</code></pre>`
+ * - Inline code (`) → `<code>...</code>`
+ * - Bold (**text** or __text__) → `<b>...</b>`
+ * - Italic (*text* or _text_) → `<i>...</i>`
+ * - Strikethrough (~~text~~) → `<s>...</s>`
+ * - Links ([text](url)) → `<a href="url">text</a>`
+ *
+ * Special HTML characters are escaped to prevent injection issues.
+ *
+ * @param input The Markdown-formatted input string.
+ * @return The Telegram-compatible HTML string.
+ */
+private fun markdownToTelegramHtml(input: String): String {
+    val codeBlocks = mutableListOf<String>()
+    var text =
+        input.replace(Regex("```([\\s\\S]*?)```")) { m ->
+            val raw = m.groupValues[1].trim('\n', '\r')
+            val escaped = escapeHtml(raw)
+            val html = "<pre><code>$escaped</code></pre>"
+            val idx = codeBlocks.size
+            codeBlocks += html
+            "%%CODEBLOCK_$idx%%"
+        }
+
+    text = escapeHtml(text)
+
+    text =
+        text.replace(Regex("`([^`\\n]+)`")) { m ->
+            "<code>${m.groupValues[1]}</code>" // already escaped
+        }
+
+    text =
+        text.replace(Regex("\\[([^\\]]+)]\\(([^)\\s]+)\\)")) { m ->
+            val label = m.groupValues[1]
+            val url = m.groupValues[2]
+            "<a href=\"$url\">$label</a>"
+        }
+
+    text =
+        text.replace(Regex("\\*\\*([^*\\n]+)\\*\\*")) { m ->
+            "<b>${m.groupValues[1]}</b>"
+        }
+
+    text =
+        text.replace(Regex("(?<!\\*)\\*([^*\\n]+)\\*(?!\\*)")) { m ->
+            "<i>${m.groupValues[1]}</i>"
+        }
+    text =
+        text.replace(Regex("_(\\S[^_\\n]*\\S)_")) { m ->
+            "<i>${m.groupValues[1]}</i>"
+        }
+
+    text =
+        text.replace(Regex("~~([^~\\n]+)~~")) { m ->
+            "<s>${m.groupValues[1]}</s>"
+        }
+
+    codeBlocks.forEachIndexed { i, html ->
+        text = text.replace("%%CODEBLOCK_$i%%", html)
+    }
+
+    return text
 }

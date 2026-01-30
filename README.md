@@ -1206,6 +1206,23 @@ Changelog config defines how commit messages are filtered and how issue links ar
   - **What it does**: Removes the marker key from the final changelog text.
   - **Why you need it**: Lets you keep markers in Git history without exposing them to end users.
 
+- **`annotatedTagMessageStrategy { ... }`**
+  - **What it does**: Defines how Git *annotated tag* messages are formatted when included into the changelog.
+  - **Default**: `ru.kode.android.build.publish.plugin.core.strategy.DecoratedAnnotatedTagMessageStrategy`
+
+- **`changelogMessageStrategy { ... }`**
+  - **What it does**: Defines how each commit message is converted into a changelog line.
+  - **Default**: `ru.kode.android.build.publish.plugin.core.strategy.KeyAwareChangelogMessageStrategy`
+  - **Note**: This default strategy is the one that applies `excludeMessageKey` behavior.
+
+- **`emptyChangelogMessageStrategy { ... }`**
+  - **What it does**: Defines what gets written to the changelog file when there are no matching commits.
+  - **Default**: `ru.kode.android.build.publish.plugin.core.strategy.NoChangesChangelogMessageStrategy`
+
+- **`notGeneratedChangelogMessageStrategy { ... }`**
+  - **What it does**: Defines what gets logged when changelog generation produced an empty result.
+  - **Default**: `ru.kode.android.build.publish.plugin.core.strategy.NoChangesNotGeneratedChangelogMessageStrategy`
+
 #### Tasks
 
 | Task Name | Description | Depends On |
