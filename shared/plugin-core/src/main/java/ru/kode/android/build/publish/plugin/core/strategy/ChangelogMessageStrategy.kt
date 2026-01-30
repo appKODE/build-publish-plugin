@@ -14,7 +14,6 @@ interface ChangelogMessageStrategy {
      *
      * @param message The original commit message to format.
      * @param commitMessageKey The key used to identify changelog-relevant commits (e.g., `[changelog]`).
-     * @param excludeMessageKey Whether to remove the [commitMessageKey] from the formatted output.
      * @param tagSnapshot The build tag snapshot providing context about the current build.
      *
      * @return The formatted message string ready for inclusion in the changelog.
@@ -22,47 +21,45 @@ interface ChangelogMessageStrategy {
     fun build(
         message: String,
         commitMessageKey: String,
-        excludeMessageKey: Boolean,
         tagSnapshot: BuildTagSnapshot,
     ): String
 }
 
 /**
- * Default implementation of [ChangelogMessageStrategy] that handles message key removal.
+ * Changelog strategy that keeps the commit message key.
  *
- * This strategy formats commit messages as bullet points and optionally removes
- * the commit message key from the output based on the [excludeMessageKey] parameter.
- *
- * Example usage:
- * - Input: `"[changelog] Fix crash on startup"`, `commitMessageKey = "[changelog]"`, `excludeMessageKey = true`
- * - Output: `"• Fix crash on startup"`
- *
- * - Input: `"[changelog] Fix crash on startup"`, `commitMessageKey = "[changelog]"`, `excludeMessageKey = false`
- * - Output: `"• [changelog] Fix crash on startup"`
+ * Example:
+ * Input: "[changelog] Fix crash on startup"
+ * Output: "• [changelog] Fix crash on startup"
  */
-object KeyAwareChangelogMessageStrategy : ChangelogMessageStrategy {
-    /**
-     * Formats a commit message as a bullet point, optionally removing the message key.
-     *
-     * @param message The original commit message to format.
-     * @param commitMessageKey The key to optionally remove from the message.
-     * @param excludeMessageKey If `true`, the [commitMessageKey] and any trailing colon
-     *        are stripped from the message. If `false`, the message is preserved as-is.
-     * @param tagSnapshot The build tag snapshot (unused in this implementation but available for context).
-     *
-     * @return A bullet-pointed changelog entry.
-     */
+object KeyPreservingChangelogMessageStrategy : ChangelogMessageStrategy {
     override fun build(
         message: String,
         commitMessageKey: String,
-        excludeMessageKey: Boolean,
         tagSnapshot: BuildTagSnapshot,
     ): String {
-        return if (excludeMessageKey) {
-            val cleanMessage = message.replace(Regex("\\s*$commitMessageKey:?\\s*"), "").trim()
-            "• $cleanMessage".trim()
-        } else {
-            "• $message".trim()
-        }
+        return "• $message".trim()
+    }
+}
+
+/**
+ * Changelog strategy that removes the commit message key.
+ *
+ * Example:
+ * Input: "[changelog] Fix crash on startup"
+ * Output: "• Fix crash on startup"
+ */
+object KeyRemovingChangelogMessageStrategy : ChangelogMessageStrategy {
+    override fun build(
+        message: String,
+        commitMessageKey: String,
+        tagSnapshot: BuildTagSnapshot,
+    ): String {
+        val cleanMessage =
+            message
+                .replace(Regex("\\s*$commitMessageKey:?\\s*"), "")
+                .trim()
+
+        return "• $cleanMessage".trim()
     }
 }

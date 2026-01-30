@@ -12,6 +12,9 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.6
+- Split strategies, remove excludeMessageKey property, now it is configured via strategy
+
 ### 1.2.5
 - Add strategies to configure changelog message/annotated tag message/empty messages
 - Replace empty changelogs message to more compact versions

@@ -117,7 +117,7 @@ fun noChangedDetectedSinceStartMessage(): String {
 fun noChangesDetectedSinceBuildMessage(tagName: String): String {
     return """
         🔁 *No changes detected*
-        _Since build `${tagName}`_
+        _Since build `$tagName`_
 
         No new commits or configuration updates were found.
         """.trimIndent()

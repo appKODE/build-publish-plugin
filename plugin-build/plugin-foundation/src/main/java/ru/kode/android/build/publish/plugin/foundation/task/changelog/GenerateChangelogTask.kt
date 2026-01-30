@@ -116,37 +116,6 @@ abstract class GenerateChangelogTask : GenerateChangelogTaskOutput() {
     abstract val commitMessageKey: Property<String>
 
     /**
-     * Whether to remove the [commitMessageKey] from commit messages in the generated changelog.
-     *
-     * When enabled (`true`), the [commitMessageKey] (for example `[changelog]`)
-     * will be stripped from commit messages before writing them to the changelog.
-     * When disabled (`false`), the key remains visible in the generated changelog output.
-     *
-     * This allows using a marker key to identify relevant commits without exposing
-     * that internal tag in the final changelog.
-     *
-     * Example:
-     * - `commitMessageKey = "[changelog]"`
-     * - `excludeMessageKey = true`
-     *
-     * Commit message:
-     * ```
-     * [changelog] Fix crash on startup
-     * ```
-     * will appear as:
-     * ```
-     * Fix crash on startup
-     * ```
-     * in the generated changelog.
-     */
-    @get:Input
-    @get:Option(
-        option = "excludeMessageKey",
-        description = "Exclude key from changelog or not",
-    )
-    abstract val excludeMessageKey: Property<Boolean>
-
-    /**
      * The pattern used to match Git tags for versioning.
      *
      * This pattern is used to identify relevant tags when generating the changelog.
@@ -177,7 +146,6 @@ abstract class GenerateChangelogTask : GenerateChangelogTaskOutput() {
         val logger = loggerService.get()
 
         val commitMessageKey = commitMessageKey.get()
-        val excludeMessageKey = excludeMessageKey.get()
         val buildTagPattern = buildTagPattern.get()
         val tagSnapshot = fromJson(buildTagSnapshotFile.asFile.get())
         val notGeneratedChangelogMessageStrategy = notGeneratedChangelogMessageStrategy.get()
@@ -195,7 +163,7 @@ abstract class GenerateChangelogTask : GenerateChangelogTaskOutput() {
                     },
                     messageBuilder = { message ->
                         changelogMessageStrategy
-                            .build(message, commitMessageKey, excludeMessageKey, tagSnapshot)
+                            .build(message, commitMessageKey, tagSnapshot)
                     },
                     tagSnapshot = tagSnapshot,
                 )

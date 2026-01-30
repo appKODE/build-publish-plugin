@@ -934,7 +934,7 @@ class FoundationChangelogTest {
                             issueNumberPattern = "TICKET-\\\\d+",
                             issueUrlPrefix = "https://jira.example.com/browse/",
                             commitMessageKey = "TICKET",
-                            excludeMessageKey = false
+                            changelogMessageStrategy = "ru.kode.android.build.publish.plugin.core.strategy.KeyPreservingChangelogMessageStrategy.INSTANCE"
                         ),
                 ),
         )

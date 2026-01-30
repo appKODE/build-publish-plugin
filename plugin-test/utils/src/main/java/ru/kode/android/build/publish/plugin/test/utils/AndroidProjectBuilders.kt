@@ -206,7 +206,7 @@ fun File.createAndroidProject(
                 issueNumberPattern.set("${foundationConfig.changelog.issueNumberPattern}")
                 issueUrlPrefix.set("${foundationConfig.changelog.issueUrlPrefix}")
                 commitMessageKey.set("${foundationConfig.changelog.commitMessageKey}")
-                excludeMessageKey.set(${foundationConfig.changelog.excludeMessageKey})
+                ${foundationConfig.changelog.changelogMessageStrategy?.let { "changelogMessageStrategy { $it }" }.orEmpty()}
             }
         }
     """
@@ -758,7 +758,7 @@ data class FoundationConfig(
         val issueNumberPattern: String = "TICKET-\\\\d+",
         val issueUrlPrefix: String = "https://jira.example.com/browse/",
         val commitMessageKey: String = "CHANGELOG",
-        val excludeMessageKey: Boolean = true,
+        val changelogMessageStrategy: String? = null,
         val versionNameStrategy: String? = null,
         val versionCodeStrategy: String? = null,
     )
