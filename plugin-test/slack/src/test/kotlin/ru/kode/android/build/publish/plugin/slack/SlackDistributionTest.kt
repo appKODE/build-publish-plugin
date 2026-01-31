@@ -13,6 +13,8 @@ import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.FoundationConfig
 import ru.kode.android.build.publish.plugin.test.utils.SlackConfig
+import ru.kode.android.build.publish.plugin.test.utils.TelegramConfig
+import ru.kode.android.build.publish.plugin.test.utils.TelegramConfig.Chat
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
@@ -63,7 +65,7 @@ class SlackDistributionTest {
     @Test
     @Throws(IOException::class)
     fun `slack build distribution available with distribution config without proxy`() {
-        val clickUpTokenFile = projectDir.getFile("app/slack_token.txt").apply {
+        val slackTokenFile = projectDir.getFile("app/slack_token.txt").apply {
             writeText(System.getProperty("SLACK_UPLOAD_API_TOKEN"))
         }
         projectDir.createAndroidProject(
@@ -86,7 +88,7 @@ class SlackDistributionTest {
                 bot = SlackConfig.Bot(
                     webhookUrl = System.getProperty("SLACK_WEBHOOK_URL"),
                     iconUrl = System.getProperty("SLACK_ICON_URL"),
-                    uploadApiTokenFilePath = clickUpTokenFile.name,
+                    uploadApiTokenFilePath = slackTokenFile.name,
                 ),
                 changelog = null,
                 distribution = SlackConfig.Distribution(
@@ -156,7 +158,7 @@ class SlackDistributionTest {
     @Test
     @Throws(IOException::class)
     fun `slack build distribution available with distribution and changelog configs without proxy`() {
-        val clickUpTokenFile = projectDir.getFile("app/slack_token.txt").apply {
+        val slackTokenFile = projectDir.getFile("app/slack_token.txt").apply {
             writeText(System.getProperty("SLACK_UPLOAD_API_TOKEN"))
         }
         projectDir.createAndroidProject(
@@ -179,7 +181,7 @@ class SlackDistributionTest {
                 bot = SlackConfig.Bot(
                     webhookUrl = System.getProperty("SLACK_WEBHOOK_URL"),
                     iconUrl = System.getProperty("SLACK_ICON_URL"),
-                    uploadApiTokenFilePath = clickUpTokenFile.name,
+                    uploadApiTokenFilePath = slackTokenFile.name,
                 ),
                 changelog = SlackConfig.Changelog(
                     userMentions = listOf(
@@ -257,7 +259,7 @@ class SlackDistributionTest {
     @Test
     @Throws(IOException::class)
     fun `slack build distribution available with simultaneous distribution and changelog configs`() {
-        val clickUpTokenFile = projectDir.getFile("app/slack_token.txt").apply {
+        val slackTokenFile = projectDir.getFile("app/slack_token.txt").apply {
             writeText(System.getProperty("SLACK_UPLOAD_API_TOKEN"))
         }
         projectDir.createAndroidProject(
@@ -280,7 +282,7 @@ class SlackDistributionTest {
                 bot = SlackConfig.Bot(
                     webhookUrl = System.getProperty("SLACK_WEBHOOK_URL"),
                     iconUrl = System.getProperty("SLACK_ICON_URL"),
-                    uploadApiTokenFilePath = clickUpTokenFile.name,
+                    uploadApiTokenFilePath = slackTokenFile.name,
                 ),
                 changelog = SlackConfig.Changelog(
                     userMentions = listOf(
@@ -357,7 +359,7 @@ class SlackDistributionTest {
     @Test
     @Throws(IOException::class)
     fun `slack build distribution available with distribution config without proxy and assemble`() {
-        val clickUpTokenFile = projectDir.getFile("app/slack_token.txt").apply {
+        val slackTokenFile = projectDir.getFile("app/slack_token.txt").apply {
             writeText(System.getProperty("SLACK_UPLOAD_API_TOKEN"))
         }
         projectDir.createAndroidProject(
@@ -380,7 +382,7 @@ class SlackDistributionTest {
                 bot = SlackConfig.Bot(
                     webhookUrl = System.getProperty("SLACK_WEBHOOK_URL"),
                     iconUrl = System.getProperty("SLACK_ICON_URL"),
-                    uploadApiTokenFilePath = clickUpTokenFile.name,
+                    uploadApiTokenFilePath = slackTokenFile.name,
                 ),
                 changelog = SlackConfig.Changelog(
                     userMentions = listOf(
@@ -451,7 +453,7 @@ class SlackDistributionTest {
     @Test
     @Throws(IOException::class)
     fun `slack build bundle distribution available with distribution config without proxy`() {
-        val clickUpTokenFile = projectDir.getFile("app/slack_token.txt").apply {
+        val slackTokenFile = projectDir.getFile("app/slack_token.txt").apply {
             writeText(System.getProperty("SLACK_UPLOAD_API_TOKEN"))
         }
         projectDir.createAndroidProject(
@@ -474,7 +476,7 @@ class SlackDistributionTest {
                 bot = SlackConfig.Bot(
                     webhookUrl = System.getProperty("SLACK_WEBHOOK_URL"),
                     iconUrl = System.getProperty("SLACK_ICON_URL"),
-                    uploadApiTokenFilePath = clickUpTokenFile.name,
+                    uploadApiTokenFilePath = slackTokenFile.name,
                 ),
                 changelog = null,
                 distribution = SlackConfig.Distribution(
@@ -538,7 +540,7 @@ class SlackDistributionTest {
     @Test
     @Throws(IOException::class)
     fun `slack build distribution not available without distribution config`() {
-        val clickUpTokenFile = projectDir.getFile("app/slack_token.txt").apply {
+        val slackTokenFile = projectDir.getFile("app/slack_token.txt").apply {
             writeText(System.getProperty("SLACK_UPLOAD_API_TOKEN"))
         }
         projectDir.createAndroidProject(
@@ -554,7 +556,7 @@ class SlackDistributionTest {
                 bot = SlackConfig.Bot(
                     webhookUrl = System.getProperty("SLACK_WEBHOOK_URL"),
                     iconUrl = System.getProperty("SLACK_ICON_URL"),
-                    uploadApiTokenFilePath = clickUpTokenFile.name,
+                    uploadApiTokenFilePath = slackTokenFile.name,
                 ),
                 changelog = null,
                 distribution = null
@@ -605,6 +607,7 @@ class SlackDistributionTest {
             "Output file not exists"
         )
     }
+
 }
 
 private fun getChangelog(): String {

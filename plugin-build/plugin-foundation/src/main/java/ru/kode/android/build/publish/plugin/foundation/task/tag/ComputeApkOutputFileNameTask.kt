@@ -110,7 +110,7 @@ abstract class ComputeApkOutputFileNameTask : DefaultTask() {
         val apkOutputFileName =
             if (useVersionsFromTag) {
                 val tag =
-                    if (useVersionsFromTag && tagSnapshot.asFile.exists()) {
+                    if (tagSnapshot.asFile.exists()) {
                         fromJson(tagSnapshot.asFile).current
                     } else {
                         null

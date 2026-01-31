@@ -9,8 +9,8 @@ import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
-import ru.kode.android.build.publish.plugin.foundation.messages.noChangedDetectedSinceStartMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.noChangesDetectedSinceBuildMessage
+import ru.kode.android.build.publish.plugin.core.strategy.noChangedDetectedSinceStartMessage
+import ru.kode.android.build.publish.plugin.core.strategy.noChangesDetectedSinceBuildMessage
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.FoundationConfig
 import ru.kode.android.build.publish.plugin.test.utils.ManifestProperties
@@ -934,7 +934,7 @@ class FoundationChangelogTest {
                             issueNumberPattern = "TICKET-\\\\d+",
                             issueUrlPrefix = "https://jira.example.com/browse/",
                             commitMessageKey = "TICKET",
-                            excludeMessageKey = false
+                            changelogMessageStrategy = "ru.kode.android.build.publish.plugin.core.strategy.KeyPreservingChangelogMessageStrategy.INSTANCE"
                         ),
                 ),
         )

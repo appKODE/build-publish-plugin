@@ -7,7 +7,6 @@ import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
-import ru.kode.android.build.publish.plugin.foundation.EXTENSION_NAME
 import java.io.File
 
 private val VERSION_NUMBER_REGEX = Regex("""\d+(?:\.\d+)+""")
@@ -376,32 +375,6 @@ fun resolvedVersionNameMessage(
 }
 
 /**
- * Error message shown when no output configuration was provided in the DSL.
- */
-fun outputConfigShouldBeDefinedMessage(): String {
-    return """
-        
-        |============================================================
-        |                MISSING OUTPUT CONFIGURATION   
-        |============================================================
-        | The output configuration has not been defined.
-        |
-        | REQUIRED ACTION:
-        |  1. Ensure you have properly configured the output section
-        |  2. Verify your build script includes all required properties
-        |
-        | Example configuration:
-        |
-        |  $EXTENSION_NAME {
-        |    output {
-        |       // Your output configuration here
-        |    }
-        |  }
-        |============================================================
-        """.trimIndent()
-}
-
-/**
  * Informational message printed when a [BuildPublishConfigurableExtension] is being configured.
  */
 fun configureExtensionMessage(
@@ -624,51 +597,6 @@ fun renameApkMessage(
         | expected naming convention.
         |============================================================
         """.trimIndent()
-}
-
-/**
- * Default changelog message used when there is no previous build tag.
- */
-fun noChangedDetectedSinceStartMessage(): String {
-    return """
-        
-        |============================================================
-        |                    NO CHANGES DETECTED   
-        |============================================================
-        | No changes detected since the start of the repository 
-        | history.
-        |
-        | POSSIBLE REASONS:
-        |  1. This is the first commit in the repository
-        |  2. The repository was just initialized
-        |
-        | NEXT STEPS:
-        |  1. Verify your repository has the expected commits
-        |  2. Check your Git history: git log --oneline
-        |============================================================
-        """.trimIndent().trim()
-}
-
-/**
- * Default changelog message used when there are no changes since a previous build tag.
- */
-fun noChangesDetectedSinceBuildMessage(previousBuildName: String): String {
-    return """
-        
-        |============================================================
-        |                    NO CHANGES DETECTED   
-        |============================================================
-        | No changes detected since previous build $previousBuildName.
-        |
-        | POSSIBLE REASONS:
-        |  1. No code changes were made since the last build
-        |  2. The build configuration has not changed
-        |
-        | NEXT STEPS:
-        |  1. Verify your code changes are committed and pushed
-        |  2. Check your build configuration for any changes
-        |============================================================
-        """.trimIndent().trim()
 }
 
 /**

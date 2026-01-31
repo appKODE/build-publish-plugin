@@ -1017,7 +1017,6 @@ buildPublishFoundation {
          issueNumberPattern.set("#(\\d+)")
          issueUrlPrefix.set("https://your-issue-tracker.com/issue/")
          commitMessageKey.set("message")
-         excludeMessageKey.set(true)
       }
    }
 }
@@ -1059,7 +1058,6 @@ buildPublishFoundation {
             it.issueNumberPattern.set('#(\\d+)')
             it.issueUrlPrefix.set('https://your-issue-tracker.com/issue/')
             it.commitMessageKey.set('message')
-            it.excludeMessageKey.set(true)
         }
     }
 }
@@ -1202,9 +1200,24 @@ Changelog config defines how commit messages are filtered and how issue links ar
   - **What it does**: Marker used to include only selected commits into changelog.
   - **Why you need it**: Keeps changelog clean (only user-facing changes).
 
-- **`excludeMessageKey`** *(default: `true`)*
-  - **What it does**: Removes the marker key from the final changelog text.
-  - **Why you need it**: Lets you keep markers in Git history without exposing them to end users.
+- **`annotatedTagMessageStrategy { ... }`**
+  - **What it does**: Defines how Git *annotated tag* messages are formatted when included into the changelog.
+  - **Default**: `ru.kode.android.build.publish.plugin.core.strategy.DecoratedAnnotatedTagMessageStrategy`
+
+- **`changelogMessageStrategy { ... }`**
+  - **What it does**: Defines how each commit message is converted into a changelog line.
+  - **Default**: `ru.kode.android.build.publish.plugin.core.strategy.KeyRemovingChangelogMessageStrategy`
+  - **Common choices**:
+    - `ru.kode.android.build.publish.plugin.core.strategy.KeyRemovingChangelogMessageStrategy` (hides the key)
+    - `ru.kode.android.build.publish.plugin.core.strategy.KeyPreservingChangelogMessageStrategy` (keeps the key)
+
+- **`emptyChangelogMessageStrategy { ... }`**
+  - **What it does**: Defines what gets written to the changelog file when there are no matching commits.
+  - **Default**: `ru.kode.android.build.publish.plugin.core.strategy.NoChangesChangelogMessageStrategy`
+
+- **`notGeneratedChangelogMessageStrategy { ... }`**
+  - **What it does**: Defines what gets logged when changelog generation produced an empty result.
+  - **Default**: `ru.kode.android.build.publish.plugin.core.strategy.NoChangesNotGeneratedChangelogMessageStrategy`
 
 #### Tasks
 
