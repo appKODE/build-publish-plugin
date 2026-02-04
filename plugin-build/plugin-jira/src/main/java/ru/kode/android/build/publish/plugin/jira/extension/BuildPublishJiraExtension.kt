@@ -102,7 +102,6 @@ abstract class BuildPublishJiraExtension
          * @param configurationAction The configuration action to apply to the auth container
          * @see JiraAuthConfig For available configuration options
          */
-        @JvmSynthetic
         fun auth(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
             configurationAction: Action<BuildPublishDomainObjectContainer<JiraAuthConfig>>,
@@ -111,9 +110,15 @@ abstract class BuildPublishJiraExtension
             configurationAction.execute(container)
         }
 
+        /**
+         * Configures Jira authentication settings using a Groovy closure.
+         *
+         * @param configurationClosure The Groovy closure to apply to the auth container
+         * @see JiraAuthConfig For available configuration options
+         */
         fun auth(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<JiraAuthConfig>>
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<JiraAuthConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(auth)
             configureGroovy(configurationClosure, container)
@@ -125,7 +130,6 @@ abstract class BuildPublishJiraExtension
          * @param configurationAction The configuration action to apply to the automation container
          * @see JiraAutomationConfig For available configuration options
          */
-        @JvmSynthetic
         fun automation(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
             configurationAction: Action<BuildPublishDomainObjectContainer<JiraAutomationConfig>>,
@@ -134,9 +138,15 @@ abstract class BuildPublishJiraExtension
             configurationAction.execute(container)
         }
 
+        /**
+         * Configures Jira automation rules using a Groovy closure.
+         *
+         * @param configurationClosure The Groovy closure to apply to the automation container
+         * @see JiraAutomationConfig For available configuration options
+         */
         fun automation(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<JiraAutomationConfig>>
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<JiraAutomationConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(automation)
             configureGroovy(configurationClosure, container)
@@ -147,17 +157,21 @@ abstract class BuildPublishJiraExtension
          *
          * @param configurationAction The configuration action to apply to all auth configurations
          */
-        @JvmSynthetic
         fun authCommon(configurationAction: Action<JiraAuthConfig>) {
             common(auth, configurationAction)
         }
 
+        /**
+         * Applies configuration to all Jira authentication settings using a Groovy closure.
+         *
+         * @param configurationClosure The Groovy closure to configure all auth configurations
+         */
         fun authCommon(
             @DelegatesTo(
                 value = JiraAuthConfig::class,
                 strategy = Closure.DELEGATE_FIRST,
             )
-            configurationClosure: Closure<in JiraAuthConfig>
+            configurationClosure: Closure<in JiraAuthConfig>,
         ) {
             common(auth) { target ->
                 configureGroovy(configurationClosure, target)
@@ -169,17 +183,24 @@ abstract class BuildPublishJiraExtension
          *
          * @param configurationAction The configuration action to apply to all automation configurations
          */
-        @JvmSynthetic
         fun automationCommon(configurationAction: Action<JiraAutomationConfig>) {
             common(automation, configurationAction)
         }
 
+        /**
+         * Applies configuration to all Jira automation rules.
+         *
+         * This is a convenience method for applying the same automation rules
+         * to all build variants using Groovy closure syntax.
+         *
+         * @param configurationClosure The Groovy closure to apply to all automation configurations
+         */
         fun automationCommon(
             @DelegatesTo(
                 value = JiraAutomationConfig::class,
                 strategy = Closure.DELEGATE_FIRST,
             )
-            configurationClosure: Closure<in JiraAutomationConfig>
+            configurationClosure: Closure<in JiraAutomationConfig>,
         ) {
             common(automation) { target ->
                 configureGroovy(configurationClosure, target)

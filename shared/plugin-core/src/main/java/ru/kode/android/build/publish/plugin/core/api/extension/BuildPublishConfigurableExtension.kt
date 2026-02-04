@@ -10,7 +10,6 @@ import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomai
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.buildVariant
 import ru.kode.android.build.publish.plugin.core.util.common
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 
 /**
  * Base class for configurable extensions in the build and publish plugin system.
@@ -58,7 +57,6 @@ open class BuildPublishConfigurableExtension {
      * }
      * ```
      */
-    @JvmSynthetic
     protected fun <T : Any> common(
         container: NamedDomainObjectContainer<T>,
         configurationAction: Action<in T>,
@@ -74,11 +72,7 @@ open class BuildPublishConfigurableExtension {
         )
         configurationClosure: Closure<in T>,
     ) {
-        container.common(
-            Action { target ->
-                configureGroovy(configurationClosure, target)
-            }
-        )
+        container.common(configurationClosure)
     }
 
     /**
@@ -101,7 +95,6 @@ open class BuildPublishConfigurableExtension {
      * }
      * ```
      */
-    @JvmSynthetic
     protected fun <T : Any> common(
         container: BuildPublishDomainObjectContainer<T>,
         configurationAction: Action<in T>,
@@ -141,7 +134,6 @@ open class BuildPublishConfigurableExtension {
      * }
      * ```
      */
-    @JvmSynthetic
     protected fun <T : Any> buildVariant(
         buildVariant: String,
         container: NamedDomainObjectContainer<T>,
@@ -150,6 +142,19 @@ open class BuildPublishConfigurableExtension {
         container.buildVariant(buildVariant, configurationAction)
     }
 
+    /**
+     * Applies build-type specific configuration to a named domain object container using the Closure syntax.
+     *
+     * This method registers a configuration action that will be applied only to the specified
+     * build variant. The configuration is stored and applied when the container is populated
+     * with actual elements for the given variant.
+     *
+     * @param T The type of objects in the container.
+     * @param buildVariant The name of the build variant (e.g., "debug", "release").
+     * @param container The named domain object container to configure.
+     * @param configurationClosure The closure that configures the build type.
+     * ```
+     */
     protected fun <T : Any> buildVariant(
         buildVariant: String,
         container: NamedDomainObjectContainer<T>,
@@ -159,9 +164,7 @@ open class BuildPublishConfigurableExtension {
         )
         configurationClosure: Closure<in T>,
     ) {
-        container.buildVariant(buildVariant, Action { target ->
-            configureGroovy(configurationClosure, target)
-        })
+        container.buildVariant(buildVariant, configurationClosure)
     }
 
     /**
@@ -186,8 +189,6 @@ open class BuildPublishConfigurableExtension {
      * }
      * ```
      */
-    @JvmSynthetic
-
     protected fun <T : Any> buildVariant(
         buildVariant: String,
         container: BuildPublishDomainObjectContainer<T>,
@@ -196,6 +197,19 @@ open class BuildPublishConfigurableExtension {
         container.buildVariant(buildVariant, configurationAction)
     }
 
+    /**
+     * Applies build-type specific configuration to a base domain container using the Closure syntax.
+     *
+     * This method registers a configuration action that will be applied only to the specified
+     * build variant using the [BuildPublishDomainObjectContainer] abstraction. It's particularly
+     * useful when working with custom domain object containers that require special handling.
+     *
+     * @param T The type of objects in the container.
+     * @param buildVariant The name of the build variant (e.g., "debug", "release").
+     * @param container The base domain container to configure.
+     * @param configurationClosure The closure that configures the build type.
+     *
+     **/
     protected fun <T : Any> buildVariant(
         buildVariant: String,
         container: BuildPublishDomainObjectContainer<T>,

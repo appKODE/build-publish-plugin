@@ -141,11 +141,20 @@ abstract class OutputConfig {
      *
      * @see VersionNameStrategy
      */
-    @JvmSynthetic
     fun versionNameStrategy(action: () -> VersionNameStrategy) {
         versionNameStrategy.set(action())
     }
 
+    /**
+     * Configures the version name strategy using a Groovy closure.
+     *
+     * This overload is provided for Groovy DSL compatibility. The closure should return
+     * a [VersionNameStrategy] implementation.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [VersionNameStrategy] implementation.
+     *
+     * @see VersionNameStrategy
+     */
     fun versionNameStrategy(
         @DelegatesTo(
             value = VersionNameStrategy::class,
@@ -163,11 +172,20 @@ abstract class OutputConfig {
      *
      * @see VersionCodeStrategy
      */
-    @JvmSynthetic
     fun versionCodeStrategy(action: () -> VersionCodeStrategy) {
         versionCodeStrategy.set(action())
     }
 
+    /**
+     * Configures the version code strategy using a Groovy closure.
+     *
+     * This overload is provided for Groovy DSL compatibility. The closure should return
+     * a [VersionCodeStrategy] implementation.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [VersionCodeStrategy] implementation.
+     *
+     * @see VersionCodeStrategy
+     */
     fun versionCodeStrategy(
         @DelegatesTo(
             value = VersionCodeStrategy::class,
@@ -188,11 +206,20 @@ abstract class OutputConfig {
      *
      * @see OutputApkNameStrategy
      */
-    @JvmSynthetic
     fun outputApkNameStrategy(action: () -> OutputApkNameStrategy) {
         outputApkNameStrategy.set(action())
     }
 
+    /**
+     * Configures the strategy used to generate the final APK output file name using a Groovy closure.
+     *
+     * This overload is provided for Groovy DSL compatibility. The closure should return
+     * an [OutputApkNameStrategy] implementation.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [OutputApkNameStrategy] implementation.
+     *
+     * @see OutputApkNameStrategy
+     */
     fun outputApkNameStrategy(
         @DelegatesTo(
             value = OutputApkNameStrategy::class,

@@ -147,27 +147,27 @@ fun File.createAndroidProject(
     val buildTypeOutputBlock1 =
         foundationConfig.buildTypeOutput?.let { (name, config) ->
             val useVersionsFromTag = config.useVersionsFromTag?.let { use ->
-                "it.useVersionsFromTag.set($use)"
+                "useVersionsFromTag.set($use)"
             }.orEmpty()
             val useStabs = config.useStubsForTagAsFallback?.let { use ->
-                "it.useStubsForTagAsFallback.set($use)"
+                "useStubsForTagAsFallback.set($use)"
             }.orEmpty()
             val useDefaults = config.useDefaultsForVersionsAsFallback?.let { use ->
-                "it.useDefaultsForVersionsAsFallback.set($use)"
+                "useDefaultsForVersionsAsFallback.set($use)"
             }.orEmpty()
             val pattern = config.buildTagPatternBuilderFunctions?.let { pattern ->
                 buildTagPatternBlock(pattern)
             }.orEmpty()
             val versionName = config.versionNameStrategy?.let { strategy ->
-                """it.versionNameStrategy { $strategy }"""
+                """versionNameStrategy { $strategy }"""
             }.orEmpty()
             val versionTag = config.versionCodeStrategy?.let { strategy ->
-                """it.versionCodeStrategy { $strategy }"""
+                """versionCodeStrategy { $strategy }"""
             }.orEmpty()
 
             """
                 buildVariant("$name") {
-                    it.baseFileName.set("${config.baseFileName}")
+                    baseFileName.set("${config.baseFileName}")
                     $useVersionsFromTag
                     $useStabs
                     $useDefaults
@@ -180,26 +180,26 @@ fun File.createAndroidProject(
     val buildTypeOutputBlock2 =
         foundationConfig.buildTypeOutput2?.let { (name, config) ->
             val useVersionsFromTag = config.useVersionsFromTag?.let { use ->
-                "it.useVersionsFromTag.set($use)"
+                "useVersionsFromTag.set($use)"
             }.orEmpty()
             val useStubs = config.useStubsForTagAsFallback?.let { use ->
-                "it.useStubsForTagAsFallback.set($use)"
+                "useStubsForTagAsFallback.set($use)"
             }.orEmpty()
             val yseDefaults = config.useDefaultsForVersionsAsFallback?.let { use ->
-                "it.useDefaultsForVersionsAsFallback.set($use)"
+                "useDefaultsForVersionsAsFallback.set($use)"
             }.orEmpty()
             val pattern = config.buildTagPatternBuilderFunctions?.let { pattern ->
                 buildTagPatternBlock(pattern)
             }.orEmpty()
             val versionName = config.versionNameStrategy?.let { strategy ->
-                """it.versionNameStrategy { $strategy }"""
+                """versionNameStrategy { $strategy }"""
             }.orEmpty()
             val versionCode = config.versionCodeStrategy?.let { strategy ->
-                """it.versionCodeStrategy { $strategy }"""
+                """versionCodeStrategy { $strategy }"""
             }.orEmpty()
             """
                 buildVariant("$name") {
-                    it.baseFileName.set("${config.baseFileName}")
+                    baseFileName.set("${config.baseFileName}")
                     $useVersionsFromTag
                     $useStubs
                     $yseDefaults
@@ -212,26 +212,26 @@ fun File.createAndroidProject(
     val buildTypeOutputBlock3 =
         foundationConfig.buildTypeOutput3?.let { (name, config) ->
             val useVersions = config.useVersionsFromTag?.let { use ->
-                "it.useVersionsFromTag.set($use)"
+                "useVersionsFromTag.set($use)"
             }.orEmpty()
             val useStubs = config.useStubsForTagAsFallback?.let { use ->
-                "it.useStubsForTagAsFallback.set($use)"
+                "useStubsForTagAsFallback.set($use)"
             }.orEmpty()
             val useDefaults = config.useDefaultsForVersionsAsFallback?.let { use ->
-                "it.useDefaultsForVersionsAsFallback.set($use)"
+                "useDefaultsForVersionsAsFallback.set($use)"
             }.orEmpty()
             val pattern = config.buildTagPatternBuilderFunctions?.let { pattern ->
                 buildTagPatternBlock(pattern)
             }.orEmpty()
             val versionName = config.versionNameStrategy?.let { strategy ->
-                """it.versionNameStrategy { $strategy }"""
+                """versionNameStrategy { $strategy }"""
             }.orEmpty()
             val versionCode = config.versionCodeStrategy?.let { strategy ->
-                """it.versionCodeStrategy { $strategy }"""
+                """versionCodeStrategy { $strategy }"""
             }.orEmpty()
             """
                 buildVariant("$name") {
-                    it.baseFileName.set("${config.baseFileName}")
+                    baseFileName.set("${config.baseFileName}")
                     $useVersions
                     $useStubs
                     $useDefaults
@@ -242,13 +242,13 @@ fun File.createAndroidProject(
         """
         }
     val useVersions = foundationConfig.output.useVersionsFromTag?.let { use ->
-        "it.useVersionsFromTag.set($use)"
+        "useVersionsFromTag.set($use)"
     }.orEmpty()
     val useStubs = foundationConfig.output.useStubsForTagAsFallback?.let { use ->
-        "it.useStubsForTagAsFallback.set($use)"
+        "useStubsForTagAsFallback.set($use)"
     }.orEmpty()
     val useDefaults = foundationConfig.output.useDefaultsForVersionsAsFallback?.let { use ->
-        "it.useDefaultsForVersionsAsFallback.set($use)"
+        "useDefaultsForVersionsAsFallback.set($use)"
     }
     val pattern = foundationConfig.output.buildTagPatternBuilderFunctions?.let { pattern ->
         buildTagPatternBlock(pattern)
@@ -263,7 +263,7 @@ fun File.createAndroidProject(
             
             output {
                 common {
-                    it.baseFileName.set("${foundationConfig.output.baseFileName}")
+                    baseFileName.set("${foundationConfig.output.baseFileName}")
                     $useVersions
                     $useStubs
                     ${useDefaults.orEmpty()}
@@ -293,7 +293,7 @@ fun File.createAndroidProject(
         buildPublishClickUp {
             auth {
                 common {
-                    it.apiTokenFile = project.file("${config.auth.apiTokenFilePath}")
+                    apiTokenFile = project.file("${config.auth.apiTokenFilePath}")
                 }
             }
             
@@ -311,9 +311,9 @@ fun File.createAndroidProject(
         buildPublishConfluence {
             auth {
                 common {
-                    it.baseUrl.set("${config.auth.baseUrl}")
-                    it.credentials.username.set("${config.auth.username}")
-                    it.credentials.password.set("${config.auth.password}")
+                    baseUrl.set("${config.auth.baseUrl}")
+                    credentials.username.set("${config.auth.username}")
+                    credentials.password.set("${config.auth.password}")
                 }
             }
                 
@@ -327,27 +327,27 @@ fun File.createAndroidProject(
             val buildTypeFirebaseBlock =
                 config.distributionBuildType?.let { (name, config) ->
                     val testerGroups = config.testerGroups?.let { testerGroups ->
-                        """it.testerGroups(${testerGroups.joinToString { group -> "\"$group\"" }})"""
+                        """testerGroups(${testerGroups.joinToString { group -> "\"$group\"" }})"""
                     }.orEmpty()
                     """
                 buildVariant("$name") {
-                    it.serviceCredentialsFile = project.file("${config.serviceCredentialsFilePath}")
-                    it.appId.set("${config.appId}")
-                    it.artifactType.set(${config.artifactType})
+                    serviceCredentialsFile = project.file("${config.serviceCredentialsFilePath}")
+                    appId.set("${config.appId}")
+                    artifactType.set(${config.artifactType})
                     $testerGroups
                 }
                     """
                 }
             val testerGroups = config.distributionCommon.testerGroups?.let { testerGroups ->
-                """it.testerGroups(${testerGroups.joinToString { group -> "\"$group\"" }})"""
+                """testerGroups(${testerGroups.joinToString { group -> "\"$group\"" }})"""
             }
             """
         buildPublishFirebase {
             distribution {
                 common {
-                    it.serviceCredentialsFile = project.file("${config.distributionCommon.serviceCredentialsFilePath}")
-                    it.appId.set("${config.distributionCommon.appId}")
-                    it.artifactType.set(${config.distributionCommon.artifactType})
+                    serviceCredentialsFile = project.file("${config.distributionCommon.serviceCredentialsFilePath}")
+                    appId.set("${config.distributionCommon.appId}")
+                    artifactType.set(${config.distributionCommon.artifactType})
                     ${testerGroups.orEmpty()}
                 }
                 ${buildTypeFirebaseBlock.orEmpty()}
@@ -365,9 +365,9 @@ fun File.createAndroidProject(
         buildPublishJira {
             auth {
                 common {
-                    it.baseUrl.set("${config.auth.baseUrl}")
-                    it.credentials.username.set("${config.auth.username}")
-                    it.credentials.password.set("${config.auth.password}")
+                    baseUrl.set("${config.auth.baseUrl}")
+                    credentials.username.set("${config.auth.username}")
+                    credentials.password.set("${config.auth.password}")
                 }
             }
                 
@@ -382,15 +382,15 @@ fun File.createAndroidProject(
             buildPublishPlay {
                 auth {
                     common {
-                        it.apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
-                        it.appId.set("${config.auth.appId}")
+                        apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
+                        appId.set("${config.auth.appId}")
                     }
                 }
             
                 distribution {
                     common {
-                        it.trackId.set("${config.distribution.trackId}")
-                        it.updatePriority.set(${config.distribution.updatePriority})
+                        trackId.set("${config.distribution.trackId}")
+                        updatePriority.set(${config.distribution.updatePriority})
                     }
                 }
             }
@@ -400,7 +400,7 @@ fun File.createAndroidProject(
     val slackConfigBlock =
         slackConfig?.let { config ->
             val uploadPath = config.bot.uploadApiTokenFilePath?.let { path ->
-                """it.uploadApiTokenFile = project.file("$path")"""
+                """uploadApiTokenFile = project.file("$path")"""
             }.orEmpty()
             val changelog = config.changelog?.let { changelog ->
                 slackChangelogBlock(changelog)
@@ -412,9 +412,9 @@ fun File.createAndroidProject(
         buildPublishSlack {
             bot {
                 common {
-                    it.webhookUrl.set("${config.bot.webhookUrl}")
+                    webhookUrl.set("${config.bot.webhookUrl}")
                     $uploadPath
-                    it.iconUrl.set("${config.bot.iconUrl}")
+                    iconUrl.set("${config.bot.iconUrl}")
                 }
             }
             $changelog
@@ -512,13 +512,13 @@ fun File.createAndroidProject(
 }
 
 private fun jiraAutomationBlock(automation: JiraConfig.Automation): String {
-    val pattern = automation.fixVersionPattern?.let { pattern -> """it.fixVersionPattern.set("$pattern")""" }.orEmpty()
-    val label = automation.labelPattern?.let { label -> """it.labelPattern.set("$label")""" }.orEmpty()
-    val statusName = automation.targetStatusName?.let { statusName -> """it.targetStatusName.set("$statusName")""" }.orEmpty()
+    val pattern = automation.fixVersionPattern?.let { pattern -> """fixVersionPattern.set("$pattern")""" }.orEmpty()
+    val label = automation.labelPattern?.let { label -> """labelPattern.set("$label")""" }.orEmpty()
+    val statusName = automation.targetStatusName?.let { statusName -> """targetStatusName.set("$statusName")""" }.orEmpty()
     return """
             automation {
                 common {
-                    it.projectKey.set("${automation.projectKey}")
+                    projectKey.set("${automation.projectKey}")
                     $pattern
                     $label
                     $statusName
@@ -528,10 +528,10 @@ private fun jiraAutomationBlock(automation: JiraConfig.Automation): String {
 }
 
 private fun clickUpAutomationBlock(automation: ClickUpConfig.Automation): String {
-    val workspaceName = automation.workspaceName.let { name -> """it.workspaceName.set("$name")""" }
-    val fixVersionPattern = automation.fixVersionPattern?.let { pattern ->"""it.fixVersionPattern.set("$pattern")""" }.orEmpty()
-    val fixVersionFieldName = automation.fixVersionFieldName?.let { name ->"""it.fixVersionFieldName.set("$name")""" }.orEmpty()
-    val tagPattern = automation.tagPattern?.let { pattern -> """it.tagPattern.set("$pattern")""" }.orEmpty()
+    val workspaceName = automation.workspaceName.let { name -> """workspaceName.set("$name")""" }
+    val fixVersionPattern = automation.fixVersionPattern?.let { pattern ->"""fixVersionPattern.set("$pattern")""" }.orEmpty()
+    val fixVersionFieldName = automation.fixVersionFieldName?.let { name ->"""fixVersionFieldName.set("$name")""" }.orEmpty()
+    val tagPattern = automation.tagPattern?.let { pattern -> """tagPattern.set("$pattern")""" }.orEmpty()
     return """
             automation {
                 common {
@@ -548,8 +548,8 @@ private fun confluenceDistributionBlock(distribution: ConfluenceConfig.Distribut
     return """
            distribution {
                 common {
-                    it.compressed.set(${distribution.compressed})
-                    it.pageId.set("${distribution.pageId}")
+                    compressed.set(${distribution.compressed})
+                    pageId.set("${distribution.pageId}")
                 }
            }
     """
@@ -561,7 +561,7 @@ private fun telegramChangelogBlock(changelog: TelegramConfig.Changelog): String 
     return """
                         changelog {
                             common {
-                                it.userMentions($userMentions)
+                                userMentions($userMentions)
                                 
                                 $destinationBots
                             }
@@ -570,11 +570,11 @@ private fun telegramChangelogBlock(changelog: TelegramConfig.Changelog): String 
 }
 
 private fun telegramLookupBlock(changelog: TelegramConfig.Lookup): String {
-    val topicName = changelog.topicName?.let { name -> "it.topicName.set(\"${name}\")" }.orEmpty()
+    val topicName = changelog.topicName?.let { name -> "topicName.set(\"${name}\")" }.orEmpty()
     return """
                         lookup {
-                            it.botName.set("${changelog.botName}")
-                            it.chatName.set("${changelog.chatName}")
+                            botName.set("${changelog.botName}")
+                            chatName.set("${changelog.chatName}")
                             $topicName
                         }
     """
@@ -585,8 +585,8 @@ private fun slackChangelogBlock(changelog: SlackConfig.Changelog): String {
     return """
             changelog {
                 common {
-                    it.userMentions($userMentions)
-                    it.attachmentColor.set("${changelog.attachmentColor}")
+                    userMentions($userMentions)
+                    attachmentColor.set("${changelog.attachmentColor}")
                 }
             }
     """
@@ -608,7 +608,7 @@ private fun telegramDistributionBlock(distribution: TelegramConfig.Distribution)
     return """
                         distribution {
                            common {
-                               it.compressed.set(${distribution.compressed})
+                               compressed.set(${distribution.compressed})
                                $bots
                            } 
                         }
@@ -620,7 +620,7 @@ private fun slackDistributionBlock(distribution: SlackConfig.Distribution): Stri
     return """
             distribution {
                common {
-                   it.destinationChannels($channels)
+                   destinationChannels($channels)
                } 
             }
     """
@@ -632,7 +632,7 @@ private fun telegramBotBlock(bot: TelegramConfig.Bot): String {
     val userPassword = bot.botServerPassword?.let { password -> """botServerAuth.password.set("$password")""" }.orEmpty()
     val chat = bot.chats.joinToString(separator = "\n") { chat -> telegramBotChatBlock(chat) }
     return """     
-                                it.bot("${bot.botName}") {
+                                bot("${bot.botName}") {
                                     botId.set("${bot.botId}")
                                     $baseUrk
                                     $userName
@@ -657,7 +657,7 @@ private fun telegramBotChatBlock(chat: TelegramConfig.Chat): String {
 private fun telegramDestinationBotBlock(destinationBot: TelegramConfig.DestinationBot): String {
     val chatNames = destinationBot.chatNames.joinToString { name -> "\"$name\"" }
     return """
-                                it.destinationBot {
+                                destinationBot {
                                     botName = "${destinationBot.botName}"
                                     chatNames($chatNames)
                                 }
@@ -667,7 +667,7 @@ private fun telegramDestinationBotBlock(destinationBot: TelegramConfig.Destinati
 private fun buildTagPatternBlock(items: List<String>): String {
     val pattern = items.joinToString(separator = "\n") { item -> "                      $item" }
     return """
-                    it.buildTagPattern {
+                    buildTagPattern {
 $pattern
                     }
     """

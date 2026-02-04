@@ -122,15 +122,23 @@ abstract class BuildPublishFoundationExtension
          * @param configurationAction The action to configure the output container.
          * @see OutputConfig
          */
-        fun output(
-            configurationAction: Action<in BuildPublishDomainObjectContainer<OutputConfig>>
-        ) {
+        fun output(configurationAction: Action<in BuildPublishDomainObjectContainer<OutputConfig>>) {
             val container = BuildPublishDomainObjectContainer(output)
             configurationAction.execute(container)
         }
 
+        /**
+         * Configures output settings for different build variants using a Groovy closure.
+         *
+         * Use this to declare per-variant (and common) output settings such as tag pattern,
+         * version strategies, and APK naming.
+         *
+         * @param configurationClosure The Groovy closure to configure the output container.
+         * @see OutputConfig
+         */
         fun output(
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<OutputConfig>>
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<OutputConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(output)
             configureGroovy(configurationClosure, container)
@@ -145,18 +153,26 @@ abstract class BuildPublishFoundationExtension
          * @param configurationAction The action to configure the changelog container.
          * @see ChangelogConfig
          */
-        @JvmSynthetic
         fun changelog(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<in BuildPublishDomainObjectContainer<ChangelogConfig>>
+            configurationAction: Action<in BuildPublishDomainObjectContainer<ChangelogConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(changelog)
             configurationAction.execute(container)
         }
 
+        /**
+         * Configures changelog settings for different build variants using a Groovy closure.
+         *
+         * Use this to declare per-variant (and common) changelog parsing settings such as
+         * issue number extraction and commit message markers.
+         *
+         * @param configurationClosure The Groovy closure to configure the changelog container.
+         * @see ChangelogConfig
+         */
         fun changelog(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ChangelogConfig>>
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ChangelogConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(changelog)
             configureGroovy(configurationClosure, container)
@@ -167,17 +183,25 @@ abstract class BuildPublishFoundationExtension
          *
          * @param configurationAction The action to configure the common output settings
          */
-        @JvmSynthetic
         fun outputCommon(configurationAction: Action<OutputConfig>) {
             common(output, configurationAction)
         }
 
+        /**
+         * Configures common output settings that apply to all build variants.
+         *
+         * This Groovy-compatible method allows configuration of output settings
+         * such as base file name, version strategies, and APK naming that will be
+         * used as defaults for all build variants.
+         *
+         * @param configurationClosure The Groovy closure to configure the common output settings
+         */
         fun outputCommon(
             @DelegatesTo(
                 value = OutputConfig::class,
                 strategy = Closure.DELEGATE_FIRST,
             )
-            configurationClosure: Closure<in OutputConfig>
+            configurationClosure: Closure<in OutputConfig>,
         ) {
             common(output) { target ->
                 configureGroovy(configurationClosure, target)
@@ -189,17 +213,25 @@ abstract class BuildPublishFoundationExtension
          *
          * @param configurationAction The action to configure the common changelog settings
          */
-        @JvmSynthetic
         fun changelogCommon(configurationAction: Action<in ChangelogConfig>) {
             common(changelog, configurationAction)
         }
 
+        /**
+         * Configures common changelog settings that apply to all build variants.
+         *
+         * This Groovy-compatible method allows configuration of changelog parsing settings
+         * such as issue number extraction patterns and commit message markers that will be
+         * used as defaults for all build variants.
+         *
+         * @param configurationClosure The Groovy closure to configure the common changelog settings
+         */
         fun changelogCommon(
             @DelegatesTo(
                 value = ChangelogConfig::class,
                 strategy = Closure.DELEGATE_FIRST,
             )
-            configurationClosure: Closure<in ChangelogConfig>
+            configurationClosure: Closure<in ChangelogConfig>,
         ) {
             common(changelog) { target ->
                 configureGroovy(configurationClosure, target)

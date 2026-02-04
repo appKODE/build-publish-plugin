@@ -76,9 +76,12 @@ fun <T : Any> NamedDomainObjectContainer<T>.common(configurationAction: Action<i
 @Suppress("MaxLineLength")
 @Throws(InvalidUserDataException::class)
 fun <T : Any> NamedDomainObjectContainer<T>.common(configurationAction: Closure<in T>): NamedDomainObjectProvider<T> {
-    return this.register(COMMON_CONTAINER_NAME, Action { target ->
-        configurationAction.call(target)
-    })
+    return this.register(
+        COMMON_CONTAINER_NAME,
+        Action { target ->
+            configureGroovy(configurationAction, target)
+        },
+    )
 }
 
 @Throws(InvalidUserDataException::class)
@@ -87,6 +90,19 @@ fun <T : Any> NamedDomainObjectContainer<T>.buildVariant(
     configurationAction: Action<in T>,
 ): NamedDomainObjectProvider<T> {
     return this.register(buildVariant, configurationAction)
+}
+
+@Throws(InvalidUserDataException::class)
+fun <T : Any> NamedDomainObjectContainer<T>.buildVariant(
+    buildVariant: String,
+    configurationAction: Closure<in T>,
+): NamedDomainObjectProvider<T> {
+    return this.register(
+        buildVariant,
+        Action { target ->
+            configureGroovy(configurationAction, target)
+        },
+    )
 }
 
 inline fun <reified T : Any> Provider<Map<String, Provider<T>>>.flatMapByNameOrCommon(

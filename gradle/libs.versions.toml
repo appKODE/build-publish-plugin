@@ -1,6 +1,6 @@
 [versions]
-buildPublishPlugin = "1.2.6"
-buildPublishShared = "1.2.3"
+buildPublishPlugin = "1.2.7"
+buildPublishShared = "1.2.4"
 kotlin = "2.3.0"
 agp = "9.0.0"
 detekt = "1.23.8"
@@ -14,9 +14,9 @@ retrofitSerialzation = "1.0.0"
 junit = "6.0.2"
 ksp = "2.3.4"
 play-publish = "v3-rev20231115-2.0.0"
-googleAuth = "1.41.0"
-kotlinxSerialization = "1.9.0"
-vanniktechMavenPublish = "0.35.0"
+googleAuth = "1.42.1"
+kotlinxSerialization = "1.10.0"
+vanniktechMavenPublish = "0.36.0"
 
 [libraries]
 agp = { module = "com.android.tools.build:gradle", version.ref = "agp" }

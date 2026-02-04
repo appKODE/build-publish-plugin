@@ -50,6 +50,7 @@ fun cannotCreateHttpProxyMessage(
         | ACTION REQUIRED:
         |  1. Verify your proxy host and port configuration
         |  2. Ensure the proxy server is reachable
+        |  3. Try to run task with --stacktrace option to get more details
         |============================================================
         """.trimMargin()
 }
@@ -89,6 +90,7 @@ fun cannotCreateHttpsProxyMessage(
         |  1. Verify your HTTPS proxy settings
         |  2. Ensure the proxy supports HTTPS connections
         |  3. Check for any SSL/TLS configuration issues
+        |  4. Try to run task with --stacktrace option to get more details
         |============================================================
         """.trimMargin()
 }
@@ -251,6 +253,7 @@ fun requiredConfigurationNotFoundMessage(
         |   1. Verify the configuration names in your build script
         |   2. Check for any syntax errors
         |   3. Ensure the plugin is applied correctly
+        |   4. Try to run task with --stacktrace option to get more details
         |============================================================
         """.trimMargin()
 }

@@ -6,7 +6,6 @@ import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.UnknownDomainObjectException
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.buildVariant
 import ru.kode.android.build.publish.plugin.core.util.common
 
@@ -77,7 +76,6 @@ class BuildPublishDomainObjectContainer<T : Any>(
      * }
      * ```
      */
-    @JvmSynthetic
     fun common(
         @DelegatesTo.Target
         configurationAction: Action<in T>,
@@ -85,15 +83,21 @@ class BuildPublishDomainObjectContainer<T : Any>(
         return namedContainer.common(configurationAction)
     }
 
+    /**
+     * Registers a common configuration using a Groovy closure that applies to all build types and variants.
+     *
+     * This overload supports Groovy DSL syntax for configuring common settings.
+     *
+     * @param configurationClosure The Groovy closure that configures the common settings.
+     * @return A [NamedDomainObjectProvider] that can be used to access the configuration.
+     *
+     * @see common For the Kotlin DSL version using Action
+     */
     fun common(
         @DelegatesTo.Target
         configurationClosure: Closure<in T>,
     ): NamedDomainObjectProvider<T> {
-        return namedContainer.common(
-            Action { target ->
-                configureGroovy(configurationClosure, target)
-            },
-        )
+        return namedContainer.common(configurationClosure)
     }
 
     /**
@@ -127,7 +131,6 @@ class BuildPublishDomainObjectContainer<T : Any>(
      * }
      * ```
      */
-    @JvmSynthetic
     fun buildVariant(
         buildVariant: String,
         @DelegatesTo.Target
@@ -136,17 +139,29 @@ class BuildPublishDomainObjectContainer<T : Any>(
         return namedContainer.buildVariant(buildVariant, configurationAction)
     }
 
+    /**
+     * Registers a configuration specific to a build variant using a Groovy closure.
+     *
+     * This is a Groovy-compatible overload of [buildVariant] that accepts a [Closure]
+     * instead of an [Action]. The configuration closure will only be applied when the
+     * named variant is being built. Variant-specific configurations are merged with
+     * the common configuration, with the variant settings taking precedence in case
+     * of conflicts.
+     *
+     * @param buildVariant The name of the build variant (e.g., "debug", "release", "demoDebug").
+     *                    This should match the variant name used in the build system.
+     * @param configurationClosure The Groovy closure that configures the variant-specific settings.
+     * @return A [NamedDomainObjectProvider] that can be used to access the configuration.
+     *
+     * @see common For defining configurations that apply to all variants
+     * @see buildVariant For the Kotlin-friendly Action-based overload
+     */
     fun buildVariant(
         buildVariant: String,
         @DelegatesTo.Target
         configurationClosure: Closure<in T>,
     ): NamedDomainObjectProvider<T> {
-        return namedContainer.buildVariant(
-            buildVariant,
-            Action { target ->
-                configureGroovy(configurationClosure, target)
-            },
-        )
+        return namedContainer.buildVariant(buildVariant, configurationClosure)
     }
 
     /**

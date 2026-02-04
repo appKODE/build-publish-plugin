@@ -12,6 +12,10 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.7
+* Add Closure methods for all configurations
+* Should be used with **1.2.4 version of build-publish-novo-core**
+
 ### 1.2.6
 - Split strategies, remove excludeMessageKey property, now it is configured via strategy
 
@@ -62,7 +66,10 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 📦 build-publish-novo-core
 
-### 1.2.2
+### 1.2.4
+* Add Closure methods for extension configuration
+
+### 1.2.3
 - Add strategies to configure changelog message/annotated tag message/empty messages
 
 ### 1.2.1

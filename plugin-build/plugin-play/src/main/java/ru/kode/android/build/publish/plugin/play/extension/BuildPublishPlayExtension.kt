@@ -94,18 +94,22 @@ abstract class BuildPublishPlayExtension
          *
          * @param configurationAction The action to configure authentication settings
          */
-        @JvmSynthetic
         fun auth(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<PlayAuthConfig>>
+            configurationAction: Action<BuildPublishDomainObjectContainer<PlayAuthConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(auth)
             configurationAction.execute(container)
         }
 
+        /**
+         * Configures authentication settings for different build variants using Groovy DSL.
+         *
+         * @param configurationClosure The Groovy closure to configure authentication settings
+         */
         fun auth(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<PlayAuthConfig>>
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<PlayAuthConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(auth)
             configureGroovy(configurationClosure, container)
@@ -116,10 +120,9 @@ abstract class BuildPublishPlayExtension
          *
          * @param configurationAction The action to configure distribution settings
          */
-        @JvmSynthetic
         fun distribution(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<PlayDistributionConfig>>
+            configurationAction: Action<BuildPublishDomainObjectContainer<PlayDistributionConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(distribution)
             configurationAction.execute(container)
@@ -127,7 +130,7 @@ abstract class BuildPublishPlayExtension
 
         fun distribution(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<PlayDistributionConfig>>
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<PlayDistributionConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(distribution)
             configureGroovy(configurationClosure, container)
@@ -139,17 +142,21 @@ abstract class BuildPublishPlayExtension
          *
          * @param configurationAction The action to configure common authentication settings
          */
-        @JvmSynthetic
         fun authCommon(configurationAction: Action<PlayAuthConfig>) {
             common(auth, configurationAction)
         }
 
+        /**
+         * Configures common authentication settings that apply to all build variants using Groovy DSL.
+         *
+         * @param configurationClosure The Groovy closure to configure common authentication settings
+         */
         fun authCommon(
             @DelegatesTo(
                 value = PlayAuthConfig::class,
                 strategy = Closure.DELEGATE_FIRST,
             )
-            configurationClosure: Closure<in PlayAuthConfig>
+            configurationClosure: Closure<in PlayAuthConfig>,
         ) {
             common(auth) { target ->
                 configureGroovy(configurationClosure, target)
@@ -162,17 +169,21 @@ abstract class BuildPublishPlayExtension
          *
          * @param configurationAction The action to configure common distribution settings
          */
-        @JvmSynthetic
         fun distributionCommon(configurationAction: Action<PlayDistributionConfig>) {
             common(distribution, configurationAction)
         }
 
+        /**
+         * Configures common distribution settings that apply to all build variants using Groovy DSL.
+         *
+         * @param configurationClosure The Groovy closure to configure common distribution settings
+         */
         fun distributionCommon(
             @DelegatesTo(
                 value = PlayDistributionConfig::class,
                 strategy = Closure.DELEGATE_FIRST,
             )
-            configurationClosure: Closure<in PlayDistributionConfig>
+            configurationClosure: Closure<in PlayDistributionConfig>,
         ) {
             common(distribution) { target ->
                 configureGroovy(configurationClosure, target)

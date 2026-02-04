@@ -123,18 +123,24 @@ abstract class BuildPublishSlackExtension
          * @param configurationAction The action to configure the bot settings
          * @see SlackBotConfig For available configuration options
          */
-        @JvmSynthetic
         fun bot(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<SlackBotConfig>>
+            configurationAction: Action<BuildPublishDomainObjectContainer<SlackBotConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(bot)
             configurationAction.execute(container)
         }
 
+        /**
+         * Configures bot settings for specific build variants using a Groovy closure.
+         * This method provides Groovy DSL compatibility for bot configuration.
+         *
+         * @param configurationClosure The Groovy closure to configure the bot settings
+         * @see SlackBotConfig For available configuration options
+         */
         fun bot(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<SlackBotConfig>>
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<SlackBotConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(bot)
             configureGroovy(configurationClosure, container)
@@ -146,18 +152,23 @@ abstract class BuildPublishSlackExtension
          * @param configurationAction The action to configure the changelog settings
          * @see SlackChangelogConfig For available configuration options
          */
-        @JvmSynthetic
         fun changelog(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<SlackChangelogConfig>>
+            configurationAction: Action<BuildPublishDomainObjectContainer<SlackChangelogConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(changelog)
             configurationAction.execute(container)
         }
 
+        /**
+         * Configures changelog notifications for specific build variants using Groovy DSL.
+         *
+         * @param configurationClosure The Groovy closure to configure the changelog settings
+         * @see SlackChangelogConfig For available configuration options
+         */
         fun changelog(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<SlackChangelogConfig>>
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<SlackChangelogConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(changelog)
             configureGroovy(configurationClosure, container)
@@ -169,18 +180,23 @@ abstract class BuildPublishSlackExtension
          * @param configurationAction The action to configure the distribution settings
          * @see SlackDistributionConfig For available configuration options
          */
-        @JvmSynthetic
         fun distribution(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<SlackDistributionConfig>>
+            configurationAction: Action<BuildPublishDomainObjectContainer<SlackDistributionConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(distribution)
             configurationAction.execute(container)
         }
 
+        /**
+         * Configures file distribution settings for specific build variants using Groovy DSL.
+         *
+         * @param configurationClosure The Groovy closure to configure the distribution settings
+         * @see SlackDistributionConfig For available configuration options
+         */
         fun distribution(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<SlackDistributionConfig>>
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<SlackDistributionConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(distribution)
             configureGroovy(configurationClosure, container)
@@ -192,17 +208,22 @@ abstract class BuildPublishSlackExtension
          *
          * @param configurationAction The action to configure the common bot settings
          */
-        @JvmSynthetic
         fun botCommon(configurationAction: Action<SlackBotConfig>) {
             common(bot, configurationAction)
         }
 
+        /**
+         * Configures common bot settings that apply to all build variants using Groovy DSL.
+         * These settings can be overridden by variant-specific configurations.
+         *
+         * @param configurationClosure The Groovy closure to configure the common bot settings
+         */
         fun botCommon(
             @DelegatesTo(
                 value = SlackBotConfig::class,
                 strategy = Closure.DELEGATE_FIRST,
             )
-            configurationClosure: Closure<in SlackBotConfig>
+            configurationClosure: Closure<in SlackBotConfig>,
         ) {
             common(bot) { target ->
                 configureGroovy(configurationClosure, target)
@@ -215,17 +236,22 @@ abstract class BuildPublishSlackExtension
          *
          * @param configurationAction The action to configure the common changelog settings
          */
-        @JvmSynthetic
         fun changelogCommon(configurationAction: Action<SlackChangelogConfig>) {
             common(changelog, configurationAction)
         }
 
+        /**
+         * Configures common changelog settings that apply to all build variants using Groovy DSL.
+         * These settings can be overridden by variant-specific configurations.
+         *
+         * @param configurationClosure The Groovy closure to configure the common changelog settings
+         */
         fun changelogCommon(
             @DelegatesTo(
                 value = SlackChangelogConfig::class,
                 strategy = Closure.DELEGATE_FIRST,
             )
-            configurationClosure: Closure<in SlackChangelogConfig>
+            configurationClosure: Closure<in SlackChangelogConfig>,
         ) {
             common(changelog) { target ->
                 configureGroovy(configurationClosure, target)
@@ -238,17 +264,22 @@ abstract class BuildPublishSlackExtension
          *
          * @param configurationAction The action to configure the common distribution settings
          */
-        @JvmSynthetic
         fun distributionCommon(configurationAction: Action<SlackDistributionConfig>) {
             common(distribution, configurationAction)
         }
 
+        /**
+         * Configures common distribution settings that apply to all build variants using Groovy DSL.
+         * These settings can be overridden by variant-specific configurations.
+         *
+         * @param configurationClosure The Groovy closure to configure the common distribution settings
+         */
         fun distributionCommon(
             @DelegatesTo(
                 value = SlackDistributionConfig::class,
                 strategy = Closure.DELEGATE_FIRST,
             )
-            configurationClosure: Closure<in SlackDistributionConfig>
+            configurationClosure: Closure<in SlackDistributionConfig>,
         ) {
             common(distribution) { target ->
                 configureGroovy(configurationClosure, target)

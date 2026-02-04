@@ -120,11 +120,18 @@ abstract class ChangelogConfig {
      *
      * @see AnnotatedTagMessageStrategy
      */
-    @JvmSynthetic
     fun annotatedTagMessageStrategy(action: () -> AnnotatedTagMessageStrategy) {
         annotatedTagMessageStrategy.set(action())
     }
 
+    /**
+     * Configures the strategy used to format annotated tag messages in the changelog
+     * using a Groovy closure.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [AnnotatedTagMessageStrategy] implementation.
+     *
+     * @see AnnotatedTagMessageStrategy
+     */
     fun annotatedTagMessageStrategy(
         @DelegatesTo(
             value = AnnotatedTagMessageStrategy::class,
@@ -142,11 +149,18 @@ abstract class ChangelogConfig {
      *
      * @see ChangelogMessageStrategy
      */
-    @JvmSynthetic
     fun changelogMessageStrategy(action: () -> ChangelogMessageStrategy) {
         changelogMessageStrategy.set(action())
     }
 
+    /**
+     * Configures the strategy used to format commit messages in the changelog
+     * using a Groovy closure.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [ChangelogMessageStrategy] implementation.
+     *
+     * @see ChangelogMessageStrategy
+     */
     fun changelogMessageStrategy(
         @DelegatesTo(
             value = ChangelogMessageStrategy::class,
@@ -164,11 +178,18 @@ abstract class ChangelogConfig {
      *
      * @see EmptyChangelogMessageStrategy
      */
-    @JvmSynthetic
     fun emptyChangelogMessageStrategy(action: () -> EmptyChangelogMessageStrategy) {
         emptyChangelogMessageStrategy.set(action())
     }
 
+    /**
+     * Configures the strategy used to generate changelog messages when no changes are detected
+     * using a Groovy closure.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [EmptyChangelogMessageStrategy] implementation.
+     *
+     * @see EmptyChangelogMessageStrategy
+     */
     fun emptyChangelogMessageStrategy(
         @DelegatesTo(
             value = EmptyChangelogMessageStrategy::class,
@@ -186,11 +207,19 @@ abstract class ChangelogConfig {
      *
      * @see NotGeneratedChangelogMessageStrategy
      */
-    @JvmSynthetic
     fun notGeneratedChangelogMessageStrategy(action: () -> NotGeneratedChangelogMessageStrategy) {
         notGeneratedChangelogMessageStrategy.set(action())
     }
 
+    /**
+     * Configures the strategy used to generate changelog messages when the changelog could not be generated.
+     *
+     * This overload accepts a Groovy [Closure] for compatibility with Groovy-based build scripts.
+     *
+     * @param strategyClosure Closure that returns the desired [NotGeneratedChangelogMessageStrategy] implementation.
+     *
+     * @see NotGeneratedChangelogMessageStrategy
+     */
     fun notGeneratedChangelogMessageStrategy(
         @DelegatesTo(
             value = NotGeneratedChangelogMessageStrategy::class,
