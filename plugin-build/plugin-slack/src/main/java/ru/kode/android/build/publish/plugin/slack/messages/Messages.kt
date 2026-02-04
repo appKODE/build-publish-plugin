@@ -13,7 +13,7 @@ fun uploadApiTokenRequiredMessage(): String {
         | REQUIRED ACTION:
         | Add the following to your module's build.gradle.kts file:
         |
-        | ${EXTENSION_NAME} {
+        | $EXTENSION_NAME {
         |     bot {
         |         common {
         |             uploadApiTokenFile.set(File("path/to/your/token/file"))

@@ -1,6 +1,8 @@
 package ru.kode.android.build.publish.plugin.clickup.extension
 
 import com.android.build.api.variant.ApplicationVariant
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
@@ -15,6 +17,7 @@ import ru.kode.android.build.publish.plugin.clickup.task.ClickUpTasksRegistrar
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import javax.inject.Inject
@@ -105,9 +108,29 @@ abstract class BuildPublishClickUpExtension
          * @param configurationAction The configuration action to apply
          * @see ClickUpAuthConfig For available configuration options
          */
-        fun auth(configurationAction: Action<BuildPublishDomainObjectContainer<ClickUpAuthConfig>>) {
+        fun auth(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<in BuildPublishDomainObjectContainer<ClickUpAuthConfig>>,
+        ) {
             val container = BuildPublishDomainObjectContainer(auth)
             configurationAction.execute(container)
+        }
+
+        /**
+         * Configures common authentication settings that apply to all build variants.
+         *
+         * This is a convenience method for applying the same authentication settings
+         * to all build variants. These settings can be overridden by variant-specific configurations.
+         *
+         * @param configurationClosure The configuration closure to apply
+         * @see ClickUpAuthConfig For available configuration options
+         */
+        fun auth(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ClickUpAuthConfig>>,
+        ) {
+            val container = BuildPublishDomainObjectContainer(auth)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -118,9 +141,28 @@ abstract class BuildPublishClickUpExtension
          * @param configurationAction The configuration action to apply
          * @see ClickUpAutomationConfig For available configuration options
          */
-        fun automation(configurationAction: Action<BuildPublishDomainObjectContainer<ClickUpAutomationConfig>>) {
+        fun automation(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<in BuildPublishDomainObjectContainer<ClickUpAutomationConfig>>,
+        ) {
             val container = BuildPublishDomainObjectContainer(automation)
             configurationAction.execute(container)
+        }
+
+        /**
+         * Configures automation rules for the ClickUp plugin.
+         *
+         * This method provides a DSL for configuring one or more automation profiles.
+         *
+         * @param configurationClosure The configuration closure to apply
+         * @see ClickUpAutomationConfig For available configuration options
+         */
+        fun automation(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ClickUpAutomationConfig>>,
+        ) {
+            val container = BuildPublishDomainObjectContainer(automation)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -131,8 +173,31 @@ abstract class BuildPublishClickUpExtension
          *
          * @param configurationAction The configuration action to apply
          */
-        fun authCommon(configurationAction: Action<ClickUpAuthConfig>) {
+        fun authCommon(configurationAction: Action<in ClickUpAuthConfig>) {
             common(auth, configurationAction)
+        }
+
+        /**
+         * Configures common authentication settings that apply to all build variants.
+         *
+         * This is a convenience method for applying the same authentication settings
+         * to all build variants. These settings can be overridden by variant-specific configurations.
+         *
+         * @param configurationClosure The configuration closure to apply.
+         * The delegate of the closure is the instance of [ClickUpAuthConfig]
+         * that is used to configure the common settings.
+         * @see ClickUpAuthConfig For available configuration options
+         */
+        fun authCommon(
+            @DelegatesTo(
+                value = ClickUpAuthConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in ClickUpAuthConfig>,
+        ) {
+            common(auth) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**
@@ -145,6 +210,29 @@ abstract class BuildPublishClickUpExtension
          */
         fun automationCommon(configurationAction: Action<ClickUpAutomationConfig>) {
             common(automation, configurationAction)
+        }
+
+        /**
+         * Configures common automation rules that apply to all build variants.
+         *
+         * This is a convenience method for applying the same automation rules
+         * to all build variants. These rules can be overridden by variant-specific configurations.
+         *
+         * @param configurationClosure The configuration closure to apply.
+         * The delegate of the closure is the instance of [ClickUpAutomationConfig]
+         * that is used to configure the common settings.
+         * @see ClickUpAutomationConfig For available configuration options
+         */
+        fun automationCommon(
+            @DelegatesTo(
+                value = ClickUpAutomationConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in ClickUpAutomationConfig>,
+        ) {
+            common(automation) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**

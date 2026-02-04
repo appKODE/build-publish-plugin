@@ -1,6 +1,8 @@
 package ru.kode.android.build.publish.plugin.confluence.extension
 
 import com.android.build.api.variant.ApplicationVariant
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
@@ -16,6 +18,7 @@ import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceTasksRegis
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import javax.inject.Inject
@@ -95,9 +98,25 @@ abstract class BuildPublishConfluenceExtension
          *
          * @param configurationAction The action to configure authentication settings
          */
-        fun auth(configurationAction: Action<BuildPublishDomainObjectContainer<ConfluenceAuthConfig>>) {
+        fun auth(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<in BuildPublishDomainObjectContainer<ConfluenceAuthConfig>>,
+        ) {
             val container = BuildPublishDomainObjectContainer(auth)
             configurationAction.execute(container)
+        }
+
+        /**
+         * Configures authentication settings for different build variants using Groovy DSL.
+         *
+         * @param configurationClosure The Groovy closure to configure authentication settings
+         */
+        fun auth(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ConfluenceAuthConfig>>,
+        ) {
+            val container = BuildPublishDomainObjectContainer(auth)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -105,9 +124,25 @@ abstract class BuildPublishConfluenceExtension
          *
          * @param configurationAction The action to configure distribution settings
          */
-        fun distribution(configurationAction: Action<BuildPublishDomainObjectContainer<ConfluenceDistributionConfig>>) {
+        fun distribution(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<in BuildPublishDomainObjectContainer<ConfluenceDistributionConfig>>,
+        ) {
             val container = BuildPublishDomainObjectContainer(distribution)
             configurationAction.execute(container)
+        }
+
+        /**
+         * Configures distribution settings for different build variants using Groovy DSL.
+         *
+         * @param configurationClosure The Groovy closure to configure distribution settings
+         */
+        fun distribution(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ConfluenceDistributionConfig>>,
+        ) {
+            val container = BuildPublishDomainObjectContainer(distribution)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -115,8 +150,25 @@ abstract class BuildPublishConfluenceExtension
          *
          * @param configurationAction The action to configure common authentication settings
          */
-        fun authCommon(configurationAction: Action<ConfluenceAuthConfig>) {
+        fun authCommon(configurationAction: Action<in ConfluenceAuthConfig>) {
             common(auth, configurationAction)
+        }
+
+        /**
+         * Configures common authentication settings that apply to all build variants using Groovy DSL.
+         *
+         * @param configurationClosure The Groovy closure to configure common authentication settings
+         */
+        fun authCommon(
+            @DelegatesTo(
+                value = ConfluenceAuthConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in ConfluenceAuthConfig>,
+        ) {
+            common(auth) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**
@@ -124,8 +176,25 @@ abstract class BuildPublishConfluenceExtension
          *
          * @param configurationAction The action to configure common distribution settings
          */
-        fun distributionCommon(configurationAction: Action<ConfluenceDistributionConfig>) {
+        fun distributionCommon(configurationAction: Action<in ConfluenceDistributionConfig>) {
             common(distribution, configurationAction)
+        }
+
+        /**
+         * Configures common distribution settings that apply to all build variants using Groovy DSL.
+         *
+         * @param configurationClosure The Groovy closure to configure common distribution settings
+         */
+        fun distributionCommon(
+            @DelegatesTo(
+                value = ConfluenceDistributionConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in ConfluenceDistributionConfig>,
+        ) {
+            common(distribution) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**

@@ -1,5 +1,6 @@
 package ru.kode.android.build.publish.plugin.core.util
 
+import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
@@ -72,12 +73,36 @@ fun <T : Any> NamedDomainObjectContainer<T>.common(configurationAction: Action<i
     return this.register(COMMON_CONTAINER_NAME, configurationAction)
 }
 
+@Suppress("MaxLineLength")
+@Throws(InvalidUserDataException::class)
+fun <T : Any> NamedDomainObjectContainer<T>.common(configurationAction: Closure<in T>): NamedDomainObjectProvider<T> {
+    return this.register(
+        COMMON_CONTAINER_NAME,
+        Action { target ->
+            configureGroovy(configurationAction, target)
+        },
+    )
+}
+
 @Throws(InvalidUserDataException::class)
 fun <T : Any> NamedDomainObjectContainer<T>.buildVariant(
     buildVariant: String,
     configurationAction: Action<in T>,
 ): NamedDomainObjectProvider<T> {
     return this.register(buildVariant, configurationAction)
+}
+
+@Throws(InvalidUserDataException::class)
+fun <T : Any> NamedDomainObjectContainer<T>.buildVariant(
+    buildVariant: String,
+    configurationAction: Closure<in T>,
+): NamedDomainObjectProvider<T> {
+    return this.register(
+        buildVariant,
+        Action { target ->
+            configureGroovy(configurationAction, target)
+        },
+    )
 }
 
 inline fun <reified T : Any> Provider<Map<String, Provider<T>>>.flatMapByNameOrCommon(

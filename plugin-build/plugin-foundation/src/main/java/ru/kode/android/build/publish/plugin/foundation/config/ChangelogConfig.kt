@@ -1,5 +1,7 @@
 package ru.kode.android.build.publish.plugin.foundation.config
 
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -123,6 +125,24 @@ abstract class ChangelogConfig {
     }
 
     /**
+     * Configures the strategy used to format annotated tag messages in the changelog
+     * using a Groovy closure.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [AnnotatedTagMessageStrategy] implementation.
+     *
+     * @see AnnotatedTagMessageStrategy
+     */
+    fun annotatedTagMessageStrategy(
+        @DelegatesTo(
+            value = AnnotatedTagMessageStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out AnnotatedTagMessageStrategy>,
+    ) {
+        annotatedTagMessageStrategy.set(strategyClosure.call())
+    }
+
+    /**
      * Configures the strategy used to format commit messages in the changelog.
      *
      * @param action Supplier that returns the desired [ChangelogMessageStrategy] implementation.
@@ -131,6 +151,24 @@ abstract class ChangelogConfig {
      */
     fun changelogMessageStrategy(action: () -> ChangelogMessageStrategy) {
         changelogMessageStrategy.set(action())
+    }
+
+    /**
+     * Configures the strategy used to format commit messages in the changelog
+     * using a Groovy closure.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [ChangelogMessageStrategy] implementation.
+     *
+     * @see ChangelogMessageStrategy
+     */
+    fun changelogMessageStrategy(
+        @DelegatesTo(
+            value = ChangelogMessageStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out ChangelogMessageStrategy>,
+    ) {
+        changelogMessageStrategy.set(strategyClosure.call())
     }
 
     /**
@@ -145,6 +183,24 @@ abstract class ChangelogConfig {
     }
 
     /**
+     * Configures the strategy used to generate changelog messages when no changes are detected
+     * using a Groovy closure.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [EmptyChangelogMessageStrategy] implementation.
+     *
+     * @see EmptyChangelogMessageStrategy
+     */
+    fun emptyChangelogMessageStrategy(
+        @DelegatesTo(
+            value = EmptyChangelogMessageStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out EmptyChangelogMessageStrategy>,
+    ) {
+        emptyChangelogMessageStrategy.set(strategyClosure.call())
+    }
+
+    /**
      * Configures the strategy used to generate changelog messages when the changelog could not be generated.
      *
      * @param action Supplier that returns the desired [NotGeneratedChangelogMessageStrategy] implementation.
@@ -153,5 +209,24 @@ abstract class ChangelogConfig {
      */
     fun notGeneratedChangelogMessageStrategy(action: () -> NotGeneratedChangelogMessageStrategy) {
         notGeneratedChangelogMessageStrategy.set(action())
+    }
+
+    /**
+     * Configures the strategy used to generate changelog messages when the changelog could not be generated.
+     *
+     * This overload accepts a Groovy [Closure] for compatibility with Groovy-based build scripts.
+     *
+     * @param strategyClosure Closure that returns the desired [NotGeneratedChangelogMessageStrategy] implementation.
+     *
+     * @see NotGeneratedChangelogMessageStrategy
+     */
+    fun notGeneratedChangelogMessageStrategy(
+        @DelegatesTo(
+            value = NotGeneratedChangelogMessageStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out NotGeneratedChangelogMessageStrategy>,
+    ) {
+        notGeneratedChangelogMessageStrategy.set(strategyClosure.call())
     }
 }

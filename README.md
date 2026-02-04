@@ -200,7 +200,7 @@ Groovy DSL (`build.gradle`):
 buildPublishFoundation {
     output {
         common {
-            it.buildTagPattern { builder ->
+            buildTagPattern { builder ->
                 builder.literal('v')
                 builder.separator('.')
                 builder.buildVersion()
@@ -540,7 +540,7 @@ plugins {
 buildPublishFoundation {
   verboseLogging.set(
     providers.environmentVariable("BUILD_VERBOSE_LOGGING")
-      .map { it.toBoolean() }
+      .map { toBoolean() }
       .orElse(false)
   )
 
@@ -592,7 +592,7 @@ buildPublishTelegram {
       botId.set(
         providers.environmentVariable("TELEGRAM_CHANGELOGGER_BOT_ID")
           .map {
-            if (it.isBlank()) {
+            if (isBlank()) {
               throw GradleException("no TELEGRAM_CHANGELOGGER_BOT_ID defined for telegram reports")
             }
             it
@@ -603,7 +603,7 @@ buildPublishTelegram {
       botServerBaseUrl.set(
         providers.environmentVariable("BUILD_REPORT_TELEGRAM_BOT_BASE_URL")
           .map {
-            if (it.isBlank()) {
+            if (isBlank()) {
               throw GradleException("no BUILD_REPORT_TELEGRAM_BOT_BASE_URL defined for telegram reports")
             }
             it
@@ -613,7 +613,7 @@ buildPublishTelegram {
       botServerAuth.username.set(
         providers.environmentVariable("BUILD_REPORT_TELEGRAM_BOT_AUTH_USERNAME")
           .map {
-            if (it.isBlank()) {
+            if (isBlank()) {
               throw GradleException("no BUILD_REPORT_TELEGRAM_BOT_AUTH_USERNAME defined for telegram reports")
             }
             it
@@ -623,7 +623,7 @@ buildPublishTelegram {
       botServerAuth.password.set(
         providers.environmentVariable("BUILD_REPORT_TELEGRAM_BOT_AUTH_PASSWORD")
           .map {
-            if (it.isBlank()) {
+            if (isBlank()) {
               throw GradleException("no BUILD_REPORT_TELEGRAM_BOT_AUTH_PASSWORD defined for telegram reports")
             }
             it
@@ -635,7 +635,7 @@ buildPublishTelegram {
         chatId.set(
           providers.environmentVariable("BUILD_REPORT_TELEGRAM_CHAT_ID")
             .map {
-              if (it.isBlank()) {
+              if (isBlank()) {
                 throw GradleException("no BUILD_REPORT_TELEGRAM_CHAT_ID defined for telegram reports")
               }
               it
@@ -645,7 +645,7 @@ buildPublishTelegram {
         topicId.set(
           providers.environmentVariable("BUILD_REPORT_TELEGRAM_TOPIC_ID")
             .map {
-              if (it.isBlank()) {
+              if (isBlank()) {
                 throw GradleException("no BUILD_REPORT_TELEGRAM_TOPIC_ID defined for telegram reports")
               }
               it
@@ -659,10 +659,10 @@ buildPublishTelegram {
       userMentions(
         providers.environmentVariable("BUILD_REPORT_TELEGRAM_USER_MENTIONS")
           .map {
-            if (it.isBlank()) {
+            if (isBlank()) {
               throw GradleException("no BUILD_REPORT_TELEGRAM_USER_MENTIONS defined for telegram reports")
             }
-            it.trim().split(",").toList()
+            trim().split(",").toList()
           }
           .orElse(emptyList())
       )
@@ -737,7 +737,7 @@ String secret (for example, bot token):
 val telegramBotIdProvider =
     providers.environmentVariable("TELEGRAM_CHANGELOGGER_BOT_ID")
         .map {
-            if (it.isBlank()) {
+            if (isBlank()) {
                 throw GradleException("no TELEGRAM_CHANGELOGGER_BOT_ID defined for telegram reports")
             }
             it
@@ -762,7 +762,7 @@ buildPublishClickUp {
             apiTokenFile.set(
                 providers.environmentVariable("CLICKUP_TOKEN_FILE")
                     .map {
-                        if (it.isBlank()) {
+                        if (isBlank()) {
                             throw GradleException("no CLICKUP_TOKEN_FILE env var provided")
                         }
                         layout.projectDirectory.file(it)
@@ -778,7 +778,7 @@ buildPublishClickUp {
 ```groovy
 def telegramBotIdProvider = providers.environmentVariable('TELEGRAM_CHANGELOGGER_BOT_ID')
     .map {
-        if (it.isBlank()) {
+        if (isBlank()) {
             throw new GradleException('no TELEGRAM_CHANGELOGGER_BOT_ID defined for telegram reports')
         }
         it
@@ -788,7 +788,7 @@ def telegramBotIdProvider = providers.environmentVariable('TELEGRAM_CHANGELOGGER
 buildPublishTelegram {
     botsCommon {
         bot('changelogger') {
-            it.botId.set(telegramBotIdProvider)
+            botId.set(telegramBotIdProvider)
         }
     }
 }
@@ -809,7 +809,7 @@ def slackApiTokenFilePath = System.getenv("SLACK_API_KEY") ?: "${rootProject.pro
 buildPublishSlack {
     bot {
         common {
-            it.uploadApiTokenFile.set(project.file(slackApiTokenFilePath))
+            uploadApiTokenFile.set(project.file(slackApiTokenFilePath))
         }
     }
 }
@@ -962,10 +962,10 @@ plugins {
 buildPublishFoundation {
     output {
         common {
-            it.baseFileName.set('app')
-            it.useVersionsFromTag.set(true)
+            baseFileName.set('app')
+            useVersionsFromTag.set(true)
 
-            it.buildTagPattern {
+            buildTagPattern {
                 literal('v')
                 separator('.')
                 buildVersion()
@@ -984,6 +984,10 @@ buildPublishFoundation {
 ##### Kotlin DSL (`build.gradle.kts`)
 
 ```kotlin
+import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberVariantNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
+
 buildPublishFoundation {
    verboseLogging.set(false)
    bodyLogging.set(false)
@@ -995,15 +999,15 @@ buildPublishFoundation {
          useDefaultsForVersionsAsFallback.set(true)
 
          versionNameStrategy {
-            ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberVariantNameStrategy
+            BuildVersionNumberVariantNameStrategy
          }
 
          versionCodeStrategy {
-            ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy
+            BuildVersionCodeStrategy
          }
 
          outputApkNameStrategy {
-            ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
+            VersionedApkNamingStrategy
          }
       }
 
@@ -1025,39 +1029,43 @@ buildPublishFoundation {
 ##### Groovy DSL (`build.gradle`)
 
 ```groovy
+import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberVariantNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
+
 buildPublishFoundation {
     verboseLogging.set(false)
     bodyLogging.set(false)
 
     output {
         common {
-            it.baseFileName.set('app')
-            it.useVersionsFromTag.set(true)
-            it.useDefaultsForVersionsAsFallback.set(true)
+            baseFileName.set('app')
+            useVersionsFromTag.set(true)
+            useDefaultsForVersionsAsFallback.set(true)
 
-            it.versionNameStrategy {
-              ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberVariantNameStrategy.INSTANCE
+            versionNameStrategy {
+              BuildVersionNumberVariantNameStrategy.INSTANCE
             }
 
-            it.versionCodeStrategy {
-                ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy.INSTANCE
+            versionCodeStrategy {
+                BuildVersionCodeStrategy.INSTANCE
             }
 
-            it.outputApkNameStrategy {
-                ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy.INSTANCE
+            outputApkNameStrategy {
+                VersionedApkNamingStrategy.INSTANCE
             }
         }
 
         buildVariant('debug') {
-            it.useStubsForTagAsFallback.set(true)
+            useStubsForTagAsFallback.set(true)
         }
     }
 
     changelog {
         common {
-            it.issueNumberPattern.set('#(\\d+)')
-            it.issueUrlPrefix.set('https://your-issue-tracker.com/issue/')
-            it.commitMessageKey.set('message')
+            issueNumberPattern.set('#(\\d+)')
+            issueUrlPrefix.set('https://your-issue-tracker.com/issue/')
+            commitMessageKey.set('message')
         }
     }
 }
@@ -1328,10 +1336,10 @@ plugins {
 buildPublishFirebase {
     distribution {
         common {
-            it.appId.set('your-firebase-app-id')
-            it.serviceCredentialsFile.set(file('path/to/service-account.json'))
-            it.artifactType.set(ru.kode.android.build.publish.plugin.firebase.config.ArtifactType.Bundle)
-            it.testerGroup('qa-team')
+            appId.set('your-firebase-app-id')
+            serviceCredentialsFile.set(file('path/to/service-account.json'))
+            artifactType.set(ru.kode.android.build.publish.plugin.firebase.config.ArtifactType.Bundle)
+            testerGroup('qa-team')
         }
     }
 }
@@ -1369,14 +1377,14 @@ buildPublishFirebase {
 buildPublishFirebase {
     distribution {
         common {
-            it.appId.set('your-firebase-app-id')
-            it.serviceCredentialsFile.set(file('path/to/service-account.json'))
-            it.artifactType.set(ru.kode.android.build.publish.plugin.firebase.config.ArtifactType.Bundle)
-            it.testerGroups('qa-team', 'developers')
+            appId.set('your-firebase-app-id')
+            serviceCredentialsFile.set(file('path/to/service-account.json'))
+            artifactType.set(ru.kode.android.build.publish.plugin.firebase.config.ArtifactType.Bundle)
+            testerGroups('qa-team', 'developers')
         }
 
         buildVariant('release') {
-            it.testerGroup('beta-testers')
+            testerGroup('beta-testers')
         }
     }
 }
@@ -1528,20 +1536,20 @@ buildPublishPlay {
 buildPublishPlay {
     auth {
         common {
-            it.appId.set('com.example.app')
-            it.apiTokenFile.set(file('play-account.json'))
+            appId.set('com.example.app')
+            apiTokenFile.set(file('play-account.json'))
         }
     }
 
     distribution {
         common {
-            it.trackId.set('internal')
-            it.updatePriority.set(0)
+            trackId.set('internal')
+            updatePriority.set(0)
         }
 
         buildVariant('release') {
-            it.trackId.set('production')
-            it.updatePriority.set(1)
+            trackId.set('production')
+            updatePriority.set(1)
         }
     }
 }
@@ -1695,15 +1703,15 @@ plugins {
 buildPublishSlack {
     bot {
         common {
-            it.webhookUrl.set('https://hooks.slack.com/services/...')
-            it.uploadApiTokenFile.set(file('slack-upload-token.txt'))
-            it.iconUrl.set('https://example.com/bot.png')
+            webhookUrl.set('https://hooks.slack.com/services/...')
+            uploadApiTokenFile.set(file('slack-upload-token.txt'))
+            iconUrl.set('https://example.com/bot.png')
         }
     }
 
     distribution {
         common {
-            it.destinationChannel('#releases')
+            destinationChannel('#releases')
         }
     }
 }
@@ -1759,37 +1767,37 @@ buildPublishSlack {
 buildPublishSlack {
     bot {
         common {
-            it.webhookUrl.set('https://hooks.slack.com/services/...')
-            it.uploadApiTokenFile.set(file('slack-upload-token.txt'))
-            it.iconUrl.set('https://example.com/bot.png')
+            webhookUrl.set('https://hooks.slack.com/services/...')
+            uploadApiTokenFile.set(file('slack-upload-token.txt'))
+            iconUrl.set('https://example.com/bot.png')
         }
 
         buildVariant('release') {
-            it.webhookUrl.set('https://hooks.slack.com/services/...')
-            it.uploadApiTokenFile.set(file('slack-upload-token.txt'))
-            it.iconUrl.set('https://example.com/release-bot.png')
+            webhookUrl.set('https://hooks.slack.com/services/...')
+            uploadApiTokenFile.set(file('slack-upload-token.txt'))
+            iconUrl.set('https://example.com/release-bot.png')
         }
     }
 
     changelog {
         common {
-            it.attachmentColor.set('#36a64f')
-            it.userMention('@here')
+            attachmentColor.set('#36a64f')
+            userMention('@here')
         }
 
         buildVariant('release') {
-            it.attachmentColor.set('#3aa3e3')
-            it.userMentions('@channel')
+            attachmentColor.set('#3aa3e3')
+            userMentions('@channel')
         }
     }
 
     distribution {
         common {
-            it.destinationChannels('#releases')
+            destinationChannels('#releases')
         }
 
         buildVariant('debug') {
-            it.destinationChannels('#android-team')
+            destinationChannels('#android-team')
         }
     }
 }
@@ -1990,10 +1998,10 @@ buildPublishTelegram {
     bots {
         common {
             bot('main') {
-                it.botId.set('your-bot-token')
+                botId.set('your-bot-token')
 
                 chat('releases') {
-                    it.chatId.set('@your-channel')
+                    chatId.set('@your-channel')
                 }
             }
         }
@@ -2002,8 +2010,8 @@ buildPublishTelegram {
     changelog {
         common {
             destinationBot {
-                it.botName.set('main')
-                it.chatName('releases')
+                botName.set('main')
+                chatName('releases')
             }
         }
     }
@@ -2069,17 +2077,17 @@ buildPublishTelegram {
 buildPublishTelegram {
     bots {
         common {
-            it.bot('main') {
-                it.botId.set('your-bot-token')
+            bot('main') {
+                botId.set('your-bot-token')
 
                 // Optional: for self-hosted Bot API
-                // it.botServerBaseUrl.set('https://telegram-bot-api.your-company.net')
-                // it.botServerAuth.username.set(providers.environmentVariable('TELEGRAM_AUTH_USER'))
-                // it.botServerAuth.password.set(providers.environmentVariable('TELEGRAM_AUTH_PASSWORD'))
+                // botServerBaseUrl.set('https://telegram-bot-api.your-company.net')
+                // botServerAuth.username.set(providers.environmentVariable('TELEGRAM_AUTH_USER'))
+                // botServerAuth.password.set(providers.environmentVariable('TELEGRAM_AUTH_PASSWORD'))
 
                 chat('releases') {
-                    it.chatId.set('@your-channel')
-                    it.topicId.set('123')
+                    chatId.set('@your-channel')
+                    topicId.set('123')
                 }
             }
         }
@@ -2087,29 +2095,29 @@ buildPublishTelegram {
 
     // Optional helper task configuration (enables telegramLookup<Variant>)
     lookup {
-        it.botName.set('main')
-        it.chatName.set('releases')
-        it.topicName.set('Android releases')
+        botName.set('main')
+        chatName.set('releases')
+        topicName.set('Android releases')
     }
 
     changelog {
         common {
-            it.userMention('@dev1')
-            it.userMentions('@qa_team')
+            userMention('@dev1')
+            userMentions('@qa_team')
 
-            it.destinationBot {
-                it.botName.set('main')
-                it.chatName('releases')
+            destinationBot {
+                botName.set('main')
+                chatName('releases')
             }
         }
     }
 
     distribution {
         common {
-            it.compressed.set(true)
-            it.destinationBot {
-                it.botName.set('main')
-                it.chatName('releases')
+            compressed.set(true)
+            destinationBot {
+                botName.set('main')
+                chatName('releases')
             }
         }
     }
@@ -2301,18 +2309,18 @@ plugins {
 buildPublishJira {
     auth {
         common {
-            it.baseUrl.set('https://your-domain.atlassian.net')
-            it.credentials.username.set('your-email@example.com')
-            it.credentials.password.set(providers.environmentVariable('JIRA_API_TOKEN'))
+            baseUrl.set('https://your-domain.atlassian.net')
+            credentials.username.set('your-email@example.com')
+            credentials.password.set(providers.environmentVariable('JIRA_API_TOKEN'))
         }
     }
 
     automation {
         common {
-            it.projectKey.set('PROJ')
+            projectKey.set('PROJ')
 
             // Enable at least one automation action
-            it.targetStatusName.set('Ready for QA')
+            targetStatusName.set('Ready for QA')
         }
     }
 }
@@ -2360,28 +2368,28 @@ buildPublishJira {
 buildPublishJira {
     auth {
         common {
-            it.baseUrl.set('https://your-domain.atlassian.net')
-            it.credentials.username.set('your-email@example.com')
-            it.credentials.password.set(providers.environmentVariable('JIRA_API_TOKEN'))
+            baseUrl.set('https://your-domain.atlassian.net')
+            credentials.username.set('your-email@example.com')
+            credentials.password.set(providers.environmentVariable('JIRA_API_TOKEN'))
         }
     }
 
     automation {
         common {
-            it.projectKey.set('PROJ')
+            projectKey.set('PROJ')
 
             // format args order: buildVersion, buildNumber, buildVariant
-            it.labelPattern.set('android-%s-%d')
-            it.fixVersionPattern.set('%s')
+            labelPattern.set('android-%s-%d')
+            fixVersionPattern.set('%s')
 
-            it.targetStatusName.set('Ready for QA')
+            targetStatusName.set('Ready for QA')
         }
 
         buildVariant('release') {
-            it.projectKey.set('PROJ')
-            it.labelPattern.set('release-%s')
-            it.fixVersionPattern.set('%s')
-            it.targetStatusName.set('Ready for Release')
+            projectKey.set('PROJ')
+            labelPattern.set('release-%s')
+            fixVersionPattern.set('%s')
+            targetStatusName.set('Ready for Release')
         }
     }
 }
@@ -2535,16 +2543,16 @@ plugins {
 buildPublishConfluence {
     auth {
         common {
-            it.baseUrl.set('https://your-domain.atlassian.net/wiki')
-            it.credentials.username.set('your-email@example.com')
-            it.credentials.password.set(providers.environmentVariable('CONFLUENCE_API_TOKEN'))
+            baseUrl.set('https://your-domain.atlassian.net/wiki')
+            credentials.username.set('your-email@example.com')
+            credentials.password.set(providers.environmentVariable('CONFLUENCE_API_TOKEN'))
         }
     }
 
     distribution {
         common {
-            it.pageId.set('12345678')
-            it.compressed.set(true)
+            pageId.set('12345678')
+            compressed.set(true)
         }
     }
 }
@@ -2583,20 +2591,20 @@ buildPublishConfluence {
 buildPublishConfluence {
     auth {
         common {
-            it.baseUrl.set('https://your-domain.atlassian.net/wiki')
-            it.credentials.username.set('your-email@example.com')
-            it.credentials.password.set(providers.environmentVariable('CONFLUENCE_API_TOKEN'))
+            baseUrl.set('https://your-domain.atlassian.net/wiki')
+            credentials.username.set('your-email@example.com')
+            credentials.password.set(providers.environmentVariable('CONFLUENCE_API_TOKEN'))
         }
     }
 
     distribution {
         common {
-            it.pageId.set('12345678')
-            it.compressed.set(true)
+            pageId.set('12345678')
+            compressed.set(true)
         }
 
         buildVariant('release') {
-            it.pageId.set('87654321')
+            pageId.set('87654321')
         }
     }
 }
@@ -2722,16 +2730,16 @@ plugins {
 buildPublishClickUp {
     auth {
         common {
-            it.apiTokenFile.set(file('clickup-token.txt'))
+            apiTokenFile.set(file('clickup-token.txt'))
         }
     }
 
     automation {
         common {
-            it.workspaceName.set('Your Workspace')
+            workspaceName.set('Your Workspace')
 
             // Enable at least one automation action
-            it.tagPattern.set('%s')
+            tagPattern.set('%s')
         }
     }
 }
@@ -2778,27 +2786,27 @@ buildPublishClickUp {
 buildPublishClickUp {
     auth {
         common {
-            it.apiTokenFile.set(file('clickup-token.txt'))
+            apiTokenFile.set(file('clickup-token.txt'))
         }
     }
 
     automation {
         common {
-            it.workspaceName.set('Your Workspace')
+            workspaceName.set('Your Workspace')
 
             // format args order: buildVersion, buildNumber, buildVariant
-            it.tagPattern.set('release-%s')
+            tagPattern.set('release-%s')
 
             // Fix version automation requires BOTH properties below
-            it.fixVersionPattern.set('%s')
-            it.fixVersionFieldName.set('Fix Version')
+            fixVersionPattern.set('%s')
+            fixVersionFieldName.set('Fix Version')
         }
 
         buildVariant('release') {
-            it.workspaceName.set('Your Workspace')
-            it.tagPattern.set('%s')
-            it.fixVersionPattern.set('%s')
-            it.fixVersionFieldName.set('Fix Version')
+            workspaceName.set('Your Workspace')
+            tagPattern.set('%s')
+            fixVersionPattern.set('%s')
+            fixVersionFieldName.set('Fix Version')
         }
     }
 }

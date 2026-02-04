@@ -31,8 +31,12 @@ android {
 buildPublishFoundation {
     output {
         common {
-           it.baseFileName = "base-project-android"
-           it.versionNameStrategy { BuildVersionNumberNameStrategy.INSTANCE }
+           baseFileName = "base-project-android"
+           versionNameStrategy { BuildVersionNumberNameStrategy.INSTANCE }
+        }
+
+        buildVariant("release") {
+            versionNameStrategy { BuildVersionNumberNameStrategy.INSTANCE }
         }
     }
 
@@ -46,7 +50,7 @@ buildPublishFoundation {
 buildPublishTelegram {
     bots {
         common {
-            it.bot("ChangelogBot") {
+            bot("ChangelogBot") {
                 botServerBaseUrl.set("test")
                 botServerAuth.password.set("test")
                 botServerAuth.username.set("test")
@@ -59,8 +63,8 @@ buildPublishTelegram {
     }
     changelog {
         common {
-            it.userMentions("@user1", '@user2')
-            it.destinationBot {
+            userMentions("@user1", '@user2')
+            destinationBot {
                 botName = "ChangelogBot"
                 chatNames("ChangelogTest")
             }
@@ -71,16 +75,16 @@ buildPublishTelegram {
 buildPublishClickUp {
     auth {
         common {
-            it.apiTokenFile = project.file("clickup-token.txt")
+            apiTokenFile = project.file("clickup-token.txt")
         }
     }
 
     automation {
         common {
-            it.workspaceName.set("Ilia Nekrasov's Workspace")
-            it.fixVersionPattern = "fix_%2\$s_%1\$s"
-            it.fixVersionFieldName = "Fix version"
-            it.tagPattern = "test_tag_name"
+            workspaceName.set("Ilia Nekrasov's Workspace")
+            fixVersionPattern = "fix_%2\$s_%1\$s"
+            fixVersionFieldName = "Fix version"
+            tagPattern = "test_tag_name"
         }
     }
 }

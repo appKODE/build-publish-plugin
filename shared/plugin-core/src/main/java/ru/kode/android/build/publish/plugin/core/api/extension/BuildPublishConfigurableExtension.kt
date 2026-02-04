@@ -1,6 +1,8 @@
 package ru.kode.android.build.publish.plugin.core.api.extension
 
 import com.android.build.api.variant.ApplicationVariant
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
@@ -62,6 +64,17 @@ open class BuildPublishConfigurableExtension {
         container.common(configurationAction)
     }
 
+    protected fun <T : Any> common(
+        container: NamedDomainObjectContainer<T>,
+        @DelegatesTo(
+            genericTypeIndex = 0,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        configurationClosure: Closure<in T>,
+    ) {
+        container.common(configurationClosure)
+    }
+
     /**
      * Applies common configuration to a base domain container.
      *
@@ -87,6 +100,17 @@ open class BuildPublishConfigurableExtension {
         configurationAction: Action<in T>,
     ) {
         container.common(configurationAction)
+    }
+
+    protected fun <T : Any> common(
+        container: BuildPublishDomainObjectContainer<T>,
+        @DelegatesTo(
+            genericTypeIndex = 0,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        configurationClosure: Closure<in T>,
+    ) {
+        container.common(configurationClosure)
     }
 
     /**
@@ -119,6 +143,31 @@ open class BuildPublishConfigurableExtension {
     }
 
     /**
+     * Applies build-type specific configuration to a named domain object container using the Closure syntax.
+     *
+     * This method registers a configuration action that will be applied only to the specified
+     * build variant. The configuration is stored and applied when the container is populated
+     * with actual elements for the given variant.
+     *
+     * @param T The type of objects in the container.
+     * @param buildVariant The name of the build variant (e.g., "debug", "release").
+     * @param container The named domain object container to configure.
+     * @param configurationClosure The closure that configures the build type.
+     * ```
+     */
+    protected fun <T : Any> buildVariant(
+        buildVariant: String,
+        container: NamedDomainObjectContainer<T>,
+        @DelegatesTo(
+            genericTypeIndex = 0,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        configurationClosure: Closure<in T>,
+    ) {
+        container.buildVariant(buildVariant, configurationClosure)
+    }
+
+    /**
      * Applies build-type specific configuration to a base domain container.
      *
      * This method registers a configuration action that will be applied only to the specified
@@ -144,6 +193,31 @@ open class BuildPublishConfigurableExtension {
         buildVariant: String,
         container: BuildPublishDomainObjectContainer<T>,
         configurationAction: Action<in T>,
+    ) {
+        container.buildVariant(buildVariant, configurationAction)
+    }
+
+    /**
+     * Applies build-type specific configuration to a base domain container using the Closure syntax.
+     *
+     * This method registers a configuration action that will be applied only to the specified
+     * build variant using the [BuildPublishDomainObjectContainer] abstraction. It's particularly
+     * useful when working with custom domain object containers that require special handling.
+     *
+     * @param T The type of objects in the container.
+     * @param buildVariant The name of the build variant (e.g., "debug", "release").
+     * @param container The base domain container to configure.
+     * @param configurationClosure The closure that configures the build type.
+     *
+     **/
+    protected fun <T : Any> buildVariant(
+        buildVariant: String,
+        container: BuildPublishDomainObjectContainer<T>,
+        @DelegatesTo(
+            genericTypeIndex = 0,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        configurationAction: Closure<in T>,
     ) {
         container.buildVariant(buildVariant, configurationAction)
     }

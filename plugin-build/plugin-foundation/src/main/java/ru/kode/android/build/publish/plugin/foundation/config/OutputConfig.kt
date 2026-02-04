@@ -1,5 +1,7 @@
 package ru.kode.android.build.publish.plugin.foundation.config
 
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -144,6 +146,26 @@ abstract class OutputConfig {
     }
 
     /**
+     * Configures the version name strategy using a Groovy closure.
+     *
+     * This overload is provided for Groovy DSL compatibility. The closure should return
+     * a [VersionNameStrategy] implementation.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [VersionNameStrategy] implementation.
+     *
+     * @see VersionNameStrategy
+     */
+    fun versionNameStrategy(
+        @DelegatesTo(
+            value = VersionNameStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out VersionNameStrategy>,
+    ) {
+        versionNameStrategy.set(strategyClosure.call())
+    }
+
+    /**
      * Configures the version code mapper used to convert version code extracted from Git tags to a meaningful version code.
      *
      * @param action The configuration action for [VersionCodeStrategy].
@@ -152,6 +174,26 @@ abstract class OutputConfig {
      */
     fun versionCodeStrategy(action: () -> VersionCodeStrategy) {
         versionCodeStrategy.set(action())
+    }
+
+    /**
+     * Configures the version code strategy using a Groovy closure.
+     *
+     * This overload is provided for Groovy DSL compatibility. The closure should return
+     * a [VersionCodeStrategy] implementation.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [VersionCodeStrategy] implementation.
+     *
+     * @see VersionCodeStrategy
+     */
+    fun versionCodeStrategy(
+        @DelegatesTo(
+            value = VersionCodeStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out VersionCodeStrategy>,
+    ) {
+        versionCodeStrategy.set(strategyClosure.call())
     }
 
     /**
@@ -166,5 +208,25 @@ abstract class OutputConfig {
      */
     fun outputApkNameStrategy(action: () -> OutputApkNameStrategy) {
         outputApkNameStrategy.set(action())
+    }
+
+    /**
+     * Configures the strategy used to generate the final APK output file name using a Groovy closure.
+     *
+     * This overload is provided for Groovy DSL compatibility. The closure should return
+     * an [OutputApkNameStrategy] implementation.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [OutputApkNameStrategy] implementation.
+     *
+     * @see OutputApkNameStrategy
+     */
+    fun outputApkNameStrategy(
+        @DelegatesTo(
+            value = OutputApkNameStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out OutputApkNameStrategy>,
+    ) {
+        outputApkNameStrategy.set(strategyClosure.call())
     }
 }

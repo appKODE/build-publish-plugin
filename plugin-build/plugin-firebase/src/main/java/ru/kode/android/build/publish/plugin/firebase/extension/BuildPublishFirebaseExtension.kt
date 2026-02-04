@@ -2,6 +2,8 @@ package ru.kode.android.build.publish.plugin.firebase.extension
 
 import com.android.build.api.variant.ApplicationVariant
 import com.google.firebase.appdistribution.gradle.AppDistributionVariantExtension
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
@@ -12,6 +14,7 @@ import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfi
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.APK_FILE_EXTENSION
 import ru.kode.android.build.publish.plugin.core.util.BUNDLE_FILE_EXTENSION
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType
@@ -70,9 +73,31 @@ abstract class BuildPublishFirebaseExtension
          * @param configurationAction The action to configure the distribution container
          * @see FirebaseDistributionConfig
          */
-        fun distribution(configurationAction: Action<BuildPublishDomainObjectContainer<FirebaseDistributionConfig>>) {
+        fun distribution(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<BuildPublishDomainObjectContainer<FirebaseDistributionConfig>>,
+        ) {
             val container = BuildPublishDomainObjectContainer(distribution)
             configurationAction.execute(container)
+        }
+
+        /**
+         * Configures Firebase Distribution settings for different build variants using Groovy closure syntax.
+         *
+         * This method provides Groovy DSL support for configuring distribution settings.
+         * It wraps the distribution container in a [BuildPublishDomainObjectContainer] for
+         * variant-specific configuration.
+         *
+         * @param configurationClosure The Groovy closure to configure the distribution container
+         * @see FirebaseDistributionConfig
+         * @see distribution
+         */
+        fun distribution(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<FirebaseDistributionConfig>>,
+        ) {
+            val container = BuildPublishDomainObjectContainer(distribution)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -82,6 +107,23 @@ abstract class BuildPublishFirebaseExtension
          */
         fun distributionCommon(configurationAction: Action<FirebaseDistributionConfig>) {
             common(distribution, configurationAction)
+        }
+
+        /**
+         * Configures common Firebase Distribution settings that apply to all build variants using Groovy DSL.
+         *
+         * @param configurationClosure The Groovy closure to configure common distribution settings
+         */
+        fun distributionCommon(
+            @DelegatesTo(
+                value = FirebaseDistributionConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in FirebaseDistributionConfig>,
+        ) {
+            common(distribution) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**
@@ -98,11 +140,9 @@ abstract class BuildPublishFirebaseExtension
             variant: ApplicationVariant,
         ) {
             val buildVariantName = input.buildVariant.name
-            val distributionConfig = distributionConfigOrNull(buildVariantName)
-
-            if (distributionConfig == null) {
-                throw GradleException(provideDistributionConfigMessage(buildVariantName))
-            }
+            val distributionConfig =
+                distributionConfigOrNull(buildVariantName)
+                    ?: throw GradleException(provideDistributionConfigMessage(buildVariantName))
 
             variant.getExtension(AppDistributionVariantExtension::class.java)?.apply {
                 appId.set(distributionConfig.appId)

@@ -1,6 +1,8 @@
 package ru.kode.android.build.publish.plugin.telegram.extension
 
 import com.android.build.api.variant.ApplicationVariant
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
@@ -9,6 +11,7 @@ import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotsConfig
@@ -149,9 +152,29 @@ abstract class BuildPublishTelegramExtension
          *
          * @param configurationAction Action to configure bot settings
          */
-        fun bots(configurationAction: Action<BuildPublishDomainObjectContainer<TelegramBotsConfig>>) {
+        fun bots(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<BuildPublishDomainObjectContainer<TelegramBotsConfig>>,
+        ) {
             val container = BuildPublishDomainObjectContainer(bots)
             configurationAction.execute(container)
+        }
+
+        /**
+         * Configures one or more Telegram bots for sending notifications using Groovy DSL syntax.
+         *
+         * This method provides a DSL for defining bot configurations using a Groovy closure.
+         * Each bot must have a unique name and can be configured with its own credentials
+         * and chat destinations.
+         *
+         * @param configurationClosure Groovy closure to configure bot settings
+         */
+        fun bots(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<TelegramBotsConfig>>,
+        ) {
+            val container = BuildPublishDomainObjectContainer(bots)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -162,9 +185,29 @@ abstract class BuildPublishTelegramExtension
          *
          * @param configurationAction Action to configure changelog settings
          */
-        fun changelog(configurationAction: Action<BuildPublishDomainObjectContainer<TelegramChangelogConfig>>) {
+        fun changelog(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<BuildPublishDomainObjectContainer<TelegramChangelogConfig>>,
+        ) {
             val container = BuildPublishDomainObjectContainer(changelog)
             configurationAction.execute(container)
+        }
+
+        /**
+         * Configures changelog notification settings.
+         *
+         * This method provides a DSL for defining how changelog notifications should be sent to Telegram.
+         * You can configure user mentions and specify which bots and chats should receive the notifications.
+         * This overload is designed for Groovy build scripts.
+         *
+         * @param configurationClosure Closure to configure changelog settings
+         */
+        fun changelog(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<TelegramChangelogConfig>>,
+        ) {
+            val container = BuildPublishDomainObjectContainer(changelog)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -181,6 +224,27 @@ abstract class BuildPublishTelegramExtension
         }
 
         /**
+         * Configures common Telegram lookup settings that apply to all build variants.
+         *
+         * This method allows you to configure Telegram lookup settings that apply to all
+         * build variants. It registers a common configuration that applies to all
+         * lookups using the [BuildPublishDomainObjectContainer] abstraction.
+         *
+         * @param configurationAction Action to configure common lookup settings
+         */
+        fun lookup(
+            @DelegatesTo(
+                value = TelegramLookupConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in TelegramLookupConfig>,
+        ) {
+            common(lookup) { target ->
+                configureGroovy(configurationClosure, target)
+            }
+        }
+
+        /**
          * Configures distribution notification settings.
          *
          * This method provides a DSL for defining how distribution notifications (e.g., new app versions)
@@ -194,6 +258,26 @@ abstract class BuildPublishTelegramExtension
         }
 
         /**
+         * Configures distribution notification settings using a Groovy closure.
+         *
+         * This method provides a DSL for defining how distribution notifications (e.g., new app versions)
+         * should be sent to Telegram. You can specify which bots and chats should receive these notifications.
+         * This overload is designed for Groovy build scripts.
+         *
+         * @param configurationClosure Closure to configure distribution settings
+         */
+        fun distribution(
+            @DelegatesTo(
+                value = BuildPublishDomainObjectContainer::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<TelegramDistributionConfig>>,
+        ) {
+            val container = BuildPublishDomainObjectContainer(distribution)
+            configureGroovy(configurationClosure, container)
+        }
+
+        /**
          * Configures common Telegram bot settings that apply to all build variants.
          *
          * This method allows you to configure Telegram bot settings that apply to all
@@ -204,6 +288,27 @@ abstract class BuildPublishTelegramExtension
          */
         fun botsCommon(configurationAction: Action<TelegramBotsConfig>) {
             common(bots, configurationAction)
+        }
+
+        /**
+         * Configures common Telegram bot settings using Groovy DSL syntax.
+         *
+         * This method allows you to configure Telegram bot settings that apply to all
+         * build variants using a Groovy closure. It registers a common configuration
+         * that applies to all bots using the [BuildPublishDomainObjectContainer] abstraction.
+         *
+         * @param configurationClosure Groovy closure to configure common bot settings
+         */
+        fun botsCommon(
+            @DelegatesTo(
+                value = TelegramBotsConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in TelegramBotsConfig>,
+        ) {
+            common(bots) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**
@@ -221,6 +326,28 @@ abstract class BuildPublishTelegramExtension
         }
 
         /**
+         * Configures common changelog settings that apply to all build variants using Groovy DSL.
+         *
+         * This method registers a common configuration that applies to all changelog settings
+         * using the [BuildPublishDomainObjectContainer] abstraction. The configuration will
+         * be applied to all changelog settings with variant-specific configurations as a
+         * fallback.
+         *
+         * @param configurationClosure The Groovy closure to configure the common changelog settings
+         */
+        fun changelogCommon(
+            @DelegatesTo(
+                value = TelegramChangelogConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in TelegramChangelogConfig>,
+        ) {
+            common(changelog) { target ->
+                configureGroovy(configurationClosure, target)
+            }
+        }
+
+        /**
          * Configures common distribution settings that apply to all build variants.
          *
          * This method registers a common configuration that applies to all distribution settings
@@ -232,6 +359,28 @@ abstract class BuildPublishTelegramExtension
          */
         fun distributionCommon(configurationAction: Action<TelegramDistributionConfig>) {
             common(distribution, configurationAction)
+        }
+
+        /**
+         * Configures common distribution settings that apply to all build variants using Groovy DSL.
+         *
+         * This method registers a common configuration that applies to all distribution settings
+         * using the [BuildPublishDomainObjectContainer] abstraction. The configuration will
+         * be applied to all distribution settings with variant-specific configurations as a
+         * fallback.
+         *
+         * @param configurationClosure The Groovy closure to configure common distribution settings
+         */
+        fun distributionCommon(
+            @DelegatesTo(
+                value = TelegramDistributionConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in TelegramDistributionConfig>,
+        ) {
+            common(distribution) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**

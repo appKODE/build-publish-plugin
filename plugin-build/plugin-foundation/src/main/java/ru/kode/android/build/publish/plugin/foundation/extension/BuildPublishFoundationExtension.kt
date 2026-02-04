@@ -1,11 +1,14 @@
 package ru.kode.android.build.publish.plugin.foundation.extension
 
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
@@ -119,9 +122,26 @@ abstract class BuildPublishFoundationExtension
          * @param configurationAction The action to configure the output container.
          * @see OutputConfig
          */
-        fun output(configurationAction: Action<BuildPublishDomainObjectContainer<OutputConfig>>) {
+        fun output(configurationAction: Action<in BuildPublishDomainObjectContainer<OutputConfig>>) {
             val container = BuildPublishDomainObjectContainer(output)
             configurationAction.execute(container)
+        }
+
+        /**
+         * Configures output settings for different build variants using a Groovy closure.
+         *
+         * Use this to declare per-variant (and common) output settings such as tag pattern,
+         * version strategies, and APK naming.
+         *
+         * @param configurationClosure The Groovy closure to configure the output container.
+         * @see OutputConfig
+         */
+        fun output(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<OutputConfig>>,
+        ) {
+            val container = BuildPublishDomainObjectContainer(output)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -133,9 +153,29 @@ abstract class BuildPublishFoundationExtension
          * @param configurationAction The action to configure the changelog container.
          * @see ChangelogConfig
          */
-        fun changelog(configurationAction: Action<BuildPublishDomainObjectContainer<ChangelogConfig>>) {
+        fun changelog(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<in BuildPublishDomainObjectContainer<ChangelogConfig>>,
+        ) {
             val container = BuildPublishDomainObjectContainer(changelog)
             configurationAction.execute(container)
+        }
+
+        /**
+         * Configures changelog settings for different build variants using a Groovy closure.
+         *
+         * Use this to declare per-variant (and common) changelog parsing settings such as
+         * issue number extraction and commit message markers.
+         *
+         * @param configurationClosure The Groovy closure to configure the changelog container.
+         * @see ChangelogConfig
+         */
+        fun changelog(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ChangelogConfig>>,
+        ) {
+            val container = BuildPublishDomainObjectContainer(changelog)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -148,11 +188,53 @@ abstract class BuildPublishFoundationExtension
         }
 
         /**
+         * Configures common output settings that apply to all build variants.
+         *
+         * This Groovy-compatible method allows configuration of output settings
+         * such as base file name, version strategies, and APK naming that will be
+         * used as defaults for all build variants.
+         *
+         * @param configurationClosure The Groovy closure to configure the common output settings
+         */
+        fun outputCommon(
+            @DelegatesTo(
+                value = OutputConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in OutputConfig>,
+        ) {
+            common(output) { target ->
+                configureGroovy(configurationClosure, target)
+            }
+        }
+
+        /**
          * Configures common changelog settings that apply to all build variants.
          *
          * @param configurationAction The action to configure the common changelog settings
          */
-        fun changelogCommon(configurationAction: Action<ChangelogConfig>) {
+        fun changelogCommon(configurationAction: Action<in ChangelogConfig>) {
             common(changelog, configurationAction)
+        }
+
+        /**
+         * Configures common changelog settings that apply to all build variants.
+         *
+         * This Groovy-compatible method allows configuration of changelog parsing settings
+         * such as issue number extraction patterns and commit message markers that will be
+         * used as defaults for all build variants.
+         *
+         * @param configurationClosure The Groovy closure to configure the common changelog settings
+         */
+        fun changelogCommon(
+            @DelegatesTo(
+                value = ChangelogConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in ChangelogConfig>,
+        ) {
+            common(changelog) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
     }
