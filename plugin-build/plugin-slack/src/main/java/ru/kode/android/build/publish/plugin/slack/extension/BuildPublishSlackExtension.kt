@@ -1,6 +1,8 @@
 package ru.kode.android.build.publish.plugin.slack.extension
 
 import com.android.build.api.variant.ApplicationVariant
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
@@ -9,6 +11,7 @@ import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
@@ -120,9 +123,21 @@ abstract class BuildPublishSlackExtension
          * @param configurationAction The action to configure the bot settings
          * @see SlackBotConfig For available configuration options
          */
-        fun bot(configurationAction: Action<BuildPublishDomainObjectContainer<SlackBotConfig>>) {
+        @JvmSynthetic
+        fun bot(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<BuildPublishDomainObjectContainer<SlackBotConfig>>
+        ) {
             val container = BuildPublishDomainObjectContainer(bot)
             configurationAction.execute(container)
+        }
+
+        fun bot(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<SlackBotConfig>>
+        ) {
+            val container = BuildPublishDomainObjectContainer(bot)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -131,9 +146,21 @@ abstract class BuildPublishSlackExtension
          * @param configurationAction The action to configure the changelog settings
          * @see SlackChangelogConfig For available configuration options
          */
-        fun changelog(configurationAction: Action<BuildPublishDomainObjectContainer<SlackChangelogConfig>>) {
+        @JvmSynthetic
+        fun changelog(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<BuildPublishDomainObjectContainer<SlackChangelogConfig>>
+        ) {
             val container = BuildPublishDomainObjectContainer(changelog)
             configurationAction.execute(container)
+        }
+
+        fun changelog(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<SlackChangelogConfig>>
+        ) {
+            val container = BuildPublishDomainObjectContainer(changelog)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -142,9 +169,21 @@ abstract class BuildPublishSlackExtension
          * @param configurationAction The action to configure the distribution settings
          * @see SlackDistributionConfig For available configuration options
          */
-        fun distribution(configurationAction: Action<BuildPublishDomainObjectContainer<SlackDistributionConfig>>) {
+        @JvmSynthetic
+        fun distribution(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<BuildPublishDomainObjectContainer<SlackDistributionConfig>>
+        ) {
             val container = BuildPublishDomainObjectContainer(distribution)
             configurationAction.execute(container)
+        }
+
+        fun distribution(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<SlackDistributionConfig>>
+        ) {
+            val container = BuildPublishDomainObjectContainer(distribution)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -153,8 +192,21 @@ abstract class BuildPublishSlackExtension
          *
          * @param configurationAction The action to configure the common bot settings
          */
+        @JvmSynthetic
         fun botCommon(configurationAction: Action<SlackBotConfig>) {
             common(bot, configurationAction)
+        }
+
+        fun botCommon(
+            @DelegatesTo(
+                value = SlackBotConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in SlackBotConfig>
+        ) {
+            common(bot) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**
@@ -163,8 +215,21 @@ abstract class BuildPublishSlackExtension
          *
          * @param configurationAction The action to configure the common changelog settings
          */
+        @JvmSynthetic
         fun changelogCommon(configurationAction: Action<SlackChangelogConfig>) {
             common(changelog, configurationAction)
+        }
+
+        fun changelogCommon(
+            @DelegatesTo(
+                value = SlackChangelogConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in SlackChangelogConfig>
+        ) {
+            common(changelog) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**
@@ -173,8 +238,21 @@ abstract class BuildPublishSlackExtension
          *
          * @param configurationAction The action to configure the common distribution settings
          */
+        @JvmSynthetic
         fun distributionCommon(configurationAction: Action<SlackDistributionConfig>) {
             common(distribution, configurationAction)
+        }
+
+        fun distributionCommon(
+            @DelegatesTo(
+                value = SlackDistributionConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in SlackDistributionConfig>
+        ) {
+            common(distribution) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**

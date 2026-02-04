@@ -1,6 +1,7 @@
 package ru.kode.android.build.publish.plugin.jira.extension
 
 import com.android.build.api.variant.ApplicationVariant
+import groovy.lang.Closure
 import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.GradleException
@@ -10,6 +11,7 @@ import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.jira.config.JiraAuthConfig
@@ -100,6 +102,7 @@ abstract class BuildPublishJiraExtension
          * @param configurationAction The configuration action to apply to the auth container
          * @see JiraAuthConfig For available configuration options
          */
+        @JvmSynthetic
         fun auth(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
             configurationAction: Action<BuildPublishDomainObjectContainer<JiraAuthConfig>>,
@@ -108,12 +111,21 @@ abstract class BuildPublishJiraExtension
             configurationAction.execute(container)
         }
 
+        fun auth(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<JiraAuthConfig>>
+        ) {
+            val container = BuildPublishDomainObjectContainer(auth)
+            configureGroovy(configurationClosure, container)
+        }
+
         /**
          * Configures Jira automation rules.
          *
          * @param configurationAction The configuration action to apply to the automation container
          * @see JiraAutomationConfig For available configuration options
          */
+        @JvmSynthetic
         fun automation(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
             configurationAction: Action<BuildPublishDomainObjectContainer<JiraAutomationConfig>>,
@@ -122,13 +134,34 @@ abstract class BuildPublishJiraExtension
             configurationAction.execute(container)
         }
 
+        fun automation(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<JiraAutomationConfig>>
+        ) {
+            val container = BuildPublishDomainObjectContainer(automation)
+            configureGroovy(configurationClosure, container)
+        }
+
         /**
          * Applies configuration to all Jira authentication settings.
          *
          * @param configurationAction The configuration action to apply to all auth configurations
          */
+        @JvmSynthetic
         fun authCommon(configurationAction: Action<JiraAuthConfig>) {
             common(auth, configurationAction)
+        }
+
+        fun authCommon(
+            @DelegatesTo(
+                value = JiraAuthConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in JiraAuthConfig>
+        ) {
+            common(auth) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**
@@ -136,8 +169,21 @@ abstract class BuildPublishJiraExtension
          *
          * @param configurationAction The configuration action to apply to all automation configurations
          */
+        @JvmSynthetic
         fun automationCommon(configurationAction: Action<JiraAutomationConfig>) {
             common(automation, configurationAction)
+        }
+
+        fun automationCommon(
+            @DelegatesTo(
+                value = JiraAutomationConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in JiraAutomationConfig>
+        ) {
+            common(automation) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**

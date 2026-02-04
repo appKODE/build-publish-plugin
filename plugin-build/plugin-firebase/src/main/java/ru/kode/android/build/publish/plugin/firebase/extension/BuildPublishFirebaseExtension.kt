@@ -2,6 +2,8 @@ package ru.kode.android.build.publish.plugin.firebase.extension
 
 import com.android.build.api.variant.ApplicationVariant
 import com.google.firebase.appdistribution.gradle.AppDistributionVariantExtension
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
@@ -10,6 +12,7 @@ import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.APK_FILE_EXTENSION
 import ru.kode.android.build.publish.plugin.core.util.BUNDLE_FILE_EXTENSION
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
@@ -70,9 +73,21 @@ abstract class BuildPublishFirebaseExtension
          * @param configurationAction The action to configure the distribution container
          * @see FirebaseDistributionConfig
          */
-        fun distribution(configurationAction: Action<BuildPublishDomainObjectContainer<FirebaseDistributionConfig>>) {
+        @JvmSynthetic
+        fun distribution(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<BuildPublishDomainObjectContainer<FirebaseDistributionConfig>>
+        ) {
             val container = BuildPublishDomainObjectContainer(distribution)
             configurationAction.execute(container)
+        }
+
+        fun distribution(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<FirebaseDistributionConfig>>
+        ) {
+            val container = BuildPublishDomainObjectContainer(distribution)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -80,8 +95,21 @@ abstract class BuildPublishFirebaseExtension
          *
          * @param configurationAction The action to configure the common distribution settings
          */
+        @JvmSynthetic
         fun distributionCommon(configurationAction: Action<FirebaseDistributionConfig>) {
             common(distribution, configurationAction)
+        }
+
+        fun distributionCommon(
+            @DelegatesTo(
+                value = FirebaseDistributionConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in FirebaseDistributionConfig>
+        ) {
+            common(distribution) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**

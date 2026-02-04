@@ -1,5 +1,7 @@
 package ru.kode.android.build.publish.plugin.foundation.config
 
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -118,8 +120,19 @@ abstract class ChangelogConfig {
      *
      * @see AnnotatedTagMessageStrategy
      */
+    @JvmSynthetic
     fun annotatedTagMessageStrategy(action: () -> AnnotatedTagMessageStrategy) {
         annotatedTagMessageStrategy.set(action())
+    }
+
+    fun annotatedTagMessageStrategy(
+        @DelegatesTo(
+            value = AnnotatedTagMessageStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out AnnotatedTagMessageStrategy>,
+    ) {
+        annotatedTagMessageStrategy.set(strategyClosure.call())
     }
 
     /**
@@ -129,8 +142,19 @@ abstract class ChangelogConfig {
      *
      * @see ChangelogMessageStrategy
      */
+    @JvmSynthetic
     fun changelogMessageStrategy(action: () -> ChangelogMessageStrategy) {
         changelogMessageStrategy.set(action())
+    }
+
+    fun changelogMessageStrategy(
+        @DelegatesTo(
+            value = ChangelogMessageStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out ChangelogMessageStrategy>,
+    ) {
+        changelogMessageStrategy.set(strategyClosure.call())
     }
 
     /**
@@ -140,8 +164,19 @@ abstract class ChangelogConfig {
      *
      * @see EmptyChangelogMessageStrategy
      */
+    @JvmSynthetic
     fun emptyChangelogMessageStrategy(action: () -> EmptyChangelogMessageStrategy) {
         emptyChangelogMessageStrategy.set(action())
+    }
+
+    fun emptyChangelogMessageStrategy(
+        @DelegatesTo(
+            value = EmptyChangelogMessageStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out EmptyChangelogMessageStrategy>,
+    ) {
+        emptyChangelogMessageStrategy.set(strategyClosure.call())
     }
 
     /**
@@ -151,7 +186,18 @@ abstract class ChangelogConfig {
      *
      * @see NotGeneratedChangelogMessageStrategy
      */
+    @JvmSynthetic
     fun notGeneratedChangelogMessageStrategy(action: () -> NotGeneratedChangelogMessageStrategy) {
         notGeneratedChangelogMessageStrategy.set(action())
+    }
+
+    fun notGeneratedChangelogMessageStrategy(
+        @DelegatesTo(
+            value = NotGeneratedChangelogMessageStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out NotGeneratedChangelogMessageStrategy>,
+    ) {
+        notGeneratedChangelogMessageStrategy.set(strategyClosure.call())
     }
 }

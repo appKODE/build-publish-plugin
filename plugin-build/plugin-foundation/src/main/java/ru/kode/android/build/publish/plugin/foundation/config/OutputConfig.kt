@@ -1,5 +1,7 @@
 package ru.kode.android.build.publish.plugin.foundation.config
 
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -139,8 +141,19 @@ abstract class OutputConfig {
      *
      * @see VersionNameStrategy
      */
+    @JvmSynthetic
     fun versionNameStrategy(action: () -> VersionNameStrategy) {
         versionNameStrategy.set(action())
+    }
+
+    fun versionNameStrategy(
+        @DelegatesTo(
+            value = VersionNameStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out VersionNameStrategy>,
+    ) {
+        versionNameStrategy.set(strategyClosure.call())
     }
 
     /**
@@ -150,8 +163,19 @@ abstract class OutputConfig {
      *
      * @see VersionCodeStrategy
      */
+    @JvmSynthetic
     fun versionCodeStrategy(action: () -> VersionCodeStrategy) {
         versionCodeStrategy.set(action())
+    }
+
+    fun versionCodeStrategy(
+        @DelegatesTo(
+            value = VersionCodeStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out VersionCodeStrategy>,
+    ) {
+        versionCodeStrategy.set(strategyClosure.call())
     }
 
     /**
@@ -164,7 +188,18 @@ abstract class OutputConfig {
      *
      * @see OutputApkNameStrategy
      */
+    @JvmSynthetic
     fun outputApkNameStrategy(action: () -> OutputApkNameStrategy) {
         outputApkNameStrategy.set(action())
+    }
+
+    fun outputApkNameStrategy(
+        @DelegatesTo(
+            value = OutputApkNameStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out OutputApkNameStrategy>,
+    ) {
+        outputApkNameStrategy.set(strategyClosure.call())
     }
 }

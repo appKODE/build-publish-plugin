@@ -1,10 +1,12 @@
 package ru.kode.android.build.publish.plugin.core.api.container
 
+import groovy.lang.Closure
 import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.UnknownDomainObjectException
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.buildVariant
 import ru.kode.android.build.publish.plugin.core.util.common
 
@@ -75,11 +77,23 @@ class BuildPublishDomainObjectContainer<T : Any>(
      * }
      * ```
      */
+    @JvmSynthetic
     fun common(
         @DelegatesTo.Target
         configurationAction: Action<in T>,
     ): NamedDomainObjectProvider<T> {
         return namedContainer.common(configurationAction)
+    }
+
+    fun common(
+        @DelegatesTo.Target
+        configurationClosure: Closure<in T>,
+    ): NamedDomainObjectProvider<T> {
+        return namedContainer.common(
+            Action { target ->
+                configureGroovy(configurationClosure, target)
+            },
+        )
     }
 
     /**
@@ -113,12 +127,26 @@ class BuildPublishDomainObjectContainer<T : Any>(
      * }
      * ```
      */
+    @JvmSynthetic
     fun buildVariant(
         buildVariant: String,
         @DelegatesTo.Target
         configurationAction: Action<in T>,
     ): NamedDomainObjectProvider<T> {
         return namedContainer.buildVariant(buildVariant, configurationAction)
+    }
+
+    fun buildVariant(
+        buildVariant: String,
+        @DelegatesTo.Target
+        configurationClosure: Closure<in T>,
+    ): NamedDomainObjectProvider<T> {
+        return namedContainer.buildVariant(
+            buildVariant,
+            Action { target ->
+                configureGroovy(configurationClosure, target)
+            },
+        )
     }
 
     /**

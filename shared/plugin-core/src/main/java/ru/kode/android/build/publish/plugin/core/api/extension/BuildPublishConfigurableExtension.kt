@@ -1,6 +1,8 @@
 package ru.kode.android.build.publish.plugin.core.api.extension
 
 import com.android.build.api.variant.ApplicationVariant
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
@@ -8,6 +10,7 @@ import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomai
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.buildVariant
 import ru.kode.android.build.publish.plugin.core.util.common
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 
 /**
  * Base class for configurable extensions in the build and publish plugin system.
@@ -55,11 +58,27 @@ open class BuildPublishConfigurableExtension {
      * }
      * ```
      */
+    @JvmSynthetic
     protected fun <T : Any> common(
         container: NamedDomainObjectContainer<T>,
         configurationAction: Action<in T>,
     ) {
         container.common(configurationAction)
+    }
+
+    protected fun <T : Any> common(
+        container: NamedDomainObjectContainer<T>,
+        @DelegatesTo(
+            genericTypeIndex = 0,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        configurationClosure: Closure<in T>,
+    ) {
+        container.common(
+            Action { target ->
+                configureGroovy(configurationClosure, target)
+            }
+        )
     }
 
     /**
@@ -82,11 +101,23 @@ open class BuildPublishConfigurableExtension {
      * }
      * ```
      */
+    @JvmSynthetic
     protected fun <T : Any> common(
         container: BuildPublishDomainObjectContainer<T>,
         configurationAction: Action<in T>,
     ) {
         container.common(configurationAction)
+    }
+
+    protected fun <T : Any> common(
+        container: BuildPublishDomainObjectContainer<T>,
+        @DelegatesTo(
+            genericTypeIndex = 0,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        configurationClosure: Closure<in T>,
+    ) {
+        container.common(configurationClosure)
     }
 
     /**
@@ -110,12 +141,27 @@ open class BuildPublishConfigurableExtension {
      * }
      * ```
      */
+    @JvmSynthetic
     protected fun <T : Any> buildVariant(
         buildVariant: String,
         container: NamedDomainObjectContainer<T>,
         configurationAction: Action<in T>,
     ) {
         container.buildVariant(buildVariant, configurationAction)
+    }
+
+    protected fun <T : Any> buildVariant(
+        buildVariant: String,
+        container: NamedDomainObjectContainer<T>,
+        @DelegatesTo(
+            genericTypeIndex = 0,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        configurationClosure: Closure<in T>,
+    ) {
+        container.buildVariant(buildVariant, Action { target ->
+            configureGroovy(configurationClosure, target)
+        })
     }
 
     /**
@@ -140,10 +186,24 @@ open class BuildPublishConfigurableExtension {
      * }
      * ```
      */
+    @JvmSynthetic
+
     protected fun <T : Any> buildVariant(
         buildVariant: String,
         container: BuildPublishDomainObjectContainer<T>,
         configurationAction: Action<in T>,
+    ) {
+        container.buildVariant(buildVariant, configurationAction)
+    }
+
+    protected fun <T : Any> buildVariant(
+        buildVariant: String,
+        container: BuildPublishDomainObjectContainer<T>,
+        @DelegatesTo(
+            genericTypeIndex = 0,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        configurationAction: Closure<in T>,
     ) {
         container.buildVariant(buildVariant, configurationAction)
     }

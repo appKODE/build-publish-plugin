@@ -1,6 +1,8 @@
 package ru.kode.android.build.publish.plugin.telegram.extension
 
 import com.android.build.api.variant.ApplicationVariant
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
@@ -9,6 +11,7 @@ import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotsConfig
@@ -149,9 +152,20 @@ abstract class BuildPublishTelegramExtension
          *
          * @param configurationAction Action to configure bot settings
          */
-        fun bots(configurationAction: Action<BuildPublishDomainObjectContainer<TelegramBotsConfig>>) {
+        fun bots(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<BuildPublishDomainObjectContainer<TelegramBotsConfig>>
+        ) {
             val container = BuildPublishDomainObjectContainer(bots)
             configurationAction.execute(container)
+        }
+
+        fun bots(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<TelegramBotsConfig>>
+        ) {
+            val container = BuildPublishDomainObjectContainer(bots)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -162,9 +176,20 @@ abstract class BuildPublishTelegramExtension
          *
          * @param configurationAction Action to configure changelog settings
          */
-        fun changelog(configurationAction: Action<BuildPublishDomainObjectContainer<TelegramChangelogConfig>>) {
+        fun changelog(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<BuildPublishDomainObjectContainer<TelegramChangelogConfig>>
+        ) {
             val container = BuildPublishDomainObjectContainer(changelog)
             configurationAction.execute(container)
+        }
+
+        fun changelog(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<TelegramChangelogConfig>>
+        ) {
+            val container = BuildPublishDomainObjectContainer(changelog)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -176,8 +201,21 @@ abstract class BuildPublishTelegramExtension
          *
          * @param configurationAction Action to configure common lookup settings
          */
+        @JvmSynthetic
         fun lookup(configurationAction: Action<TelegramLookupConfig>) {
             common(lookup, configurationAction)
+        }
+
+        fun lookup(
+            @DelegatesTo(
+                value = TelegramLookupConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in TelegramLookupConfig>
+        ) {
+            common(lookup) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**
@@ -188,9 +226,21 @@ abstract class BuildPublishTelegramExtension
          *
          * @param configurationAction Action to configure distribution settings
          */
+        @JvmSynthetic
         fun distribution(configurationAction: Action<BuildPublishDomainObjectContainer<TelegramDistributionConfig>>) {
             val container = BuildPublishDomainObjectContainer(distribution)
             configurationAction.execute(container)
+        }
+
+        fun distribution(
+            @DelegatesTo(
+                value = BuildPublishDomainObjectContainer::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<TelegramDistributionConfig>>
+        ) {
+            val container = BuildPublishDomainObjectContainer(distribution)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -202,8 +252,21 @@ abstract class BuildPublishTelegramExtension
          *
          * @param configurationAction Action to configure common bot settings
          */
+        @JvmSynthetic
         fun botsCommon(configurationAction: Action<TelegramBotsConfig>) {
             common(bots, configurationAction)
+        }
+
+        fun botsCommon(
+            @DelegatesTo(
+                value = TelegramBotsConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in TelegramBotsConfig>
+        ) {
+            common(bots) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**
@@ -216,8 +279,21 @@ abstract class BuildPublishTelegramExtension
          *
          * @param configurationAction Action to configure common changelog settings
          */
+        @JvmSynthetic
         fun changelogCommon(configurationAction: Action<TelegramChangelogConfig>) {
             common(changelog, configurationAction)
+        }
+
+        fun changelogCommon(
+            @DelegatesTo(
+                value = TelegramChangelogConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in TelegramChangelogConfig>
+        ) {
+            common(changelog) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**
@@ -230,8 +306,21 @@ abstract class BuildPublishTelegramExtension
          *
          * @param configurationAction Action to configure common distribution settings
          */
+        @JvmSynthetic
         fun distributionCommon(configurationAction: Action<TelegramDistributionConfig>) {
             common(distribution, configurationAction)
+        }
+
+        fun distributionCommon(
+            @DelegatesTo(
+                value = TelegramDistributionConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in TelegramDistributionConfig>
+        ) {
+            common(distribution) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**

@@ -1,11 +1,14 @@
 package ru.kode.android.build.publish.plugin.foundation.extension
 
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
@@ -119,9 +122,18 @@ abstract class BuildPublishFoundationExtension
          * @param configurationAction The action to configure the output container.
          * @see OutputConfig
          */
-        fun output(configurationAction: Action<BuildPublishDomainObjectContainer<OutputConfig>>) {
+        fun output(
+            configurationAction: Action<in BuildPublishDomainObjectContainer<OutputConfig>>
+        ) {
             val container = BuildPublishDomainObjectContainer(output)
             configurationAction.execute(container)
+        }
+
+        fun output(
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<OutputConfig>>
+        ) {
+            val container = BuildPublishDomainObjectContainer(output)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -133,9 +145,21 @@ abstract class BuildPublishFoundationExtension
          * @param configurationAction The action to configure the changelog container.
          * @see ChangelogConfig
          */
-        fun changelog(configurationAction: Action<BuildPublishDomainObjectContainer<ChangelogConfig>>) {
+        @JvmSynthetic
+        fun changelog(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<in BuildPublishDomainObjectContainer<ChangelogConfig>>
+        ) {
             val container = BuildPublishDomainObjectContainer(changelog)
             configurationAction.execute(container)
+        }
+
+        fun changelog(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ChangelogConfig>>
+        ) {
+            val container = BuildPublishDomainObjectContainer(changelog)
+            configureGroovy(configurationClosure, container)
         }
 
         /**
@@ -143,8 +167,21 @@ abstract class BuildPublishFoundationExtension
          *
          * @param configurationAction The action to configure the common output settings
          */
+        @JvmSynthetic
         fun outputCommon(configurationAction: Action<OutputConfig>) {
             common(output, configurationAction)
+        }
+
+        fun outputCommon(
+            @DelegatesTo(
+                value = OutputConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in OutputConfig>
+        ) {
+            common(output) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
 
         /**
@@ -152,7 +189,20 @@ abstract class BuildPublishFoundationExtension
          *
          * @param configurationAction The action to configure the common changelog settings
          */
-        fun changelogCommon(configurationAction: Action<ChangelogConfig>) {
+        @JvmSynthetic
+        fun changelogCommon(configurationAction: Action<in ChangelogConfig>) {
             common(changelog, configurationAction)
+        }
+
+        fun changelogCommon(
+            @DelegatesTo(
+                value = ChangelogConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in ChangelogConfig>
+        ) {
+            common(changelog) { target ->
+                configureGroovy(configurationClosure, target)
+            }
         }
     }
