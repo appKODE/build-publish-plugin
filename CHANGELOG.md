@@ -12,6 +12,9 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.9
+* Print info about not found Jira transition id only once
+
 ### 1.2.8
 * Not fail build if required Jira transition id not found, just log warning
 
