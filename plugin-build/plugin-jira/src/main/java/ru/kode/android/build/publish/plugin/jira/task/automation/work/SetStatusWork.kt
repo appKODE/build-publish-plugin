@@ -7,6 +7,7 @@ import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.util.UploadError
 import ru.kode.android.build.publish.plugin.jira.messages.failedToUpdateStatusMessage
+import ru.kode.android.build.publish.plugin.jira.messages.notPossibleToUpdateStatusMessage
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 
 /**
@@ -61,7 +62,12 @@ internal abstract class SetStatusWork : WorkAction<SetStatusParameters> {
 
         issues.forEach { issue ->
             try {
-                service.setStatus(issue, parameters.statusTransitionId.get())
+                val statusTransitionId = parameters.statusTransitionId.orNull
+                if (statusTransitionId != null) {
+                    service.setStatus(issue, statusTransitionId)
+                } else {
+                    logger.info(notPossibleToUpdateStatusMessage(issue))
+                }
             } catch (ex: UploadError) {
                 logger.info(failedToUpdateStatusMessage(issue), ex)
             }

@@ -12,6 +12,9 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.8
+* Not fail build if required Jira transition id not found, just log warning
+
 ### 1.2.7
 * Add Closure methods for all configurations
 * Should be used with **1.2.4 version of build-publish-novo-core**

@@ -19,6 +19,7 @@ import ru.kode.android.build.publish.plugin.jira.messages.failedToSetStatusMessa
 import ru.kode.android.build.publish.plugin.jira.messages.issueStatusNotFoundMessage
 import ru.kode.android.build.publish.plugin.jira.messages.issueTransitionNotFoundMessage
 import ru.kode.android.build.publish.plugin.jira.messages.statusNotFoundMessage
+import ru.kode.android.build.publish.plugin.jira.messages.transitionIdResolved
 import ru.kode.android.build.publish.plugin.jira.network.api.JiraApi
 import ru.kode.android.build.publish.plugin.jira.network.entity.AddFixVersionRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.AddLabelRequest
@@ -52,7 +53,7 @@ internal class JiraControllerImpl(
         projectKey: String,
         statusName: String,
         issues: List<String>,
-    ): String {
+    ): String? {
         val statuses = getProjectAvailableStatuses(projectKey)
         val status =
             statuses
@@ -66,16 +67,20 @@ internal class JiraControllerImpl(
                     getAvailableIssueTransitions(issueKey)
                         .find { it.statusId == statusId } != null
                 }
-                ?: throw GradleException(issueStatusNotFoundMessage(statusName))
+                ?: return null.also {
+                    logger.quiet(issueStatusNotFoundMessage(statusName))
+                }
 
         val transition =
             getAvailableIssueTransitions(issueKeyWithTransitions)
                 .firstOrNull { it.statusId == statusId }
-                ?: throw GradleException(issueTransitionNotFoundMessage(issueKeyWithTransitions, statusName))
+                ?: return null.also {
+                    logger.quiet(issueTransitionNotFoundMessage(issueKeyWithTransitions, statusName))
+                }
 
         return transition
             .id
-            .also { id -> logger.info("Resolved statusTransitionId: $id for statusName=$statusName") }
+            .also { id -> logger.info(transitionIdResolved(id, statusName)) }
     }
 
     /**
