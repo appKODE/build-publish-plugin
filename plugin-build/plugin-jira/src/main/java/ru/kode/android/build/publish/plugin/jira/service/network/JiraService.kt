@@ -96,7 +96,7 @@ abstract class JiraService
             projectKey: String,
             statusName: String,
             issues: List<String>,
-        ): String {
+        ): String? {
             return controller.getStatusTransitionId(projectKey, statusName, issues)
         }
 
