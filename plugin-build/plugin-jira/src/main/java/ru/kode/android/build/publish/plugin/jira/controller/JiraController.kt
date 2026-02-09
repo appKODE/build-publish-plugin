@@ -23,7 +23,7 @@ interface JiraController {
         projectKey: String,
         statusName: String,
         issues: List<String>,
-    ): String
+    ): String?
 
     /**
      * Transitions a Jira issue to a new status.

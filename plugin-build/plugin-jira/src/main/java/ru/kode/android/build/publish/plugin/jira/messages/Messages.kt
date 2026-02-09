@@ -151,6 +151,33 @@ fun issuesNoFoundMessage(): String {
         """.trimIndent()
 }
 
+fun notPossibleToUpdateStatusMessage(issue: String): String {
+    return """
+        
+        |============================================================
+        |            STATUS TRANSITION NOT AVAILABLE   
+        |============================================================
+        | Could not update status for issue: $issue
+        |
+        | The status transition ID is null, which means no valid
+        | transition was found for this issue.
+        |
+        | POSSIBLE CAUSES:
+        |  1. The target status is not reachable from the current 
+        |     issue status
+        |  2. The workflow doesn't define a transition to the 
+        |     target status
+        |  3. None of the issues have the required transition
+        |
+        | RECOMMENDED ACTIONS:
+        |  1. Check the current status of the issue in Jira
+        |  2. Verify the target status name is correct
+        |  3. Review the project workflow configuration
+        |  4. Ensure at least one issue has the target transition
+        |============================================================
+        """.trimIndent()
+}
+
 fun failedToUpdateStatusMessage(issue: String): String {
     return """
         
@@ -478,6 +505,25 @@ fun issueTransitionNotFoundMessage(
         | You can perform this transition manually in the Jira web 
         | interface to see the exact requirements and available 
         | options.
+        |============================================================
+        """.trimIndent()
+}
+
+fun transitionIdResolved(
+    id: String,
+    statusName: String,
+): String {
+    return """
+        
+        |============================================================
+        |              STATUS TRANSITION RESOLVED   
+        |============================================================
+        | Successfully resolved status transition
+        |
+        | Transition ID: $id
+        | Target Status: $statusName
+        |
+        | The issue will be transitioned to the specified status.
         |============================================================
         """.trimIndent()
 }
