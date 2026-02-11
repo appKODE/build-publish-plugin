@@ -18,11 +18,39 @@ import ru.kode.android.build.publish.plugin.core.messages.requestingProxyMessage
 import ru.kode.android.build.publish.plugin.core.messages.requestingWithoutProxyMessage
 import ru.kode.android.build.publish.plugin.core.messages.returnAndApplyProxyMessage
 import java.io.IOException
+import java.net.Authenticator
 import java.net.InetSocketAddress
+import java.net.PasswordAuthentication
 import java.net.Proxy
 import java.net.ProxySelector
 import java.net.SocketAddress
 import java.net.URI
+
+/**
+ * Custom authenticator for proxy authentication.
+ *
+ * This class extends [Authenticator] to provide credentials when connecting through
+ * a proxy server that requires authentication. It retrieves the username and password
+ * from the provided [NetworkProxy] configuration.
+ *
+ * @property logger the logger used for logging authentication events
+ * @property networkProxy the network proxy configuration containing authentication credentials
+ */
+class ProxyAuthenticator(
+    val logger: PluginLogger,
+    val networkProxy: NetworkProxy,
+) : Authenticator() {
+    override fun getPasswordAuthentication(): PasswordAuthentication {
+        val userName = networkProxy.user
+        val userPassword = networkProxy.password
+        logger.info("🎯 AUTHENTICATOR TRIGGERED!")
+        logger.info("  Host: $requestingHost:$requestingPort")
+        logger.info("  Scheme: $requestingScheme")
+        logger.info("  UserName: $userName")
+        logger.info("  Password: <hidden>")
+        return PasswordAuthentication(userName, userPassword?.toCharArray())
+    }
+}
 
 /**
  * Adds a network interceptor to the OkHttpClient.Builder that applies the first non-null proxy
@@ -153,7 +181,7 @@ fun createPartFromString(value: String): RequestBody {
  * @param logger the logger used for logging
  * @return the created [NetworkProxy] for HTTPS requests, or `null` if the proxy cannot be created
  */
-private fun createHttpsProxy(logger: PluginLogger): NetworkProxy? {
+fun createHttpsProxy(logger: PluginLogger): NetworkProxy? {
     val host = getEnvOrProperty("https.proxyHost")
     val port = getEnvOrProperty("https.proxyPort")
     return if (host != null && port != null) {
@@ -177,17 +205,17 @@ private fun createHttpsProxy(logger: PluginLogger): NetworkProxy? {
  * @param logger the logger used for logging
  * @return the created [NetworkProxy] for HTTP requests, or `null` if the proxy cannot be created
  */
-private fun createHttpProxy(logger: PluginLogger): NetworkProxy? {
-    val host = getEnvOrProperty("http.proxyHost")
-    val port = getEnvOrProperty("http.proxyPort")
+fun createHttpProxy(logger: PluginLogger): NetworkProxy? {
+    val host = getEnvOrProperty("http.proxyHost")?.takeIf { it.isNotBlank() }
+    val port = getEnvOrProperty("http.proxyPort")?.takeIf { it.isNotBlank() }
     return if (host != null && port != null) {
         logger.info(createHttpProxyMessage(host, port))
         NetworkProxy(
             host = host,
             port = port,
-            user = getEnvOrProperty("http.proxyUser"),
-            password = getEnvOrProperty("http.proxyPassword"),
-            nonProxyHosts = getEnvOrProperty("http.nonProxyHosts"),
+            user = getEnvOrProperty("http.proxyUser")?.takeIf { it.isNotBlank() },
+            password = getEnvOrProperty("http.proxyPassword")?.takeIf { it.isNotBlank() },
+            nonProxyHosts = getEnvOrProperty("http.nonProxyHosts")?.takeIf { it.isNotBlank() },
         )
     } else {
         logger.info(cannotCreateHttpProxyMessage(host, port))
@@ -201,7 +229,7 @@ private fun createHttpProxy(logger: PluginLogger): NetworkProxy? {
  * @param key the key of the environment variable or system property to retrieve
  * @return the value of the environment variable or system property with the given [key], or `null` if it is not set
  */
-private fun getEnvOrProperty(key: String): String? {
+fun getEnvOrProperty(key: String): String? {
     return System.getenv(key) ?: System.getProperty(key)
 }
 

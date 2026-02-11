@@ -146,6 +146,7 @@ class ConfluenceDistributionTest {
 
     @Test
     @Throws(IOException::class)
+    @Disabled // It disabled because proxy server is unstable and can be failed because of SSLHandshakeException
     fun `confluence apk build distribution available with distribution config with proxy`() {
         val pageId = System.getProperty("CONFLUENCE_PAGE_ID")
 

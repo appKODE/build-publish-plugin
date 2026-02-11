@@ -827,11 +827,11 @@ class TelegramChangelogTest {
 
         val assembleResult: BuildResult = projectDir.runTask(
             givenAssembleTask,
-            systemProperties = proxyProps
+            taskArguments = proxyProps
         )
         val changelogResult: BuildResult = projectDir.runTask(
             givenTelegramChangelogTask,
-            systemProperties = proxyProps
+            taskArguments = proxyProps
         )
 
         projectDir.getFile("app").printFilesRecursively()
@@ -955,11 +955,11 @@ class TelegramChangelogTest {
 
         val assembleResult: BuildResult = projectDir.runTask(
             givenAssembleTask,
-            systemProperties = proxyProps
+            taskArguments = proxyProps
         )
         val changelogResult: BuildResult = projectDir.runTask(
             givenTelegramChangelogTask,
-            systemProperties = proxyProps
+            taskArguments = proxyProps
         )
 
         projectDir.getFile("app").printFilesRecursively()

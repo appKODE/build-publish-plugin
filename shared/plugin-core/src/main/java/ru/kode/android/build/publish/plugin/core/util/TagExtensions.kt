@@ -6,6 +6,7 @@ import ru.kode.android.build.publish.plugin.core.enity.CommitRange
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import org.ajoberstar.grgit.Tag as GrgitTag
 
 private const val UNKNOWN_COMMIT_INDEX = -1
@@ -38,7 +39,20 @@ fun Grgit.getCommitsByRange(range: CommitRange?): List<Commit> {
     }
 }
 
-fun Commit.utcDateTime(): ZonedDateTime = this.dateTime.withZoneSameLocal(ZoneOffset.UTC)
+/**
+ * Converts this [Commit]'s date-time to a UTC [ZonedDateTime], truncated to minutes.
+ *
+ * This extension function takes the commit's original date-time and normalizes it
+ * to UTC timezone while truncating the time precision to minutes. This is useful
+ * for consistent date comparisons across commits from different timezones.
+ *
+ * @return A [ZonedDateTime] representing the commit's date-time in UTC, truncated to minutes.
+ */
+fun Commit.utcDateTime(): ZonedDateTime {
+    return this.dateTime
+        .withZoneSameInstant(ZoneOffset.UTC)
+        .truncatedTo(ChronoUnit.MINUTES)
+}
 
 /**
  * Extracts the build number from this [GrgitTag]'s name using the provided regular expression.

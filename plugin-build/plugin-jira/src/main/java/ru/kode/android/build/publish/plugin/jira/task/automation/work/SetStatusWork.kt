@@ -56,21 +56,21 @@ internal interface SetStatusParameters : WorkParameters {
  */
 internal abstract class SetStatusWork : WorkAction<SetStatusParameters> {
     override fun execute() {
-        val issues = parameters.issues.get()
+        val issues = parameters.issues.get().toList()
         val service = parameters.service.get()
         val logger = parameters.loggerService.get()
+        val statusTransitionId = parameters.statusTransitionId.orNull
 
-        issues.forEach { issue ->
-            try {
-                val statusTransitionId = parameters.statusTransitionId.orNull
-                if (statusTransitionId != null) {
+        if (statusTransitionId != null) {
+            issues.forEach { issue ->
+                try {
                     service.setStatus(issue, statusTransitionId)
-                } else {
-                    logger.info(notPossibleToUpdateStatusMessage(issue))
+                } catch (ex: UploadError) {
+                    logger.info(failedToUpdateStatusMessage(issue), ex)
                 }
-            } catch (ex: UploadError) {
-                logger.info(failedToUpdateStatusMessage(issue), ex)
             }
+        } else {
+            logger.info(notPossibleToUpdateStatusMessage(issues))
         }
     }
 }

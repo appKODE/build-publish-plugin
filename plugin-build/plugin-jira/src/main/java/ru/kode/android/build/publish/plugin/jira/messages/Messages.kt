@@ -151,16 +151,16 @@ fun issuesNoFoundMessage(): String {
         """.trimIndent()
 }
 
-fun notPossibleToUpdateStatusMessage(issue: String): String {
+fun notPossibleToUpdateStatusMessage(issues: List<String>): String {
     return """
         
         |============================================================
         |            STATUS TRANSITION NOT AVAILABLE   
         |============================================================
-        | Could not update status for issue: $issue
+        | Could not update status for issues: ${issues.joinToString()}
         |
         | The status transition ID is null, which means no valid
-        | transition was found for this issue.
+        | transition was found for this issues.
         |
         | POSSIBLE CAUSES:
         |  1. The target status is not reachable from the current 

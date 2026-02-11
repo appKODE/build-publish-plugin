@@ -733,20 +733,27 @@ fun File.getFile(path: String): File {
 
 fun File.runTask(
     task: String,
-    systemProperties: Map<String, String> = emptyMap(),
+    taskArguments: Map<String, String> = emptyMap(),
     agpClasspath: List<File> = emptyList(),
-    gradleVersion: String = "9.2.1"
+    gradleVersion: String = "9.2.1",
+    gradleJvmArgs: List<String> = emptyList()
 ): BuildResult {
     val args = mutableListOf(task).apply {
-        if (IS_CI) add("--info")
+        if (!IS_CI) add("--info")
         add("--stacktrace")
-        systemProperties.forEach { (key, value) ->
+        taskArguments.forEach { (key, value) ->
             add("-D$key=$value")
+        }
+    }
+    val env = System.getenv().toMutableMap().apply {
+        if (gradleJvmArgs.isNotEmpty()) {
+            this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
         }
     }
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(args)
+        .withEnvironment(env)
         .apply {
             if (agpClasspath.isNotEmpty()) {
                 withPluginClasspath(prepareClasspath(agpClasspath))
@@ -761,21 +768,27 @@ fun File.runTask(
 
 fun File.runTasks(
     vararg tasks: String,
-    systemProperties: Map<String, String> = emptyMap(),
+    taskArguments: Map<String, String> = emptyMap(),
     agpClasspath: List<File> = emptyList(),
-    gradleVersion: String = "9.2.1"
+    gradleVersion: String = "9.2.1",
+    gradleJvmArgs: List<String> = emptyList()
 ): BuildResult {
     val args = tasks.toMutableList().apply {
-        if (IS_CI) add("--info")
+        if (!IS_CI) add("--info")
         add("--stacktrace")
-        systemProperties.forEach { (key, value) ->
+        taskArguments.forEach { (key, value) ->
             add("-D$key=$value")
         }
     }
-
+    val env = System.getenv().toMutableMap().apply {
+        if (gradleJvmArgs.isNotEmpty()) {
+            this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
+        }
+    }
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(args)
+        .withEnvironment(env)
         .apply {
             if (agpClasspath.isNotEmpty()) {
                 withPluginClasspath(prepareClasspath(agpClasspath))
@@ -790,19 +803,26 @@ fun File.runTasks(
 
 fun File.runTaskWithFail(
     task: String,
-    systemProperties: Map<String, String> = emptyMap(),
+    taskArguments: Map<String, String> = emptyMap(),
     agpClasspath: List<File> = emptyList(),
-    gradleVersion: String = "9.2.1"
+    gradleVersion: String = "9.2.1",
+    gradleJvmArgs: List<String> = emptyList()
 ): BuildResult {
     val args = mutableListOf(task, "--stacktrace").apply {
-        if (IS_CI) add("--info")
-        systemProperties.forEach { (key, value) ->
+        if (!IS_CI) add("--info")
+        taskArguments.forEach { (key, value) ->
             add("-D$key=$value")
+        }
+    }
+    val env = System.getenv().toMutableMap().apply {
+        if (gradleJvmArgs.isNotEmpty()) {
+            this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
         }
     }
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(args)
+        .withEnvironment(env)
         .apply {
             if (agpClasspath.isNotEmpty()) {
                 withPluginClasspath(prepareClasspath(agpClasspath))
