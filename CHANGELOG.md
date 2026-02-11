@@ -12,6 +12,9 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.11
+- Fix logic to identify that datetime of tag is in the future
+
 ### 1.2.10
 - Apply proxy settings to Firebase App Distribution task
 

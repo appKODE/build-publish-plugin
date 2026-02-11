@@ -50,8 +50,8 @@ fun Grgit.getCommitsByRange(range: CommitRange?): List<Commit> {
  */
 fun Commit.utcDateTime(): ZonedDateTime {
     return this.dateTime
+        .withZoneSameInstant(ZoneOffset.UTC)
         .truncatedTo(ChronoUnit.MINUTES)
-        .withZoneSameLocal(ZoneOffset.UTC)
 }
 
 /**
