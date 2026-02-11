@@ -318,11 +318,11 @@ class SlackChangelogTest {
 
         val assembleResult: BuildResult = projectDir.runTask(
             givenAssembleTask,
-            systemProperties = proxyProps
+            taskArguments = proxyProps
         )
         val changelogResult: BuildResult = projectDir.runTask(
             givenSlackChangelogTask,
-            systemProperties = proxyProps
+            taskArguments = proxyProps
         )
 
         projectDir.getFile("app").printFilesRecursively()

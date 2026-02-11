@@ -12,6 +12,9 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.10
+- Apply proxy settings to Firebase App Distribution task
+
 ### 1.2.9
 * Print info about not found Jira transition id only once
 
@@ -71,6 +74,10 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 ---
 
 ## 📦 build-publish-novo-core
+
+### 1.2.5
+- Add logging for proxy authentication
+- Decrease date/time precision to minutes for tag snapshot
 
 ### 1.2.4
 * Add Closure methods for extension configuration

@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.firebase
 import org.gradle.testkit.runner.BuildResult
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
@@ -100,6 +101,132 @@ class FirebaseDistributionTest {
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val generateChangelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
         val distributionResult: BuildResult = projectDir.runTask(givenAppDistributionTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
+        assertTrue(
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("BUILD SUCCESSFUL"),
+            "Build successful",
+        )
+        assertTrue(
+            generateChangelogResult.output.contains("BUILD SUCCESSFUL"),
+            "Generate changelog successful",
+        )
+        assertTrue(
+            distributionResult.output.contains("BUILD SUCCESSFUL"),
+            "Firebase distribution successful"
+        )
+        assertTrue(givenOutputFileExists, "Output file exists")
+    }
+
+    @Test
+    @Disabled // Unstable if run multiple tests at once
+    @Throws(IOException::class)
+    fun `firebase build distribution available with full distribution config with proxy`() {
+        val googleServicesFile = projectDir.getFile("app/google-services.json")
+        File(System.getProperty("FIREBASE_GOOGLE_SERVICES_FILE_PATH"))
+            .copyTo(googleServicesFile, true)
+        val serviceCredentialsFile = projectDir.getFile("app/service-credentials.json")
+        File(System.getProperty("FIREBASE_SERVICE_CREDENTIALS_FILE_PATH"))
+            .copyTo(serviceCredentialsFile, true)
+
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
+                BuildType("release")
+            ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog = FoundationConfig.Changelog(
+                        issueNumberPattern = "TEST-\\\\d+",
+                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
+                    )
+                ),
+            firebaseConfig = FirebaseConfig(
+                distributionCommon = FirebaseConfig.Distribution(
+                    serviceCredentialsFilePath = serviceCredentialsFile.name,
+                    appId = System.getProperty("FIREBASE_APP_ID"),
+                    testerGroups = listOf("testers"),
+                    artifactType = "ArtifactType.Apk",
+                )
+            ),
+            topBuildFileContent = """
+                plugins {
+                    id 'ru.kode.android.build-publish-novo.foundation' apply false
+                }
+            """.trimIndent(),
+            import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
+            configureApplicationVariants = true
+        )
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleDebug"
+        val givenChangelogTask = "generateChangelogDebug"
+        val givenAppDistributionTask = "appDistributionUploadDebug"
+        val git = projectDir.initGit()
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+
+        getChangelog()
+            .split("\n")
+            .forEachIndexed { index, changelogLine ->
+                val givenCommitMessageN = """
+                Add $index change in codebase
+                
+                CHANGELOG: $changelogLine
+                """.trimIndent()
+                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                git.addAllAndCommit(givenCommitMessageN)
+            }
+        git.tag.addNamed(givenTagName2)
+
+        val gradleJvmArgs = listOf(
+            "-Djdk.http.auth.tunneling.disabledSchemes=",
+            "-Djdk.http.auth.proxying.disabledSchemes=",
+            "-Dhttps.protocols=TLSv1.2",
+            "-Dhttps.proxyHost=${System.getProperty("PROXY_HOST")}",
+            "-Dhttps.proxyPort=${System.getProperty("PROXY_PORT")}",
+            "-Dhttps.proxyUser=${System.getProperty("PROXY_USER")}",
+            "-Dhttps.proxyPassword=${System.getProperty("PROXY_PASSWORD")}",
+            "-Dhttps.nonProxyHosts='gradle-cache.kode.ru|api.telegram.org|confa.kode.ru|hooks.slack.com'",
+            "-Dorg.gradle.daemon=false",
+            "-Dhttp.keepAlive=false",
+            "-Dhttps.keepAlive=false",
+            "-Djavax.net.debug=ssl,handshake",
+            "-Djdk.httpclient.HttpClient.log=all",
+            "-Dhttp.maxConnections=0"
+        )
+
+        val taskArguments = gradleJvmArgs
+            .map { it.replaceFirst("-D", "").split("=") }
+            .associate { it[0] to it[1] }
+
+        val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
+        val generateChangelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
+        val distributionResult: BuildResult = projectDir.runTask(
+            givenAppDistributionTask,
+            taskArguments = taskArguments,
+            gradleJvmArgs = gradleJvmArgs
+        )
 
         projectDir.getFile("app").printFilesRecursively()
 
