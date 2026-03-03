@@ -289,7 +289,7 @@ fun cannotReturnTagMessage(
         | LAST TAG (should be newer):
         |   - Name: ${lastTag.name}
         |   - Commit: ${lastTag.commit.id.take(7)}
-        |   - Date: ${previousTagCommit.utcDateTime()}
+        |   - Date: ${lastTagCommit.utcDateTime()}
         |   - Build: $lastTagBuildNumber
         |
         | PREVIOUS TAG (should be older):

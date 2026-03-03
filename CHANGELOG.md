@@ -12,6 +12,10 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.12
+- Fix message for cannotReturnTagMessage to show correct last commit date
+* Should be used with **1.2.6 version of build-publish-novo-core**
+
 ### 1.2.11
 - Fix logic to identify that datetime of tag is in the future
 
@@ -77,6 +81,9 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 ---
 
 ## 📦 build-publish-novo-core
+
+### 1.2.6
+- Fix message for cannotReturnTagMessage to show correct last commit date
 
 ### 1.2.5
 - Add logging for proxy authentication
