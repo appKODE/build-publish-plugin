@@ -8,8 +8,11 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
@@ -23,6 +26,7 @@ import javax.inject.Inject
  * This task is responsible for uploading APK or other distribution files to a specified Confluence page.
  * It uses Gradle's worker API to perform the upload asynchronously.
  */
+@DisableCachingByDefault
 abstract class ConfluenceDistributionTask
     @Inject
     constructor(
@@ -61,6 +65,7 @@ abstract class ConfluenceDistributionTask
             option = "distributionFile",
             description = "Artifact output file (absolute path is expected)",
         )
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val distributionFile: RegularFileProperty
 
         /**

@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions") // Just simple strings providers
+
 package ru.kode.android.build.publish.plugin.foundation.messages
 
 import com.android.build.api.AndroidPluginVersion
@@ -5,6 +7,7 @@ import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.OutputBundleNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import java.io.File
@@ -82,6 +85,30 @@ fun computedApkOutputFileNameMessage(
         |
         | This file name will be used for the
         | generated APK artifact on disk.
+        |============================================================
+        """.trimIndent()
+}
+
+/**
+ * Message printed after the final Bundle output file name has been computed.
+ */
+fun computedBundleOutputFileNameMessage(
+    buildVariant: BuildVariant,
+    bundleOutputFileName: String,
+): String {
+    return """
+        
+        |============================================================
+        |          COMPUTED BUNDLE OUTPUT FILE NAME
+        |============================================================
+        | The final Bundle output file name has
+        | been computed.
+        |
+        |  • Build variant: $buildVariant
+        |  • Bundle file name: $bundleOutputFileName
+        |
+        | This file name will be used for the
+        | generated Bundle artifact on disk.
         |============================================================
         """.trimIndent()
 }
@@ -239,6 +266,30 @@ fun formSimpleApkFileNameMessage(
 }
 
 /**
+ * Message printed when a simple Bundle naming strategy (without tag metadata) is used.
+ */
+fun formSimpleBundleFileNameMessage(
+    buildVariant: BuildVariant,
+    baseFileName: String,
+): String {
+    return """
+        
+        |============================================================
+        |            FORMING SIMPLE BUNDLE FILE NAME   
+        |============================================================
+        | A simple Bundle file name strategy has been
+        | selected.
+        |
+        |  • Build variant: $buildVariant
+        |  • Base file name: $baseFileName
+        |
+        | No additional metadata will be appended
+        | to the final Bundle file name.
+        |============================================================
+        """.trimIndent()
+}
+
+/**
  * Message printed when a rich APK naming strategy (with tag metadata) is used.
  */
 fun formRichApkFileNameMessage(
@@ -261,6 +312,34 @@ fun formRichApkFileNameMessage(
         |  • Base file name: $baseFileName
         |
         | The final APK name will include versioning
+        | and build-specific metadata.
+        |============================================================
+        """.trimIndent()
+}
+
+/**
+ * Message printed when a rich Bundle naming strategy (with tag metadata) is used.
+ */
+fun formRichBundleFileNameMessage(
+    buildVariant: BuildVariant,
+    outputFileName: String,
+    tag: Tag.Build?,
+    baseFileName: String,
+): String {
+    return """
+        
+        |============================================================
+        |             FORMING RICH BUNDLE FILE NAME   
+        |============================================================
+        | A rich Bundle file name is being generated using
+        | the following inputs:
+        |
+        |  • Build variant: $buildVariant
+        |  • Output file name: $outputFileName
+        |  • Build tag: $tag
+        |  • Base file name: $baseFileName
+        |
+        | The final Bundle name will include versioning
         | and build-specific metadata.
         |============================================================
         """.trimIndent()
@@ -341,6 +420,34 @@ fun resolvedApkOutputFileNameParamsMessage(
         |  • buildVariant: $buildVariant
         |
         | These settings determine how the final APK file
+        | name will be generated during the build process.
+        |============================================================
+        """.trimIndent()
+}
+
+/**
+ * Message printed with resolved inputs used to compute the Bundle output file name.
+ */
+fun resolvedBundleOutputFileNameParamsMessage(
+    outputFileName: String,
+    useVersionsFromTag: Boolean,
+    outputBundleNameStrategy: OutputBundleNameStrategy,
+    buildVariant: String,
+): String {
+    return """
+        
+        |============================================================
+        |        RESOLVED BUNDLE OUTPUT NAME CONFIGURATION   
+        |============================================================
+        | The Bundle output file name configuration has been
+        | successfully resolved with the following parameters:
+        |
+        |  • outputFileName: $outputFileName
+        |  • useVersionsFromTag: $useVersionsFromTag
+        |  • outputBundleNameStrategy: $outputBundleNameStrategy
+        |  • buildVariant: $buildVariant
+        |
+        | These settings determine how the final Bundle file
         | name will be generated during the build process.
         |============================================================
         """.trimIndent()
@@ -588,6 +695,31 @@ fun renameApkMessage(
         |                🔄 RENAMING ARTIFACT FILE 🔄
         |============================================================
         | Renaming APK file:
+        |
+        | Source: ${inputFile.name}
+        | Target: $targetOutputFileName
+        | Directory: ${outputDir.absolutePath}
+        |
+        | This step ensures the output file follows the 
+        | expected naming convention.
+        |============================================================
+        """.trimIndent()
+}
+
+/**
+ * Message printed when a Bundle file is being copied/renamed into its final location.
+ */
+fun renameBundleMessage(
+    inputFile: File,
+    targetOutputFileName: String,
+    outputDir: File,
+): String {
+    return """
+        
+        |============================================================
+        |                🔄 RENAMING ARTIFACT FILE 🔄
+        |============================================================
+        | Renaming Bundle file:
         |
         | Source: ${inputFile.name}
         | Target: $targetOutputFileName

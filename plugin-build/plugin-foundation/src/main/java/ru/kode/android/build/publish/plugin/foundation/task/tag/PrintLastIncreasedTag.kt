@@ -4,6 +4,8 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
@@ -46,6 +48,7 @@ abstract class PrintLastIncreasedTag : DefaultTask() {
         option = "buildTagSnapshotFile",
         description = "JSON file containing information about the last build tag",
     )
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val buildTagSnapshotFile: RegularFileProperty
 
     /**

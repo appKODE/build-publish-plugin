@@ -548,7 +548,6 @@ class ConfluenceDistributionTest {
         val givenAssembleTask = "bundleDebug"
         val givenConfluenceDistributionTask = "confluenceDistributionUploadBundleDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/bundle/debug/app-debug.aab")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -566,7 +565,6 @@ class ConfluenceDistributionTest {
             }
         git.tag.addNamed(givenTagName2)
 
-
         val proxyProps = mapOf(
             "https.proxyUser" to System.getProperty("PROXY_USER"),
             "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
@@ -578,6 +576,10 @@ class ConfluenceDistributionTest {
         val distributionResult: BuildResult = projectDir.runTask(givenConfluenceDistributionTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
+
+        val bundleDir = projectDir.getFile("app/build/outputs/bundle/debug")
+        val givenOutputFile = bundleDir.listFiles()
+            ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
 
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
@@ -595,16 +597,16 @@ class ConfluenceDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Confluence distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile!!.exists(), "Output file exists")
 
         val afterAutomationAttachments = confluenceController.getAttachments(pageId)
         val afterAutomationComments = confluenceController.getComments(pageId)
 
         assertTrue {
-            afterAutomationAttachments.last().fileName.contains("app-debug.aab")
+            afterAutomationAttachments.last().fileName.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab"))
         }
         assertTrue {
-            afterAutomationComments.last().html.contains("app-debug.aab")
+            afterAutomationComments.last().html.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab"))
         }
     }
 
@@ -663,7 +665,6 @@ class ConfluenceDistributionTest {
         val givenCommitMessage = "Initial commit"
         val givenConfluenceDistributionTask = "confluenceDistributionUploadBundleDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/bundle/debug/app-debug.aab")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -692,6 +693,10 @@ class ConfluenceDistributionTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val bundleDir = projectDir.getFile("app/build/outputs/bundle/debug")
+        val givenOutputFile = bundleDir.listFiles()
+            ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
+
         assertTrue(
             !distributionResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagSnapshotRelease not executed",
@@ -704,16 +709,16 @@ class ConfluenceDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Confluence distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile!!.exists(), "Output file exists")
 
         val afterAutomationAttachments = confluenceController.getAttachments(pageId)
         val afterAutomationComments = confluenceController.getComments(pageId)
 
         assertTrue {
-            afterAutomationAttachments.last().fileName.contains("app-debug.aab")
+            afterAutomationAttachments.last().fileName.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab"))
         }
         assertTrue {
-            afterAutomationComments.last().html.contains("app-debug.aab")
+            afterAutomationComments.last().html.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab"))
         }
     }
 

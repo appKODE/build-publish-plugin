@@ -8,8 +8,11 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
@@ -28,6 +31,7 @@ import javax.inject.Inject
  * The task uses Gradle's Worker API to perform the upload asynchronously,
  * which is particularly useful for large files.
  */
+@DisableCachingByDefault
 abstract class TelegramDistributionTask
     @Inject
     constructor(
@@ -66,6 +70,7 @@ abstract class TelegramDistributionTask
             option = "distributionFile",
             description = "Absolute path to the file to be distributed",
         )
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val distributionFile: RegularFileProperty
 
         /**

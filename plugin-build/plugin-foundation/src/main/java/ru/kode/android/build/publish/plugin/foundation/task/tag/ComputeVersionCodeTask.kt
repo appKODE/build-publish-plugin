@@ -4,10 +4,13 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
@@ -34,6 +37,7 @@ import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionC
  * The computed version code is written to [versionCodeFile] as plain text and later consumed by
  * the Android variant configuration.
  */
+@CacheableTask
 abstract class ComputeVersionCodeTask : DefaultTask() {
     init {
         group = BasePlugin.BUILD_GROUP
@@ -64,6 +68,7 @@ abstract class ComputeVersionCodeTask : DefaultTask() {
      * JSON file with the last build tag snapshot.
      */
     @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val buildTagSnapshotFile: RegularFileProperty
 
     /**

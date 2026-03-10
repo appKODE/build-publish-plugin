@@ -7,6 +7,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import ru.kode.android.build.publish.plugin.core.builder.BuildTagPatternBuilder
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.OutputBundleNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 
@@ -122,6 +123,18 @@ abstract class OutputConfig {
     internal abstract val outputApkNameStrategy: Property<OutputApkNameStrategy>
 
     /**
+     * The strategy used to generate the name of the output APK file.
+     *
+     * This strategy is used to generate the name of the output APK file based on the build output
+     * configuration. The strategy is applied when generating the output APK file name.
+     *
+     * @see OutputBundleNameStrategy
+     */
+    @get:Input
+    @get:Optional
+    internal abstract val outputBundleNameStrategy: Property<OutputBundleNameStrategy>
+
+    /**
      * Configures the pattern used to match Git tags for version extraction.
      *
      * @param action The configuration action for [BuildTagPatternBuilder].
@@ -228,5 +241,39 @@ abstract class OutputConfig {
         strategyClosure: Closure<out OutputApkNameStrategy>,
     ) {
         outputApkNameStrategy.set(strategyClosure.call())
+    }
+
+    /**
+     * Configures the strategy used to generate the final APK output file name.
+     *
+     * The strategy may include version/tag metadata (if enabled by [useVersionsFromTag]) and the
+     * user-provided [baseFileName].
+     *
+     * @param action Supplier that returns the desired [OutputApkNameStrategy] implementation.
+     *
+     * @see OutputApkNameStrategy
+     */
+    fun outputBundleNameStrategy(action: () -> OutputBundleNameStrategy) {
+        outputBundleNameStrategy.set(action())
+    }
+
+    /**
+     * Configures the strategy used to generate the final APK output file name using a Groovy closure.
+     *
+     * This overload is provided for Groovy DSL compatibility. The closure should return
+     * an [OutputBundleNameStrategy] implementation.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [OutputBundleNameStrategy] implementation.
+     *
+     * @see OutputBundleNameStrategy
+     */
+    fun outputBundleNameStrategy(
+        @DelegatesTo(
+            value = OutputBundleNameStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out OutputBundleNameStrategy>,
+    ) {
+        outputBundleNameStrategy.set(strategyClosure.call())
     }
 }

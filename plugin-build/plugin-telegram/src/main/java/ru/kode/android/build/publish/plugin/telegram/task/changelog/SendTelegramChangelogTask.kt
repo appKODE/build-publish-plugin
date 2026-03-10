@@ -8,8 +8,11 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
@@ -38,6 +41,7 @@ import javax.inject.Inject
  * @see TelegramService For the underlying network communication
  * @see SendTelegramChangelogWork For the actual work implementation
  */
+@DisableCachingByDefault
 abstract class SendTelegramChangelogTask
     @Inject
     constructor(
@@ -83,6 +87,7 @@ abstract class SendTelegramChangelogTask
             option = "changelogFile",
             description = "File with saved changelog",
         )
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val changelogFile: RegularFileProperty
 
         /**
@@ -99,6 +104,7 @@ abstract class SendTelegramChangelogTask
             option = "buildTagSnapshotFile",
             description = "Json contains info about tag build",
         )
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val buildTagSnapshotFile: RegularFileProperty
 
         /**

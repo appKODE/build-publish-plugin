@@ -8,8 +8,11 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
@@ -31,6 +34,7 @@ import javax.inject.Inject
  * The actual notification is sent asynchronously by a Gradle worker to avoid
  * blocking the main build thread.
  */
+@DisableCachingByDefault
 abstract class SendSlackChangelogTask
     @Inject
     constructor(
@@ -75,6 +79,7 @@ abstract class SendSlackChangelogTask
             option = "changelogFile",
             description = "File with saved changelog",
         )
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val changelogFile: RegularFileProperty
 
         /**
@@ -93,6 +98,7 @@ abstract class SendSlackChangelogTask
             option = "buildTagSnapshotFile",
             description = "Json contains info about tag build",
         )
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val buildTagSnapshotFile: RegularFileProperty
 
         /**

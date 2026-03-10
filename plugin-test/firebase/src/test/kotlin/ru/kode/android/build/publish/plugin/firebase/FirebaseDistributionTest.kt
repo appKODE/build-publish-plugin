@@ -504,7 +504,6 @@ class FirebaseDistributionTest {
         val givenChangelogTask = "generateChangelogDebug"
         val givenAppDistributionTask = "appDistributionUploadDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/bundle/debug/app-debug.aab")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -528,6 +527,10 @@ class FirebaseDistributionTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val bundleDir = projectDir.getFile("app/build/outputs/bundle/debug")
+        val givenOutputFile = bundleDir.listFiles()
+            ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
+
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagSnapshotRelease not executed",
@@ -548,7 +551,7 @@ class FirebaseDistributionTest {
             distributionResult.output.contains("BUILD FAILED"),
             "Firebase distribution failed"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile!!.exists(), "Output file exists")
     }
 
     @Test

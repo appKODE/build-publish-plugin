@@ -16,23 +16,25 @@ import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.OutputBundleNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.SimpleApkNamingStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
-import ru.kode.android.build.publish.plugin.foundation.messages.computedApkOutputFileNameMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.formRichApkFileNameMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.formSimpleApkFileNameMessage
-import ru.kode.android.build.publish.plugin.foundation.messages.resolvedApkOutputFileNameParamsMessage
+import ru.kode.android.build.publish.plugin.core.strategy.VersionedBundleNamingStrategy
+import ru.kode.android.build.publish.plugin.foundation.messages.computedBundleOutputFileNameMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.formRichBundleFileNameMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.formSimpleBundleFileNameMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.resolvedBundleOutputFileNameParamsMessage
 
 /**
- * Computes the final output APK file name for a specific Android build variant.
+ * Computes the final output Bundle (AAB) file name for a specific Android build variant.
  *
  * The task can optionally incorporate version/tag metadata (from
  * [ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagSnapshotTask]) using an
- * [OutputApkNameStrategy]. The computed name is written to [apkOutputFileNameFile] as plain text
- * and later used by tasks that rename/move the produced APK.
+ * [OutputApkNameStrategy]. The computed name is written to [bundleOutputFileNameFile] as plain text
+ * and later used by tasks that rename/move the produced Bundle.
  */
 @CacheableTask
-abstract class ComputeApkOutputFileNameTask : DefaultTask() {
+abstract class ComputeBundleOutputFileNameTask : DefaultTask() {
     init {
         group = BasePlugin.BUILD_GROUP
         outputs.upToDateWhen { false }
@@ -51,18 +53,18 @@ abstract class ComputeApkOutputFileNameTask : DefaultTask() {
     abstract val buildVariant: Property<BuildVariant>
 
     /**
-     * Strategy used to build the final APK file name.
+     * Strategy used to build the final Bundle file name.
      *
      * If not set, [VersionedApkNamingStrategy] is used.
      */
     @get:Internal
-    abstract val outputApkNameStrategy: Property<OutputApkNameStrategy>
+    abstract val outputBundleNameStrategy: Property<OutputBundleNameStrategy>
 
     /**
      * The original output file name produced by the Android build.
      */
     @get:Input
-    abstract val apkOutputFileName: Property<String>
+    abstract val bundleOutputFileName: Property<String>
 
     /**
      * Whether to include tag/version data when building the final file name.
@@ -71,7 +73,7 @@ abstract class ComputeApkOutputFileNameTask : DefaultTask() {
     abstract val useVersionsFromTag: Property<Boolean>
 
     /**
-     * User-defined base name (prefix) for the produced APK file.
+     * User-defined base name (prefix) for the produced Bundle file.
      */
     @get:Input
     abstract val baseFileName: Property<String>
@@ -84,27 +86,27 @@ abstract class ComputeApkOutputFileNameTask : DefaultTask() {
     abstract val buildTagSnapshotFile: RegularFileProperty
 
     /**
-     * Output file containing the computed APK file name.
+     * Output file containing the computed Bundle file name.
      */
     @get:OutputFile
-    abstract val apkOutputFileNameFile: RegularFileProperty
+    abstract val bundleOutputFileNameFile: RegularFileProperty
 
     /**
-     * Performs the computation and writes the result into [apkOutputFileNameFile].
+     * Performs the computation and writes the result into [bundleOutputFileNameFile].
      */
     @TaskAction
     fun compute() {
         val logger = loggerService.get()
 
-        val outputFileName = apkOutputFileName.get()
+        val outputFileName = bundleOutputFileName.get()
         val useVersionsFromTag = useVersionsFromTag.get()
         val baseFileName = baseFileName.get()
         val buildVariant = buildVariant.get()
-        val strategy = outputApkNameStrategy.orNull ?: VersionedApkNamingStrategy
+        val strategy = outputBundleNameStrategy.orNull ?: VersionedBundleNamingStrategy
         val tagSnapshot = buildTagSnapshotFile.get()
 
         logger.info(
-            resolvedApkOutputFileNameParamsMessage(
+            resolvedBundleOutputFileNameParamsMessage(
                 outputFileName,
                 useVersionsFromTag,
                 strategy,
@@ -112,7 +114,7 @@ abstract class ComputeApkOutputFileNameTask : DefaultTask() {
             ),
         )
 
-        val apkOutputFileName =
+        val bundleOutputFileName =
             if (useVersionsFromTag) {
                 val tag =
                     if (tagSnapshot.asFile.exists()) {
@@ -121,7 +123,7 @@ abstract class ComputeApkOutputFileNameTask : DefaultTask() {
                         null
                     }
                 logger.info(
-                    formRichApkFileNameMessage(
+                    formRichBundleFileNameMessage(
                         buildVariant,
                         outputFileName,
                         tag,
@@ -130,14 +132,14 @@ abstract class ComputeApkOutputFileNameTask : DefaultTask() {
                 )
                 strategy.build(outputFileName, tag, baseFileName)
             } else {
-                logger.info(formSimpleApkFileNameMessage(buildVariant, baseFileName))
+                logger.info(formSimpleBundleFileNameMessage(buildVariant, baseFileName))
                 SimpleApkNamingStrategy.build(outputFileName, null, baseFileName)
             }
 
-        val file = apkOutputFileNameFile.get().asFile
+        val file = bundleOutputFileNameFile.get().asFile
         file.parentFile.mkdirs()
-        file.writeText(apkOutputFileName)
+        file.writeText(bundleOutputFileName)
 
-        logger.info(computedApkOutputFileNameMessage(buildVariant, apkOutputFileName))
+        logger.info(computedBundleOutputFileNameMessage(buildVariant, bundleOutputFileName))
     }
 }

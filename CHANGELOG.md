@@ -12,15 +12,19 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.13
+* Update deps, add Bundle renaming and corresponding strategy to configure it
+* Should be used with **1.2.7 version of build-publish-novo-core**
+
 ### 1.2.12
-- Fix message for cannotReturnTagMessage to show correct last commit date
+* Fix message for cannotReturnTagMessage to show correct last commit date
 * Should be used with **1.2.6 version of build-publish-novo-core**
 
 ### 1.2.11
-- Fix logic to identify that datetime of tag is in the future
+*Fix logic to identify that datetime of tag is in the future
 
 ### 1.2.10
-- Apply proxy settings to Firebase App Distribution task
+* Apply proxy settings to Firebase App Distribution task
 
 ### 1.2.9
 * Print info about not found Jira transition id only once
@@ -81,6 +85,10 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 ---
 
 ## 📦 build-publish-novo-core
+
+### 1.2.7
+- Update deps (Kotlin -> 2.3.10, AGP -> 9.0.1, KSP -> 2.3.5, Firebase -> 5.2.1, Google Auth -> 1.43.0)
+- Add logic to handle Bundle renaming 
 
 ### 1.2.6
 - Fix message for cannotReturnTagMessage to show correct last commit date

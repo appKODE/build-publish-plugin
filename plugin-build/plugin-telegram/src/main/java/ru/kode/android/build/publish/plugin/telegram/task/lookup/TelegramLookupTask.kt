@@ -9,6 +9,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.telegram.messages.configErrorExceptionMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.configErrorMessage
@@ -21,6 +22,7 @@ import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
  * This task handles the lookup of the last message in a specified Telegram chat using a configured bot token.
  * The task uses Gradle's Worker API to perform the lookup asynchronously.
  */
+@DisableCachingByDefault
 abstract class TelegramLookupTask : DefaultTask() {
     init {
         description = "Lookup last message in Telegram chat"

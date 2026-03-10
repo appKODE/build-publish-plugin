@@ -8,17 +8,21 @@ import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_BUILD_VERSION
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.OutputBundleNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.util.apkOutputFileNameProvider
+import ru.kode.android.build.publish.plugin.core.util.bundleOutputFileNameProvider
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.tagBuildSnapshotFileProvider
 import ru.kode.android.build.publish.plugin.core.util.versionCodeFileProvider
 import ru.kode.android.build.publish.plugin.core.util.versionNameProvider
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServiceExtension
 import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
+import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameBundleTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeApkOutputFileNameTask
+import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeBundleOutputFileNameTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeVersionCodeTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeVersionNameTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagSnapshotTask
@@ -26,9 +30,11 @@ import ru.kode.android.build.publish.plugin.foundation.task.tag.PrintLastIncreas
 
 internal const val PRINT_LAST_INCREASED_TAG_TASK_PREFIX = "printLastIncreasedTag"
 internal const val RENAME_APK_TASK_PREFIX = "renameApk"
+internal const val RENAME_BUNDLE_TASK_PREFIX = "renameBundle"
 internal const val GET_LAST_TAG_SNAPSHOT_TASK_PREFIX = "getLastTagSnapshot"
 internal const val COMPUTE_VERSION_CODE_TASK_PREFIX = "computeVersionCode"
 internal const val COMPUTE_APK_OUTPUT_FILENAME_TASK_PREFIX = "computeApkOutputFileName"
+internal const val COMPUTE_BUNDLE_OUTPUT_FILENAME_TASK_PREFIX = "computeBundleOutputFileName"
 internal const val COMPUTE_VERSION_NAME_TASK_PREFIX = "computeVersionName"
 
 const val DEFAULT_VERSION_NAME = DEFAULT_BUILD_VERSION
@@ -42,7 +48,7 @@ const val DEFAULT_VERSION_NAME = DEFAULT_BUILD_VERSION
  * ## Features
  * - Registers tasks to get the last Git tag for a build variant
  * - Generates version names and codes based on Git tags
- * - Formats output APK file names with version information
+ * - Formats output APK and Bundle file names with version information
  * - Supports fallback to default values when tags are not found
  *
  * @see GetLastTagSnapshotTask
@@ -108,6 +114,25 @@ internal object TagTasksRegistrar {
     }
 
     /**
+     * Registers a task that computes the final Bundle output file name for the given build variant.
+     *
+     * The task can include version/tag metadata (if enabled) and writes the resulting name into a
+     * file in the build directory. The rename task later reads that file to perform the actual
+     * artifact rename.
+     *
+     * @param project The Gradle project.
+     * @param params Configuration parameters for the task.
+     *
+     * @return A [TaskProvider] for the registered [ComputeBundleOutputFileNameTask].
+     */
+    internal fun registerComputeBundleOutputFileNameTask(
+        project: Project,
+        params: ComputeBundleOutputFileNameParams,
+    ): TaskProvider<ComputeBundleOutputFileNameTask> {
+        return project.registerComputeBundleOutputFileNameTask(params)
+    }
+
+    /**
      * Registers a task that computes `versionName` for the given build variant.
      *
      * The task reads a tag snapshot file produced by [GetLastTagSnapshotTask] and writes the
@@ -155,6 +180,21 @@ internal object TagTasksRegistrar {
     ): TaskProvider<RenameApkTask> {
         return project.registerRenameApkTask(params)
     }
+
+    /**
+     * Registers a task that performs the final Bundle rename/copy for the given build variant.
+     *
+     * @param project The Gradle project.
+     * @param params Configuration parameters for the task.
+     *
+     * @return A [TaskProvider] for the registered [RenameBundleTask].
+     */
+    internal fun registerRenameBundleTask(
+        project: Project,
+        params: RenameBundleTaskParams,
+    ): TaskProvider<RenameBundleTask> {
+        return project.registerRenameBundleTask(params)
+    }
 }
 
 /**
@@ -175,6 +215,29 @@ private fun Project.registerRenameApkTask(params: RenameApkTaskParams): TaskProv
 
         task.outputFileName.set(params.outputFileName)
         task.inputDir.set(params.inputDir)
+        task.loggerService.set(loggerService)
+
+        task.usesService(loggerService)
+    }
+}
+
+/**
+ * Registers a [RenameBundleTask] for the given [params].
+ *
+ * The task is wired as an AGP artifact transform and will copy the produced Bundle into the output
+ * directory with a computed file name.
+ */
+@Suppress("MaxLineLength")
+private fun Project.registerRenameBundleTask(params: RenameBundleTaskParams): TaskProvider<RenameBundleTask> {
+    val variant = params.buildVariant
+    val taskName = "$RENAME_BUNDLE_TASK_PREFIX${variant.capitalizedName()}"
+    return tasks.register(taskName, RenameBundleTask::class.java) { task ->
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
+
+        task.outputFileName.set(params.outputFileName)
         task.loggerService.set(loggerService)
 
         task.usesService(loggerService)
@@ -272,6 +335,38 @@ private fun Project.registerComputeApkOutputFileNameTask(
         task.buildVariant.set(variant)
         task.outputApkNameStrategy.set(params.outputApkNameStrategy)
         task.apkOutputFileNameFile.set(apkOutputFileNameFile)
+        task.loggerService.set(loggerService)
+
+        task.usesService(loggerService)
+
+        task.dependsOn(params.buildTagSnapshotProvider)
+    }
+}
+
+/**
+ * Registers a [ComputeBundleOutputFileNameTask] task for the given [params].
+ */
+private fun Project.registerComputeBundleOutputFileNameTask(
+    params: ComputeBundleOutputFileNameParams,
+): TaskProvider<ComputeBundleOutputFileNameTask> {
+    val variant = params.buildVariant
+    val taskName = "$COMPUTE_BUNDLE_OUTPUT_FILENAME_TASK_PREFIX${variant.capitalizedName()}"
+    val bundleOutputFileNameFile = project.bundleOutputFileNameProvider(variant.name)
+
+    val buildTagSnapshotFile = params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile }
+    return tasks.register(taskName, ComputeBundleOutputFileNameTask::class.java) { task ->
+        val loggerService =
+            project.extensions
+                .getByType(LoggerServiceExtension::class.java)
+                .service
+
+        task.bundleOutputFileName.set(params.bundleOutputFileName)
+        task.useVersionsFromTag.set(params.useVersionsFromTag)
+        task.baseFileName.set(params.baseFileName)
+        task.buildTagSnapshotFile.set(buildTagSnapshotFile)
+        task.buildVariant.set(variant)
+        task.outputBundleNameStrategy.set(params.outputBundleNameStrategy)
+        task.bundleOutputFileNameFile.set(bundleOutputFileNameFile)
         task.loggerService.set(loggerService)
 
         task.usesService(loggerService)
@@ -431,6 +526,36 @@ internal data class ComputeApkOutputFileNameParams(
 )
 
 /**
+ * Parameters used to register a [ComputeBundleOutputFileNameTask] for a specific [buildVariant].
+ */
+internal data class ComputeBundleOutputFileNameParams(
+    /**
+     * The build variant to process
+     */
+    val buildVariant: BuildVariant,
+    /**
+     * The base name for the output Bundle file
+     */
+    val bundleOutputFileName: Provider<String>,
+    /**
+     * Whether to include tag/version data when building the final file name.
+     */
+    val useVersionsFromTag: Provider<Boolean>,
+    /**
+     * User-defined base name (prefix) for the produced Bundle file.
+     */
+    val baseFileName: Provider<String>,
+    /**
+     * Provider for the output Bundle name mapper.
+     */
+    val outputBundleNameStrategy: Provider<OutputBundleNameStrategy>,
+    /**
+     * Task that produces a tag snapshot file used as an input for naming.
+     */
+    val buildTagSnapshotProvider: TaskProvider<GetLastTagSnapshotTask>,
+)
+
+/**
  * Configuration parameters for the print last increased tag task.
  */
 internal data class PrintLastIncreasedTagTaskParams(
@@ -458,6 +583,20 @@ internal data class RenameApkTaskParams(
     val buildVariant: BuildVariant,
     /**
      * Provider for the name of the output APK file.
+     */
+    val outputFileName: Provider<String>,
+)
+
+/**
+ * Configuration parameters for the task that renames a Bundle.
+ */
+internal data class RenameBundleTaskParams(
+    /**
+     * The build variant for which the Bundle is being renamed.
+     */
+    val buildVariant: BuildVariant,
+    /**
+     * Provider for the name of the output Bundle file.
      */
     val outputFileName: Provider<String>,
 )
