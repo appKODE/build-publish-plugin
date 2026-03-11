@@ -12,6 +12,9 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.14
+* Increase Telegram client timeout to 6m 
+
 ### 1.2.13
 * Update deps, add Bundle renaming and corresponding strategy to configure it
 * Should be used with **1.2.7 version of build-publish-novo-core**
