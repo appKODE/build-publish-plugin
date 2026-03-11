@@ -1657,4 +1657,162 @@ class AssembleAgpVersionsTest {
             "Manifest properties equality",
         )
     }
+
+    @Test
+    @Throws(IOException::class)
+    fun `build succeed with default config versions when useVersionsFromTag, useStubsForTagAsFallback, useDefaultsForVersionsAsFallback are disabled and tag not exists, agp 9_0_1`() {
+        val agpClasspath = resolveRequiredAgpJars("9.1.0")
+
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            productFlavors = listOf(ProductFlavor(name = "google", dimension = "default")),
+            defaultConfig =
+                DefaultConfig(
+                    versionCode = 10,
+                    versionName = "v.1.0.10",
+                ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                            useVersionsFromTag = false,
+                            useStubsForTagAsFallback = false,
+                            useDefaultsForVersionsAsFallback = false,
+                        ),
+                ),
+        )
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleGoogleDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-googleDebug.json")
+        val givenOutputFile = projectDir.getFile("app/build/outputs/apk/google/debug/autotest.apk")
+
+        git.addAllAndCommit(givenCommitMessage)
+
+        val result: BuildResult = projectDir.runTask(
+            givenAssembleTask,
+            agpClasspath = agpClasspath,
+            gradleVersion = "9.3.1"
+        )
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "10",
+                versionName = "v.1.0.10",
+            )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagSnapshotGoogleDebug"),
+            "Task getLastTagSnapshotGoogleDebug executed",
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeed",
+        )
+        assertTrue(givenTagBuildFile.exists(), "Tag file exists")
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality",
+        )
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun `assemble creates tag file of debug build from one tag, one commit, build types only, agp 9_0_1`() {
+        val agpClasspath = resolveRequiredAgpJars("9.0.1")
+
+        projectDir.createAndroidProject(
+            buildTypes = listOf(BuildType("debug"), BuildType("release")),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                ),
+            topBuildFileContent = """
+                plugins {
+                    id("com.android.application") version "9.0.1" apply false
+                }
+            """.trimIndent()
+        )
+        val givenTagName = "v1.0.1-debug"
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleDebug"
+        val git = projectDir.initGit()
+        val givenTagBuildFile = projectDir.getFile("app/build/tag-build-snapshot-debug.json")
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName)
+
+        val result: BuildResult = projectDir.runTask(
+            givenAssembleTask,
+            agpClasspath = agpClasspath,
+            gradleVersion = "9.3.1"
+        )
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFile = apkDir.listFiles()
+            ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+            ?: throw AssertionError("Output file not found")
+
+        val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
+
+        val expectedCommitSha = git.log().last().id
+        val expectedBuildNumber = "1"
+        val expectedBuildVariant = "debug"
+        val expectedTagName = "v1.0.1-debug"
+        val expectedBuildVersion = "1.0"
+        val expectedTagBuildFile =
+            BuildTagSnapshot(
+                current = Tag.Build(
+                    name = expectedTagName,
+                    commitSha = expectedCommitSha,
+                    message = "",
+                    buildVersion = expectedBuildVersion,
+                    buildVariant = expectedBuildVariant,
+                    buildNumber = expectedBuildNumber.toInt(),
+                ),
+                previousInOrder = null,
+                previousOnDifferentCommit = null
+            ).toJson()
+        val expectedManifestProperties =
+            ManifestProperties(
+                versionCode = "1",
+                versionName = "1.0",
+            )
+        assertTrue(
+            !result.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagSnapshotRelease not executed",
+        )
+        assertTrue(
+            result.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagSnapshotDebug executed",
+        )
+        assertTrue(
+            result.output.contains("BUILD SUCCESSFUL"),
+            "Build succeeded",
+        )
+        assertEquals(
+            expectedTagBuildFile.trimMargin(),
+            givenTagBuildFile.readText(),
+            "Tags equality",
+        )
+        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile.length() > 0, "Output file is not empty")
+        assertEquals(
+            expectedManifestProperties,
+            givenOutputFileManifestProperties,
+            "Manifest properties equality",
+        )
+    }
 }

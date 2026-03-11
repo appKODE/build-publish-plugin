@@ -9,8 +9,11 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.clickup.messages.issuesNotFoundMessage
@@ -36,6 +39,7 @@ import javax.inject.Inject
  * @see ClickUpTasksRegistrar For task registration
  * @see ClickUpService For the underlying network operations
  */
+@DisableCachingByDefault(because = "Need to track changes each time")
 abstract class ClickUpAutomationTask
     @Inject
     constructor(
@@ -88,6 +92,7 @@ abstract class ClickUpAutomationTask
             option = "buildTagSnapshotFile",
             description = "JSON file containing build tag information",
         )
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val buildTagSnapshotFile: RegularFileProperty
 
         /**
@@ -101,6 +106,7 @@ abstract class ClickUpAutomationTask
             option = "changelogFile",
             description = "Changelog file containing commit messages and issue references",
         )
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val changelogFile: RegularFileProperty
 
         /**

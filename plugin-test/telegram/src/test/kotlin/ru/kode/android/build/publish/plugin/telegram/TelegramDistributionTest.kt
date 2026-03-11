@@ -888,7 +888,6 @@ class TelegramDistributionTest {
         val givenAssembleTask = "bundleDebug"
         val givenTelegramDistributionTask = "telegramDistributionUploadBundleDebug"
         val git = projectDir.initGit()
-        val givenOutputFile = projectDir.getFile("app/build/outputs/bundle/debug/app-debug.aab")
 
         git.addAllAndCommit(givenCommitMessage)
         git.tag.addNamed(givenTagName1)
@@ -912,6 +911,10 @@ class TelegramDistributionTest {
 
         projectDir.getFile("app").printFilesRecursively()
 
+        val bundleDir = projectDir.getFile("app/build/outputs/bundle/debug")
+        val givenOutputFile = bundleDir.listFiles()
+            ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
+
         assertTrue(
             !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
             "Task getLastTagRelease not executed",
@@ -928,7 +931,7 @@ class TelegramDistributionTest {
             distributionResult.output.contains("BUILD SUCCESSFUL"),
             "Telegram distribution successful"
         )
-        assertTrue(givenOutputFile.exists(), "Output file exists")
+        assertTrue(givenOutputFile!!.exists(), "Output file exists")
     }
 
     @Test

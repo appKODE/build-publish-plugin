@@ -21,8 +21,11 @@ import ru.kode.android.build.publish.plugin.core.strategy.DecoratedAnnotatedTagM
 import ru.kode.android.build.publish.plugin.core.strategy.KeyRemovingChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.NoChangesChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.NoChangesNotGeneratedChangelogMessageStrategy
+import ru.kode.android.build.publish.plugin.core.util.APK_FILE_EXTENSION
+import ru.kode.android.build.publish.plugin.core.util.BUNDLE_FILE_EXTENSION
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
+import ru.kode.android.build.publish.plugin.core.util.replaceLast
 import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.foundation.config.OutputConfig
@@ -32,14 +35,17 @@ import ru.kode.android.build.publish.plugin.foundation.messages.resolvedOutputCo
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServicePlugin
 import ru.kode.android.build.publish.plugin.foundation.task.ChangelogTasksRegistrar
 import ru.kode.android.build.publish.plugin.foundation.task.ComputeApkOutputFileNameParams
+import ru.kode.android.build.publish.plugin.foundation.task.ComputeBundleOutputFileNameParams
 import ru.kode.android.build.publish.plugin.foundation.task.ComputeVersionCodeParams
 import ru.kode.android.build.publish.plugin.foundation.task.ComputeVersionNameParams
 import ru.kode.android.build.publish.plugin.foundation.task.GenerateChangelogTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.LastTagSnapshotTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.PrintLastIncreasedTagTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.RenameApkTaskParams
+import ru.kode.android.build.publish.plugin.foundation.task.RenameBundleTaskParams
 import ru.kode.android.build.publish.plugin.foundation.task.TagTasksRegistrar
 import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
+import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameBundleTask
 import ru.kode.android.build.publish.plugin.foundation.validate.stopExecutionIfNotSupported
 
 /**
@@ -184,6 +190,30 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 ),
                         )
 
+                    val bundleOutputFileNameProvider =
+                        TagTasksRegistrar.registerComputeBundleOutputFileNameTask(
+                            project,
+                            params =
+                                ComputeBundleOutputFileNameParams(
+                                    buildVariant = buildVariant,
+                                    bundleOutputFileName =
+                                        variantOutput.outputFileName.map {
+                                            it.replaceLast(APK_FILE_EXTENSION, BUNDLE_FILE_EXTENSION)
+                                        },
+                                    useVersionsFromTag =
+                                        outputConfigProvider
+                                            .flatMap { it.useVersionsFromTag }
+                                            .orElse(true),
+                                    baseFileName =
+                                        outputConfigProvider
+                                            .flatMap { it.baseFileName },
+                                    outputBundleNameStrategy =
+                                        outputConfigProvider
+                                            .flatMap { it.outputBundleNameStrategy },
+                                    buildTagSnapshotProvider = buildTagSnapshotProvider,
+                                ),
+                        )
+
                     val versionCodeProvider =
                         TagTasksRegistrar.registerComputeVersionCodeTask(
                             project,
@@ -236,6 +266,14 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 }
                             }
 
+                    val bundleOutputFileName =
+                        bundleOutputFileNameProvider
+                            .flatMap { provider ->
+                                provider.bundleOutputFileNameFile.map {
+                                    it.asFile.readText()
+                                }
+                            }
+
                     val renameApkTaskProvider =
                         TagTasksRegistrar.registerRenameApkTask(
                             project,
@@ -255,6 +293,22 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             .toTransformMany(SingleArtifact.APK)
 
                     renameApkTaskProvider.configure { it.transformationRequest.set(renameApkTransformationRequest) }
+
+                    val renameBundleTaskProvider =
+                        TagTasksRegistrar.registerRenameBundleTask(
+                            project,
+                            RenameBundleTaskParams(
+                                buildVariant = buildVariant,
+                                outputFileName = bundleOutputFileName,
+                            ),
+                        )
+
+                    variant.artifacts.use(renameBundleTaskProvider)
+                        .wiredWithFiles(
+                            RenameBundleTask::inputFile,
+                            RenameBundleTask::outputFile,
+                        )
+                        .toTransform(SingleArtifact.BUNDLE)
 
                     TagTasksRegistrar.registerPrintLastIncreasedTagTask(
                         project = project,
@@ -310,13 +364,24 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                 ),
                         )
 
+                    val apkOutputDir = renameApkTaskProvider.flatMap { it.outputDir }
+
                     val apkFileProvider: Provider<RegularFile> =
                         apkOutputFileName
-                            .zip(renameApkTaskProvider.flatMap { it.outputDir }) { outputFileName, outputDir ->
+                            .zip(apkOutputDir) { outputFileName, outputDir ->
                                 outputDir.file(outputFileName)
                             }
 
-                    val bundleFileProvider = variant.artifacts.get(SingleArtifact.BUNDLE)
+                    val bundleOutputDir =
+                        renameBundleTaskProvider.flatMap { provider ->
+                            project.layout.dir(provider.outputFile.map { it.asFile.parentFile })
+                        }
+
+                    val bundleFileProvider: Provider<RegularFile> =
+                        bundleOutputFileName
+                            .zip(bundleOutputDir) { outputFileName, outputDir ->
+                                outputDir.file(outputFileName)
+                            }
 
                     project.extensions.extensionsSchema
                         .filter { schema ->
@@ -390,6 +455,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
     }
 }
 
+@Suppress("DEPRECATION") // Support old variant
 private fun Project.getDefaultVersionName(): String? {
     return try {
         extensions
@@ -404,6 +470,7 @@ private fun Project.getDefaultVersionName(): String? {
     }
 }
 
+@Suppress("DEPRECATION") // Support old variant
 private fun Project.getDefaultVersionCode(): Int? {
     return try {
         extensions

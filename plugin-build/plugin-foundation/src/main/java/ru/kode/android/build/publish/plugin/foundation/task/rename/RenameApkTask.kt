@@ -4,10 +4,13 @@ import com.android.build.api.artifact.ArtifactTransformationRequest
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.foundation.messages.renameApkMessage
@@ -20,6 +23,7 @@ import javax.inject.Inject
  * This task is wired as an Android Gradle Plugin artifact transform. It takes the produced APK
  * (from [inputDir]) and copies it into [outputDir] with the name provided via [outputFileName].
  */
+@CacheableTask
 abstract class RenameApkTask
     @Inject
     constructor() : DefaultTask() {
@@ -47,6 +51,7 @@ abstract class RenameApkTask
          * This is a directory produced by AGP that contains the built APK artifact.
          */
         @get:InputDirectory
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val inputDir: DirectoryProperty
 
         /**

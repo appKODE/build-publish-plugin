@@ -23,6 +23,11 @@ fun Project.apkOutputFileNameProvider(variantName: String): Provider<RegularFile
         .file("apk-output-filename-$variantName.txt")
 }
 
+fun Project.bundleOutputFileNameProvider(variantName: String): Provider<RegularFile> {
+    return project.layout.buildDirectory
+        .file("bundle-output-filename-$variantName.txt")
+}
+
 fun Project.versionNameProvider(variantName: String): Provider<RegularFile> {
     return project.layout.buildDirectory
         .file("version-name-$variantName.txt")

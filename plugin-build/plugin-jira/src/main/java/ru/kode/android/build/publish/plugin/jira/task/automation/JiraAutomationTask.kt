@@ -9,8 +9,11 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.enity.Tag
@@ -36,6 +39,7 @@ import javax.inject.Inject
  * @see JiraService For the underlying Jira API communication
  * @see JiraTasksRegistrar For how this task is registered and configured
  */
+@DisableCachingByDefault
 abstract class JiraAutomationTask
     @Inject
     constructor(
@@ -71,6 +75,7 @@ abstract class JiraAutomationTask
          */
         @get:InputFile
         @get:Option(option = "buildTagSnapshotFile", description = "JSON file containing build tag information")
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val buildTagSnapshotFile: RegularFileProperty
 
         /**
@@ -80,6 +85,7 @@ abstract class JiraAutomationTask
          */
         @get:InputFile
         @get:Option(option = "changelogFile", description = "File containing the changelog for this build")
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val changelogFile: RegularFileProperty
 
         /**
