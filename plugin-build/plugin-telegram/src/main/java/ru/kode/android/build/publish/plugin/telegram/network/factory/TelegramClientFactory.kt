@@ -13,7 +13,7 @@ import ru.kode.android.build.publish.plugin.telegram.messages.tooManyRequestsMes
 import ru.kode.android.build.publish.plugin.telegram.network.entity.TelegramErrorResponse
 import java.util.concurrent.TimeUnit
 
-private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L
+private const val HTTP_CONNECT_TIMEOUT_MINUTES = 6L
 private const val TOO_MANY_REQUESTS_ERROR_CODE = 429
 private const val DEFAULT_RETRY_AFTER_SECONDS = 3L
 private const val HALF_OF_SECOND_MS = 500L
