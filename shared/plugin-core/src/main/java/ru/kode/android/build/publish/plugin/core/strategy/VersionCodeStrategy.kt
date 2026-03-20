@@ -98,8 +98,9 @@ object SemanticVersionFlattenedCodeStrategy : VersionCodeStrategy {
         tag: Tag.Build?,
     ): Int {
         return if (tag != null) {
-            val major = tag.buildVersion.substringBefore(".").toInt()
-            val minor = tag.buildVersion.substringAfter(".").toInt()
+            val parts = tag.buildVersion.split(".")
+            val major = parts[0].toInt()
+            val minor = parts[1].toInt()
             (major * 1000 + minor) * 1000 + tag.buildNumber
         } else {
             DEFAULT_VERSION_CODE
