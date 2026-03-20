@@ -1,6 +1,6 @@
 [versions]
-buildPublishPlugin = "1.2.14"
-buildPublishShared = "1.2.7"
+buildPublishPlugin = "1.2.15"
+buildPublishShared = "1.2.8"
 kotlin = "2.3.10"
 agp = "9.0.1"
 detekt = "1.23.8"

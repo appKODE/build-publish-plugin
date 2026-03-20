@@ -253,6 +253,12 @@ fun File.createAndroidProject(
     val pattern = foundationConfig.output.buildTagPatternBuilderFunctions?.let { pattern ->
         buildTagPatternBlock(pattern)
     }.orEmpty()
+    val commonVersionName = foundationConfig.output.versionNameStrategy?.let { strategy ->
+        """versionNameStrategy { $strategy }"""
+    }.orEmpty()
+    val commonVersionCode = foundationConfig.output.versionCodeStrategy?.let { strategy ->
+        """versionCodeStrategy { $strategy }"""
+    }.orEmpty()
     val changelogStrategy = foundationConfig.changelog.changelogMessageStrategy?.let { strategy ->
         "changelogMessageStrategy { $strategy }"
     }.orEmpty()
@@ -260,7 +266,7 @@ fun File.createAndroidProject(
         buildPublishFoundation {
             bodyLogging.set(${foundationConfig.bodyLogging})
             verboseLogging.set(${foundationConfig.verboseLogging})
-            
+
             output {
                 common {
                     baseFileName.set("${foundationConfig.output.baseFileName}")
@@ -268,6 +274,8 @@ fun File.createAndroidProject(
                     $useStubs
                     ${useDefaults.orEmpty()}
                     $pattern
+                    $commonVersionName
+                    $commonVersionCode
                 }
         
                 ${buildTypeOutputBlock1.orEmpty()}
