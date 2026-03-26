@@ -156,6 +156,95 @@ class SlackChangelogTest {
 
     @Test
     @Throws(IOException::class)
+    fun `slack changelog sending available with changelog config without proxy, no user mentions`() {
+        projectDir.createAndroidProject(
+            buildTypes = listOf(
+                BuildType("debug"),
+                BuildType("release")
+            ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog = FoundationConfig.Changelog(
+                        issueNumberPattern = "TEST-\\\\d+",
+                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
+                    )
+                ),
+            slackConfig = SlackConfig(
+                bot = SlackConfig.Bot(
+                    webhookUrl = System.getProperty("SLACK_WEBHOOK_URL"),
+                    uploadApiTokenFilePath = null,
+                    iconUrl = System.getProperty("SLACK_ICON_URL")
+                ),
+                changelog = SlackConfig.Changelog(
+                    userMentions = listOf(),
+                    attachmentColor = "#fff000"
+                ),
+                distribution = null
+            ),
+            topBuildFileContent = """
+                plugins {
+                    id 'ru.kode.android.build-publish-novo.foundation' apply false
+                }
+            """.trimIndent()
+        )
+        val givenTagName1 = "v1.0.1-debug"
+        val givenTagName2 = "v1.0.2-debug"
+        val givenCommitMessage = "Initial commit"
+        val givenAssembleTask = "assembleDebug"
+        val givenSlackChangelogTask = "sendSlackChangelogDebug"
+        val git = projectDir.initGit()
+
+        git.addAllAndCommit(givenCommitMessage)
+        git.tag.addNamed(givenTagName1)
+
+        getLongChangelog()
+            .split("\n")
+            .forEachIndexed { index, changelogLine ->
+                val givenCommitMessageN = """
+                Add $index change in codebase
+                
+                CHANGELOG: $changelogLine
+                """.trimIndent()
+                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                git.addAllAndCommit(givenCommitMessageN)
+            }
+        git.tag.addNamed(givenTagName2)
+
+        val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
+        val changelogResult: BuildResult = projectDir.runTask(givenSlackChangelogTask)
+
+        projectDir.getFile("app").printFilesRecursively()
+
+        val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
+        val givenOutputFileExists = apkDir.listFiles()
+            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+            ?: false
+
+        assertTrue(
+            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
+            "Task getLastTagRelease not executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
+            "Task getLastTagDebug executed",
+        )
+        assertTrue(
+            assembleResult.output.contains("BUILD SUCCESSFUL"),
+            "Build successful",
+        )
+        assertTrue(
+            changelogResult.output.contains("BUILD SUCCESSFUL"),
+            "Slack changelog successful"
+        )
+        assertTrue(givenOutputFileExists, "Output file exists")
+    }
+
+    @Test
+    @Throws(IOException::class)
     fun `slack changelog sending available with changelog config without proxy and assemble`() {
         projectDir.createAndroidProject(
             buildTypes = listOf(

@@ -26,17 +26,15 @@ dependencies {
 }
 
 tasks.test {
-    doFirst {
-        systemProperty("JIRA_BASE_URL", project.getEnvOrProperty("JIRA_BASE_URL"))
-        systemProperty("SLACK_WEBHOOK_URL", project.getEnvOrProperty("SLACK_WEBHOOK_URL"))
-        systemProperty("SLACK_ICON_URL", project.getEnvOrProperty("SLACK_ICON_URL"))
-        systemProperty("SLACK_UPLOAD_API_TOKEN", project.getEnvOrProperty("SLACK_UPLOAD_API_TOKEN"))
-        systemProperty("SLACK_DISTRIBUTION_CHANNEL", project.getEnvOrProperty("SLACK_DISTRIBUTION_CHANNEL"))
-        systemProperty("PROXY_USER", project.getEnvOrProperty("PROXY_USER"))
-        systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
-        systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
-        systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
-    }
+    systemProperty("JIRA_BASE_URL", project.getEnvOrProperty("JIRA_BASE_URL"))
+    systemProperty("SLACK_WEBHOOK_URL", project.getEnvOrProperty("SLACK_WEBHOOK_URL"))
+    systemProperty("SLACK_ICON_URL", project.getEnvOrProperty("SLACK_ICON_URL"))
+    systemProperty("SLACK_UPLOAD_API_TOKEN", project.getEnvOrProperty("SLACK_UPLOAD_API_TOKEN"))
+    systemProperty("SLACK_DISTRIBUTION_CHANNEL", project.getEnvOrProperty("SLACK_DISTRIBUTION_CHANNEL"))
+    systemProperty("PROXY_USER", project.getEnvOrProperty("PROXY_USER"))
+    systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
+    systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
+    systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
 
     useJUnitPlatform()
     testLogging {

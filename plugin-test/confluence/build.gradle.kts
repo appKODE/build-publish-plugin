@@ -25,16 +25,14 @@ dependencies {
 }
 
 tasks.test {
-    doFirst {
-        systemProperty("CONFLUENCE_BASE_URL", project.getEnvOrProperty("CONFLUENCE_BASE_URL"))
-        systemProperty("CONFLUENCE_USER_NAME", project.getEnvOrProperty("CONFLUENCE_USER_NAME"))
-        systemProperty("CONFLUENCE_USER_PASSWORD", project.getEnvOrProperty("CONFLUENCE_USER_PASSWORD"))
-        systemProperty("CONFLUENCE_PAGE_ID", project.getEnvOrProperty("CONFLUENCE_PAGE_ID"))
-        systemProperty("PROXY_USER", project.getEnvOrProperty("PROXY_USER"))
-        systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
-        systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
-        systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
-    }
+    systemProperty("CONFLUENCE_BASE_URL", project.getEnvOrProperty("CONFLUENCE_BASE_URL"))
+    systemProperty("CONFLUENCE_USER_NAME", project.getEnvOrProperty("CONFLUENCE_USER_NAME"))
+    systemProperty("CONFLUENCE_USER_PASSWORD", project.getEnvOrProperty("CONFLUENCE_USER_PASSWORD"))
+    systemProperty("CONFLUENCE_PAGE_ID", project.getEnvOrProperty("CONFLUENCE_PAGE_ID"))
+    systemProperty("PROXY_USER", project.getEnvOrProperty("PROXY_USER"))
+    systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
+    systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
+    systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
 
     useJUnitPlatform()
     testLogging {

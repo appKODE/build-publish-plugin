@@ -26,14 +26,12 @@ dependencies {
 }
 
 tasks.test {
-    doFirst {
-        systemProperty("JIRA_BASE_URL", project.getEnvOrProperty("JIRA_BASE_URL"))
-        systemProperty("FIREBASE_GOOGLE_SERVICES_FILE_PATH", project.getEnvOrProperty("FIREBASE_GOOGLE_SERVICES_FILE_PATH"))
-        systemProperty("PROXY_USER", project.getEnvOrProperty("PROXY_USER"))
-        systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
-        systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
-        systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
-    }
+    systemProperty("JIRA_BASE_URL", project.getEnvOrProperty("JIRA_BASE_URL"))
+    systemProperty("FIREBASE_GOOGLE_SERVICES_FILE_PATH", project.getEnvOrProperty("FIREBASE_GOOGLE_SERVICES_FILE_PATH"))
+    systemProperty("PROXY_USER", project.getEnvOrProperty("PROXY_USER"))
+    systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
+    systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
+    systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
 
     useJUnitPlatform()
     testLogging {
