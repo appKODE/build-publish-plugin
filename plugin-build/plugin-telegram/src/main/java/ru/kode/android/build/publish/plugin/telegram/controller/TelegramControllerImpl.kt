@@ -250,8 +250,12 @@ private fun buildHtmlMessage(
     val escapedHeader = escapeHtml(header)
     val mentions = userMentions.joinToString(", ") { escapeHtml(it) }
     return buildString {
-        appendLine("<b>$escapedHeader</b>")
-        appendLine(mentions)
+        if (escapedHeader.isNotBlank()) {
+            appendLine("<b>$escapedHeader</b>")
+        }
+        if (mentions.isNotBlank()) {
+            appendLine(mentions)
+        }
         appendLine()
         body.lines().forEach { line ->
             appendLine(line.trim())

@@ -25,14 +25,12 @@ dependencies {
 }
 
 tasks.test {
-    doFirst {
-        systemProperty("CLICKUP_TOKEN", project.getEnvOrProperty("CLICKUP_TOKEN"))
-        systemProperty("CLICKUP_BASE_URL", project.getEnvOrProperty("CLICKUP_BASE_URL"))
-        systemProperty("PROXY_USER", project.getEnvOrProperty("PROXY_USER"))
-        systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
-        systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
-        systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
-    }
+    systemProperty("CLICKUP_TOKEN", project.getEnvOrProperty("CLICKUP_TOKEN"))
+    systemProperty("CLICKUP_BASE_URL", project.getEnvOrProperty("CLICKUP_BASE_URL"))
+    systemProperty("PROXY_USER", project.getEnvOrProperty("PROXY_USER"))
+    systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
+    systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
+    systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
 
     useJUnitPlatform()
     testLogging {

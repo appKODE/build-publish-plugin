@@ -26,17 +26,15 @@ dependencies {
 }
 
 tasks.test {
-    doFirst {
-        systemProperty("JIRA_BASE_URL", project.getEnvOrProperty("JIRA_BASE_URL"))
-        systemProperty("FIREBASE_GOOGLE_SERVICES_FILE_PATH", project.file("google-services.json").path)
-        systemProperty("FIREBASE_SERVICE_CREDENTIALS_FILE_PATH", project.file("service-credentials.json").path)
-        systemProperty("FIREBASE_APP_ID", project.getEnvOrProperty("FIREBASE_APP_ID"))
-        systemProperty("FIREBASE_APP_ID_INTERNAL", project.getEnvOrProperty("FIREBASE_APP_ID_INTERNAL"))
-        systemProperty("PROXY_USER", project.getEnvOrProperty("PROXY_USER"))
-        systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
-        systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
-        systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
-    }
+    systemProperty("JIRA_BASE_URL", project.getEnvOrProperty("JIRA_BASE_URL"))
+    systemProperty("FIREBASE_GOOGLE_SERVICES_FILE_PATH", project.file("google-services.json").path)
+    systemProperty("FIREBASE_SERVICE_CREDENTIALS_FILE_PATH", project.file("service-credentials.json").path)
+    systemProperty("FIREBASE_APP_ID", project.getEnvOrProperty("FIREBASE_APP_ID"))
+    systemProperty("FIREBASE_APP_ID_INTERNAL", project.getEnvOrProperty("FIREBASE_APP_ID_INTERNAL"))
+    systemProperty("PROXY_USER", project.getEnvOrProperty("PROXY_USER"))
+    systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
+    systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
+    systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
 
     useJUnitPlatform()
     testLogging {

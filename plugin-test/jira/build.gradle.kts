@@ -25,16 +25,14 @@ dependencies {
 }
 
 tasks.test {
-    doFirst {
-        systemProperty("JIRA_BASE_URL", project.getEnvOrProperty("JIRA_BASE_URL"))
-        systemProperty("JIRA_USER_NAME", project.getEnvOrProperty("JIRA_USER_NAME"))
-        systemProperty("JIRA_USER_PASSWORD", project.getEnvOrProperty("JIRA_USER_PASSWORD"))
-        systemProperty("JIRA_PROJECT_ID", project.getEnvOrProperty("JIRA_PROJECT_ID"))
-        systemProperty("PROXY_USER", project.getEnvOrProperty("PROXY_USER"))
-        systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
-        systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
-        systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
-    }
+    systemProperty("JIRA_BASE_URL", project.getEnvOrProperty("JIRA_BASE_URL"))
+    systemProperty("JIRA_USER_NAME", project.getEnvOrProperty("JIRA_USER_NAME"))
+    systemProperty("JIRA_USER_PASSWORD", project.getEnvOrProperty("JIRA_USER_PASSWORD"))
+    systemProperty("JIRA_PROJECT_ID", project.getEnvOrProperty("JIRA_PROJECT_ID"))
+    systemProperty("PROXY_USER", project.getEnvOrProperty("PROXY_USER"))
+    systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
+    systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
+    systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
 
     useJUnitPlatform()
     testLogging {
