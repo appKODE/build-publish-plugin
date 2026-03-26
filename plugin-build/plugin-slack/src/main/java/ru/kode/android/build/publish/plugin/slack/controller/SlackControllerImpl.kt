@@ -136,8 +136,8 @@ internal class SlackControllerImpl(
                 .split("\n")
                 .filter { it.isNotBlank() }
         val splitAttachmentBlocks =
-            listOf(buildSectionBlock(userMentions.joinToString(", ")))
-                .plus(changelogMessages.map { buildSectionBlock(it) })
+            listOfNotNull(buildSectionBlock(userMentions.joinToString(", ")))
+                .plus(changelogMessages.mapNotNull { buildSectionBlock(it) })
                 .chunked(MAX_ATTACHMENTS_COUNT)
 
         val changelogBody =
@@ -187,7 +187,8 @@ internal class SlackControllerImpl(
     private fun buildSectionBlock(
         text: String,
         textType: String = TEXT_TYPE_MARKDOWN,
-    ): SlackChangelogBody.Block {
+    ): SlackChangelogBody.Block? {
+        if (text.isBlank()) return null
         return SlackChangelogBody.Block(
             type = BLOCK_TYPE_SECTION,
             text =

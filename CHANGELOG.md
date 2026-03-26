@@ -12,6 +12,10 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.16
+* Fix logic to send changelog with empty mentions
+* Should be used with **1.2.8 version of build-publish-novo-core**
+
 ### 1.2.15
 * Fix `SemanticVersionFlattenedCodeStrategy` crash when tag contains 3-part version (e.g. `v4.0.0.100-release`)
 * Should be used with **1.2.8 version of build-publish-novo-core**
