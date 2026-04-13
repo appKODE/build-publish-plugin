@@ -5,6 +5,7 @@ import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
@@ -99,6 +100,21 @@ abstract class GetLastTagSnapshotTask
         abstract val useStubsForTagAsFallback: Property<Boolean>
 
         /**
+         * The CI commit tag that triggered the pipeline (e.g., from CI_COMMIT_TAG env var).
+         *
+         * When set, the plugin uses this exact tag instead of picking the latest by sort order.
+         * This prevents race conditions when multiple tags are created on the same commit
+         * and concurrent CI pipelines resolve to the wrong tag.
+         */
+        @get:Input
+        @get:Optional
+        @get:Option(
+            option = "ciCommitTag",
+            description = "CI commit tag that triggered the pipeline (e.g., CI_COMMIT_TAG)",
+        )
+        abstract val ciCommitTag: Property<String>
+
+        /**
          * Executes the task to find and process the last Git tag.
          *
          * This method:
@@ -121,6 +137,7 @@ abstract class GetLastTagSnapshotTask
                 parameters.gitExecutorService.set(gitExecutorService)
                 parameters.loggerService.set(loggerService)
                 parameters.useStubsForTagAsFallback.set(useStubsForTagAsFallback)
+                parameters.ciCommitTag.set(ciCommitTag)
             }
             workQueue.await()
         }

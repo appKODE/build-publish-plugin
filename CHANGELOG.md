@@ -12,6 +12,11 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 1.2.17
+* Add Nextcloud plugin (`build-publish-novo-nextcloud`) for uploading builds and changelogs to Nextcloud
+* Fix CI/CD race condition when multiple tags exist on the same commit: use `CI_COMMIT_TAG` env var for exact tag resolution
+* Should be used with **1.2.17 version of build-publish-novo-core**
+
 ### 1.2.16
 * Fix logic to send changelog with empty mentions
 * Should be used with **1.2.8 version of build-publish-novo-core**
@@ -96,6 +101,12 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 ---
 
 ## 📦 build-publish-novo-core
+
+### 1.2.17
+* Add `ciCommitTag` support in `GitCommandExecutor` and `GitRepository` to fix tag resolution race condition on concurrent CI pipelines
+
+### 1.2.16
+* Version bump to align with main plugin versioning (no functional changes from 1.2.8)
 
 ### 1.2.8
 - Fix `SemanticVersionFlattenedCodeStrategy` to correctly parse 3-part versions (MAJOR.MINOR.PATCH)

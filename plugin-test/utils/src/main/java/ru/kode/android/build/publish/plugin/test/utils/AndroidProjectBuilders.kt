@@ -847,6 +847,7 @@ fun File.runTask(
     agpClasspath: List<File> = emptyList(),
     gradleVersion: String = "9.2.1",
     gradleJvmArgs: List<String> = emptyList(),
+    environment: Map<String, String> = emptyMap(),
 ): BuildResult {
     val args =
         mutableListOf(task).apply {
@@ -861,6 +862,7 @@ fun File.runTask(
             if (gradleJvmArgs.isNotEmpty()) {
                 this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
             }
+            putAll(environment)
         }
     return GradleRunner.create()
         .withProjectDir(this)
