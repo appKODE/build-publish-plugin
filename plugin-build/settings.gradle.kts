@@ -30,6 +30,7 @@ include(":plugin-clickup")
 include(":plugin-jira")
 include(":plugin-play")
 include(":plugin-confluence")
+include(":plugin-nextcloud")
 include(":plugin-firebase")
 includeBuild("../build-conventions")
 includeBuild("../shared") {

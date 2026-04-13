@@ -50,6 +50,12 @@ jobs:
       SLACK_DISTRIBUTION_CHANNEL: ${{ secrets.SLACK_DISTRIBUTION_CHANNEL }}
       FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
       FIREBASE_APP_ID_INTERNAL: ${{ secrets.FIREBASE_APP_ID_INTERNAL }}
+      NEXTCLOUD_BASE_URL: ${{ secrets.NEXTCLOUD_BASE_URL }}
+      NEXTCLOUD_USER_NAME: ${{ secrets.NEXTCLOUD_USER_NAME }}
+      NEXTCLOUD_USER_PASSWORD: ${{ secrets.NEXTCLOUD_USER_PASSWORD }}
+      NEXTCLOUD_REMOTE_PATH: ${{ secrets.NEXTCLOUD_REMOTE_PATH }}
+      NEXTCLOUD_USER_RECIPIENT: ${{ secrets.NEXTCLOUD_USER_RECIPIENT }}
+      NEXTCLOUD_GROUP_RECIPIENT: ${{ secrets.NEXTCLOUD_GROUP_RECIPIENT }}
     if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
     steps:
       - name: Checkout Repo

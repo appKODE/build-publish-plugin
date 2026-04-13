@@ -53,6 +53,12 @@ internal interface GenerateTagSnapshotParameters : WorkParameters {
      * Whether to use stub values when no matching tag is found
      */
     val useStubsForTagAsFallback: Property<Boolean>
+
+    /**
+     * The CI commit tag that triggered the pipeline (e.g., from CI_COMMIT_TAG env var).
+     * When set, the plugin uses this exact tag instead of picking the latest by sort order.
+     */
+    val ciCommitTag: Property<String>
 }
 
 /**
@@ -79,10 +85,12 @@ internal abstract class GenerateTagSnapshotWork
             val useStubsForTagAsFallback = parameters.useStubsForTagAsFallback.get()
             val logger = parameters.loggerService.get()
 
+            val ciCommitTag = parameters.ciCommitTag.orNull
+
             val buildTagSnapshot =
                 parameters.gitExecutorService.get()
                     .repository
-                    .findTagSnapshot(buildVariant, buildTagPattern)
+                    .findTagSnapshot(buildVariant, buildTagPattern, ciCommitTag)
 
             val buildTag = buildTagSnapshot?.current
 

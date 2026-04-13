@@ -274,6 +274,7 @@ private fun Project.registerGetLastTagSnapshotTask(params: LastTagSnapshotTaskPa
         task.buildVariantName.set(variant.name)
         task.buildTagPattern.set(params.buildTagPattern)
         task.useStubsForTagAsFallback.set(params.useStubsForTagAsFallback)
+        task.ciCommitTag.set(providers.environmentVariable("CI_COMMIT_TAG"))
         task.gitExecutorService.set(gitService)
         task.loggerService.set(loggerService)
 

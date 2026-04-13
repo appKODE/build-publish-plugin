@@ -51,9 +51,10 @@ class GitRepository(
     fun findTagSnapshot(
         buildVariant: String,
         buildTagPattern: String,
+        ciCommitTag: String?,
     ): BuildTagSnapshot? {
         val buildTagRegex = Regex(buildTagPattern)
-        return gitCommandExecutor.findSnapshot(buildVariant, buildTagRegex)
+        return gitCommandExecutor.findSnapshot(buildVariant, buildTagRegex, ciCommitTag)
     }
 
     /**

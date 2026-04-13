@@ -123,8 +123,9 @@ class GitCommandExecutor(
     fun findSnapshot(
         buildVariant: String,
         buildTagRegex: Regex,
+        ciCommitTag: String?,
     ): BuildTagSnapshot? {
-        val allTags = findTagsByRegex(buildTagRegex)
+        val allTags = findTagsByRegex(buildTagRegex, ciCommitTag)
         val lastTwoTags = allTags.take(2)
         if (lastTwoTags.isNotEmpty()) validateTags(lastTwoTags, buildTagRegex)
 
@@ -199,7 +200,10 @@ class GitCommandExecutor(
      * )
      * ```
      */
-    private fun findTagsByRegex(buildTagRegex: Regex): List<GrgitTag> {
+    private fun findTagsByRegex(
+        buildTagRegex: Regex,
+        ciCommitTag: String?,
+    ): List<GrgitTag> {
         val commitsLog = grgit.log()
         val tagsList = grgit.tag.list()
 
@@ -233,6 +237,14 @@ class GitCommandExecutor(
                     }
                 }
                 tagDetails2.buildNumber.compareTo(tagDetails1.buildNumber)
+            }
+            .let { sorted ->
+                if (ciCommitTag == null) {
+                    sorted
+                } else {
+                    val ciTagIndex = sorted.indexOfFirst { it.tag.name == ciCommitTag }
+                    if (ciTagIndex >= 0) sorted.drop(ciTagIndex) else sorted
+                }
             }
             .map { it.tag }
             .also { tags -> logger.info(finTagsByRegexAfterSortingMessage(tags)) }
