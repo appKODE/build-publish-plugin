@@ -15,7 +15,8 @@ abstract class JiraServiceExtension(
     /**
      * A provider of named [JiraService] instances that can be used
      * to make authenticated requests to the Jira API. The map keys are
-     * typically variant names, with a special "common" key for shared services.
+     * typically variant names, with the common instance under the "default"
+     * key (see COMMON_CONTAINER_NAME) for shared services.
      */
     val services: Provider<Map<String, Provider<JiraService>>>,
 )

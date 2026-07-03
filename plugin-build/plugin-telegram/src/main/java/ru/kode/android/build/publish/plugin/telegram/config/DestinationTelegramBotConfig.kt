@@ -4,6 +4,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
+import ru.kode.android.build.publish.plugin.core.util.CollectionStrategy
 import javax.inject.Inject
 
 /**
@@ -60,6 +61,22 @@ abstract class DestinationTelegramBotConfig
          * @param chatName The names of the chats to add.
          */
         fun chatNames(vararg chatName: String) {
+            chatNames.addAll(chatName.toList())
+        }
+
+        /**
+         * Adds multiple chat names and selects how this collection is merged with the common
+         * configuration for a per-version-name build ([CollectionStrategy.REPLACE] by default).
+         *
+         * @param strategy Whether to replace or append to the common chat names
+         * @param chatName The names of the chats to add.
+         */
+        fun chatNames(
+            @Suppress("UNUSED_PARAMETER") strategy: CollectionStrategy,
+            vararg chatName: String,
+        ) {
+            // DestinationTelegramBotConfig is a set element, not deep-merged, so the strategy has no
+            // effect here; the overload is kept for DSL symmetry with the deep-merged configs.
             chatNames.addAll(chatName.toList())
         }
 

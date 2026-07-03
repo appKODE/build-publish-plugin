@@ -1,23 +1,25 @@
-@file:Suppress("UnstableApiUsage")
-
 package ru.kode.android.build.publish.plugin.jira
 
-import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.StopExecutionException
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
+import ru.kode.android.build.publish.plugin.core.util.COMMON_CONTAINER_NAME
+import ru.kode.android.build.publish.plugin.core.util.applyWithOptionalAndroid
+import ru.kode.android.build.publish.plugin.core.util.getOrRegisterLoggerService
 import ru.kode.android.build.publish.plugin.core.util.serviceName
-import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 import ru.kode.android.build.publish.plugin.jira.extension.BuildPublishJiraExtension
 import ru.kode.android.build.publish.plugin.jira.messages.jiraServicesCreatedMessage
-import ru.kode.android.build.publish.plugin.jira.messages.mustApplyFoundationPluginMessage
 import ru.kode.android.build.publish.plugin.jira.messages.noAuthConfigsMessage
 import ru.kode.android.build.publish.plugin.jira.messages.pluginInitializedMessage
 import ru.kode.android.build.publish.plugin.jira.messages.registeringServicesMessage
 import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
+import ru.kode.android.build.publish.plugin.jira.task.standalone.AddJiraFixVersionTask
+import ru.kode.android.build.publish.plugin.jira.task.standalone.AddJiraLabelTask
+import ru.kode.android.build.publish.plugin.jira.task.standalone.TransitionJiraIssueTask
 
 internal const val EXTENSION_NAME = "buildPublishJira"
 private const val SERVICE_NAME = "jiraService"
@@ -40,11 +42,8 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
         val extension =
             project.extensions.create(EXTENSION_NAME, BuildPublishJiraExtension::class.java)
 
-        val servicesProperty =
-            project.objects.mapProperty(
-                String::class.java,
-                Provider::class.java,
-            )
+        val servicesProperty: MapProperty<String, Provider<*>> =
+            project.objects.mapProperty(String::class.java, Provider::class.java)
 
         servicesProperty.set(emptyMap())
 
@@ -54,54 +53,100 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
             servicesProperty,
         )
 
-        if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
-            throw StopExecutionException(mustApplyFoundationPluginMessage())
+        project.applyWithOptionalAndroid {
+            setupServicesAndTasks(project, extension, servicesProperty)
+        }
+    }
+
+    private fun setupServicesAndTasks(
+        project: Project,
+        extension: BuildPublishJiraExtension,
+        servicesProperty: MapProperty<String, Provider<*>>,
+    ) {
+        val loggerProvider = project.getOrRegisterLoggerService()
+        val logger = loggerProvider.get()
+
+        // Flatten the instances declared across every auth config (`common` / `buildVariant(...)`)
+        // into a single service per named instance. Each instance carries its own base URL and
+        // credentials; projects and standalone tasks select one by its name via `instanceName`.
+        val instances = extension.auth.flatMap { it.instances }
+        if (instances.isEmpty()) {
+            logger.info(noAuthConfigsMessage())
+            return
         }
 
-        val androidExtension =
-            project.extensions
-                .getByType(ApplicationAndroidComponentsExtension::class.java)
+        logger.info(registeringServicesMessage())
 
-        androidExtension.finalizeDsl {
-            val loggerProvider =
-                project.extensions.getByType(LoggerServiceExtension::class.java)
-                    .service
-
-            val logger = loggerProvider.get()
-
-            if (extension.auth.isEmpty()) {
-                logger.info(noAuthConfigsMessage())
-                return@finalizeDsl
+        val serviceMap =
+            instances.associate { instance ->
+                val name = instance.name
+                val registered =
+                    project.gradle.sharedServices.registerIfAbsent(
+                        project.serviceName(SERVICE_NAME, name),
+                        JiraService::class.java,
+                    ) {
+                        it.maxParallelUsages.set(1)
+                        it.parameters.credentials.set(instance.credentials)
+                        it.parameters.baseUrl.set(instance.baseUrl)
+                        it.parameters.loggerService.set(loggerProvider)
+                    }
+                name to (registered as Provider<*>)
             }
 
-            logger.info(registeringServicesMessage())
+        logger.info(jiraServicesCreatedMessage(serviceMap.keys))
 
-            val serviceMap =
-                extension.auth.associate { authConfig ->
-                    val name = authConfig.name
-                    val registered =
-                        project.gradle.sharedServices.registerIfAbsent(
-                            project.serviceName(SERVICE_NAME, name),
-                            JiraService::class.java,
-                        ) {
-                            it.maxParallelUsages.set(1)
-                            it.parameters.credentials.set(authConfig.credentials)
-                            it.parameters.baseUrl.set(authConfig.baseUrl)
-                            it.parameters.loggerService.set(loggerProvider)
-                        }
-                    name to registered
-                }
+        servicesProperty.set(serviceMap)
 
-            logger.info(jiraServicesCreatedMessage(serviceMap.keys))
+        logger.info(
+            pluginInitializedMessage(
+                serviceMap.keys,
+                extension.automation.names,
+            ),
+        )
 
-            servicesProperty.set(serviceMap)
+        @Suppress("UNCHECKED_CAST")
+        val typedServiceMap =
+            serviceMap.mapValues { (_, provider) -> provider as Provider<JiraService> }
+        val defaultService =
+            typedServiceMap[COMMON_CONTAINER_NAME] ?: typedServiceMap.values.first()
+        registerStandaloneTasks(project, typedServiceMap, defaultService, loggerProvider)
+    }
 
-            logger.info(
-                pluginInitializedMessage(
-                    extension.auth.names,
-                    extension.automation.names,
-                ),
-            )
+    private fun registerStandaloneTasks(
+        project: Project,
+        services: Map<String, Provider<JiraService>>,
+        defaultService: Provider<JiraService>,
+        loggerProvider: Provider<LoggerService>,
+    ) {
+        project.tasks.register(TaskNames.Jira.ADD_FIX_VERSION, AddJiraFixVersionTask::class.java) { task ->
+            task.service.set(defaultService)
+            task.loggerService.set(loggerProvider)
+            services.forEach { (name, provider) ->
+                task.services.put(name, provider)
+                task.usesService(provider)
+            }
+            task.usesService(defaultService)
+            task.usesService(loggerProvider)
+        }
+        project.tasks.register(TaskNames.Jira.ADD_LABEL, AddJiraLabelTask::class.java) { task ->
+            task.service.set(defaultService)
+            task.loggerService.set(loggerProvider)
+            services.forEach { (name, provider) ->
+                task.services.put(name, provider)
+                task.usesService(provider)
+            }
+            task.usesService(defaultService)
+            task.usesService(loggerProvider)
+        }
+        project.tasks.register(TaskNames.Jira.TRANSITION_ISSUE, TransitionJiraIssueTask::class.java) { task ->
+            task.service.set(defaultService)
+            task.loggerService.set(loggerProvider)
+            services.forEach { (name, provider) ->
+                task.services.put(name, provider)
+                task.usesService(provider)
+            }
+            task.usesService(defaultService)
+            task.usesService(loggerProvider)
         }
     }
 }

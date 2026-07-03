@@ -252,26 +252,28 @@ class GitCommandExecutor(
 
     /**
      * Validates that the provided list of Git tags are ordered correctly based on their
-     * associated commit timestamps and build numbers.
+Fix      * commit ancestry and build numbers.
      *
      * This function ensures that each subsequent tag (the "lastTag") has:
-     *  - A commit date that is **not earlier** than the previous tag's commit date.
+     *  - A commit that is **not a strict ancestor** of the previous tag's commit — i.e. the previous
+     *    tag is not topologically newer (a descendant) than the last tag on the same lineage.
      *  - A build number that is **greater than** the previous tag's build number.
+     *
+     * Commit ancestry is used instead of commit dates on purpose: dates form a total order only on a
+     * single linear branch, so comparing them across branches produced false positives. Tags that live
+     * on sibling branches are neither ancestor nor descendant of each other, so building versions from
+     * different branches is allowed. A genuine inversion (a higher build number re-tagged onto an older
+     * commit that the previous tag descends from) is still rejected.
      *
      * If any tag pair violates these rules, a [GradleException] is thrown with detailed
      * diagnostic information about the conflicting tags.
      *
-     * Typical use case:
-     * - To ensure semantic version tags or build tags are sequentially increasing
-     *   both by commit chronology and build number before performing release operations.
-     *
-     * @param tags the list of [Tag] objects to validate, expected to be sorted in ascending order.
+     * @param tags the list of [Tag] objects to validate, expected to be sorted newest-first.
      * @param buildTagRegex the [Regex] used to extract the build number from each tag’s name.
      *
      * @throws GradleException if:
-     *  - The previous tag’s commit date is after the last tag’s commit date.
+     *  - The previous tag’s commit is a strict descendant of the last tag’s commit (same lineage).
      *  - The previous tag’s build number is equal to or greater than the last tag’s build number.
-     * ```
      */
     private fun validateTags(
         tags: List<GrgitTag>,
@@ -284,9 +286,14 @@ class GitCommandExecutor(
                 val lastTagBuildNumber = lastTag.getBuildNumber(buildTagRegex)
                 val previousTagBuildNumber = previousTag.getBuildNumber(buildTagRegex)
 
-                if (previousTagCommit.utcDateTime().isAfter(lastTagCommit.utcDateTime()) ||
-                    previousTagBuildNumber >= lastTagBuildNumber
-                ) {
+                // The previous tag is only "newer in history" when its commit is a strict descendant
+                // of the last tag's commit (same lineage, ahead in history). Sibling-branch commits
+                // are neither ancestor nor descendant, so they are legitimately allowed.
+                val isPreviousTagNewerInHistory =
+                    lastTagCommit.id != previousTagCommit.id &&
+                        grgit.isAncestorOf(lastTagCommit.id, previousTagCommit.id)
+
+                if (isPreviousTagNewerInHistory || previousTagBuildNumber >= lastTagBuildNumber) {
                     throw GradleException(
                         cannotReturnTagMessage(
                             previousTagBuildNumber = previousTagBuildNumber,
@@ -295,6 +302,7 @@ class GitCommandExecutor(
                             lastTag = lastTag,
                             lastTagCommit = lastTagCommit,
                             lastTagBuildNumber = lastTagBuildNumber,
+                            isPreviousTagNewerInHistory = isPreviousTagNewerInHistory,
                         ),
                     )
                 }

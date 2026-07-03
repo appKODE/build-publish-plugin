@@ -87,22 +87,39 @@ fun <T : Any> NamedDomainObjectContainer<T>.common(configurationAction: Closure<
 @Throws(InvalidUserDataException::class)
 fun <T : Any> NamedDomainObjectContainer<T>.buildVariant(
     buildVariant: String,
+    strategy: MergeStrategy = MergeStrategy.MERGE,
     configurationAction: Action<in T>,
 ): NamedDomainObjectProvider<T> {
-    return this.register(buildVariant, configurationAction)
+    return this.register(buildVariant) { target ->
+        configurationAction.execute(target)
+        applyCommonFallbackIfNeeded(target, strategy)
+    }
 }
 
 @Throws(InvalidUserDataException::class)
 fun <T : Any> NamedDomainObjectContainer<T>.buildVariant(
     buildVariant: String,
+    strategy: MergeStrategy = MergeStrategy.MERGE,
     configurationAction: Closure<in T>,
 ): NamedDomainObjectProvider<T> {
-    return this.register(
-        buildVariant,
-        Action { target ->
-            configureGroovy(configurationAction, target)
-        },
-    )
+    return this.register(buildVariant) { target ->
+        configureGroovy(configurationAction, target)
+        applyCommonFallbackIfNeeded(target, strategy)
+    }
+}
+
+/**
+ * Applies the common ("default") configuration as a lazy fallback onto a freshly configured
+ * per-version-name [target], unless [strategy] is [MergeStrategy.REPLACE]. Runs during element
+ * realization, so it sees the fully evaluated `common` block regardless of DSL declaration order.
+ */
+private fun <T : Any> NamedDomainObjectContainer<T>.applyCommonFallbackIfNeeded(
+    target: T,
+    strategy: MergeStrategy,
+) {
+    if (strategy == MergeStrategy.MERGE) {
+        findByName(COMMON_CONTAINER_NAME)?.let { common -> applyCommonFallback(target, common) }
+    }
 }
 
 inline fun <reified T : Any> Provider<Map<String, Provider<T>>>.flatMapByNameOrCommon(
@@ -129,6 +146,22 @@ inline fun <reified T : Any> Map<String, Provider<T>>.getByNameOrCommon(
             requiredConfigurationNotFoundMessage(name, defaultName),
             IllegalStateException("Provider map keys: ${this.keys}"),
         )
+}
+
+/**
+ * Resolves the service backing a plugin's standalone tasks: the common ("default") instance when it
+ * exists, otherwise the first registered instance. Centralizes the single unavoidable unchecked cast
+ * out of the type-erased `Provider<*>` service map so each plugin no longer repeats it (and no longer
+ * mismatches the common key — the default instance is registered under [COMMON_CONTAINER_NAME]).
+ */
+@Suppress("MaxLineLength")
+inline fun <reified T : Any> Map<String, Provider<*>>.resolveStandaloneService(defaultName: String = COMMON_CONTAINER_NAME): Provider<T> {
+    val provider =
+        this[defaultName]
+            ?: values.firstOrNull()
+            ?: throw GradleException("No standalone service registered (available keys: $keys)")
+    @Suppress("UNCHECKED_CAST")
+    return provider as Provider<T>
 }
 
 fun Project.serviceName(

@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.play.task.distribution.track
 import com.google.api.services.androidpublisher.model.LocalizedText
 import com.google.api.services.androidpublisher.model.Track
 import com.google.api.services.androidpublisher.model.TrackRelease
+import ru.kode.android.build.publish.plugin.play.messages.promotingReleaseMessage
 import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.InternalPlayPublisher
 import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.ReleaseStatus
 
@@ -96,7 +97,7 @@ internal class DefaultTrackManager(
                 it.status
             }
 
-        println("Promoting release from track '${track.track}'")
+        println(promotingReleaseMessage(track.track))
         track.track = config.promoteTrackName
         publisher.updateTrack(editId, track)
     }

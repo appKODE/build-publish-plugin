@@ -428,8 +428,7 @@ abstract class BuildPublishTelegramExtension
                     params =
                         TelegramChangelogTaskParams(
                             baseFileName = input.output.baseFileName,
-                            issueNumberPattern = input.changelog.issueNumberPattern,
-                            issueUrlPrefix = input.changelog.issueUrlPrefix,
+                            issueSources = input.changelog.issueSources,
                             buildVariant = input.buildVariant,
                             changelogFileProvider = input.changelog.fileProvider,
                             buildTagSnapshotProvider = input.output.buildTagSnapshotProvider,

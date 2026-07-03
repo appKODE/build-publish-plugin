@@ -24,7 +24,7 @@ include(":plugin-print-tag")
 includeBuild("../build-conventions")
 includeBuild("../shared") {
     dependencySubstitution {
-        substitute(module("ru.kode.android:plugin-core"))
+        substitute(module("ru.kode.android:build-publish-novo-core"))
             .using(project(":plugin-core"))
     }
 }

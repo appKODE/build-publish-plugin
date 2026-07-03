@@ -1,0 +1,10 @@
+tasks.named('test') {
+    useJUnitPlatform()
+    testLogging {
+        def isCI = System.getenv("CI") == "true"
+        showStackTraces = true
+        showExceptions = true
+        showCauses = true
+        showStandardStreams = !isCI
+    }
+}

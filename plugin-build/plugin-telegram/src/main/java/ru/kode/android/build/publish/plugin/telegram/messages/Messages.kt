@@ -1,12 +1,18 @@
+@file:Suppress("FunctionOnlyReturningConstant") // Simple string providers
+
 package ru.kode.android.build.publish.plugin.telegram.messages
 
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.capitalized
 import ru.kode.android.build.publish.plugin.telegram.EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.telegram.SERVICE_EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.DestinationTelegramBot
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramLastMessage
-import ru.kode.android.build.publish.plugin.telegram.task.TELEGRAM_LOOKUP_TASK_PREFIX
 import java.io.File
+
+fun sendingTelegramMessageMessage(): String = "Sending Telegram message"
+
+fun uploadingTelegramFileMessage(): String = "Uploading file to Telegram"
 
 fun configErrorMessage(chatName: String): String {
     return """
@@ -245,82 +251,6 @@ fun noMatchingConfigurationMessage(destinationBot: DestinationTelegramBot): Stri
         """.trimIndent()
 }
 
-fun failedToParseRetryMessage(bodyString: String): String {
-    return """
-        
-        |============================================================
-        |             TELEGRAM API RESPONSE PARSE ERROR   
-        |============================================================
-        | Failed to parse 'retry_after' from Telegram API response.
-        |
-        | RESPONSE BODY:
-        | ${bodyString.take(500)}${if (bodyString.length > 500) "... (truncated)" else ""}
-        |
-        | POSSIBLE CAUSES:
-        |  1. Unexpected response format from Telegram API
-        |  2. Rate limiting response format changed
-        |  3. Network proxy or firewall modifying the response
-        |
-        | RECOMMENDED ACTIONS:
-        |  1. Check if the Telegram API has been updated
-        |  2. Verify your network isn't modifying API responses
-        |  3. Report this issue if it persists with full response
-        |
-        | The system will continue with default retry behavior.
-        |============================================================
-        """.trimIndent()
-}
-
-fun tooManyRequestsMessage(
-    retryAfterSeconds: Long,
-    attempt: Int,
-    maxRetries: Int,
-): String {
-    return """
-        
-        |============================================================
-        |              TELEGRAM API RATE LIMIT REACHED   
-        |============================================================
-        | The Telegram API has rate-limited your requests.
-        |
-        | STATUS:
-        | - Attempt: $attempt of $maxRetries
-        | - Retrying in: $retryAfterSeconds seconds
-        | - Time remaining: ${retryAfterSeconds * (maxRetries - attempt + 1)} seconds max
-        |
-        | The system will automatically retry until the maximum
-        | number of attempts ($maxRetries) is reached.
-        |============================================================
-        """.trimIndent()
-}
-
-fun reachedMaxTriesMessage(maxRetries: Int): String {
-    return """
-        
-        |============================================================
-        |               MAXIMUM RETRY ATTEMPTS REACHED   
-        |============================================================
-        | The operation has been retried $maxRetries times but
-        | continues to fail due to rate limiting.
-        |
-        | STATUS:
-        | - Maximum retry attempts: $maxRetries
-        | - Last error: 429 Too Many Requests
-        |
-        | POSSIBLE CAUSES:
-        |  1. Telegram's rate limits are being hit too frequently
-        |  2. The server is under heavy load
-        |  3. Multiple processes might be making requests simultaneously
-        |
-        | RECOMMENDED ACTIONS:
-        |  1. Wait before trying again (at least 1 minute recommended)
-        |  2. Check for other processes that might be making requests
-        |
-        | The operation will now fail with a 429 status code.
-        |============================================================
-        """.trimIndent()
-}
-
 fun needToProvideChangelogOrDistributionConfigMessage(buildVariant: String): String {
     return """
         
@@ -353,7 +283,7 @@ fun needToProvideChangelogOrDistributionConfigMessage(buildVariant: String): Str
         |
         | LOOKUP INSTRUCTIONS:
         | If you don't know your chatId or topicId, you can find them using:
-        |    ./gradlew $TELEGRAM_LOOKUP_TASK_PREFIX${buildVariant.capitalized()}
+        |    ./gradlew ${TaskNames.Telegram.LOOKUP_PREFIX}${buildVariant.capitalized()}
         |
         | After running the lookup task, use the provided configuration
         | snippet to update your build script.
@@ -389,44 +319,9 @@ fun needToProvideBotsConfigMessage(buildVariant: String): String {
         |
         | LOOKUP INSTRUCTIONS:
         | You can find chatId and topicId using the lookup task:
-        |    ./gradlew $TELEGRAM_LOOKUP_TASK_PREFIX${buildVariant.capitalized()}
+        |    ./gradlew ${TaskNames.Telegram.LOOKUP_PREFIX}${buildVariant.capitalized()}
         |
         | After configuration, sync your project and try again.
-        |============================================================
-        """.trimIndent()
-}
-
-fun sendingMessageBotMessage(
-    botName: String,
-    webhookUrl: String,
-): String {
-    return """
-        
-        |============================================================
-        |                 SENDING TELEGRAM MESSAGE   
-        |============================================================
-        | Bot     : $botName
-        | Endpoint: ${webhookUrl.take(50)} (truncated)...
-        | Status  : Sending...
-        |============================================================
-        """.trimIndent()
-}
-
-fun uploadFileStartedMessage(
-    botName: String,
-    webhookUrl: String,
-): String {
-    return """
-        
-        |============================================================
-        |                UPLOADING FILE TO TELEGRAM   
-        |============================================================
-        | Bot     : $botName
-        | Endpoint: ${webhookUrl.take(50)} (truncated)...
-        | Status  : Upload started...
-        |
-        | NOTE: Large files may take time to upload.
-        | Progress will be shown once available.
         |============================================================
         """.trimIndent()
 }
@@ -581,143 +476,6 @@ fun distributionTaskNotCreatedMessage(): String {
         |
         | The task will be automatically created when valid
         | configurations are provided.
-        |============================================================
-        """.trimIndent()
-}
-
-fun botWithoutChatMessage(botName: String): String {
-    return """
-        
-        |============================================================
-        |                 INVALID BOT CONFIGURATION    
-        |============================================================
-        | The bot '$botName' is missing required chat configuration.
-        |
-        | ERROR DETAILS:
-        | - No valid chat configuration found for bot: $botName
-        | - The chatId in 'chat' block is either missing or empty
-        |
-        | REQUIRED CONFIGURATION:
-        | Add the following to your build script:
-        |
-        |    $EXTENSION_NAME {
-        |        bots {
-        |            common { // Or buildVariant("<BUILD_VARIANT>")
-        |                bot("$botName") {
-        |                    // Your bot configuration here
-        |                }
-        |            }
-        |        }
-        |    }
-        |
-        | NOTES:
-        |  1. 'chat' block is required for each bot
-        |  2. 'chatId' is required inside each 'chat' block
-        |  3. 'topicId' is optional and only needed for topics
-        |
-        | After updating, sync your project and try again.
-        |============================================================
-        """.trimIndent()
-}
-
-fun telegramBotFailedEncodeToJsonMessage(): String {
-    return """
-        
-        |============================================================
-        |                    SERIALIZATION ERROR   
-        |============================================================
-        | Failed to serialize TelegramBot configuration to JSON.
-        |
-        | POSSIBLE CAUSES:
-        |  1. Invalid characters in bot configuration
-        |  2. Circular references in bot settings
-        |  3. Unsupported data types in configuration
-        |
-        | TROUBLESHOOTING STEPS:
-        |  1. Check for special characters in bot names or chat names
-        |  2. Verify all configuration values are serializable
-        |  3. Look for custom objects that might not be serializable
-        |
-        | If the issue persists, please report this as a bug with
-        | your bot configuration details (excluding sensitive data).
-        |============================================================
-        """.trimIndent()
-}
-
-fun telegramBotJsonParsingFailedMessage(json: String): String {
-    return """
-        
-        |============================================================
-        |                  CONFIGURATION PARSE ERROR    
-        |============================================================
-        | Failed to parse Telegram bot configuration from JSON.
-        |
-        | INVALID JSON (truncated if long):
-        | ${json.take(200)}${if (json.length > 200) "..." else ""}
-        |
-        | POSSIBLE CAUSES:
-        |  1. Malformed JSON in configuration
-        |  2. Invalid escape sequences
-        |  3. Mismatched quotes or brackets
-        |  4. Invalid data types for fields
-        |
-        | RECOMMENDED ACTIONS:
-        |  1. Check for special characters in bot names or chat names
-        |  2. Verify all required fields are present
-        |
-        | If the issue persists, please report this as a bug with
-        | your bot configuration details (excluding sensitive data).
-        |============================================================
-        """.trimIndent()
-}
-
-fun destinationBotsEncodeToJsonFailedMessage(): String {
-    return """
-        
-        |============================================================
-        |           DESTINATION BOTS SERIALIZATION FAILED    
-        |============================================================
-        | Failed to serialize the list of destination bots to JSON.
-        |
-        | POSSIBLE CAUSES:
-        |  1. Invalid characters in bot or chat names
-        |  2. Circular references in destination configuration
-        |  3. Unsupported data types in bot settings
-        |
-        | TROUBLESHOOTING STEPS:
-        |  1. Check for special characters in configuration
-        |  2. Verify all destination bot configurations are valid
-        |  3. Ensure all required fields are properly set
-        |
-        | If the issue persists, please report this as a bug with
-        | your bot configuration details (excluding sensitive data).
-        |============================================================
-        """.trimIndent()
-}
-
-fun destinationBotsJsonParsingFailedMessage(json: String): String {
-    return """
-        
-        |============================================================
-        |               DESTINATION BOTS PARSE ERROR   
-        |============================================================
-        | Failed to parse destination bots configuration from JSON.
-        |
-        | INVALID JSON (truncated if long):
-        | ${json.take(200)}${if (json.length > 200) "..." else ""}
-        |
-        | POSSIBLE CAUSES:
-        |  1. Invalid or missing required fields
-        |  2. Type mismatches in configuration values
-        |  3. Corrupted configuration data
-        |
-        | RECOMMENDED ACTIONS:
-        |  1. Check for missing or extra commas, brackets
-        |  2. Ensure all string values are properly quoted
-        |  3. Validate against the expected schema
-        |
-        | If the issue persists, please report this as a bug with
-        | your bot configuration details (excluding sensitive data).
         |============================================================
         """.trimIndent()
 }

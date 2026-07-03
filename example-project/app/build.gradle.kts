@@ -60,8 +60,10 @@ buildPublishFoundation {
         baseFileName.set("example-base-project-android")
     }
     changelogCommon {
-        issueNumberPattern.set("AT-\\d+")
-        issueUrlPrefix.set("https://jira.atlassian.com/")
+        issueSource("at") {
+            numberPattern.set("AT-\\d+")
+            urlPrefix.set("https://jira.atlassian.com/")
+        }
         commitMessageKey.set("CHANGELOG")
     }
 }
@@ -69,20 +71,31 @@ buildPublishFoundation {
 buildPublishJira {
     auth {
         common {
-            baseUrl.set("https://jira.atlassian.com")
-            credentials.username.set("test_user_default")
-            credentials.password.set("test_password_default")
-        }
-        buildVariant("release") {
-            baseUrl.set("https://jira.atlassian.com")
-            credentials.username.set("test_user_release")
-            credentials.password.set("test_password_release")
+            instance("default") {
+                baseUrl.set("https://jira.atlassian.com")
+                credentials.username.set("test_user_default")
+                credentials.password.set("test_password_default")
+            }
+            instance("legacy") {
+                baseUrl.set("https://legacy.atlassian.com")
+                credentials.username.set("test_user_legacy")
+                credentials.password.set("test_password_legacy")
+            }
         }
     }
     automation {
         common {
-            projectKey.set("AT")
-            fixVersionPattern.set("fix_%2\$s_%1\$s")
+            projects {
+                project("at") {
+                    projectKey.set("AT")
+                    fixVersionPattern.set("fix_%2\$s_%1\$s")
+                }
+                project("legacy") {
+                    projectKey.set("LEG")
+                    instanceName.set("legacy")
+                    targetStatusName.set("Done")
+                }
+            }
         }
     }
 }

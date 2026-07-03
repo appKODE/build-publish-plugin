@@ -12,6 +12,7 @@ import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.enity.IssueSource
 import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_NAME
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
@@ -404,16 +405,17 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                     ExtensionInput(
                                         changelog =
                                             ExtensionInput.Changelog(
-                                                issueNumberPattern =
-                                                    changelogConfigProvider.flatMap {
-                                                        it.issueNumberPattern
-                                                            .orElse(project.providers.provider { null })
-                                                    },
-                                                issueUrlPrefix =
-                                                    changelogConfigProvider.flatMap {
-                                                        it.issueUrlPrefix
-                                                            .orElse(project.providers.provider { null })
-                                                    },
+                                                issueSources =
+                                                    changelogConfigProvider
+                                                        .map { config ->
+                                                            config.issueSourcesConfig.sources.mapNotNull { source ->
+                                                                val pattern =
+                                                                    source.numberPattern.orNull
+                                                                        ?: return@mapNotNull null
+                                                                IssueSource(pattern, source.urlPrefix.orNull)
+                                                            }
+                                                        }
+                                                        .orElse(emptyList()),
                                                 commitMessageKey =
                                                     changelogConfigProvider.flatMap {
                                                         it.commitMessageKey

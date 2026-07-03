@@ -15,6 +15,8 @@ import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldNotContain
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import ru.kode.android.build.publish.plugin.test.utils.runTaskWithFail
@@ -22,7 +24,6 @@ import java.io.File
 import java.io.IOException
 
 class FirebaseDistributionTest {
-
     @TempDir
     lateinit var tempDir: File
     private lateinit var projectDir: File
@@ -43,36 +44,41 @@ class FirebaseDistributionTest {
             .copyTo(serviceCredentialsFile, true)
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            firebaseConfig = FirebaseConfig(
-                distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.name,
-                    appId = System.getProperty("FIREBASE_APP_ID"),
-                    testerGroups = listOf("testers"),
-                    artifactType = "ArtifactType.Apk",
-                )
-            ),
-            topBuildFileContent = """
+            firebaseConfig =
+                FirebaseConfig(
+                    distributionCommon =
+                        FirebaseConfig.Distribution(
+                            serviceCredentialsFilePath = serviceCredentialsFile.name,
+                            appId = System.getProperty("FIREBASE_APP_ID"),
+                            testerGroups = listOf("testers"),
+                            artifactType = "ArtifactType.Apk",
+                        ),
+                ),
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent(),
+                """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
-            configureApplicationVariants = true
+            configureApplicationVariants = true,
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -88,12 +94,13 @@ class FirebaseDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -105,30 +112,16 @@ class FirebaseDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            generateChangelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Generate changelog successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Firebase distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        generateChangelogResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -144,36 +137,41 @@ class FirebaseDistributionTest {
             .copyTo(serviceCredentialsFile, true)
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            firebaseConfig = FirebaseConfig(
-                distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.name,
-                    appId = System.getProperty("FIREBASE_APP_ID"),
-                    testerGroups = listOf("testers"),
-                    artifactType = "ArtifactType.Apk",
-                )
-            ),
-            topBuildFileContent = """
+            firebaseConfig =
+                FirebaseConfig(
+                    distributionCommon =
+                        FirebaseConfig.Distribution(
+                            serviceCredentialsFilePath = serviceCredentialsFile.name,
+                            appId = System.getProperty("FIREBASE_APP_ID"),
+                            testerGroups = listOf("testers"),
+                            artifactType = "ArtifactType.Apk",
+                        ),
+                ),
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent(),
+                """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
-            configureApplicationVariants = true
+            configureApplicationVariants = true,
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -189,72 +187,62 @@ class FirebaseDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
 
-        val gradleJvmArgs = listOf(
-            "-Djdk.http.auth.tunneling.disabledSchemes=",
-            "-Djdk.http.auth.proxying.disabledSchemes=",
-            "-Dhttps.protocols=TLSv1.2",
-            "-Dhttps.proxyHost=${System.getProperty("PROXY_HOST")}",
-            "-Dhttps.proxyPort=${System.getProperty("PROXY_PORT")}",
-            "-Dhttps.proxyUser=${System.getProperty("PROXY_USER")}",
-            "-Dhttps.proxyPassword=${System.getProperty("PROXY_PASSWORD")}",
-            "-Dhttps.nonProxyHosts='gradle-cache.kode.ru|api.telegram.org|confa.kode.ru|hooks.slack.com'",
-            "-Dorg.gradle.daemon=false",
-            "-Dhttp.keepAlive=false",
-            "-Dhttps.keepAlive=false",
-            "-Djavax.net.debug=ssl,handshake",
-            "-Djdk.httpclient.HttpClient.log=all",
-            "-Dhttp.maxConnections=0"
-        )
+        val gradleJvmArgs =
+            listOf(
+                "-Djdk.http.auth.tunneling.disabledSchemes=",
+                "-Djdk.http.auth.proxying.disabledSchemes=",
+                "-Dhttps.protocols=TLSv1.2",
+                "-Dhttps.proxyHost=${System.getProperty("PROXY_HOST")}",
+                "-Dhttps.proxyPort=${System.getProperty("PROXY_PORT")}",
+                "-Dhttps.proxyUser=${System.getProperty("PROXY_USER")}",
+                "-Dhttps.proxyPassword=${System.getProperty("PROXY_PASSWORD")}",
+                "-Dhttps.nonProxyHosts='gradle-cache.kode.ru|api.telegram.org|confa.kode.ru|hooks.slack.com'",
+                "-Dorg.gradle.daemon=false",
+                "-Dhttp.keepAlive=false",
+                "-Dhttps.keepAlive=false",
+                "-Djavax.net.debug=ssl,handshake",
+                "-Djdk.httpclient.HttpClient.log=all",
+                "-Dhttp.maxConnections=0",
+            )
 
-        val taskArguments = gradleJvmArgs
-            .map { it.replaceFirst("-D", "").split("=") }
-            .associate { it[0] to it[1] }
+        val taskArguments =
+            gradleJvmArgs
+                .map { it.replaceFirst("-D", "").split("=") }
+                .associate { it[0] to it[1] }
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val generateChangelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
-        val distributionResult: BuildResult = projectDir.runTask(
-            givenAppDistributionTask,
-            taskArguments = taskArguments,
-            gradleJvmArgs = gradleJvmArgs
-        )
+        val distributionResult: BuildResult =
+            projectDir.runTask(
+                givenAppDistributionTask,
+                taskArguments = taskArguments,
+                gradleJvmArgs = gradleJvmArgs,
+            )
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            generateChangelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Generate changelog successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Firebase distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        generateChangelogResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -269,45 +257,53 @@ class FirebaseDistributionTest {
             .copyTo(serviceCredentialsFile, true)
 
         projectDir.createAndroidProject(
-            defaultConfig = DefaultConfig(
-                applicationId = "com.example.build.types.android",
-            ),
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("internal")
-            ),
+            defaultConfig =
+                DefaultConfig(
+                    applicationId = "com.example.build.types.android",
+                ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("internal"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            firebaseConfig = FirebaseConfig(
-                distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.name,
-                    appId = System.getProperty("FIREBASE_APP_ID"),
-                    testerGroups = listOf("testers"),
-                    artifactType = "ArtifactType.Apk",
+            firebaseConfig =
+                FirebaseConfig(
+                    distributionCommon =
+                        FirebaseConfig.Distribution(
+                            serviceCredentialsFilePath = serviceCredentialsFile.name,
+                            appId = System.getProperty("FIREBASE_APP_ID"),
+                            testerGroups = listOf("testers"),
+                            artifactType = "ArtifactType.Apk",
+                        ),
+                    distributionBuildType =
+                        "internal" to
+                            FirebaseConfig.Distribution(
+                                serviceCredentialsFilePath = serviceCredentialsFile.name,
+                                appId = System.getProperty("FIREBASE_APP_ID_INTERNAL"),
+                                testerGroups = listOf("testers"),
+                                artifactType = "ArtifactType.Apk",
+                            ),
                 ),
-                distributionBuildType = "internal" to FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.name,
-                    appId = System.getProperty("FIREBASE_APP_ID_INTERNAL"),
-                    testerGroups = listOf("testers"),
-                    artifactType = "ArtifactType.Apk",
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent(),
+                """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
-            configureApplicationVariants = true
+            configureApplicationVariants = true,
         )
         val givenTagName1 = "v1.0.1-internal"
         val givenTagName2 = "v1.0.2-internal"
@@ -323,12 +319,13 @@ class FirebaseDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -340,30 +337,16 @@ class FirebaseDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-internal-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-internal-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotInternal"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            generateChangelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Generate changelog successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Firebase distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotInternal")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        generateChangelogResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -378,36 +361,41 @@ class FirebaseDistributionTest {
             .copyTo(serviceCredentialsFile, true)
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            firebaseConfig = FirebaseConfig(
-                distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.name,
-                    appId = System.getProperty("FIREBASE_APP_ID"),
-                    testerGroups = listOf("testers"),
-                    artifactType = "ArtifactType.Apk",
-                )
-            ),
-            topBuildFileContent = """
+            firebaseConfig =
+                FirebaseConfig(
+                    distributionCommon =
+                        FirebaseConfig.Distribution(
+                            serviceCredentialsFilePath = serviceCredentialsFile.name,
+                            appId = System.getProperty("FIREBASE_APP_ID"),
+                            testerGroups = listOf("testers"),
+                            artifactType = "ArtifactType.Apk",
+                        ),
+                ),
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent(),
+                """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
-            configureApplicationVariants = true
+            configureApplicationVariants = true,
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -421,12 +409,13 @@ class FirebaseDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -436,22 +425,14 @@ class FirebaseDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !distributionResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            !distributionResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug not executed",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD FAILED"),
-            "Firebase distribution failed"
-        )
+        distributionResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        distributionResult.outputShouldNotContain("Task :app:getLastTagSnapshotDebug")
+        distributionResult.outputShouldContain("BUILD FAILED")
         assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
@@ -466,36 +447,41 @@ class FirebaseDistributionTest {
             .copyTo(serviceCredentialsFile, true)
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            firebaseConfig = FirebaseConfig(
-                distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.name,
-                    appId = System.getProperty("FIREBASE_APP_ID"),
-                    testerGroups = listOf("testers"),
-                    artifactType = "ArtifactType.Bundle",
-                )
-            ),
-            topBuildFileContent = """
+            firebaseConfig =
+                FirebaseConfig(
+                    distributionCommon =
+                        FirebaseConfig.Distribution(
+                            serviceCredentialsFilePath = serviceCredentialsFile.name,
+                            appId = System.getProperty("FIREBASE_APP_ID"),
+                            testerGroups = listOf("testers"),
+                            artifactType = "ArtifactType.Bundle",
+                        ),
+                ),
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent(),
+                """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
-            configureApplicationVariants = true
+            configureApplicationVariants = true,
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -511,12 +497,13 @@ class FirebaseDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -528,29 +515,15 @@ class FirebaseDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val bundleDir = projectDir.getFile("app/build/outputs/bundle/debug")
-        val givenOutputFile = bundleDir.listFiles()
-            ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
+        val givenOutputFile =
+            bundleDir.listFiles()
+                ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            generateChangelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Generate changelog successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD FAILED"),
-            "Firebase distribution failed"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        generateChangelogResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD FAILED")
         assertTrue(givenOutputFile!!.exists(), "Output file exists")
     }
 
@@ -565,36 +538,41 @@ class FirebaseDistributionTest {
             .copyTo(serviceCredentialsFile, true)
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            firebaseConfig = FirebaseConfig(
-                distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.name,
-                    appId = System.getProperty("FIREBASE_APP_ID"),
-                    testerGroups = listOf("testers"),
-                    artifactType = "ArtifactType.Bundle",
-                )
-            ),
-            topBuildFileContent = """
+            firebaseConfig =
+                FirebaseConfig(
+                    distributionCommon =
+                        FirebaseConfig.Distribution(
+                            serviceCredentialsFilePath = serviceCredentialsFile.name,
+                            appId = System.getProperty("FIREBASE_APP_ID"),
+                            testerGroups = listOf("testers"),
+                            artifactType = "ArtifactType.Bundle",
+                        ),
+                ),
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent(),
+                """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
-            configureApplicationVariants = true
+            configureApplicationVariants = true,
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -610,12 +588,13 @@ class FirebaseDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -627,30 +606,16 @@ class FirebaseDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            generateChangelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Generate changelog successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD FAILED"),
-            "Firebase distribution failed"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        generateChangelogResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD FAILED")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -662,36 +627,41 @@ class FirebaseDistributionTest {
             .copyTo(serviceCredentialsFile, true)
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            firebaseConfig = FirebaseConfig(
-                distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.name,
-                    appId = System.getProperty("FIREBASE_APP_ID"),
-                    testerGroups = listOf("testers"),
-                    artifactType = "ArtifactType.Apk",
-                )
-            ),
-            topBuildFileContent = """
+            firebaseConfig =
+                FirebaseConfig(
+                    distributionCommon =
+                        FirebaseConfig.Distribution(
+                            serviceCredentialsFilePath = serviceCredentialsFile.name,
+                            appId = System.getProperty("FIREBASE_APP_ID"),
+                            testerGroups = listOf("testers"),
+                            artifactType = "ArtifactType.Apk",
+                        ),
+                ),
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent(),
+                """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
-            configureApplicationVariants = true
+            configureApplicationVariants = true,
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -707,16 +677,16 @@ class FirebaseDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
-
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val generateChangelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
@@ -725,30 +695,16 @@ class FirebaseDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            generateChangelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Generate changelog successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Firebase distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        generateChangelogResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -763,36 +719,41 @@ class FirebaseDistributionTest {
             .copyTo(serviceCredentialsFile, true)
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            firebaseConfig = FirebaseConfig(
-                distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.name,
-                    appId = System.getProperty("FIREBASE_APP_ID"),
-                    testerGroups = listOf("testers"),
-                    artifactType = "ArtifactType.Apk",
-                )
-            ),
-            topBuildFileContent = """
+            firebaseConfig =
+                FirebaseConfig(
+                    distributionCommon =
+                        FirebaseConfig.Distribution(
+                            serviceCredentialsFilePath = serviceCredentialsFile.name,
+                            appId = System.getProperty("FIREBASE_APP_ID"),
+                            testerGroups = listOf("testers"),
+                            artifactType = "ArtifactType.Apk",
+                        ),
+                ),
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent(),
+                """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
-            configureApplicationVariants = true
+            configureApplicationVariants = true,
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -807,12 +768,13 @@ class FirebaseDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -823,26 +785,15 @@ class FirebaseDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD FAILED"),
-            "Firebase distribution failed"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD FAILED")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -857,36 +808,41 @@ class FirebaseDistributionTest {
             .copyTo(serviceCredentialsFile, true)
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            firebaseConfig = FirebaseConfig(
-                distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.name,
-                    appId = System.getProperty("FIREBASE_APP_ID"),
-                    testerGroups = listOf("testers"),
-                    artifactType = "ArtifactType.Apk",
-                )
-            ),
-            topBuildFileContent = """
+            firebaseConfig =
+                FirebaseConfig(
+                    distributionCommon =
+                        FirebaseConfig.Distribution(
+                            serviceCredentialsFilePath = serviceCredentialsFile.name,
+                            appId = System.getProperty("FIREBASE_APP_ID"),
+                            testerGroups = listOf("testers"),
+                            artifactType = "ArtifactType.Apk",
+                        ),
+                ),
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent(),
+                """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
-            configureApplicationVariants = true
+            configureApplicationVariants = true,
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -901,12 +857,13 @@ class FirebaseDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -917,30 +874,16 @@ class FirebaseDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !generateChangelogResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            generateChangelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            generateChangelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            generateChangelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Generate changelog successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD FAILED"),
-            "Firebase distribution failed"
-        )
+        generateChangelogResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        generateChangelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        generateChangelogResult.outputShouldContain("BUILD SUCCESSFUL")
+        generateChangelogResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD FAILED")
         assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
@@ -955,36 +898,41 @@ class FirebaseDistributionTest {
             .copyTo(serviceCredentialsFile, true)
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug", "com.example.build.types.android", applicationIdSuffix = null),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            firebaseConfig = FirebaseConfig(
-                distributionCommon = FirebaseConfig.Distribution(
-                    serviceCredentialsFilePath = serviceCredentialsFile.name,
-                    appId = System.getProperty("FIREBASE_APP_ID"),
-                    testerGroups = null,
-                    artifactType = "ArtifactType.Apk",
-                )
-            ),
-            topBuildFileContent = """
+            firebaseConfig =
+                FirebaseConfig(
+                    distributionCommon =
+                        FirebaseConfig.Distribution(
+                            serviceCredentialsFilePath = serviceCredentialsFile.name,
+                            appId = System.getProperty("FIREBASE_APP_ID"),
+                            testerGroups = null,
+                            artifactType = "ArtifactType.Apk",
+                        ),
+                ),
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent(),
+                """.trimIndent(),
             import = "import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType",
-            configureApplicationVariants = true
+            configureApplicationVariants = true,
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -1000,12 +948,13 @@ class FirebaseDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -1017,38 +966,23 @@ class FirebaseDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            generateChangelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Generate changelog successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Firebase distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        generateChangelogResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
-
 }
 
 private fun getChangelog(): String {
     return """
-[TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
-[TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
-    """.trimIndent()
+        [TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
+        [TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
+        """.trimIndent()
 }

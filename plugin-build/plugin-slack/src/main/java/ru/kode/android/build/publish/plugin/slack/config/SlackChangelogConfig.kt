@@ -4,6 +4,9 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
+import ru.kode.android.build.publish.plugin.core.util.CollectionStrategy
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.build.publish.plugin.core.util.inheritFrom
 
 /**
  * Configuration class for Slack changelog notification settings.
@@ -12,7 +15,7 @@ import org.gradle.api.tasks.Input
  * to Slack channels. It's typically used in the build script's `slack` extension
  * to configure changelog notifications for different build variants.
  */
-abstract class SlackChangelogConfig {
+abstract class SlackChangelogConfig : CommonConfigMergeable<SlackChangelogConfig> {
     /**
      * Name of this changelog configuration.
      *
@@ -33,6 +36,8 @@ abstract class SlackChangelogConfig {
      */
     @get:Input
     internal abstract val userMentions: SetProperty<String>
+
+    private var userMentionsStrategy: CollectionStrategy = CollectionStrategy.REPLACE
 
     /**
      * The color of the vertical line in the Slack message attachment.
@@ -77,6 +82,21 @@ abstract class SlackChangelogConfig {
     }
 
     /**
+     * Adds multiple user or group mentions and selects how this collection is merged with the
+     * common configuration for a per-version-name build ([CollectionStrategy.REPLACE] by default).
+     *
+     * @param strategy Whether to replace or append to the common mentions
+     * @param userMention Vararg of Slack mention strings (e.g., "@username", "@here", "@group-name")
+     */
+    fun userMentions(
+        strategy: CollectionStrategy,
+        vararg userMention: String,
+    ) {
+        userMentionsStrategy = strategy
+        userMentions.addAll(userMention.toList())
+    }
+
+    /**
      * Adds multiple user or group mentions to the changelog notification.
      *
      * @param userMentions Iterable of Slack mention strings (e.g., "@username", "@here", "@group-name")
@@ -92,5 +112,10 @@ abstract class SlackChangelogConfig {
      */
     fun userMentions(userMentions: Provider<List<String>>) {
         this.userMentions.addAll(userMentions)
+    }
+
+    override fun inheritFrom(common: SlackChangelogConfig) {
+        attachmentColor.convention(common.attachmentColor)
+        userMentions.inheritFrom(common.userMentions, userMentionsStrategy)
     }
 }

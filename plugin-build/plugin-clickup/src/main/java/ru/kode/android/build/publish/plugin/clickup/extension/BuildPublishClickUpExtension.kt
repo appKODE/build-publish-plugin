@@ -266,7 +266,10 @@ abstract class BuildPublishClickUpExtension
                 params =
                     ClickUpAutomationTaskParams(
                         buildVariant = input.buildVariant,
-                        issueNumberPattern = input.changelog.issueNumberPattern,
+                        issuePatterns =
+                            input.changelog.issueSources.map { sources ->
+                                sources.map { it.numberPattern }
+                            },
                         changelogFileProvider = input.changelog.fileProvider,
                         buildTagSnapshotProvider = input.output.buildTagSnapshotProvider,
                     ),

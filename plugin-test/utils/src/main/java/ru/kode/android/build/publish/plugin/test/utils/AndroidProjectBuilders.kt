@@ -11,7 +11,53 @@ import java.io.IOException
 
 private val IS_CI get() = System.getenv("CI") == "true"
 
-@Suppress("LongMethod", "CyclomaticComplexMethod", "CascadingCallWrapping")
+/**
+ * System properties that carry real credentials into the test JVM (wired per module via
+ * `systemProperty(name, getEnvOrProperty(name))`). Their literal values must never be rendered into a
+ * generated build script — otherwise they end up in the captured build output that CI uploads as
+ * artifacts. See [redactScriptSecrets] / [withSecretEnvironment].
+ */
+private val SENSITIVE_SYSTEM_PROPERTIES =
+    listOf(
+        "JIRA_USER_PASSWORD",
+        "CLICKUP_TOKEN",
+        "SLACK_WEBHOOK_URL",
+        "SLACK_UPLOAD_API_TOKEN",
+        "TELEGRAM_BOT_ID",
+        "TELEGRAM_BOT_SERVER_USERNAME",
+        "TELEGRAM_BOT_SERVER_PASSWORD",
+        "CONFLUENCE_USER_PASSWORD",
+        "NEXTCLOUD_USER_PASSWORD",
+        "PROXY_USER",
+        "PROXY_PASSWORD",
+    )
+
+// Guards against corrupting a script by substituting a short, ambiguous value (e.g. a 2-char user name).
+private const val MIN_REDACTABLE_SECRET_LENGTH = 8
+
+/** name -> value for every sensitive system property that is set and long enough to redact safely. */
+private fun redactableSecrets(): List<Pair<String, String>> =
+    SENSITIVE_SYSTEM_PROPERTIES.mapNotNull { name ->
+        System.getProperty(name)?.takeIf { it.length >= MIN_REDACTABLE_SECRET_LENGTH }?.let { name to it }
+    }
+
+/**
+ * Replaces any literal secret rendered into a generated build script with a `${System.getenv('NAME')}`
+ * reference, so secrets never appear in the script on disk or in the captured/printed build output. The
+ * daemon resolves the reference from the environment forwarded by the runners (see [withSecretEnvironment]).
+ */
+internal fun String.redactScriptSecrets(): String =
+    redactableSecrets()
+        .sortedByDescending { it.second.length }
+        .fold(this) { acc, (name, value) -> acc.replace(value, "\${System.getenv('$name')}") }
+
+/** Adds the sensitive secret values to a daemon environment map so redacted `System.getenv` references resolve. */
+private fun MutableMap<String, String>.withSecretEnvironment(): MutableMap<String, String> {
+    redactableSecrets().forEach { (name, value) -> put(name, value) }
+    return this
+}
+
+@Suppress("LongMethod", "CyclomaticComplexMethod", "CascadingCallWrapping", "LongParameterList")
 fun File.createAndroidProject(
     compileSdk: Int = 36,
     buildTypes: List<BuildType>,
@@ -36,10 +82,11 @@ fun File.createAndroidProject(
     val androidManifestFile = this.getFile("app/src/main/AndroidManifest.xml")
 
     if (topBuildFileContent != null) {
+        val safeTopBuildFileContent = topBuildFileContent.redactScriptSecrets()
         println("--- ${topBuildFile.path} START ---")
-        println(topBuildFileContent)
+        println(safeTopBuildFileContent)
         println("--- ${topBuildFile.path} END ---")
-        topBuildFile.writeText(topBuildFileContent)
+        topBuildFile.writeText(safeTopBuildFileContent)
     }
 
     val topSettingsFileContent =
@@ -313,8 +360,7 @@ fun File.createAndroidProject(
             }
             
             changelogCommon {
-                issueNumberPattern.set("${foundationConfig.changelog.issueNumberPattern}")
-                issueUrlPrefix.set("${foundationConfig.changelog.issueUrlPrefix}")
+                ${changelogIssueSourcesBlock(foundationConfig.changelog)}
                 commitMessageKey.set("${foundationConfig.changelog.commitMessageKey}")
                 $changelogStrategy
             }
@@ -430,16 +476,29 @@ fun File.createAndroidProject(
                 config.automation?.let { automation ->
                     jiraAutomationBlock(automation)
                 }.orEmpty()
+            val secondaryInstanceBlocks =
+                config.secondaryAuth.entries.joinToString("\n") { (name, auth) ->
+                    """
+                    instance("$name") {
+                        baseUrl.set("${auth.baseUrl}")
+                        credentials.username.set("${auth.username}")
+                        credentials.password.set("${auth.password}")
+                    }
+                    """.trimIndent()
+                }
             """
         buildPublishJira {
             auth {
                 common {
-                    baseUrl.set("${config.auth.baseUrl}")
-                    credentials.username.set("${config.auth.username}")
-                    credentials.password.set("${config.auth.password}")
+                    instance("default") {
+                        baseUrl.set("${config.auth.baseUrl}")
+                        credentials.username.set("${config.auth.username}")
+                        credentials.password.set("${config.auth.password}")
+                    }
+                    $secondaryInstanceBlocks
                 }
             }
-                
+
             $automation
         }
             """
@@ -497,10 +556,12 @@ fun File.createAndroidProject(
 
     val telegramConfigBlock =
         telegramConfig?.let { config ->
-            val bots = config.bots.bots.takeIf { bots -> bots.isNotEmpty() }?.let { bots -> telegramBotsBlock(bots) }.orEmpty()
+            val bots =
+                config.bots.bots.takeIf { it.isNotEmpty() }?.let { telegramBotsBlock(it) }.orEmpty()
             val lookup = config.lookup?.let { lookup -> telegramLookupBlock(lookup) }.orEmpty()
             val changelog = config.changelog?.let { changelog -> telegramChangelogBlock(changelog) }.orEmpty()
-            val distribution = config.distribution?.let { distribution -> telegramDistributionBlock(distribution) }.orEmpty()
+            val distribution =
+                config.distribution?.let { telegramDistributionBlock(it) }.orEmpty()
             """
             buildPublishTelegram {
                 $bots
@@ -563,6 +624,7 @@ fun File.createAndroidProject(
                 
         """.trimIndent()
             .removeEmptyLines()
+            .redactScriptSecrets()
             .also {
                 println("--- ${appBuildFile.path} START ---")
                 println(it)
@@ -586,26 +648,74 @@ fun File.createAndroidProject(
     writeFile(androidManifestFile, androidManifestFileContent)
 }
 
+private fun changelogIssueSourcesBlock(changelog: FoundationConfig.Changelog): String {
+    val sources =
+        changelog.issueSources.ifEmpty {
+            listOf(
+                FoundationConfig.Changelog.IssueSource(
+                    name = "primary",
+                    numberPattern = changelog.issueNumberPattern,
+                    urlPrefix = changelog.issueUrlPrefix,
+                ),
+            )
+        }
+    val entries =
+        sources.joinToString("\n") { source ->
+            val url = source.urlPrefix?.let { prefix -> """urlPrefix.set("$prefix")""" }.orEmpty()
+            """
+            issueSource("${source.name}") {
+                numberPattern.set("${source.numberPattern}")
+                $url
+            }
+            """.trimIndent()
+        }
+    // A single source uses the issueSource(...) shorthand; multiple sources use the issueSources { } block.
+    return if (sources.size == 1) {
+        entries
+    } else {
+        """
+        issueSources {
+            $entries
+        }
+        """.trimIndent()
+    }
+}
+
 private fun jiraAutomationBlock(automation: JiraConfig.Automation): String {
-    val pattern = automation.fixVersionPattern?.let { pattern -> """fixVersionPattern.set("$pattern")""" }.orEmpty()
-    val label = automation.labelPattern?.let { label -> """labelPattern.set("$label")""" }.orEmpty()
-    val statusName = automation.targetStatusName?.let { statusName -> """targetStatusName.set("$statusName")""" }.orEmpty()
+    val entries = automation.projects.joinToString("\n") { jiraProjectBlock(it) }
     return """
             automation {
                 common {
-                    projectKey.set("${automation.projectKey}")
-                    $pattern
-                    $label
-                    $statusName
+                    projects {
+                        $entries
+                    }
                 }
             }
     """
 }
 
+private fun jiraProjectBlock(project: JiraConfig.Project): String {
+    val instanceName = project.instanceName?.let { name -> """instanceName.set("$name")""" }.orEmpty()
+    val label = project.labelPattern?.let { pattern -> """labelPattern.set("$pattern")""" }.orEmpty()
+    val fixVersion = project.fixVersionPattern?.let { pattern -> """fixVersionPattern.set("$pattern")""" }.orEmpty()
+    val statusName = project.targetStatusName?.let { name -> """targetStatusName.set("$name")""" }.orEmpty()
+    return """
+        project("${project.name}") {
+            projectKey.set("${project.projectKey}")
+            $instanceName
+            $label
+            $fixVersion
+            $statusName
+        }
+        """.trimIndent()
+}
+
 private fun clickUpAutomationBlock(automation: ClickUpConfig.Automation): String {
     val workspaceName = automation.workspaceName.let { name -> """workspaceName.set("$name")""" }
-    val fixVersionPattern = automation.fixVersionPattern?.let { pattern -> """fixVersionPattern.set("$pattern")""" }.orEmpty()
-    val fixVersionFieldName = automation.fixVersionFieldName?.let { name -> """fixVersionFieldName.set("$name")""" }.orEmpty()
+    val fixVersionPattern =
+        automation.fixVersionPattern?.let { """fixVersionPattern.set("$it")""" }.orEmpty()
+    val fixVersionFieldName =
+        automation.fixVersionFieldName?.let { """fixVersionFieldName.set("$it")""" }.orEmpty()
     val tagPattern = automation.tagPattern?.let { pattern -> """tagPattern.set("$pattern")""" }.orEmpty()
     return """
             automation {
@@ -664,7 +774,8 @@ private fun nextcloudDistributionBlock(distribution: NextcloudConfig.Distributio
 
 private fun telegramChangelogBlock(changelog: TelegramConfig.Changelog): String {
     val userMentions = changelog.userMentions.joinToString { mention -> "\"$mention\"" }
-    val destinationBots = changelog.destinationBots.joinToString(separator = "\n") { bot -> telegramDestinationBotBlock(bot) }
+    val destinationBots =
+        changelog.destinationBots.joinToString(separator = "\n") { telegramDestinationBotBlock(it) }
     return """
                         changelog {
                             common {
@@ -736,9 +847,9 @@ private fun slackDistributionBlock(distribution: SlackConfig.Distribution): Stri
 private fun telegramBotBlock(bot: TelegramConfig.Bot): String {
     val baseUrk = bot.botServerBaseUrl?.let { url -> """botServerBaseUrl.set("$url")""" }.orEmpty()
     val userName = bot.botServerUsername?.let { username -> """botServerAuth.username.set("$username")""" }.orEmpty()
-    val userPassword = bot.botServerPassword?.let { password -> """botServerAuth.password.set("$password")""" }.orEmpty()
+    val userPassword = bot.botServerPassword?.let { """botServerAuth.password.set("$it")""" }.orEmpty()
     val chat = bot.chats.joinToString(separator = "\n") { chat -> telegramBotChatBlock(chat) }
-    return """     
+    return """
                                 bot("${bot.botName}") {
                                     botId.set("${bot.botId}")
                                     $baseUrk
@@ -827,9 +938,11 @@ fun File.printFilesRecursively(prefix: String = "") {
             val ext = file.extension
             ext.contains("apk") || ext.contains("json") || ext.contains("aab") || ext.contains("txt")
         },
-        filterDirectory = {
-                directory ->
-            directory.endsWith("build") || directory.path.contains("outputs") || directory.path.contains("renamed") || directory.path.contains("intermediates")
+        filterDirectory = { directory ->
+            directory.endsWith("build") ||
+                directory.path.contains("outputs") ||
+                directory.path.contains("renamed") ||
+                directory.path.contains("intermediates")
         },
     )
     println("--- FILES END ---")
@@ -845,7 +958,7 @@ fun File.runTask(
     task: String,
     taskArguments: Map<String, String> = emptyMap(),
     agpClasspath: List<File> = emptyList(),
-    gradleVersion: String = "9.2.1",
+    gradleVersion: String = "9.6.1",
     gradleJvmArgs: List<String> = emptyList(),
     environment: Map<String, String> = emptyMap(),
 ): BuildResult {
@@ -863,7 +976,7 @@ fun File.runTask(
                 this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
             }
             putAll(environment)
-        }
+        }.withSecretEnvironment()
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(args)
@@ -884,7 +997,7 @@ fun File.runTasks(
     vararg tasks: String,
     taskArguments: Map<String, String> = emptyMap(),
     agpClasspath: List<File> = emptyList(),
-    gradleVersion: String = "9.2.1",
+    gradleVersion: String = "9.6.1",
     gradleJvmArgs: List<String> = emptyList(),
 ): BuildResult {
     val args =
@@ -900,7 +1013,7 @@ fun File.runTasks(
             if (gradleJvmArgs.isNotEmpty()) {
                 this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
             }
-        }
+        }.withSecretEnvironment()
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(args)
@@ -921,7 +1034,7 @@ fun File.runTaskWithFail(
     task: String,
     taskArguments: Map<String, String> = emptyMap(),
     agpClasspath: List<File> = emptyList(),
-    gradleVersion: String = "9.2.1",
+    gradleVersion: String = "9.6.1",
     gradleJvmArgs: List<String> = emptyList(),
 ): BuildResult {
     val args =
@@ -936,7 +1049,7 @@ fun File.runTaskWithFail(
             if (gradleJvmArgs.isNotEmpty()) {
                 this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
             }
-        }
+        }.withSecretEnvironment()
     return GradleRunner.create()
         .withProjectDir(this)
         .withArguments(args)
@@ -981,10 +1094,55 @@ fun resolveRequiredAgpJars(agpVersion: String): List<File> {
         project.buildscript.configurations.getByName("classpath").apply {
             dependencies.clear()
             dependencies.add(project.dependencies.create("com.android.tools.build:gradle:$agpVersion"))
-            dependencies.add(project.dependencies.create("com.android.application:com.android.application.gradle.plugin:$agpVersion"))
+            dependencies.add(
+                project.dependencies.create(
+                    "com.android.application:com.android.application.gradle.plugin:$agpVersion",
+                ),
+            )
         }.resolve()
 
     return pluginClasspath.toList()
+}
+
+fun File.createNonAndroidProject(
+    pluginId: String,
+    pluginConfigBlock: String = "",
+): File {
+    val settingsFile = this.getFile("settings.gradle")
+    val buildFile = this.getFile("build.gradle")
+
+    val settingsContent =
+        """
+        pluginManagement {
+            repositories {
+                mavenLocal()
+                gradlePluginPortal()
+                mavenCentral()
+                google()
+            }
+        }
+        dependencyResolutionManagement {
+            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+            repositories {
+                mavenLocal()
+                google()
+                mavenCentral()
+            }
+        }
+        rootProject.name = "test-non-android"
+        """.trimIndent()
+
+    val buildContent =
+        """
+        plugins {
+            id '$pluginId'
+        }
+        $pluginConfigBlock
+        """.trimIndent()
+
+    settingsFile.writeText(settingsContent)
+    buildFile.writeText(buildContent)
+    return this
 }
 
 data class BuildType(
@@ -1024,7 +1182,18 @@ data class FoundationConfig(
         val changelogMessageStrategy: String? = null,
         val versionNameStrategy: String? = null,
         val versionCodeStrategy: String? = null,
-    )
+        /**
+         * Explicit changelog issue sources. When empty, a single "primary" source is rendered from
+         * [issueNumberPattern] / [issueUrlPrefix] (backward-compatible with single-source tests).
+         */
+        val issueSources: List<IssueSource> = emptyList(),
+    ) {
+        data class IssueSource(
+            val name: String,
+            val numberPattern: String,
+            val urlPrefix: String? = null,
+        )
+    }
 }
 
 data class ClickUpConfig(
@@ -1094,6 +1263,7 @@ data class FirebaseConfig(
 data class JiraConfig(
     val auth: Auth,
     val automation: Automation?,
+    val secondaryAuth: Map<String, Auth> = emptyMap(),
 ) {
     data class Auth(
         val baseUrl: String,
@@ -1102,10 +1272,43 @@ data class JiraConfig(
     )
 
     data class Automation(
+        val projects: List<Project> = emptyList(),
+    ) {
+        companion object {
+            /**
+             * Test-only convenience for the common single-project case: wraps one [Project] named
+             * "default". Keeps automation test call sites concise without reintroducing any
+             * production single-project API — the generated DSL always uses `projects { project(...) }`.
+             */
+            fun singleProject(
+                projectKey: String,
+                instanceName: String? = null,
+                labelPattern: String? = null,
+                fixVersionPattern: String? = null,
+                targetStatusName: String? = null,
+            ) = Automation(
+                projects =
+                    listOf(
+                        Project(
+                            name = "default",
+                            projectKey = projectKey,
+                            instanceName = instanceName,
+                            labelPattern = labelPattern,
+                            fixVersionPattern = fixVersionPattern,
+                            targetStatusName = targetStatusName,
+                        ),
+                    ),
+            )
+        }
+    }
+
+    data class Project(
+        val name: String,
         val projectKey: String,
-        val labelPattern: String?,
-        val fixVersionPattern: String?,
-        val targetStatusName: String?,
+        val instanceName: String? = null,
+        val labelPattern: String? = null,
+        val fixVersionPattern: String? = null,
+        val targetStatusName: String? = null,
     )
 }
 

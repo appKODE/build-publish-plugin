@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
+import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLogger
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.factory.JiraControllerFactory
 import ru.kode.android.build.publish.plugin.jira.messages.failedToAddLabelMessage
@@ -17,9 +17,12 @@ import ru.kode.android.build.publish.plugin.test.utils.FoundationConfig
 import ru.kode.android.build.publish.plugin.test.utils.JiraConfig
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
+import ru.kode.android.build.publish.plugin.test.utils.awaitUntil
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldNotContain
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import ru.kode.android.build.publish.plugin.test.utils.runTaskWithFail
@@ -27,7 +30,6 @@ import java.io.File
 import java.io.IOException
 
 class JiraLabelAutomationTest {
-
     private val logger: Logger = AlwaysInfoLogger()
 
     @TempDir
@@ -38,30 +40,13 @@ class JiraLabelAutomationTest {
     @BeforeEach
     fun setup() {
         projectDir = File(tempDir, "test-project")
-        jiraController = JiraControllerFactory.build(
-            baseUrl = System.getProperty("JIRA_BASE_URL"),
-            username = System.getProperty("JIRA_USER_NAME"),
-            password = System.getProperty("JIRA_USER_PASSWORD"),
-            logger = object : PluginLogger {
-                override val bodyLogging: Boolean get() = false
-
-                override fun info(message: String, exception: Throwable?) {
-                    logger.info(message)
-                }
-
-                override fun warn(message: String) {
-                    logger.warn(message)
-                }
-
-                override fun error(message: String, exception: Throwable?) {
-                    logger.error(message, exception)
-                }
-
-                override fun quiet(message: String) {
-                    logger.quiet(message)
-                }
-            }
-        )
+        jiraController =
+            JiraControllerFactory.build(
+                baseUrl = System.getProperty("JIRA_BASE_URL"),
+                username = System.getProperty("JIRA_USER_NAME"),
+                password = System.getProperty("JIRA_USER_PASSWORD"),
+                logger = pluginLoggerFromLogger(logger),
+            )
     }
 
     @Test
@@ -76,19 +61,22 @@ class JiraLabelAutomationTest {
                             baseFileName = "autotest",
                         ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation = null,
                 ),
-                automation = null
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName = "v1.0.1-debug"
         val givenCommitMessage = "Initial commit"
@@ -105,26 +93,15 @@ class JiraLabelAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD FAILED"),
-            "Build failed",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD FAILED"),
-            "Jira automation failed"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD FAILED")
+        automationResult.outputShouldContain("BUILD FAILED")
         assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
@@ -141,39 +118,45 @@ class JiraLabelAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = null,
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = null,
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenIssueKey = "AT-289"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с лейблом
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -189,8 +172,9 @@ class JiraLabelAutomationTest {
         git.tag.addNamed(givenTagName2)
 
         jiraController.removeIssueLabel(expectedIssueKey, expectedIssueLabel)
-        val beforeAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { !beforeAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel absent from $expectedIssueKey") {
+            !jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
@@ -198,26 +182,15 @@ class JiraLabelAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -231,8 +204,9 @@ class JiraLabelAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { afterAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey") {
+            jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
     }
 
     @Test
@@ -248,39 +222,45 @@ class JiraLabelAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = null,
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = null,
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenIssueKey = "AT-289"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с лейблом
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -296,41 +276,32 @@ class JiraLabelAutomationTest {
         git.tag.addNamed(givenTagName2)
 
         jiraController.removeIssueLabel(expectedIssueKey, expectedIssueLabel)
-        val beforeAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { !beforeAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel absent from $expectedIssueKey") {
+            !jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask, proxyProps)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -344,8 +315,9 @@ class JiraLabelAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { afterAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey") {
+            jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
     }
 
     @Test
@@ -361,39 +333,45 @@ class JiraLabelAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = null,
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = null,
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenIssueKey = "AT-289"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] [authorization] Add "invalid_user_credentials" processing error
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -409,8 +387,9 @@ class JiraLabelAutomationTest {
         git.tag.addNamed(givenTagName2)
 
         jiraController.removeIssueLabel(expectedIssueKey, expectedIssueLabel)
-        val beforeAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { !beforeAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel absent from $expectedIssueKey") {
+            !jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
@@ -418,26 +397,15 @@ class JiraLabelAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -451,8 +419,9 @@ class JiraLabelAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { afterAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey") {
+            jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
     }
 
     @Test
@@ -468,39 +437,45 @@ class JiraLabelAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = null,
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = null,
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenIssueKey = "AT-289"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] [authorization] Add "invalid_user_credentials" processing error
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -516,41 +491,32 @@ class JiraLabelAutomationTest {
         git.tag.addNamed(givenTagName2)
 
         jiraController.removeIssueLabel(expectedIssueKey, expectedIssueLabel)
-        val beforeAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { !beforeAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel absent from $expectedIssueKey") {
+            !jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask, proxyProps)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -564,8 +530,9 @@ class JiraLabelAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { afterAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey") {
+            jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
     }
 
     @Test
@@ -581,39 +548,45 @@ class JiraLabelAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = null,
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = null,
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenIssueKey = "AT-289"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] (authorization) Add "invalid_user_credentials" processing error
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -629,8 +602,9 @@ class JiraLabelAutomationTest {
         git.tag.addNamed(givenTagName2)
 
         jiraController.removeIssueLabel(expectedIssueKey, expectedIssueLabel)
-        val beforeAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { !beforeAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel absent from $expectedIssueKey") {
+            !jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
@@ -638,26 +612,15 @@ class JiraLabelAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -671,8 +634,9 @@ class JiraLabelAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { afterAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey") {
+            jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
     }
 
     @Test
@@ -688,39 +652,45 @@ class JiraLabelAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = null,
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = null,
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenIssueKey = "AT-289"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] (authorization) Add "invalid_user_credentials" processing error
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -736,41 +706,32 @@ class JiraLabelAutomationTest {
         git.tag.addNamed(givenTagName2)
 
         jiraController.removeIssueLabel(expectedIssueKey, expectedIssueLabel)
-        val beforeAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { !beforeAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel absent from $expectedIssueKey") {
+            !jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask, proxyProps)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -784,8 +745,9 @@ class JiraLabelAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { afterAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey") {
+            jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
     }
 
     @Test
@@ -801,39 +763,45 @@ class JiraLabelAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = null,
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = null,
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenIssueKey = "AT-289"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с лейблом
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -849,8 +817,9 @@ class JiraLabelAutomationTest {
         git.tag.addNamed(givenTagName2)
 
         jiraController.addIssueLabel(expectedIssueKey, expectedIssueLabel)
-        val beforeAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { beforeAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey") {
+            jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
@@ -858,26 +827,15 @@ class JiraLabelAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -891,8 +849,9 @@ class JiraLabelAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { afterAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey") {
+            jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
     }
 
     @Test
@@ -908,39 +867,45 @@ class JiraLabelAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = null,
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = null,
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenIssueKey = "AT-289"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с лейблом
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -956,41 +921,32 @@ class JiraLabelAutomationTest {
         git.tag.addNamed(givenTagName2)
 
         jiraController.addIssueLabel(expectedIssueKey, expectedIssueLabel)
-        val beforeAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { beforeAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey") {
+            jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask, proxyProps)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -1004,8 +960,9 @@ class JiraLabelAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { afterAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey") {
+            jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
     }
 
     @Test
@@ -1021,38 +978,44 @@ class JiraLabelAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = null,
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = null,
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             AT-289: Add test readme
             
             CHANGELOG: [AT-289] Задача для проверки работы BuildPublishPlugin с лейблом
-        """.trimIndent()
+            """.trimIndent()
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
@@ -1067,30 +1030,23 @@ class JiraLabelAutomationTest {
         git.tag.addNamed(givenTagName2)
 
         jiraController.removeIssueLabel(expectedIssueKey, expectedIssueLabel)
-        val beforeAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { !beforeAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel absent from $expectedIssueKey") {
+            !jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
 
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        automationResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        automationResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(!givenOutputFileExists, "Output file not exists")
 
         val expectedChangelogFile =
@@ -1104,8 +1060,9 @@ class JiraLabelAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { afterAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey") {
+            jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
     }
 
     @Test
@@ -1121,38 +1078,44 @@ class JiraLabelAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = null,
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = null,
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             AT-289: Add test readme
             
             CHANGELOG: [AT-289] Задача для проверки работы BuildPublishPlugin с лейблом
-        """.trimIndent()
+            """.trimIndent()
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
@@ -1167,36 +1130,30 @@ class JiraLabelAutomationTest {
         git.tag.addNamed(givenTagName2)
 
         jiraController.removeIssueLabel(expectedIssueKey, expectedIssueLabel)
-        val beforeAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { !beforeAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel absent from $expectedIssueKey") {
+            !jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        automationResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        automationResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(!givenOutputFileExists, "Output file not exists")
 
         val expectedChangelogFile =
@@ -1210,8 +1167,9 @@ class JiraLabelAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationLabels = jiraController.getIssueLabels(expectedIssueKey)
-        assertTrue { afterAutomationLabels.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey") {
+            jiraController.getIssueLabels(expectedIssueKey).contains(expectedIssueLabel)
+        }
     }
 
     @Test
@@ -1227,39 +1185,45 @@ class JiraLabelAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = null,
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = null,
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenIssueKey = "AT-2899"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с лейблом
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -1280,28 +1244,21 @@ class JiraLabelAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        val output = automationResult.output
-            .replace("\r\n", "\n")
-            .replace("\r", "\n")
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        val output =
+            automationResult.output
+                .replace("\r\n", "\n")
+                .replace("\r", "\n")
         assertTrue(
             output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
+            "Jira automation successful",
         )
         assertTrue(givenOutputFileExists, "Output file exists")
 
@@ -1334,39 +1291,45 @@ class JiraLabelAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = null,
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = null,
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenIssueKey = "AT-2899"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с лейблом
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -1381,40 +1344,34 @@ class JiraLabelAutomationTest {
         git.addAllAndCommit(givenCommitMessage2)
         git.tag.addNamed(givenTagName2)
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask, proxyProps)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        val output = automationResult.output
-            .replace("\r\n", "\n")
-            .replace("\r", "\n")
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        val output =
+            automationResult.output
+                .replace("\r\n", "\n")
+                .replace("\r", "\n")
         assertTrue(
             output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
+            "Jira automation successful",
         )
         assertTrue(givenOutputFileExists, "Output file exists")
 

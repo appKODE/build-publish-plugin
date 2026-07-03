@@ -2,6 +2,7 @@ package ru.kode.android.build.publish.plugin.play.config
 
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 
 /**
  * Configuration interface for Google Play distribution settings.
@@ -10,7 +11,7 @@ import org.gradle.api.tasks.Input
  * to the Google Play Store. It's used within the `BuildPublishPlayExtension` to
  * configure how the app should be published to different tracks.
  */
-interface PlayDistributionConfig {
+interface PlayDistributionConfig : CommonConfigMergeable<PlayDistributionConfig> {
     /**
      * Name of this distribution configuration.
      *
@@ -46,4 +47,9 @@ interface PlayDistributionConfig {
      */
     @get:Input
     val updatePriority: Property<Int>
+
+    override fun inheritFrom(common: PlayDistributionConfig) {
+        trackId.convention(common.trackId)
+        updatePriority.convention(common.updatePriority)
+    }
 }

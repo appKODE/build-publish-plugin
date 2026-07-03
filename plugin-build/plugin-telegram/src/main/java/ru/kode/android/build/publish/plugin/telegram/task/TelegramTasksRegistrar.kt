@@ -5,9 +5,11 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.enity.IssueSource
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
@@ -21,13 +23,6 @@ import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExte
 import ru.kode.android.build.publish.plugin.telegram.task.changelog.SendTelegramChangelogTask
 import ru.kode.android.build.publish.plugin.telegram.task.distribution.TelegramDistributionTask
 import ru.kode.android.build.publish.plugin.telegram.task.lookup.TelegramLookupTask
-
-internal const val SEND_TELEGRAM_CHANGELOG_TASK_PREFIX = "sendTelegramChangelog"
-
-// TODO: Replace with telegramDistributionUploadApk
-internal const val TELEGRAM_DISTRIBUTION_UPLOAD_APK_TASK_PREFIX = "telegramDistributionUpload"
-internal const val TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "telegramDistributionUploadBundle"
-internal const val TELEGRAM_LOOKUP_TASK_PREFIX = "telegramLookup"
 
 /**
  * Utility object for registering Telegram-related Gradle tasks.
@@ -192,7 +187,7 @@ private fun Project.registerSendTelegramChangelogTask(
     params: TelegramChangelogTaskParams,
 ): TaskProvider<SendTelegramChangelogTask> {
     return tasks.register(
-        "$SEND_TELEGRAM_CHANGELOG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "${TaskNames.Telegram.SEND_CHANGELOG_PREFIX}${params.buildVariant.capitalizedName()}",
         SendTelegramChangelogTask::class.java,
     ) {
         val service =
@@ -208,8 +203,11 @@ private fun Project.registerSendTelegramChangelogTask(
 
         it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
         it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
-        it.issueUrlPrefix.set(params.issueUrlPrefix)
-        it.issueNumberPattern.set(params.issueNumberPattern)
+        it.issueSources.set(
+            params.issueSources.map { sources ->
+                sources.associate { source -> source.numberPattern to source.urlPrefix.orEmpty() }
+            },
+        )
         it.baseOutputFileName.set(params.baseFileName)
         it.userMentions.set(changelogConfig.userMentions)
         it.destinationBots.set(changelogConfig.destinationBots.map { it.mapToEntity().toJson() })
@@ -248,7 +246,7 @@ private fun Project.registerTelegramUploadAokTask(
     params: TelegramApkDistributionTaskParams,
 ): TaskProvider<TelegramDistributionTask> {
     return tasks.register(
-        "$TELEGRAM_DISTRIBUTION_UPLOAD_APK_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "${TaskNames.Telegram.DISTRIBUTION_UPLOAD_PREFIX}${params.buildVariant.capitalizedName()}",
         TelegramDistributionTask::class.java,
     ) {
         val service =
@@ -297,7 +295,7 @@ private fun Project.registerTelegramBundleUploadTask(
     params: TelegramBundleDistributionTaskParams,
 ): TaskProvider<TelegramDistributionTask>? {
     return tasks.register(
-        "$TELEGRAM_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "${TaskNames.Telegram.DISTRIBUTION_UPLOAD_BUNDLE_PREFIX}${params.buildVariant.capitalizedName()}",
         TelegramDistributionTask::class.java,
     ) {
         val service =
@@ -346,7 +344,7 @@ private fun Project.registerTelegramLookupTask(
     params: TelegramLookupTaskParams,
 ): TaskProvider<TelegramLookupTask>? {
     return tasks.register(
-        "$TELEGRAM_LOOKUP_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "${TaskNames.Telegram.LOOKUP_PREFIX}${params.buildVariant.capitalizedName()}",
         TelegramLookupTask::class.java,
     ) {
         val service =
@@ -386,13 +384,9 @@ internal data class TelegramChangelogTaskParams(
      */
     val baseFileName: Provider<String>,
     /**
-     * Pattern for matching issue numbers in the changelog.
+     * Changelog issue sources (extraction pattern + optional link URL prefix).
      */
-    val issueNumberPattern: Provider<String>,
-    /**
-     * Base URL for issue tracker links.
-     */
-    val issueUrlPrefix: Provider<String>,
+    val issueSources: Provider<List<IssueSource>>,
     /**
      * The build variant this task is associated with.
      */

@@ -8,16 +8,13 @@ import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.nextcloud.config.NextcloudDistributionConfig
 import ru.kode.android.build.publish.plugin.nextcloud.service.NextcloudServiceExtension
 import ru.kode.android.build.publish.plugin.nextcloud.task.changelog.NextcloudChangelogTask
 import ru.kode.android.build.publish.plugin.nextcloud.task.distribution.NextcloudDistributionTask
-
-internal const val NEXTCLOUD_DISTRIBUTION_UPLOAD_TASK_PREFIX = "nextcloudDistributionUpload"
-internal const val NEXTCLOUD_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "nextcloudDistributionUploadBundle"
-internal const val NEXTCLOUD_CHANGELOG_UPLOAD_TASK_PREFIX = "nextcloudChangelogUpload"
 
 internal object NextcloudTasksRegistrar {
     internal fun registerApkDistributionTask(
@@ -50,7 +47,7 @@ private fun Project.registerApkNextcloudDistributionTask(
     params: NextcloudApkDistributionTaskParams,
 ): TaskProvider<NextcloudDistributionTask> {
     return tasks.register(
-        "$NEXTCLOUD_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "${TaskNames.Nextcloud.DISTRIBUTION_UPLOAD_PREFIX}${params.buildVariant.capitalizedName()}",
         NextcloudDistributionTask::class.java,
     ) {
         val service =
@@ -91,7 +88,7 @@ private fun Project.registerBundleNextcloudDistributionTask(
     params: NextcloudBundleDistributionTaskParams,
 ): TaskProvider<NextcloudDistributionTask>? {
     return tasks.register(
-        "$NEXTCLOUD_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "${TaskNames.Nextcloud.DISTRIBUTION_UPLOAD_BUNDLE_PREFIX}${params.buildVariant.capitalizedName()}",
         NextcloudDistributionTask::class.java,
     ) {
         val service =
@@ -132,7 +129,7 @@ private fun Project.registerNextcloudChangelogTask(
     params: NextcloudChangelogTaskParams,
 ): TaskProvider<NextcloudChangelogTask> {
     return tasks.register(
-        "$NEXTCLOUD_CHANGELOG_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "${TaskNames.Nextcloud.CHANGELOG_UPLOAD_PREFIX}${params.buildVariant.capitalizedName()}",
         NextcloudChangelogTask::class.java,
     ) {
         val service =

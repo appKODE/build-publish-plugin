@@ -237,7 +237,10 @@ abstract class BuildPublishJiraExtension
                 params =
                     JiraAutomationTaskParams(
                         buildVariant = input.buildVariant,
-                        issueNumberPattern = input.changelog.issueNumberPattern,
+                        issuePatterns =
+                            input.changelog.issueSources.map { sources ->
+                                sources.map { it.numberPattern }
+                            },
                         changelogFileProvider = input.changelog.fileProvider,
                         buildTagSnapshotProvider = input.output.buildTagSnapshotProvider,
                     ),

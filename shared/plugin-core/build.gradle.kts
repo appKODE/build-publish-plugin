@@ -12,10 +12,26 @@ dependencies {
     implementation(gradleApi())
     implementation(libs.grgitCore)
     implementation(libs.okhttp)
+    implementation(libs.okhttpLogging)
     implementation(libs.retrofit)
     implementation(libs.serializationJson)
 
     compileOnly(libs.agp)
+
+    testImplementation(platform(libs.junitBom))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(gradleTestKit())
+}
+
+tasks.test {
+    useJUnitPlatform()
+    // Gradle's ProjectBuilder needs deep reflection into the JDK on Java 16+.
+    jvmArgs(
+        "--add-opens=java.base/java.lang=ALL-UNNAMED",
+        "--add-opens=java.base/java.util=ALL-UNNAMED",
+        "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",
+    )
 }
 
 mavenPublishing {

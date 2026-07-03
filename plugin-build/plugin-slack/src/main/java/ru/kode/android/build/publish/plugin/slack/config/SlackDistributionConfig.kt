@@ -3,6 +3,9 @@ package ru.kode.android.build.publish.plugin.slack.config
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
+import ru.kode.android.build.publish.plugin.core.util.CollectionStrategy
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.build.publish.plugin.core.util.inheritFrom
 
 /**
  * Configuration class for Slack file distribution settings.
@@ -11,7 +14,7 @@ import org.gradle.api.tasks.Input
  * to Slack channels. It's typically used in the build script's `slack` extension
  * to configure distribution settings for different build variants.
  */
-abstract class SlackDistributionConfig {
+abstract class SlackDistributionConfig : CommonConfigMergeable<SlackDistributionConfig> {
     /**
      * Name of this distribution configuration.
      *
@@ -27,6 +30,8 @@ abstract class SlackDistributionConfig {
      */
     @get:Input
     internal abstract val destinationChannels: SetProperty<String>
+
+    private var destinationChannelsStrategy: CollectionStrategy = CollectionStrategy.REPLACE
 
     /**
      * Adds a single destination channel for file uploads.
@@ -56,6 +61,21 @@ abstract class SlackDistributionConfig {
     }
 
     /**
+     * Adds multiple destination channels and selects how this collection is merged with the common
+     * configuration for a per-version-name build ([CollectionStrategy.REPLACE] by default).
+     *
+     * @param strategy Whether to replace or append to the common channels
+     * @param channelId Vararg of Slack channel IDs (e.g., "#releases", "#android-team")
+     */
+    fun destinationChannels(
+        strategy: CollectionStrategy,
+        vararg channelId: String,
+    ) {
+        destinationChannelsStrategy = strategy
+        destinationChannels.addAll(channelId.toList())
+    }
+
+    /**
      * Adds multiple destination channels for file uploads.
      *
      * @param channelIds Iterable of Slack channel IDs (e.g., "#releases", "#android-team")
@@ -71,5 +91,9 @@ abstract class SlackDistributionConfig {
      */
     fun destinationChannels(channelIds: Provider<List<String>>) {
         this.destinationChannels.addAll(channelIds)
+    }
+
+    override fun inheritFrom(common: SlackDistributionConfig) {
+        destinationChannels.inheritFrom(common.destinationChannels, destinationChannelsStrategy)
     }
 }

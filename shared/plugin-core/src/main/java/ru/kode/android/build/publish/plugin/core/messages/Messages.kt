@@ -4,6 +4,7 @@ import okhttp3.Request
 import org.ajoberstar.grgit.Commit
 import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.util.SecretRedaction
 import ru.kode.android.build.publish.plugin.core.util.utcDateTime
 import java.io.File
 import java.net.InetSocketAddress
@@ -160,7 +161,7 @@ fun applyProxyAuthMessage(proxyUser: String): String {
         |============================================================
         |               APPLYING PROXY AUTHENTICATION   
         |============================================================
-        | Authenticating as: $proxyUser
+        | Authenticating as: ${SecretRedaction.redactCredential(proxyUser)}
         |
         | Proxy authentication credentials will be used for the connection
         |============================================================
@@ -175,7 +176,7 @@ fun requestingWithoutProxyMessage(request: Request): String {
         |============================================================
         | Sending request without proxy
         |
-        | URL: ${request.url}
+        | URL: ${SecretRedaction.redactUrl(request.url.toString())}
         | Method: ${request.method}
         |
         | Proceeding with direct connection...
@@ -195,7 +196,7 @@ fun requestingProxyMessage(
         | Sending request via proxy
         |
         | Proxy: ${proxy ?: "None"}
-        | URL: ${request.url}
+        | URL: ${SecretRedaction.redactUrl(request.url.toString())}
         | Method: ${request.method}
         |
         | Request will be routed through the configured proxy
@@ -222,10 +223,32 @@ fun proxyCredsNotSpecified(): String {
         |  3. For security, consider using a credential manager instead of
         |     storing passwords in plain text
         |
-        | NOTE: 
-        | These credentials will be used to authenticate with 
+        | NOTE:
+        | These credentials will be used to authenticate with
         | the proxy server
         |============================================================
+        """.trimMargin()
+}
+
+fun warnLogMessage(message: String): String = "WARN: $message"
+
+fun errorLogMessage(
+    message: String,
+    exception: Throwable?,
+): String = "ERROR: $message ${exception?.message.orEmpty()}"
+
+fun proxyAuthenticatorTriggeredMessage(
+    host: String?,
+    port: Int,
+    scheme: String?,
+    userName: String?,
+): String {
+    return """
+        |🎯 AUTHENTICATOR TRIGGERED!
+        |  Host: $host:$port
+        |  Scheme: $scheme
+        |  UserName: ${userName?.let { SecretRedaction.redactCredential(it) }}
+        |  Password: <hidden>
         """.trimMargin()
 }
 
@@ -265,17 +288,17 @@ fun cannotReturnTagMessage(
     lastTagBuildNumber: Int,
     lastTag: GrgitTag,
     lastTagCommit: Commit,
+    isPreviousTagNewerInHistory: Boolean,
 ): String {
-    val isPreviousCommitDateGreater =
-        previousTagCommit.utcDateTime()
-            .isAfter(lastTagCommit.utcDateTime())
     val isPreviousCommitBuildNumberGreater = previousTagBuildNumber >= lastTagBuildNumber
 
     val possibleCauses =
         buildList {
-            if (isPreviousCommitDateGreater) add("Commit date of previous tag is after the last tag")
+            if (isPreviousTagNewerInHistory) {
+                add("Previous tag's commit is newer in history (a descendant) than the last tag")
+            }
             if (isPreviousCommitBuildNumberGreater) add("Build number of previous tag is >= last tag")
-            if (!isPreviousCommitDateGreater && !isPreviousCommitBuildNumberGreater) {
+            if (!isPreviousTagNewerInHistory && !isPreviousCommitBuildNumberGreater) {
                 add("Version number was decreased or git history is inconsistent")
             }
         }.mapIndexed { index, cause -> "   ${index + 1}. $cause" }.joinToString("\n")

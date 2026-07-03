@@ -1,99 +1,101 @@
-@file:Suppress("UnstableApiUsage")
-
 package ru.kode.android.build.publish.plugin.telegram
 
-import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.StopExecutionException
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
+import ru.kode.android.build.publish.plugin.core.task.registerStandaloneServiceTask
+import ru.kode.android.build.publish.plugin.core.util.applyWithOptionalAndroid
+import ru.kode.android.build.publish.plugin.core.util.getOrRegisterLoggerService
+import ru.kode.android.build.publish.plugin.core.util.resolveStandaloneService
 import ru.kode.android.build.publish.plugin.core.util.serviceName
-import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.telegram.extension.BuildPublishTelegramExtension
-import ru.kode.android.build.publish.plugin.telegram.messages.mustApplyFoundationPluginMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.noBotsConfiguredMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.registeringServiceMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.telegramServicesCreated
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExtension
+import ru.kode.android.build.publish.plugin.telegram.task.standalone.SendTelegramFileTask
+import ru.kode.android.build.publish.plugin.telegram.task.standalone.SendTelegramMessageTask
 
 internal const val EXTENSION_NAME = "buildPublishTelegram"
 internal const val SERVICE_EXTENSION_NAME = "telegramServiceExtension"
 
 private const val SERVICE_NAME = "telegramService"
 
-/**
- * A Gradle plugin that integrates with Telegram to send build notifications and deployment updates.
- *
- * This plugin provides seamless integration with Telegram's Bot API to send notifications about
- * build status, deployment progress, and changelogs. It's designed to work with the Android
- * build system and can be configured to send messages at different stages of the build process.
- *
- * @see BuildPublishTelegramExtension For available configuration options
- * @see TelegramService For the underlying network service implementation
- */
 abstract class BuildPublishTelegramPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val extension =
-            project.extensions.create(
-                EXTENSION_NAME,
-                BuildPublishTelegramExtension::class.java,
-            )
+        val extension = project.extensions.create(EXTENSION_NAME, BuildPublishTelegramExtension::class.java)
 
+        @Suppress("UNCHECKED_CAST")
         val servicesProperty =
-            project.objects.mapProperty(
-                String::class.java,
-                Provider::class.java,
-            )
+            project.objects.mapProperty(String::class.java, Provider::class.java)
+                as MapProperty<String, Provider<*>>
         servicesProperty.set(emptyMap())
 
-        project.extensions.create(
-            SERVICE_EXTENSION_NAME,
-            TelegramServiceExtension::class.java,
-            servicesProperty,
-        )
+        project.extensions.create(SERVICE_EXTENSION_NAME, TelegramServiceExtension::class.java, servicesProperty)
 
-        if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
-            throw StopExecutionException(mustApplyFoundationPluginMessage())
+        project.applyWithOptionalAndroid {
+            setupServicesAndTasks(project, extension, servicesProperty)
+        }
+    }
+
+    private fun setupServicesAndTasks(
+        project: Project,
+        extension: BuildPublishTelegramExtension,
+        servicesProperty: MapProperty<String, Provider<*>>,
+    ) {
+        val loggerProvider = project.getOrRegisterLoggerService()
+        val logger = loggerProvider.get()
+
+        if (extension.bots.isEmpty()) {
+            logger.info(noBotsConfiguredMessage())
+            return
         }
 
-        val androidExtension = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
+        logger.info(registeringServiceMessage())
 
-        androidExtension.finalizeDsl {
-            val loggerProvider =
-                project.extensions.getByType(LoggerServiceExtension::class.java)
-                    .service
-
-            val logger = loggerProvider.get()
-
-            if (extension.bots.isEmpty()) {
-                logger.info(noBotsConfiguredMessage())
-                return@finalizeDsl
+        val serviceMap: Map<String, Provider<TelegramService>> =
+            extension.bots.associate { botConfig ->
+                val name = botConfig.name
+                val service =
+                    project.gradle.sharedServices.registerIfAbsent(
+                        project.serviceName(SERVICE_NAME, name),
+                        TelegramService::class.java,
+                    ) { spec ->
+                        spec.maxParallelUsages.set(1)
+                        spec.parameters.bots.set(botConfig.bots.map { it.mapToEntity().toJson() })
+                        spec.parameters.loggerService.set(loggerProvider)
+                    }
+                name to service
             }
 
-            logger.info(registeringServiceMessage())
+        logger.info(telegramServicesCreated(serviceMap.keys))
+        @Suppress("UNCHECKED_CAST")
+        servicesProperty.set(serviceMap as Map<String, Provider<*>>)
 
-            val serviceMap =
-                extension.bots.associate { botConfig ->
-                    val name = botConfig.name
-                    val service =
-                        project.gradle.sharedServices.registerIfAbsent(
-                            project.serviceName(SERVICE_NAME, name),
-                            TelegramService::class.java,
-                        ) { spec ->
-                            spec.maxParallelUsages.set(1)
-                            spec.parameters.bots.set(botConfig.bots.map { it.mapToEntity().toJson() })
-                            spec.parameters.loggerService.set(loggerProvider)
-                        }
-                    name to service
-                }
+        val standaloneService = serviceMap.resolveStandaloneService<TelegramService>()
+        registerStandaloneTasks(project, standaloneService, loggerProvider)
+    }
 
-            logger.info(telegramServicesCreated(serviceMap.keys))
-
-            servicesProperty.set(serviceMap)
-        }
+    private fun registerStandaloneTasks(
+        project: Project,
+        service: Provider<TelegramService>,
+        loggerProvider: Provider<LoggerService>,
+    ) {
+        project.registerStandaloneServiceTask<SendTelegramMessageTask, TelegramService>(
+            TaskNames.Telegram.SEND_MESSAGE,
+            service,
+            loggerProvider,
+        )
+        project.registerStandaloneServiceTask<SendTelegramFileTask, TelegramService>(
+            TaskNames.Telegram.SEND_FILE,
+            service,
+            loggerProvider,
+        )
     }
 }

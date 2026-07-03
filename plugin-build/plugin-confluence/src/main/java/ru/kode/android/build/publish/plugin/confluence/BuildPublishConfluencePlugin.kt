@@ -1,22 +1,24 @@
-@file:Suppress("UnstableApiUsage")
-
 package ru.kode.android.build.publish.plugin.confluence
 
-import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.StopExecutionException
 import ru.kode.android.build.publish.plugin.confluence.extension.BuildPublishConfluenceExtension
-import ru.kode.android.build.publish.plugin.confluence.messages.foundationPluginNotFoundException
 import ru.kode.android.build.publish.plugin.confluence.messages.noAuthConfigsMessage
 import ru.kode.android.build.publish.plugin.confluence.messages.registeringServicesMessage
 import ru.kode.android.build.publish.plugin.confluence.messages.servicesCreatedMessage
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceServiceExtension
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
+import ru.kode.android.build.publish.plugin.confluence.task.standalone.AddConfluenceCommentTask
+import ru.kode.android.build.publish.plugin.confluence.task.standalone.UploadToConfluenceTask
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
+import ru.kode.android.build.publish.plugin.core.task.registerStandaloneServiceTask
+import ru.kode.android.build.publish.plugin.core.util.applyWithOptionalAndroid
+import ru.kode.android.build.publish.plugin.core.util.getOrRegisterLoggerService
+import ru.kode.android.build.publish.plugin.core.util.resolveStandaloneService
 import ru.kode.android.build.publish.plugin.core.util.serviceName
-import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 
 internal const val EXTENSION_NAME = "buildPublishConfluence"
 private const val SERVICE_NAME = "confluenceService"
@@ -41,11 +43,8 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
                 BuildPublishConfluenceExtension::class.java,
             )
 
-        val servicesProperty =
-            project.objects.mapProperty(
-                String::class.java,
-                Provider::class.java,
-            )
+        val servicesProperty: MapProperty<String, Provider<*>> =
+            project.objects.mapProperty(String::class.java, Provider::class.java)
         servicesProperty.set(emptyMap())
 
         project.extensions.create(
@@ -54,47 +53,65 @@ abstract class BuildPublishConfluencePlugin : Plugin<Project> {
             servicesProperty,
         )
 
-        if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
-            throw StopExecutionException(foundationPluginNotFoundException())
+        project.applyWithOptionalAndroid {
+            setupServicesAndTasks(project, extension, servicesProperty)
+        }
+    }
+
+    private fun setupServicesAndTasks(
+        project: Project,
+        extension: BuildPublishConfluenceExtension,
+        servicesProperty: MapProperty<String, Provider<*>>,
+    ) {
+        val loggerProvider = project.getOrRegisterLoggerService()
+        val logger = loggerProvider.get()
+
+        if (extension.auth.isEmpty()) {
+            logger.info(noAuthConfigsMessage())
+            return
         }
 
-        val androidExtension =
-            project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
+        logger.info(registeringServicesMessage())
 
-        androidExtension.finalizeDsl {
-            val loggerProvider =
-                project.extensions.getByType(LoggerServiceExtension::class.java)
-                    .service
+        val serviceMap =
+            extension.auth.associate { authConfig ->
+                val name = authConfig.name
 
-            val logger = loggerProvider.get()
+                val service =
+                    project.gradle.sharedServices.registerIfAbsent(
+                        project.serviceName(SERVICE_NAME, name),
+                        ConfluenceService::class.java,
+                    ) {
+                        it.maxParallelUsages.set(1)
+                        it.parameters.credentials.set(authConfig.credentials)
+                        it.parameters.baseUrl.set(authConfig.baseUrl)
+                        it.parameters.loggerService.set(loggerProvider)
+                    }
 
-            if (extension.auth.isEmpty()) {
-                logger.info(noAuthConfigsMessage())
-                return@finalizeDsl
+                name to (service as Provider<*>)
             }
 
-            logger.info(registeringServicesMessage())
+        logger.info(servicesCreatedMessage(serviceMap.keys))
+        servicesProperty.set(serviceMap)
 
-            val serviceMap =
-                extension.auth.associate { authConfig ->
-                    val name = authConfig.name
+        val standaloneService = serviceMap.resolveStandaloneService<ConfluenceService>()
+        registerStandaloneTasks(project, standaloneService, loggerProvider)
+    }
 
-                    val service =
-                        project.gradle.sharedServices.registerIfAbsent(
-                            project.serviceName(SERVICE_NAME, name),
-                            ConfluenceService::class.java,
-                        ) {
-                            it.maxParallelUsages.set(1)
-                            it.parameters.credentials.set(authConfig.credentials)
-                            it.parameters.baseUrl.set(authConfig.baseUrl)
-                            it.parameters.loggerService.set(loggerProvider)
-                        }
-
-                    name to service
-                }
-
-            logger.info(servicesCreatedMessage(serviceMap.keys))
-            servicesProperty.set(serviceMap)
-        }
+    private fun registerStandaloneTasks(
+        project: Project,
+        service: Provider<ConfluenceService>,
+        loggerProvider: Provider<LoggerService>,
+    ) {
+        project.registerStandaloneServiceTask<UploadToConfluenceTask, ConfluenceService>(
+            TaskNames.Confluence.UPLOAD,
+            service,
+            loggerProvider,
+        )
+        project.registerStandaloneServiceTask<AddConfluenceCommentTask, ConfluenceService>(
+            TaskNames.Confluence.ADD_COMMENT,
+            service,
+            loggerProvider,
+        )
     }
 }

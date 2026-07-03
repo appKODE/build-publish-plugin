@@ -709,6 +709,10 @@ fun renameApkMessage(
 /**
  * Message printed when a Bundle file is being copied/renamed into its final location.
  */
+fun outputBundleFileMessage(output: File): String = "OUTPUT BUNDLE FILE: $output"
+
+fun renamedBundleFileMessage(renamedFile: File): String = "RENAMED BUNDLE FILE: $renamedFile"
+
 fun renameBundleMessage(
     inputFile: File,
     targetOutputFileName: String,

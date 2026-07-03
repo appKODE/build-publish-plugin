@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.clickup.config
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 
 /**
  * Configuration for automating ClickUp tasks during the build process.
@@ -10,7 +11,7 @@ import org.gradle.api.tasks.Optional
  * This interface defines the automation settings for interacting with ClickUp tasks.
  * It's typically configured in the build script using the `automation` block of the `buildPublishClickUp` extension.
  */
-interface ClickUpAutomationConfig {
+interface ClickUpAutomationConfig : CommonConfigMergeable<ClickUpAutomationConfig> {
     val name: String
 
     /**
@@ -58,4 +59,11 @@ interface ClickUpAutomationConfig {
     @get:Input
     @get:Optional
     val tagPattern: Property<String>
+
+    override fun inheritFrom(common: ClickUpAutomationConfig) {
+        workspaceName.convention(common.workspaceName)
+        fixVersionPattern.convention(common.fixVersionPattern)
+        fixVersionFieldName.convention(common.fixVersionFieldName)
+        tagPattern.convention(common.tagPattern)
+    }
 }

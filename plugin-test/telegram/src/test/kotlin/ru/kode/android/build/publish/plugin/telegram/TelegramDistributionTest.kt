@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
+import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLogger
 import ru.kode.android.build.publish.plugin.telegram.controller.TelegramController
 import ru.kode.android.build.publish.plugin.telegram.controller.TelegramControllerFactory
 import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
@@ -19,6 +19,8 @@ import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldNotContain
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import ru.kode.android.build.publish.plugin.test.utils.runTaskWithFail
@@ -27,7 +29,6 @@ import java.io.File
 import java.io.IOException
 
 class TelegramDistributionTest {
-
     private val logger: Logger = AlwaysInfoLogger()
 
     @TempDir
@@ -38,82 +39,73 @@ class TelegramDistributionTest {
     @BeforeEach
     fun setup() {
         projectDir = File(tempDir, "test-project")
-        telegramController = TelegramControllerFactory.build(
-            object : PluginLogger {
-                override val bodyLogging: Boolean get() = false
-
-                override fun info(message: String, exception: Throwable?) {
-                    logger.info(message)
-                }
-
-                override fun warn(message: String) {
-                    logger.warn(message)
-                }
-
-                override fun error(message: String, exception: Throwable?) {
-                    logger.error(message, exception)
-                }
-
-                override fun quiet(message: String) {
-                    logger.quiet(message)
-                }
-            }
-        )
+        telegramController =
+            TelegramControllerFactory.build(
+                pluginLoggerFromLogger(logger),
+            )
     }
 
     @Test
     @Throws(IOException::class)
     fun `telegram build distribution available with distribution config without proxy and custom server`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            telegramConfig = TelegramConfig(
-                bots = TelegramConfig.Bots(
-                    listOf(
-                        TelegramConfig.Bot(
-                            botName = "DistributionBot",
-                            botId = System.getProperty("TELEGRAM_BOT_ID"),
-                            botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
-                            botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
-                            botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
-                            chats = listOf(
-                                Chat(
-                                    chatName = "DistributionTest",
-                                    chatId = System.getProperty("TELEGRAM_CHAT_ID"),
-                                    topicId = null,
-                                )
+            telegramConfig =
+                TelegramConfig(
+                    bots =
+                        TelegramConfig.Bots(
+                            listOf(
+                                TelegramConfig.Bot(
+                                    botName = "DistributionBot",
+                                    botId = System.getProperty("TELEGRAM_BOT_ID"),
+                                    botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
+                                    botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
+                                    botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
+                                    chats =
+                                        listOf(
+                                            Chat(
+                                                chatName = "DistributionTest",
+                                                chatId = System.getProperty("TELEGRAM_CHAT_ID"),
+                                                topicId = null,
+                                            ),
+                                        ),
+                                ),
                             ),
-                        )
-                    )
+                        ),
+                    changelog = null,
+                    distribution =
+                        TelegramConfig.Distribution(
+                            destinationBots =
+                                listOf(
+                                    TelegramConfig.DestinationBot(
+                                        botName = "DistributionBot",
+                                        chatNames = listOf("DistributionTest"),
+                                    ),
+                                ),
+                        ),
                 ),
-                changelog = null,
-                distribution = TelegramConfig.Distribution(
-                    destinationBots = listOf(
-                        TelegramConfig.DestinationBot(
-                            botName = "DistributionBot",
-                            chatNames = listOf("DistributionTest")
-                        )
-                    )
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -128,12 +120,13 @@ class TelegramDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -144,26 +137,15 @@ class TelegramDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Telegram distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -171,56 +153,64 @@ class TelegramDistributionTest {
     @Throws(IOException::class)
     fun `telegram build distribution available with distribution config without proxy and custom server, compressed`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            telegramConfig = TelegramConfig(
-                bots = TelegramConfig.Bots(
-                    listOf(
-                        TelegramConfig.Bot(
-                            botName = "DistributionBot",
-                            botId = System.getProperty("TELEGRAM_BOT_ID"),
-                            botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
-                            botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
-                            botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
-                            chats = listOf(
-                                Chat(
-                                    chatName = "DistributionTest",
-                                    chatId = System.getProperty("TELEGRAM_CHAT_ID"),
-                                    topicId = null,
-                                )
+            telegramConfig =
+                TelegramConfig(
+                    bots =
+                        TelegramConfig.Bots(
+                            listOf(
+                                TelegramConfig.Bot(
+                                    botName = "DistributionBot",
+                                    botId = System.getProperty("TELEGRAM_BOT_ID"),
+                                    botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
+                                    botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
+                                    botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
+                                    chats =
+                                        listOf(
+                                            Chat(
+                                                chatName = "DistributionTest",
+                                                chatId = System.getProperty("TELEGRAM_CHAT_ID"),
+                                                topicId = null,
+                                            ),
+                                        ),
+                                ),
                             ),
-                        )
-                    )
+                        ),
+                    changelog = null,
+                    distribution =
+                        TelegramConfig.Distribution(
+                            destinationBots =
+                                listOf(
+                                    TelegramConfig.DestinationBot(
+                                        botName = "DistributionBot",
+                                        chatNames = listOf("DistributionTest"),
+                                    ),
+                                ),
+                            compressed = true,
+                        ),
                 ),
-                changelog = null,
-                distribution = TelegramConfig.Distribution(
-                    destinationBots = listOf(
-                        TelegramConfig.DestinationBot(
-                            botName = "DistributionBot",
-                            chatNames = listOf("DistributionTest")
-                        )
-                    ),
-                    compressed = true
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -235,12 +225,13 @@ class TelegramDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -251,26 +242,15 @@ class TelegramDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Telegram distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -278,55 +258,63 @@ class TelegramDistributionTest {
     @Throws(IOException::class)
     fun `telegram build distribution into channel available with distribution config without proxy and custom server`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            telegramConfig = TelegramConfig(
-                bots = TelegramConfig.Bots(
-                    listOf(
-                        TelegramConfig.Bot(
-                            botName = "DistributionBot",
-                            botId = System.getProperty("TELEGRAM_BOT_ID"),
-                            botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
-                            botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
-                            botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
-                            chats = listOf(
-                                Chat(
-                                    chatName = "DistributionTest",
-                                    chatId = System.getProperty("TELEGRAM_CHANNEL_ID"),
-                                    topicId = null,
-                                )
+            telegramConfig =
+                TelegramConfig(
+                    bots =
+                        TelegramConfig.Bots(
+                            listOf(
+                                TelegramConfig.Bot(
+                                    botName = "DistributionBot",
+                                    botId = System.getProperty("TELEGRAM_BOT_ID"),
+                                    botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
+                                    botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
+                                    botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
+                                    chats =
+                                        listOf(
+                                            Chat(
+                                                chatName = "DistributionTest",
+                                                chatId = System.getProperty("TELEGRAM_CHANNEL_ID"),
+                                                topicId = null,
+                                            ),
+                                        ),
+                                ),
                             ),
-                        )
-                    )
+                        ),
+                    changelog = null,
+                    distribution =
+                        TelegramConfig.Distribution(
+                            destinationBots =
+                                listOf(
+                                    TelegramConfig.DestinationBot(
+                                        botName = "DistributionBot",
+                                        chatNames = listOf("DistributionTest"),
+                                    ),
+                                ),
+                        ),
                 ),
-                changelog = null,
-                distribution = TelegramConfig.Distribution(
-                    destinationBots = listOf(
-                        TelegramConfig.DestinationBot(
-                            botName = "DistributionBot",
-                            chatNames = listOf("DistributionTest")
-                        )
-                    )
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -341,12 +329,13 @@ class TelegramDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -357,26 +346,15 @@ class TelegramDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Telegram distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -384,55 +362,63 @@ class TelegramDistributionTest {
     @Throws(IOException::class)
     fun `telegram build distribution into forum available with distribution config without proxy and custom server`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            telegramConfig = TelegramConfig(
-                bots = TelegramConfig.Bots(
-                    listOf(
-                        TelegramConfig.Bot(
-                            botName = "DistributionBot",
-                            botId = System.getProperty("TELEGRAM_BOT_ID"),
-                            botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
-                            botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
-                            botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
-                            chats = listOf(
-                                Chat(
-                                    chatName = "DistributionTest",
-                                    chatId = System.getProperty("TELEGRAM_CHAT_FORUM_ID"),
-                                    topicId = System.getProperty("TELEGRAM_CHAT_FORUM_TOPIC_ID"),
-                                )
+            telegramConfig =
+                TelegramConfig(
+                    bots =
+                        TelegramConfig.Bots(
+                            listOf(
+                                TelegramConfig.Bot(
+                                    botName = "DistributionBot",
+                                    botId = System.getProperty("TELEGRAM_BOT_ID"),
+                                    botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
+                                    botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
+                                    botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
+                                    chats =
+                                        listOf(
+                                            Chat(
+                                                chatName = "DistributionTest",
+                                                chatId = System.getProperty("TELEGRAM_CHAT_FORUM_ID"),
+                                                topicId = System.getProperty("TELEGRAM_CHAT_FORUM_TOPIC_ID"),
+                                            ),
+                                        ),
+                                ),
                             ),
-                        )
-                    )
+                        ),
+                    changelog = null,
+                    distribution =
+                        TelegramConfig.Distribution(
+                            destinationBots =
+                                listOf(
+                                    TelegramConfig.DestinationBot(
+                                        botName = "DistributionBot",
+                                        chatNames = listOf("DistributionTest"),
+                                    ),
+                                ),
+                        ),
                 ),
-                changelog = null,
-                distribution = TelegramConfig.Distribution(
-                    destinationBots = listOf(
-                        TelegramConfig.DestinationBot(
-                            botName = "DistributionBot",
-                            chatNames = listOf("DistributionTest")
-                        )
-                    )
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -447,12 +433,13 @@ class TelegramDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -463,26 +450,15 @@ class TelegramDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Telegram distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -490,69 +466,80 @@ class TelegramDistributionTest {
     @Throws(IOException::class)
     fun `telegram build distribution available with distribution and changelog configs without proxy and custom server`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            telegramConfig = TelegramConfig(
-                bots = TelegramConfig.Bots(
-                    listOf(
-                        TelegramConfig.Bot(
-                            botName = "DistributionBot",
-                            botId = System.getProperty("TELEGRAM_BOT_ID"),
-                            botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
-                            botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
-                            botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
-                            chats = listOf(
-                                Chat(
-                                    chatName = "DistributionTest",
-                                    chatId = System.getProperty("TELEGRAM_CHAT_ID"),
-                                    topicId = null,
-                                )
+            telegramConfig =
+                TelegramConfig(
+                    bots =
+                        TelegramConfig.Bots(
+                            listOf(
+                                TelegramConfig.Bot(
+                                    botName = "DistributionBot",
+                                    botId = System.getProperty("TELEGRAM_BOT_ID"),
+                                    botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
+                                    botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
+                                    botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
+                                    chats =
+                                        listOf(
+                                            Chat(
+                                                chatName = "DistributionTest",
+                                                chatId = System.getProperty("TELEGRAM_CHAT_ID"),
+                                                topicId = null,
+                                            ),
+                                        ),
+                                ),
                             ),
-                        )
-                    )
+                        ),
+                    changelog =
+                        TelegramConfig.Changelog(
+                            userMentions =
+                                listOf(
+                                    "@melora_silvian_ar",
+                                    "@renalt_meridun_rt",
+                                    "@theronvale_miro_xt",
+                                    "@corvann_elidra_qm",
+                                    "@Marvilo7",
+                                ),
+                            destinationBots =
+                                listOf(
+                                    TelegramConfig.DestinationBot(
+                                        botName = "DistributionBot",
+                                        chatNames = listOf("DistributionTest"),
+                                    ),
+                                ),
+                        ),
+                    distribution =
+                        TelegramConfig.Distribution(
+                            destinationBots =
+                                listOf(
+                                    TelegramConfig.DestinationBot(
+                                        botName = "DistributionBot",
+                                        chatNames = listOf("DistributionTest"),
+                                    ),
+                                ),
+                        ),
                 ),
-                changelog = TelegramConfig.Changelog(
-                    userMentions = listOf(
-                        "@melora_silvian_ar",
-                        "@renalt_meridun_rt",
-                        "@theronvale_miro_xt",
-                        "@corvann_elidra_qm",
-                        "@Marvilo7"
-                    ),
-                    destinationBots = listOf(
-                        TelegramConfig.DestinationBot(
-                            botName = "DistributionBot",
-                            chatNames = listOf("DistributionTest")
-                        )
-                    )
-                ),
-                distribution = TelegramConfig.Distribution(
-                    destinationBots = listOf(
-                        TelegramConfig.DestinationBot(
-                            botName = "DistributionBot",
-                            chatNames = listOf("DistributionTest")
-                        )
-                    )
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -567,12 +554,13 @@ class TelegramDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -583,26 +571,15 @@ class TelegramDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !changelogResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Telegram changelog successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Telegram distribution successful"
-        )
+        changelogResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -610,70 +587,80 @@ class TelegramDistributionTest {
     @Throws(IOException::class)
     fun `telegram build distribution available with simultaneous distribution and changelog configs without proxy and custom server`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            telegramConfig = TelegramConfig(
-                bots = TelegramConfig.Bots(
-                    listOf(
-                        TelegramConfig.Bot(
-                            botName = "DistributionBot",
-                            botId = System.getProperty("TELEGRAM_BOT_ID"),
-                            botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
-                            botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
-                            botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
-                            chats = listOf(
-                                Chat(
-                                    chatName = "DistributionTest",
-                                    chatId = System.getProperty("TELEGRAM_CHAT_ID"),
-                                    topicId = null,
-                                )
+            telegramConfig =
+                TelegramConfig(
+                    bots =
+                        TelegramConfig.Bots(
+                            listOf(
+                                TelegramConfig.Bot(
+                                    botName = "DistributionBot",
+                                    botId = System.getProperty("TELEGRAM_BOT_ID"),
+                                    botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
+                                    botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
+                                    botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
+                                    chats =
+                                        listOf(
+                                            Chat(
+                                                chatName = "DistributionTest",
+                                                chatId = System.getProperty("TELEGRAM_CHAT_ID"),
+                                                topicId = null,
+                                            ),
+                                        ),
+                                ),
                             ),
-                        )
-                    )
+                        ),
+                    changelog =
+                        TelegramConfig.Changelog(
+                            userMentions =
+                                listOf(
+                                    "@melora_silvian_ar",
+                                    "@renalt_meridun_rt",
+                                    "@theronvale_miro_xt",
+                                    "@corvann_elidra_qm",
+                                    "@Marvilo7",
+                                ),
+                            destinationBots =
+                                listOf(
+                                    TelegramConfig.DestinationBot(
+                                        botName = "DistributionBot",
+                                        chatNames = listOf("DistributionTest"),
+                                    ),
+                                ),
+                        ),
+                    distribution =
+                        TelegramConfig.Distribution(
+                            destinationBots =
+                                listOf(
+                                    TelegramConfig.DestinationBot(
+                                        botName = "DistributionBot",
+                                        chatNames = listOf("DistributionTest"),
+                                    ),
+                                ),
+                        ),
                 ),
-                changelog = TelegramConfig.Changelog(
-                    userMentions = listOf(
-                        "@melora_silvian_ar",
-                        "@renalt_meridun_rt",
-                        "@theronvale_miro_xt",
-                        "@corvann_elidra_qm",
-                        "@Marvilo7"
-                    ),
-                    destinationBots = listOf(
-                        TelegramConfig.DestinationBot(
-                            botName = "DistributionBot",
-                            chatNames = listOf("DistributionTest")
-                        )
-                    )
-                ),
-                distribution = TelegramConfig.Distribution(
-                    destinationBots = listOf(
-                        TelegramConfig.DestinationBot(
-                            botName = "DistributionBot",
-                            chatNames = listOf("DistributionTest")
-                        )
-                    )
-                )
-
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -688,12 +675,13 @@ class TelegramDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -703,26 +691,15 @@ class TelegramDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !result.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            result.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Telegram changelog and distribution successful",
-        )
-        assertTrue(
-            !result.output.contains("BUILD FAILED"),
-            "Telegram changelog and distribution not failed"
-        )
+        result.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        result.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        result.outputShouldContain("BUILD SUCCESSFUL")
+        result.outputShouldNotContain("BUILD FAILED")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -730,56 +707,63 @@ class TelegramDistributionTest {
     @Throws(IOException::class)
     fun `telegram build distribution available with distribution config without proxy and custom server, without assemble`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            telegramConfig = TelegramConfig(
-                bots = TelegramConfig.Bots(
-                    listOf(
-                        TelegramConfig.Bot(
-                            botName = "DistributionBot",
-                            botId = System.getProperty("TELEGRAM_BOT_ID"),
-                            botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
-                            botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
-                            botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
-                            chats = listOf(
-                                Chat(
-                                    chatName = "DistributionTest",
-                                    chatId = System.getProperty("TELEGRAM_CHAT_ID"),
-                                    topicId = null,
-                                )
+            telegramConfig =
+                TelegramConfig(
+                    bots =
+                        TelegramConfig.Bots(
+                            listOf(
+                                TelegramConfig.Bot(
+                                    botName = "DistributionBot",
+                                    botId = System.getProperty("TELEGRAM_BOT_ID"),
+                                    botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
+                                    botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
+                                    botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
+                                    chats =
+                                        listOf(
+                                            Chat(
+                                                chatName = "DistributionTest",
+                                                chatId = System.getProperty("TELEGRAM_CHAT_ID"),
+                                                topicId = null,
+                                            ),
+                                        ),
+                                ),
                             ),
-                        )
-                    )
+                        ),
+                    changelog = null,
+                    distribution =
+                        TelegramConfig.Distribution(
+                            destinationBots =
+                                listOf(
+                                    TelegramConfig.DestinationBot(
+                                        botName = "DistributionBot",
+                                        chatNames = listOf("DistributionTest"),
+                                    ),
+                                ),
+                        ),
                 ),
-                changelog = null,
-                distribution = TelegramConfig.Distribution(
-                    destinationBots = listOf(
-                        TelegramConfig.DestinationBot(
-                            botName = "DistributionBot",
-                            chatNames = listOf("DistributionTest")
-                        )
-                    )
-                )
-
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -793,12 +777,13 @@ class TelegramDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
@@ -808,22 +793,14 @@ class TelegramDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !distributionResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            distributionResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Telegram distribution successful"
-        )
+        distributionResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        distributionResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
     }
 
@@ -831,56 +808,63 @@ class TelegramDistributionTest {
     @Throws(IOException::class)
     fun `telegram build bundle distribution available with distribution config without proxy and custom server`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            telegramConfig = TelegramConfig(
-                bots = TelegramConfig.Bots(
-                    listOf(
-                        TelegramConfig.Bot(
-                            botName = "DistributionBot",
-                            botId = System.getProperty("TELEGRAM_BOT_ID"),
-                            botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
-                            botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
-                            botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
-                            chats = listOf(
-                                Chat(
-                                    chatName = "DistributionTest",
-                                    chatId = System.getProperty("TELEGRAM_CHAT_ID"),
-                                    topicId = null,
-                                )
+            telegramConfig =
+                TelegramConfig(
+                    bots =
+                        TelegramConfig.Bots(
+                            listOf(
+                                TelegramConfig.Bot(
+                                    botName = "DistributionBot",
+                                    botId = System.getProperty("TELEGRAM_BOT_ID"),
+                                    botServerBaseUrl = System.getProperty("TELEGRAM_BOT_SERVER_BASE_URL"),
+                                    botServerUsername = System.getProperty("TELEGRAM_BOT_SERVER_USERNAME"),
+                                    botServerPassword = System.getProperty("TELEGRAM_BOT_SERVER_PASSWORD"),
+                                    chats =
+                                        listOf(
+                                            Chat(
+                                                chatName = "DistributionTest",
+                                                chatId = System.getProperty("TELEGRAM_CHAT_ID"),
+                                                topicId = null,
+                                            ),
+                                        ),
+                                ),
                             ),
-                        )
-                    )
+                        ),
+                    changelog = null,
+                    distribution =
+                        TelegramConfig.Distribution(
+                            destinationBots =
+                                listOf(
+                                    TelegramConfig.DestinationBot(
+                                        botName = "DistributionBot",
+                                        chatNames = listOf("DistributionTest"),
+                                    ),
+                                ),
+                        ),
                 ),
-                changelog = null,
-                distribution = TelegramConfig.Distribution(
-                    destinationBots = listOf(
-                        TelegramConfig.DestinationBot(
-                            botName = "DistributionBot",
-                            chatNames = listOf("DistributionTest")
-                        )
-                    )
-                )
-
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -895,16 +879,16 @@ class TelegramDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
-
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val distributionResult: BuildResult = projectDir.runTask(givenTelegramDistributionTask)
@@ -912,25 +896,14 @@ class TelegramDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val bundleDir = projectDir.getFile("app/build/outputs/bundle/debug")
-        val givenOutputFile = bundleDir.listFiles()
-            ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
+        val givenOutputFile =
+            bundleDir.listFiles()
+                ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Telegram distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFile!!.exists(), "Output file exists")
     }
 
@@ -946,17 +919,18 @@ class TelegramDistributionTest {
                             baseFileName = "autotest",
                         ),
                 ),
-            telegramConfig = TelegramConfig(
-                bots = TelegramConfig.Bots(emptyList()),
-                changelog = null,
-                distribution = null
-
-            ),
-            topBuildFileContent = """
+            telegramConfig =
+                TelegramConfig(
+                    bots = TelegramConfig.Bots(emptyList()),
+                    changelog = null,
+                    distribution = null,
+                ),
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName = "v1.0.1-debug"
         val givenCommitMessage = "Initial commit"
@@ -973,33 +947,22 @@ class TelegramDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD FAILED"),
-            "Build failed",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD FAILED"),
-            "Telegram distribution failed"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD FAILED")
+        automationResult.outputShouldContain("BUILD FAILED")
         assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 }
 
 private fun getChangelog(): String {
     return """
-[TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
-[TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
-    """.trimIndent()
+        [TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
+        [TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
+        """.trimIndent()
 }

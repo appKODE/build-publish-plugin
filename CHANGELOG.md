@@ -12,6 +12,22 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 2.0.0
+
+> **Breaking release.** Upgrading from 1.x? Follow the
+> **[migration guide to 2.0](docs/migration/v2.md)**. Use with **build-publish-novo-core 2.0.0**.
+
+* Update deps: Kotlin `2.4.0`, KSP `2.3.9`, AGP `9.2.1` (min Gradle `9.4.1`), Gradle wrapper `9.6.1`, Firebase App Distribution `5.3.0`, OkHttp `5.4.0`, JUnit BOM `6.1.1`, Google Auth `1.48.0`, kotlinx.serialization `1.11.0`, Vanniktech Maven Publish `0.37.0`, Play Publisher `v3-rev20260625`; add an AGP `9.2.1` assemble test
+* **Breaking:** changelog `issueNumberPattern` / `issueUrlPrefix` replaced by named `issueSources { issueSource("name") { numberPattern; urlPrefix } }` (unwrapped `issueSource` shorthand for one source); standalone `--issueNumberPattern` → repeatable `--issuePattern`
+* **Breaking:** Jira `auth { }` now holds named `instance("name") { baseUrl; credentials }` (like Telegram bots) instead of one variant-keyed credential set; projects select one via `instanceName`, defaulting to `default`
+* **Breaking:** Jira automation targets self-contained `projects { project("name") { projectKey; instanceName?; labelPattern?/fixVersionPattern?/targetStatusName? } }` routed by issue-key prefix (unwrapped `project` shorthand for one); automation-level `projectKey`/patterns and their `--projectKey`/`--*Pattern` overrides removed; unknown `instanceName` / duplicate keys fail fast; standalone Jira tasks gain `--instanceName`
+* Expose `build-publish-novo-core` as an `api` dependency so its public DSL types (strategies, `CollectionStrategy`, config bases) reach consumers transitively; `client-*` stay `implementation`
+* Add Groovy `Closure` overloads (with `@DelegatesTo`) across the nested-container DSL methods
+* Extract network clients into publishable `build-publish-novo-client-{slack,telegram,nextcloud,jira,confluence,clickup}` libraries, consumed via the catalog / composite-build substitution
+* Add standalone CLI tasks per integration plus an Android-free `plugin-sender` aggregator; shared multi-step logic lives in controller action functions
+* Jira: a project with no matching changelog issues now logs an info message and is skipped; `transitionJiraIssue` uppercases the project key and fails fast on a missing transition
+* Confluence client: fix silently-swallowed attachment/comment removal failures; add formatted write errors
+
 ### 1.2.17
 * Add Nextcloud plugin (`build-publish-novo-nextcloud`) for uploading builds and changelogs to Nextcloud
 * Fix CI/CD race condition when multiple tags exist on the same commit: use `CI_COMMIT_TAG` env var for exact tag resolution
@@ -101,6 +117,9 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 ---
 
 ## 📦 build-publish-novo-core
+
+### 2.0.0
+* Version bump to align with the 2.0.0 plugin release; plugins now expose the core as an `api` dependency, so its public DSL types (strategies, `CollectionStrategy`, config bases) reach consumers transitively
 
 ### 1.2.17
 * Add `ciCommitTag` support in `GitCommandExecutor` and `GitRepository` to fix tag resolution race condition on concurrent CI pipelines

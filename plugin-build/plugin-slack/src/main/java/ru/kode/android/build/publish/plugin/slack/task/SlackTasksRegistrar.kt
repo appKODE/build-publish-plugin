@@ -5,9 +5,11 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.enity.IssueSource
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
@@ -18,10 +20,6 @@ import ru.kode.android.build.publish.plugin.slack.messages.bundleDistributionNot
 import ru.kode.android.build.publish.plugin.slack.service.SlackServiceExtension
 import ru.kode.android.build.publish.plugin.slack.task.changelog.SendSlackChangelogTask
 import ru.kode.android.build.publish.plugin.slack.task.distribution.SlackDistributionTask
-
-internal const val SEND_SLACK_CHANGELOG_TASK_PREFIX = "sendSlackChangelog"
-internal const val SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX = "slackDistributionUpload"
-internal const val SLACK_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "slackDistributionUploadBundle"
 
 /**
  * Utility object for registering Slack-related Gradle tasks.
@@ -128,7 +126,7 @@ private fun Project.registerSendSlackChangelogTask(
     params: SlackChangelogTaskParams,
 ): TaskProvider<SendSlackChangelogTask> {
     return tasks.register(
-        "$SEND_SLACK_CHANGELOG_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "${TaskNames.Slack.SEND_CHANGELOG_PREFIX}${params.buildVariant.capitalizedName()}",
         SendSlackChangelogTask::class.java,
     ) {
         val service =
@@ -144,8 +142,11 @@ private fun Project.registerSendSlackChangelogTask(
 
         it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
         it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
-        it.issueUrlPrefix.set(params.issueUrlPrefix)
-        it.issueNumberPattern.set(params.issueNumberPattern)
+        it.issueSources.set(
+            params.issueSources.map { sources ->
+                sources.associate { source -> source.numberPattern to source.urlPrefix.orEmpty() }
+            },
+        )
         it.baseOutputFileName.set(params.baseFileName)
         it.iconUrl.set(botConfig.iconUrl)
         it.userMentions.set(changelogConfig.userMentions)
@@ -173,7 +174,7 @@ private fun Project.registerApkSlackDistributionTask(
     params: SlackApkDistributionTaskParams,
 ): TaskProvider<SlackDistributionTask> {
     return tasks.register(
-        "$SLACK_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "${TaskNames.Slack.DISTRIBUTION_UPLOAD_PREFIX}${params.buildVariant.capitalizedName()}",
         SlackDistributionTask::class.java,
     ) {
         val service =
@@ -214,7 +215,7 @@ private fun Project.registerBundleSlackDistributionTask(
     params: SlackBundleDistributionTaskParams,
 ): TaskProvider<SlackDistributionTask>? {
     return tasks.register(
-        "$SLACK_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "${TaskNames.Slack.DISTRIBUTION_UPLOAD_BUNDLE_PREFIX}${params.buildVariant.capitalizedName()}",
         SlackDistributionTask::class.java,
     ) {
         val service =
@@ -259,13 +260,9 @@ internal data class SlackChangelogTaskParams(
      */
     val buildTagSnapshotProvider: Provider<out GetLastTagSnapshotTaskOutput>,
     /**
-     * Base URL for issue links
+     * Changelog issue sources (extraction pattern + optional link URL prefix)
      */
-    val issueUrlPrefix: Provider<String>,
-    /**
-     * Regex pattern for matching issue numbers in commit messages
-     */
-    val issueNumberPattern: Provider<String>,
+    val issueSources: Provider<List<IssueSource>>,
     /**
      * Base name to use for the build in notifications
      */

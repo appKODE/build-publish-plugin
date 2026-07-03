@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.clickup.task.automation
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -98,7 +99,7 @@ abstract class ClickUpAutomationTask
         /**
          * The changelog file containing commit messages and issue references.
          *
-         * This file is parsed to extract issue numbers that match the [issueNumberPattern].
+         * This file is parsed to extract issue numbers that match the [issuePatterns].
          * Each matching issue will be processed to add tags or update versions.
          */
         @get:InputFile
@@ -119,10 +120,10 @@ abstract class ClickUpAutomationTask
          */
         @get:Input
         @get:Option(
-            option = "issueNumberPattern",
-            description = "Regex pattern to extract issue numbers from changelog",
+            option = "issuePattern",
+            description = "Regex pattern to extract issue numbers from changelog (repeatable)",
         )
-        abstract val issueNumberPattern: Property<String>
+        abstract val issuePatterns: ListProperty<String>
 
         /**
          * Pattern used to format the fix version for ClickUp tasks.
@@ -186,7 +187,7 @@ abstract class ClickUpAutomationTask
          *
          * This method:
          * 1. Reads the build tag and changelog files
-         * 2. Extracts issue numbers from the changelog using [issueNumberPattern]
+         * 2. Extracts issue numbers from the changelog using [issuePatterns]
          * 3. If no issues are found, logs a message and exits
          * 4. Otherwise, submits work items to update versions and/or add tags
          *
@@ -197,9 +198,10 @@ abstract class ClickUpAutomationTask
             val currentBuildTag = fromJson(buildTagSnapshotFile.asFile.get()).current
             val changelog = changelogFile.asFile.get().readText()
             val issues =
-                Regex(issueNumberPattern.get())
-                    .findAll(changelog)
-                    .mapTo(mutableSetOf()) { it.groupValues[0] }
+                issuePatterns.get()
+                    .flatMapTo(mutableSetOf()) { pattern ->
+                        Regex(pattern).findAll(changelog).map { it.value }.asIterable()
+                    }
             if (issues.isEmpty()) {
                 loggerService.get().info(issuesNotFoundMessage())
             } else {

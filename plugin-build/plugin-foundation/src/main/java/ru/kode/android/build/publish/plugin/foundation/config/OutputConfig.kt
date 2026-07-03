@@ -10,6 +10,7 @@ import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.OutputBundleNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 
 /**
  * Configuration interface for build output settings.
@@ -18,7 +19,7 @@ import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
  * and naming conventions. It's used to customize how build artifacts are named and versioned
  * during the build process.
  */
-abstract class OutputConfig {
+abstract class OutputConfig : CommonConfigMergeable<OutputConfig> {
     abstract val name: String
 
     /**
@@ -275,5 +276,17 @@ abstract class OutputConfig {
         strategyClosure: Closure<out OutputBundleNameStrategy>,
     ) {
         outputBundleNameStrategy.set(strategyClosure.call())
+    }
+
+    override fun inheritFrom(common: OutputConfig) {
+        baseFileName.convention(common.baseFileName)
+        useVersionsFromTag.convention(common.useVersionsFromTag)
+        useStubsForTagAsFallback.convention(common.useStubsForTagAsFallback)
+        useDefaultsForVersionsAsFallback.convention(common.useDefaultsForVersionsAsFallback)
+        buildTagPattern.convention(common.buildTagPattern)
+        versionNameStrategy.convention(common.versionNameStrategy)
+        versionCodeStrategy.convention(common.versionCodeStrategy)
+        outputApkNameStrategy.convention(common.outputApkNameStrategy)
+        outputBundleNameStrategy.convention(common.outputBundleNameStrategy)
     }
 }

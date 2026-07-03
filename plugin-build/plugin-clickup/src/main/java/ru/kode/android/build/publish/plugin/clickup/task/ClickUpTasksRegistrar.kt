@@ -12,10 +12,9 @@ import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
-
-internal const val CLICK_UP_AUTOMATION_TASK = "clickUpAutomation"
 
 /**
  * Registrar for ClickUp-related Gradle tasks.
@@ -77,7 +76,7 @@ private fun Project.registerClickUpTasks(
 
     return if (fixVersionIsPresent || automationConfig.tagPattern.isPresent) {
         tasks.register(
-            "$CLICK_UP_AUTOMATION_TASK${params.buildVariant.capitalizedName()}",
+            "${TaskNames.ClickUp.AUTOMATION_PREFIX}${params.buildVariant.capitalizedName()}",
             ClickUpAutomationTask::class.java,
         ) {
             val service =
@@ -93,7 +92,7 @@ private fun Project.registerClickUpTasks(
             it.workspaceName.set(automationConfig.workspaceName)
             it.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
             it.changelogFile.set(params.changelogFileProvider.flatMap { it.changelogFile })
-            it.issueNumberPattern.set(params.issueNumberPattern)
+            it.issuePatterns.set(params.issuePatterns)
             it.fixVersionPattern.set(automationConfig.fixVersionPattern)
             it.fixVersionFieldName.set(automationConfig.fixVersionFieldName)
             it.tagPattern.set(automationConfig.tagPattern)
@@ -121,9 +120,9 @@ internal data class ClickUpAutomationTaskParams(
      */
     val buildVariant: BuildVariant,
     /**
-     * A pattern used to extract issue numbers from commit messages
+     * Patterns (one per changelog issue source) used to extract issue numbers from commit messages
      */
-    val issueNumberPattern: Provider<String>,
+    val issuePatterns: Provider<List<String>>,
     /**
      * The file containing the changelog for this build
      */

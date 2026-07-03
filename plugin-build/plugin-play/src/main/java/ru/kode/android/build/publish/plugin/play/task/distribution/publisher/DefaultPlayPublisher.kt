@@ -13,7 +13,10 @@ import com.google.api.services.androidpublisher.model.ExpansionFile
 import com.google.api.services.androidpublisher.model.InAppProduct
 import com.google.api.services.androidpublisher.model.Track
 import ru.kode.android.build.publish.plugin.core.util.APK_FILE_EXTENSION
-import ru.kode.android.build.publish.plugin.core.util.capitalized
+import ru.kode.android.build.publish.plugin.play.messages.startingUploadMessage
+import ru.kode.android.build.publish.plugin.play.messages.updatingTrackMessage
+import ru.kode.android.build.publish.plugin.play.messages.uploadCompleteMessage
+import ru.kode.android.build.publish.plugin.play.messages.uploadingProgressMessage
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -82,9 +85,12 @@ internal class DefaultPlayPublisher(
         track: Track,
     ) {
         println(
-            "Updating ${track.releases.map { it.status }.distinct()} release " +
-                "($appId:${track.releases.flatMap { it.versionCodes.orEmpty() }}) " +
-                "in track '${track.track}'",
+            updatingTrackMessage(
+                statuses = track.releases.map { it.status }.distinct(),
+                appId = appId,
+                versionCodes = track.releases.flatMap { it.versionCodes.orEmpty() },
+                trackName = track.track,
+            ),
         )
         publisher.edits().tracks().update(appId, editId, track.track, track).execute()
     }
@@ -217,13 +223,13 @@ internal class DefaultPlayPublisher(
         mediaHttpUploader?.setProgressListener {
             when (it.uploadState) {
                 MediaHttpUploader.UploadState.INITIATION_STARTED ->
-                    println("Starting $thing upload: $file")
+                    println(startingUploadMessage(thing, file))
 
                 MediaHttpUploader.UploadState.MEDIA_IN_PROGRESS ->
-                    println("Uploading $thing: ${(it.progress * 100).roundToInt()}% complete")
+                    println(uploadingProgressMessage(thing, (it.progress * 100).roundToInt()))
 
                 MediaHttpUploader.UploadState.MEDIA_COMPLETE ->
-                    println("${thing.capitalized()} upload complete")
+                    println(uploadCompleteMessage(thing))
 
                 else -> {}
             }

@@ -1,5 +1,7 @@
 package ru.kode.android.build.publish.plugin.telegram.config
 
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
@@ -9,6 +11,9 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
+import ru.kode.android.build.publish.plugin.core.util.inheritNamedFrom
 import javax.inject.Inject
 
 /**
@@ -24,7 +29,8 @@ abstract class TelegramBotConfig
     @Inject
     constructor(
         objects: ObjectFactory,
-    ) : Named {
+    ) : Named,
+        CommonConfigMergeable<TelegramBotConfig> {
         /**
          * The Telegram bot token used for authenticating API requests.
          *
@@ -93,5 +99,28 @@ abstract class TelegramBotConfig
             action: Action<TelegramChatConfig>,
         ) {
             chats.register(chatName, action)
+        }
+
+        /**
+         * Configures a chat with the given name using a Groovy closure.
+         *
+         * @param chatName A unique identifier for the chat configuration (e.g., "releases", "builds").
+         * @param configurationClosure The Groovy closure applied to the new [TelegramChatConfig].
+         *
+         * @see chat
+         */
+        fun chat(
+            chatName: String,
+            @DelegatesTo(value = TelegramChatConfig::class, strategy = Closure.DELEGATE_FIRST)
+            configurationClosure: Closure<in TelegramChatConfig>,
+        ) {
+            chat(chatName) { target -> configureGroovy(configurationClosure, target) }
+        }
+
+        override fun inheritFrom(common: TelegramBotConfig) {
+            botId.convention(common.botId)
+            botServerBaseUrl.convention(common.botServerBaseUrl)
+            botServerAuth.inheritFrom(common.botServerAuth)
+            chats.inheritNamedFrom(common.chats)
         }
     }

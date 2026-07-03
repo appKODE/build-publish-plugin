@@ -1,3 +1,6 @@
+// Long, descriptive backtick test names intentionally exceed the line limit.
+@file:Suppress("ktlint:standard:max-line-length")
+
 package ru.kode.android.build.publish.plugin.jira
 
 import org.gradle.api.logging.Logger
@@ -7,7 +10,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
+import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLogger
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.factory.JiraControllerFactory
 import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
@@ -16,16 +19,18 @@ import ru.kode.android.build.publish.plugin.test.utils.FoundationConfig
 import ru.kode.android.build.publish.plugin.test.utils.JiraConfig
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
+import ru.kode.android.build.publish.plugin.test.utils.awaitUntil
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldNotContain
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import java.io.File
 import java.io.IOException
 
 class JiraAllAutomationTest {
-
     private val logger: Logger = AlwaysInfoLogger()
 
     @TempDir
@@ -36,30 +41,13 @@ class JiraAllAutomationTest {
     @BeforeEach
     fun setup() {
         projectDir = File(tempDir, "test-project")
-        jiraController = JiraControllerFactory.build(
-            baseUrl = System.getProperty("JIRA_BASE_URL"),
-            username = System.getProperty("JIRA_USER_NAME"),
-            password = System.getProperty("JIRA_USER_PASSWORD"),
-            logger = object : PluginLogger {
-                override val bodyLogging: Boolean get() = false
-
-                override fun info(message: String, exception: Throwable?) {
-                    logger.info(message)
-                }
-
-                override fun warn(message: String) {
-                    logger.warn(message)
-                }
-
-                override fun error(message: String, exception: Throwable?) {
-                    logger.error(message, exception)
-                }
-
-                override fun quiet(message: String) {
-                    logger.quiet(message)
-                }
-            }
-        )
+        jiraController =
+            JiraControllerFactory.build(
+                baseUrl = System.getProperty("JIRA_BASE_URL"),
+                username = System.getProperty("JIRA_USER_NAME"),
+                password = System.getProperty("JIRA_USER_PASSWORD"),
+                logger = pluginLoggerFromLogger(logger),
+            )
     }
 
     @Test
@@ -77,11 +65,12 @@ class JiraAllAutomationTest {
 
         val beforeAutomationStatusId = jiraController.getIssueStatus(givenIssueKey1)
 
-        val targetAutomationStatusName = if (beforeAutomationStatusId?.id == todoStatus?.id) {
-            inProgressStatus!!.name
-        } else {
-            todoStatus!!.name
-        }
+        val targetAutomationStatusName =
+            if (beforeAutomationStatusId?.id == todoStatus?.id) {
+                inProgressStatus!!.name
+            } else {
+                todoStatus!!.name
+            }
 
         val expectedIssueKey1 = "AT-297"
         val expectedIssueKey2 = "AT-298"
@@ -89,28 +78,35 @@ class JiraAllAutomationTest {
         val expectedFixVersion = "fix_1.0.2"
         val expectedIssueLabel = "fix_1.0.2"
 
+        // Start from a clean slate: the automation under test creates the project version itself, so
+        // any leftover "fix_1.0.2" from a previous run must be deleted first — otherwise the plugin's
+        // createProjectVersion collides with a 400 "version already exists" and the fix version never
+        // gets attached. Mirrors the cleanup in JiraFixVersionAutomationTest.
         val projectFixVersions = jiraController.getProjectVersions(projectKey)
         val fixVersion = projectFixVersions.find { it.name == expectedFixVersion }
-        if (fixVersion == null) {
-            val projectId = jiraController.getProjectId(projectKey)
-            jiraController.createProjectVersion(projectId, expectedFixVersion)
+        if (fixVersion != null) {
+            jiraController.removeIssueFixVersion(givenIssueKey1, fixVersion.name)
+            jiraController.removeIssueFixVersion(givenIssueKey2, fixVersion.name)
+            jiraController.removeProjectVersion(fixVersion.id)
         }
 
-        jiraController.removeIssueFixVersion(givenIssueKey1, expectedFixVersion)
-        val beforeAutomationFixVersions1 = jiraController.getIssueFixVersions(givenIssueKey1).map { it.name }
-        assertTrue { !beforeAutomationFixVersions1.contains(expectedFixVersion) }
+        awaitUntil("fix version $expectedFixVersion absent from $givenIssueKey1") {
+            !jiraController.getIssueFixVersions(givenIssueKey1).map { it.name }.contains(expectedFixVersion)
+        }
 
-        jiraController.removeIssueFixVersion(givenIssueKey2, expectedFixVersion)
-        val beforeAutomationFixVersions2 = jiraController.getIssueFixVersions(givenIssueKey2).map { it.name }
-        assertTrue { !beforeAutomationFixVersions2.contains(expectedFixVersion) }
+        awaitUntil("fix version $expectedFixVersion absent from $givenIssueKey2") {
+            !jiraController.getIssueFixVersions(givenIssueKey2).map { it.name }.contains(expectedFixVersion)
+        }
 
         jiraController.removeIssueLabel(expectedIssueKey1, expectedIssueLabel)
-        val beforeAutomationLabels1 = jiraController.getIssueLabels(expectedIssueKey1)
-        assertTrue { !beforeAutomationLabels1.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel absent from $expectedIssueKey1") {
+            !jiraController.getIssueLabels(expectedIssueKey1).contains(expectedIssueLabel)
+        }
 
         jiraController.removeIssueLabel(expectedIssueKey2, expectedIssueLabel)
-        val beforeAutomationLabels2 = jiraController.getIssueLabels(expectedIssueKey2)
-        assertTrue { !beforeAutomationLabels2.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel absent from $expectedIssueKey2") {
+            !jiraController.getIssueLabels(expectedIssueKey2).contains(expectedIssueLabel)
+        }
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -120,44 +116,51 @@ class JiraAllAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = "fix_%1\\\$s.%2\\\$s",
+                            fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetStatusName = targetAutomationStatusName.lowercase(),
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = "fix_%1\\\$s.%2\\\$s",
-                    fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
-                    targetStatusName = targetAutomationStatusName.lowercase()
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
 
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey1: Add test readme
             
             CHANGELOG: [$givenIssueKey1] Задача для проверки работы BuildPublishPlugin с фиксверсией 2
-        """.trimIndent()
-        val givenCommitMessage3 = """
+            """.trimIndent()
+        val givenCommitMessage3 =
+            """
             $givenIssueKey2: Add test readme
             
             CHANGELOG: [$givenIssueKey2] Задача для проверки работы BuildPublishPlugin с фиксверсией 3
-        """.trimIndent()
+            """.trimIndent()
 
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
@@ -178,26 +181,15 @@ class JiraAllAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -212,21 +204,26 @@ class JiraAllAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationStatus1 = jiraController.getIssueStatus(expectedIssueKey1)
-        assertTrue { afterAutomationStatus1?.name == targetAutomationStatusName }
-        val afterAutomationStatus2 = jiraController.getIssueStatus(expectedIssueKey2)
-        assertTrue { afterAutomationStatus2?.name == targetAutomationStatusName }
+        awaitUntil("status of $expectedIssueKey1 is $targetAutomationStatusName") {
+            jiraController.getIssueStatus(expectedIssueKey1)?.name == targetAutomationStatusName
+        }
+        awaitUntil("status of $expectedIssueKey2 is $targetAutomationStatusName") {
+            jiraController.getIssueStatus(expectedIssueKey2)?.name == targetAutomationStatusName
+        }
 
-        val afterAutomationFixVersions1 = jiraController.getIssueFixVersions(expectedIssueKey1).map { it.name }
-        assertTrue { afterAutomationFixVersions1.contains(expectedFixVersion) }
-        val afterAutomationFixVersions2 = jiraController.getIssueFixVersions(expectedIssueKey2).map { it.name }
-        assertTrue { afterAutomationFixVersions2.contains(expectedFixVersion) }
+        awaitUntil("fix version $expectedFixVersion present on $expectedIssueKey1") {
+            jiraController.getIssueFixVersions(expectedIssueKey1).map { it.name }.contains(expectedFixVersion)
+        }
+        awaitUntil("fix version $expectedFixVersion present on $expectedIssueKey2") {
+            jiraController.getIssueFixVersions(expectedIssueKey2).map { it.name }.contains(expectedFixVersion)
+        }
 
-        val afterAutomationLabels1 = jiraController.getIssueLabels(expectedIssueKey1)
-        assertTrue { afterAutomationLabels1.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey1") {
+            jiraController.getIssueLabels(expectedIssueKey1).contains(expectedIssueLabel)
+        }
 
-        val afterAutomationLabels2 = jiraController.getIssueLabels(expectedIssueKey2)
-        assertTrue { afterAutomationLabels2.contains(expectedIssueLabel) }
+        awaitUntil("label $expectedIssueLabel present on $expectedIssueKey2") {
+            jiraController.getIssueLabels(expectedIssueKey2).contains(expectedIssueLabel)
+        }
     }
-
 }

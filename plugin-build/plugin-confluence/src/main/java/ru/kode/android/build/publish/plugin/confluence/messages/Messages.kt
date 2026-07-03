@@ -2,6 +2,16 @@ package ru.kode.android.build.publish.plugin.confluence.messages
 
 import ru.kode.android.build.publish.plugin.confluence.EXTENSION_NAME
 
+fun uploadingToConfluenceMessage(
+    fileName: String,
+    pageId: String,
+): String = "Uploading $fileName to Confluence page $pageId"
+
+fun addingCommentToConfluenceMessage(
+    fileName: String,
+    pageId: String,
+): String = "Adding comment for '$fileName' to Confluence page $pageId"
+
 fun servicesCreatedMessage(servicesKeys: Set<String>): String {
     return """
         

@@ -8,6 +8,7 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.util.MergeStrategy
 import ru.kode.android.build.publish.plugin.core.util.buildVariant
 import ru.kode.android.build.publish.plugin.core.util.common
 
@@ -137,9 +138,10 @@ open class BuildPublishConfigurableExtension {
     protected fun <T : Any> buildVariant(
         buildVariant: String,
         container: NamedDomainObjectContainer<T>,
+        strategy: MergeStrategy = MergeStrategy.MERGE,
         configurationAction: Action<in T>,
     ) {
-        container.buildVariant(buildVariant, configurationAction)
+        container.buildVariant(buildVariant, strategy, configurationAction)
     }
 
     /**
@@ -158,13 +160,14 @@ open class BuildPublishConfigurableExtension {
     protected fun <T : Any> buildVariant(
         buildVariant: String,
         container: NamedDomainObjectContainer<T>,
+        mergeStrategy: MergeStrategy = MergeStrategy.MERGE,
         @DelegatesTo(
             genericTypeIndex = 0,
             strategy = Closure.DELEGATE_FIRST,
         )
         configurationClosure: Closure<in T>,
     ) {
-        container.buildVariant(buildVariant, configurationClosure)
+        container.buildVariant(buildVariant, mergeStrategy, configurationClosure)
     }
 
     /**
@@ -192,9 +195,10 @@ open class BuildPublishConfigurableExtension {
     protected fun <T : Any> buildVariant(
         buildVariant: String,
         container: BuildPublishDomainObjectContainer<T>,
+        strategy: MergeStrategy = MergeStrategy.MERGE,
         configurationAction: Action<in T>,
     ) {
-        container.buildVariant(buildVariant, configurationAction)
+        container.buildVariant(buildVariant, strategy, configurationAction)
     }
 
     /**
@@ -213,13 +217,14 @@ open class BuildPublishConfigurableExtension {
     protected fun <T : Any> buildVariant(
         buildVariant: String,
         container: BuildPublishDomainObjectContainer<T>,
+        mergeStrategy: MergeStrategy = MergeStrategy.MERGE,
         @DelegatesTo(
             genericTypeIndex = 0,
             strategy = Closure.DELEGATE_FIRST,
         )
         configurationAction: Closure<in T>,
     ) {
-        container.buildVariant(buildVariant, configurationAction)
+        container.buildVariant(buildVariant, mergeStrategy, configurationAction)
     }
 
     /**

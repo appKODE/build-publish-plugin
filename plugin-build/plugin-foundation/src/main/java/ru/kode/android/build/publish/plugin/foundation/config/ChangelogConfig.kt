@@ -2,13 +2,17 @@ package ru.kode.android.build.publish.plugin.foundation.config
 
 import groovy.lang.Closure
 import groovy.lang.DelegatesTo
+import org.gradle.api.Action
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import ru.kode.android.build.publish.plugin.core.strategy.AnnotatedTagMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.ChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.EmptyChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.NotGeneratedChangelogMessageStrategy
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 
 /**
  * Configuration interface for changelog generation settings.
@@ -17,35 +21,117 @@ import ru.kode.android.build.publish.plugin.core.strategy.NotGeneratedChangelogM
  * Git commit history. It allows customization of how issue tracking is integrated
  * and which commits should be included in the changelog.
  */
-abstract class ChangelogConfig {
+abstract class ChangelogConfig : CommonConfigMergeable<ChangelogConfig> {
     abstract val name: String
 
     /**
-     * The regular expression pattern used to identify issue/ticket numbers in commit messages.
+     * Issue-tracker sources used when processing the changelog.
      *
-     * This pattern is used to extract issue references from commit messages and link them
-     * to your issue tracker. The pattern should follow Java regex syntax.
+     * Configure sources through the [issueSources] method rather than accessing this directly.
      *
-     * Example: `"TICKET-\\d+"` would match commit messages like:
-     * - "TICKET-123: Fix login issue"
-     * - "feat: Add new feature (TICKET-456)"
-     *
-     * @see java.util.regex.Pattern
+     * @see issueSources
+     * @see IssueSourceConfig
      */
-    @get:Input
-    abstract val issueNumberPattern: Property<String>
+    @get:Nested
+    abstract val issueSourcesConfig: IssueSourcesConfig
 
     /**
-     * The base URL of your issue tracker.
+     * Configures the issue-tracker sources used when processing the changelog.
      *
-     * This URL is used to generate clickable links to issues in the generated changelog.
-     * The issue number extracted using [issueNumberPattern] will be appended to this URL.
+     * Each source (added via [IssueSourcesConfig.issueSource]) pairs a regex that recognizes issue
+     * keys with the URL those keys link to. Declaring several sources lets one changelog reference
+     * issues from different projects and/or different issue-tracker hosts — extraction (Jira/ClickUp)
+     * unions every source's `numberPattern`, and link formatting (Slack/Telegram) resolves each
+     * matched key against its own source's `urlPrefix`.
      *
-     * Example: `"https://jira.example.com/browse/"` would generate links like
-     * `https://jira.example.com/browse/TICKET-123`
+     * Example:
+     * ```
+     * issueSources {
+     *     issueSource("base") { numberPattern.set("BASE-\\d+"); urlPrefix.set("https://jira1/browse/") }
+     *     issueSource("leg")  { numberPattern.set("LEG-\\d+");  urlPrefix.set("https://jira2/browse/") }
+     * }
+     * ```
+     *
+     * @param action A configuration block applied to the [IssueSourcesConfig] container.
+     *
+     * @see IssueSourcesConfig
      */
-    @get:Input
-    abstract val issueUrlPrefix: Property<String>
+    fun issueSources(action: Action<IssueSourcesConfig>) {
+        action.execute(issueSourcesConfig)
+    }
+
+    /**
+     * Configures the issue-tracker sources using a Groovy closure.
+     *
+     * @param configurationClosure The Groovy closure applied to the [IssueSourcesConfig] container.
+     *
+     * @see issueSources
+     */
+    fun issueSources(
+        @DelegatesTo(value = IssueSourcesConfig::class, strategy = Closure.DELEGATE_FIRST)
+        configurationClosure: Closure<in IssueSourcesConfig>,
+    ) {
+        issueSources { target -> configureGroovy(configurationClosure, target) }
+    }
+
+    /**
+     * Shorthand for declaring a single issue source without the surrounding `issueSources { }` block.
+     *
+     * Equivalent to `issueSources { issueSource(name) { … } }`. Use the [issueSources] block instead
+     * when the changelog references issues from more than one source.
+     *
+     * @param name A unique identifier for the source (e.g. "base").
+     * @param action A configuration block applied to the new [IssueSourceConfig] instance.
+     */
+    fun issueSource(
+        name: String,
+        action: Action<IssueSourceConfig>,
+    ) {
+        issueSourcesConfig.issueSource(name, action)
+    }
+
+    /**
+     * Shorthand for declaring a single issue source with the given name using a Groovy closure.
+     *
+     * @param name A unique identifier for the source (e.g. "base").
+     * @param configurationClosure The Groovy closure applied to the new [IssueSourceConfig].
+     *
+     * @see issueSource
+     */
+    fun issueSource(
+        name: String,
+        @DelegatesTo(value = IssueSourceConfig::class, strategy = Closure.DELEGATE_FIRST)
+        configurationClosure: Closure<in IssueSourceConfig>,
+    ) {
+        issueSource(name) { target -> configureGroovy(configurationClosure, target) }
+    }
+
+    /**
+     * Shorthand for declaring the single issue source of this changelog without the surrounding
+     * `issueSources { }` block and without naming it.
+     *
+     * Equivalent to `issueSources { issueSource("default") { … } }`. Use the named [issueSource] or
+     * the [issueSources] block when the changelog references issues from more than one source.
+     *
+     * @param action A configuration block applied to the new [IssueSourceConfig] instance.
+     */
+    fun issueSource(action: Action<IssueSourceConfig>) {
+        issueSourcesConfig.issueSource(DEFAULT_ISSUE_SOURCE_NAME, action)
+    }
+
+    /**
+     * Shorthand for declaring the single unnamed issue source of this changelog using a Groovy closure.
+     *
+     * @param configurationClosure The Groovy closure applied to the new [IssueSourceConfig].
+     *
+     * @see issueSource
+     */
+    fun issueSource(
+        @DelegatesTo(value = IssueSourceConfig::class, strategy = Closure.DELEGATE_FIRST)
+        configurationClosure: Closure<in IssueSourceConfig>,
+    ) {
+        issueSource { target -> configureGroovy(configurationClosure, target) }
+    }
 
     /**
      * The commit message key used to identify commits that should be included in the changelog.
@@ -229,4 +315,15 @@ abstract class ChangelogConfig {
     ) {
         notGeneratedChangelogMessageStrategy.set(strategyClosure.call())
     }
+
+    override fun inheritFrom(common: ChangelogConfig) {
+        issueSourcesConfig.inheritFrom(common.issueSourcesConfig)
+        commitMessageKey.convention(common.commitMessageKey)
+        annotatedTagMessageStrategy.convention(common.annotatedTagMessageStrategy)
+        changelogMessageStrategy.convention(common.changelogMessageStrategy)
+        emptyChangelogMessageStrategy.convention(common.emptyChangelogMessageStrategy)
+        notGeneratedChangelogMessageStrategy.convention(common.notGeneratedChangelogMessageStrategy)
+    }
 }
+
+private const val DEFAULT_ISSUE_SOURCE_NAME = "default"

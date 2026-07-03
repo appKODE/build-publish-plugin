@@ -11,12 +11,11 @@ import ru.kode.android.build.publish.plugin.core.strategy.EmptyChangelogMessageS
 import ru.kode.android.build.publish.plugin.core.strategy.NotGeneratedChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.changelogFileProvider
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServiceExtension
 import ru.kode.android.build.publish.plugin.foundation.task.changelog.GenerateChangelogTask
-
-internal const val GENERATE_CHANGELOG_TASK_PREFIX = "generateChangelog"
 
 /**
  * Utility object for registering changelog-related tasks in the build process.
@@ -64,7 +63,7 @@ private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskP
     val buildVariant = params.buildVariant
     val changelogFile = project.changelogFileProvider(buildVariant.name)
     return tasks.register(
-        "$GENERATE_CHANGELOG_TASK_PREFIX${buildVariant.capitalizedName()}",
+        "${TaskNames.Foundation.GENERATE_CHANGELOG_PREFIX}${buildVariant.capitalizedName()}",
         GenerateChangelogTask::class.java,
     ) {
         val gitService =

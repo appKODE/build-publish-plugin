@@ -20,7 +20,7 @@ fun File.initGit(bare: Boolean = false): Grgit {
             mapOf("dir" to this, "bare" to true)
         } else {
             mapOf("dir" to this)
-        }
+        },
     )
 }
 
@@ -64,14 +64,14 @@ fun Grgit.commitAmend(message: String) {
     this.commit(
         mapOf(
             "amend" to true,
-            "message" to message
-        )
+            "message" to message,
+        ),
     )
 }
 
 fun Grgit.switchBranch(name: String) {
     this.checkout(
-        mapOf("branch" to name)
+        mapOf("branch" to name),
     )
 }
 
@@ -79,8 +79,8 @@ fun Grgit.createAndSwitchBranch(name: String) {
     this.checkout(
         mapOf(
             "branch" to name,
-            "createBranch" to true
-        )
+            "createBranch" to true,
+        ),
     )
 }
 
@@ -88,18 +88,23 @@ fun Grgit.currentBranch(): String {
     return this.branch.current().name
 }
 
-fun Grgit.commitWithDate(message: String, date: Instant): Commit {
-    val author = PersonIdent(
-        "author",
-        "author@example.com",
-        date,
-        ZoneId.systemDefault()
-    )
-    val commit = this.repository.jgit.commit().apply {
-        this.message = message
-        this.author = author
-        this.committer = author
-    }.call()
+fun Grgit.commitWithDate(
+    message: String,
+    date: Instant,
+): Commit {
+    val author =
+        PersonIdent(
+            "author",
+            "author@example.com",
+            date,
+            ZoneId.systemDefault(),
+        )
+    val commit =
+        this.repository.jgit.commit().apply {
+            this.message = message
+            this.author = author
+            this.committer = author
+        }.call()
     return JGitUtil.convertCommit(this.repository, commit)
 }
 

@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.confluence.config
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 
 /**
  * Configuration for publishing Android build information to Confluence.
@@ -10,7 +11,7 @@ import org.gradle.api.tasks.Optional
  * This interface defines the settings required to publish build information,
  * such as release notes or version details, to a Confluence page.
  */
-interface ConfluenceDistributionConfig {
+interface ConfluenceDistributionConfig : CommonConfigMergeable<ConfluenceDistributionConfig> {
     val name: String
 
     /**
@@ -36,4 +37,9 @@ interface ConfluenceDistributionConfig {
     @get:Input
     @get:Optional
     val compressed: Property<Boolean>
+
+    override fun inheritFrom(common: ConfluenceDistributionConfig) {
+        pageId.convention(common.pageId)
+        compressed.convention(common.compressed)
+    }
 }

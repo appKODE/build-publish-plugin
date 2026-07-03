@@ -12,7 +12,9 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.build.publish.plugin.foundation.messages.outputBundleFileMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.renameBundleMessage
+import ru.kode.android.build.publish.plugin.foundation.messages.renamedBundleFileMessage
 import java.io.File
 import javax.inject.Inject
 
@@ -73,7 +75,7 @@ abstract class RenameBundleTask
             val input = inputFile.get().asFile
             val output = outputFile.get().asFile
 
-            println("OUTPUT BUNDLE FILE: $output")
+            println(outputBundleFileMessage(output))
 
             val targetName = outputFileName.get()
             val outputDir = output.parentFile
@@ -85,7 +87,7 @@ abstract class RenameBundleTask
 
             // Also copy to the target name if it differs from the AGP-provided output name
             val renamedFile = File(outputDir, targetName)
-            println("RENAMED BUNDLE FILE: $renamedFile")
+            println(renamedBundleFileMessage(renamedFile))
             if (renamedFile.absolutePath != output.absolutePath) {
                 input.copyTo(renamedFile, overwrite = true)
             }

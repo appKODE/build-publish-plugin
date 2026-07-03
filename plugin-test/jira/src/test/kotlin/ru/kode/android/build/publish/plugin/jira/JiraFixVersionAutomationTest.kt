@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
+import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLogger
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.factory.JiraControllerFactory
 import ru.kode.android.build.publish.plugin.jira.messages.failedToAddFixVersionMessage
@@ -17,16 +17,18 @@ import ru.kode.android.build.publish.plugin.test.utils.FoundationConfig
 import ru.kode.android.build.publish.plugin.test.utils.JiraConfig
 import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
+import ru.kode.android.build.publish.plugin.test.utils.awaitUntil
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldNotContain
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import java.io.File
 import java.io.IOException
 
 class JiraFixVersionAutomationTest {
-
     private val logger: Logger = AlwaysInfoLogger()
 
     @TempDir
@@ -37,30 +39,13 @@ class JiraFixVersionAutomationTest {
     @BeforeEach
     fun setup() {
         projectDir = File(tempDir, "test-project")
-        jiraController = JiraControllerFactory.build(
-            baseUrl = System.getProperty("JIRA_BASE_URL"),
-            username = System.getProperty("JIRA_USER_NAME"),
-            password = System.getProperty("JIRA_USER_PASSWORD"),
-            logger = object : PluginLogger {
-                override val bodyLogging: Boolean get() = false
-
-                override fun info(message: String, exception: Throwable?) {
-                    logger.info(message)
-                }
-
-                override fun warn(message: String) {
-                    logger.warn(message)
-                }
-
-                override fun error(message: String, exception: Throwable?) {
-                    logger.error(message, exception)
-                }
-
-                override fun quiet(message: String) {
-                    logger.quiet(message)
-                }
-            }
-        )
+        jiraController =
+            JiraControllerFactory.build(
+                baseUrl = System.getProperty("JIRA_BASE_URL"),
+                username = System.getProperty("JIRA_USER_NAME"),
+                password = System.getProperty("JIRA_USER_PASSWORD"),
+                logger = pluginLoggerFromLogger(logger),
+            )
     }
 
     @Test
@@ -76,40 +61,46 @@ class JiraFixVersionAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = null,
+                            fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = null,
-                    fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
 
         val givenIssueKey = "AT-290"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с фиксверсией
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -131,8 +122,9 @@ class JiraFixVersionAutomationTest {
             jiraController.removeProjectVersion(fixVersion.id)
         }
 
-        val beforeAutomationFixVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { !beforeAutomationFixVersions.contains(expectedFixVersion) }
+        awaitUntil("fix version $expectedFixVersion absent from $expectedIssueKey") {
+            !jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }.contains(expectedFixVersion)
+        }
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
@@ -140,26 +132,15 @@ class JiraFixVersionAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -173,8 +154,9 @@ class JiraFixVersionAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationFixVersion = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { afterAutomationFixVersion.contains(expectedFixVersion) }
+        awaitUntil("fix version $expectedFixVersion present on $expectedIssueKey") {
+            jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }.contains(expectedFixVersion)
+        }
     }
 
     @Test
@@ -190,38 +172,44 @@ class JiraFixVersionAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = null,
+                            fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = null,
-                    fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             AT-290: Add test readme
             
             CHANGELOG: [AT-290] Задача для проверки работы BuildPublishPlugin с фиксверсией
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -244,8 +232,9 @@ class JiraFixVersionAutomationTest {
         }
         jiraController.removeIssueFixVersion(expectedIssueKey, expectedFixVersion)
 
-        val beforeAutomationFixVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { !beforeAutomationFixVersions.contains(expectedFixVersion) }
+        awaitUntil("fix version $expectedFixVersion absent from $expectedIssueKey") {
+            !jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }.contains(expectedFixVersion)
+        }
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
@@ -253,26 +242,15 @@ class JiraFixVersionAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -286,8 +264,9 @@ class JiraFixVersionAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationFixVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { afterAutomationFixVersions.contains(expectedFixVersion) }
+        awaitUntil("fix version $expectedFixVersion present on $expectedIssueKey") {
+            jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }.contains(expectedFixVersion)
+        }
     }
 
     @Test
@@ -303,38 +282,44 @@ class JiraFixVersionAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = null,
+                            fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = null,
-                    fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             AT-290: Add test readme
             
             CHANGELOG: [AT-290] Задача для проверки работы BuildPublishPlugin с фиксверсией
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -357,8 +342,9 @@ class JiraFixVersionAutomationTest {
         }
         jiraController.addIssueFixVersion(expectedIssueKey, expectedFixVersion)
 
-        val beforeAutomationFixVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { beforeAutomationFixVersions.contains(expectedFixVersion) }
+        awaitUntil("fix version $expectedFixVersion present on $expectedIssueKey") {
+            jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }.contains(expectedFixVersion)
+        }
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask)
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
@@ -366,26 +352,15 @@ class JiraFixVersionAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -399,8 +374,9 @@ class JiraFixVersionAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationFixVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { afterAutomationFixVersions.contains(expectedFixVersion) }
+        awaitUntil("fix version $expectedFixVersion present on $expectedIssueKey") {
+            jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }.contains(expectedFixVersion)
+        }
     }
 
     @Test
@@ -416,39 +392,45 @@ class JiraFixVersionAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = null,
+                            fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = null,
-                    fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenIssueKey = "AT-290"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с фиксверсией
-        """.trimIndent()
+            """.trimIndent()
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
@@ -469,30 +451,23 @@ class JiraFixVersionAutomationTest {
             jiraController.removeProjectVersion(fixVersion.id)
         }
 
-        val beforeAutomationFixVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { !beforeAutomationFixVersions.contains(expectedFixVersion) }
+        awaitUntil("fix version $expectedFixVersion absent from $expectedIssueKey") {
+            !jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }.contains(expectedFixVersion)
+        }
 
         val automationResult: BuildResult = projectDir.runTask(givenJiraAutomationTask)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
-        )
+        automationResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        automationResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(!givenOutputFileExists, "Output file not exists")
 
         val expectedChangelogFile =
@@ -506,8 +481,9 @@ class JiraFixVersionAutomationTest {
             "Changelogs equality",
         )
 
-        val afterAutomationVersions = jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }
-        assertTrue { afterAutomationVersions.contains(expectedFixVersion) }
+        awaitUntil("fix version $expectedFixVersion present on $expectedIssueKey") {
+            jiraController.getIssueFixVersions(expectedIssueKey).map { it.name }.contains(expectedFixVersion)
+        }
     }
 
     @Test
@@ -523,39 +499,45 @@ class JiraFixVersionAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "AT-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "AT-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            jiraConfig = JiraConfig(
-                auth = JiraConfig.Auth(
-                    baseUrl = System.getProperty("JIRA_BASE_URL"),
-                    username = System.getProperty("JIRA_USER_NAME"),
-                    password = System.getProperty("JIRA_USER_PASSWORD")
+            jiraConfig =
+                JiraConfig(
+                    auth =
+                        JiraConfig.Auth(
+                            baseUrl = System.getProperty("JIRA_BASE_URL"),
+                            username = System.getProperty("JIRA_USER_NAME"),
+                            password = System.getProperty("JIRA_USER_PASSWORD"),
+                        ),
+                    automation =
+                        JiraConfig.Automation.singleProject(
+                            projectKey = projectKey,
+                            labelPattern = null,
+                            fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetStatusName = null,
+                        ),
                 ),
-                automation = JiraConfig.Automation(
-                    projectKey = projectKey,
-                    labelPattern = null,
-                    fixVersionPattern = "fix_%1\\\$s.%2\\\$s",
-                    targetStatusName = null
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenIssueKey = "AT-2909"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с фиксверсией
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenJiraAutomationTask = "jiraAutomationDebug"
         val git = projectDir.initGit()
@@ -576,28 +558,21 @@ class JiraFixVersionAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        val output = automationResult.output
-            .replace("\r\n", "\n")
-            .replace("\r", "\n")
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        val output =
+            automationResult.output
+                .replace("\r\n", "\n")
+                .replace("\r", "\n")
         assertTrue(
             output.contains("BUILD SUCCESSFUL"),
-            "Jira automation successful"
+            "Jira automation successful",
         )
         assertTrue(givenOutputFileExists, "Output file exists")
 

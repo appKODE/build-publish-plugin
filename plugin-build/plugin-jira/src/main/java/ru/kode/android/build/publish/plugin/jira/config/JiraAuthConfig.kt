@@ -1,46 +1,70 @@
 package ru.kode.android.build.publish.plugin.jira.config
 
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
+import org.gradle.api.Action
+import org.gradle.api.Named
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Nested
-import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
+import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthConfig
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
+import ru.kode.android.build.publish.plugin.core.util.inheritNamedFrom
 import javax.inject.Inject
 
 /**
- * Configuration for authenticating with a Jira instance.
+ * Container for one or more named Jira **instances**, each a base URL + credentials.
  *
- * This class holds the necessary credentials and connection details
- * required to authenticate with a Jira server or cloud instance.
+ * Multiple instances can be declared for a single build — a project selects which one to use through
+ * its `instanceName`. This mirrors the Telegram `bots { … bot("name") { … } }` model: instances are a
+ * dedicated axis and are **not** tied to build variants (use `common { }` / `buildVariant(...) { }`
+ * for the variant axis, and `instance("name") { }` for the instances within it).
  *
- * @see BasicAuthCredentials For credential configuration options
+ * @see BasicAuthConfig For the per-instance base URL / credentials options
  */
 abstract class JiraAuthConfig
     @Inject
     constructor(
         objects: ObjectFactory,
-    ) {
-        abstract val name: String
+    ) : Named,
+        CommonConfigMergeable<JiraAuthConfig> {
+        /**
+         * Internal container of Jira instances added via [instance].
+         */
+        internal val instances: NamedDomainObjectContainer<BasicAuthConfig> =
+            objects.domainObjectContainer(BasicAuthConfig::class.java)
 
         /**
-         * The base URL of the Jira instance.
+         * Declares a named Jira instance (base URL + credentials).
          *
-         * This should be the root URL of your Jira instance, for example:
-         * - Cloud: `https://your-domain.atlassian.net`
-         * - Server: `https://jira.your-company.com`
+         * @param name A unique instance identifier (e.g. `"default"`, `"legacy"`) referenced from a
+         *             project via `instanceName.set("$name")`.
+         * @param action Configuration applied to the new [BasicAuthConfig].
          */
-        @get:Input
-        abstract val baseUrl: Property<String>
+        fun instance(
+            name: String,
+            action: Action<BasicAuthConfig>,
+        ) {
+            instances.register(name, action)
+        }
 
         /**
-         * The credentials used to authenticate with the Jira instance.
+         * Declares a named Jira instance using a Groovy closure.
          *
-         * For Jira Cloud, use an API token as the password.
-         * For Jira Server, you can use either a username/password or an API token.
+         * @param name A unique instance identifier referenced from a project via `instanceName`.
+         * @param configurationClosure The Groovy closure applied to the new [BasicAuthConfig].
          *
-         * @see BasicAuthCredentials For available credential configuration options
+         * @see instance
          */
-        @get:Nested
-        val credentials: BasicAuthCredentials =
-            objects.newInstance(BasicAuthCredentials::class.java)
+        fun instance(
+            name: String,
+            @DelegatesTo(value = BasicAuthConfig::class, strategy = Closure.DELEGATE_FIRST)
+            configurationClosure: Closure<in BasicAuthConfig>,
+        ) {
+            instance(name) { target -> configureGroovy(configurationClosure, target) }
+        }
+
+        override fun inheritFrom(common: JiraAuthConfig) {
+            instances.inheritNamedFrom(common.instances)
+        }
     }

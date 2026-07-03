@@ -1,10 +1,16 @@
 package ru.kode.android.build.publish.plugin.telegram.config
 
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
+import ru.kode.android.build.publish.plugin.core.util.CollectionStrategy
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
+import ru.kode.android.build.publish.plugin.core.util.inheritFrom
 import javax.inject.Inject
 
 /**
@@ -20,7 +26,7 @@ abstract class TelegramChangelogConfig
     @Inject
     constructor(
         private val objects: ObjectFactory,
-    ) {
+    ) : CommonConfigMergeable<TelegramChangelogConfig> {
         /**
          * Name of this changelog configuration.
          *
@@ -56,6 +62,10 @@ abstract class TelegramChangelogConfig
         @get:Input
         internal abstract val destinationBots: SetProperty<DestinationTelegramBotConfig>
 
+        private var userMentionsStrategy: CollectionStrategy = CollectionStrategy.REPLACE
+
+        private var destinationBotsStrategy: CollectionStrategy = CollectionStrategy.REPLACE
+
         /**
          * Adds a single user mention to the list of user mentions.
          *
@@ -82,6 +92,21 @@ abstract class TelegramChangelogConfig
          * Each username should include the '@' prefix.
          **/
         fun userMentions(vararg userMention: String) {
+            userMentions.addAll(userMention.toList())
+        }
+
+        /**
+         * Adds multiple user mentions and selects how this collection is merged with the common
+         * configuration for a per-version-name build ([CollectionStrategy.REPLACE] by default).
+         *
+         * @param strategy Whether to replace or append to the common mentions
+         * @param userMention The array of Telegram usernames to mention (each including '@').
+         */
+        fun userMentions(
+            strategy: CollectionStrategy,
+            vararg userMention: String,
+        ) {
+            userMentionsStrategy = strategy
             userMentions.addAll(userMention.toList())
         }
 
@@ -123,5 +148,39 @@ abstract class TelegramChangelogConfig
             val destinationBot = objects.newInstance(DestinationTelegramBotConfig::class.java)
             action.execute(destinationBot)
             destinationBots.add(destinationBot)
+        }
+
+        /**
+         * Adds a destination bot using a Groovy closure.
+         *
+         * @param configurationClosure The Groovy closure applied to a new [DestinationTelegramBotConfig].
+         *
+         * @see destinationBot
+         */
+        fun destinationBot(
+            @DelegatesTo(value = DestinationTelegramBotConfig::class, strategy = Closure.DELEGATE_FIRST)
+            configurationClosure: Closure<in DestinationTelegramBotConfig>,
+        ) {
+            destinationBot { target -> configureGroovy(configurationClosure, target) }
+        }
+
+        /**
+         * Adds a destination bot and selects how the destination bots collection is merged with the
+         * common configuration for a per-version-name build ([CollectionStrategy.REPLACE] by default).
+         *
+         * @param strategy Whether to replace or append to the common destination bots
+         * @param action A configuration block applied to a new [DestinationTelegramBotConfig] instance.
+         */
+        fun destinationBot(
+            strategy: CollectionStrategy,
+            action: Action<DestinationTelegramBotConfig>,
+        ) {
+            destinationBotsStrategy = strategy
+            destinationBot(action)
+        }
+
+        override fun inheritFrom(common: TelegramChangelogConfig) {
+            userMentions.inheritFrom(common.userMentions, userMentionsStrategy)
+            destinationBots.inheritFrom(common.destinationBots, destinationBotsStrategy)
         }
     }

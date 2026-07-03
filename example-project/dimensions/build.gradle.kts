@@ -65,8 +65,12 @@ buildPublishFoundation {
     }
     changelog {
         common {
-            issueNumberPattern.set("BASE-\\d+")
-            issueUrlPrefix.set("https://jira.exmaple.ru/browse/")
+            issueSources {
+                issueSource("base") {
+                    numberPattern.set("BASE-\\d+")
+                    urlPrefix.set("https://jira.exmaple.ru/browse/")
+                }
+            }
             commitMessageKey.set("CHANGELOG")
         }
     }

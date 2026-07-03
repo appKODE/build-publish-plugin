@@ -1,14 +1,18 @@
 package ru.kode.android.build.publish.plugin.jira.task.automation
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -20,6 +24,9 @@ import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.jira.messages.issuesNoFoundMessage
+import ru.kode.android.build.publish.plugin.jira.messages.noIssuesForProjectMessage
+import ru.kode.android.build.publish.plugin.jira.messages.unknownInstanceNameMessage
+import ru.kode.android.build.publish.plugin.jira.messages.unmatchedIssuesMessage
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddFixVersionWork
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddLabelWork
@@ -44,6 +51,7 @@ abstract class JiraAutomationTask
     @Inject
     constructor(
         private val workerExecutor: WorkerExecutor,
+        objectFactory: ObjectFactory,
     ) : DefaultTask() {
         init {
             description = "Automates Jira workflows during the build process"
@@ -51,12 +59,21 @@ abstract class JiraAutomationTask
         }
 
         /**
-         * The Jira network service used to communicate with the Jira API.
+         * The Jira network services available to this task, keyed by `auth { }` configuration name.
          *
-         * This is an internal property that's automatically wired up by the plugin.
+         * A project binding selects its service by [JiraProjectBinding.instanceName]; bindings without an
+         * explicit auth name use [defaultService]. Wired up automatically by the plugin.
          */
         @get:Internal
-        abstract val service: Property<JiraService>
+        val services: MapProperty<String, JiraService> =
+            objectFactory.mapProperty(String::class.java, JiraService::class.java)
+
+        /**
+         * The Jira service used by project bindings that do not declare an explicit `instanceName`
+         * (the variant-matched / common service). Wired up automatically by the plugin.
+         */
+        @get:Internal
+        abstract val defaultService: Property<JiraService>
 
         /**
          * The logger service used to log messages during the execution of the task.
@@ -89,81 +106,27 @@ abstract class JiraAutomationTask
         abstract val changelogFile: RegularFileProperty
 
         /**
-         * Regular expression pattern used to extract Jira issue numbers from the changelog.
+         * Regular expression patterns (one per configured changelog issue source) used to extract
+         * Jira issue keys from the changelog.
          *
-         * The pattern should match a Jira issue key inside the changelog.
-         * For example, if your Jira tasks are referenced as `PROJECT-123`, the pattern could be `[A-Z]+-\\d+`.
-         *
-         * Note: the task uses the full match (`MatchResult.groupValues[0]`) as the Jira issue key.
+         * Each pattern should match a Jira issue key, e.g. `PROJECT-\\d+` or `[A-Z]+-\\d+`. The full
+         * match is used as the issue key; matches from all patterns are unioned.
          */
         @get:Input
         @get:Option(
-            option = "issueNumberPattern",
-            description = "Regex pattern to extract Jira issue numbers from changelog",
+            option = "issuePattern",
+            description = "Regex pattern to extract Jira issue keys from changelog (repeatable)",
         )
-        abstract val issueNumberPattern: Property<String>
+        abstract val issuePatterns: ListProperty<String>
 
         /**
-         * The Key of the Jira project to create versions in.
+         * The Jira projects targeted by this automation run, resolved from the plugin DSL.
          *
-         * This is only required if fix version automation is enabled.
+         * Each binding carries its project key, the Jira instance to use (`instanceName`) and its
+         * automation patterns.
          */
-        @get:Input
-        @get:Option(
-            option = "projectKey",
-            description = "Key of the Jira project for version management",
-        )
-        abstract val projectKey: Property<String>
-
-        /**
-         * Pattern for generating labels to add to Jira issues.
-         *
-         * This pattern is formatted using `String.format(...)` and receives:
-         * - `buildVersion`
-         * - `buildNumber`
-         * - `buildVariant`
-         *
-         * If not specified, no labels will be added.
-         */
-        @get:Input
-        @get:Option(
-            option = "labelPattern",
-            description = "Pattern for generating labels to add to Jira issues",
-        )
-        @get:Optional
-        abstract val labelPattern: Property<String>
-
-        /**
-         * Pattern for generating fix version names to add to Jira issues.
-         *
-         * This pattern is formatted using `String.format(...)` and receives:
-         * - `buildVersion`
-         * - `buildNumber`
-         * - `buildVariant`
-         *
-         * If not specified, no fix versions will be set.
-         */
-        @get:Input
-        @get:Option(
-            option = "fixVersionPattern",
-            description = "Pattern for generating fix version names",
-        )
-        @get:Optional
-        abstract val fixVersionPattern: Property<String>
-
-        /**
-         * The name of the status to mark issues as resolved.
-         *
-         * If specified, the task will submit work items to update the status of each issue to the
-         * resolved status transition specified by [targetStatusName].
-         */
-        @get:Input
-        @get:Option(
-            option = "targetStatusName",
-            description = "Name of the status to mark issues as resolved",
-        )
-        @get:Optional
-        abstract val targetStatusName: Property<String>
+        @get:Nested
+        abstract val projects: ListProperty<JiraProjectBinding>
 
         /**
          * Executes the Jira automation task.
@@ -171,120 +134,127 @@ abstract class JiraAutomationTask
          * This method is called by Gradle when the task is executed. It:
          * 1. Reads the build tag and changelog
          * 2. Extracts Jira issue numbers from the changelog
-         * 3. Submits work items for each automation action (labels, versions, status)
+         * 3. Routes each issue to its owning project (by issue-key prefix)
+         * 4. Submits work items for each automation action (labels, versions, status) per project
          */
         @TaskAction
         fun executeAutomation() {
             val currentBuildTag = fromJson(buildTagSnapshotFile.asFile.get()).current
             val changelog = changelogFile.asFile.get().readText()
             val issues =
-                Regex(issueNumberPattern.get())
-                    .findAll(changelog)
-                    .mapTo(mutableSetOf()) { it.groupValues[0] }
+                issuePatterns.get()
+                    .flatMapTo(mutableSetOf()) { pattern ->
+                        Regex(pattern).findAll(changelog).map { it.value }.asIterable()
+                    }
 
             if (issues.isEmpty()) {
                 loggerService.get().info(issuesNoFoundMessage())
-            } else {
-                val projectId =
-                    service.flatMap { service ->
-                        projectKey.map { projectKey ->
-                            service.getProjectId(projectKey.uppercase())
-                        }
-                    }
+                return
+            }
 
-                val workQueue: WorkQueue = workerExecutor.noIsolation()
-                workQueue.submitUpdateLabelIfPresent(currentBuildTag, issues)
-                workQueue.submitUpdateVersionIfPresent(currentBuildTag, issues, projectId)
-                workQueue.submitUpdateStatusIfPresent(issues)
+            val resolvedProjects = resolveProjects()
+            val issuesByProjectKey = issues.groupBy { it.substringBefore("-").uppercase() }
+            val matchedIssues = mutableSetOf<String>()
+            val workQueue: WorkQueue = workerExecutor.noIsolation()
+
+            resolvedProjects.forEach { project ->
+                val projectIssues = issuesByProjectKey[project.projectKey].orEmpty().toSet()
+                if (projectIssues.isEmpty()) {
+                    loggerService.get().info(noIssuesForProjectMessage(project.projectKey))
+                    return@forEach
+                }
+                matchedIssues += projectIssues
+                workQueue.applyAutomation(currentBuildTag, project, projectIssues)
+            }
+
+            val unmatchedIssues = issues - matchedIssues
+            if (unmatchedIssues.isNotEmpty()) {
+                loggerService.get().info(
+                    unmatchedIssuesMessage(unmatchedIssues, resolvedProjects.map { it.projectKey }),
+                )
             }
         }
 
         /**
-         * Submits work to update the status of the given issues, if a resolved status transition ID is configured.
-         *
-         * This method checks if [targetStatusName] is present, and if so, submits a work item to update the
-         * status of each issue to the resolved status transition specified by [targetStatusName].
-         *
-         * @param issues The set of issue numbers to update
+         * Resolves the list of projects to act on from the configured project bindings.
          */
-        private fun WorkQueue.submitUpdateStatusIfPresent(issues: Set<String>) {
-            if (targetStatusName.isPresent) {
-                val statusTransitionId =
-                    service.flatMap { service ->
-                        projectKey
-                            .zip(targetStatusName) { projectKey, statusName ->
-                                service.getStatusTransitionId(projectKey, statusName, issues.toList())
-                            }
-                    }
+        private fun resolveProjects(): List<ResolvedProject> {
+            return projects.get().map { binding ->
+                ResolvedProject(
+                    projectKey = binding.projectKey.get().uppercase(),
+                    service = resolveService(binding.instanceName.orNull),
+                    labelPattern = binding.labelPattern.orNull,
+                    fixVersionPattern = binding.fixVersionPattern.orNull,
+                    targetStatusName = binding.targetStatusName.orNull,
+                )
+            }
+        }
 
+        /**
+         * Resolves a [JiraService] provider for the given [instanceName], falling back to the
+         * variant-matched / common service when no explicit name is provided.
+         *
+         * A provider (rather than the resolved service) is returned so it can be handed to the Worker
+         * API as a build-service reference: passing a resolved [JiraService] instance as a work
+         * parameter fails isolation ("Could not serialize value of type JiraService").
+         */
+        private fun resolveService(instanceName: String?): Provider<JiraService> {
+            if (instanceName == null) return defaultService
+            val available = services.get()
+            if (instanceName !in available) {
+                throw GradleException(unknownInstanceNameMessage(instanceName, available.keys))
+            }
+            return services.getting(instanceName)
+        }
+
+        /**
+         * Submits the enabled automation actions (label, fix version, status transition) for a single
+         * project against its own Jira service and issue subset.
+         */
+        private fun WorkQueue.applyAutomation(
+            currentBuildTag: Tag.Build,
+            project: ResolvedProject,
+            issues: Set<String>,
+        ) {
+            project.labelPattern?.let { pattern ->
+                submit(AddLabelWork::class.java) { parameters ->
+                    parameters.issues.set(issues)
+                    parameters.label.set(pattern.formatWith(currentBuildTag))
+                    parameters.service.set(project.service)
+                }
+            }
+            project.fixVersionPattern?.let { pattern ->
+                val projectId = project.service.get().getProjectId(project.projectKey)
+                submit(AddFixVersionWork::class.java) { parameters ->
+                    parameters.issues.set(issues)
+                    parameters.version.set(pattern.formatWith(currentBuildTag))
+                    parameters.projectId.set(projectId)
+                    parameters.service.set(project.service)
+                }
+            }
+            project.targetStatusName?.let { statusName ->
+                val statusTransitionId =
+                    project.service.get().getStatusTransitionId(project.projectKey, statusName, issues.toList())
                 submit(SetStatusWork::class.java) { parameters ->
                     parameters.issues.set(issues)
                     parameters.statusTransitionId.set(statusTransitionId)
-                    parameters.service.set(service)
+                    parameters.service.set(project.service)
                     parameters.loggerService.set(loggerService)
                 }
             }
         }
 
-        /**
-         * Submits work to update the fix version for the given issues, if a version pattern is configured.
-         *
-         * This method checks if [fixVersionPattern] is set, and if so, generates a version name
-         * from the current build tag and submits a work item to set the version for each issue.
-         *
-         * @param currentBuildTag The current build tag containing version and build number
-         * @param issues The set of issue numbers to update
-         */
-        private fun WorkQueue.submitUpdateVersionIfPresent(
-            currentBuildTag: Tag.Build,
-            issues: Set<String>,
-            projectId: Provider<Long>,
-        ) {
-            if (fixVersionPattern.isPresent) {
-                val version =
-                    fixVersionPattern.map {
-                        it.format(
-                            currentBuildTag.buildVersion,
-                            currentBuildTag.buildNumber,
-                            currentBuildTag.buildVariant,
-                        )
-                    }
-                submit(AddFixVersionWork::class.java) { parameters ->
-                    parameters.issues.set(issues)
-                    parameters.version.set(version)
-                    parameters.projectId.set(projectId)
-                    parameters.service.set(service)
-                }
-            }
-        }
+        private fun String.formatWith(tag: Tag.Build) = format(tag.buildVersion, tag.buildNumber, tag.buildVariant)
 
         /**
-         * Submits work to add the configured label to the given issues, if a label pattern is configured.
-         *
-         * This method checks if [labelPattern] is set, and if so, submits a work item
-         * to add the label to each issue.
-         *
-         * @param currentBuildTag The current build tag containing version and build number
-         * @param issues The set of issue numbers to label
+         * A fully-resolved project to act on during a single automation run: its (upper-cased)
+         * project key, the Jira service to use, and its effective automation patterns.
          */
-        private fun WorkQueue.submitUpdateLabelIfPresent(
-            currentBuildTag: Tag.Build,
-            issues: Set<String>,
-        ) {
-            if (labelPattern.isPresent) {
-                val label =
-                    labelPattern.map {
-                        it.format(
-                            currentBuildTag.buildVersion,
-                            currentBuildTag.buildNumber,
-                            currentBuildTag.buildVariant,
-                        )
-                    }
-                submit(AddLabelWork::class.java) { parameters ->
-                    parameters.issues.set(issues)
-                    parameters.label.set(label)
-                    parameters.service.set(service)
-                }
-            }
-        }
+        private data class ResolvedProject(
+            val projectKey: String,
+            val service: Provider<JiraService>,
+            val labelPattern: String?,
+            val fixVersionPattern: String?,
+            val targetStatusName: String?,
+        )
     }

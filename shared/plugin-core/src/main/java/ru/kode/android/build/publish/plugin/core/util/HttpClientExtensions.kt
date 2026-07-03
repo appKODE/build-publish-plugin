@@ -12,6 +12,7 @@ import ru.kode.android.build.publish.plugin.core.messages.cannotCreateHttpProxyM
 import ru.kode.android.build.publish.plugin.core.messages.cannotCreateHttpsProxyMessage
 import ru.kode.android.build.publish.plugin.core.messages.createHttpProxyMessage
 import ru.kode.android.build.publish.plugin.core.messages.createHttpsProxyMessage
+import ru.kode.android.build.publish.plugin.core.messages.proxyAuthenticatorTriggeredMessage
 import ru.kode.android.build.publish.plugin.core.messages.proxyConnectionFailedMessage
 import ru.kode.android.build.publish.plugin.core.messages.proxyCredsNotSpecified
 import ru.kode.android.build.publish.plugin.core.messages.requestingProxyMessage
@@ -43,11 +44,14 @@ class ProxyAuthenticator(
     override fun getPasswordAuthentication(): PasswordAuthentication {
         val userName = networkProxy.user
         val userPassword = networkProxy.password
-        logger.info("🎯 AUTHENTICATOR TRIGGERED!")
-        logger.info("  Host: $requestingHost:$requestingPort")
-        logger.info("  Scheme: $requestingScheme")
-        logger.info("  UserName: $userName")
-        logger.info("  Password: <hidden>")
+        logger.info(
+            proxyAuthenticatorTriggeredMessage(
+                host = requestingHost,
+                port = requestingPort,
+                scheme = requestingScheme,
+                userName = userName,
+            ),
+        )
         return PasswordAuthentication(userName, userPassword?.toCharArray())
     }
 }

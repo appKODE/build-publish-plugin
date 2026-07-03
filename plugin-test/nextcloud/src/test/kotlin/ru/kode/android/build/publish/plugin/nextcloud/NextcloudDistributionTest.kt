@@ -1,7 +1,6 @@
 package ru.kode.android.build.publish.plugin.nextcloud
 
 import org.gradle.testkit.runner.BuildResult
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
@@ -11,13 +10,13 @@ import ru.kode.android.build.publish.plugin.test.utils.addAllAndCommit
 import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.initGit
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import ru.kode.android.build.publish.plugin.test.utils.runTaskWithFail
 import ru.kode.android.build.publish.plugin.test.utils.runTasks
 import java.io.File
 
 class NextcloudDistributionTest {
-
     @TempDir
     lateinit var tempDir: File
 
@@ -48,8 +47,8 @@ class NextcloudDistributionTest {
 
         val result: BuildResult = projectDir.runTaskWithFail("nextcloudDistributionUploadDebug")
 
-        assertTrue(result.output.contains("MISSING AUTHENTICATION CONFIGURATION"))
-        assertTrue(result.output.contains("BUILD FAILED"))
+        result.outputShouldContain("MISSING AUTHENTICATION CONFIGURATION")
+        result.outputShouldContain("BUILD FAILED")
     }
 
     @Test
@@ -81,8 +80,8 @@ class NextcloudDistributionTest {
 
         val result: BuildResult = projectDir.runTaskWithFail("nextcloudDistributionUploadDebug")
 
-        assertTrue(result.output.contains("MISSING DISTRIBUTION CONFIGURATION"))
-        assertTrue(result.output.contains("BUILD FAILED"))
+        result.outputShouldContain("MISSING DISTRIBUTION CONFIGURATION")
+        result.outputShouldContain("BUILD FAILED")
     }
 
     @Test
@@ -117,9 +116,9 @@ class NextcloudDistributionTest {
 
         val result: BuildResult = projectDir.runTasks("tasks", "--all")
 
-        assertTrue(result.output.contains("nextcloudDistributionUploadDebug"))
-        assertTrue(result.output.contains("nextcloudDistributionUploadBundleDebug"))
-        assertTrue(result.output.contains("nextcloudChangelogUploadDebug"))
+        result.outputShouldContain("nextcloudDistributionUploadDebug")
+        result.outputShouldContain("nextcloudDistributionUploadBundleDebug")
+        result.outputShouldContain("nextcloudChangelogUploadDebug")
     }
 
     @Test
@@ -158,9 +157,9 @@ class NextcloudDistributionTest {
 
         val result: BuildResult = projectDir.runTaskWithFail("nextcloudDistributionUploadDebug")
 
-        assertTrue(result.output.contains("MISSING INTERNAL RECIPIENTS ERROR"))
-        assertTrue(result.output.contains("userRecipients/groupRecipients entry"))
-        assertTrue(result.output.contains("BUILD FAILED"))
+        result.outputShouldContain("MISSING INTERNAL RECIPIENTS ERROR")
+        result.outputShouldContain("userRecipients/groupRecipients entry")
+        result.outputShouldContain("BUILD FAILED")
     }
 
     @Test
@@ -201,8 +200,8 @@ class NextcloudDistributionTest {
                 "--dry-run",
             )
 
-        assertTrue(result.output.contains("nextcloudDistributionUploadDebug"))
-        assertTrue(result.output.contains("nextcloudChangelogUploadDebug"))
+        result.outputShouldContain("nextcloudDistributionUploadDebug")
+        result.outputShouldContain("nextcloudChangelogUploadDebug")
     }
 
     @Test
@@ -262,8 +261,8 @@ class NextcloudDistributionTest {
 
         val result = projectDir.runTask("nextcloudDistributionUploadDebug")
 
-        assertTrue(result.output.contains("Nextcloud public share"))
-        assertTrue(result.output.contains("autotest-1.0-debug.apk"))
+        result.outputShouldContain("Nextcloud public share")
+        result.outputShouldContain("autotest-1.0-debug.apk")
     }
 
     @Test
@@ -319,8 +318,8 @@ class NextcloudDistributionTest {
 
         val result = projectDir.runTask("nextcloudDistributionUploadDebug")
 
-        assertTrue(result.output.contains("variant-override-debug.apk"))
-        assertTrue(result.output.contains("Nextcloud public share"))
+        result.outputShouldContain("variant-override-debug.apk")
+        result.outputShouldContain("Nextcloud public share")
     }
 
     @Test
@@ -363,7 +362,7 @@ class NextcloudDistributionTest {
                     "nextcloudDistributionUploadDebug",
                     "--dry-run",
                 )
-            assertTrue(dryRun.output.contains("nextcloudDistributionUploadDebug"))
+            dryRun.outputShouldContain("nextcloudDistributionUploadDebug")
             return
         }
 
@@ -373,8 +372,8 @@ class NextcloudDistributionTest {
 
         val result = projectDir.runTask("nextcloudDistributionUploadDebug")
 
-        assertTrue(result.output.contains("Nextcloud internal share ready"))
-        assertTrue(result.output.contains("/f/"))
+        result.outputShouldContain("Nextcloud internal share ready")
+        result.outputShouldContain("/f/")
     }
 
     @Test
@@ -417,7 +416,7 @@ class NextcloudDistributionTest {
                     "nextcloudDistributionUploadDebug",
                     "--dry-run",
                 )
-            assertTrue(dryRun.output.contains("nextcloudDistributionUploadDebug"))
+            dryRun.outputShouldContain("nextcloudDistributionUploadDebug")
             return
         }
 
@@ -427,8 +426,8 @@ class NextcloudDistributionTest {
 
         val result = projectDir.runTask("nextcloudDistributionUploadDebug")
 
-        assertTrue(result.output.contains("Nextcloud internal share ready"))
-        assertTrue(result.output.contains("/f/"))
+        result.outputShouldContain("Nextcloud internal share ready")
+        result.outputShouldContain("/f/")
     }
 
     @Test
@@ -471,10 +470,10 @@ class NextcloudDistributionTest {
         val firstRun = projectDir.runTask("nextcloudDistributionUploadDebug")
         val secondRun = projectDir.runTask("nextcloudDistributionUploadDebug")
 
-        assertTrue(firstRun.output.contains("autotest-1.0-debug.apk"))
-        assertTrue(secondRun.output.contains("autotest-1.0-debug.apk"))
-        assertTrue(firstRun.output.contains("Nextcloud public share"))
-        assertTrue(secondRun.output.contains("Nextcloud public share reused"))
+        firstRun.outputShouldContain("autotest-1.0-debug.apk")
+        secondRun.outputShouldContain("autotest-1.0-debug.apk")
+        firstRun.outputShouldContain("Nextcloud public share")
+        secondRun.outputShouldContain("Nextcloud public share reused")
     }
 
     @Test
@@ -517,8 +516,8 @@ class NextcloudDistributionTest {
 
         val result = projectDir.runTask("nextcloudDistributionUploadDebug")
 
-        assertTrue(result.output.contains("override-upload-debug.apk"))
-        assertTrue(result.output.contains("Nextcloud public share"))
+        result.outputShouldContain("override-upload-debug.apk")
+        result.outputShouldContain("Nextcloud public share")
     }
 
     @Test
@@ -561,8 +560,8 @@ class NextcloudDistributionTest {
 
         val result = projectDir.runTask("nextcloudChangelogUploadDebug")
 
-        assertTrue(result.output.contains("override-upload-debug-changelog.md"))
-        assertTrue(result.output.contains("Nextcloud public share"))
+        result.outputShouldContain("override-upload-debug-changelog.md")
+        result.outputShouldContain("Nextcloud public share")
     }
 
     @Test
@@ -609,8 +608,8 @@ class NextcloudDistributionTest {
         git.tag.addNamed("v1.1.2-debug")
         val secondRun = projectDir.runTask("nextcloudDistributionUploadDebug")
 
-        assertTrue(firstRun.output.contains("autotest-1.0-debug.apk"))
-        assertTrue(secondRun.output.contains("autotest-1.1-debug.apk"))
+        firstRun.outputShouldContain("autotest-1.0-debug.apk")
+        secondRun.outputShouldContain("autotest-1.1-debug.apk")
     }
 
     @Test
@@ -653,8 +652,8 @@ class NextcloudDistributionTest {
 
         val result = projectDir.runTask("nextcloudDistributionUploadBundleDebug")
 
-        assertTrue(result.output.contains("autotest-1.0-debug.zip"))
-        assertTrue(result.output.contains("Nextcloud public share"))
+        result.outputShouldContain("autotest-1.0-debug.zip")
+        result.outputShouldContain("Nextcloud public share")
     }
 
     @Test
@@ -696,7 +695,7 @@ class NextcloudDistributionTest {
 
         val result = projectDir.runTask("nextcloudChangelogUploadDebug")
 
-        assertTrue(result.output.contains("autotest-1.0-debug-changelog.txt"))
+        result.outputShouldContain("autotest-1.0-debug-changelog.txt")
     }
 
     private fun configuredRecipient(propertyName: String): String? {

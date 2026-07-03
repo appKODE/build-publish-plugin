@@ -8,13 +8,13 @@ import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
+import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthConfig
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
-import ru.kode.android.build.publish.plugin.nextcloud.config.NextcloudAuthConfig
 import ru.kode.android.build.publish.plugin.nextcloud.config.NextcloudDistributionConfig
 import ru.kode.android.build.publish.plugin.nextcloud.messages.needProvideAuthConfigMessage
 import ru.kode.android.build.publish.plugin.nextcloud.messages.needProvideDistributionConfigMessage
@@ -40,8 +40,8 @@ abstract class BuildPublishNextcloudExtension
          * This container holds named configurations for authenticating with the Nextcloud API.
          * Each configuration is typically associated with a build variant or environment.
          */
-        internal val auth: NamedDomainObjectContainer<NextcloudAuthConfig> =
-            objectFactory.domainObjectContainer(NextcloudAuthConfig::class.java)
+        internal val auth: NamedDomainObjectContainer<BasicAuthConfig> =
+            objectFactory.domainObjectContainer(BasicAuthConfig::class.java)
 
         /**
          * Container for distribution configurations, keyed by build type.
@@ -59,7 +59,7 @@ abstract class BuildPublishNextcloudExtension
          * @return The authentication configuration for the build variant
          * @throws UnknownDomainObjectException If no configuration is found for the build variant
          */
-        val authConfig: (buildName: String) -> NextcloudAuthConfig = { buildName ->
+        val authConfig: (buildName: String) -> BasicAuthConfig = { buildName ->
             auth.getByNameOrRequiredCommon(buildName)
         }
 
@@ -69,7 +69,7 @@ abstract class BuildPublishNextcloudExtension
          * @param buildName The name of the build variant (e.g., "debug", "release")
          * @return The authentication configuration or null if not found
          */
-        val authConfigOrNull: (buildName: String) -> NextcloudAuthConfig? = { buildName ->
+        val authConfigOrNull: (buildName: String) -> BasicAuthConfig? = { buildName ->
             auth.getByNameOrNullableCommon(buildName)
         }
 
@@ -101,7 +101,7 @@ abstract class BuildPublishNextcloudExtension
          */
         fun auth(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<in BuildPublishDomainObjectContainer<NextcloudAuthConfig>>,
+            configurationAction: Action<in BuildPublishDomainObjectContainer<BasicAuthConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(auth)
             configurationAction.execute(container)
@@ -114,7 +114,7 @@ abstract class BuildPublishNextcloudExtension
          */
         fun auth(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<NextcloudAuthConfig>>,
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<BasicAuthConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(auth)
             configureGroovy(configurationClosure, container)
@@ -151,7 +151,7 @@ abstract class BuildPublishNextcloudExtension
          *
          * @param configurationAction The action to configure common authentication settings
          */
-        fun authCommon(configurationAction: Action<in NextcloudAuthConfig>) {
+        fun authCommon(configurationAction: Action<in BasicAuthConfig>) {
             common(auth, configurationAction)
         }
 
@@ -162,10 +162,10 @@ abstract class BuildPublishNextcloudExtension
          */
         fun authCommon(
             @DelegatesTo(
-                value = NextcloudAuthConfig::class,
+                value = BasicAuthConfig::class,
                 strategy = Closure.DELEGATE_FIRST,
             )
-            configurationClosure: Closure<in NextcloudAuthConfig>,
+            configurationClosure: Closure<in BasicAuthConfig>,
         ) {
             common(auth) { target ->
                 configureGroovy(configurationClosure, target)
