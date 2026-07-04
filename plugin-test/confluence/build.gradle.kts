@@ -8,10 +8,11 @@ plugins {
 
 dependencies {
     implementation(libs.agp)
-    implementation("ru.kode.android:plugin-foundation")
-    implementation("ru.kode.android:plugin-confluence")
+    implementation(libs.plugin.foundation)
+    implementation(libs.plugin.confluence)
+    implementation(libs.client.confluence)
 
-    testImplementation("ru.kode.android:plugin-core")
+    testImplementation(libs.plugin.core)
     testImplementation(project(":utils"))
 
     testImplementation(gradleApi())
@@ -43,7 +44,6 @@ tasks.test {
         showStandardStreams = !isCI
     }
 }
-
 
 private fun Project.getEnvOrProperty(name: String): String {
     System.getenv(name)?.let { return it }

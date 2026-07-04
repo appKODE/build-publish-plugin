@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.clickup.controller.ClickUpController
 import ru.kode.android.build.publish.plugin.clickup.controller.factory.ClickUpControllerFactory
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
+import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLogger
 import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.ClickUpConfig
@@ -19,6 +19,8 @@ import ru.kode.android.build.publish.plugin.test.utils.addNamed
 import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldNotContain
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import ru.kode.android.build.publish.plugin.test.utils.runTaskWithFail
@@ -26,7 +28,6 @@ import java.io.File
 import java.io.IOException
 
 class ClickUpTagAutomationTest {
-
     private val logger: Logger = AlwaysInfoLogger()
 
     @TempDir
@@ -37,35 +38,20 @@ class ClickUpTagAutomationTest {
     @BeforeEach
     fun setup() {
         projectDir = File(tempDir, "test-project")
-        clickUpController = ClickUpControllerFactory.build(
-            token = System.getProperty("CLICKUP_TOKEN"),
-            logger = object : PluginLogger {
-                override val bodyLogging: Boolean get() = false
-                override fun info(message: String, exception: Throwable?) {
-                    logger.info(message, exception)
-                }
-
-                override fun warn(message: String) {
-                    logger.warn(message)
-                }
-
-                override fun error(message: String, exception: Throwable?) {
-                    logger.error(message, exception)
-                }
-
-                override fun quiet(message: String) {
-                    logger.quiet(message)
-                }
-            },
-        )
+        clickUpController =
+            ClickUpControllerFactory.build(
+                token = System.getProperty("CLICKUP_TOKEN"),
+                logger = pluginLoggerFromLogger(logger),
+            )
     }
 
     @Test
     @Throws(IOException::class)
     fun `clickup automation not available without automation config`() {
-        val clickUpTokenFile = projectDir.getFile("app/clickup_token.txt").apply {
-            writeText(System.getProperty("CLICKUP_TOKEN"))
-        }
+        val clickUpTokenFile =
+            projectDir.getFile("app/clickup_token.txt").apply {
+                writeText(System.getProperty("CLICKUP_TOKEN"))
+            }
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
             foundationConfig =
@@ -75,17 +61,20 @@ class ClickUpTagAutomationTest {
                             baseFileName = "autotest",
                         ),
                 ),
-            clickUpConfig = ClickUpConfig(
-                auth = ClickUpConfig.Auth(
-                    apiTokenFilePath = clickUpTokenFile.name
+            clickUpConfig =
+                ClickUpConfig(
+                    auth =
+                        ClickUpConfig.Auth(
+                            apiTokenFilePath = clickUpTokenFile.name,
+                        ),
+                    automation = null,
                 ),
-                automation = null
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName = "v1.0.1-debug"
         val givenCommitMessage = "Initial commit"
@@ -102,26 +91,15 @@ class ClickUpTagAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD FAILED"),
-            "Build failed",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD FAILED"),
-            "ClickUp automation failed"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD FAILED")
+        automationResult.outputShouldContain("BUILD FAILED")
         assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
@@ -130,9 +108,10 @@ class ClickUpTagAutomationTest {
     fun `clickup tag automation executes with automation config without proxy`() {
         val workspaceName = "Ilia Nekrasov's Workspace"
 
-        val clickUpTokenFile = projectDir.getFile("app/clickup_token.txt").apply {
-            writeText(System.getProperty("CLICKUP_TOKEN"))
-        }
+        val clickUpTokenFile =
+            projectDir.getFile("app/clickup_token.txt").apply {
+                writeText(System.getProperty("CLICKUP_TOKEN"))
+            }
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -142,38 +121,44 @@ class ClickUpTagAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/",
+                        ),
                 ),
-            clickUpConfig = ClickUpConfig(
-                auth = ClickUpConfig.Auth(
-                    apiTokenFilePath = clickUpTokenFile.name
+            clickUpConfig =
+                ClickUpConfig(
+                    auth =
+                        ClickUpConfig.Auth(
+                            apiTokenFilePath = clickUpTokenFile.name,
+                        ),
+                    automation =
+                        ClickUpConfig.Automation(
+                            workspaceName = workspaceName,
+                            fixVersionPattern = null,
+                            fixVersionFieldName = null,
+                            tagPattern = "fix_%1\\\$s.%2\\\$s",
+                        ),
                 ),
-                automation = ClickUpConfig.Automation(
-                    workspaceName = workspaceName,
-                    fixVersionPattern = null,
-                    fixVersionFieldName = null,
-                    tagPattern = "fix_%1\\\$s.%2\\\$s"
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
 
         val givenIssueKey = "86c72yxu4"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с тегами
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
@@ -199,26 +184,15 @@ class ClickUpTagAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "ClickUp automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -241,9 +215,10 @@ class ClickUpTagAutomationTest {
     fun `clickup tag automation executes with automation config with proxy`() {
         val workspaceName = "Ilia Nekrasov's Workspace"
 
-        val clickUpTokenFile = projectDir.getFile("app/clickup_token.txt").apply {
-            writeText(System.getProperty("CLICKUP_TOKEN"))
-        }
+        val clickUpTokenFile =
+            projectDir.getFile("app/clickup_token.txt").apply {
+                writeText(System.getProperty("CLICKUP_TOKEN"))
+            }
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -253,38 +228,44 @@ class ClickUpTagAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/",
+                        ),
                 ),
-            clickUpConfig = ClickUpConfig(
-                auth = ClickUpConfig.Auth(
-                    apiTokenFilePath = clickUpTokenFile.name
+            clickUpConfig =
+                ClickUpConfig(
+                    auth =
+                        ClickUpConfig.Auth(
+                            apiTokenFilePath = clickUpTokenFile.name,
+                        ),
+                    automation =
+                        ClickUpConfig.Automation(
+                            workspaceName = workspaceName,
+                            fixVersionPattern = null,
+                            fixVersionFieldName = null,
+                            tagPattern = "fix_%1\\\$s.%2\\\$s",
+                        ),
                 ),
-                automation = ClickUpConfig.Automation(
-                    workspaceName = workspaceName,
-                    fixVersionPattern = null,
-                    fixVersionFieldName = null,
-                    tagPattern = "fix_%1\\\$s.%2\\\$s"
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
 
         val givenIssueKey = "86c72yxu4"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с тегами
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
@@ -304,38 +285,28 @@ class ClickUpTagAutomationTest {
             clickUpController.removeTag(expectedIssueKey, expectedTag)
         }
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask, proxyProps)
         val automationResult: BuildResult = projectDir.runTask(givenClickUpAutomationTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "ClickUp automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -358,9 +329,10 @@ class ClickUpTagAutomationTest {
     fun `clickup tag automation executes with automation config and without assemble without proxy`() {
         val workspaceName = "Ilia Nekrasov's Workspace"
 
-        val clickUpTokenFile = projectDir.getFile("app/clickup_token.txt").apply {
-            writeText(System.getProperty("CLICKUP_TOKEN"))
-        }
+        val clickUpTokenFile =
+            projectDir.getFile("app/clickup_token.txt").apply {
+                writeText(System.getProperty("CLICKUP_TOKEN"))
+            }
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -370,38 +342,44 @@ class ClickUpTagAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/",
+                        ),
                 ),
-            clickUpConfig = ClickUpConfig(
-                auth = ClickUpConfig.Auth(
-                    apiTokenFilePath = clickUpTokenFile.name
+            clickUpConfig =
+                ClickUpConfig(
+                    auth =
+                        ClickUpConfig.Auth(
+                            apiTokenFilePath = clickUpTokenFile.name,
+                        ),
+                    automation =
+                        ClickUpConfig.Automation(
+                            workspaceName = workspaceName,
+                            fixVersionPattern = null,
+                            fixVersionFieldName = null,
+                            tagPattern = "fix_%1\\\$s.%2\\\$s",
+                        ),
                 ),
-                automation = ClickUpConfig.Automation(
-                    workspaceName = workspaceName,
-                    fixVersionPattern = null,
-                    fixVersionFieldName = null,
-                    tagPattern = "fix_%1\\\$s.%2\\\$s"
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
 
         val givenIssueKey = "86c72yxu4"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с тегами
-        """.trimIndent()
+            """.trimIndent()
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
@@ -425,22 +403,14 @@ class ClickUpTagAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "ClickUp automation successful"
-        )
+        automationResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        automationResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(!givenOutputFileExists, "Output file not exists")
 
         val expectedChangelogFile =
@@ -463,9 +433,10 @@ class ClickUpTagAutomationTest {
     fun `clickup tag automation executes with automation config and without assemble with proxy`() {
         val workspaceName = "Ilia Nekrasov's Workspace"
 
-        val clickUpTokenFile = projectDir.getFile("app/clickup_token.txt").apply {
-            writeText(System.getProperty("CLICKUP_TOKEN"))
-        }
+        val clickUpTokenFile =
+            projectDir.getFile("app/clickup_token.txt").apply {
+                writeText(System.getProperty("CLICKUP_TOKEN"))
+            }
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -475,38 +446,44 @@ class ClickUpTagAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/",
+                        ),
                 ),
-            clickUpConfig = ClickUpConfig(
-                auth = ClickUpConfig.Auth(
-                    apiTokenFilePath = clickUpTokenFile.name
+            clickUpConfig =
+                ClickUpConfig(
+                    auth =
+                        ClickUpConfig.Auth(
+                            apiTokenFilePath = clickUpTokenFile.name,
+                        ),
+                    automation =
+                        ClickUpConfig.Automation(
+                            workspaceName = workspaceName,
+                            fixVersionPattern = null,
+                            fixVersionFieldName = null,
+                            tagPattern = "fix_%1\\\$s.%2\\\$s",
+                        ),
                 ),
-                automation = ClickUpConfig.Automation(
-                    workspaceName = workspaceName,
-                    fixVersionPattern = null,
-                    fixVersionFieldName = null,
-                    tagPattern = "fix_%1\\\$s.%2\\\$s"
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
 
         val givenIssueKey = "86c72yxu4"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с тегами
-        """.trimIndent()
+            """.trimIndent()
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
@@ -525,33 +502,26 @@ class ClickUpTagAutomationTest {
             clickUpController.removeTag(expectedIssueKey, expectedTag)
         }
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
         val automationResult: BuildResult = projectDir.runTask(givenClickUpAutomationTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "ClickUp automation successful"
-        )
+        automationResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        automationResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(!givenOutputFileExists, "Output file not exists")
 
         val expectedChangelogFile =
@@ -574,9 +544,10 @@ class ClickUpTagAutomationTest {
     fun `clickup tag automation executes when task already has tag without proxy`() {
         val workspaceName = "Ilia Nekrasov's Workspace"
 
-        val clickUpTokenFile = projectDir.getFile("app/clickup_token.txt").apply {
-            writeText(System.getProperty("CLICKUP_TOKEN"))
-        }
+        val clickUpTokenFile =
+            projectDir.getFile("app/clickup_token.txt").apply {
+                writeText(System.getProperty("CLICKUP_TOKEN"))
+            }
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -586,38 +557,44 @@ class ClickUpTagAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/",
+                        ),
                 ),
-            clickUpConfig = ClickUpConfig(
-                auth = ClickUpConfig.Auth(
-                    apiTokenFilePath = clickUpTokenFile.name
+            clickUpConfig =
+                ClickUpConfig(
+                    auth =
+                        ClickUpConfig.Auth(
+                            apiTokenFilePath = clickUpTokenFile.name,
+                        ),
+                    automation =
+                        ClickUpConfig.Automation(
+                            workspaceName = workspaceName,
+                            fixVersionPattern = null,
+                            fixVersionFieldName = null,
+                            tagPattern = "fix_%1\\\$s.%2\\\$s",
+                        ),
                 ),
-                automation = ClickUpConfig.Automation(
-                    workspaceName = workspaceName,
-                    fixVersionPattern = null,
-                    fixVersionFieldName = null,
-                    tagPattern = "fix_%1\\\$s.%2\\\$s"
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
 
         val givenIssueKey = "86c72yxu4"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с тегами
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
@@ -644,26 +621,15 @@ class ClickUpTagAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "ClickUp automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -686,9 +652,10 @@ class ClickUpTagAutomationTest {
     fun `clickup tag automation executes when task already has tag with proxy`() {
         val workspaceName = "Ilia Nekrasov's Workspace"
 
-        val clickUpTokenFile = projectDir.getFile("app/clickup_token.txt").apply {
-            writeText(System.getProperty("CLICKUP_TOKEN"))
-        }
+        val clickUpTokenFile =
+            projectDir.getFile("app/clickup_token.txt").apply {
+                writeText(System.getProperty("CLICKUP_TOKEN"))
+            }
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -698,38 +665,44 @@ class ClickUpTagAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/",
+                        ),
                 ),
-            clickUpConfig = ClickUpConfig(
-                auth = ClickUpConfig.Auth(
-                    apiTokenFilePath = clickUpTokenFile.name
+            clickUpConfig =
+                ClickUpConfig(
+                    auth =
+                        ClickUpConfig.Auth(
+                            apiTokenFilePath = clickUpTokenFile.name,
+                        ),
+                    automation =
+                        ClickUpConfig.Automation(
+                            workspaceName = workspaceName,
+                            fixVersionPattern = null,
+                            fixVersionFieldName = null,
+                            tagPattern = "fix_%1\\\$s.%2\\\$s",
+                        ),
                 ),
-                automation = ClickUpConfig.Automation(
-                    workspaceName = workspaceName,
-                    fixVersionPattern = null,
-                    fixVersionFieldName = null,
-                    tagPattern = "fix_%1\\\$s.%2\\\$s"
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
 
         val givenIssueKey = "86c72yxu4"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с тегами
-        """.trimIndent()
+            """.trimIndent()
         val givenAssembleTask = "assembleDebug"
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
@@ -750,38 +723,28 @@ class ClickUpTagAutomationTest {
             clickUpController.addTagToTask(expectedIssueKey, expectedTag)
         }
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask, proxyProps)
         val automationResult: BuildResult = projectDir.runTask(givenClickUpAutomationTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "ClickUp automation successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val expectedChangelogFile =
@@ -804,9 +767,10 @@ class ClickUpTagAutomationTest {
     fun `clickup tag automation executes when task already has tag and without assemble without proxy`() {
         val workspaceName = "Ilia Nekrasov's Workspace"
 
-        val clickUpTokenFile = projectDir.getFile("app/clickup_token.txt").apply {
-            writeText(System.getProperty("CLICKUP_TOKEN"))
-        }
+        val clickUpTokenFile =
+            projectDir.getFile("app/clickup_token.txt").apply {
+                writeText(System.getProperty("CLICKUP_TOKEN"))
+            }
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -816,38 +780,44 @@ class ClickUpTagAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/",
+                        ),
                 ),
-            clickUpConfig = ClickUpConfig(
-                auth = ClickUpConfig.Auth(
-                    apiTokenFilePath = clickUpTokenFile.name
+            clickUpConfig =
+                ClickUpConfig(
+                    auth =
+                        ClickUpConfig.Auth(
+                            apiTokenFilePath = clickUpTokenFile.name,
+                        ),
+                    automation =
+                        ClickUpConfig.Automation(
+                            workspaceName = workspaceName,
+                            fixVersionPattern = null,
+                            fixVersionFieldName = null,
+                            tagPattern = "fix_%1\\\$s.%2\\\$s",
+                        ),
                 ),
-                automation = ClickUpConfig.Automation(
-                    workspaceName = workspaceName,
-                    fixVersionPattern = null,
-                    fixVersionFieldName = null,
-                    tagPattern = "fix_%1\\\$s.%2\\\$s"
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
 
         val givenIssueKey = "86c72yxu4"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с тегами
-        """.trimIndent()
+            """.trimIndent()
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
@@ -872,22 +842,14 @@ class ClickUpTagAutomationTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "ClickUp automation successful"
-        )
+        automationResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        automationResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(!givenOutputFileExists, "Output file not exists")
 
         val expectedChangelogFile =
@@ -910,9 +872,10 @@ class ClickUpTagAutomationTest {
     fun `clickup tag automation executes when task already has tag and without assemble with proxy`() {
         val workspaceName = "Ilia Nekrasov's Workspace"
 
-        val clickUpTokenFile = projectDir.getFile("app/clickup_token.txt").apply {
-            writeText(System.getProperty("CLICKUP_TOKEN"))
-        }
+        val clickUpTokenFile =
+            projectDir.getFile("app/clickup_token.txt").apply {
+                writeText(System.getProperty("CLICKUP_TOKEN"))
+            }
 
         projectDir.createAndroidProject(
             buildTypes = listOf(BuildType("debug"), BuildType("release")),
@@ -922,38 +885,44 @@ class ClickUpTagAutomationTest {
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "[a-zA-Z0-9]+\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("CLICKUP_BASE_URL")}/t/",
+                        ),
                 ),
-            clickUpConfig = ClickUpConfig(
-                auth = ClickUpConfig.Auth(
-                    apiTokenFilePath = clickUpTokenFile.name
+            clickUpConfig =
+                ClickUpConfig(
+                    auth =
+                        ClickUpConfig.Auth(
+                            apiTokenFilePath = clickUpTokenFile.name,
+                        ),
+                    automation =
+                        ClickUpConfig.Automation(
+                            workspaceName = workspaceName,
+                            fixVersionPattern = null,
+                            fixVersionFieldName = null,
+                            tagPattern = "fix_%1\\\$s.%2\\\$s",
+                        ),
                 ),
-                automation = ClickUpConfig.Automation(
-                    workspaceName = workspaceName,
-                    fixVersionPattern = null,
-                    fixVersionFieldName = null,
-                    tagPattern = "fix_%1\\\$s.%2\\\$s"
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
 
         val givenIssueKey = "86c72yxu4"
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
         val givenCommitMessage1 = "Initial commit"
-        val givenCommitMessage2 = """
+        val givenCommitMessage2 =
+            """
             $givenIssueKey: Add test readme
             
             CHANGELOG: [$givenIssueKey] Задача для проверки работы BuildPublishPlugin с тегами
-        """.trimIndent()
+            """.trimIndent()
         val givenClickUpAutomationTask = "clickUpAutomationDebug"
         val git = projectDir.initGit()
         val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
@@ -973,33 +942,26 @@ class ClickUpTagAutomationTest {
             clickUpController.addTagToTask(expectedIssueKey, expectedTag)
         }
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
         val automationResult: BuildResult = projectDir.runTask(givenClickUpAutomationTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !automationResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            automationResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD SUCCESSFUL"),
-            "ClickUp automation successful"
-        )
+        automationResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        automationResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        automationResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(!givenOutputFileExists, "Output file not exists")
 
         val expectedChangelogFile =

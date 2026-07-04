@@ -4,6 +4,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 
 /**
  * Configuration interface for Google Play authentication settings.
@@ -12,7 +13,7 @@ import org.gradle.api.tasks.InputFile
  * to the Google Play Store. It's used within the `BuildPublishPlayExtension` to
  * configure API access to the Google Play Developer API.
  */
-interface PlayAuthConfig {
+interface PlayAuthConfig : CommonConfigMergeable<PlayAuthConfig> {
     /**
      * Name of this authentication configuration.
      *
@@ -53,4 +54,9 @@ interface PlayAuthConfig {
      */
     @get:Input
     val appId: Property<String>
+
+    override fun inheritFrom(common: PlayAuthConfig) {
+        apiTokenFile.convention(common.apiTokenFile)
+        appId.convention(common.appId)
+    }
 }

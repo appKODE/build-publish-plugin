@@ -1,3 +1,6 @@
+// Long, descriptive backtick test names (and fully-qualified strategy class names) intentionally exceed the line limit.
+@file:Suppress("ktlint:standard:max-line-length")
+
 package ru.kode.android.build.publish.plugin.foundation
 
 import org.gradle.testkit.runner.BuildResult
@@ -6,8 +9,8 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.core.strategy.noChangedDetectedSinceStartMessage
 import ru.kode.android.build.publish.plugin.core.strategy.noChangesDetectedSinceBuildMessage
@@ -22,6 +25,7 @@ import ru.kode.android.build.publish.plugin.test.utils.extractManifestProperties
 import ru.kode.android.build.publish.plugin.test.utils.findTag
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import ru.kode.android.build.publish.plugin.test.utils.runTasks
@@ -88,9 +92,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -101,42 +106,28 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile = noChangedDetectedSinceStartMessage()
 
@@ -210,9 +201,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -223,42 +215,28 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = givenTagMessage,
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = givenTagMessage,
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -334,9 +312,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -347,42 +326,28 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -460,9 +425,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -473,42 +439,28 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -586,9 +538,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -599,42 +552,28 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -712,9 +651,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -725,42 +665,28 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -838,9 +764,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -851,42 +778,28 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -934,7 +847,7 @@ class FoundationChangelogTest {
                             issueNumberPattern = "TICKET-\\\\d+",
                             issueUrlPrefix = "https://jira.example.com/browse/",
                             commitMessageKey = "TICKET",
-                            changelogMessageStrategy = "ru.kode.android.build.publish.plugin.core.strategy.KeyPreservingChangelogMessageStrategy.INSTANCE"
+                            changelogMessageStrategy = "ru.kode.android.build.publish.plugin.core.strategy.KeyPreservingChangelogMessageStrategy.INSTANCE",
                         ),
                 ),
         )
@@ -965,9 +878,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -978,42 +892,28 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -1092,9 +992,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1105,42 +1006,28 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = givenTagMessage,
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = givenTagMessage,
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -1218,9 +1105,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1231,30 +1119,25 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            result.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            result.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
+        result.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        result.outputShouldContain("Task :app:generateChangelogDebug")
         assertEquals(
             result.output
                 .split("\n")
@@ -1266,10 +1149,7 @@ class FoundationChangelogTest {
             2,
             "Each task executed without duplications",
         )
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -1346,9 +1226,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: false
 
         val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
@@ -1357,30 +1238,22 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
 
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -1452,9 +1325,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1474,33 +1348,18 @@ class FoundationChangelogTest {
                     buildNumber = expectedBuildNumber.toInt(),
                 ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -1576,9 +1435,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -1589,30 +1449,25 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            result.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            result.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
+        result.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        result.outputShouldContain("Task :app:generateChangelogDebug")
         assertEquals(
             result.output
                 .split("\n")
@@ -1624,10 +1479,7 @@ class FoundationChangelogTest {
             2,
             "Each task executed without duplications",
         )
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -1703,9 +1555,10 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: false
 
         val expectedCommitSha = git.tag.findTag(givenTagName).id
         val expectedBuildNumber = "1"
@@ -1714,30 +1567,22 @@ class FoundationChangelogTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
 
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -1822,64 +1667,53 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenTagName2).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                ),
-                previousOnDifferentCommit = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                )
+                current =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenTagName2).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
+                previousOnDifferentCommit =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -1972,64 +1806,53 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenTagName2).id,
-                    message = givenTagMessage2,
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                ),
-                previousOnDifferentCommit = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                )
+                current =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenTagName2).id,
+                        message = givenTagMessage2,
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
+                previousOnDifferentCommit =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -2122,64 +1945,53 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenTagName2).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                ),
-                previousOnDifferentCommit = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                )
+                current =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenTagName2).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
+                previousOnDifferentCommit =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile = noChangesDetectedSinceBuildMessage(givenTagName1)
 
@@ -2265,52 +2077,50 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenTagName2).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                ),
-                previousOnDifferentCommit = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                )
+                current =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenTagName2).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
+                previousOnDifferentCommit =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
                 versionName = "1.0",
             )
-        assertTrue(
-            result.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            result.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
+        result.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        result.outputShouldContain("Task :app:generateChangelogDebug")
         assertEquals(
             result.output
                 .split("\n")
@@ -2322,10 +2132,7 @@ class FoundationChangelogTest {
             2,
             "Each task executed without duplications",
         )
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -2416,50 +2223,45 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenTagName2).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                ),
-                previousOnDifferentCommit = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                )
+                current =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenTagName2).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
+                previousOnDifferentCommit =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
             ).toJson()
 
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -2545,64 +2347,53 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenTagName2).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                ),
-                previousOnDifferentCommit = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                )
+                current =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenTagName2).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
+                previousOnDifferentCommit =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
                 versionName = "1.0",
             )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -2692,52 +2483,50 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenTagName2).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                ),
-                previousOnDifferentCommit = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                )
+                current =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenTagName2).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
+                previousOnDifferentCommit =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "2",
                 versionName = "1.0",
             )
-        assertTrue(
-            result.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            result.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
+        result.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        result.outputShouldContain("Task :app:generateChangelogDebug")
         assertEquals(
             result.output
                 .split("\n")
@@ -2749,10 +2538,7 @@ class FoundationChangelogTest {
             2,
             "Each task executed without duplications",
         )
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -2842,50 +2628,45 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenTagName2).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                ),
-                previousOnDifferentCommit = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                )
+                current =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenTagName2).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
+                previousOnDifferentCommit =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
             ).toJson()
 
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -2971,50 +2752,45 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.3-debug",
-                    commitSha = git.tag.findTag(givenTagName3).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 3,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenTagName2).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousOnDifferentCommit = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                )
+                current =
+                    Tag.Build(
+                        name = "v1.0.3-debug",
+                        commitSha = git.tag.findTag(givenTagName3).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 3,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenTagName2).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousOnDifferentCommit =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
             ).toJson()
 
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -3103,43 +2879,37 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.3-debug",
-                    commitSha = git.tag.findTag(givenTagName3).id,
-                    message = givenTagMessage3,
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 3,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenTagName2).id,
-                    message = givenTagMessage2,
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousOnDifferentCommit = null
+                current =
+                    Tag.Build(
+                        name = "v1.0.3-debug",
+                        commitSha = git.tag.findTag(givenTagName3).id,
+                        message = givenTagMessage3,
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 3,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenTagName2).id,
+                        message = givenTagMessage2,
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousOnDifferentCommit = null,
             ).toJson()
 
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -3228,43 +2998,37 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.3-debug",
-                    commitSha = git.tag.findTag(givenTagName3).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 3,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenTagName2).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousOnDifferentCommit = null
+                current =
+                    Tag.Build(
+                        name = "v1.0.3-debug",
+                        commitSha = git.tag.findTag(givenTagName3).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 3,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenTagName2).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousOnDifferentCommit = null,
             ).toJson()
 
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -3355,50 +3119,45 @@ class FoundationChangelogTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.3-debug",
-                    commitSha = git.tag.findTag(givenTagName3).id,
-                    message = givenTagMessage3,
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 3,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenTagName2).id,
-                    message = givenTagMessage2,
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousOnDifferentCommit = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = givenTagMessage1,
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                )
+                current =
+                    Tag.Build(
+                        name = "v1.0.3-debug",
+                        commitSha = git.tag.findTag(givenTagName3).id,
+                        message = givenTagMessage3,
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 3,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenTagName2).id,
+                        message = givenTagMessage2,
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousOnDifferentCommit =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = givenTagMessage1,
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
             ).toJson()
 
-        assertTrue(
-            changelogResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("Task :app:generateChangelogDebug"),
-            "Task generateChangelogDebug executed",
-        )
-        assertTrue(
-            changelogResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeed",
-        )
+        changelogResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
 
         val expectedChangelogFile =
             """
@@ -3418,5 +3177,70 @@ class FoundationChangelogTest {
             "Changelogs equality",
         )
         assertTrue(!givenOutputFileExists, "Output file not exists")
+    }
+
+    @Test
+    fun `generate changelog with multiple issue sources declared via the issueSources block`() {
+        projectDir.createAndroidProject(
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
+            foundationConfig =
+                FoundationConfig(
+                    output =
+                        FoundationConfig.Output(
+                            baseFileName = "autotest",
+                        ),
+                    changelog =
+                        FoundationConfig.Changelog(
+                            commitMessageKey = "CHANGELOG",
+                            // Two sources force the multi-source `issueSources { issueSource() issueSource() }`
+                            // block (and its Groovy Closure overloads) instead of the single-source shorthand.
+                            issueSources =
+                                listOf(
+                                    FoundationConfig.Changelog.IssueSource(
+                                        name = "app",
+                                        numberPattern = "APP-\\\\d+",
+                                        urlPrefix = "https://jira1.example.com/browse/",
+                                    ),
+                                    FoundationConfig.Changelog.IssueSource(
+                                        name = "legacy",
+                                        numberPattern = "LEG-\\\\d+",
+                                        urlPrefix = "https://jira2.example.com/browse/",
+                                    ),
+                                ),
+                        ),
+                ),
+        )
+
+        val givenTagName = "v1.0.1-debug"
+        val givenChangelogTask = "generateChangelogDebug"
+        val git = projectDir.initGit()
+        val givenChangelogFile = projectDir.getFile("app/build/changelog-debug.txt")
+
+        projectDir.getFile("app/README.md").writeText("This is test project 1")
+        git.addAllAndCommit("CHANGELOG: (APP-1) Add login screen")
+
+        projectDir.getFile("app/README2.md").writeText("This is test project 2")
+        git.addAllAndCommit("CHANGELOG: (LEG-2) Fix legacy crash")
+        git.tag.addNamed(givenTagName)
+
+        val changelogResult: BuildResult = projectDir.runTask(givenChangelogTask)
+
+        changelogResult.outputShouldContain("Task :app:generateChangelogDebug")
+        changelogResult.outputShouldContain("BUILD SUCCESSFUL")
+
+        val expectedChangelogFile =
+            """
+            • (LEG-2) Fix legacy crash
+            • (APP-1) Add login screen
+            """.trimIndent()
+        assertEquals(
+            expectedChangelogFile,
+            givenChangelogFile.readText(),
+            "Both sources' issues are included in the changelog",
+        )
     }
 }

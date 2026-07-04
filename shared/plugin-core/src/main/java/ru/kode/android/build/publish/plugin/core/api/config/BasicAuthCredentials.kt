@@ -2,6 +2,7 @@ package ru.kode.android.build.publish.plugin.core.api.config
 
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 
 /**
  * A data class representing Basic Authentication credentials.
@@ -13,7 +14,7 @@ import org.gradle.api.tasks.Input
  * Always use secure methods to provide credentials, such as environment variables or
  * Gradle properties, and never commit actual credentials to version control.
  */
-abstract class BasicAuthCredentials {
+abstract class BasicAuthCredentials : CommonConfigMergeable<BasicAuthCredentials> {
     /**
      * The username for Basic Authentication.
      *
@@ -31,4 +32,9 @@ abstract class BasicAuthCredentials {
      */
     @get:Input
     abstract val password: Property<String>
+
+    override fun inheritFrom(common: BasicAuthCredentials) {
+        username.convention(common.username)
+        password.convention(common.password)
+    }
 }

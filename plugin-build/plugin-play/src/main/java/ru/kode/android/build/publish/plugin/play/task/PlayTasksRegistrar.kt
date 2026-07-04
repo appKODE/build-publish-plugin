@@ -6,13 +6,12 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.play.config.PlayDistributionConfig
 import ru.kode.android.build.publish.plugin.play.service.PlayServiceExtension
 import ru.kode.android.build.publish.plugin.play.task.distribution.PlayDistributionTask
-
-internal const val PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX = "playUpload"
 
 /**
  * Utility object for registering Play Store related Gradle tasks.
@@ -57,7 +56,7 @@ private fun Project.registerPlayDistributionTask(
     val buildVariant = params.buildVariant
 
     return tasks.register(
-        "$PLAY_DISTRIBUTION_UPLOAD_TASK_PREFIX${buildVariant.capitalizedName()}",
+        "${TaskNames.Play.DISTRIBUTION_UPLOAD_PREFIX}${buildVariant.capitalizedName()}",
         PlayDistributionTask::class.java,
     ) {
         val networkService =

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.confluence.controller.ConfluenceController
 import ru.kode.android.build.publish.plugin.confluence.controller.factory.ConfluenceControllerFactory
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
+import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLogger
 import ru.kode.android.build.publish.plugin.core.util.NetworkProxy
 import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
@@ -21,6 +21,8 @@ import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.currentDate
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldNotContain
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import ru.kode.android.build.publish.plugin.test.utils.runTaskWithFail
@@ -28,7 +30,6 @@ import java.io.File
 import java.io.IOException
 
 class ConfluenceDistributionTest {
-
     private val logger: Logger = AlwaysInfoLogger()
 
     @TempDir
@@ -39,72 +40,60 @@ class ConfluenceDistributionTest {
     @BeforeEach
     fun setup() {
         projectDir = File(tempDir, "test-project")
-        confluenceController = ConfluenceControllerFactory.build(
-            baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
-            username = System.getProperty("CONFLUENCE_USER_NAME"),
-            password = System.getProperty("CONFLUENCE_USER_PASSWORD"),
-            logger = object : PluginLogger {
-                override val bodyLogging: Boolean get() = false
-
-                override fun info(message: String, exception: Throwable?) {
-                    logger.info(message)
-                }
-
-                override fun warn(message: String) {
-                    logger.warn(message)
-                }
-
-                override fun error(message: String, exception: Throwable?) {
-                    logger.error(message, exception)
-                }
-
-                override fun quiet(message: String) {
-                    logger.quiet(message)
-                }
-            },
-            proxy = {
-                NetworkProxy(
-                    host = System.getProperty("PROXY_HOST"),
-                    port = System.getProperty("PROXY_PORT"),
-                    user = System.getProperty("PROXY_USER"),
-                    password = System.getProperty("PROXY_PASSWORD"),
-                )
-            }
-        )
+        confluenceController =
+            ConfluenceControllerFactory.build(
+                baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
+                username = System.getProperty("CONFLUENCE_USER_NAME"),
+                password = System.getProperty("CONFLUENCE_USER_PASSWORD"),
+                logger = pluginLoggerFromLogger(logger),
+                proxy = {
+                    NetworkProxy(
+                        host = System.getProperty("PROXY_HOST"),
+                        port = System.getProperty("PROXY_PORT"),
+                        user = System.getProperty("PROXY_USER"),
+                        password = System.getProperty("PROXY_PASSWORD"),
+                    )
+                },
+            )
     }
 
     @Test
     @Throws(IOException::class)
     fun `confluence build distribution not available without distribution config`() {
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            confluenceConfig = ConfluenceConfig(
-                auth = ConfluenceConfig.Auth(
-                    baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
-                    username = System.getProperty("CONFLUENCE_USER_NAME"),
-                    password = System.getProperty("CONFLUENCE_USER_PASSWORD")
+            confluenceConfig =
+                ConfluenceConfig(
+                    auth =
+                        ConfluenceConfig.Auth(
+                            baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
+                            username = System.getProperty("CONFLUENCE_USER_NAME"),
+                            password = System.getProperty("CONFLUENCE_USER_PASSWORD"),
+                        ),
+                    distribution = null,
                 ),
-                distribution = null
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName = "v1.0.1-debug"
         val givenCommitMessage = "Initial commit"
@@ -121,26 +110,15 @@ class ConfluenceDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD FAILED"),
-            "Build failed",
-        )
-        assertTrue(
-            automationResult.output.contains("BUILD FAILED"),
-            "Confluence distribution failed"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD FAILED")
+        automationResult.outputShouldContain("BUILD FAILED")
         assertTrue(!givenOutputFileExists, "Output file not exists")
     }
 
@@ -162,36 +140,42 @@ class ConfluenceDistributionTest {
         }
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            confluenceConfig = ConfluenceConfig(
-                auth = ConfluenceConfig.Auth(
-                    baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
-                    username = System.getProperty("CONFLUENCE_USER_NAME"),
-                    password = System.getProperty("CONFLUENCE_USER_PASSWORD")
+            confluenceConfig =
+                ConfluenceConfig(
+                    auth =
+                        ConfluenceConfig.Auth(
+                            baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
+                            username = System.getProperty("CONFLUENCE_USER_NAME"),
+                            password = System.getProperty("CONFLUENCE_USER_PASSWORD"),
+                        ),
+                    distribution =
+                        ConfluenceConfig.Distribution(
+                            pageId = pageId,
+                        ),
                 ),
-                distribution = ConfluenceConfig.Distribution(
-                    pageId = pageId
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -206,22 +190,24 @@ class ConfluenceDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask, proxyProps)
         val distributionResult: BuildResult = projectDir.runTask(givenConfluenceDistributionTask, proxyProps)
@@ -229,26 +215,15 @@ class ConfluenceDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Confluence distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val afterAutomationAttachments = confluenceController.getAttachments(pageId)
@@ -280,37 +255,43 @@ class ConfluenceDistributionTest {
         }
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            confluenceConfig = ConfluenceConfig(
-                auth = ConfluenceConfig.Auth(
-                    baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
-                    username = System.getProperty("CONFLUENCE_USER_NAME"),
-                    password = System.getProperty("CONFLUENCE_USER_PASSWORD")
+            confluenceConfig =
+                ConfluenceConfig(
+                    auth =
+                        ConfluenceConfig.Auth(
+                            baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
+                            username = System.getProperty("CONFLUENCE_USER_NAME"),
+                            password = System.getProperty("CONFLUENCE_USER_PASSWORD"),
+                        ),
+                    distribution =
+                        ConfluenceConfig.Distribution(
+                            pageId = pageId,
+                            compressed = true,
+                        ),
                 ),
-                distribution = ConfluenceConfig.Distribution(
-                    pageId = pageId,
-                    compressed = true
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -325,22 +306,24 @@ class ConfluenceDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask, proxyProps)
         val distributionResult: BuildResult = projectDir.runTask(givenConfluenceDistributionTask, proxyProps)
@@ -348,26 +331,15 @@ class ConfluenceDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Confluence distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val afterAutomationAttachments = confluenceController.getAttachments(pageId)
@@ -399,36 +371,42 @@ class ConfluenceDistributionTest {
         }
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            confluenceConfig = ConfluenceConfig(
-                auth = ConfluenceConfig.Auth(
-                    baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
-                    username = System.getProperty("CONFLUENCE_USER_NAME"),
-                    password = System.getProperty("CONFLUENCE_USER_PASSWORD")
+            confluenceConfig =
+                ConfluenceConfig(
+                    auth =
+                        ConfluenceConfig.Auth(
+                            baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
+                            username = System.getProperty("CONFLUENCE_USER_NAME"),
+                            password = System.getProperty("CONFLUENCE_USER_PASSWORD"),
+                        ),
+                    distribution =
+                        ConfluenceConfig.Distribution(
+                            pageId = pageId,
+                        ),
                 ),
-                distribution = ConfluenceConfig.Distribution(
-                    pageId = pageId
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -442,44 +420,38 @@ class ConfluenceDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
 
         val distributionResult: BuildResult = projectDir.runTask(givenConfluenceDistributionTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            !distributionResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            distributionResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Confluence distribution successful"
-        )
+        distributionResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        distributionResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFileExists, "Output file exists")
 
         val afterAutomationAttachments = confluenceController.getAttachments(pageId)
@@ -511,36 +483,42 @@ class ConfluenceDistributionTest {
         }
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            confluenceConfig = ConfluenceConfig(
-                auth = ConfluenceConfig.Auth(
-                    baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
-                    username = System.getProperty("CONFLUENCE_USER_NAME"),
-                    password = System.getProperty("CONFLUENCE_USER_PASSWORD")
+            confluenceConfig =
+                ConfluenceConfig(
+                    auth =
+                        ConfluenceConfig.Auth(
+                            baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
+                            username = System.getProperty("CONFLUENCE_USER_NAME"),
+                            password = System.getProperty("CONFLUENCE_USER_PASSWORD"),
+                        ),
+                    distribution =
+                        ConfluenceConfig.Distribution(
+                            pageId = pageId,
+                        ),
                 ),
-                distribution = ConfluenceConfig.Distribution(
-                    pageId = pageId
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -555,22 +533,24 @@ class ConfluenceDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
 
         val assembleResult: BuildResult = projectDir.runTask(givenAssembleTask, proxyProps)
         val distributionResult: BuildResult = projectDir.runTask(givenConfluenceDistributionTask, proxyProps)
@@ -578,25 +558,14 @@ class ConfluenceDistributionTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val bundleDir = projectDir.getFile("app/build/outputs/bundle/debug")
-        val givenOutputFile = bundleDir.listFiles()
-            ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
+        val givenOutputFile =
+            bundleDir.listFiles()
+                ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
 
-        assertTrue(
-            !assembleResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            assembleResult.output.contains("BUILD SUCCESSFUL"),
-            "Build successful",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Confluence distribution successful"
-        )
+        assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        assembleResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        assembleResult.outputShouldContain("BUILD SUCCESSFUL")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFile!!.exists(), "Output file exists")
 
         val afterAutomationAttachments = confluenceController.getAttachments(pageId)
@@ -616,7 +585,6 @@ class ConfluenceDistributionTest {
     fun `confluence bundle build distribution available with distribution config with proxy without assemble`() {
         val pageId = System.getProperty("CONFLUENCE_PAGE_ID")
 
-
         val beforeAutomationAttachments = confluenceController.getAttachments(pageId)
         val beforeAutomationComments = confluenceController.getComments(pageId)
 
@@ -629,36 +597,42 @@ class ConfluenceDistributionTest {
         }
 
         projectDir.createAndroidProject(
-            buildTypes = listOf(
-                BuildType("debug"),
-                BuildType("release")
-            ),
+            buildTypes =
+                listOf(
+                    BuildType("debug"),
+                    BuildType("release"),
+                ),
             foundationConfig =
                 FoundationConfig(
                     output =
                         FoundationConfig.Output(
                             baseFileName = "autotest",
                         ),
-                    changelog = FoundationConfig.Changelog(
-                        issueNumberPattern = "TEST-\\\\d+",
-                        issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/"
-                    )
+                    changelog =
+                        FoundationConfig.Changelog(
+                            issueNumberPattern = "TEST-\\\\d+",
+                            issueUrlPrefix = "${System.getProperty("JIRA_BASE_URL")}/browse/",
+                        ),
                 ),
-            confluenceConfig = ConfluenceConfig(
-                auth = ConfluenceConfig.Auth(
-                    baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
-                    username = System.getProperty("CONFLUENCE_USER_NAME"),
-                    password = System.getProperty("CONFLUENCE_USER_PASSWORD")
+            confluenceConfig =
+                ConfluenceConfig(
+                    auth =
+                        ConfluenceConfig.Auth(
+                            baseUrl = System.getProperty("CONFLUENCE_BASE_URL"),
+                            username = System.getProperty("CONFLUENCE_USER_NAME"),
+                            password = System.getProperty("CONFLUENCE_USER_PASSWORD"),
+                        ),
+                    distribution =
+                        ConfluenceConfig.Distribution(
+                            pageId = pageId,
+                        ),
                 ),
-                distribution = ConfluenceConfig.Distribution(
-                    pageId = pageId
-                )
-            ),
-            topBuildFileContent = """
+            topBuildFileContent =
+                """
                 plugins {
                     id 'ru.kode.android.build-publish-novo.foundation' apply false
                 }
-            """.trimIndent()
+                """.trimIndent(),
         )
         val givenTagName1 = "v1.0.1-debug"
         val givenTagName2 = "v1.0.2-debug"
@@ -672,43 +646,37 @@ class ConfluenceDistributionTest {
         getChangelog()
             .split("\n")
             .forEachIndexed { index, changelogLine ->
-                val givenCommitMessageN = """
-                Add $index change in codebase
-                
-                CHANGELOG: $changelogLine
-                """.trimIndent()
-                projectDir.getFile("app/README${index}.md").writeText("This is test project")
+                val givenCommitMessageN =
+                    """
+                    Add $index change in codebase
+                    
+                    CHANGELOG: $changelogLine
+                    """.trimIndent()
+                projectDir.getFile("app/README$index.md").writeText("This is test project")
                 git.addAllAndCommit(givenCommitMessageN)
             }
         git.tag.addNamed(givenTagName2)
 
-        val proxyProps = mapOf(
-            "https.proxyUser" to System.getProperty("PROXY_USER"),
-            "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
-            "https.proxyHost" to System.getProperty("PROXY_HOST"),
-            "https.proxyPort" to System.getProperty("PROXY_PORT")
-        )
+        val proxyProps =
+            mapOf(
+                "https.proxyUser" to System.getProperty("PROXY_USER"),
+                "https.proxyPassword" to System.getProperty("PROXY_PASSWORD"),
+                "https.proxyHost" to System.getProperty("PROXY_HOST"),
+                "https.proxyPort" to System.getProperty("PROXY_PORT"),
+            )
 
         val distributionResult: BuildResult = projectDir.runTask(givenConfluenceDistributionTask, proxyProps)
 
         projectDir.getFile("app").printFilesRecursively()
 
         val bundleDir = projectDir.getFile("app/build/outputs/bundle/debug")
-        val givenOutputFile = bundleDir.listFiles()
-            ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
+        val givenOutputFile =
+            bundleDir.listFiles()
+                ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
 
-        assertTrue(
-            !distributionResult.output.contains("Task :app:getLastTagSnapshotRelease"),
-            "Task getLastTagSnapshotRelease not executed",
-        )
-        assertTrue(
-            distributionResult.output.contains("Task :app:getLastTagSnapshotDebug"),
-            "Task getLastTagSnapshotDebug executed",
-        )
-        assertTrue(
-            distributionResult.output.contains("BUILD SUCCESSFUL"),
-            "Confluence distribution successful"
-        )
+        distributionResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
+        distributionResult.outputShouldContain("Task :app:getLastTagSnapshotDebug")
+        distributionResult.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenOutputFile!!.exists(), "Output file exists")
 
         val afterAutomationAttachments = confluenceController.getAttachments(pageId)
@@ -721,12 +689,11 @@ class ConfluenceDistributionTest {
             afterAutomationComments.last().html.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab"))
         }
     }
-
 }
 
 private fun getChangelog(): String {
     return """
-[TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
-[TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
-    """.trimIndent()
+        [TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
+        [TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
+        """.trimIndent()
 }

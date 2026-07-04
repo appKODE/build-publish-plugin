@@ -2,6 +2,7 @@ package ru.kode.android.build.publish.plugin.clickup.config
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 
 /**
  * Configuration for authenticating with the ClickUp API.
@@ -9,7 +10,7 @@ import org.gradle.api.tasks.InputFile
  * This interface defines the authentication settings required to interact with the ClickUp API.
  * It's typically configured in the build script using the `auth` block of the `buildPublishClickUp` extension.
  */
-interface ClickUpAuthConfig {
+interface ClickUpAuthConfig : CommonConfigMergeable<ClickUpAuthConfig> {
     val name: String
 
     /**
@@ -27,4 +28,8 @@ interface ClickUpAuthConfig {
      */
     @get:InputFile
     val apiTokenFile: RegularFileProperty
+
+    override fun inheritFrom(common: ClickUpAuthConfig) {
+        apiTokenFile.convention(common.apiTokenFile)
+    }
 }

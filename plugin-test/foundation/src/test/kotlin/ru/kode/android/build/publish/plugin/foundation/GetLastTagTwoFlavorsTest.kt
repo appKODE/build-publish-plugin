@@ -1,13 +1,15 @@
+// Long, descriptive backtick test names (and fully-qualified strategy class names) intentionally exceed the line limit.
+@file:Suppress("ktlint:standard:max-line-length")
+
 package ru.kode.android.build.publish.plugin.foundation
 
 import org.gradle.testkit.runner.BuildResult
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.ProductFlavor
@@ -17,6 +19,7 @@ import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.findTag
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import java.io.File
@@ -63,21 +66,19 @@ class GetLastTagTwoFlavorsTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -121,21 +122,19 @@ class GetLastTagTwoFlavorsTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -176,21 +175,19 @@ class GetLastTagTwoFlavorsTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -234,21 +231,19 @@ class GetLastTagTwoFlavorsTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -289,21 +284,19 @@ class GetLastTagTwoFlavorsTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -347,21 +340,19 @@ class GetLastTagTwoFlavorsTest {
         val expectedBuildVersion = "1.2"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -402,21 +393,19 @@ class GetLastTagTwoFlavorsTest {
         val expectedBuildVersion = "1.2"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -460,21 +449,19 @@ class GetLastTagTwoFlavorsTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -517,21 +504,19 @@ class GetLastTagTwoFlavorsTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        releaseResult.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -577,21 +562,19 @@ class GetLastTagTwoFlavorsTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        releaseResult.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -634,21 +617,19 @@ class GetLastTagTwoFlavorsTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        releaseResult.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -694,21 +675,19 @@ class GetLastTagTwoFlavorsTest {
         val expectedBuildVersion = "1.0"
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        releaseResult.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -752,35 +731,35 @@ class GetLastTagTwoFlavorsTest {
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.99-googleDebug",
-                    commitSha = git.tag.findTag(given2TagNameDebug).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "googleDebug",
-                    buildNumber = 99,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.2-googleDebug",
-                    commitSha = git.tag.findTag(given1TagNameDebug).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "googleDebug",
-                    buildNumber = 2,
-                ),
-                previousOnDifferentCommit = Tag.Build(
-                    name = "v1.0.2-googleDebug",
-                    commitSha = git.tag.findTag(given1TagNameDebug).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "googleDebug",
-                    buildNumber = 2,
-                )
+                current =
+                    Tag.Build(
+                        name = "v1.0.99-googleDebug",
+                        commitSha = git.tag.findTag(given2TagNameDebug).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "googleDebug",
+                        buildNumber = 99,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.2-googleDebug",
+                        commitSha = git.tag.findTag(given1TagNameDebug).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "googleDebug",
+                        buildNumber = 2,
+                    ),
+                previousOnDifferentCommit =
+                    Tag.Build(
+                        name = "v1.0.2-googleDebug",
+                        commitSha = git.tag.findTag(given1TagNameDebug).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "googleDebug",
+                        buildNumber = 2,
+                    ),
             ).toJson()
-        assertTrue(
-            releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        releaseResult.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -818,28 +797,27 @@ class GetLastTagTwoFlavorsTest {
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.99-googleDebug",
-                    commitSha = git.tag.findTag(given2TagNameDebug).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "googleDebug",
-                    buildNumber = 99,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.2-googleDebug",
-                    commitSha = git.tag.findTag(given1TagNameDebug).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "googleDebug",
-                    buildNumber = 2,
-                ),
-                previousOnDifferentCommit = null
+                current =
+                    Tag.Build(
+                        name = "v1.0.99-googleDebug",
+                        commitSha = git.tag.findTag(given2TagNameDebug).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "googleDebug",
+                        buildNumber = 99,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.2-googleDebug",
+                        commitSha = git.tag.findTag(given1TagNameDebug).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "googleDebug",
+                        buildNumber = 2,
+                    ),
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        releaseResult.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -883,35 +861,35 @@ class GetLastTagTwoFlavorsTest {
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.1.99-googleDebug",
-                    commitSha = git.tag.findTag(given2TagNameDebug).id,
-                    message = "",
-                    buildVersion = "1.1",
-                    buildVariant = "googleDebug",
-                    buildNumber = 99,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.1.1-googleDebug",
-                    commitSha = git.tag.findTag(given1TagNameDebug).id,
-                    message = "",
-                    buildVersion = "1.1",
-                    buildVariant = "googleDebug",
-                    buildNumber = 1,
-                ),
-                previousOnDifferentCommit = Tag.Build(
-                    name = "v1.1.1-googleDebug",
-                    commitSha = git.tag.findTag(given1TagNameDebug).id,
-                    message = "",
-                    buildVersion = "1.1",
-                    buildVariant = "googleDebug",
-                    buildNumber = 1,
-                )
+                current =
+                    Tag.Build(
+                        name = "v1.1.99-googleDebug",
+                        commitSha = git.tag.findTag(given2TagNameDebug).id,
+                        message = "",
+                        buildVersion = "1.1",
+                        buildVariant = "googleDebug",
+                        buildNumber = 99,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.1.1-googleDebug",
+                        commitSha = git.tag.findTag(given1TagNameDebug).id,
+                        message = "",
+                        buildVersion = "1.1",
+                        buildVariant = "googleDebug",
+                        buildNumber = 1,
+                    ),
+                previousOnDifferentCommit =
+                    Tag.Build(
+                        name = "v1.1.1-googleDebug",
+                        commitSha = git.tag.findTag(given1TagNameDebug).id,
+                        message = "",
+                        buildVersion = "1.1",
+                        buildVariant = "googleDebug",
+                        buildNumber = 1,
+                    ),
             ).toJson()
-        assertTrue(
-            releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        releaseResult.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -949,28 +927,27 @@ class GetLastTagTwoFlavorsTest {
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.1.99-googleDebug",
-                    commitSha = git.tag.findTag(given2TagNameDebug).id,
-                    message = "",
-                    buildVersion = "1.1",
-                    buildVariant = "googleDebug",
-                    buildNumber = 99,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.1.1-googleDebug",
-                    commitSha = git.tag.findTag(given1TagNameDebug).id,
-                    message = "",
-                    buildVersion = "1.1",
-                    buildVariant = "googleDebug",
-                    buildNumber = 1,
-                ),
-                previousOnDifferentCommit = null
+                current =
+                    Tag.Build(
+                        name = "v1.1.99-googleDebug",
+                        commitSha = git.tag.findTag(given2TagNameDebug).id,
+                        message = "",
+                        buildVersion = "1.1",
+                        buildVariant = "googleDebug",
+                        buildNumber = 99,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.1.1-googleDebug",
+                        commitSha = git.tag.findTag(given1TagNameDebug).id,
+                        message = "",
+                        buildVersion = "1.1",
+                        buildVariant = "googleDebug",
+                        buildNumber = 1,
+                    ),
+                previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            releaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        releaseResult.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),

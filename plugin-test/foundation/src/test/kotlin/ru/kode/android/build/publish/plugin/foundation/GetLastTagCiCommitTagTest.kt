@@ -2,7 +2,6 @@ package ru.kode.android.build.publish.plugin.foundation
 
 import org.gradle.testkit.runner.BuildResult
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -16,6 +15,7 @@ import ru.kode.android.build.publish.plugin.test.utils.createAndroidProject
 import ru.kode.android.build.publish.plugin.test.utils.findTag
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import java.io.File
 import java.io.IOException
@@ -47,30 +47,29 @@ class GetLastTagCiCommitTagTest {
         git.tag.addNamed(givenFirstTagName)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(
-            givenGetLastTagTask,
-            environment = mapOf("CI_COMMIT_TAG" to givenFirstTagName),
-        )
+        val result: BuildResult =
+            projectDir.runTask(
+                givenGetLastTagTask,
+                environment = mapOf("CI_COMMIT_TAG" to givenFirstTagName),
+            )
 
         // v1.0.1-debug is at the end of the sorted list [v1.0.2, v1.0.1],
         // so previousInOrder is null (no older tag exists)
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenFirstTagName).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                ),
+                current =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenFirstTagName).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
                 previousInOrder = null,
                 previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -95,35 +94,35 @@ class GetLastTagCiCommitTagTest {
         git.tag.addNamed(givenFirstTagName)
         git.tag.addNamed(givenSecondTagName)
 
-        val result: BuildResult = projectDir.runTask(
-            givenGetLastTagTask,
-            environment = mapOf("CI_COMMIT_TAG" to givenSecondTagName),
-        )
+        val result: BuildResult =
+            projectDir.runTask(
+                givenGetLastTagTask,
+                environment = mapOf("CI_COMMIT_TAG" to givenSecondTagName),
+            )
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenSecondTagName).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenFirstTagName).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                ),
+                current =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenSecondTagName).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenFirstTagName).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
                 previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -152,28 +151,27 @@ class GetLastTagCiCommitTagTest {
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenSecondTagName).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenFirstTagName).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                ),
+                current =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenSecondTagName).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenFirstTagName).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
                 previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),
@@ -199,35 +197,35 @@ class GetLastTagCiCommitTagTest {
         git.tag.addNamed(givenSecondTagName)
 
         // CI_COMMIT_TAG is for a different variant (release), should be ignored for debug task
-        val result: BuildResult = projectDir.runTask(
-            givenGetLastTagTask,
-            environment = mapOf("CI_COMMIT_TAG" to "v1.0.1-release"),
-        )
+        val result: BuildResult =
+            projectDir.runTask(
+                givenGetLastTagTask,
+                environment = mapOf("CI_COMMIT_TAG" to "v1.0.1-release"),
+            )
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = "v1.0.2-debug",
-                    commitSha = git.tag.findTag(givenSecondTagName).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 2,
-                ),
-                previousInOrder = Tag.Build(
-                    name = "v1.0.1-debug",
-                    commitSha = git.tag.findTag(givenFirstTagName).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "debug",
-                    buildNumber = 1,
-                ),
+                current =
+                    Tag.Build(
+                        name = "v1.0.2-debug",
+                        commitSha = git.tag.findTag(givenSecondTagName).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 2,
+                    ),
+                previousInOrder =
+                    Tag.Build(
+                        name = "v1.0.1-debug",
+                        commitSha = git.tag.findTag(givenFirstTagName).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "debug",
+                        buildNumber = 1,
+                    ),
                 previousOnDifferentCommit = null,
             ).toJson()
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
             givenTagBuildFile.readText(),

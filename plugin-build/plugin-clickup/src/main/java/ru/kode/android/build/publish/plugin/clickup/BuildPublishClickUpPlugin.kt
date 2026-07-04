@@ -1,22 +1,23 @@
-@file:Suppress("UnstableApiUsage")
-
 package ru.kode.android.build.publish.plugin.clickup
 
-import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.StopExecutionException
 import ru.kode.android.build.publish.plugin.clickup.extension.BuildPublishClickUpExtension
-import ru.kode.android.build.publish.plugin.clickup.messages.mustApplyFoundationPluginMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.noAuthConfigMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.registeringServicesMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.servicesCreatedMessage
 import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtension
 import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
+import ru.kode.android.build.publish.plugin.clickup.task.standalone.AddClickUpFixVersionTask
+import ru.kode.android.build.publish.plugin.clickup.task.standalone.AddClickUpTagTask
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
+import ru.kode.android.build.publish.plugin.core.task.registerStandaloneServiceTask
+import ru.kode.android.build.publish.plugin.core.util.applyWithOptionalAndroid
+import ru.kode.android.build.publish.plugin.core.util.getOrRegisterLoggerService
 import ru.kode.android.build.publish.plugin.core.util.serviceName
-import ru.kode.android.build.publish.plugin.foundation.BuildPublishFoundationPlugin
 
 internal const val EXTENSION_NAME = "buildPublishClickUp"
 private const val SERVICE_NAME = "clickUpService"
@@ -39,11 +40,8 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
                 BuildPublishClickUpExtension::class.java,
             )
 
-        val servicesProperty =
-            project.objects.mapProperty(
-                String::class.java,
-                Provider::class.java,
-            )
+        val servicesProperty: MapProperty<String, Provider<*>> =
+            project.objects.mapProperty(String::class.java, Provider::class.java)
         servicesProperty.set(emptyMap())
 
         project.extensions.create(
@@ -52,46 +50,67 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
             servicesProperty,
         )
 
-        if (!project.plugins.hasPlugin(BuildPublishFoundationPlugin::class.java)) {
-            throw StopExecutionException(mustApplyFoundationPluginMessage())
+        project.applyWithOptionalAndroid {
+            setupServicesAndTasks(project, extension, servicesProperty)
+        }
+    }
+
+    private fun setupServicesAndTasks(
+        project: Project,
+        extension: BuildPublishClickUpExtension,
+        servicesProperty: MapProperty<String, Provider<*>>,
+    ) {
+        val loggerProvider = project.getOrRegisterLoggerService()
+        val logger = loggerProvider.get()
+
+        if (extension.auth.isEmpty()) {
+            logger.info(noAuthConfigMessage())
+            return
         }
 
-        val androidExtension = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
+        logger.info(registeringServicesMessage())
 
-        androidExtension.finalizeDsl {
-            val loggerProvider =
-                project.extensions.getByType(LoggerServiceExtension::class.java)
-                    .service
+        val serviceMap =
+            extension.auth.associate { authConfig ->
+                val name = authConfig.name
 
-            val logger = loggerProvider.get()
+                val service =
+                    project.gradle.sharedServices.registerIfAbsent(
+                        project.serviceName(SERVICE_NAME, name),
+                        ClickUpService::class.java,
+                    ) {
+                        it.maxParallelUsages.set(1)
+                        it.parameters.token.set(authConfig.apiTokenFile)
+                        it.parameters.loggerService.set(loggerProvider)
+                    }
 
-            if (extension.auth.isEmpty()) {
-                logger.info(noAuthConfigMessage())
-                return@finalizeDsl
+                name to (service as Provider<*>)
             }
 
-            logger.info(registeringServicesMessage())
+        logger.info(servicesCreatedMessage(serviceMap.keys))
 
-            val serviceMap =
-                extension.auth.associate { authConfig ->
-                    val name = authConfig.name
+        servicesProperty.set(serviceMap)
 
-                    val service =
-                        project.gradle.sharedServices.registerIfAbsent(
-                            project.serviceName(SERVICE_NAME, name),
-                            ClickUpService::class.java,
-                        ) {
-                            it.maxParallelUsages.set(1)
-                            it.parameters.token.set(authConfig.apiTokenFile)
-                            it.parameters.loggerService.set(loggerProvider)
-                        }
+        @Suppress("UNCHECKED_CAST")
+        val standaloneService =
+            (serviceMap["common"] ?: serviceMap.values.first()) as Provider<ClickUpService>
+        registerStandaloneTasks(project, standaloneService, loggerProvider)
+    }
 
-                    name to service
-                }
-
-            logger.info(servicesCreatedMessage(serviceMap.keys))
-
-            servicesProperty.set(serviceMap)
-        }
+    private fun registerStandaloneTasks(
+        project: Project,
+        service: Provider<ClickUpService>,
+        loggerProvider: Provider<LoggerService>,
+    ) {
+        project.registerStandaloneServiceTask<AddClickUpTagTask, ClickUpService>(
+            TaskNames.ClickUp.ADD_TAG,
+            service,
+            loggerProvider,
+        )
+        project.registerStandaloneServiceTask<AddClickUpFixVersionTask, ClickUpService>(
+            TaskNames.ClickUp.ADD_FIX_VERSION,
+            service,
+            loggerProvider,
+        )
     }
 }

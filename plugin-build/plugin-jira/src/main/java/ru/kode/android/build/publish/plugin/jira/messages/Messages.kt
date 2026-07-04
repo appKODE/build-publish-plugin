@@ -3,20 +3,20 @@ package ru.kode.android.build.publish.plugin.jira.messages
 import ru.kode.android.build.publish.plugin.jira.EXTENSION_NAME
 
 fun pluginInitializedMessage(
-    authNames: Set<String>,
+    instanceNames: Set<String>,
     automationNames: Set<String>,
 ): String {
     return """
-        
+
         |============================================================
-        |            JIRA PLUGIN INITIALIZED SUCCESSFULLY   
+        |            JIRA PLUGIN INITIALIZED SUCCESSFULLY
         |============================================================
-        | Jira plugin has been initialized with the following 
+        | Jira plugin has been initialized with the following
         | configurations:
         |
-        | Authentication Configurations: 
-        | ${if (authNames.isEmpty()) "None" else authNames.joinToString(", ")}
-        | Automation Configurations: 
+        | Auth Instances:
+        | ${if (instanceNames.isEmpty()) "None" else instanceNames.joinToString(", ")}
+        | Automation Configurations:
         | ${if (automationNames.isEmpty()) "None" else automationNames.joinToString(", ")}
         |
         | NEXT STEPS:
@@ -29,9 +29,9 @@ fun pluginInitializedMessage(
 
 fun registeringServicesMessage(): String {
     return """
-        
+
         |============================================================
-        |                 REGISTERING JIRA SERVICES   
+        |                 REGISTERING JIRA SERVICES
         |============================================================
         |  Initializing Jira service registration...
         |============================================================
@@ -41,9 +41,9 @@ fun registeringServicesMessage(): String {
 
 fun jiraServicesCreatedMessage(servicesNames: Set<String>): String {
     return """
-        
+
         |============================================================
-        |              JIRA SERVICES CREATED SUCCESSFULLY   
+        |              JIRA SERVICES CREATED SUCCESSFULLY
         |============================================================
         | The following Jira services have been created and configured:
         |
@@ -57,13 +57,13 @@ fun jiraServicesCreatedMessage(servicesNames: Set<String>): String {
 
 fun noAuthConfigsMessage(): String {
     return """
-        
+
         |============================================================
-        |              NO JIRA AUTH CONFIGURATIONS FOUND   
+        |              NO JIRA AUTH CONFIGURATIONS FOUND
         |============================================================
-        | No Jira authentication configurations were found in your 
+        | No Jira authentication configurations were found in your
         | build script.
-        | The service map will remain empty and Jira integration will 
+        | The service map will remain empty and Jira integration will
         | be disabled.
         |
         | TO ENABLE JIRA INTEGRATION:
@@ -80,8 +80,8 @@ fun noAuthConfigsMessage(): String {
         |     }
         | }
         |
-        | NOTE: 
-        | Store sensitive credentials in gradle.properties or 
+        | NOTE:
+        | Store sensitive credentials in gradle.properties or
         | environment variables.
         |============================================================
         """.trimIndent()
@@ -89,9 +89,9 @@ fun noAuthConfigsMessage(): String {
 
 fun mustApplyFoundationPluginMessage(): String {
     return """
-        
+
         |============================================================
-        |                 PLUGIN CONFIGURATION ERROR   
+        |                 PLUGIN CONFIGURATION ERROR
         |============================================================
         | The Jira plugin requires the BuildPublishFoundationPlugin
         | to be applied first.
@@ -103,7 +103,7 @@ fun mustApplyFoundationPluginMessage(): String {
         |     id("ru.kode.android.build-publish-novo.foundation") version "<version>"
         | }
         |
-        | Make sure to replace <version> with the correct version 
+        | Make sure to replace <version> with the correct version
         | number.
         |============================================================
         """.trimIndent()
@@ -111,9 +111,9 @@ fun mustApplyFoundationPluginMessage(): String {
 
 fun serviceExtensionCreatedMessage(): String {
     return """
-        
+
         |============================================================
-        |                 JIRA EXTENSION INITIALIZED   
+        |                 JIRA EXTENSION INITIALIZED
         |============================================================
         | JiraServiceExtension has been created but no configuration
         | has been provided yet.
@@ -135,15 +135,15 @@ fun serviceExtensionCreatedMessage(): String {
 
 fun issuesNoFoundMessage(): String {
     return """
-        
+
         |============================================================
-        |                NO ISSUES FOUND IN CHANGELOG   
+        |                NO ISSUES FOUND IN CHANGELOG
         |============================================================
         | No Jira issue keys were found in the changelog.
         | No Jira automation will be performed for this build.
         |
         | If you expected to see Jira issues, please check:
-        |  1. Your commit messages include Jira issue keys 
+        |  1. Your commit messages include Jira issue keys
         |     (e.g., PROJ-123)
         |  2. The changelog format includes the issue references
         |  3. The Jira project key matches your commit messages
@@ -153,9 +153,9 @@ fun issuesNoFoundMessage(): String {
 
 fun notPossibleToUpdateStatusMessage(issues: List<String>): String {
     return """
-        
+
         |============================================================
-        |            STATUS TRANSITION NOT AVAILABLE   
+        |            STATUS TRANSITION NOT AVAILABLE
         |============================================================
         | Could not update status for issues: ${issues.joinToString()}
         |
@@ -163,9 +163,9 @@ fun notPossibleToUpdateStatusMessage(issues: List<String>): String {
         | transition was found for this issues.
         |
         | POSSIBLE CAUSES:
-        |  1. The target status is not reachable from the current 
+        |  1. The target status is not reachable from the current
         |     issue status
-        |  2. The workflow doesn't define a transition to the 
+        |  2. The workflow doesn't define a transition to the
         |     target status
         |  3. None of the issues have the required transition
         |
@@ -180,9 +180,9 @@ fun notPossibleToUpdateStatusMessage(issues: List<String>): String {
 
 fun failedToUpdateStatusMessage(issue: String): String {
     return """
-        
+
         |============================================================
-        |               FAILED TO UPDATE ISSUE STATUS   
+        |               FAILED TO UPDATE ISSUE STATUS
         |============================================================
         | Could not update status for issue: $issue
         |
@@ -196,7 +196,7 @@ fun failedToUpdateStatusMessage(issue: String): String {
         |  1. Verify the issue key is correct
         |  2. Check your Jira permissions for this issue
         |  3. Review the full error in the logs
-        |  4. Try updating the status manually in Jira to test 
+        |  4. Try updating the status manually in Jira to test
         |     permissions
         |============================================================
         """.trimIndent()
@@ -204,15 +204,15 @@ fun failedToUpdateStatusMessage(issue: String): String {
 
 fun needToProvideAutomationConfigMessage(variantName: String): String {
     return """
-        
+
         |============================================================
-        |              MISSING AUTOMATION CONFIGURATION   
+        |              MISSING AUTOMATION CONFIGURATION
         |============================================================
-        | No Jira automation configuration found for build variant: 
+        | No Jira automation configuration found for build variant:
         | $variantName
         |
         | REQUIRED ACTION:
-        | You must provide an automation configuration in your 
+        | You must provide an automation configuration in your
         | build script.
         |
         | EXAMPLE CONFIGURATION:
@@ -230,17 +230,109 @@ fun needToProvideAutomationConfigMessage(variantName: String): String {
         """.trimIndent()
 }
 
+fun unknownInstanceNameMessage(
+    instanceName: String,
+    availableInstanceNames: Collection<String>,
+): String {
+    return """
+
+        |============================================================
+        |                UNKNOWN JIRA AUTH INSTANCE
+        |============================================================
+        | A Jira project references the auth instance "$instanceName",
+        | but no such instance exists.
+        |
+        | Available auth instances:
+        | ${if (availableInstanceNames.isEmpty()) "None" else availableInstanceNames.sorted().joinToString(", ")}
+        |
+        | REQUIRED ACTION:
+        | Declare the instance, or set 'instanceName' on the project to
+        | one of the available names:
+        |
+        | $EXTENSION_NAME {
+        |     auth {
+        |         common {
+        |             instance("$instanceName") {
+        |                 baseUrl.set("https://...")
+        |                 credentials.username.set("...")
+        |                 credentials.password.set("...")
+        |             }
+        |         }
+        |     }
+        | }
+        |============================================================
+        """.trimIndent()
+}
+
+fun duplicateProjectKeyMessage(projectKey: String): String {
+    return """
+
+        |============================================================
+        |                DUPLICATE JIRA PROJECT KEY
+        |============================================================
+        | The project key "$projectKey" is declared by more than one
+        | Jira project in the same automation configuration.
+        |
+        | Issues are routed to a project by their key prefix, so a
+        | project key must be unique. Two projects with the same key
+        | (even on different Jira instances) cannot be disambiguated.
+        |
+        | REQUIRED ACTION:
+        | Ensure each configured project uses a distinct 'projectKey'.
+        |============================================================
+        """.trimIndent()
+}
+
+fun noIssuesForProjectMessage(projectKey: String): String {
+    return """
+
+        |============================================================
+        |              NO CHANGELOG ISSUES FOR PROJECT
+        |============================================================
+        | The configured Jira project "$projectKey" did not match any
+        | issue in the changelog, so nothing was updated for it.
+        |
+        | This is expected when the build simply has no "$projectKey"
+        | issues. If you did expect some, check that the changelog
+        | `issueSources` include a pattern covering "$projectKey"
+        | (e.g. "$projectKey-\d+") and that commit messages reference it.
+        |============================================================
+        """.trimIndent()
+}
+
+fun unmatchedIssuesMessage(
+    issues: Collection<String>,
+    projectKeys: Collection<String>,
+): String {
+    return """
+
+        |============================================================
+        |              ISSUES NOT MATCHING ANY PROJECT
+        |============================================================
+        | The following issues were found in the changelog but do not
+        | belong to any configured Jira project, so they were skipped:
+        | ${issues.sorted().joinToString(", ")}
+        |
+        | Configured project keys:
+        | ${if (projectKeys.isEmpty()) "None" else projectKeys.sorted().joinToString(", ")}
+        |
+        | If these issues should be processed, add a matching project
+        | (with the correct 'projectKey') to your automation config.
+        |============================================================
+        """.trimIndent()
+}
+
 fun needToProvideAuthConfigMessage(variantName: String): String {
     return """
-        
+
         |============================================================
-        |                   MISSING AUTHENTICATION   
+        |                   MISSING AUTHENTICATION
         |============================================================
-        | No Jira authentication configuration found for build variant: 
+        | No Jira authentication configuration found for build variant:
         | $variantName
         |
         | REQUIRED ACTION:
-        | You must provide authentication details to use Jira 
+        | You must provide authentication details to use Jira
         | integration.
         |
         | EXAMPLE CONFIGURATION:
@@ -255,336 +347,9 @@ fun needToProvideAuthConfigMessage(variantName: String): String {
         |
         | SECURITY NOTE:
         | • Never commit credentials directly in build files
-        | • Use local.properties or environment variables for 
+        | • Use local.properties or environment variables for
         |   sensitive data
         | • Consider using API tokens instead of passwords
-        |============================================================
-        """.trimIndent()
-}
-
-fun failedToGetIssueFixVersionMessage(issue: String): String {
-    return """
-        
-        |============================================================
-        |              FAILED TO RETRIEVE FIX VERSIONS   
-        |============================================================
-        | Could not retrieve fix versions for issue: $issue
-        |
-        | POSSIBLE CAUSES:
-        |  1. Insufficient permissions to view the issue
-        |  2. The issue might have been deleted or moved
-        |  3. Network connectivity issues with Jira
-        |
-        | TROUBLESHOOTING:
-        |  1. Verify the issue key is correct
-        |  2. Check your Jira permissions for this issue
-        |  3. Try accessing the issue in the Jira web interface
-        |  4. Review the full error in the logs
-        |============================================================
-        """.trimIndent()
-}
-
-fun failedToRemoveFixVersionMessage(issue: String): String {
-    return """
-        
-        |============================================================
-        |               FAILED TO REMOVE FIX VERSION   
-        |============================================================
-        | Could not remove fix version from issue: $issue
-        |
-        | POSSIBLE CAUSES:
-        |  1. Insufficient permissions to modify the issue
-        |  2. The fix version might be required by a workflow
-        |  3. The issue might be in a read-only state
-        |
-        | RECOMMENDED ACTIONS:
-        |  1. Verify your Jira permissions
-        |  2. Check the issue's current status and workflow
-        |  3. Try removing the fix version manually in Jira
-        |  4. Review the full error in the logs
-        |============================================================
-        """.trimIndent()
-}
-
-fun failedToAddFixVersionMessage(
-    issue: String,
-    version: String,
-): String {
-    return """
-        
-        |============================================================
-        |                 FAILED TO ADD FIX VERSION   
-        |============================================================
-        | Could not add $version fix version to issue: $issue
-        |
-        | POSSIBLE CAUSES:
-        |  1. The version might not exist in the project
-        |  2. Insufficient permissions to modify the issue
-        |  3. The version might be invalid for the issue's project
-        |
-        | TROUBLESHOOTING:
-        |  1. Verify the version exists in the project
-        |  2. Check your Jira permissions
-        |  3. Try adding the version manually in Jira
-        |  4. Review the full error in the logs
-        |============================================================
-        """.trimIndent().trim()
-}
-
-fun failedToRemoveVersionMessage(versionId: String): String {
-    return """
-        
-        |============================================================
-        |                 FAILED TO REMOVE VERSION   
-        |============================================================
-        | Could not remove version: $versionId
-        |
-        | POSSIBLE CAUSES:
-        |  1. The version might be in use by issues
-        |  2. Insufficient permissions to manage versions
-        |  3. The version might be part of a release
-        |
-        | RECOMMENDED ACTIONS:
-        |  1. Check if the version is used by any issues
-        |  2. Verify your Jira project admin permissions
-        |  3. Try archiving the version instead of deleting
-        |  4. Review the full error in the logs
-        |============================================================
-        """.trimIndent()
-}
-
-fun failedToCreateProjectVersionMessage(
-    version: String,
-    projectId: Long,
-): String {
-    return """
-        
-        |============================================================
-        |             FAILED TO CREATE PROJECT VERSION   
-        |============================================================
-        | Could not create version: $version
-        | Project ID: $projectId
-        |
-        | POSSIBLE CAUSES:
-        |  1. A version with this name already exists
-        |  2. Invalid version format or name
-        |  3. Insufficient permissions to create versions
-        |  4. The project might be archived or deleted
-        |
-        | TROUBLESHOOTING:
-        |  1. Check if the version already exists
-        |  2. Verify the version name follows Jira's requirements
-        |  3. Check your Jira project admin permissions
-        |  4. Review the full error in the logs
-        |============================================================
-        """.trimIndent()
-}
-
-fun failedToRemoveMessage(issue: String): String {
-    return """
-        
-        |============================================================
-        |                  FAILED TO REMOVE LABEL   
-        |============================================================
-        | Could not remove label from issue: $issue
-        |
-        | POSSIBLE CAUSES:
-        |  1. The label might not exist on the issue
-        |  2. Insufficient permissions to modify the issue
-        |  3. The issue might be in a read-only state
-        |
-        | RECOMMENDED ACTIONS:
-        |  1. Verify the issue exists and is accessible
-        |  2. Check your Jira permissions for this issue
-        |  3. Try removing the label manually in Jira
-        |  4. Review the full error in the logs
-        |============================================================
-        """.trimIndent()
-}
-
-fun failedToAddLabelMessage(
-    issue: String,
-    label: String,
-): String {
-    return """
-        
-        |============================================================
-        |                   FAILED TO ADD LABEL   
-        |============================================================
-        | Could not add $label label to issue: $issue
-        |
-        | POSSIBLE CAUSES:
-        |  1. The label might be too long (max 255 chars)
-        |  2. The label contains invalid characters
-        |  3. Insufficient permissions to modify the issue
-        |  4. The issue might be in a read-only state
-        |
-        | TROUBLESHOOTING:
-        |  1. Verify the label follows Jira's naming conventions
-        |  2. Check your Jira permissions for this issue
-        |  3. Try adding the label manually in Jira
-        |  4. Review the full error in the logs
-        |============================================================
-        """.trimIndent().trim()
-}
-
-fun failedToGetIssueStatusMessage(issue: String): String {
-    return """
-        
-        |============================================================
-        |                FAILED TO GET ISSUE STATUS   
-        |============================================================
-        | Could not retrieve status for issue: $issue
-        |
-        | POSSIBLE CAUSES:
-        |  1. The issue might have been deleted or moved
-        |  2. Insufficient permissions to view the issue
-        |  3. Network connectivity issues with Jira
-        |
-        | RECOMMENDED ACTIONS:
-        |  1. Verify the issue key is correct
-        |  2. Check your Jira permissions for this issue
-        |  3. Try accessing the issue in the Jira web interface
-        |  4. Review the full error in the logs
-        |============================================================
-        """.trimIndent()
-}
-
-fun failedToSetStatusMessage(issue: String): String {
-    return """
-        
-        |============================================================
-        |               FAILED TO SET ISSUE STATUS   
-        |============================================================
-        | Could not update status for issue: $issue
-        |
-        | POSSIBLE CAUSES:
-        |  1. The target status is not a valid transition
-        |  2. Missing required fields for the transition
-        |  3. Insufficient permissions to transition the issue
-        |  4. The issue might be in a read-only state
-        |
-        | TROUBLESHOOTING:
-        |  1. Check the available transitions for this issue
-        |  2. Verify all required fields are set
-        |  3. Check your Jira permissions
-        |  4. Try the transition manually in Jira
-        |  5. Review the full error in the logs
-        |============================================================
-        """.trimIndent()
-}
-
-fun issueTransitionNotFoundMessage(
-    issueKeyWithTransitions: String,
-    statusName: String,
-): String {
-    return """
-        
-        |============================================================
-        |                 INVALID STATUS TRANSITION   
-        |============================================================
-        | Issue: $issueKeyWithTransitions
-        | Target Status: $statusName
-        |
-        | The specified status transition is not available for this 
-        | issue.
-        |
-        | POSSIBLE CAUSES:
-        | 1. The workflow doesn't allow this transition from the 
-        |    current status
-        | 2. The target status doesn't exist in this project
-        | 3. You don't have permission to perform this transition
-        |
-        | REQUIRED ACTION:
-        | 1. Check the current status of the issue in Jira
-        | 2. Review the available transitions in the issue workflow
-        | 3. Add the missing transition in Jira workflow settings 
-        |    if needed
-        | 4. Ensure you have the necessary permissions
-        |
-        | You can perform this transition manually in the Jira web 
-        | interface to see the exact requirements and available 
-        | options.
-        |============================================================
-        """.trimIndent()
-}
-
-fun transitionIdResolved(
-    id: String,
-    statusName: String,
-): String {
-    return """
-        
-        |============================================================
-        |              STATUS TRANSITION RESOLVED   
-        |============================================================
-        | Successfully resolved status transition
-        |
-        | Transition ID: $id
-        | Target Status: $statusName
-        |
-        | The issue will be transitioned to the specified status.
-        |============================================================
-        """.trimIndent()
-}
-
-fun issueStatusNotFoundMessage(statusName: String): String {
-    return """
-        
-        |============================================================
-        |                      STATUS NOT FOUND   
-        |============================================================
-        | The specified status was not found: $statusName
-        |
-        | POSSIBLE CAUSES:
-        |  1. The status name is misspelled
-        |  2. The status doesn't exist in the project's workflow
-        |  3. The status exists but is not available in the current 
-        |    context
-        |
-        | RECOMMENDED ACTIONS:
-        |  1. Verify the status name matches exactly (case-sensitive)
-        |  2. Check the available statuses in your Jira project
-        |  3. Review the workflow configuration in Jira
-        |  4. Consult your Jira administrator if needed
-        |
-        | TIP: 
-        | You can view all available statuses in your Jira 
-        | project by checking the workflow configuration.
-        |============================================================
-        """.trimIndent()
-}
-
-fun statusNotFoundMessage(
-    statusName: String,
-    projectKey: String,
-): String {
-    return """
-        
-        |============================================================
-        |               STATUS NOT FOUND IN PROJECT   
-        |============================================================
-        | Status: $statusName
-        | Project: $projectKey
-        |
-        | The specified status was not found in the project's 
-        | workflow.
-        |
-        | POSSIBLE CAUSES:
-        |  1. The status name is misspelled
-        |  2. The status hasn't been added to this project's workflow
-        |  3. The status exists but is not active
-        |
-        | REQUIRED ACTION:
-        |  1. Verify the status name is correct
-        |  2. Add the status to your project's workflow in Jira:
-        |     a. Go to Project Settings > Workflows
-        |     b. Edit the workflow
-        |     c. Add the status and configure transitions
-        |     d. Publish the workflow
-        |
-        | NOTE:
-        | You need Jira administrator permissions to modify workflows.
         |============================================================
         """.trimIndent()
 }

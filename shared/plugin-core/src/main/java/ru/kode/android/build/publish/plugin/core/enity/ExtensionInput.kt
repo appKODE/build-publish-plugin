@@ -28,13 +28,10 @@ data class ExtensionInput(
      */
     data class Changelog(
         /**
-         * Regex pattern to extract issue numbers from commit messages
+         * Issue-tracker sources: each pairs an extraction regex with the URL its keys link to.
+         * Consumers union the patterns to extract issue keys and resolve links per matching source.
          */
-        val issueNumberPattern: Provider<String>,
-        /**
-         * Base URL prefix for generating issue links
-         */
-        val issueUrlPrefix: Provider<String>,
+        val issueSources: Provider<List<IssueSource>>,
         /**
          * Key used to identify the commit message in the Git log
          */

@@ -1,15 +1,13 @@
 package ru.kode.android.build.publish.plugin.clickup.service.network
 
-import okhttp3.OkHttpClient
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.clickup.controller.ClickUpController
-import ru.kode.android.build.publish.plugin.clickup.controller.ClickUpControllerImpl
-import ru.kode.android.build.publish.plugin.clickup.network.api.ClickUpApi
-import ru.kode.android.build.publish.plugin.clickup.network.factory.ClickUpApiFactory
-import ru.kode.android.build.publish.plugin.clickup.network.factory.ClickUpClientFactory
+import ru.kode.android.build.publish.plugin.clickup.controller.addFixVersionToTasks
+import ru.kode.android.build.publish.plugin.clickup.controller.addTagToTasks
+import ru.kode.android.build.publish.plugin.clickup.controller.factory.ClickUpControllerFactory
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import javax.inject.Inject
 
@@ -26,7 +24,7 @@ import javax.inject.Inject
  * and to maintain a single HTTP client instance across multiple tasks.
  *
  * @see BuildService For more information about Gradle build services
- * @see ClickUpApi For the actual API endpoint definitions
+ * @see ClickUpController For the actual controller interface
  */
 abstract class ClickUpService
     @Inject
@@ -49,32 +47,12 @@ abstract class ClickUpService
             val loggerService: Property<LoggerService>
         }
 
-        internal abstract val okHttpClientProperty: Property<OkHttpClient>
-
-        internal abstract val apiProperty: Property<ClickUpApi>
-
-        internal abstract val controllerProperty: Property<ClickUpController>
-
-        init {
-            okHttpClientProperty.set(
-                parameters.token.zip(parameters.loggerService.map { it.logger }) { token, logger ->
-                    val token = token.asFile.readText()
-                    ClickUpClientFactory.build(token, logger)
-                },
-            )
-            apiProperty.set(
-                okHttpClientProperty.map { client ->
-                    ClickUpApiFactory.build(client)
-                },
-            )
-            controllerProperty.set(
-                apiProperty.zip(parameters.loggerService.map { it.logger }) { api, logger ->
-                    ClickUpControllerImpl(api, logger)
-                },
+        private val controller: ClickUpController by lazy {
+            ClickUpControllerFactory.build(
+                token = parameters.token.get().asFile.readText(),
+                logger = parameters.loggerService.get().logger,
             )
         }
-
-        private val controller: ClickUpController get() = controllerProperty.get()
 
         /**
          * Retrieves the ID of a ClickUp custom field.
@@ -123,4 +101,40 @@ abstract class ClickUpService
         ) {
             controller.addFieldToTask(taskId, fieldId, fieldValue)
         }
+
+        /**
+         * Adds a tag to multiple ClickUp tasks.
+         *
+         * @param tagName The name of the tag to add
+         * @param taskIds The IDs of the ClickUp tasks to tag
+         * @param log Callback invoked with human-readable progress messages
+         *
+         * @throws IOException If the network request fails
+         * @throws RuntimeException If the API returns an error response
+         */
+        fun addTagToTasks(
+            tagName: String,
+            taskIds: Collection<String>,
+            log: (String) -> Unit,
+        ) = controller.addTagToTasks(tagName, taskIds, log)
+
+        /**
+         * Adds or updates the fix version custom field for multiple ClickUp tasks.
+         *
+         * @param workspaceName The name of the workspace where the custom field is located
+         * @param fieldName The name of the custom field to set
+         * @param version The fix version value to set
+         * @param taskIds The IDs of the ClickUp tasks to update
+         * @param log Callback invoked with human-readable progress messages
+         *
+         * @throws IOException If the network request fails
+         * @throws RuntimeException If the API returns an error response or the field ID is invalid
+         */
+        fun addFixVersionToTasks(
+            workspaceName: String,
+            fieldName: String,
+            version: String,
+            taskIds: Collection<String>,
+            log: (String) -> Unit,
+        ) = controller.addFixVersionToTasks(workspaceName, fieldName, version, taskIds, log)
     }

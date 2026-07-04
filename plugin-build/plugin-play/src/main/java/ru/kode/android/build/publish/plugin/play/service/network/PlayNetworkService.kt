@@ -5,6 +5,15 @@ import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.build.publish.plugin.play.messages.errorAppDoesNotExistMessage
+import ru.kode.android.build.publish.plugin.play.messages.errorResponseMessage
+import ru.kode.android.build.publish.plugin.play.messages.failedToFetchEditIdMessage
+import ru.kode.android.build.publish.plugin.play.messages.failedToUploadBundleMessage
+import ru.kode.android.build.publish.plugin.play.messages.stepBundleUploadSuccessfulMessage
+import ru.kode.android.build.publish.plugin.play.messages.stepCommitEditMessage
+import ru.kode.android.build.publish.plugin.play.messages.stepPushingReleaseMessage
+import ru.kode.android.build.publish.plugin.play.messages.stepRequestingTrackEditMessage
+import ru.kode.android.build.publish.plugin.play.messages.stepUploadBundleMessage
 import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.DefaultPlayPublisher
 import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.EditResponse
 import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.InternalPlayPublisher
@@ -93,39 +102,39 @@ abstract class PlayNetworkService
             releaseName: String,
             priority: Int,
         ) {
-            logger.info("Step 1/4: Requesting track edit...")
+            logger.info(stepRequestingTrackEditMessage())
 
             val editId =
                 when (val result = publisher.insertEdit()) {
                     is EditResponse.Success -> result.id
                     is EditResponse.Failure -> {
                         if (result.isNewApp()) {
-                            logger.error("Error response: app does not exist")
+                            logger.error(errorAppDoesNotExistMessage())
                         } else {
-                            logger.error("Error response: $result")
+                            logger.error(errorResponseMessage(result.toString()))
                         }
                         null
                     }
                 }
 
             if (editId == null) {
-                logger.error("Failed to fetch edit id to upload bundle")
+                logger.error(failedToFetchEditIdMessage())
                 return
             }
 
             val trackManager = DefaultTrackManager(publisher, editId)
             val editManager = DefaultEditManager(publisher, trackManager, editId)
 
-            logger.info("Step 2/4: Upload bundle for $editId")
+            logger.info(stepUploadBundleMessage(editId))
 
             val versionCode = editManager.uploadBundle(file, ResolutionStrategy.IGNORE)
 
             if (versionCode == null) {
-                logger.error("Failed to upload bundle")
+                logger.error(failedToUploadBundleMessage())
                 return
             }
 
-            logger.info("Step 3/4: Pushing $releaseName to $trackId at P=$priority V=$versionCode")
+            logger.info(stepPushingReleaseMessage(releaseName, trackId, priority, versionCode))
 
             trackManager.update(
                 config =
@@ -140,10 +149,10 @@ abstract class PlayNetworkService
                     ),
             )
 
-            logger.info("Step 3/4: Commit $editId")
+            logger.info(stepCommitEditMessage(editId))
 
             publisher.commitEdit(editId)
 
-            logger.info("Step 4/4: Bundle upload successful")
+            logger.info(stepBundleUploadSuccessfulMessage())
         }
     }

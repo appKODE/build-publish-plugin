@@ -1,9 +1,11 @@
 package ru.kode.android.build.publish.plugin.telegram.task.changelog.work
 
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.core.enity.IssueSource
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.destinationTelegramBotsFromJson
 import ru.kode.android.build.publish.plugin.telegram.messages.changelogSentMessage
@@ -38,14 +40,10 @@ internal interface SendTelegramChangelogParameters : WorkParameters {
     val userMentions: SetProperty<String>
 
     /**
-     * The URL prefix for issue tracker links.
+     * Changelog issue sources (extraction pattern → optional link URL prefix) used to turn issue
+     * keys in the changelog text into links.
      */
-    val issueUrlPrefix: Property<String>
-
-    /**
-     * The regular expression pattern used to identify issue references in the changelog text.
-     */
-    val issueNumberPattern: Property<String>
+    val issueSources: MapProperty<String, String>
 
     /**
      * Set of Telegram bot configurations and their destination chats
@@ -97,8 +95,10 @@ internal abstract class SendTelegramChangelogWork
                 changelog = parameters.changelog.get(),
                 header = header,
                 userMentions = parameters.userMentions.orNull?.toList().orEmpty(),
-                issueUrlPrefix = parameters.issueUrlPrefix.get(),
-                issueNumberPattern = parameters.issueNumberPattern.get(),
+                issueSources =
+                    parameters.issueSources.get().map { (pattern, url) ->
+                        IssueSource(pattern, url.ifBlank { null })
+                    },
                 destinationBots =
                     parameters.destinationBots
                         .map { destinationTelegramBotsFromJson(it) }

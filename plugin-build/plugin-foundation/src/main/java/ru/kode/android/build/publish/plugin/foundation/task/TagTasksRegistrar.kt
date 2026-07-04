@@ -12,6 +12,7 @@ import ru.kode.android.build.publish.plugin.core.strategy.OutputBundleNameStrate
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.apkOutputFileNameProvider
 import ru.kode.android.build.publish.plugin.core.util.bundleOutputFileNameProvider
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
@@ -27,15 +28,6 @@ import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeVersionCo
 import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeVersionNameTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagSnapshotTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.PrintLastIncreasedTag
-
-internal const val PRINT_LAST_INCREASED_TAG_TASK_PREFIX = "printLastIncreasedTag"
-internal const val RENAME_APK_TASK_PREFIX = "renameApk"
-internal const val RENAME_BUNDLE_TASK_PREFIX = "renameBundle"
-internal const val GET_LAST_TAG_SNAPSHOT_TASK_PREFIX = "getLastTagSnapshot"
-internal const val COMPUTE_VERSION_CODE_TASK_PREFIX = "computeVersionCode"
-internal const val COMPUTE_APK_OUTPUT_FILENAME_TASK_PREFIX = "computeApkOutputFileName"
-internal const val COMPUTE_BUNDLE_OUTPUT_FILENAME_TASK_PREFIX = "computeBundleOutputFileName"
-internal const val COMPUTE_VERSION_NAME_TASK_PREFIX = "computeVersionName"
 
 const val DEFAULT_VERSION_NAME = DEFAULT_BUILD_VERSION
 
@@ -206,7 +198,7 @@ internal object TagTasksRegistrar {
 @Suppress("MaxLineLength")
 private fun Project.registerRenameApkTask(params: RenameApkTaskParams): TaskProvider<RenameApkTask> {
     val variant = params.buildVariant
-    val taskName = "$RENAME_APK_TASK_PREFIX${variant.capitalizedName()}"
+    val taskName = "${TaskNames.Foundation.RENAME_APK_PREFIX}${variant.capitalizedName()}"
     return tasks.register(taskName, RenameApkTask::class.java) { task ->
         val loggerService =
             project.extensions
@@ -230,7 +222,7 @@ private fun Project.registerRenameApkTask(params: RenameApkTaskParams): TaskProv
 @Suppress("MaxLineLength")
 private fun Project.registerRenameBundleTask(params: RenameBundleTaskParams): TaskProvider<RenameBundleTask> {
     val variant = params.buildVariant
-    val taskName = "$RENAME_BUNDLE_TASK_PREFIX${variant.capitalizedName()}"
+    val taskName = "${TaskNames.Foundation.RENAME_BUNDLE_PREFIX}${variant.capitalizedName()}"
     return tasks.register(taskName, RenameBundleTask::class.java) { task ->
         val loggerService =
             project.extensions
@@ -258,7 +250,7 @@ private fun Project.registerRenameBundleTask(params: RenameBundleTaskParams): Ta
 private fun Project.registerGetLastTagSnapshotTask(params: LastTagSnapshotTaskParams): TaskProvider<GetLastTagSnapshotTask> {
     val variant = params.buildVariant
     val tagBuildSnapshotFile = project.tagBuildSnapshotFileProvider(variant.name)
-    val taskName = "$GET_LAST_TAG_SNAPSHOT_TASK_PREFIX${variant.capitalizedName()}"
+    val taskName = "${TaskNames.Foundation.GET_LAST_TAG_SNAPSHOT_PREFIX}${variant.capitalizedName()}"
 
     return tasks.register(taskName, GetLastTagSnapshotTask::class.java) { task ->
         val gitService =
@@ -289,7 +281,7 @@ private fun Project.registerGetLastTagSnapshotTask(params: LastTagSnapshotTaskPa
 @Suppress("MaxLineLength") // One parameter function
 private fun Project.registerComputeVersionCodeTask(params: ComputeVersionCodeParams): TaskProvider<ComputeVersionCodeTask> {
     val variant = params.buildVariant
-    val taskName = "$COMPUTE_VERSION_CODE_TASK_PREFIX${variant.capitalizedName()}"
+    val taskName = "${TaskNames.Foundation.COMPUTE_VERSION_CODE_PREFIX}${variant.capitalizedName()}"
     val versionCodeFile = project.versionCodeFileProvider(variant.name)
 
     val buildTagSnapshotFile = params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile }
@@ -319,7 +311,7 @@ private fun Project.registerComputeApkOutputFileNameTask(
     params: ComputeApkOutputFileNameParams,
 ): TaskProvider<ComputeApkOutputFileNameTask> {
     val variant = params.buildVariant
-    val taskName = "$COMPUTE_APK_OUTPUT_FILENAME_TASK_PREFIX${variant.capitalizedName()}"
+    val taskName = "${TaskNames.Foundation.COMPUTE_APK_OUTPUT_FILENAME_PREFIX}${variant.capitalizedName()}"
     val apkOutputFileNameFile = project.apkOutputFileNameProvider(variant.name)
 
     val buildTagSnapshotFile = params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile }
@@ -351,7 +343,7 @@ private fun Project.registerComputeBundleOutputFileNameTask(
     params: ComputeBundleOutputFileNameParams,
 ): TaskProvider<ComputeBundleOutputFileNameTask> {
     val variant = params.buildVariant
-    val taskName = "$COMPUTE_BUNDLE_OUTPUT_FILENAME_TASK_PREFIX${variant.capitalizedName()}"
+    val taskName = "${TaskNames.Foundation.COMPUTE_BUNDLE_OUTPUT_FILENAME_PREFIX}${variant.capitalizedName()}"
     val bundleOutputFileNameFile = project.bundleOutputFileNameProvider(variant.name)
 
     val buildTagSnapshotFile = params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile }
@@ -382,7 +374,7 @@ private fun Project.registerComputeBundleOutputFileNameTask(
 @Suppress("MaxLineLength") // One parameter function
 private fun Project.registerComputeVersionNameTask(params: ComputeVersionNameParams): TaskProvider<ComputeVersionNameTask> {
     val variant = params.buildVariant
-    val taskName = "$COMPUTE_VERSION_NAME_TASK_PREFIX${variant.capitalizedName()}"
+    val taskName = "${TaskNames.Foundation.COMPUTE_VERSION_NAME_PREFIX}${variant.capitalizedName()}"
     val versionNameFile = project.versionNameProvider(variant.name)
 
     val buildTagSnapshotFile = params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile }
@@ -418,7 +410,7 @@ private fun Project.registerComputeVersionNameTask(params: ComputeVersionNamePar
  */
 @Suppress("MaxLineLength") // One parameter function
 private fun Project.registerPrintLastIncreasedTagTask(params: PrintLastIncreasedTagTaskParams): TaskProvider<PrintLastIncreasedTag> {
-    val taskName = "$PRINT_LAST_INCREASED_TAG_TASK_PREFIX${params.buildVariant.capitalizedName()}"
+    val taskName = "${TaskNames.Foundation.PRINT_LAST_INCREASED_TAG_PREFIX}${params.buildVariant.capitalizedName()}"
     return tasks.register(taskName, PrintLastIncreasedTag::class.java) { task ->
         task.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
 

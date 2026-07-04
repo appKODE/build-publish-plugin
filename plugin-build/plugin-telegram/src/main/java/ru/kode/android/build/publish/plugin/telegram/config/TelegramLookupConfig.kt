@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.telegram.config
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 
 /**
  * Represents the common Telegram lookup configuration.
@@ -10,7 +11,7 @@ import org.gradle.api.tasks.Optional
  * This class defines the configuration properties that are common to all
  * build variants.
  */
-abstract class TelegramLookupConfig {
+abstract class TelegramLookupConfig : CommonConfigMergeable<TelegramLookupConfig> {
     /**
      * Name of this lookup configuration.
      *
@@ -45,4 +46,10 @@ abstract class TelegramLookupConfig {
     @get:Input
     @get:Optional
     abstract val topicName: Property<String>
+
+    override fun inheritFrom(common: TelegramLookupConfig) {
+        botName.convention(common.botName)
+        chatName.convention(common.chatName)
+        topicName.convention(common.topicName)
+    }
 }

@@ -41,8 +41,12 @@ buildPublishFoundation {
     }
 
     changelogCommon {
-        issueNumberPattern = "BASE-\\d+"
-        issueUrlPrefix = "https://jira.exmaple.ru/browse/"
+        issueSources {
+            issueSource("base") {
+                numberPattern = "BASE-\\d+"
+                urlPrefix = "https://jira.exmaple.ru/browse/"
+            }
+        }
         commitMessageKey = "CHANGELOG"
     }
 }

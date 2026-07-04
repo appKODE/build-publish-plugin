@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.slack.task.changelog
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
@@ -121,41 +122,16 @@ abstract class SendSlackChangelogTask
         abstract val baseOutputFileName: Property<String>
 
         /**
-         * A property that holds a reference to the issue URL prefix.
+         * Changelog issue sources: a map of extraction regex (issue-key pattern) to the link URL
+         * prefix its keys are appended to. Each matched issue key is linked using its own source's
+         * prefix, so a changelog can reference issues that live on different issue-tracker hosts.
          *
-         * This URL prefix is used to generate links to the task tracker system.
-         * It is concatenated with the issue number to form the full URL.
-         *
-         * Example: If `issueUrlPrefix` is set to "https://example.com/issues/",
-         * and the issue number is "123", the full URL will be "https://example.com/issues/123".
+         * An empty URL prefix means the source's keys are recognized but not linked.
          *
          * @see SendSlackChangelogTask
          */
         @get:Input
-        @get:Option(
-            option = "issueUrlPrefix",
-            description = "Address of task tracker",
-        )
-        abstract val issueUrlPrefix: Property<String>
-
-        /**
-         * A property that holds a reference to the regular expression pattern used
-         * to extract issue numbers from the changelog.
-         *
-         * This pattern should include a capturing group that matches the full issue
-         * key (e.g., "([A-Z]+-\\d+)" for issue keys like "PROJECT-123").
-         *
-         * The first capturing group will be used as the issue number when formatting
-         * the changelog with issue references.
-         *
-         * @see SendSlackChangelogTask
-         */
-        @get:Input
-        @get:Option(
-            option = "issueNumberPattern",
-            description = "Regular expression pattern to extract issue numbers from changelog",
-        )
-        abstract val issueNumberPattern: Property<String>
+        abstract val issueSources: MapProperty<String, String>
 
         /**
          * A property that holds a reference to the icon URL used to identify the app in the chat.
@@ -227,8 +203,7 @@ abstract class SendSlackChangelogTask
                     parameters.changelog.set(changelog)
                     parameters.userMentions.set(userMentions)
                     parameters.attachmentColor.set(attachmentColor)
-                    parameters.issueNumberPattern.set(issueNumberPattern)
-                    parameters.issueUrlPrefix.set(issueUrlPrefix)
+                    parameters.issueSources.set(issueSources)
                     parameters.service.set(service)
                     parameters.loggerService.set(loggerService)
                 }

@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.telegram.task.changelog
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
@@ -121,31 +122,14 @@ abstract class SendTelegramChangelogTask
         abstract val baseOutputFileName: Property<String>
 
         /**
-         * The issue URL prefix property defines the base URL for issue tracker links.
+         * Changelog issue sources: a map of extraction regex (issue-key pattern) to the link URL
+         * prefix its keys are appended to. Each matched issue key is linked using its own source's
+         * prefix, so a changelog can reference issues that live on different issue-tracker hosts.
          *
-         * This URL is used to convert issue references (e.g., #123) in the changelog into clickable
-         * links in the Telegram message.
+         * An empty URL prefix means the source's keys are recognized but not linked.
          */
         @get:Input
-        @get:Option(
-            option = "issueUrlPrefix",
-            description = "Address of task tracker",
-        )
-        abstract val issueUrlPrefix: Property<String>
-
-        /**
-         * The issue number pattern property defines the regular expression pattern used to identify
-         * issue references in the changelog text.
-         *
-         * This pattern is used to detect and convert issue numbers into clickable links using the
-         * configured issue URL prefix.
-         */
-        @get:Input
-        @get:Option(
-            option = "issueNumberPattern",
-            description = "How task number formatted",
-        )
-        abstract val issueNumberPattern: Property<String>
+        abstract val issueSources: MapProperty<String, String>
 
         /**
          * The user mentions property contains a set of usernames or groups to be mentioned in the
@@ -213,8 +197,7 @@ abstract class SendTelegramChangelogTask
                     parameters.destinationBots.set(destinationBots)
                     parameters.service.set(service)
                     parameters.loggerService.set(loggerService)
-                    parameters.issueUrlPrefix.set(issueUrlPrefix)
-                    parameters.issueNumberPattern.set(issueNumberPattern)
+                    parameters.issueSources.set(issueSources)
                 }
             }
         }

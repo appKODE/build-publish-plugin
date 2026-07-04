@@ -2,16 +2,17 @@ import java.util.Properties
 
 plugins {
     id("kotlin-convention")
+    id("test-convention")
     id("java-gradle-plugin")
     id("com.google.devtools.ksp")
 }
 
 dependencies {
     implementation(libs.agp)
-    implementation("ru.kode.android:plugin-foundation")
-    implementation("ru.kode.android:plugin-nextcloud")
+    implementation(libs.plugin.foundation)
+    implementation(libs.plugin.nextcloud)
 
-    testImplementation("ru.kode.android:plugin-core")
+    testImplementation(libs.plugin.core)
     testImplementation(project(":utils"))
 
     testImplementation(gradleApi())
@@ -35,15 +36,6 @@ tasks.test {
     systemProperty("PROXY_PASSWORD", project.getEnvOrProperty("PROXY_PASSWORD"))
     systemProperty("PROXY_HOST", project.getEnvOrProperty("PROXY_HOST"))
     systemProperty("PROXY_PORT", project.getEnvOrProperty("PROXY_PORT"))
-
-    useJUnitPlatform()
-    testLogging {
-        val isCI = System.getenv("CI") == "true"
-        showStackTraces = true
-        showExceptions = true
-        showCauses = true
-        showStandardStreams = !isCI
-    }
 }
 
 private fun Project.getEnvOrProperty(name: String): String {

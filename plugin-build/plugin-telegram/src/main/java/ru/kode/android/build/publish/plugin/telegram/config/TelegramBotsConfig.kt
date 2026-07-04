@@ -1,9 +1,14 @@
 package ru.kode.android.build.publish.plugin.telegram.config
 
+import groovy.lang.Closure
+import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.build.publish.plugin.core.util.configureGroovy
+import ru.kode.android.build.publish.plugin.core.util.inheritNamedFrom
 import javax.inject.Inject
 
 /**
@@ -19,7 +24,8 @@ abstract class TelegramBotsConfig
     @Inject
     constructor(
         objects: ObjectFactory,
-    ) : Named {
+    ) : Named,
+        CommonConfigMergeable<TelegramBotsConfig> {
         /**
          * Internal container for storing bot configurations.
          *
@@ -46,5 +52,25 @@ abstract class TelegramBotsConfig
             action: Action<TelegramBotConfig>,
         ) {
             bots.register(botName, action)
+        }
+
+        /**
+         * Configures a new Telegram bot with the given name using a Groovy closure.
+         *
+         * @param botName A unique identifier for the bot configuration (e.g., "release", "dev").
+         * @param configurationClosure The Groovy closure applied to the new [TelegramBotConfig].
+         *
+         * @see bot
+         */
+        fun bot(
+            botName: String,
+            @DelegatesTo(value = TelegramBotConfig::class, strategy = Closure.DELEGATE_FIRST)
+            configurationClosure: Closure<in TelegramBotConfig>,
+        ) {
+            bot(botName) { target -> configureGroovy(configurationClosure, target) }
+        }
+
+        override fun inheritFrom(common: TelegramBotsConfig) {
+            bots.inheritNamedFrom(common.bots)
         }
     }

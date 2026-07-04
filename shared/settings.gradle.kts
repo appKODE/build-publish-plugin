@@ -21,4 +21,10 @@ dependencyResolutionManagement {
 }
 
 include(":plugin-core")
+include(":client-slack")
+include(":client-telegram")
+include(":client-nextcloud")
+include(":client-jira")
+include(":client-confluence")
+include(":client-clickup")
 includeBuild("../build-conventions")

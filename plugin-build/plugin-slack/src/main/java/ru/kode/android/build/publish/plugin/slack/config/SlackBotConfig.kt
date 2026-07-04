@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 
 /**
  * Configuration interface for a Slack bot that sends notifications.
@@ -13,7 +14,7 @@ import org.gradle.api.tasks.Optional
  * for sending build notifications. It's typically used in the build script's `slack` extension
  * to configure bot settings for different build variants.
  */
-interface SlackBotConfig {
+interface SlackBotConfig : CommonConfigMergeable<SlackBotConfig> {
     /**
      * Name of this bot configuration.
      *
@@ -69,4 +70,10 @@ interface SlackBotConfig {
      */
     @get:Input
     val iconUrl: Property<String>
+
+    override fun inheritFrom(common: SlackBotConfig) {
+        webhookUrl.convention(common.webhookUrl)
+        uploadApiTokenFile.convention(common.uploadApiTokenFile)
+        iconUrl.convention(common.iconUrl)
+    }
 }

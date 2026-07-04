@@ -1,6 +1,12 @@
+@file:Suppress("FunctionOnlyReturningConstant") // Simple string providers
+
 package ru.kode.android.build.publish.plugin.slack.messages
 
 import ru.kode.android.build.publish.plugin.slack.EXTENSION_NAME
+
+fun sendingSlackMessageMessage(): String = "Sending Slack message"
+
+fun uploadingSlackFileMessage(): String = "Uploading file to Slack"
 
 fun uploadApiTokenRequiredMessage(): String {
     return """
@@ -297,68 +303,6 @@ fun provideBotConfigMessage(buildVariant: String): String {
         |  1. The bot token should be stored securely and not committed 
         |     to version control.
         |  2. Consider using Gradle properties or environment variables.
-        |============================================================
-        """.trimIndent()
-}
-
-fun blockTextHasMoreSymbolsMessage(maxSymbols: Int): String {
-    return """
-        
-        |============================================================
-        |                     MESSAGE TOO LONG   
-        |============================================================
-        | The message block text exceeds the maximum allowed length
-        | of $maxSymbols characters.
-        |
-        | RECOMMENDED ACTIONS:
-        |  1. Split the message into multiple blocks
-        |  2. Reduce the amount of text in the message
-        |  3. Consider using a file upload for large content
-        |
-        | Maximum allowed: $maxSymbols characters
-        |============================================================
-        """.trimIndent()
-}
-
-fun headerTextHasMoreSymbolsMessage(maxSymbols: Int): String {
-    return """
-        
-        |============================================================
-        |                   HEADER TEXT TOO LONG   
-        |============================================================
-        | The header text exceeds the maximum allowed length
-        | of $maxSymbols characters.
-        |
-        | RECOMMENDED ACTIONS:
-        |  1. Make the header more concise
-        |  2. Move detailed information to the message body
-        |
-        | Maximum allowed: $maxSymbols characters
-        |============================================================
-        """.trimIndent()
-}
-
-fun failedToSendChangelogMessage(webhookUrl: String): String {
-    return """
-        |
-        |============================================================
-        |             FAILED TO SEND CHANGELOG TO SLACK   
-        |============================================================
-        | Target Webhook: ${webhookUrl.take(50)} (trunked)...
-        |
-        | POSSIBLE CAUSES:
-        |  1. Invalid or expired webhook URL
-        |  2. Network connectivity issues
-        |  3. Slack API rate limiting
-        |  4. Invalid message format
-        |
-        | TROUBLESHOOTING STEPS:
-        |  1. Verify the webhook URL is correct and active
-        |  2. Check your network connection
-        |  3. Try again after a short delay
-        |  4. Check the Slack API status page for outages
-        |
-        | For more information, check the full error in the logs.
         |============================================================
         """.trimIndent()
 }

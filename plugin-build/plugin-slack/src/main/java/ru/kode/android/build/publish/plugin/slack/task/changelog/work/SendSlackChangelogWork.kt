@@ -1,9 +1,11 @@
 package ru.kode.android.build.publish.plugin.slack.task.changelog.work
 
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
+import ru.kode.android.build.publish.plugin.core.enity.IssueSource
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.slack.messages.changelogSentMessage
 import ru.kode.android.build.publish.plugin.slack.service.SlackService
@@ -47,14 +49,10 @@ internal interface SendSlackChangelogParameters : WorkParameters {
     val attachmentColor: Property<String>
 
     /**
-     * URL prefix for issue references in the changelog text.
+     * Changelog issue sources (extraction pattern → optional link URL prefix) used to turn issue
+     * keys in the changelog text into links.
      */
-    val issueUrlPrefix: Property<String>
-
-    /**
-     * Regular expression pattern used to extract issue numbers from the changelog text.
-     */
-    val issueNumberPattern: Property<String>
+    val issueSources: MapProperty<String, String>
 
     /**
      * The network service for sending messages to Slack
@@ -96,8 +94,10 @@ internal abstract class SendSlackChangelogWork
                 userMentions = parameters.userMentions.orNull?.toList().orEmpty(),
                 iconUrl = parameters.iconUrl.get(),
                 attachmentColor = parameters.attachmentColor.get(),
-                issueUrlPrefix = parameters.issueUrlPrefix.get(),
-                issueNumberPattern = parameters.issueNumberPattern.get(),
+                issueSources =
+                    parameters.issueSources.get().map { (pattern, url) ->
+                        IssueSource(pattern, url.ifBlank { null })
+                    },
             )
             logger.info(changelogSentMessage())
         }

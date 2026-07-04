@@ -4,12 +4,17 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+import ru.kode.android.build.publish.plugin.core.util.CollectionStrategy
+import ru.kode.android.build.publish.plugin.core.util.CollectionStrategy.REPLACE
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.build.publish.plugin.core.util.inheritFrom
 
 /**
  * Configuration for publishing Android artifacts to Nextcloud.
  */
-interface NextcloudDistributionConfig {
+interface NextcloudDistributionConfig : CommonConfigMergeable<NextcloudDistributionConfig> {
     val name: String
 
     /**
@@ -52,6 +57,14 @@ interface NextcloudDistributionConfig {
     @get:Optional
     val groupRecipients: SetProperty<String>
 
+    /** Merge strategy for [userRecipients]; configuration-time only, defaults to REPLACE. */
+    @get:Internal
+    val userRecipientsStrategy: Property<CollectionStrategy>
+
+    /** Merge strategy for [groupRecipients]; configuration-time only, defaults to REPLACE. */
+    @get:Internal
+    val groupRecipientsStrategy: Property<CollectionStrategy>
+
     /**
      * Optional explicit target file name on remote storage.
      *
@@ -70,6 +83,18 @@ interface NextcloudDistributionConfig {
     }
 
     fun userRecipients(vararg values: String) {
+        userRecipients.addAll(values.toList())
+    }
+
+    /**
+     * Adds user recipients and selects how this collection is merged with the common configuration
+     * for a per-version-name build ([CollectionStrategy.REPLACE] by default).
+     */
+    fun userRecipients(
+        strategy: CollectionStrategy,
+        vararg values: String,
+    ) {
+        userRecipientsStrategy.set(strategy)
         userRecipients.addAll(values.toList())
     }
 
@@ -93,11 +118,32 @@ interface NextcloudDistributionConfig {
         groupRecipients.addAll(values.toList())
     }
 
+    /**
+     * Adds group recipients and selects how this collection is merged with the common configuration
+     * for a per-version-name build ([CollectionStrategy.REPLACE] by default).
+     */
+    fun groupRecipients(
+        strategy: CollectionStrategy,
+        vararg values: String,
+    ) {
+        groupRecipientsStrategy.set(strategy)
+        groupRecipients.addAll(values.toList())
+    }
+
     fun groupRecipients(values: Iterable<String>) {
         groupRecipients.addAll(values)
     }
 
     fun groupRecipients(values: Provider<Iterable<String>>) {
         groupRecipients.addAll(values)
+    }
+
+    override fun inheritFrom(common: NextcloudDistributionConfig) {
+        remotePath.convention(common.remotePath)
+        compressed.convention(common.compressed)
+        shareMode.convention(common.shareMode)
+        remoteFileName.convention(common.remoteFileName)
+        userRecipients.inheritFrom(common.userRecipients, userRecipientsStrategy.getOrElse(REPLACE))
+        groupRecipients.inheritFrom(common.groupRecipients, groupRecipientsStrategy.getOrElse(REPLACE))
     }
 }

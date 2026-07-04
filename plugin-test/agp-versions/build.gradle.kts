@@ -5,9 +5,9 @@ plugins {
 }
 
 dependencies {
-    implementation("ru.kode.android:plugin-foundation")
+    implementation(libs.plugin.foundation)
 
-    testImplementation("ru.kode.android:plugin-core")
+    testImplementation(libs.plugin.core)
     testImplementation(project(":utils"))
 
     testImplementation(gradleApi())

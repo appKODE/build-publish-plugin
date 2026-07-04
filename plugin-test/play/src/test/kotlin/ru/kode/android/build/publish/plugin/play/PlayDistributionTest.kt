@@ -11,7 +11,6 @@ import java.io.IOException
 
 @Disabled // It is disabled because it is not implemented yet
 class PlayDistributionTest {
-
     private val logger: Logger = AlwaysInfoLogger()
 
     @TempDir

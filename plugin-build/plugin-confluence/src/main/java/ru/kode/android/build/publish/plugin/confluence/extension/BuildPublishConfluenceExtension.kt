@@ -8,13 +8,13 @@ import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
-import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceAuthConfig
 import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceDistributionConfig
 import ru.kode.android.build.publish.plugin.confluence.messages.needProvideAuthConfigMessage
 import ru.kode.android.build.publish.plugin.confluence.messages.needProvideDistributionConfigMessage
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceApkDistributionTaskParams
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceBundleDistributionTaskParams
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceTasksRegistrar
+import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthConfig
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
@@ -39,8 +39,8 @@ abstract class BuildPublishConfluenceExtension
          * This container holds named configurations for authenticating with the Confluence API.
          * Each configuration is typically associated with a build variant or environment.
          */
-        internal val auth: NamedDomainObjectContainer<ConfluenceAuthConfig> =
-            objectFactory.domainObjectContainer(ConfluenceAuthConfig::class.java)
+        internal val auth: NamedDomainObjectContainer<BasicAuthConfig> =
+            objectFactory.domainObjectContainer(BasicAuthConfig::class.java)
 
         /**
          * Container for distribution configurations, keyed by build type.
@@ -58,7 +58,7 @@ abstract class BuildPublishConfluenceExtension
          * @return The authentication configuration for the build variant
          * @throws UnknownDomainObjectException If no configuration is found for the build variant
          */
-        val authConfig: (buildName: String) -> ConfluenceAuthConfig = { buildName ->
+        val authConfig: (buildName: String) -> BasicAuthConfig = { buildName ->
             auth.getByNameOrRequiredCommon(buildName)
         }
 
@@ -68,7 +68,7 @@ abstract class BuildPublishConfluenceExtension
          * @param buildName The name of the build variant (e.g., "debug", "release")
          * @return The authentication configuration or null if not found
          */
-        val authConfigOrNull: (buildName: String) -> ConfluenceAuthConfig? = { buildName ->
+        val authConfigOrNull: (buildName: String) -> BasicAuthConfig? = { buildName ->
             auth.getByNameOrNullableCommon(buildName)
         }
 
@@ -100,7 +100,7 @@ abstract class BuildPublishConfluenceExtension
          */
         fun auth(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<in BuildPublishDomainObjectContainer<ConfluenceAuthConfig>>,
+            configurationAction: Action<in BuildPublishDomainObjectContainer<BasicAuthConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(auth)
             configurationAction.execute(container)
@@ -113,7 +113,7 @@ abstract class BuildPublishConfluenceExtension
          */
         fun auth(
             @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ConfluenceAuthConfig>>,
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<BasicAuthConfig>>,
         ) {
             val container = BuildPublishDomainObjectContainer(auth)
             configureGroovy(configurationClosure, container)
@@ -150,7 +150,7 @@ abstract class BuildPublishConfluenceExtension
          *
          * @param configurationAction The action to configure common authentication settings
          */
-        fun authCommon(configurationAction: Action<in ConfluenceAuthConfig>) {
+        fun authCommon(configurationAction: Action<in BasicAuthConfig>) {
             common(auth, configurationAction)
         }
 
@@ -161,10 +161,10 @@ abstract class BuildPublishConfluenceExtension
          */
         fun authCommon(
             @DelegatesTo(
-                value = ConfluenceAuthConfig::class,
+                value = BasicAuthConfig::class,
                 strategy = Closure.DELEGATE_FIRST,
             )
-            configurationClosure: Closure<in ConfluenceAuthConfig>,
+            configurationClosure: Closure<in BasicAuthConfig>,
         ) {
             common(auth) { target ->
                 configureGroovy(configurationClosure, target)

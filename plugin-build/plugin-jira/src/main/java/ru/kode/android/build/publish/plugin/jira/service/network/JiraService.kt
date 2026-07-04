@@ -1,16 +1,12 @@
 package ru.kode.android.build.publish.plugin.jira.service.network
 
-import okhttp3.OkHttpClient
-import org.gradle.api.provider.Property
-import org.gradle.api.services.BuildService
-import org.gradle.api.services.BuildServiceParameters
-import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.build.publish.plugin.core.api.service.BasicAuthBuildService
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
-import ru.kode.android.build.publish.plugin.jira.controller.JiraControllerImpl
-import ru.kode.android.build.publish.plugin.jira.network.api.JiraApi
-import ru.kode.android.build.publish.plugin.jira.network.factory.JiraApiFactory
-import ru.kode.android.build.publish.plugin.jira.network.factory.JiraClientFactory
+import ru.kode.android.build.publish.plugin.jira.controller.addFixVersionToIssues
+import ru.kode.android.build.publish.plugin.jira.controller.addLabelToIssues
+import ru.kode.android.build.publish.plugin.jira.controller.factory.JiraControllerFactory
+import ru.kode.android.build.publish.plugin.jira.controller.transitionIssues
 import javax.inject.Inject
 
 /**
@@ -20,65 +16,24 @@ import javax.inject.Inject
  * for Jira API operations. It's designed to be used within Gradle build scripts to
  * automate Jira-related tasks as part of the build process.
 
- * @see BuildService
- * @see JiraApi
+ * @see BasicAuthBuildService
+ * @see JiraController
  */
 abstract class JiraService
     @Inject
-    constructor() : BuildService<JiraService.Params> {
-        /**
-         * Configuration parameters for the Jira network service.
-         *
-         * @see BasicAuthCredentials
-         */
-        interface Params : BuildServiceParameters {
-            /**
-             * The base URL of the Jira instance (e.g., "https://your-domain.atlassian.net")
-             */
-            val baseUrl: Property<String>
-
-            /**
-             * The authentication credentials for the Jira API, containing username and password/token
-             */
-            val credentials: Property<BasicAuthCredentials>
-
-            /**
-             * The logger service for logging messages during network operations.
-             */
-            val loggerService: Property<LoggerService>
-        }
-
-        internal abstract val okHttpClientProperty: Property<OkHttpClient>
-
-        internal abstract val apiProperty: Property<JiraApi>
-
-        internal abstract val controllerProperty: Property<JiraController>
-
-        init {
-            val username = parameters.credentials.flatMap { it.username }
-            val password = parameters.credentials.flatMap { it.password }
-            okHttpClientProperty.set(
-                parameters.loggerService.map { it.logger }.flatMap { logger ->
-                    username
-                        .zip(password) { username, password ->
-                            JiraClientFactory.build(username, password, logger)
-                        }
-                },
+    constructor() : BasicAuthBuildService<JiraController>() {
+        override fun buildController(
+            baseUrl: String,
+            username: String,
+            password: String,
+            logger: PluginLogger,
+        ): JiraController =
+            JiraControllerFactory.build(
+                baseUrl = baseUrl,
+                username = username,
+                password = password,
+                logger = logger,
             )
-            apiProperty.set(
-                okHttpClientProperty
-                    .zip(parameters.baseUrl) { client, baseUrl ->
-                        JiraApiFactory.build(client, baseUrl)
-                    },
-            )
-            controllerProperty.set(
-                apiProperty.zip(parameters.loggerService.map { it.logger }) { api, logger ->
-                    JiraControllerImpl(api, logger)
-                },
-            )
-        }
-
-        private val controller: JiraController get() = controllerProperty.get()
 
         /**
          * Retrieves the ID of the status with the given name in the specified project,
@@ -177,4 +132,56 @@ abstract class JiraService
         ) {
             controller.addIssueFixVersion(issueKey, version)
         }
+
+        /**
+         * Adds a label to multiple Jira issues.
+         *
+         * @param label The label to add
+         * @param issues A collection of issue keys to label (e.g., "PROJ-123")
+         * @param log Callback invoked with human-readable progress messages
+         *
+         * @throws IOException If the network request fails
+         * @throws JiraApiException If the Jira API returns an error
+         */
+        fun addLabelToIssues(
+            label: String,
+            issues: Collection<String>,
+            log: (String) -> Unit,
+        ) = controller.addLabelToIssues(label, issues, log)
+
+        /**
+         * Adds a fix version to multiple Jira issues, creating the version if it does not exist.
+         *
+         * @param projectKey The key of the Jira project (e.g., "PROJECT")
+         * @param version The version to add as a fix version
+         * @param issues A collection of issue keys to update (e.g., "PROJ-123")
+         * @param log Callback invoked with human-readable progress messages
+         *
+         * @throws IOException If the network request fails
+         * @throws JiraApiException If the Jira API returns an error
+         */
+        fun addFixVersionToIssues(
+            projectKey: String,
+            version: String,
+            issues: Collection<String>,
+            log: (String) -> Unit,
+        ) = controller.addFixVersionToIssues(projectKey, version, issues, log)
+
+        /**
+         * Transitions multiple Jira issues to the status reachable via the named transition.
+         *
+         * @param projectKey The key of the Jira project (e.g., "PROJECT")
+         * @param transitionName The name of the transition to execute
+         * @param issues A collection of issue keys to transition (e.g., "PROJ-123")
+         * @param log Callback invoked with human-readable progress messages
+         *
+         * @throws IOException If the network request fails
+         * @throws JiraApiException If the Jira API returns an error
+         */
+        fun transitionIssues(
+            projectKey: String,
+            transitionName: String,
+            issues: Collection<String>,
+            log: (String) -> Unit,
+        ) = controller.transitionIssues(projectKey, transitionName, issues, log)
     }

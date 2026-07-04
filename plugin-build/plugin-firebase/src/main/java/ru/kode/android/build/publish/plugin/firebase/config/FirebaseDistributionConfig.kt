@@ -7,6 +7,9 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
+import ru.kode.android.build.publish.plugin.core.util.CollectionStrategy
+import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.build.publish.plugin.core.util.inheritFrom
 
 /**
  * Configuration class for Firebase App Distribution settings.
@@ -15,7 +18,7 @@ import org.gradle.api.tasks.Optional
  * through Firebase App Distribution. It allows customization of distribution settings
  * such as service account credentials, artifact type, and tester groups.
  */
-abstract class FirebaseDistributionConfig {
+abstract class FirebaseDistributionConfig : CommonConfigMergeable<FirebaseDistributionConfig> {
     abstract val name: String
 
     /**
@@ -61,6 +64,8 @@ abstract class FirebaseDistributionConfig {
     @get:Optional
     internal abstract val testerGroups: SetProperty<String>
 
+    private var testerGroupsStrategy: CollectionStrategy = CollectionStrategy.REPLACE
+
     /**
      * Adds a single tester group to receive this distribution.
      *
@@ -92,6 +97,21 @@ abstract class FirebaseDistributionConfig {
     }
 
     /**
+     * Adds multiple tester groups and selects how this collection is merged with the common
+     * configuration for a per-version-name build ([CollectionStrategy.REPLACE] by default).
+     *
+     * @param strategy Whether to replace or append to the common tester groups
+     * @param testerGroup Vararg parameter of tester group names to add
+     */
+    fun testerGroups(
+        strategy: CollectionStrategy,
+        vararg testerGroup: String,
+    ) {
+        testerGroupsStrategy = strategy
+        testerGroups.addAll(testerGroup.toList())
+    }
+
+    /**
      * Adds multiple tester groups to receive this distribution.
      *
      * @param testerGroups Iterable of tester group names to add
@@ -109,5 +129,12 @@ abstract class FirebaseDistributionConfig {
      */
     fun testerGroups(testerGroups: Provider<List<String>>) {
         this.testerGroups.addAll(testerGroups)
+    }
+
+    override fun inheritFrom(common: FirebaseDistributionConfig) {
+        serviceCredentialsFile.convention(common.serviceCredentialsFile)
+        artifactType.convention(common.artifactType)
+        appId.convention(common.appId)
+        testerGroups.inheritFrom(common.testerGroups, testerGroupsStrategy)
     }
 }

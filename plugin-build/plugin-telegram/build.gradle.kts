@@ -13,11 +13,7 @@ base {
 
 dependencies {
     implementation(gradleApi())
-    implementation(libs.okhttp)
-    implementation(libs.okhttpLogging)
-    implementation(libs.retrofit)
-    implementation(libs.retrofitSerialization)
-    implementation(libs.serializationJson)
+    implementation(libs.client.telegram)
 
     compileOnly(libs.agp)
     compileOnly(project(":plugin-foundation"))

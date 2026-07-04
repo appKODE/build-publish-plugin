@@ -8,10 +8,10 @@ plugins {
 
 dependencies {
     implementation(libs.agp)
-    implementation("ru.kode.android:plugin-foundation")
-    implementation("ru.kode.android:plugin-play")
+    implementation(libs.plugin.foundation)
+    implementation(libs.plugin.play)
 
-    testImplementation("ru.kode.android:plugin-core")
+    testImplementation(libs.plugin.core)
     testImplementation(project(":utils"))
 
     testImplementation(gradleApi())

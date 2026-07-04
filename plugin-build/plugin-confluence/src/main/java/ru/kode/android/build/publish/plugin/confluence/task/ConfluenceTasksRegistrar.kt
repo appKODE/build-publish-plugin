@@ -9,11 +9,9 @@ import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.ConfluenceDistributionTask
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
-
-internal const val CONFLUENCE_DISTRIBUTION_UPLOAD_TASK_PREFIX = "confluenceDistributionUpload"
-internal const val CONFLUENCE_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX = "confluenceDistributionUploadBundle"
 
 /**
  * Registers and configures Confluence-related tasks for the build.
@@ -68,7 +66,7 @@ private fun Project.registerApkConfluenceDistributionTask(
     params: ConfluenceApkDistributionTaskParams,
 ): TaskProvider<ConfluenceDistributionTask> {
     return tasks.register(
-        "$CONFLUENCE_DISTRIBUTION_UPLOAD_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "${TaskNames.Confluence.DISTRIBUTION_UPLOAD_PREFIX}${params.buildVariant.capitalizedName()}",
         ConfluenceDistributionTask::class.java,
     ) {
         val service =
@@ -107,7 +105,7 @@ private fun Project.registerBundleConfluenceDistributionTask(
     params: ConfluenceBundleDistributionTaskParams,
 ): TaskProvider<ConfluenceDistributionTask>? {
     return tasks.register(
-        "$CONFLUENCE_DISTRIBUTION_UPLOAD_BUNDLE_TASK_PREFIX${params.buildVariant.capitalizedName()}",
+        "${TaskNames.Confluence.DISTRIBUTION_UPLOAD_BUNDLE_PREFIX}${params.buildVariant.capitalizedName()}",
         ConfluenceDistributionTask::class.java,
     ) {
         val service =

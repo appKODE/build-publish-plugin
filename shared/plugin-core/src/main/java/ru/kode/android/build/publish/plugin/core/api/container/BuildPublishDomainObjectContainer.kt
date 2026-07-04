@@ -6,6 +6,7 @@ import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.UnknownDomainObjectException
+import ru.kode.android.build.publish.plugin.core.util.MergeStrategy
 import ru.kode.android.build.publish.plugin.core.util.buildVariant
 import ru.kode.android.build.publish.plugin.core.util.common
 
@@ -136,7 +137,16 @@ class BuildPublishDomainObjectContainer<T : Any>(
         @DelegatesTo.Target
         configurationAction: Action<in T>,
     ): NamedDomainObjectProvider<T> {
-        return namedContainer.buildVariant(buildVariant, configurationAction)
+        return namedContainer.buildVariant(buildVariant, MergeStrategy.MERGE, configurationAction)
+    }
+
+    fun buildVariant(
+        buildVariant: String,
+        strategy: MergeStrategy,
+        @DelegatesTo.Target
+        configurationAction: Action<in T>,
+    ): NamedDomainObjectProvider<T> {
+        return namedContainer.buildVariant(buildVariant, strategy, configurationAction)
     }
 
     /**
@@ -161,7 +171,16 @@ class BuildPublishDomainObjectContainer<T : Any>(
         @DelegatesTo.Target
         configurationClosure: Closure<in T>,
     ): NamedDomainObjectProvider<T> {
-        return namedContainer.buildVariant(buildVariant, configurationClosure)
+        return namedContainer.buildVariant(buildVariant, MergeStrategy.MERGE, configurationClosure)
+    }
+
+    fun buildVariant(
+        buildVariant: String,
+        strategy: MergeStrategy,
+        @DelegatesTo.Target
+        configurationClosure: Closure<in T>,
+    ): NamedDomainObjectProvider<T> {
+        return namedContainer.buildVariant(buildVariant, strategy, configurationClosure)
     }
 
     /**

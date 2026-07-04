@@ -1,12 +1,13 @@
 package ru.kode.android.build.publish.plugin.foundation
 
 import org.gradle.testkit.runner.BuildResult
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.FoundationConfig
@@ -19,6 +20,8 @@ import ru.kode.android.build.publish.plugin.test.utils.extractManifestProperties
 import ru.kode.android.build.publish.plugin.test.utils.findTag
 import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
+import ru.kode.android.build.publish.plugin.test.utils.outputShouldNotContain
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import ru.kode.android.build.publish.plugin.test.utils.runTaskWithFail
@@ -67,9 +70,10 @@ class AssembleTwoFlavorsTest {
         val givenDemoDebugTagFile = projectDir.getFile("app/build/tag-build-snapshot-demoDebug.json")
 
         val debugApkDir = projectDir.getFile("app/build/outputs/apk/demo/debug")
-        val givenDebugOutputFile = debugApkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-demoDebug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenDebugOutputFile =
+            debugApkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-demoDebug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenDebugOutputFileManifestProperties = givenDebugOutputFile.extractManifestProperties()
 
@@ -77,9 +81,10 @@ class AssembleTwoFlavorsTest {
         val givenProReleaseTagFile = projectDir.getFile("app/build/tag-build-snapshot-proRelease.json")
 
         val releaseApkDir = projectDir.getFile("app/build/outputs/apk/pro/release")
-        val givenReleaseOutputFile = releaseApkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-proRelease-vc2-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenReleaseOutputFile =
+            releaseApkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-proRelease-vc2-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenReleaseOutputFileManifestProperties = givenReleaseOutputFile.extractManifestProperties()
 
@@ -87,34 +92,26 @@ class AssembleTwoFlavorsTest {
 
         val expectedDemoDebugTagFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = givenTagName1,
-                    commitSha = git.tag.findTag(givenTagName1).id,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "demoDebug",
-                    buildNumber = 1,
-                ),
+                current =
+                    Tag.Build(
+                        name = givenTagName1,
+                        commitSha = git.tag.findTag(givenTagName1).id,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "demoDebug",
+                        buildNumber = 1,
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedProDebugManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            demoDebugResult.output.contains("Task :app:getLastTagSnapshotDemoDebug"),
-            "Task getLastTagSnapshotDemoDebug executed",
-        )
-        assertTrue(
-            !demoDebugResult.output.contains("Task :app:getLastTagSnapshotProRelease"),
-            "Task getLastTagSnapshotProRelease not executed",
-        )
-        assertTrue(
-            demoDebugResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        demoDebugResult.outputShouldContain("Task :app:getLastTagSnapshotDemoDebug")
+        demoDebugResult.outputShouldNotContain("Task :app:getLastTagSnapshotProRelease")
+        demoDebugResult.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedDemoDebugTagFile.trimMargin(),
             givenDemoDebugTagFile.readText(),
@@ -131,34 +128,26 @@ class AssembleTwoFlavorsTest {
         val expectedProReleaseCommitSha = git.tag.findTag(givenTagName2).id
         val expectedProReleaseTagFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = givenTagName2,
-                    commitSha = expectedProReleaseCommitSha,
-                    message = "",
-                    buildVersion = "1.0",
-                    buildVariant = "proRelease",
-                    buildNumber = 2,
-                ),
+                current =
+                    Tag.Build(
+                        name = givenTagName2,
+                        commitSha = expectedProReleaseCommitSha,
+                        message = "",
+                        buildVersion = "1.0",
+                        buildVariant = "proRelease",
+                        buildNumber = 2,
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedProReleaseManifestProperties =
             ManifestProperties(
                 versionCode = "2",
                 versionName = "1.0",
             )
-        assertTrue(
-            !proReleaseResult.output.contains("Task :app:getLastTagSnapshotDemoDebug"),
-            "Task getLastTagSnapshotDemoDebug not executed",
-        )
-        assertTrue(
-            proReleaseResult.output.contains("Task :app:getLastTagSnapshotProRelease"),
-            "Task getLastTagSnapshotProRelease executed",
-        )
-        assertTrue(
-            proReleaseResult.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        proReleaseResult.outputShouldNotContain("Task :app:getLastTagSnapshotDemoDebug")
+        proReleaseResult.outputShouldContain("Task :app:getLastTagSnapshotProRelease")
+        proReleaseResult.outputShouldContain("BUILD SUCCESSFUL")
         assertEquals(
             expectedProReleaseTagFile.trimMargin(),
             givenProReleaseTagFile.readText(),
@@ -205,9 +194,10 @@ class AssembleTwoFlavorsTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/demoFree/debug")
-        val givenOutputFile = apkDir.listFiles()
-            ?.first { it.name.matches(Regex("autotest-demoFreeDebug-vc1-\\d{8}\\.apk")) }
-            ?: throw AssertionError("Output file not found")
+        val givenOutputFile =
+            apkDir.listFiles()
+                ?.first { it.name.matches(Regex("autotest-demoFreeDebug-vc1-\\d{8}\\.apk")) }
+                ?: throw AssertionError("Output file not found")
 
         val givenOutputFileManifestProperties = givenOutputFile.extractManifestProperties()
 
@@ -219,34 +209,26 @@ class AssembleTwoFlavorsTest {
 
         val expectedTagBuildFile =
             BuildTagSnapshot(
-                current = Tag.Build(
-                    name = expectedTagName,
-                    commitSha = expectedCommitSha,
-                    message = "",
-                    buildVersion = expectedBuildVersion,
-                    buildVariant = expectedBuildVariant,
-                    buildNumber = expectedBuildNumber.toInt(),
-                ),
+                current =
+                    Tag.Build(
+                        name = expectedTagName,
+                        commitSha = expectedCommitSha,
+                        message = "",
+                        buildVersion = expectedBuildVersion,
+                        buildVariant = expectedBuildVariant,
+                        buildNumber = expectedBuildNumber.toInt(),
+                    ),
                 previousInOrder = null,
-                previousOnDifferentCommit = null
+                previousOnDifferentCommit = null,
             ).toJson()
         val expectedManifestProperties =
             ManifestProperties(
                 versionCode = "1",
                 versionName = "1.0",
             )
-        assertTrue(
-            result.output.contains("Task :app:getLastTagSnapshotDemoFreeDebug"),
-            "Task getLastTagSnapshotDemoFreeDebug executed",
-        )
-        assertTrue(
-            !result.output.contains("Task :app:getLastTagSnapshotDemoFreeRelease"),
-            "Task getLastTagSnapshotDemoFreeRelease not executed",
-        )
-        assertTrue(
-            result.output.contains("BUILD SUCCESSFUL"),
-            "Build succeeded",
-        )
+        result.outputShouldContain("Task :app:getLastTagSnapshotDemoFreeDebug")
+        result.outputShouldNotContain("Task :app:getLastTagSnapshotDemoFreeRelease")
+        result.outputShouldContain("BUILD SUCCESSFUL")
         assertTrue(givenTagBuildFile.exists(), "Tag file exists")
         assertEquals(
             expectedTagBuildFile.trimMargin(),
@@ -294,22 +276,14 @@ class AssembleTwoFlavorsTest {
         projectDir.getFile("app").printFilesRecursively()
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/demoFree/debug")
-        val givenOutputFileExists = apkDir.listFiles()
-            ?.any { it.name.matches(Regex("autotest-demoFreeDebug-vc0-\\d{8}\\.apk")) }
-            ?: false
+        val givenOutputFileExists =
+            apkDir.listFiles()
+                ?.any { it.name.matches(Regex("autotest-demoFreeDebug-vc0-\\d{8}\\.apk")) }
+                ?: false
 
-        assertTrue(
-            result.output.contains("Task :app:getLastTagSnapshotDemoFreeDebug"),
-            "Task getLastTagSnapshotDemoFreeDebug executed",
-        )
-        assertTrue(
-            !result.output.contains("Task :app:getLastTagSnapshotDemoFreeRelease"),
-            "Task getLastTagSnapshotDemoFreeRelease not executed",
-        )
-        assertTrue(
-            result.output.contains("BUILD FAILED"),
-            "Build failed",
-        )
+        result.outputShouldContain("Task :app:getLastTagSnapshotDemoFreeDebug")
+        result.outputShouldNotContain("Task :app:getLastTagSnapshotDemoFreeRelease")
+        result.outputShouldContain("BUILD FAILED")
         assertTrue(!givenTagBuildFile.exists(), "Tag file not exists")
         assertTrue(!givenOutputFileExists, "Output file not exists")
     }

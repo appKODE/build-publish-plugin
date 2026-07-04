@@ -1,16 +1,9 @@
 package ru.kode.android.build.publish.plugin.confluence.service
 
-import okhttp3.OkHttpClient
-import org.gradle.api.provider.Property
-import org.gradle.api.services.BuildService
-import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.confluence.controller.ConfluenceController
-import ru.kode.android.build.publish.plugin.confluence.controller.ConfluenceControllerImpl
-import ru.kode.android.build.publish.plugin.confluence.network.api.ConfluenceApi
-import ru.kode.android.build.publish.plugin.confluence.network.factory.ConfluenceApiFactory
-import ru.kode.android.build.publish.plugin.confluence.network.factory.ConfluenceClientFactory
-import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthCredentials
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.build.publish.plugin.confluence.controller.factory.ConfluenceControllerFactory
+import ru.kode.android.build.publish.plugin.core.api.service.BasicAuthBuildService
+import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import java.io.File
 import javax.inject.Inject
 
@@ -27,62 +20,19 @@ import javax.inject.Inject
  */
 abstract class ConfluenceService
     @Inject
-    constructor() : BuildService<ConfluenceService.Params> {
-        /**
-         * Configuration parameters for the ConfluenceService.
-         *
-         * This interface defines the required configuration for initializing the service.
-         * The parameters are provided through Gradle's configuration avoidance API.
-         */
-        interface Params : BuildServiceParameters {
-            /**
-             * The base URL of the Confluence instance (e.g., "https://your-domain.atlassian.net/wiki/")
-             */
-            val baseUrl: Property<String>
-
-            /**
-             * The authentication credentials for the Confluence API, typically username and password
-             */
-            val credentials: Property<BasicAuthCredentials>
-
-            /**
-             * The logger service for logging events related to the Confluence service.
-             *
-             * This logger service is used to log events related to the Confluence service,
-             * such as network requests, authentication errors, etc.
-             */
-            val loggerService: Property<LoggerService>
-        }
-
-        internal abstract val okHttpClientProperty: Property<OkHttpClient>
-        internal abstract val apiProperty: Property<ConfluenceApi>
-
-        internal abstract val controllerProperty: Property<ConfluenceController>
-
-        init {
-            okHttpClientProperty.set(
-                parameters.loggerService.map { it.logger }.flatMap { logger ->
-                    parameters.credentials.flatMap { it.username }
-                        .zip(parameters.credentials.flatMap { it.password }) { username, password ->
-                            ConfluenceClientFactory.build(username, password, logger)
-                        }
-                },
+    constructor() : BasicAuthBuildService<ConfluenceController>() {
+        override fun buildController(
+            baseUrl: String,
+            username: String,
+            password: String,
+            logger: PluginLogger,
+        ): ConfluenceController =
+            ConfluenceControllerFactory.build(
+                baseUrl = baseUrl,
+                username = username,
+                password = password,
+                logger = logger,
             )
-            apiProperty.set(
-                okHttpClientProperty.zip(parameters.baseUrl) { client, baseUrl ->
-                    ConfluenceApiFactory.build(client, baseUrl)
-                },
-            )
-            controllerProperty.set(
-                apiProperty.flatMap { api ->
-                    parameters.baseUrl.map { baseUrl ->
-                        ConfluenceControllerImpl(baseUrl, api)
-                    }
-                },
-            )
-        }
-
-        private val controller: ConfluenceController get() = controllerProperty.get()
 
         /**
          * Uploads a file as an attachment to a Confluence page.
