@@ -92,7 +92,6 @@ class GitChangelogBuilder(
      * as "unresolved". Tokens already covered by a manual `CHANGELOG:` entry (present in [manualLines]) and
      * duplicate keys are dropped.
      */
-    @Suppress("LongParameterList")
     private fun buildReferenceLines(
         messageKey: String,
         tagSnapshot: BuildTagSnapshot,
@@ -105,65 +104,56 @@ class GitChangelogBuilder(
         if (issueReferences.isEmpty() || resolvers.isEmpty() || tagSnapshot.pointSameCommit) {
             return emptyList()
         }
-
-        val result = mutableListOf<String>()
-        val seenTokens = mutableSetOf<String>()
-        val seenKeys = mutableSetOf<String>()
-
-        gitRepository.issueReferenceLines(issueReferences, messageKey, tagSnapshot).forEach { commit ->
-            commit.referenceLines.forEach { line ->
-                val rendered =
-                    renderReferenceLine(
-                        line = line,
-                        commitChangelogLine = commit.changelogLine,
-                        issueReferences = issueReferences,
-                        resolvers = resolvers,
-                        resolvedStrategy = resolvedStrategy,
-                        unresolvedStrategy = unresolvedStrategy,
-                        manualLines = manualLines,
-                        seenTokens = seenTokens,
-                        seenKeys = seenKeys,
-                    ) ?: return@forEach
-                result += rendered
-            }
-        }
-        return result
+        return gitRepository.issueReferenceLines(issueReferences, messageKey, tagSnapshot)
+            .flatMap { commit -> commit.referenceLines.map { line -> line to commit.changelogLine } }
+            .mapNotNull { (line, changelogLine) -> parseReferenceToken(line, changelogLine, issueReferences) }
+            .distinctBy { it.token }
+            .filterNot { token -> manualLines.any { it.contains(token.token) } }
+            .map { token -> renderToken(token, resolvers, resolvedStrategy, unresolvedStrategy) }
+            .distinctBy { it.dedupKey }
+            .mapNotNull { it.line }
     }
 
     /**
-     * Renders a single `CLOSES`/`FIXES` reference [line] into a changelog entry (or `null` when the line
-     * carries no known marker, its token was already seen, it duplicates a manual entry, or the chosen
-     * strategy omits it). [seenTokens]/[seenKeys] are mutated to deduplicate across the whole range.
+     * Extracts the reference [token] from a single `CLOSES`/`FIXES` [line], or `null` when the line
+     * carries no known marker or no token follows it.
      */
-    @Suppress("LongParameterList", "ReturnCount")
-    private fun renderReferenceLine(
+    private fun parseReferenceToken(
         line: String,
         commitChangelogLine: String?,
         issueReferences: List<IssueReference>,
+    ): ReferenceToken? {
+        val reference = issueReferences.firstOrNull { line.contains(it.key) } ?: return null
+        val token = Regex(reference.numberPattern).find(line.substringAfter(reference.key))?.value ?: return null
+        return ReferenceToken(token, commitChangelogLine)
+    }
+
+    /**
+     * Renders a parsed [reference] into a changelog entry: its token is resolved via the first matching
+     * [resolvers] and rendered by [resolvedStrategy]; an unresolved token is warned about and rendered by
+     * [unresolvedStrategy]. Resolution never throws — a failing resolver is treated as "unresolved". The
+     * returned [RenderedReference.line] is `null` when the chosen strategy omits the entry; [dedupKey] is
+     * the resolved key (or the token when unresolved) used to drop duplicates across the whole range.
+     */
+    private fun renderToken(
+        reference: ReferenceToken,
         resolvers: List<IssueResolver>,
         resolvedStrategy: ResolvedIssueStrategy,
         unresolvedStrategy: UnresolvedIssueStrategy,
-        manualLines: List<String>,
-        seenTokens: MutableSet<String>,
-        seenKeys: MutableSet<String>,
-    ): String? {
-        val reference = issueReferences.firstOrNull { line.contains(it.key) } ?: return null
-        val token =
-            Regex(reference.numberPattern).find(line.substringAfter(reference.key))?.value ?: return null
-        if (!seenTokens.add(token)) return null
-        if (manualLines.any { it.contains(token) }) return null
-
-        val resolved =
-            resolvers.firstNotNullOfOrNull { resolver ->
-                runCatching { resolver.resolve(token) }.getOrNull()
-            }
-        if (resolved != null) {
-            if (!seenKeys.add(resolved.key)) return null
-            return resolvedStrategy.build(resolved.key, resolved.title, commitChangelogLine)
+    ): RenderedReference {
+        val resolved = resolvers.firstNotNullOfOrNull { runCatching { it.resolve(reference.token) }.getOrNull() }
+        return if (resolved != null) {
+            RenderedReference(
+                dedupKey = resolved.key,
+                line = resolvedStrategy.build(resolved.key, resolved.title, reference.commitChangelogLine),
+            )
+        } else {
+            logger.warn(unresolvedIssueReferenceMessage(reference.token))
+            RenderedReference(
+                dedupKey = reference.token,
+                line = unresolvedStrategy.build(reference.token, reference.commitChangelogLine),
+            )
         }
-        logger.warn(unresolvedIssueReferenceMessage(token))
-        if (!seenKeys.add(token)) return null
-        return unresolvedStrategy.build(token, commitChangelogLine)
     }
 
     /**
@@ -199,3 +189,7 @@ class GitChangelogBuilder(
         return messageBuilder.toString().takeIf { it.isNotBlank() }?.trim()
     }
 }
+
+private data class ReferenceToken(val token: String, val commitChangelogLine: String?)
+
+private data class RenderedReference(val dedupKey: String, val line: String?)

@@ -130,16 +130,11 @@ buildPublishFoundation {
                urlPrefix.set("https://your-issue-tracker.com/issue/")
             }
          }
-         // Resolve `CLOSES:` / `FIXES:` commit markers to issue titles via a provider plugin
+         // Resolve `CLOSES:` / `FIXES:` commit markers to issue titles via a provider plugin.
+         // `numberPattern` is optional — it defaults to the standard bare-number-or-prefixed-key pattern.
          issueReferences {
-            issueReference("closes") {
-               key.set("CLOSES")
-               numberPattern.set("(\\d+|[A-Z]+-\\d+)")
-            }
-            issueReference("fixes") {
-               key.set("FIXES")
-               numberPattern.set("(\\d+|[A-Z]+-\\d+)")
-            }
+            issueReference("closes") { key.set("CLOSES") }
+            issueReference("fixes") { key.set("FIXES") }
          }
          resolvedIssueStrategy { KeyAndTitleResolvedStrategy }
          unresolvedIssueStrategy { ChangelogLineOrKeyUnresolvedStrategy }
@@ -194,16 +189,11 @@ buildPublishFoundation {
                     urlPrefix.set('https://your-issue-tracker.com/issue/')
                 }
             }
-            // Resolve `CLOSES:` / `FIXES:` commit markers to issue titles via a provider plugin
+            // Resolve `CLOSES:` / `FIXES:` commit markers to issue titles via a provider plugin.
+            // `numberPattern` is optional — it defaults to the standard bare-number-or-prefixed-key pattern.
             issueReferences {
-                issueReference('closes') {
-                    key.set('CLOSES')
-                    numberPattern.set('(\\d+|[A-Z]+-\\d+)')
-                }
-                issueReference('fixes') {
-                    key.set('FIXES')
-                    numberPattern.set('(\\d+|[A-Z]+-\\d+)')
-                }
+                issueReference('closes') { key.set('CLOSES') }
+                issueReference('fixes') { key.set('FIXES') }
             }
             resolvedIssueStrategy { KeyAndTitleResolvedStrategy.INSTANCE }
             unresolvedIssueStrategy { ChangelogLineOrKeyUnresolvedStrategy.INSTANCE }
@@ -383,31 +373,20 @@ Changelog config defines how commit messages are filtered and how issue links ar
     (`• [TBI-3458] Fix cold start`) instead of a bare key or a hand-typed summary.
   - **Per-reference properties**:
     - **`key`** *(required)*: The commit marker that starts the line (for example `"CLOSES"`).
-    - **`numberPattern`** *(required)*: Java regex matching the issue token after the key. Use
-      `"(\\d+|[A-Z]+-\\d+)"` to accept both bare numbers and prefixed keys.
-  - **Example** (two markers):
+    - **`numberPattern`** *(optional)*: Java regex matching the issue token after the key. Defaults to
+      `"(\\d+|[A-Z]+-\\d+)"`, which accepts both bare numbers (`3458`) and prefixed keys (`TBI-3458`) —
+      so you normally only set `key`. Override it only to narrow or change what a token looks like.
+  - **Example** (two markers, using the default pattern):
     ```kotlin
     issueReferences {
-      issueReference("closes") {
-        key.set("CLOSES")
-        numberPattern.set("(\\d+|[A-Z]+-\\d+)")
-      }
-      issueReference("fixes") {
-        key.set("FIXES")
-        numberPattern.set("(\\d+|[A-Z]+-\\d+)")
-      }
+      issueReference("closes") { key.set("CLOSES") }
+      issueReference("fixes") { key.set("FIXES") }
     }
     ```
     ```groovy
     issueReferences {
-      issueReference('closes') {
-        key.set('CLOSES')
-        numberPattern.set('(\\d+|[A-Z]+-\\d+)')
-      }
-      issueReference('fixes') {
-        key.set('FIXES')
-        numberPattern.set('(\\d+|[A-Z]+-\\d+)')
-      }
+      issueReference('closes') { key.set('CLOSES') }
+      issueReference('fixes') { key.set('FIXES') }
     }
     ```
   - **Single-reference shorthand**: when there is only one reference you can skip the
@@ -418,7 +397,7 @@ Changelog config defines how commit messages are filtered and how issue links ar
     commit carries both a `CHANGELOG:` line and a `CLOSES:`/`FIXES:` for the same token, only one
     entry is emitted (deduplicated).
   - **Requires a provider**: resolution happens only when a provider plugin (Jira and/or ClickUp) has
-    its `issueResolution { }` block enabled (see the [Jira](./jira.md) and [ClickUp](./clickup.md)
+    its `issueResolution { }` block declared (see the [Jira](./jira.md) and [ClickUp](./clickup.md)
     docs). With no provider/resolver registered, the reference pass is skipped and the changelog is
     left unchanged.
 

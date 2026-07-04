@@ -14,7 +14,7 @@ import ru.kode.android.build.publish.plugin.core.util.configureGroovy
  * Configuration for Jira automation rules applied during the build process (labels, fix versions,
  * status transitions).
  *
- * Projects are declared once in the shared registry (under `auth { … instance { projects { … } } }`).
+ * Projects are declared once in the shared registry (under `auth { … instance { project(…) { … } } }`).
  * An automation rule selects registry projects per instance via [targetInstance]; automation-level
  * patterns ([labelPattern], [fixVersionPattern], [targetStatusName]) apply to every selected project,
  * overridable per project inside a `targetInstance` block. Changelog issues are routed to a project by

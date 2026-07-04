@@ -325,9 +325,8 @@ abstract class BuildPublishClickUpExtension
 
             val automationConfig = automationConfigOrNull(variantName)
             val resolutionConfig = issueResolutionConfigOrNull(variantName)
-            val resolutionEnabled = resolutionConfig?.enabled?.getOrElse(false) == true
 
-            if (automationConfig == null && !resolutionEnabled) {
+            if (automationConfig == null && resolutionConfig == null) {
                 throw GradleException(provideAutomationConfigMessage(variantName))
             }
 
@@ -348,13 +347,13 @@ abstract class BuildPublishClickUpExtension
                 )
             }
 
-            if (resolutionEnabled) {
-                injectIssueResolver(project, input, requireNotNull(resolutionConfig))
+            if (resolutionConfig != null) {
+                injectIssueResolver(project, input, resolutionConfig)
             }
         }
 
         /**
-         * Builds a [ClickUpIssueResolver] from the enabled issue-resolution config and appends it to the
+         * Builds a [ClickUpIssueResolver] from the issue-resolution config and appends it to the
          * foundation changelog task's resolver list, declaring the ClickUp service it uses.
          */
         private fun injectIssueResolver(

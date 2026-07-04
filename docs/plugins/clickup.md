@@ -163,7 +163,6 @@ buildPublishClickUp {
 
     issueResolution {
         common {
-            enabled.set(true)
             // Optional: restrict which reference tokens ClickUp attempts
             // taskIdPattern.set("…")
         }
@@ -177,7 +176,6 @@ buildPublishClickUp {
 
     issueResolution {
         common {
-            enabled.set(true)
             // Optional: restrict which reference tokens ClickUp attempts
             // taskIdPattern.set('…')
         }

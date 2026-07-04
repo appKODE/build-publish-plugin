@@ -304,9 +304,8 @@ abstract class BuildPublishJiraExtension
 
             val automationConfig = automationConfigOrNull(variantName)
             val resolutionConfig = issueResolutionConfigOrNull(variantName)
-            val resolutionEnabled = resolutionConfig?.enabled?.getOrElse(false) == true
 
-            if (automationConfig == null && !resolutionEnabled) {
+            if (automationConfig == null && resolutionConfig == null) {
                 throw GradleException(needToProvideAutomationConfigMessage(variantName))
             }
 
@@ -336,8 +335,8 @@ abstract class BuildPublishJiraExtension
                 )
             }
 
-            if (resolutionEnabled) {
-                injectIssueResolver(input, authConfig, requireNotNull(resolutionConfig), service)
+            if (resolutionConfig != null) {
+                injectIssueResolver(input, authConfig, resolutionConfig, service)
             }
         }
 
@@ -346,19 +345,19 @@ abstract class BuildPublishJiraExtension
          * issues are routed to a project by their key prefix, so keys must be globally unique.
          */
         private fun validateProjectKeysUnique(authConfig: JiraAuthConfig) {
-            val seen = mutableSetOf<String>()
-            authConfig.instances.forEach { instance ->
-                instance.projects.forEach { project ->
-                    val key = project.projectKey.orNull?.uppercase() ?: return@forEach
-                    if (!seen.add(key)) {
-                        throw GradleException(duplicateProjectKeyMessage(key))
-                    }
-                }
-            }
+            val duplicate =
+                authConfig.instances
+                    .flatMap { instance -> instance.projects.mapNotNull { it.projectKey.orNull?.uppercase() } }
+                    .groupingBy { it }
+                    .eachCount()
+                    .entries
+                    .firstOrNull { (_, count) -> count > 1 }
+                    ?.key
+            if (duplicate != null) throw GradleException(duplicateProjectKeyMessage(duplicate))
         }
 
         /**
-         * Builds a [JiraIssueResolver] from the enabled issue-resolution selections and appends it to
+         * Builds a [JiraIssueResolver] from the issue-resolution selections and appends it to
          * the foundation changelog task's resolver list, declaring the single Jira [service] it uses.
          * This is the only cross-plugin touch and flows plugin-jira -> foundation task.
          */
@@ -368,26 +367,27 @@ abstract class BuildPublishJiraExtension
             resolutionConfig: JiraIssueResolutionConfig,
             service: Provider<JiraService>,
         ) {
-            val instanceByPrefix = mutableMapOf<String, String>()
-            val selectedProjectKeys = mutableListOf<String>()
-            resolutionConfig.selectionsConfig.selections.forEach { selection ->
-                val instanceName = selection.name
-                val instanceConfig =
-                    authConfig.instances.findByName(instanceName)
-                        ?: throw GradleException(unknownInstanceNameMessage(instanceName, authConfig.instances.names))
-                selection.projectNames.get().forEach { projectName ->
-                    val projectKey =
-                        instanceConfig.projects.findByName(projectName)?.projectKey?.orNull
+            val selectedProjects =
+                resolutionConfig.selectionsConfig.selections.flatMap { selection ->
+                    val instanceName = selection.name
+                    val instanceConfig =
+                        authConfig.instances.findByName(instanceName)
                             ?: throw GradleException(
-                                unknownProjectNameMessage(projectName, instanceName, instanceConfig.projects.names),
+                                unknownInstanceNameMessage(instanceName, authConfig.instances.names),
                             )
-                    instanceByPrefix[projectKey.uppercase()] = instanceName
-                    selectedProjectKeys += projectKey
+                    selection.projectNames.get().map { projectName ->
+                        val projectKey =
+                            instanceConfig.projects.findByName(projectName)?.projectKey?.orNull
+                                ?: throw GradleException(
+                                    unknownProjectNameMessage(projectName, instanceName, instanceConfig.projects.names),
+                                )
+                        projectKey to instanceName
+                    }
                 }
-            }
+            val instanceByPrefix = selectedProjects.associate { (key, instance) -> key.uppercase() to instance }
+            val soleProjectKey = selectedProjects.map { it.first }.distinct().singleOrNull()
 
-            val resolver =
-                JiraIssueResolver(service, instanceByPrefix, selectedProjectKeys.distinct().singleOrNull())
+            val resolver = JiraIssueResolver(service, instanceByPrefix, soleProjectKey)
             input.changelog.fileProvider.configure { task ->
                 task.issueResolvers.add(resolver)
                 task.usesService(service)

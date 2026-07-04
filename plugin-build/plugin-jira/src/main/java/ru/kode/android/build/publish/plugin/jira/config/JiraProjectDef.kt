@@ -7,7 +7,7 @@ import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 
 /**
  * A Jira project declared in the shared registry, nested under an `auth` instance:
- * `instance("default") { projects { project("app") { projectKey.set("APP") } } }`.
+ * `instance("default") { project("app") { projectKey.set("APP") } }`.
  *
  * The enclosing instance is implicit from where the project is declared, so there is no `instanceName`
  * here. Project names are unique per instance (like Telegram chat names per bot); the [projectKey]

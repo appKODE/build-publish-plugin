@@ -18,12 +18,12 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 > **[migration guide to 2.1](docs/migration/v2.1.md)**. Use with **build-publish-novo-core 2.1.0**.
 
 * **Auto-resolve changelog titles:** a commit `CLOSES: <num>` / `FIXES: <num>` line is now resolved to the issue's title (fetched from Jira/ClickUp) and inserted into the changelog — no more hand-copied `CHANGELOG: [KEY] <title>` line. Manual `CHANGELOG:` entries still work and coexist (matching forms are de-duplicated)
-* Foundation `changelog { }` gains `issueReferences { issueReference("name") { key; numberPattern } }` (unwrapped `issueReference` shorthand for one marker) declaring which commit markers to auto-resolve, alongside the existing `issueSources { }` (which only links keys)
+* Foundation `changelog { }` gains `issueReferences { issueReference("name") { key } }` (unwrapped `issueReference` shorthand for one marker) declaring which commit markers to auto-resolve, alongside the existing `issueSources { }` (which only links keys). `numberPattern` is optional — it defaults to the standard bare-number-or-prefixed-key regex (`(\d+|[A-Z]+-\d+)`), so usually only `key` is set
 * Foundation `changelog { }` gains `resolvedIssueStrategy { }` (`KeyAndTitleResolvedStrategy` default / `TitleOnlyResolvedStrategy` / `KeyOnlyResolvedStrategy`) and `unresolvedIssueStrategy { }` (`ChangelogLineOrKeyUnresolvedStrategy` default / `KeyOnlyUnresolvedStrategy` / `SkipUnresolvedStrategy` / `FallbackTextUnresolvedStrategy`). Resolution is non-blocking — an unresolved reference never fails the build
 * Provider-agnostic `IssueResolver` seam in `plugin-core`: any provider plugin contributes a resolver, so Jira and ClickUp (and future sources) can enrich the same shared changelog
 * **Breaking:** Jira projects are now declared once in a shared registry nested under each `auth` instance (`instance("x") { project("app") { projectKey } }`); `projectKey` must be globally unique and no longer lives on automation projects. `automation` selects projects two-level via `targetInstance("name") { projectNames(…) / project("x") { …overrides } }` (replacing self-contained `projects { project { projectKey; instanceName } }`)
-* Jira `issueResolution { common { enabled; fromInstance("name") { projectNames(…) } } }` opt-in block resolves `CLOSES`/`FIXES` references to Jira issue titles; bare numbers resolve against the sole selected project, prefixed keys route by prefix
-* ClickUp `issueResolution { common { enabled } }` opt-in block resolves ClickUp task ids to task names
+* Jira `issueResolution { common { fromInstance("name") { projectNames(…) } } }` opt-in block resolves `CLOSES`/`FIXES` references to Jira issue titles; bare numbers resolve against the sole selected project, prefixed keys route by prefix. Declaring the block is the opt-in — there is no separate `enabled` flag
+* ClickUp `issueResolution { }` opt-in block resolves ClickUp task ids to task names
 * Clients: `client-jira` adds `getIssueSummary`, `client-clickup` adds `getTaskName`
 
 ### 2.0.0

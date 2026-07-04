@@ -3,7 +3,7 @@ package ru.kode.android.build.publish.plugin.foundation.task.changelog
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
-import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -98,7 +98,7 @@ abstract class GenerateChangelogTask : GenerateChangelogTaskOutput() {
      * [ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput.issueResolvers].
      */
     @get:Input
-    abstract val issueReferences: ListProperty<IssueReference>
+    abstract val issueReferences: MapProperty<String, String>
 
     /**
      * Strategy that renders an issue reference when no resolver could return its title.
@@ -194,7 +194,9 @@ abstract class GenerateChangelogTask : GenerateChangelogTaskOutput() {
                             .build(message, commitMessageKey, tagSnapshot)
                     },
                     tagSnapshot = tagSnapshot,
-                    issueReferences = issueReferences.getOrElse(emptyList()),
+                    issueReferences =
+                        issueReferences.getOrElse(emptyMap())
+                            .map { (key, pattern) -> IssueReference(key, pattern) },
                     resolvers = issueResolvers.getOrElse(emptyList()),
                     resolvedStrategy =
                         resolvedIssueStrategy.getOrElse(KeyAndTitleResolvedStrategy),

@@ -20,7 +20,7 @@ import ru.kode.android.build.publish.plugin.test.utils.runTask
 import java.io.File
 import java.io.IOException
 
-class PrintLastIncreasedTagTest {
+class PrintLastIncreasedTagTaskTest {
     @TempDir
     lateinit var tempDir: File
     private lateinit var projectDir: File

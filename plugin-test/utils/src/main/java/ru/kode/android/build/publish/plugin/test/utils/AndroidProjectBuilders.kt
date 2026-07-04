@@ -694,10 +694,13 @@ private fun changelogIssueReferencesBlock(changelog: FoundationConfig.Changelog)
     if (changelog.issueReferences.isEmpty()) return ""
     val entries =
         changelog.issueReferences.joinToString("\n") { reference ->
+            val numberPatternLine =
+                reference.numberPattern
+                    ?.let { pattern -> "\n                numberPattern.set(\"$pattern\")" }
+                    .orEmpty()
             """
             issueReference("${reference.name}") {
-                key.set("${reference.key}")
-                numberPattern.set("${reference.numberPattern}")
+                key.set("${reference.key}")$numberPatternLine
             }
             """.trimIndent()
         }
@@ -786,7 +789,6 @@ private fun jiraIssueResolutionBlock(resolution: JiraConfig.IssueResolution): St
     return """
             issueResolution {
                 common {
-                    enabled.set(${resolution.enabled})
                     $selections
                 }
             }
@@ -1285,7 +1287,7 @@ data class FoundationConfig(
         data class IssueReference(
             val name: String,
             val key: String,
-            val numberPattern: String,
+            val numberPattern: String? = null,
         )
     }
 }
@@ -1382,7 +1384,6 @@ data class JiraConfig(
      * titles, reading from the selected registry projects.
      */
     data class IssueResolution(
-        val enabled: Boolean = true,
         val fromInstances: List<InstanceSelection> = emptyList(),
     ) {
         data class InstanceSelection(

@@ -89,41 +89,37 @@ private fun Project.registerJiraTasks(
 private fun Project.resolveProjectBindings(
     authConfig: JiraAuthConfig,
     automationConfig: JiraAutomationConfig,
-): List<JiraProjectBinding> {
-    val bindings = mutableListOf<JiraProjectBinding>()
-    automationConfig.selectionsConfig.selections.forEach { selection ->
+): List<JiraProjectBinding> =
+    automationConfig.selectionsConfig.selections.flatMap { selection ->
         val instanceName = selection.name
         val instanceConfig =
             authConfig.instances.findByName(instanceName)
                 ?: throw GradleException(unknownInstanceNameMessage(instanceName, authConfig.instances.names))
-        selection.projectNames.get().forEach { projectName ->
+        selection.projectNames.get().map { projectName ->
             val projectDef =
                 instanceConfig.projects.findByName(projectName)
                     ?: throw GradleException(
                         unknownProjectNameMessage(projectName, instanceName, instanceConfig.projects.names),
                     )
             val override = selection.projectOverrides.findByName(projectName)
-            bindings +=
-                objects.newInstance(JiraProjectBinding::class.java).apply {
-                    this.projectKey.set(projectDef.projectKey)
-                    this.instanceName.set(instanceName)
-                    this.labelPattern.set(
-                        override?.labelPattern?.orElse(automationConfig.labelPattern)
-                            ?: automationConfig.labelPattern,
-                    )
-                    this.fixVersionPattern.set(
-                        override?.fixVersionPattern?.orElse(automationConfig.fixVersionPattern)
-                            ?: automationConfig.fixVersionPattern,
-                    )
-                    this.targetStatusName.set(
-                        override?.targetStatusName?.orElse(automationConfig.targetStatusName)
-                            ?: automationConfig.targetStatusName,
-                    )
-                }
+            objects.newInstance(JiraProjectBinding::class.java).apply {
+                this.projectKey.set(projectDef.projectKey)
+                this.instanceName.set(instanceName)
+                this.labelPattern.set(
+                    override?.labelPattern?.orElse(automationConfig.labelPattern)
+                        ?: automationConfig.labelPattern,
+                )
+                this.fixVersionPattern.set(
+                    override?.fixVersionPattern?.orElse(automationConfig.fixVersionPattern)
+                        ?: automationConfig.fixVersionPattern,
+                )
+                this.targetStatusName.set(
+                    override?.targetStatusName?.orElse(automationConfig.targetStatusName)
+                        ?: automationConfig.targetStatusName,
+                )
+            }
         }
     }
-    return bindings
-}
 
 /**
  * Parameters for configuring a Jira automation task.

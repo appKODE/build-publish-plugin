@@ -285,12 +285,13 @@ Behavior:
 
 Independently of automation, the Jira plugin can act as a **resolver** for the foundation
 `issueReferences { }` markers (`CLOSES:` / `FIXES:` — see the
-[Foundation plugin](./foundation.md)). When enabled it
+[Foundation plugin](./foundation.md)). When configured it
 fetches each referenced issue's **title** and the foundation changelog is enriched accordingly, so the
 resolved titles then appear in every distributed changelog (Slack / Telegram / Nextcloud).
 
-This is opt-in via a new `issueResolution { }` block. It selects which instances/projects to READ
-from via `fromInstance("instanceName") { projectNames(…) }`, reusing the same `auth` credentials:
+This is opt-in: **declaring** the `issueResolution { }` block enables it. It selects which
+instances/projects to READ from via `fromInstance("instanceName") { projectNames(…) }`, reusing the same
+`auth` credentials:
 
 ```kotlin
 buildPublishJira {
@@ -298,7 +299,6 @@ buildPublishJira {
 
     issueResolution {
         common {
-            enabled.set(true)
             fromInstance("default") {
                 projectNames("app")
             }
@@ -313,7 +313,6 @@ buildPublishJira {
 
     issueResolution {
         common {
-            enabled.set(true)
             fromInstance('default') {
                 projectNames('app')
             }

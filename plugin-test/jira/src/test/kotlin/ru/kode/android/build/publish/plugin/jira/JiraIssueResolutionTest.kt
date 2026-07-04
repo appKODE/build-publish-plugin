@@ -73,7 +73,6 @@ class JiraIssueResolutionTest {
                                     FoundationConfig.Changelog.IssueReference(
                                         name = "closes",
                                         key = "CLOSES",
-                                        numberPattern = "(\\\\d+|[A-Z]+-\\\\d+)",
                                     ),
                                 ),
                         ),
@@ -89,7 +88,6 @@ class JiraIssueResolutionTest {
                         ),
                     issueResolution =
                         JiraConfig.IssueResolution(
-                            enabled = true,
                             fromInstances =
                                 listOf(
                                     JiraConfig.IssueResolution.InstanceSelection(

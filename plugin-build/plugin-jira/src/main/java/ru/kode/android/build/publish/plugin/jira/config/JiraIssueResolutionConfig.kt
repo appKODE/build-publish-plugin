@@ -3,8 +3,6 @@ package ru.kode.android.build.publish.plugin.jira.config
 import groovy.lang.Closure
 import groovy.lang.DelegatesTo
 import org.gradle.api.Action
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 import ru.kode.android.build.publish.plugin.core.util.configureGroovy
@@ -12,19 +10,13 @@ import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 /**
  * Configuration for resolving `CLOSES`/`FIXES` changelog references to Jira issue titles.
  *
- * Opt-in via [enabled]. Projects are declared once in the shared registry (under
- * `auth { … instance { projects { … } } }`); this rule selects registry projects per instance via
- * [fromInstance]. A bare issue number (`3458`) is resolved against the single selected project; with
+ * Declaring this block opts a variant into resolution. Projects are declared once in the shared registry
+ * (under `auth { … instance { project(…) { … } } }`); this rule selects registry projects per instance
+ * via [fromInstance]. A bare issue number (`3458`) is resolved against the single selected project; with
  * several projects selected, use prefixed keys (`APP-3458`).
  */
 interface JiraIssueResolutionConfig : CommonConfigMergeable<JiraIssueResolutionConfig> {
     val name: String
-
-    /**
-     * Whether Jira title resolution is enabled for this variant.
-     */
-    @get:Input
-    val enabled: Property<Boolean>
 
     /**
      * The per-instance project selections whose issues may appear in the changelog. Configure via
@@ -70,7 +62,6 @@ interface JiraIssueResolutionConfig : CommonConfigMergeable<JiraIssueResolutionC
     }
 
     override fun inheritFrom(common: JiraIssueResolutionConfig) {
-        enabled.convention(common.enabled)
         selectionsConfig.inheritFrom(common.selectionsConfig)
     }
 }

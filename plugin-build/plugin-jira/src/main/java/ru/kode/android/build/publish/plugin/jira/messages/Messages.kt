@@ -285,7 +285,7 @@ fun unknownProjectNameMessage(
         |
         | $EXTENSION_NAME {
         |     auth { common { instance("$instanceName") {
-        |         projects { project("$projectName") { projectKey.set("KEY") } }
+        |         project("$projectName") { projectKey.set("KEY") }
         |     } } }
         | }
         |============================================================

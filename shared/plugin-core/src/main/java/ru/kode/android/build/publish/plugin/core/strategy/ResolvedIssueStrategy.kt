@@ -1,7 +1,5 @@
 package ru.kode.android.build.publish.plugin.core.strategy
 
-import java.io.Serializable
-
 /**
  * Strategy that decides how a **resolved** issue reference is rendered in the changelog.
  *
@@ -12,7 +10,7 @@ import java.io.Serializable
  * Implementations must be serializable so the strategy can be carried as a Gradle task property under the
  * configuration cache.
  */
-interface ResolvedIssueStrategy : Serializable {
+interface ResolvedIssueStrategy {
     /**
      * @param key The resolved issue key (e.g. `"TBI-3458"`).
      * @param title The issue title fetched from the provider.

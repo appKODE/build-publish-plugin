@@ -88,7 +88,11 @@ private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskP
         it.changelogMessageStrategy.set(params.changelogMessageStrategy)
         it.emptyChangelogMessageStrategy.set(params.emptyChangelogMessageStrategy)
         it.notGeneratedChangelogMessageStrategy.set(params.notGeneratedChangelogMessageStrategy)
-        it.issueReferences.set(params.issueReferences)
+        it.issueReferences.set(
+            params.issueReferences.map { refs ->
+                refs.associate { reference -> reference.key to reference.numberPattern }
+            },
+        )
         it.unresolvedIssueStrategy.set(params.unresolvedIssueStrategy)
         it.resolvedIssueStrategy.set(params.resolvedIssueStrategy)
 

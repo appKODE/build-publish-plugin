@@ -107,7 +107,6 @@ buildPublishJira {
     }
     issueResolution {
         common {
-            enabled.set(true)
             fromInstance("default") { projectNames("at") }
         }
     }

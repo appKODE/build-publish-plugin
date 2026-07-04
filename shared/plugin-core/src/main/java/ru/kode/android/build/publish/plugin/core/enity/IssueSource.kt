@@ -1,5 +1,7 @@
 package ru.kode.android.build.publish.plugin.core.enity
 
+import kotlinx.serialization.Serializable
+
 /**
  * A single issue-tracker source used when processing the changelog.
  *
@@ -12,6 +14,7 @@ package ru.kode.android.build.publish.plugin.core.enity
  * @property urlPrefix Base URL the matched key is appended to (e.g. `"https://jira/browse/"`);
  *   `null`/blank means the source is used for extraction only and its keys are not linked.
  */
+@Serializable
 data class IssueSource(
     val numberPattern: String,
     val urlPrefix: String?,

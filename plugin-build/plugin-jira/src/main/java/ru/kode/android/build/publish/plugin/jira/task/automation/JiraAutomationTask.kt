@@ -128,9 +128,8 @@ abstract class JiraAutomationTask
             val changelog = changelogFile.asFile.get().readText()
             val issues =
                 issuePatterns.get()
-                    .flatMapTo(mutableSetOf()) { pattern ->
-                        Regex(pattern).findAll(changelog).map { it.value }.asIterable()
-                    }
+                    .flatMap { pattern -> Regex(pattern).findAll(changelog).map { it.value }.toList() }
+                    .toSet()
 
             if (issues.isEmpty()) {
                 loggerService.get().info(issuesNoFoundMessage())
@@ -139,19 +138,24 @@ abstract class JiraAutomationTask
 
             val resolvedProjects = resolveProjects()
             val issuesByProjectKey = issues.groupBy { it.substringBefore("-").uppercase() }
-            val matchedIssues = mutableSetOf<String>()
             val workQueue: WorkQueue = workerExecutor.noIsolation()
 
-            resolvedProjects.forEach { project ->
-                val projectIssues = issuesByProjectKey[project.projectKey].orEmpty().toSet()
-                if (projectIssues.isEmpty()) {
-                    loggerService.get().info(noIssuesForProjectMessage(project.projectKey))
-                    return@forEach
+            val projectsWithIssues =
+                resolvedProjects.mapNotNull { project ->
+                    val projectIssues = issuesByProjectKey[project.projectKey].orEmpty().toSet()
+                    if (projectIssues.isEmpty()) {
+                        loggerService.get().info(noIssuesForProjectMessage(project.projectKey))
+                        null
+                    } else {
+                        project to projectIssues
+                    }
                 }
-                matchedIssues += projectIssues
+
+            projectsWithIssues.forEach { (project, projectIssues) ->
                 workQueue.applyAutomation(currentBuildTag, project, projectIssues)
             }
 
+            val matchedIssues = projectsWithIssues.flatMap { (_, projectIssues) -> projectIssues }.toSet()
             val unmatchedIssues = issues - matchedIssues
             if (unmatchedIssues.isNotEmpty()) {
                 loggerService.get().info(

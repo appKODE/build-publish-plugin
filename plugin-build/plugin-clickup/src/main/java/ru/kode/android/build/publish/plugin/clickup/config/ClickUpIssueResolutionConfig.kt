@@ -8,19 +8,14 @@ import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 /**
  * Configuration for resolving `CLOSES`/`FIXES` changelog references to ClickUp task names.
  *
- * Opt-in via [enabled]. Because ClickUp task ids share no common shape with Jira keys, an optional
- * [taskIdPattern] can scope which reference tokens this resolver attempts, so it coexists cleanly with
- * other providers (each returns `null` for references outside its scope). When [taskIdPattern] is unset,
- * every token is attempted and the resolver simply returns `null` for tasks ClickUp does not know.
+ * Declaring this block opts a variant into resolution. Because ClickUp task ids share no common shape
+ * with Jira keys, an optional [taskIdPattern] can scope which reference tokens this resolver attempts, so
+ * it coexists cleanly with other providers (each returns `null` for references outside its scope). When
+ * [taskIdPattern] is unset, every token is attempted and the resolver simply returns `null` for tasks
+ * ClickUp does not know.
  */
 interface ClickUpIssueResolutionConfig : CommonConfigMergeable<ClickUpIssueResolutionConfig> {
     val name: String
-
-    /**
-     * Whether ClickUp title resolution is enabled for this variant.
-     */
-    @get:Input
-    val enabled: Property<Boolean>
 
     /**
      * Optional Java regex a reference token must fully match to be treated as a ClickUp task id
@@ -31,7 +26,6 @@ interface ClickUpIssueResolutionConfig : CommonConfigMergeable<ClickUpIssueResol
     val taskIdPattern: Property<String>
 
     override fun inheritFrom(common: ClickUpIssueResolutionConfig) {
-        enabled.convention(common.enabled)
         taskIdPattern.convention(common.taskIdPattern)
     }
 }

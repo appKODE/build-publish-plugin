@@ -18,11 +18,16 @@ import javax.inject.Inject
  * issue token. When a provider plugin (Jira, ClickUp, …) is applied, every extracted token is resolved
  * to its tracker title automatically.
  *
+ * `numberPattern` is optional and defaults to [IssueReferenceConfig.DEFAULT_NUMBER_PATTERN] (the
+ * standard bare-number-or-prefixed-key pattern), so usually only [IssueReferenceConfig.key] is set.
+ *
  * Example:
  * ```
  * issueReferences {
- *     issueReference("closes") { key.set("CLOSES"); numberPattern.set("(\\d+|[A-Z]+-\\d+)") }
- *     issueReference("fixes")  { key.set("FIXES");  numberPattern.set("(\\d+|[A-Z]+-\\d+)") }
+ *     issueReference("closes") { key.set("CLOSES") }
+ *     issueReference("fixes")  { key.set("FIXES") }
+ *     // override the pattern only when the default does not fit:
+ *     issueReference("ref")    { key.set("REF"); numberPattern.set("REF-\\d+") }
  * }
  * ```
  *
@@ -53,7 +58,10 @@ abstract class IssueReferencesConfig
             name: String,
             action: Action<IssueReferenceConfig>,
         ) {
-            references.register(name, action)
+            references.register(name) { reference ->
+                reference.numberPattern.convention(IssueReferenceConfig.DEFAULT_NUMBER_PATTERN)
+                action.execute(reference)
+            }
         }
 
         /**

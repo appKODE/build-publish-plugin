@@ -27,7 +27,7 @@ import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeBundleOut
 import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeVersionCodeTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeVersionNameTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagSnapshotTask
-import ru.kode.android.build.publish.plugin.foundation.task.tag.PrintLastIncreasedTag
+import ru.kode.android.build.publish.plugin.foundation.task.tag.PrintLastIncreasedTagTask
 
 const val DEFAULT_VERSION_NAME = DEFAULT_BUILD_VERSION
 
@@ -44,7 +44,7 @@ const val DEFAULT_VERSION_NAME = DEFAULT_BUILD_VERSION
  * - Supports fallback to default values when tags are not found
  *
  * @see GetLastTagSnapshotTask
- * @see PrintLastIncreasedTag
+ * @see PrintLastIncreasedTagTask
  */
 internal object TagTasksRegistrar {
     /**
@@ -149,12 +149,12 @@ internal object TagTasksRegistrar {
      * @param project The Gradle project
      * @param params Configuration parameters for the task
      *
-     * @return A [TaskProvider] for the registered [PrintLastIncreasedTag] task
+     * @return A [TaskProvider] for the registered [PrintLastIncreasedTagTask] task
      */
     internal fun registerPrintLastIncreasedTagTask(
         project: Project,
         params: PrintLastIncreasedTagTaskParams,
-    ): TaskProvider<PrintLastIncreasedTag> {
+    ): TaskProvider<PrintLastIncreasedTagTask> {
         return project.registerPrintLastIncreasedTagTask(params)
     }
 
@@ -399,19 +399,19 @@ private fun Project.registerComputeVersionNameTask(params: ComputeVersionNamePar
 }
 
 /**
- * Registers a [PrintLastIncreasedTag] task for the given [params].
+ * Registers a [PrintLastIncreasedTagTask] task for the given [params].
  *
  * This task reads the last build tag from a JSON file, increments the build number,
  * and prints the new tag to standard output. It's typically used in CI/CD pipelines
  * to determine the next version tag for a build.
  *
  * @param params Configuration parameters for the task
- * @return A [TaskProvider] for the registered [PrintLastIncreasedTag] task
+ * @return A [TaskProvider] for the registered [PrintLastIncreasedTagTask] task
  */
 @Suppress("MaxLineLength") // One parameter function
-private fun Project.registerPrintLastIncreasedTagTask(params: PrintLastIncreasedTagTaskParams): TaskProvider<PrintLastIncreasedTag> {
+private fun Project.registerPrintLastIncreasedTagTask(params: PrintLastIncreasedTagTaskParams): TaskProvider<PrintLastIncreasedTagTask> {
     val taskName = "${TaskNames.Foundation.PRINT_LAST_INCREASED_TAG_PREFIX}${params.buildVariant.capitalizedName()}"
-    return tasks.register(taskName, PrintLastIncreasedTag::class.java) { task ->
+    return tasks.register(taskName, PrintLastIncreasedTagTask::class.java) { task ->
         task.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
 
         task.dependsOn(params.buildTagSnapshotProvider)

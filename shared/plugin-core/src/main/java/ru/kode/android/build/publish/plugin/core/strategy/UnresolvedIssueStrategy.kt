@@ -1,7 +1,5 @@
 package ru.kode.android.build.publish.plugin.core.strategy
 
-import java.io.Serializable
-
 /**
  * Strategy that decides how an **unresolved** issue reference is rendered in the changelog.
  *
@@ -13,7 +11,7 @@ import java.io.Serializable
  * Implementations must be serializable so the strategy can be carried as a Gradle task property under the
  * configuration cache.
  */
-interface UnresolvedIssueStrategy : Serializable {
+interface UnresolvedIssueStrategy {
     /**
      * @param key The issue key/token that could not be resolved (e.g. `"TBI-3458"`).
      * @param commitChangelogLine The commit's own `CHANGELOG:` line, already emitted as a manual entry, or

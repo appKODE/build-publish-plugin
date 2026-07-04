@@ -367,15 +367,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                         },
                                     issueReferences =
                                         changelogConfigProvider
-                                            .map { config ->
-                                                config.issueReferencesConfig.references.mapNotNull { reference ->
-                                                    val key = reference.key.orNull ?: return@mapNotNull null
-                                                    val pattern =
-                                                        reference.numberPattern.orNull
-                                                            ?: return@mapNotNull null
-                                                    IssueReference(key, pattern)
-                                                }
-                                            }
+                                            .flatMap { config -> project.issueReferences(config) }
                                             .orElse(emptyList()),
                                     unresolvedIssueStrategy =
                                         changelogConfigProvider.flatMap {
@@ -432,14 +424,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                             ExtensionInput.Changelog(
                                                 issueSources =
                                                     changelogConfigProvider
-                                                        .map { config ->
-                                                            config.issueSourcesConfig.sources.mapNotNull { source ->
-                                                                val pattern =
-                                                                    source.numberPattern.orNull
-                                                                        ?: return@mapNotNull null
-                                                                IssueSource(pattern, source.urlPrefix.orNull)
-                                                            }
-                                                        }
+                                                        .flatMap { config -> project.issueSources(config) }
                                                         .orElse(emptyList()),
                                                 commitMessageKey =
                                                     changelogConfigProvider.flatMap {
@@ -511,3 +496,38 @@ private fun Project.getDefaultVersionCode(): Int? {
             .versionCode
     }
 }
+
+/**
+ * Composes the [config]'s issue references into a lazy [IssueReference] list without forcing any
+ * property: each reference contributes its entry only once its `key` is present (an unkeyed reference
+ * is skipped), pairing that key with the always-defaulted `numberPattern` via [Provider.zip] and
+ * accumulating into a `ListProperty`.
+ */
+private fun Project.issueReferences(config: ChangelogConfig): Provider<List<IssueReference>> =
+    objects.listProperty(IssueReference::class.java).apply {
+        config.issueReferencesConfig.references.forEach { reference ->
+            addAll(
+                reference.key
+                    .zip(reference.numberPattern) { key, pattern -> listOf(IssueReference(key, pattern)) }
+                    .orElse(emptyList()),
+            )
+        }
+    }
+
+/**
+ * Composes the [config]'s issue sources into a lazy [IssueSource] list without forcing any property:
+ * each source contributes its entry only once its `numberPattern` is present, paired with the optional
+ * `urlPrefix` (blank/absent → no link) via [Provider.zip] and accumulated into a `ListProperty`.
+ */
+private fun Project.issueSources(config: ChangelogConfig): Provider<List<IssueSource>> =
+    objects.listProperty(IssueSource::class.java).apply {
+        config.issueSourcesConfig.sources.forEach { source ->
+            addAll(
+                source.numberPattern
+                    .zip(source.urlPrefix.orElse("")) { pattern, urlPrefix ->
+                        listOf(IssueSource(pattern, urlPrefix.ifBlank { null }))
+                    }
+                    .orElse(emptyList()),
+            )
+        }
+    }
