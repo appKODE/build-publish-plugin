@@ -147,6 +147,49 @@ buildPublishClickUp {
 }
 ```
 
+#### Resolving changelog issue references (titles)
+
+Independently of automation, the ClickUp plugin can act as a **resolver** for the foundation
+`issueReferences { }` markers (`CLOSES:` / `FIXES:` — see the [Foundation plugin](./foundation.md)).
+When enabled it turns ClickUp task-id references into task **names** (titles) and the foundation
+changelog is enriched, so the resolved titles then appear in every distributed changelog
+(Slack / Telegram / Nextcloud). It reuses the existing `auth { }` credentials.
+
+This is opt-in via `issueResolution { }`:
+
+```kotlin
+buildPublishClickUp {
+    // auth { … } as above
+
+    issueResolution {
+        common {
+            enabled.set(true)
+            // Optional: restrict which reference tokens ClickUp attempts
+            // taskIdPattern.set("…")
+        }
+    }
+}
+```
+
+```groovy
+buildPublishClickUp {
+    // auth { … } as above
+
+    issueResolution {
+        common {
+            enabled.set(true)
+            // Optional: restrict which reference tokens ClickUp attempts
+            // taskIdPattern.set('…')
+        }
+    }
+}
+```
+
+The optional `taskIdPattern` restricts which reference tokens ClickUp attempts (tokens not matching are
+ignored), so Jira and ClickUp resolvers coexist without clashing. Resolution is non-blocking — an
+unresolved reference never fails the build; how it renders is controlled by the foundation
+`unresolvedIssueStrategy { }`.
+
 #### Configuration Reference
 
 ##### Important behavior / nuances

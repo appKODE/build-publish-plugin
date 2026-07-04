@@ -6,7 +6,6 @@ import org.gradle.api.Action
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
-import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthConfig
 import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 import ru.kode.android.build.publish.plugin.core.util.inheritNamedFrom
@@ -20,7 +19,7 @@ import javax.inject.Inject
  * dedicated axis and are **not** tied to build variants (use `common { }` / `buildVariant(...) { }`
  * for the variant axis, and `instance("name") { }` for the instances within it).
  *
- * @see BasicAuthConfig For the per-instance base URL / credentials options
+ * @see JiraInstanceConfig For the per-instance base URL / credentials / projects options
  */
 abstract class JiraAuthConfig
     @Inject
@@ -31,19 +30,19 @@ abstract class JiraAuthConfig
         /**
          * Internal container of Jira instances added via [instance].
          */
-        internal val instances: NamedDomainObjectContainer<BasicAuthConfig> =
-            objects.domainObjectContainer(BasicAuthConfig::class.java)
+        internal val instances: NamedDomainObjectContainer<JiraInstanceConfig> =
+            objects.domainObjectContainer(JiraInstanceConfig::class.java)
 
         /**
-         * Declares a named Jira instance (base URL + credentials).
+         * Declares a named Jira instance (base URL + credentials + its registry of projects).
          *
-         * @param name A unique instance identifier (e.g. `"default"`, `"legacy"`) referenced from a
-         *             project via `instanceName.set("$name")`.
-         * @param action Configuration applied to the new [BasicAuthConfig].
+         * @param name A unique instance identifier (e.g. `"default"`, `"legacy"`) referenced by
+         *             consumers via `targetInstance`/`fromInstance`.
+         * @param action Configuration applied to the new [JiraInstanceConfig].
          */
         fun instance(
             name: String,
-            action: Action<BasicAuthConfig>,
+            action: Action<JiraInstanceConfig>,
         ) {
             instances.register(name, action)
         }
@@ -51,15 +50,16 @@ abstract class JiraAuthConfig
         /**
          * Declares a named Jira instance using a Groovy closure.
          *
-         * @param name A unique instance identifier referenced from a project via `instanceName`.
-         * @param configurationClosure The Groovy closure applied to the new [BasicAuthConfig].
+         * @param name A unique instance identifier referenced by consumers via
+         *             `targetInstance`/`fromInstance`.
+         * @param configurationClosure The Groovy closure applied to the new [JiraInstanceConfig].
          *
          * @see instance
          */
         fun instance(
             name: String,
-            @DelegatesTo(value = BasicAuthConfig::class, strategy = Closure.DELEGATE_FIRST)
-            configurationClosure: Closure<in BasicAuthConfig>,
+            @DelegatesTo(value = JiraInstanceConfig::class, strategy = Closure.DELEGATE_FIRST)
+            configurationClosure: Closure<in JiraInstanceConfig>,
         ) {
             instance(name) { target -> configureGroovy(configurationClosure, target) }
         }

@@ -100,6 +100,14 @@ interface ClickUpController {
     fun getTaskFields(taskId: String): ClickUpTaskFields
 
     /**
+     * Retrieves the name (title) of a ClickUp task.
+     *
+     * @param taskId The ID of the ClickUp task.
+     * @return The task name, or `null` when it cannot be retrieved (unknown task or request error).
+     */
+    fun getTaskName(taskId: String): String?
+
+    /**
      * Deletes a custom field from a list.
      *
      * @param workspaceName The name of the workspace where the custom field is located.

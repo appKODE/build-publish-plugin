@@ -142,6 +142,8 @@ fun failedToGetIssueStatusMessage(issue: String): String {
         """.trimIndent()
 }
 
+fun failedToGetIssueSummaryMessage(issue: String): String = "Could not retrieve summary (title) for Jira issue: $issue"
+
 fun failedToRemoveFixVersionMessage(issue: String): String {
     return """
 

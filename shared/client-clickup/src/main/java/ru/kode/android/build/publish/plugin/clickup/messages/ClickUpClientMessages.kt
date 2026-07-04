@@ -327,3 +327,5 @@ fun teamNotFoundForCreateMessage(workspaceName: String): String {
         |============================================================
         """.trimIndent()
 }
+
+fun failedToGetTaskNameMessage(taskId: String): String = "Could not retrieve name (title) for ClickUp task: $taskId"

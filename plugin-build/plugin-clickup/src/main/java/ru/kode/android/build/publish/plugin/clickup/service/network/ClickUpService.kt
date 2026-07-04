@@ -69,6 +69,15 @@ abstract class ClickUpService
         }
 
         /**
+         * Retrieves the name (title) of a ClickUp task, or `null` when it cannot be retrieved.
+         *
+         * @param taskId The ID of the ClickUp task.
+         */
+        fun getTaskName(taskId: String): String? {
+            return controller.getTaskName(taskId)
+        }
+
+        /**
          * Adds a tag to a ClickUp task.
          *
          * @param taskId The ID of the ClickUp task to tag

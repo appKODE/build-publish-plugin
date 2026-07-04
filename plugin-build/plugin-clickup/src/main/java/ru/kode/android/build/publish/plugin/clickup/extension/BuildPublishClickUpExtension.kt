@@ -10,14 +10,18 @@ import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAuthConfig
 import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAutomationConfig
+import ru.kode.android.build.publish.plugin.clickup.config.ClickUpIssueResolutionConfig
+import ru.kode.android.build.publish.plugin.clickup.issue.ClickUpIssueResolver
 import ru.kode.android.build.publish.plugin.clickup.messages.provideAuthConfigMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.provideAutomationConfigMessage
+import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtension
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpAutomationTaskParams
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpTasksRegistrar
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.configureGroovy
+import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
 import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import javax.inject.Inject
@@ -53,6 +57,16 @@ abstract class BuildPublishClickUpExtension
          */
         internal val automation: NamedDomainObjectContainer<ClickUpAutomationConfig> =
             objectFactory.domainObjectContainer(ClickUpAutomationConfig::class.java)
+
+        /**
+         * Container for ClickUp issue-resolution configurations. Each enables resolving `CLOSES`/`FIXES`
+         * changelog references to ClickUp task names for a build variant (or `common`).
+         */
+        internal val issueResolution: NamedDomainObjectContainer<ClickUpIssueResolutionConfig> =
+            objectFactory.domainObjectContainer(ClickUpIssueResolutionConfig::class.java)
+
+        private val issueResolutionConfigOrNull: (buildName: String) -> ClickUpIssueResolutionConfig? =
+            { buildName -> issueResolution.getByNameOrNullableCommon(buildName) }
 
         /**
          * Retrieves the authentication configuration for the specified build variant.
@@ -236,6 +250,59 @@ abstract class BuildPublishClickUpExtension
         }
 
         /**
+         * Configures ClickUp issue-resolution (changelog title fetching).
+         *
+         * @param configurationAction The action applied to the issue-resolution container
+         * @see ClickUpIssueResolutionConfig For available configuration options
+         */
+        fun issueResolution(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationAction: Action<in BuildPublishDomainObjectContainer<ClickUpIssueResolutionConfig>>,
+        ) {
+            val container = BuildPublishDomainObjectContainer(issueResolution)
+            configurationAction.execute(container)
+        }
+
+        /**
+         * Configures ClickUp issue-resolution using a Groovy closure.
+         *
+         * @param configurationClosure The Groovy closure applied to the issue-resolution container
+         */
+        fun issueResolution(
+            @DelegatesTo(BuildPublishDomainObjectContainer::class)
+            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ClickUpIssueResolutionConfig>>,
+        ) {
+            val container = BuildPublishDomainObjectContainer(issueResolution)
+            configureGroovy(configurationClosure, container)
+        }
+
+        /**
+         * Applies the same issue-resolution configuration to all build variants.
+         *
+         * @param configurationAction The action applied to all issue-resolution configurations
+         */
+        fun issueResolutionCommon(configurationAction: Action<ClickUpIssueResolutionConfig>) {
+            common(issueResolution, configurationAction)
+        }
+
+        /**
+         * Applies the same issue-resolution configuration to all build variants using a Groovy closure.
+         *
+         * @param configurationClosure The Groovy closure applied to all issue-resolution configurations
+         */
+        fun issueResolutionCommon(
+            @DelegatesTo(
+                value = ClickUpIssueResolutionConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in ClickUpIssueResolutionConfig>,
+        ) {
+            common(issueResolution) { target ->
+                configureGroovy(configurationClosure, target)
+            }
+        }
+
+        /**
          * Configures the ClickUp tasks for the given build variant.
          *
          * This method is called by the build system to set up the ClickUp automation tasks
@@ -256,23 +323,55 @@ abstract class BuildPublishClickUpExtension
                 throw GradleException(provideAuthConfigMessage(variantName))
             }
 
-            val automationConfig =
-                automationConfigOrNull(input.buildVariant.name)
-                    ?: throw GradleException(provideAutomationConfigMessage(variantName))
+            val automationConfig = automationConfigOrNull(variantName)
+            val resolutionConfig = issueResolutionConfigOrNull(variantName)
+            val resolutionEnabled = resolutionConfig?.enabled?.getOrElse(false) == true
 
-            ClickUpTasksRegistrar.registerAutomationTask(
-                project = project,
-                automationConfig = automationConfig,
-                params =
-                    ClickUpAutomationTaskParams(
-                        buildVariant = input.buildVariant,
-                        issuePatterns =
-                            input.changelog.issueSources.map { sources ->
-                                sources.map { it.numberPattern }
-                            },
-                        changelogFileProvider = input.changelog.fileProvider,
-                        buildTagSnapshotProvider = input.output.buildTagSnapshotProvider,
-                    ),
-            )
+            if (automationConfig == null && !resolutionEnabled) {
+                throw GradleException(provideAutomationConfigMessage(variantName))
+            }
+
+            if (automationConfig != null) {
+                ClickUpTasksRegistrar.registerAutomationTask(
+                    project = project,
+                    automationConfig = automationConfig,
+                    params =
+                        ClickUpAutomationTaskParams(
+                            buildVariant = input.buildVariant,
+                            issuePatterns =
+                                input.changelog.issueSources.map { sources ->
+                                    sources.map { it.numberPattern }
+                                },
+                            changelogFileProvider = input.changelog.fileProvider,
+                            buildTagSnapshotProvider = input.output.buildTagSnapshotProvider,
+                        ),
+                )
+            }
+
+            if (resolutionEnabled) {
+                injectIssueResolver(project, input, requireNotNull(resolutionConfig))
+            }
+        }
+
+        /**
+         * Builds a [ClickUpIssueResolver] from the enabled issue-resolution config and appends it to the
+         * foundation changelog task's resolver list, declaring the ClickUp service it uses.
+         */
+        private fun injectIssueResolver(
+            project: Project,
+            input: ExtensionInput,
+            resolutionConfig: ClickUpIssueResolutionConfig,
+        ) {
+            val service =
+                project.extensions
+                    .getByType(ClickUpServiceExtension::class.java)
+                    .services
+                    .get()
+                    .getByNameOrCommon(input.buildVariant.name)
+            val resolver = ClickUpIssueResolver(service, resolutionConfig.taskIdPattern.orNull)
+            input.changelog.fileProvider.configure { task ->
+                task.issueResolvers.add(resolver)
+                task.usesService(service)
+            }
         }
     }

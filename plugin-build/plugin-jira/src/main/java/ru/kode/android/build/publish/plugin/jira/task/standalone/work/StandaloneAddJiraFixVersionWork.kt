@@ -8,6 +8,7 @@ import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 import javax.inject.Inject
 
 internal interface StandaloneAddJiraFixVersionParameters : ServiceWorkParameters {
+    val instanceName: Property<String>
     val version: Property<String>
     val projectKey: Property<String>
     val issues: SetProperty<String>
@@ -20,6 +21,7 @@ internal abstract class StandaloneAddJiraFixVersionWork
         override fun execute() {
             val logger = parameters.loggerService.get()
             parameters.service.get().addFixVersionToIssues(
+                instanceName = parameters.instanceName.getOrElse(""),
                 projectKey = parameters.projectKey.get(),
                 version = parameters.version.get(),
                 issues = parameters.issues.get(),

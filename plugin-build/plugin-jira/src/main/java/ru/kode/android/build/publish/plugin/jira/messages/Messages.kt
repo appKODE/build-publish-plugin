@@ -264,6 +264,34 @@ fun unknownInstanceNameMessage(
         """.trimIndent()
 }
 
+fun unknownProjectNameMessage(
+    projectName: String,
+    instanceName: String,
+    availableProjectNames: Collection<String>,
+): String {
+    return """
+
+        |============================================================
+        |                UNKNOWN JIRA PROJECT
+        |============================================================
+        | A selection references the project "$projectName" on instance
+        | "$instanceName", but no such project is declared on it.
+        |
+        | Available projects on "$instanceName":
+        | ${if (availableProjectNames.isEmpty()) "None" else availableProjectNames.sorted().joinToString(", ")}
+        |
+        | REQUIRED ACTION:
+        | Declare the project under the instance's registry, e.g.:
+        |
+        | $EXTENSION_NAME {
+        |     auth { common { instance("$instanceName") {
+        |         projects { project("$projectName") { projectKey.set("KEY") } }
+        |     } } }
+        | }
+        |============================================================
+        """.trimIndent()
+}
+
 fun duplicateProjectKeyMessage(projectKey: String): String {
     return """
 

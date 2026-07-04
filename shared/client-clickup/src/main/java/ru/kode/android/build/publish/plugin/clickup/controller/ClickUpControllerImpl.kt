@@ -10,6 +10,7 @@ import ru.kode.android.build.publish.plugin.clickup.messages.customFieldClearedM
 import ru.kode.android.build.publish.plugin.clickup.messages.failedAddFieldMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.failedAddTagMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.failedToDeleteCustomFieldMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.failedToGetTaskNameMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.failedToRemoveTagMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.listNotFoundForCreateMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.listNotFoundForDeleteMessage
@@ -144,6 +145,14 @@ internal class ClickUpControllerImpl(
                 .getOrThrow()
         val tags = response.tags.map { it.name }
         return ClickUpTaskTags(id = taskId, tags = tags)
+    }
+
+    override fun getTaskName(taskId: String): String? {
+        return api.getTaskFields(taskId)
+            .executeWithResult()
+            .onFailure { logger.error(failedToGetTaskNameMessage(taskId), it) }
+            .getOrNull()
+            ?.name
     }
 
     /**

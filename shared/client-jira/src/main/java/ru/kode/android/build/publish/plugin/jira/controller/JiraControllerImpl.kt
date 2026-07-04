@@ -11,6 +11,7 @@ import ru.kode.android.build.publish.plugin.jira.messages.failedToAddLabelMessag
 import ru.kode.android.build.publish.plugin.jira.messages.failedToCreateProjectVersionMessage
 import ru.kode.android.build.publish.plugin.jira.messages.failedToGetIssueFixVersionMessage
 import ru.kode.android.build.publish.plugin.jira.messages.failedToGetIssueStatusMessage
+import ru.kode.android.build.publish.plugin.jira.messages.failedToGetIssueSummaryMessage
 import ru.kode.android.build.publish.plugin.jira.messages.failedToRemoveFixVersionMessage
 import ru.kode.android.build.publish.plugin.jira.messages.failedToRemoveMessage
 import ru.kode.android.build.publish.plugin.jira.messages.failedToRemoveVersionMessage
@@ -146,6 +147,15 @@ internal class JiraControllerImpl(
                 name = it.name,
             )
         }
+    }
+
+    override fun getIssueSummary(issue: String): String? {
+        return api.getSummary(issue)
+            .executeWithResult()
+            .onFailure { logger.error(failedToGetIssueSummaryMessage(issue), it) }
+            .getOrNull()
+            ?.fields
+            ?.summary
     }
 
     /**

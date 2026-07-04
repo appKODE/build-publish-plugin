@@ -12,13 +12,16 @@ import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.enity.IssueReference
 import ru.kode.android.build.publish.plugin.core.enity.IssueSource
 import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_NAME
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
+import ru.kode.android.build.publish.plugin.core.strategy.ChangelogLineOrKeyUnresolvedStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_TAG_PATTERN
 import ru.kode.android.build.publish.plugin.core.strategy.DecoratedAnnotatedTagMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.KeyAndTitleResolvedStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.KeyRemovingChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.NoChangesChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.NoChangesNotGeneratedChangelogMessageStrategy
@@ -361,6 +364,28 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                         changelogConfigProvider.flatMap {
                                             it.notGeneratedChangelogMessageStrategy
                                                 .orElse(NoChangesNotGeneratedChangelogMessageStrategy)
+                                        },
+                                    issueReferences =
+                                        changelogConfigProvider
+                                            .map { config ->
+                                                config.issueReferencesConfig.references.mapNotNull { reference ->
+                                                    val key = reference.key.orNull ?: return@mapNotNull null
+                                                    val pattern =
+                                                        reference.numberPattern.orNull
+                                                            ?: return@mapNotNull null
+                                                    IssueReference(key, pattern)
+                                                }
+                                            }
+                                            .orElse(emptyList()),
+                                    unresolvedIssueStrategy =
+                                        changelogConfigProvider.flatMap {
+                                            it.unresolvedIssueStrategy
+                                                .orElse(ChangelogLineOrKeyUnresolvedStrategy)
+                                        },
+                                    resolvedIssueStrategy =
+                                        changelogConfigProvider.flatMap {
+                                            it.resolvedIssueStrategy
+                                                .orElse(KeyAndTitleResolvedStrategy)
                                         },
                                 ),
                         )

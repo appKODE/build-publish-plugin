@@ -106,6 +106,39 @@ class JiraControllerImplTest {
     }
 
     @Test
+    fun `getIssueSummary returns summary from issue endpoint`() {
+        server.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("""{"fields":{"summary":"Fix crash on cold start"}}"""),
+        )
+
+        val summary = controller().getIssueSummary("PROJ-1")
+
+        assertEquals("Fix crash on cold start", summary)
+        val request = server.takeRequest()
+        assertEquals("GET", request.method)
+        assertTrue(
+            request.path?.startsWith("/rest/api/2/issue/PROJ-1") == true,
+            "Should call the issue endpoint",
+        )
+        assertTrue(
+            request.path?.contains("fields=summary") == true,
+            "Should request only the summary field",
+        )
+    }
+
+    @Test
+    fun `getIssueSummary returns null and logs when request fails`() {
+        server.enqueue(MockResponse().setResponseCode(404))
+
+        val summary = controller().getIssueSummary("PROJ-404")
+
+        assertEquals(null, summary)
+        assertTrue(logs.isNotEmpty(), "A failure should be logged")
+    }
+
+    @Test
     fun `getStatusTransitionId resolves transition id from statuses and transitions`() {
         // getProjectAvailableStatuses
         server.enqueue(

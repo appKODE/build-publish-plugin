@@ -498,9 +498,9 @@ fun tagPatterMustContainVariantNameMessage(group: String): String {
 
 fun tagPatternMustContainVersionGroupMessage(regexPart: String): String {
     return """
-        
+
         |============================================================
-        |             ️   INVALID TAG VERSION PATTERN   ️  
+        |             ️   INVALID TAG VERSION PATTERN   ️
         |============================================================
         | The tag pattern must include a version group
         |
@@ -517,3 +517,6 @@ fun tagPatternMustContainVersionGroupMessage(regexPart: String): String {
         |============================================================
         """.trimMargin()
 }
+
+fun unresolvedIssueReferenceMessage(token: String): String =
+    "Could not resolve issue reference '$token' from any provider; applying the unresolved-issue strategy."

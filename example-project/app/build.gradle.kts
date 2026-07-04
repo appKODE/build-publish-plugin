@@ -64,6 +64,16 @@ buildPublishFoundation {
             numberPattern.set("AT-\\d+")
             urlPrefix.set("https://jira.atlassian.com/")
         }
+        issueReferences {
+            issueReference("closes") {
+                key.set("CLOSES")
+                numberPattern.set("(\\d+|[A-Z]+-\\d+)")
+            }
+            issueReference("fixes") {
+                key.set("FIXES")
+                numberPattern.set("(\\d+|[A-Z]+-\\d+)")
+            }
+        }
         commitMessageKey.set("CHANGELOG")
     }
 }
@@ -75,27 +85,30 @@ buildPublishJira {
                 baseUrl.set("https://jira.atlassian.com")
                 credentials.username.set("test_user_default")
                 credentials.password.set("test_password_default")
+                project("at") { projectKey.set("AT") }
             }
             instance("legacy") {
                 baseUrl.set("https://legacy.atlassian.com")
                 credentials.username.set("test_user_legacy")
                 credentials.password.set("test_password_legacy")
+                project("legacy") { projectKey.set("LEG") }
             }
         }
     }
     automation {
         common {
-            projects {
-                project("at") {
-                    projectKey.set("AT")
-                    fixVersionPattern.set("fix_%2\$s_%1\$s")
-                }
-                project("legacy") {
-                    projectKey.set("LEG")
-                    instanceName.set("legacy")
-                    targetStatusName.set("Done")
-                }
+            targetInstance("default") {
+                project("at") { fixVersionPattern.set("fix_%2\$s_%1\$s") }
             }
+            targetInstance("legacy") {
+                project("legacy") { targetStatusName.set("Done") }
+            }
+        }
+    }
+    issueResolution {
+        common {
+            enabled.set(true)
+            fromInstance("default") { projectNames("at") }
         }
     }
 }

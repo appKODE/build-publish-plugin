@@ -361,6 +361,7 @@ fun File.createAndroidProject(
             
             changelogCommon {
                 ${changelogIssueSourcesBlock(foundationConfig.changelog)}
+                ${changelogIssueReferencesBlock(foundationConfig.changelog)}
                 commitMessageKey.set("${foundationConfig.changelog.commitMessageKey}")
                 $changelogStrategy
             }
@@ -472,9 +473,14 @@ fun File.createAndroidProject(
 
     val jiraConfigBlock =
         jiraConfig?.let { config ->
+            val registry = jiraProjectRegistry(config)
             val automation =
                 config.automation?.let { automation ->
                     jiraAutomationBlock(automation)
+                }.orEmpty()
+            val issueResolution =
+                config.issueResolution?.let { resolution ->
+                    jiraIssueResolutionBlock(resolution)
                 }.orEmpty()
             val secondaryInstanceBlocks =
                 config.secondaryAuth.entries.joinToString("\n") { (name, auth) ->
@@ -483,6 +489,7 @@ fun File.createAndroidProject(
                         baseUrl.set("${auth.baseUrl}")
                         credentials.username.set("${auth.username}")
                         credentials.password.set("${auth.password}")
+                        ${jiraRegistryProjectsBlock(registry[name].orEmpty())}
                     }
                     """.trimIndent()
                 }
@@ -494,12 +501,14 @@ fun File.createAndroidProject(
                         baseUrl.set("${config.auth.baseUrl}")
                         credentials.username.set("${config.auth.username}")
                         credentials.password.set("${config.auth.password}")
+                        ${jiraRegistryProjectsBlock(registry["default"].orEmpty())}
                     }
                     $secondaryInstanceBlocks
                 }
             }
 
             $automation
+            $issueResolution
         }
             """
         }.orEmpty()
@@ -681,33 +690,107 @@ private fun changelogIssueSourcesBlock(changelog: FoundationConfig.Changelog): S
     }
 }
 
+private fun changelogIssueReferencesBlock(changelog: FoundationConfig.Changelog): String {
+    if (changelog.issueReferences.isEmpty()) return ""
+    val entries =
+        changelog.issueReferences.joinToString("\n") { reference ->
+            """
+            issueReference("${reference.name}") {
+                key.set("${reference.key}")
+                numberPattern.set("${reference.numberPattern}")
+            }
+            """.trimIndent()
+        }
+    // A single reference uses the issueReference(...) shorthand; multiple use the issueReferences { } block.
+    return if (changelog.issueReferences.size == 1) {
+        entries
+    } else {
+        """
+        issueReferences {
+            $entries
+        }
+        """.trimIndent()
+    }
+}
+
+/**
+ * Builds the per-instance project **registry** (`instanceName -> [(projectName, projectKey)]`) from the
+ * explicit `Auth.projects` entries plus every project referenced by `automation`. Entries are deduped by
+ * project name, preserving declaration order. Projects whose `instanceName` names an undeclared instance
+ * are still returned (so callers exercising the unknown-instance failure keep their orphan entry).
+ */
+private fun jiraProjectRegistry(config: JiraConfig): Map<String, List<Pair<String, String>>> {
+    val byInstance = linkedMapOf<String, LinkedHashMap<String, String>>()
+
+    fun put(
+        instance: String,
+        name: String,
+        key: String,
+    ) {
+        byInstance.getOrPut(instance) { LinkedHashMap() }[name] = key
+    }
+    config.auth.projects.forEach { put("default", it.name, it.projectKey) }
+    config.secondaryAuth.forEach { (instance, auth) ->
+        auth.projects.forEach { put(instance, it.name, it.projectKey) }
+    }
+    config.automation?.projects?.forEach { put(it.instanceName ?: "default", it.name, it.projectKey) }
+    return byInstance.mapValues { (_, projects) -> projects.toList() }
+}
+
+private fun jiraRegistryProjectsBlock(projects: List<Pair<String, String>>): String =
+    projects.joinToString("\n") { (name, key) ->
+        """project("$name") { projectKey.set("$key") }"""
+    }
+
 private fun jiraAutomationBlock(automation: JiraConfig.Automation): String {
-    val entries = automation.projects.joinToString("\n") { jiraProjectBlock(it) }
+    val targets =
+        automation.projects
+            .groupBy { it.instanceName ?: "default" }
+            .entries
+            .joinToString("\n") { (instance, projects) ->
+                val projectBlocks = projects.joinToString("\n") { jiraTargetProjectBlock(it) }
+                """
+                targetInstance("$instance") {
+                    $projectBlocks
+                }
+                """.trimIndent()
+            }
     return """
             automation {
                 common {
-                    projects {
-                        $entries
-                    }
+                    $targets
                 }
             }
     """
 }
 
-private fun jiraProjectBlock(project: JiraConfig.Project): String {
-    val instanceName = project.instanceName?.let { name -> """instanceName.set("$name")""" }.orEmpty()
+private fun jiraTargetProjectBlock(project: JiraConfig.Project): String {
     val label = project.labelPattern?.let { pattern -> """labelPattern.set("$pattern")""" }.orEmpty()
     val fixVersion = project.fixVersionPattern?.let { pattern -> """fixVersionPattern.set("$pattern")""" }.orEmpty()
     val statusName = project.targetStatusName?.let { name -> """targetStatusName.set("$name")""" }.orEmpty()
     return """
         project("${project.name}") {
-            projectKey.set("${project.projectKey}")
-            $instanceName
             $label
             $fixVersion
             $statusName
         }
         """.trimIndent()
+}
+
+private fun jiraIssueResolutionBlock(resolution: JiraConfig.IssueResolution): String {
+    val selections =
+        resolution.fromInstances.joinToString("\n") { selection ->
+            val names = selection.projectNames.joinToString(", ") { name -> "\"$name\"" }
+            """fromInstance("${selection.instanceName}") { projectNames($names) }"""
+        }
+    return """
+            issueResolution {
+                common {
+                    enabled.set(${resolution.enabled})
+                    $selections
+                }
+            }
+    """
 }
 
 private fun clickUpAutomationBlock(automation: ClickUpConfig.Automation): String {
@@ -1187,11 +1270,22 @@ data class FoundationConfig(
          * [issueNumberPattern] / [issueUrlPrefix] (backward-compatible with single-source tests).
          */
         val issueSources: List<IssueSource> = emptyList(),
+        /**
+         * Commit markers (`CLOSES`/`FIXES`) whose token is auto-resolved to an issue title by a provider
+         * plugin (e.g. Jira `issueResolution`). Empty by default — no `issueReferences { }` is rendered.
+         */
+        val issueReferences: List<IssueReference> = emptyList(),
     ) {
         data class IssueSource(
             val name: String,
             val numberPattern: String,
             val urlPrefix: String? = null,
+        )
+
+        data class IssueReference(
+            val name: String,
+            val key: String,
+            val numberPattern: String,
         )
     }
 }
@@ -1262,14 +1356,40 @@ data class FirebaseConfig(
 
 data class JiraConfig(
     val auth: Auth,
-    val automation: Automation?,
+    val automation: Automation? = null,
+    val issueResolution: IssueResolution? = null,
     val secondaryAuth: Map<String, Auth> = emptyMap(),
 ) {
     data class Auth(
         val baseUrl: String,
         val username: String,
         val password: String,
+        /**
+         * Projects declared on this instance's registry (`instance("…") { project("name") { projectKey } }`).
+         * Automation/issueResolution reference them by name. When empty, the registry is derived from
+         * [Automation.projects] so existing automation-only tests keep working unchanged.
+         */
+        val projects: List<RegistryProject> = emptyList(),
     )
+
+    data class RegistryProject(
+        val name: String,
+        val projectKey: String,
+    )
+
+    /**
+     * Opt-in `issueResolution { }` block: resolves changelog `CLOSES`/`FIXES` references to Jira issue
+     * titles, reading from the selected registry projects.
+     */
+    data class IssueResolution(
+        val enabled: Boolean = true,
+        val fromInstances: List<InstanceSelection> = emptyList(),
+    ) {
+        data class InstanceSelection(
+            val instanceName: String = "default",
+            val projectNames: List<String>,
+        )
+    }
 
     data class Automation(
         val projects: List<Project> = emptyList(),

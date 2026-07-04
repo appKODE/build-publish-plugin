@@ -14,6 +14,11 @@ import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
  */
 internal interface AddLabelParameters : WorkParameters {
     /**
+     * The name of the Jira instance (within the shared service) that owns these issues
+     */
+    val instanceName: Property<String>
+
+    /**
      * The set of Jira issue keys to label (e.g., ["PROJ-123", "PROJ-456"])
      */
     val issues: SetProperty<String>
@@ -44,11 +49,12 @@ internal interface AddLabelParameters : WorkParameters {
 internal abstract class AddLabelWork : WorkAction<AddLabelParameters> {
     override fun execute() {
         val service = parameters.service.get()
+        val instanceName = parameters.instanceName.get()
         val issues = parameters.issues.get()
         val label = parameters.label.get()
 
         issues.forEach { issue ->
-            service.addLabel(issue, label)
+            service.addLabel(instanceName, issue, label)
         }
     }
 }

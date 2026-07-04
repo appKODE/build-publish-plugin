@@ -90,6 +90,8 @@ buildPublishFoundation {
 import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberVariantNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.KeyAndTitleResolvedStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.ChangelogLineOrKeyUnresolvedStrategy
 
 buildPublishFoundation {
    verboseLogging.set(false)
@@ -128,6 +130,19 @@ buildPublishFoundation {
                urlPrefix.set("https://your-issue-tracker.com/issue/")
             }
          }
+         // Resolve `CLOSES:` / `FIXES:` commit markers to issue titles via a provider plugin
+         issueReferences {
+            issueReference("closes") {
+               key.set("CLOSES")
+               numberPattern.set("(\\d+|[A-Z]+-\\d+)")
+            }
+            issueReference("fixes") {
+               key.set("FIXES")
+               numberPattern.set("(\\d+|[A-Z]+-\\d+)")
+            }
+         }
+         resolvedIssueStrategy { KeyAndTitleResolvedStrategy }
+         unresolvedIssueStrategy { ChangelogLineOrKeyUnresolvedStrategy }
       }
    }
 }
@@ -139,6 +154,8 @@ buildPublishFoundation {
 import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberVariantNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionedApkNamingStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.KeyAndTitleResolvedStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.ChangelogLineOrKeyUnresolvedStrategy
 
 buildPublishFoundation {
     verboseLogging.set(false)
@@ -177,6 +194,19 @@ buildPublishFoundation {
                     urlPrefix.set('https://your-issue-tracker.com/issue/')
                 }
             }
+            // Resolve `CLOSES:` / `FIXES:` commit markers to issue titles via a provider plugin
+            issueReferences {
+                issueReference('closes') {
+                    key.set('CLOSES')
+                    numberPattern.set('(\\d+|[A-Z]+-\\d+)')
+                }
+                issueReference('fixes') {
+                    key.set('FIXES')
+                    numberPattern.set('(\\d+|[A-Z]+-\\d+)')
+                }
+            }
+            resolvedIssueStrategy { KeyAndTitleResolvedStrategy.INSTANCE }
+            unresolvedIssueStrategy { ChangelogLineOrKeyUnresolvedStrategy.INSTANCE }
         }
     }
 }
@@ -339,6 +369,80 @@ Changelog config defines how commit messages are filtered and how issue links ar
     inside `changelog { common { … } }`.
   - **Note**: Source patterns are assumed disjoint (each issue key matches exactly one source).
     Overlapping patterns would link a key more than once.
+
+- **`issueReferences { ... }`**
+  - **What it does**: A named container of commit-message *references*. Each named reference pairs a
+    `key` (the commit marker, for example `CLOSES`) with a `numberPattern` (regex that extracts the
+    issue token appearing after the key on that line — a bare number like `3458` or a prefixed key
+    like `TBI-3458`). Whereas `issueSources` only turns issue keys into hyperlinks, `issueReferences`
+    asks a provider plugin (Jira and/or ClickUp) to resolve each referenced token to its
+    human-readable issue **title** and writes that into the changelog. The two blocks coexist, as do
+    manual `CHANGELOG:` lines.
+  - **Why you need it**: Developers write a single short marker in the commit body — for example
+    `CLOSES: 3458` or `FIXES: TBI-3459` — and the changelog is enriched with the actual issue titles
+    (`• [TBI-3458] Fix cold start`) instead of a bare key or a hand-typed summary.
+  - **Per-reference properties**:
+    - **`key`** *(required)*: The commit marker that starts the line (for example `"CLOSES"`).
+    - **`numberPattern`** *(required)*: Java regex matching the issue token after the key. Use
+      `"(\\d+|[A-Z]+-\\d+)"` to accept both bare numbers and prefixed keys.
+  - **Example** (two markers):
+    ```kotlin
+    issueReferences {
+      issueReference("closes") {
+        key.set("CLOSES")
+        numberPattern.set("(\\d+|[A-Z]+-\\d+)")
+      }
+      issueReference("fixes") {
+        key.set("FIXES")
+        numberPattern.set("(\\d+|[A-Z]+-\\d+)")
+      }
+    }
+    ```
+    ```groovy
+    issueReferences {
+      issueReference('closes') {
+        key.set('CLOSES')
+        numberPattern.set('(\\d+|[A-Z]+-\\d+)')
+      }
+      issueReference('fixes') {
+        key.set('FIXES')
+        numberPattern.set('(\\d+|[A-Z]+-\\d+)')
+      }
+    }
+    ```
+  - **Single-reference shorthand**: when there is only one reference you can skip the
+    `issueReferences { }` wrapper and call `issueReference("name") { … }` directly inside
+    `changelog { common { … } }` (mirrors the `issueSource` shorthand).
+  - **Commit convention**: write one marker line per issue in the commit body, with no manual title:
+    `CLOSES: 3458` or `FIXES: TBI-3459`. A manual `CHANGELOG: …` line still works and coexists; if a
+    commit carries both a `CHANGELOG:` line and a `CLOSES:`/`FIXES:` for the same token, only one
+    entry is emitted (deduplicated).
+  - **Requires a provider**: resolution happens only when a provider plugin (Jira and/or ClickUp) has
+    its `issueResolution { }` block enabled (see the [Jira](./jira.md) and [ClickUp](./clickup.md)
+    docs). With no provider/resolver registered, the reference pass is skipped and the changelog is
+    left unchanged.
+
+- **`resolvedIssueStrategy { ... }`**
+  - **What it does**: Controls how a *resolved* reference (title successfully fetched) is rendered.
+  - **Import from**: `ru.kode.android.build.publish.plugin.core.strategy`.
+  - **Built-in variants**:
+    - `KeyAndTitleResolvedStrategy` *(default)* → `• [TBI-3458] Fix cold start`
+    - `TitleOnlyResolvedStrategy` → `• Fix cold start`
+    - `KeyOnlyResolvedStrategy` → `• [TBI-3458]`
+  - **Usage**: `resolvedIssueStrategy { TitleOnlyResolvedStrategy }`
+
+- **`unresolvedIssueStrategy { ... }`**
+  - **What it does**: Controls how an *unresolved* reference is rendered (unknown issue, offline,
+    missing provider). Resolution is always **non-blocking** — an unresolved reference never fails
+    the build.
+  - **Import from**: `ru.kode.android.build.publish.plugin.core.strategy`.
+  - **Built-in variants**:
+    - `ChangelogLineOrKeyUnresolvedStrategy` *(default)* → uses the commit's own `CHANGELOG:` line if
+      present, otherwise the bare `• [TBI-3458]`
+    - `KeyOnlyUnresolvedStrategy` → always `• [TBI-3458]`
+    - `SkipUnresolvedStrategy` → omits the entry entirely
+    - `FallbackTextUnresolvedStrategy("(no description)")` → `• [TBI-3458] (no description)`
+  - **Usage**: `unresolvedIssueStrategy { KeyOnlyUnresolvedStrategy }`
 
 - **`commitMessageKey`**
   - **What it does**: Marker used to include only selected commits into changelog.

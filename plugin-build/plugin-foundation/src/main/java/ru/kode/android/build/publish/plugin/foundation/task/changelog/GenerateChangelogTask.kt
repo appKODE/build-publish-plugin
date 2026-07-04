@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.foundation.task.changelog
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -12,12 +13,17 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
+import ru.kode.android.build.publish.plugin.core.enity.IssueReference
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.strategy.AnnotatedTagMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.ChangelogLineOrKeyUnresolvedStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.ChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.EmptyChangelogMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.KeyAndTitleResolvedStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.NotGeneratedChangelogMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.ResolvedIssueStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.UnresolvedIssueStrategy
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.foundation.messages.changelogGeneratedMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.noChangesChangelogMessage
@@ -86,6 +92,25 @@ abstract class GenerateChangelogTask : GenerateChangelogTaskOutput() {
      */
     @get:Internal
     abstract val notGeneratedChangelogMessageStrategy: Property<NotGeneratedChangelogMessageStrategy>
+
+    /**
+     * Issue-reference markers (`CLOSES`/`FIXES`) whose tokens are resolved to titles via
+     * [ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput.issueResolvers].
+     */
+    @get:Input
+    abstract val issueReferences: ListProperty<IssueReference>
+
+    /**
+     * Strategy that renders an issue reference when no resolver could return its title.
+     */
+    @get:Internal
+    abstract val unresolvedIssueStrategy: Property<UnresolvedIssueStrategy>
+
+    /**
+     * Strategy that renders an issue reference once a resolver returned its title.
+     */
+    @get:Internal
+    abstract val resolvedIssueStrategy: Property<ResolvedIssueStrategy>
 
     /**
      * The JSON file containing information about the last build tag.
@@ -169,6 +194,12 @@ abstract class GenerateChangelogTask : GenerateChangelogTaskOutput() {
                             .build(message, commitMessageKey, tagSnapshot)
                     },
                     tagSnapshot = tagSnapshot,
+                    issueReferences = issueReferences.getOrElse(emptyList()),
+                    resolvers = issueResolvers.getOrElse(emptyList()),
+                    resolvedStrategy =
+                        resolvedIssueStrategy.getOrElse(KeyAndTitleResolvedStrategy),
+                    unresolvedStrategy =
+                        unresolvedIssueStrategy.getOrElse(ChangelogLineOrKeyUnresolvedStrategy),
                 )
                 ?: emptyChangelogMessageStrategy.build(tagSnapshot)
 

@@ -5,6 +5,7 @@ import org.ajoberstar.grgit.Grgit
 import org.gradle.api.GradleException
 import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.enity.CommitRange
+import ru.kode.android.build.publish.plugin.core.enity.IssueReference
 import ru.kode.android.build.publish.plugin.core.enity.Tag
 import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.messages.cannotReturnTagMessage
@@ -84,6 +85,40 @@ class GitCommandExecutor(
                 commit.fullMessage
                     .split('\n')
                     .filter { message -> message.contains(key) }
+            }
+    }
+
+    /**
+     * Extracts issue-reference lines (e.g. `CLOSES: 3458`, `FIXES: TBI-42`) from commits in the range,
+     * grouped per commit and paired with that commit's `CHANGELOG:` line (if any) for fallback rendering.
+     *
+     * A line is a reference when it contains any of the [references]' [IssueReference.key] markers. Only
+     * commits that carry at least one reference line are returned. The changelog line is the first line
+     * containing [commitMessageKey].
+     *
+     * @param references The configured issue-reference markers to look for.
+     * @param commitMessageKey The changelog marker (e.g. `CHANGELOG`) used to locate the fallback line.
+     * @param range The range of commits to search through; `null` considers the whole history.
+     */
+    fun extractIssueReferenceLines(
+        references: List<IssueReference>,
+        commitMessageKey: String,
+        range: CommitRange?,
+    ): List<CommitIssueReferences> {
+        if (references.isEmpty()) return emptyList()
+        return grgit.getCommitsByRange(range)
+            .mapNotNull { commit ->
+                val lines = commit.fullMessage.split('\n')
+                val referenceLines =
+                    lines.filter { line -> references.any { reference -> line.contains(reference.key) } }
+                if (referenceLines.isEmpty()) {
+                    null
+                } else {
+                    CommitIssueReferences(
+                        referenceLines = referenceLines,
+                        changelogLine = lines.firstOrNull { it.contains(commitMessageKey) },
+                    )
+                }
             }
     }
 
@@ -354,4 +389,16 @@ private data class TagDetails(
     val commitIndex: Int,
     val commitTimeMs: Long,
     val buildNumber: Int,
+)
+
+/**
+ * Reference lines extracted from a single commit, together with that commit's `CHANGELOG:` line.
+ *
+ * @property referenceLines Commit lines that contain an issue-reference marker (e.g. `CLOSES: 3458`).
+ * @property changelogLine The commit's `CHANGELOG:` line, used as a fallback when a reference cannot be
+ *   resolved; `null` when the commit has none.
+ */
+data class CommitIssueReferences(
+    val referenceLines: List<String>,
+    val changelogLine: String?,
 )

@@ -8,6 +8,7 @@ import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 import javax.inject.Inject
 
 internal interface StandaloneTransitionJiraIssueParameters : ServiceWorkParameters {
+    val instanceName: Property<String>
     val transitionName: Property<String>
     val projectKey: Property<String>
     val issues: SetProperty<String>
@@ -19,6 +20,7 @@ internal abstract class StandaloneTransitionJiraIssueWork
     constructor() : WorkAction<StandaloneTransitionJiraIssueParameters> {
         override fun execute() {
             parameters.service.get().transitionIssues(
+                instanceName = parameters.instanceName.getOrElse(""),
                 projectKey = parameters.projectKey.get(),
                 transitionName = parameters.transitionName.get(),
                 issues = parameters.issues.get(),

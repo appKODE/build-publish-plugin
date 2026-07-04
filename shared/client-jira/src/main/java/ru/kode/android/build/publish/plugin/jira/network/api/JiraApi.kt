@@ -12,6 +12,7 @@ import ru.kode.android.build.publish.plugin.jira.network.entity.AddFixVersionReq
 import ru.kode.android.build.publish.plugin.jira.network.entity.AddLabelRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.CreateVersionRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetFixVersionsResponse
+import ru.kode.android.build.publish.plugin.jira.network.entity.GetIssueSummaryResponse
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetLabelsResponse
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetProjectResponse
 import ru.kode.android.build.publish.plugin.jira.network.entity.GetStatusResponse
@@ -94,6 +95,12 @@ internal interface JiraApi {
         @Path("issueNumber") issueNumber: String,
         @Query(QUERY_FIELDS) fields: String = "status",
     ): Call<GetStatusResponse>
+
+    @GET("issue/{issueNumber}")
+    fun getSummary(
+        @Path("issueNumber") issueNumber: String,
+        @Query(QUERY_FIELDS) fields: String = "summary",
+    ): Call<GetIssueSummaryResponse>
 
     @GET("issue/{issueNumber}/transitions")
     fun getAvailableTransitions(

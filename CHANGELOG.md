@@ -12,6 +12,20 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 2.1.0
+
+> **Breaking release** for Jira automation project config. Upgrading from 2.0? Follow the
+> **[migration guide to 2.1](docs/migration/v2.1.md)**. Use with **build-publish-novo-core 2.1.0**.
+
+* **Auto-resolve changelog titles:** a commit `CLOSES: <num>` / `FIXES: <num>` line is now resolved to the issue's title (fetched from Jira/ClickUp) and inserted into the changelog — no more hand-copied `CHANGELOG: [KEY] <title>` line. Manual `CHANGELOG:` entries still work and coexist (matching forms are de-duplicated)
+* Foundation `changelog { }` gains `issueReferences { issueReference("name") { key; numberPattern } }` (unwrapped `issueReference` shorthand for one marker) declaring which commit markers to auto-resolve, alongside the existing `issueSources { }` (which only links keys)
+* Foundation `changelog { }` gains `resolvedIssueStrategy { }` (`KeyAndTitleResolvedStrategy` default / `TitleOnlyResolvedStrategy` / `KeyOnlyResolvedStrategy`) and `unresolvedIssueStrategy { }` (`ChangelogLineOrKeyUnresolvedStrategy` default / `KeyOnlyUnresolvedStrategy` / `SkipUnresolvedStrategy` / `FallbackTextUnresolvedStrategy`). Resolution is non-blocking — an unresolved reference never fails the build
+* Provider-agnostic `IssueResolver` seam in `plugin-core`: any provider plugin contributes a resolver, so Jira and ClickUp (and future sources) can enrich the same shared changelog
+* **Breaking:** Jira projects are now declared once in a shared registry nested under each `auth` instance (`instance("x") { project("app") { projectKey } }`); `projectKey` must be globally unique and no longer lives on automation projects. `automation` selects projects two-level via `targetInstance("name") { projectNames(…) / project("x") { …overrides } }` (replacing self-contained `projects { project { projectKey; instanceName } }`)
+* Jira `issueResolution { common { enabled; fromInstance("name") { projectNames(…) } } }` opt-in block resolves `CLOSES`/`FIXES` references to Jira issue titles; bare numbers resolve against the sole selected project, prefixed keys route by prefix
+* ClickUp `issueResolution { common { enabled } }` opt-in block resolves ClickUp task ids to task names
+* Clients: `client-jira` adds `getIssueSummary`, `client-clickup` adds `getTaskName`
+
 ### 2.0.0
 
 > **Breaking release.** Upgrading from 1.x? Follow the
@@ -118,8 +132,22 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 📦 build-publish-novo-core
 
+> Covers the `build-publish-novo-core` library and the sibling `build-publish-novo-client-*`
+> libraries, which are versioned and published together from the `shared` build.
+
+### 2.1.0
+* Add a provider-agnostic issue-resolution seam: the `IssueResolver` interface + `ResolvedIssue` (`core/issue`) and the `IssueReference` entity (`core/enity`), so any plugin can resolve changelog `CLOSES`/`FIXES` markers to issue titles
+* Add serializable, configuration-cache-safe rendering strategies: `ResolvedIssueStrategy` (`KeyAndTitleResolvedStrategy` default / `TitleOnlyResolvedStrategy` / `KeyOnlyResolvedStrategy`) and `UnresolvedIssueStrategy` (`ChangelogLineOrKeyUnresolvedStrategy` default / `KeyOnlyUnresolvedStrategy` / `SkipUnresolvedStrategy` / `FallbackTextUnresolvedStrategy`)
+* `GitCommandExecutor.extractIssueReferenceLines` / `GitRepository.issueReferenceLines` extract `CLOSES`/`FIXES` lines (paired with each commit's `CHANGELOG:` line via `CommitIssueReferences`); `GitChangelogBuilder.buildForSnapshot` resolves them in order, de-duplicates against manual entries and duplicate keys, and never fails the build on an unresolved reference (a warning is logged)
+* `GenerateChangelogTaskOutput` exposes a `ListProperty<IssueResolver>` injection point so provider plugins contribute resolvers without coupling the core to any tracker
+* Clients: `build-publish-novo-client-jira` adds `getIssueSummary` (backed by a new `GET issue/{key}?fields=summary` call + `GetIssueSummaryResponse`); `build-publish-novo-client-clickup` adds `getTaskName` (reusing the existing `GET task/{id}` call)
+
 ### 2.0.0
-* Version bump to align with the 2.0.0 plugin release; plugins now expose the core as an `api` dependency, so its public DSL types (strategies, `CollectionStrategy`, config bases) reach consumers transitively
+* Bump build/runtime deps: Kotlin `2.4.0`, KSP `2.3.9`, AGP `9.2.1` (min Gradle `9.4.1`), OkHttp `5.4.0`, Retrofit `3.0.0`, kotlinx.serialization `1.11.0`, JUnit BOM `6.1.1`
+* **Breaking:** replace the loose changelog `issueNumberPattern` / `issueUrlPrefix` inputs with the named `IssueSource` entity, enabling multiple issue sources (each with its own `numberPattern` / `urlPrefix`) in one changelog
+* Expose the public DSL surface (strategies, `CollectionStrategy`, config bases such as `BasicAuthCredentials`) as a stable `api` dependency, so plugins re-export it to consumers transitively; `client-*` stay `implementation`
+* Add Groovy `Closure` overloads (`@DelegatesTo`) across the shared nested-container config bases
+* Extract the network clients into publishable `build-publish-novo-client-{slack,telegram,nextcloud,jira,confluence,clickup}` libraries built on the core, consumed via the version catalog / composite-build substitution
 
 ### 1.2.17
 * Add `ciCommitTag` support in `GitCommandExecutor` and `GitRepository` to fix tag resolution race condition on concurrent CI pipelines
