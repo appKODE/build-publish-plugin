@@ -12,6 +12,20 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 2.1.1
+
+> **Use this instead of 2.1.0.** The 2.1.0 release was published incompletely (only part of the
+> plugin set reached the Gradle Plugin Portal / Maven Central) and shipped a broken ClickUp
+> automation. **Do not use 2.1.0** — upgrade straight from 2.0 to 2.1.1, following the
+> **[migration guide to 2.1](docs/migration/v2.1.md)**. Use with **build-publish-novo-core 2.1.1**.
+
+* **Fix (ClickUp automation):** native ClickUp task ids (e.g. `86c72yxu4`, with no custom-task-id
+  prefix) were silently dropped by the new multi-account prefix routing, so no version tag or
+  fix-version field was ever applied to them. Issues whose prefix matches no configured project are
+  now treated as native ids and applied against every targeted project (mirroring the
+  `IssueResolver` native-id fallback), restoring the 2.0 behaviour under the multi-account model
+* Republishes the full 2.1.0 plugin/library set so every module is available at a consistent version
+
 ### 2.1.0
 
 > **Breaking release** for Jira automation project config. Upgrading from 2.0? Follow the
