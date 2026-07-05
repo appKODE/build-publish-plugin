@@ -176,14 +176,29 @@ buildPublishTelegram {
 buildPublishClickUp {
     auth {
         common {
-            apiTokenFile = File("clickup-token.txt")
+            account("main") {
+                val provider = project.layout.buildDirectory.file("clickup-api-token.txt").get()
+                provider.asFile.parentFile.mkdirs()
+                provider.asFile.createNewFile()
+                apiTokenFile.set(provider)
+                project("app") {
+                    workspaceName.set("My Workspace")
+                    taskIdPrefix.set("APP")
+                }
+            }
         }
     }
     automation {
         common {
-            fixVersionPattern = "fix_%2\$s_%1\$s"
-            fixVersionFieldName = "Fix version"
-            tagPattern = "test_tag_name"
+            fixVersionPattern.set("fix_%2\$s_%1\$s")
+            fixVersionFieldName.set("Fix version")
+            tagPattern.set("test_tag_name")
+            targetAccount("main") { projectNames("app") }
+        }
+    }
+    issueResolution {
+        common {
+            fromAccount("main") { projectNames("app") }
         }
     }
 }

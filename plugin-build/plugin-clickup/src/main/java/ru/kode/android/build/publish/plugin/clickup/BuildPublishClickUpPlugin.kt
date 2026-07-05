@@ -4,6 +4,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
+import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAuthConfig
+import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpAccountEntity
+import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpProjectEntity
+import ru.kode.android.build.publish.plugin.clickup.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.clickup.extension.BuildPublishClickUpExtension
 import ru.kode.android.build.publish.plugin.clickup.messages.noAuthConfigMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.registeringServicesMessage
@@ -80,7 +84,7 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
                         ClickUpService::class.java,
                     ) {
                         it.maxParallelUsages.set(1)
-                        it.parameters.token.set(authConfig.apiTokenFile)
+                        it.parameters.accounts.set(authConfig.bakeAccounts())
                         it.parameters.loggerService.set(loggerProvider)
                     }
 
@@ -114,3 +118,18 @@ abstract class BuildPublishClickUpPlugin : Plugin<Project> {
         )
     }
 }
+
+/** Bakes every account declared on this auth config into the JSON list stored in the service params. */
+private fun ClickUpAuthConfig.bakeAccounts(): List<String> =
+    accounts.map { account ->
+        ClickUpAccountEntity(
+            name = account.name,
+            token = account.apiTokenFile.get().asFile.readText(),
+            projects =
+                account.projects.mapNotNull { project ->
+                    val prefix = project.taskIdPrefix.orNull ?: return@mapNotNull null
+                    val workspaceName = project.workspaceName.orNull ?: return@mapNotNull null
+                    ClickUpProjectEntity(project.name, workspaceName, prefix)
+                },
+        ).toJson()
+    }

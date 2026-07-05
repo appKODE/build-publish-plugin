@@ -177,6 +177,58 @@ fun provideAutomationConfigMessage(variantName: String): String {
         """.trimIndent()
 }
 
+fun unknownAccountNameMessage(
+    accountName: String,
+    availableAccountNames: Collection<String>,
+): String {
+    return """
+
+        |============================================================
+        |               UNKNOWN CLICKUP ACCOUNT
+        |============================================================
+        | No ClickUp account named '$accountName' is declared.
+        |
+        | AVAILABLE ACCOUNTS: ${availableAccountNames.joinToString(", ").ifBlank { "(none)" }}
+        |
+        | Declare it under the auth block:
+        |   auth { common { account("$accountName") { apiTokenFile.set(...) } } }
+        |============================================================
+        """.trimIndent()
+}
+
+fun unknownProjectNameMessage(
+    projectName: String,
+    accountName: String,
+    availableProjectNames: Collection<String>,
+): String {
+    return """
+
+        |============================================================
+        |               UNKNOWN CLICKUP PROJECT
+        |============================================================
+        | No project named '$projectName' is declared on account '$accountName'.
+        |
+        | AVAILABLE PROJECTS: ${availableProjectNames.joinToString(", ").ifBlank { "(none)" }}
+        |
+        | Declare it under the account:
+        |   account("$accountName") { project("$projectName") { workspaceName.set(...); taskIdPrefix.set(...) } }
+        |============================================================
+        """.trimIndent()
+}
+
+fun duplicateTaskIdPrefixMessage(taskIdPrefix: String): String {
+    return """
+
+        |============================================================
+        |             DUPLICATE CLICKUP TASK-ID PREFIX
+        |============================================================
+        | The task-id prefix '$taskIdPrefix' is declared on more than one project.
+        | Prefixes route changelog references to a single account/workspace, so
+        | each 'taskIdPrefix' must be globally unique across all accounts.
+        |============================================================
+        """.trimIndent()
+}
+
 fun provideAuthConfigMessage(variantName: String): String {
     return """
 

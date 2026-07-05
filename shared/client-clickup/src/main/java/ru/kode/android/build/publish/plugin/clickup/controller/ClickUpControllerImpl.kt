@@ -147,12 +147,20 @@ internal class ClickUpControllerImpl(
         return ClickUpTaskTags(id = taskId, tags = tags)
     }
 
-    override fun getTaskName(taskId: String): String? {
-        return api.getTaskFields(taskId)
+    override fun getTaskName(
+        taskId: String,
+        teamId: String?,
+    ): String? {
+        val customTaskIds = teamId != null
+        return api.getTaskFields(taskId, customTaskIds = customTaskIds, teamId = teamId)
             .executeWithResult()
             .onFailure { logger.error(failedToGetTaskNameMessage(taskId), it) }
             .getOrNull()
             ?.name
+    }
+
+    override fun getTeamId(workspaceName: String): String? {
+        return getTeams().firstOrNull { it.name.equals(workspaceName, ignoreCase = true) }?.id
     }
 
     /**

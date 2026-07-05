@@ -370,19 +370,33 @@ fun File.createAndroidProject(
 
     val clickUpConfigBlock =
         clickUpConfig?.let { config ->
+            val accounts =
+                config.accounts.joinToString("\n") { account ->
+                    """
+                    account("${account.name}") {
+                        apiTokenFile.set(project.file("${account.apiTokenFilePath}"))
+                        ${clickUpRegistryProjectsBlock(account.projects)}
+                    }
+                    """.trimIndent()
+                }
             val automation =
                 config.automation?.let { automation ->
                     clickUpAutomationBlock(automation)
+                }.orEmpty()
+            val issueResolution =
+                config.issueResolution?.let { resolution ->
+                    clickUpIssueResolutionBlock(resolution)
                 }.orEmpty()
             """
         buildPublishClickUp {
             auth {
                 common {
-                    apiTokenFile = project.file("${config.auth.apiTokenFilePath}")
+                    $accounts
                 }
             }
-            
+
             $automation
+            $issueResolution
         }
             """
         }.orEmpty()
@@ -452,23 +466,38 @@ fun File.createAndroidProject(
                 }
                     """
                 }
-            val testerGroups =
-                config.distributionCommon.testerGroups?.let { testerGroups ->
-                    """testerGroups(${testerGroups.joinToString { group -> "\"$group\"" }})"""
-                }
-            """
-        buildPublishFirebase {
-            distribution {
+            val commonBlock =
+                config.distributionCommon?.let { common ->
+                    val testerGroups =
+                        common.testerGroups?.let { testerGroups ->
+                            """testerGroups(${testerGroups.joinToString { group -> "\"$group\"" }})"""
+                        }
+                    """
                 common {
-                    serviceCredentialsFile = project.file("${config.distributionCommon.serviceCredentialsFilePath}")
-                    appId.set("${config.distributionCommon.appId}")
-                    artifactType.set(${config.distributionCommon.artifactType})
+                    serviceCredentialsFile = project.file("${common.serviceCredentialsFilePath}")
+                    appId.set("${common.appId}")
+                    artifactType.set(${common.artifactType})
                     ${testerGroups.orEmpty()}
                 }
+                    """
+                }
+            // With no distribution declared at all, still apply the plugin with an empty extension so
+            // tests can assert the finalizeDsl gate (AppDistributionPlugin only applied when non-empty).
+            if (commonBlock == null && buildTypeFirebaseBlock == null) {
+                """
+        buildPublishFirebase {
+        }
+                """
+            } else {
+                """
+        buildPublishFirebase {
+            distribution {
+                ${commonBlock.orEmpty()}
                 ${buildTypeFirebaseBlock.orEmpty()}
             }
         }
-            """
+                """
+            }
         }.orEmpty()
 
     val jiraConfigBlock =
@@ -795,20 +824,49 @@ private fun jiraIssueResolutionBlock(resolution: JiraConfig.IssueResolution): St
     """
 }
 
+private fun clickUpRegistryProjectsBlock(projects: List<ClickUpConfig.RegistryProject>): String =
+    projects.joinToString("\n") { project ->
+        """
+        project("${project.name}") {
+            workspaceName.set("${project.workspaceName}")
+            taskIdPrefix.set("${project.taskIdPrefix}")
+        }
+        """.trimIndent()
+    }
+
 private fun clickUpAutomationBlock(automation: ClickUpConfig.Automation): String {
-    val workspaceName = automation.workspaceName.let { name -> """workspaceName.set("$name")""" }
     val fixVersionPattern =
         automation.fixVersionPattern?.let { """fixVersionPattern.set("$it")""" }.orEmpty()
     val fixVersionFieldName =
         automation.fixVersionFieldName?.let { """fixVersionFieldName.set("$it")""" }.orEmpty()
     val tagPattern = automation.tagPattern?.let { pattern -> """tagPattern.set("$pattern")""" }.orEmpty()
+    val targets =
+        automation.targetAccounts.joinToString("\n") { selection ->
+            val names = selection.projectNames.joinToString(", ") { name -> "\"$name\"" }
+            """targetAccount("${selection.accountName}") { projectNames($names) }"""
+        }
     return """
             automation {
                 common {
-                    $workspaceName
                     $fixVersionPattern
                     $fixVersionFieldName
                     $tagPattern
+                    $targets
+                }
+            }
+    """
+}
+
+private fun clickUpIssueResolutionBlock(resolution: ClickUpConfig.IssueResolution): String {
+    val selections =
+        resolution.fromAccounts.joinToString("\n") { selection ->
+            val names = selection.projectNames.joinToString(", ") { name -> "\"$name\"" }
+            """fromAccount("${selection.accountName}") { projectNames($names) }"""
+        }
+    return """
+            issueResolution {
+                common {
+                    $selections
                 }
             }
     """
@@ -1042,6 +1100,7 @@ fun File.getFile(path: String): File {
 fun File.runTask(
     task: String,
     taskArguments: Map<String, String> = emptyMap(),
+    cliArguments: List<String> = emptyList(),
     agpClasspath: List<File> = emptyList(),
     gradleVersion: String = "9.6.1",
     gradleJvmArgs: List<String> = emptyList(),
@@ -1049,6 +1108,7 @@ fun File.runTask(
 ): BuildResult {
     val args =
         mutableListOf(task).apply {
+            addAll(cliArguments)
             if (!IS_CI) add("--info")
             add("--stacktrace")
             taskArguments.forEach { (key, value) ->
@@ -1293,18 +1353,36 @@ data class FoundationConfig(
 }
 
 data class ClickUpConfig(
-    val auth: Auth,
-    val automation: Automation?,
+    val accounts: List<Account>,
+    val automation: Automation? = null,
+    val issueResolution: IssueResolution? = null,
 ) {
-    data class Auth(
+    data class Account(
+        val name: String,
         val apiTokenFilePath: String,
+        val projects: List<RegistryProject> = emptyList(),
+    )
+
+    data class RegistryProject(
+        val name: String,
+        val workspaceName: String,
+        val taskIdPrefix: String,
     )
 
     data class Automation(
-        val workspaceName: String,
-        val fixVersionPattern: String?,
-        val fixVersionFieldName: String?,
-        val tagPattern: String?,
+        val fixVersionPattern: String? = null,
+        val fixVersionFieldName: String? = null,
+        val tagPattern: String? = null,
+        val targetAccounts: List<AccountSelection> = emptyList(),
+    )
+
+    data class IssueResolution(
+        val fromAccounts: List<AccountSelection> = emptyList(),
+    )
+
+    data class AccountSelection(
+        val accountName: String,
+        val projectNames: List<String>,
     )
 }
 
@@ -1345,7 +1423,7 @@ data class NextcloudConfig(
 }
 
 data class FirebaseConfig(
-    val distributionCommon: Distribution,
+    val distributionCommon: Distribution? = null,
     val distributionBuildType: Pair<String, Distribution>? = null,
 ) {
     data class Distribution(

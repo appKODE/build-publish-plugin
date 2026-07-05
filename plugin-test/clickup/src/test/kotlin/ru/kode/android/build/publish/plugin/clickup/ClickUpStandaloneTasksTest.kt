@@ -26,12 +26,18 @@ class ClickUpStandaloneTasksTest {
                 buildPublishClickUp {
                     auth {
                         common {
-                            apiTokenFile = project.file("${tokenFile.name}")
+                            account("main") {
+                                apiTokenFile = project.file("${tokenFile.name}")
+                                project("app") {
+                                    workspaceName.set("my-workspace")
+                                    taskIdPrefix.set("APP")
+                                }
+                            }
                         }
                     }
                     automation {
                         common {
-                            workspaceName.set("my-workspace")
+                            targetAccount("main") { projectNames("app") }
                         }
                     }
                 }

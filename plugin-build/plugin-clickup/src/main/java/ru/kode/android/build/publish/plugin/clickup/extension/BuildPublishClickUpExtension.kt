@@ -11,10 +11,15 @@ import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAuthConfig
 import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAutomationConfig
 import ru.kode.android.build.publish.plugin.clickup.config.ClickUpIssueResolutionConfig
+import ru.kode.android.build.publish.plugin.clickup.issue.AccountWorkspace
 import ru.kode.android.build.publish.plugin.clickup.issue.ClickUpIssueResolver
+import ru.kode.android.build.publish.plugin.clickup.messages.duplicateTaskIdPrefixMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.provideAuthConfigMessage
 import ru.kode.android.build.publish.plugin.clickup.messages.provideAutomationConfigMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.unknownAccountNameMessage
+import ru.kode.android.build.publish.plugin.clickup.messages.unknownProjectNameMessage
 import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtension
+import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpAutomationTaskParams
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpTasksRegistrar
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
@@ -323,6 +328,7 @@ abstract class BuildPublishClickUpExtension
                 throw GradleException(provideAuthConfigMessage(variantName))
             }
 
+            val authConfig = authConfig(variantName)
             val automationConfig = automationConfigOrNull(variantName)
             val resolutionConfig = issueResolutionConfigOrNull(variantName)
 
@@ -333,6 +339,7 @@ abstract class BuildPublishClickUpExtension
             if (automationConfig != null) {
                 ClickUpTasksRegistrar.registerAutomationTask(
                     project = project,
+                    authConfig = authConfig,
                     automationConfig = automationConfig,
                     params =
                         ClickUpAutomationTaskParams(
@@ -348,17 +355,22 @@ abstract class BuildPublishClickUpExtension
             }
 
             if (resolutionConfig != null) {
-                injectIssueResolver(project, input, resolutionConfig)
+                injectIssueResolver(project, input, authConfig, resolutionConfig)
             }
         }
 
         /**
-         * Builds a [ClickUpIssueResolver] from the issue-resolution config and appends it to the
-         * foundation changelog task's resolver list, declaring the ClickUp service it uses.
+         * Builds a [ClickUpIssueResolver] from the issue-resolution selections and appends it to the
+         * foundation changelog task's resolver list, declaring the single ClickUp [service] it uses.
+         *
+         * Each selected project contributes a custom-task-id prefix -> account/workspace route; the
+         * distinct selected account names become the native-id fallback order. Duplicate prefixes across
+         * selected projects fail fast, since a prefix routes to a single account/workspace.
          */
         private fun injectIssueResolver(
             project: Project,
             input: ExtensionInput,
+            authConfig: ClickUpAuthConfig,
             resolutionConfig: ClickUpIssueResolutionConfig,
         ) {
             val service =
@@ -366,11 +378,54 @@ abstract class BuildPublishClickUpExtension
                     .getByType(ClickUpServiceExtension::class.java)
                     .services
                     .get()
-                    .getByNameOrCommon(input.buildVariant.name)
-            val resolver = ClickUpIssueResolver(service, resolutionConfig.taskIdPattern.orNull)
+                    .getByNameOrCommon<ClickUpService>(input.buildVariant.name)
+
+            val prefixEntries = resolvePrefixEntries(authConfig, resolutionConfig)
+
+            val duplicatePrefix =
+                prefixEntries
+                    .groupingBy { (prefix, _) -> prefix }
+                    .eachCount()
+                    .entries
+                    .firstOrNull { (_, count) -> count > 1 }
+                    ?.key
+            if (duplicatePrefix != null) throw GradleException(duplicateTaskIdPrefixMessage(duplicatePrefix))
+
+            val accountWorkspaceByPrefix = prefixEntries.toMap()
+            val fallbackAccounts =
+                resolutionConfig.selectionsConfig.selections.map { it.name }.distinct()
+
+            val resolver = ClickUpIssueResolver(service, accountWorkspaceByPrefix, fallbackAccounts)
             input.changelog.fileProvider.configure { task ->
                 task.issueResolvers.add(resolver)
                 task.usesService(service)
             }
         }
+
+        /**
+         * Maps each selected registry project to a `taskIdPrefix -> account/workspace` route, looking the
+         * account and project up in the registry declared on [authConfig]. Unknown account or project
+         * names fail fast at configuration time.
+         */
+        private fun resolvePrefixEntries(
+            authConfig: ClickUpAuthConfig,
+            resolutionConfig: ClickUpIssueResolutionConfig,
+        ): List<Pair<String, AccountWorkspace>> =
+            resolutionConfig.selectionsConfig.selections.flatMap { selection ->
+                val accountName = selection.name
+                val accountConfig =
+                    authConfig.accounts.findByName(accountName)
+                        ?: throw GradleException(
+                            unknownAccountNameMessage(accountName, authConfig.accounts.names),
+                        )
+                selection.projectNames.get().map { projectName ->
+                    val projectDef =
+                        accountConfig.projects.findByName(projectName)
+                            ?: throw GradleException(
+                                unknownProjectNameMessage(projectName, accountName, accountConfig.projects.names),
+                            )
+                    projectDef.taskIdPrefix.get().uppercase() to
+                        AccountWorkspace(accountName, projectDef.workspaceName.get())
+                }
+            }
     }

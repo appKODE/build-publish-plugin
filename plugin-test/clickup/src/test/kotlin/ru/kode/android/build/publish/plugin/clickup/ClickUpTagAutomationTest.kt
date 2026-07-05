@@ -63,9 +63,20 @@ class ClickUpTagAutomationTest {
                 ),
             clickUpConfig =
                 ClickUpConfig(
-                    auth =
-                        ClickUpConfig.Auth(
-                            apiTokenFilePath = clickUpTokenFile.name,
+                    accounts =
+                        listOf(
+                            ClickUpConfig.Account(
+                                name = "main",
+                                apiTokenFilePath = clickUpTokenFile.name,
+                                projects =
+                                    listOf(
+                                        ClickUpConfig.RegistryProject(
+                                            name = "app",
+                                            workspaceName = "Ilia Nekrasov's Workspace",
+                                            taskIdPrefix = "APP",
+                                        ),
+                                    ),
+                            ),
                         ),
                     automation = null,
                 ),
@@ -129,16 +140,33 @@ class ClickUpTagAutomationTest {
                 ),
             clickUpConfig =
                 ClickUpConfig(
-                    auth =
-                        ClickUpConfig.Auth(
-                            apiTokenFilePath = clickUpTokenFile.name,
+                    accounts =
+                        listOf(
+                            ClickUpConfig.Account(
+                                name = "main",
+                                apiTokenFilePath = clickUpTokenFile.name,
+                                projects =
+                                    listOf(
+                                        ClickUpConfig.RegistryProject(
+                                            name = "app",
+                                            workspaceName = workspaceName,
+                                            taskIdPrefix = "APP",
+                                        ),
+                                    ),
+                            ),
                         ),
                     automation =
                         ClickUpConfig.Automation(
-                            workspaceName = workspaceName,
                             fixVersionPattern = null,
                             fixVersionFieldName = null,
                             tagPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetAccounts =
+                                listOf(
+                                    ClickUpConfig.AccountSelection(
+                                        accountName = "main",
+                                        projectNames = listOf("app"),
+                                    ),
+                                ),
                         ),
                 ),
             topBuildFileContent =
@@ -236,16 +264,33 @@ class ClickUpTagAutomationTest {
                 ),
             clickUpConfig =
                 ClickUpConfig(
-                    auth =
-                        ClickUpConfig.Auth(
-                            apiTokenFilePath = clickUpTokenFile.name,
+                    accounts =
+                        listOf(
+                            ClickUpConfig.Account(
+                                name = "main",
+                                apiTokenFilePath = clickUpTokenFile.name,
+                                projects =
+                                    listOf(
+                                        ClickUpConfig.RegistryProject(
+                                            name = "app",
+                                            workspaceName = workspaceName,
+                                            taskIdPrefix = "APP",
+                                        ),
+                                    ),
+                            ),
                         ),
                     automation =
                         ClickUpConfig.Automation(
-                            workspaceName = workspaceName,
                             fixVersionPattern = null,
                             fixVersionFieldName = null,
                             tagPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetAccounts =
+                                listOf(
+                                    ClickUpConfig.AccountSelection(
+                                        accountName = "main",
+                                        projectNames = listOf("app"),
+                                    ),
+                                ),
                         ),
                 ),
             topBuildFileContent =
@@ -350,16 +395,33 @@ class ClickUpTagAutomationTest {
                 ),
             clickUpConfig =
                 ClickUpConfig(
-                    auth =
-                        ClickUpConfig.Auth(
-                            apiTokenFilePath = clickUpTokenFile.name,
+                    accounts =
+                        listOf(
+                            ClickUpConfig.Account(
+                                name = "main",
+                                apiTokenFilePath = clickUpTokenFile.name,
+                                projects =
+                                    listOf(
+                                        ClickUpConfig.RegistryProject(
+                                            name = "app",
+                                            workspaceName = workspaceName,
+                                            taskIdPrefix = "APP",
+                                        ),
+                                    ),
+                            ),
                         ),
                     automation =
                         ClickUpConfig.Automation(
-                            workspaceName = workspaceName,
                             fixVersionPattern = null,
                             fixVersionFieldName = null,
                             tagPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetAccounts =
+                                listOf(
+                                    ClickUpConfig.AccountSelection(
+                                        accountName = "main",
+                                        projectNames = listOf("app"),
+                                    ),
+                                ),
                         ),
                 ),
             topBuildFileContent =
@@ -454,16 +516,33 @@ class ClickUpTagAutomationTest {
                 ),
             clickUpConfig =
                 ClickUpConfig(
-                    auth =
-                        ClickUpConfig.Auth(
-                            apiTokenFilePath = clickUpTokenFile.name,
+                    accounts =
+                        listOf(
+                            ClickUpConfig.Account(
+                                name = "main",
+                                apiTokenFilePath = clickUpTokenFile.name,
+                                projects =
+                                    listOf(
+                                        ClickUpConfig.RegistryProject(
+                                            name = "app",
+                                            workspaceName = workspaceName,
+                                            taskIdPrefix = "APP",
+                                        ),
+                                    ),
+                            ),
                         ),
                     automation =
                         ClickUpConfig.Automation(
-                            workspaceName = workspaceName,
                             fixVersionPattern = null,
                             fixVersionFieldName = null,
                             tagPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetAccounts =
+                                listOf(
+                                    ClickUpConfig.AccountSelection(
+                                        accountName = "main",
+                                        projectNames = listOf("app"),
+                                    ),
+                                ),
                         ),
                 ),
             topBuildFileContent =
@@ -565,16 +644,33 @@ class ClickUpTagAutomationTest {
                 ),
             clickUpConfig =
                 ClickUpConfig(
-                    auth =
-                        ClickUpConfig.Auth(
-                            apiTokenFilePath = clickUpTokenFile.name,
+                    accounts =
+                        listOf(
+                            ClickUpConfig.Account(
+                                name = "main",
+                                apiTokenFilePath = clickUpTokenFile.name,
+                                projects =
+                                    listOf(
+                                        ClickUpConfig.RegistryProject(
+                                            name = "app",
+                                            workspaceName = workspaceName,
+                                            taskIdPrefix = "APP",
+                                        ),
+                                    ),
+                            ),
                         ),
                     automation =
                         ClickUpConfig.Automation(
-                            workspaceName = workspaceName,
                             fixVersionPattern = null,
                             fixVersionFieldName = null,
                             tagPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetAccounts =
+                                listOf(
+                                    ClickUpConfig.AccountSelection(
+                                        accountName = "main",
+                                        projectNames = listOf("app"),
+                                    ),
+                                ),
                         ),
                 ),
             topBuildFileContent =
@@ -673,16 +769,33 @@ class ClickUpTagAutomationTest {
                 ),
             clickUpConfig =
                 ClickUpConfig(
-                    auth =
-                        ClickUpConfig.Auth(
-                            apiTokenFilePath = clickUpTokenFile.name,
+                    accounts =
+                        listOf(
+                            ClickUpConfig.Account(
+                                name = "main",
+                                apiTokenFilePath = clickUpTokenFile.name,
+                                projects =
+                                    listOf(
+                                        ClickUpConfig.RegistryProject(
+                                            name = "app",
+                                            workspaceName = workspaceName,
+                                            taskIdPrefix = "APP",
+                                        ),
+                                    ),
+                            ),
                         ),
                     automation =
                         ClickUpConfig.Automation(
-                            workspaceName = workspaceName,
                             fixVersionPattern = null,
                             fixVersionFieldName = null,
                             tagPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetAccounts =
+                                listOf(
+                                    ClickUpConfig.AccountSelection(
+                                        accountName = "main",
+                                        projectNames = listOf("app"),
+                                    ),
+                                ),
                         ),
                 ),
             topBuildFileContent =
@@ -788,16 +901,33 @@ class ClickUpTagAutomationTest {
                 ),
             clickUpConfig =
                 ClickUpConfig(
-                    auth =
-                        ClickUpConfig.Auth(
-                            apiTokenFilePath = clickUpTokenFile.name,
+                    accounts =
+                        listOf(
+                            ClickUpConfig.Account(
+                                name = "main",
+                                apiTokenFilePath = clickUpTokenFile.name,
+                                projects =
+                                    listOf(
+                                        ClickUpConfig.RegistryProject(
+                                            name = "app",
+                                            workspaceName = workspaceName,
+                                            taskIdPrefix = "APP",
+                                        ),
+                                    ),
+                            ),
                         ),
                     automation =
                         ClickUpConfig.Automation(
-                            workspaceName = workspaceName,
                             fixVersionPattern = null,
                             fixVersionFieldName = null,
                             tagPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetAccounts =
+                                listOf(
+                                    ClickUpConfig.AccountSelection(
+                                        accountName = "main",
+                                        projectNames = listOf("app"),
+                                    ),
+                                ),
                         ),
                 ),
             topBuildFileContent =
@@ -893,16 +1023,33 @@ class ClickUpTagAutomationTest {
                 ),
             clickUpConfig =
                 ClickUpConfig(
-                    auth =
-                        ClickUpConfig.Auth(
-                            apiTokenFilePath = clickUpTokenFile.name,
+                    accounts =
+                        listOf(
+                            ClickUpConfig.Account(
+                                name = "main",
+                                apiTokenFilePath = clickUpTokenFile.name,
+                                projects =
+                                    listOf(
+                                        ClickUpConfig.RegistryProject(
+                                            name = "app",
+                                            workspaceName = workspaceName,
+                                            taskIdPrefix = "APP",
+                                        ),
+                                    ),
+                            ),
                         ),
                     automation =
                         ClickUpConfig.Automation(
-                            workspaceName = workspaceName,
                             fixVersionPattern = null,
                             fixVersionFieldName = null,
                             tagPattern = "fix_%1\\\$s.%2\\\$s",
+                            targetAccounts =
+                                listOf(
+                                    ClickUpConfig.AccountSelection(
+                                        accountName = "main",
+                                        projectNames = listOf("app"),
+                                    ),
+                                ),
                         ),
                 ),
             topBuildFileContent =

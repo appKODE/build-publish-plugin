@@ -102,10 +102,25 @@ interface ClickUpController {
     /**
      * Retrieves the name (title) of a ClickUp task.
      *
-     * @param taskId The ID of the ClickUp task.
+     * @param taskId The task id. A native ClickUp id when [teamId] is `null`, or a custom task id
+     *   (e.g. `PREFIX-123`) when [teamId] is provided.
+     * @param teamId When non-null, the task is resolved as a custom task id scoped to this ClickUp team
+     *   (workspace) via `custom_task_ids=true&team_id=<teamId>`; when `null`, [taskId] is treated as a
+     *   native id.
      * @return The task name, or `null` when it cannot be retrieved (unknown task or request error).
      */
-    fun getTaskName(taskId: String): String?
+    fun getTaskName(
+        taskId: String,
+        teamId: String? = null,
+    ): String?
+
+    /**
+     * Resolves a ClickUp workspace (team) name to its team id, or `null` when no team with that name is
+     * reachable by the current token. Used to scope custom-task-id lookups to the right workspace.
+     *
+     * @param workspaceName The ClickUp workspace (team) name.
+     */
+    fun getTeamId(workspaceName: String): String?
 
     /**
      * Deletes a custom field from a list.

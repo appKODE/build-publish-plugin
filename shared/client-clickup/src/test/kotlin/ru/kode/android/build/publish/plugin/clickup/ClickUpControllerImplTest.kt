@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test
 import retrofit2.Retrofit
 import ru.kode.android.build.publish.plugin.clickup.controller.ClickUpController
 import ru.kode.android.build.publish.plugin.clickup.controller.ClickUpControllerImpl
+import ru.kode.android.build.publish.plugin.clickup.controller.factory.ClickUpControllerFactory
 import ru.kode.android.build.publish.plugin.clickup.network.api.ClickUpApi
 import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLog
 
@@ -92,6 +93,50 @@ class ClickUpControllerImplTest {
         val name = controller().getTaskName("missing")
 
         assertEquals(null, name)
+    }
+
+    @Test
+    fun `getTaskName with teamId resolves a custom task id scoped to the team`() {
+        server.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("""{"id":"abc","name":"Fix cold start","tags":[],"custom_fields":[]}"""),
+        )
+
+        val name = controller().getTaskName(taskId = "APP-123", teamId = "team-9")
+
+        assertEquals("Fix cold start", name)
+        val request = server.takeRequest()
+        assertTrue(request.path?.startsWith("/v2/task/APP-123") == true, "Should call the task endpoint")
+        assertTrue(request.path?.contains("custom_task_ids=true") == true, "Should send custom_task_ids")
+        assertTrue(request.path?.contains("team_id=team-9") == true, "Should scope by team_id")
+    }
+
+    @Test
+    fun `getTeamId resolves a workspace name to its team id`() {
+        server.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("""{"teams":[{"id":"t1","name":"Other"},{"id":"t2","name":"My Workspace"}]}"""),
+        )
+
+        val teamId = controller().getTeamId("my workspace")
+
+        assertEquals("t2", teamId)
+        assertEquals("/v2/team", server.takeRequest().path)
+    }
+
+    @Test
+    fun `factory build honours the baseUrl seam`() {
+        server.enqueue(MockResponse().setResponseCode(200))
+
+        ClickUpControllerFactory
+            .build(token = "token", logger = logger, baseUrl = server.url("/").toString())
+            .addTagToTask(taskId = "task1", tagName = "release")
+
+        val request = server.takeRequest()
+        assertEquals("/v2/task/task1/tag/release", request.path)
+        assertEquals("token", request.getHeader("Authorization"))
     }
 
     @Test

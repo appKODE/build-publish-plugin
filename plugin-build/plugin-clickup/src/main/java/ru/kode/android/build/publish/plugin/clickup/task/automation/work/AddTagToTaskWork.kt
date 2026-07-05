@@ -5,6 +5,7 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
+import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 
 /**
  * Parameters for the [AddTagToTaskWork] work action.
@@ -14,41 +15,47 @@ import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpServi
  */
 internal interface AddTagToTaskParameters : WorkParameters {
     /**
-     * The name of the tag to add to the tasks
+     * The name of the ClickUp account the tasks live on.
+     */
+    val accountName: Property<String>
+
+    /**
+     * The name of the tag to add to the tasks.
      */
     val tagName: Property<String>
 
     /**
-     * The set of ClickUp task IDs to add the tag to
+     * The set of ClickUp task IDs to add the tag to.
      */
     val issues: SetProperty<String>
 
     /**
-     * The network service used to communicate with the ClickUp API
+     * The network service used to communicate with the ClickUp API.
      */
     val service: Property<ClickUpService>
+
+    /**
+     * The logger service used to report progress.
+     */
+    val loggerService: Property<LoggerService>
 }
 
 /**
  * A Gradle work action that adds a tag to multiple ClickUp tasks.
  *
- * This work action is executed asynchronously by Gradle's worker API. It takes a set of
- * ClickUp task IDs and adds the specified tag to each one using the provided network service.
- *
- * The work is performed in a background thread, making it suitable for network operations
- * that might take a significant amount of time.
+ * This work action is executed asynchronously by Gradle's worker API. It adds the specified tag to each
+ * of the given task ids on the selected account using the provided network service.
  *
  * @see WorkAction For more information about Gradle work actions
  * @see ClickUpService For the underlying network operations
  */
 internal abstract class AddTagToTaskWork : WorkAction<AddTagToTaskParameters> {
     override fun execute() {
-        val service = parameters.service.get()
-        val issues = parameters.issues.get()
-        val tagName = parameters.tagName.get()
-
-        issues.forEach { issue ->
-            service.addTagToTask(issue, tagName)
-        }
+        parameters.service.get().addTagToTasks(
+            accountName = parameters.accountName.get(),
+            tagName = parameters.tagName.get(),
+            taskIds = parameters.issues.get(),
+            log = parameters.loggerService.get()::info,
+        )
     }
 }
