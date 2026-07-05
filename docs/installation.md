@@ -173,8 +173,8 @@ Example precompiled script plugin:
 
 ```kotlin
 import org.gradle.api.GradleException
-import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNumberNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy

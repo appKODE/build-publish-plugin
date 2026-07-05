@@ -10,10 +10,10 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
-import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
-import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
-import ru.kode.android.build.publish.plugin.core.enity.IssueReference
-import ru.kode.android.build.publish.plugin.core.enity.IssueSource
+import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.entity.IssueReference
+import ru.kode.android.build.publish.plugin.core.entity.IssueSource
 import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_NAME
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService

@@ -1,6 +1,6 @@
 package ru.kode.android.build.publish.plugin.core.strategy
 
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.util.BUNDLE_FILE_EXTENSION
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

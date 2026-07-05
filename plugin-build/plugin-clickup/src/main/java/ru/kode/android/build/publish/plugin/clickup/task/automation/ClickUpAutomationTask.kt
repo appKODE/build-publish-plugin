@@ -21,7 +21,7 @@ import ru.kode.android.build.publish.plugin.clickup.messages.issuesNotFoundMessa
 import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddFixVersionWork
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddTagToTaskWork
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import javax.inject.Inject

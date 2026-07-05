@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import ru.kode.android.build.publish.plugin.core.enity.IssueSource
+import ru.kode.android.build.publish.plugin.core.entity.IssueSource
 import ru.kode.android.build.publish.plugin.telegram.controller.TelegramControllerFactory
 import ru.kode.android.build.publish.plugin.telegram.controller.TelegramMessage
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.ChatSpecificTelegramBot

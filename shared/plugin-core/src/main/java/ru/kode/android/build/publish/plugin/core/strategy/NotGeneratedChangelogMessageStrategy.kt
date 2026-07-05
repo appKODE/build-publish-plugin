@@ -1,6 +1,6 @@
 package ru.kode.android.build.publish.plugin.core.strategy
 
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 
 /**
  * Strategy interface for generating messages when changelog generation fails or produces no output.

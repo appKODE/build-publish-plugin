@@ -3,8 +3,8 @@
 package ru.kode.android.build.publish.plugin.foundation.messages
 
 import com.android.build.api.AndroidPluginVersion
-import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.OutputBundleNameStrategy

@@ -1,7 +1,7 @@
 package ru.kode.android.build.publish.plugin.core.strategy
 
-import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 
 /**
  * Strategy interface for generating changelog messages when no changes are detected.

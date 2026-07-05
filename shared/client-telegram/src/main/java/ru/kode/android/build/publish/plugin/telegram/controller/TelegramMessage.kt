@@ -1,6 +1,6 @@
 package ru.kode.android.build.publish.plugin.telegram.controller
 
-import ru.kode.android.build.publish.plugin.core.enity.IssueSource
+import ru.kode.android.build.publish.plugin.core.entity.IssueSource
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.ChatSpecificTelegramBot
 
 data class TelegramMessage(

@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.core.enity
+package ru.kode.android.build.publish.plugin.core.entity
 
 /**
  * A single issue-reference marker used to derive changelog entries from commit messages.

@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.foundation.messages.mustBeUsedWithVersionMessage
 import ru.kode.android.build.publish.plugin.foundation.validate.AgpVersions

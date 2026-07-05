@@ -1,7 +1,7 @@
 package ru.kode.android.build.publish.plugin.core.git
 
-import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
-import ru.kode.android.build.publish.plugin.core.enity.IssueReference
+import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.IssueReference
 import ru.kode.android.build.publish.plugin.core.issue.IssueResolver
 import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.messages.buildingChangelogForTagRangeMessage
@@ -123,7 +123,10 @@ class GitChangelogBuilder(
         commitChangelogLine: String?,
         issueReferences: List<IssueReference>,
     ): ReferenceToken? {
-        val reference = issueReferences.firstOrNull { line.contains(it.key) } ?: return null
+        val reference =
+            issueReferences.firstOrNull { ref ->
+                Regex("\\b" + Regex.escape(ref.key) + "\\b").containsMatchIn(line)
+            } ?: return null
         val token = Regex(reference.numberPattern).find(line.substringAfter(reference.key))?.value ?: return null
         return ReferenceToken(token, commitChangelogLine)
     }

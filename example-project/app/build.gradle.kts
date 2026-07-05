@@ -1,3 +1,6 @@
+import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType
+import ru.kode.android.build.publish.plugin.nextcloud.config.NextcloudShareMode
+
 plugins {
     id("com.android.application")
     id("ru.kode.android.build-publish-novo.foundation")
@@ -6,6 +9,9 @@ plugins {
     id("ru.kode.android.build-publish-novo.telegram")
     id("ru.kode.android.build-publish-novo.clickup")
     id("ru.kode.android.build-publish-novo.play")
+    id("ru.kode.android.build-publish-novo.firebase")
+    id("ru.kode.android.build-publish-novo.slack")
+    id("ru.kode.android.build-publish-novo.nextcloud")
     id("ru.kode.android.build-publish-example.print-tag")
 }
 
@@ -205,6 +211,57 @@ buildPublishPlay {
         common {
             trackId.set("Android")
             updatePriority.set(111)
+        }
+    }
+}
+
+buildPublishFirebase {
+    distribution {
+        common {
+            serviceCredentialsFile.set(File("firebase-service-account.json"))
+            appId.set("1:1234567890:android:abcdef123456")
+            artifactType.set(ArtifactType.Bundle)
+            testerGroups("qa-team", "developers")
+        }
+    }
+}
+
+buildPublishSlack {
+    bot {
+        common {
+            webhookUrl.set("https://hooks.slack.com/services/T000/B000/XXXX")
+            uploadApiTokenFile.set(File("slack-upload-token.txt"))
+            iconUrl.set("https://example.com/bot.png")
+        }
+    }
+    changelog {
+        common {
+            attachmentColor.set("#36a64f")
+            userMention("@here")
+        }
+    }
+    distribution {
+        common {
+            destinationChannels("#releases")
+        }
+    }
+}
+
+buildPublishNextcloud {
+    auth {
+        common {
+            baseUrl.set("https://cloud.example.com")
+            credentials.username.set("mobile-bot")
+            credentials.password.set("@password")
+        }
+    }
+    distribution {
+        common {
+            remotePath.set("mobile/example-project/release")
+            compressed.set(false)
+            shareMode.set(NextcloudShareMode.INTERNAL_RECIPIENTS)
+            userRecipients("qa-bot", "release-manager")
+            groupRecipients("android-team")
         }
     }
 }

@@ -1,6 +1,6 @@
 package ru.kode.android.build.publish.plugin.slack.controller
 
-import ru.kode.android.build.publish.plugin.core.enity.IssueSource
+import ru.kode.android.build.publish.plugin.core.entity.IssueSource
 
 data class SlackMessage(
     val webhookUrl: String,

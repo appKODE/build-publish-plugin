@@ -1,8 +1,8 @@
 package ru.kode.android.build.publish.plugin.core.git
 
-import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
-import ru.kode.android.build.publish.plugin.core.enity.IssueReference
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.IssueReference
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 
 /**
  * Provides high-level Git repository operations tailored for build and publish workflows.

@@ -7,7 +7,7 @@ import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceDistributionConfig
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceServiceExtension
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.ConfluenceDistributionTask
-import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName

@@ -13,7 +13,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
-import ru.kode.android.build.publish.plugin.core.enity.IssueReference
+import ru.kode.android.build.publish.plugin.core.entity.IssueReference
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.strategy.AnnotatedTagMessageStrategy

@@ -3,10 +3,10 @@ package ru.kode.android.build.publish.plugin.core.git
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
 import org.gradle.api.GradleException
-import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
-import ru.kode.android.build.publish.plugin.core.enity.CommitRange
-import ru.kode.android.build.publish.plugin.core.enity.IssueReference
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.CommitRange
+import ru.kode.android.build.publish.plugin.core.entity.IssueReference
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.messages.cannotReturnTagMessage
 import ru.kode.android.build.publish.plugin.core.messages.finTagsByRegexAfterSortingMessage
@@ -92,9 +92,9 @@ class GitCommandExecutor(
      * Extracts issue-reference lines (e.g. `CLOSES: 3458`, `FIXES: TBI-42`) from commits in the range,
      * grouped per commit and paired with that commit's `CHANGELOG:` line (if any) for fallback rendering.
      *
-     * A line is a reference when it contains any of the [references]' [IssueReference.key] markers. Only
-     * commits that carry at least one reference line are returned. The changelog line is the first line
-     * containing [commitMessageKey].
+     * A line is a reference when it contains any of the [references]' [IssueReference.key] markers as a
+     * whole word (so `CLOSES` does not match inside `DISCLOSES`). Only commits that carry at least one
+     * reference line are returned. The changelog line is the first line containing [commitMessageKey].
      *
      * @param references The configured issue-reference markers to look for.
      * @param commitMessageKey The changelog marker (e.g. `CHANGELOG`) used to locate the fallback line.
@@ -106,11 +106,12 @@ class GitCommandExecutor(
         range: CommitRange?,
     ): List<CommitIssueReferences> {
         if (references.isEmpty()) return emptyList()
+        val referenceMatchers = references.map { Regex("\\b" + Regex.escape(it.key) + "\\b") }
         return grgit.getCommitsByRange(range)
             .mapNotNull { commit ->
                 val lines = commit.fullMessage.split('\n')
                 val referenceLines =
-                    lines.filter { line -> references.any { reference -> line.contains(reference.key) } }
+                    lines.filter { line -> referenceMatchers.any { matcher -> matcher.containsMatchIn(line) } }
                 if (referenceLines.isEmpty()) {
                     null
                 } else {

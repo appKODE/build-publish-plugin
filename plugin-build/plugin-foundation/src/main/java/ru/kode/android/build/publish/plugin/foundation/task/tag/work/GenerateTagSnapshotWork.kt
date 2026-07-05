@@ -5,7 +5,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE

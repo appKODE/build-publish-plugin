@@ -1,6 +1,6 @@
 package ru.kode.android.build.publish.plugin.core.strategy
 
-import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
 
 /**
  * Strategy interface for formatting commit messages in the changelog.

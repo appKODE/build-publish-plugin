@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import ru.kode.android.build.publish.plugin.core.enity.IssueSource
+import ru.kode.android.build.publish.plugin.core.entity.IssueSource
 import ru.kode.android.build.publish.plugin.slack.controller.SlackControllerFactory
 import ru.kode.android.build.publish.plugin.slack.controller.SlackMessage
 

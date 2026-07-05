@@ -4,8 +4,8 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
-import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
-import ru.kode.android.build.publish.plugin.core.enity.IssueSource
+import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.entity.IssueSource
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput

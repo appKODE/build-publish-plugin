@@ -2,8 +2,8 @@ package ru.kode.android.build.publish.plugin.core.messages
 
 import okhttp3.Request
 import org.ajoberstar.grgit.Commit
-import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.util.SecretRedaction
 import ru.kode.android.build.publish.plugin.core.util.utcDateTime
 import java.io.File

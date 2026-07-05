@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
-import ru.kode.android.build.publish.plugin.core.enity.IssueReference
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.IssueReference
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.issue.IssueResolver
 import ru.kode.android.build.publish.plugin.core.issue.ResolvedIssue
 import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLog
@@ -220,6 +220,29 @@ class GitChangelogBuilderTest {
                 unresolvedStrategy = SkipUnresolvedStrategy,
             )
         assertFalse(changelog.orEmpty().contains("7777"), changelog.orEmpty())
+    }
+
+    @Test
+    fun `marker embedded in a larger word is not treated as a reference`() {
+        val changelog =
+            build(
+                // "DISCLOSES" contains "CLOSES" as a substring but is not the CLOSES marker
+                commitMessages = listOf("Docs\n\nDISCLOSES: 3458"),
+                resolvers = listOf(FakeResolver(titles = mapOf("3458" to ResolvedIssue("TBI-3458", "Should not appear")))),
+            )
+
+        assertNull(changelog)
+    }
+
+    @Test
+    fun `marker is matched at a word boundary and resolves`() {
+        val changelog =
+            build(
+                commitMessages = listOf("Fix\n\nCLOSES: 3458"),
+                resolvers = listOf(FakeResolver(titles = mapOf("3458" to ResolvedIssue("TBI-3458", "Fix cold start")))),
+            )
+
+        assertTrue(changelog!!.contains("• [TBI-3458] Fix cold start"), changelog)
     }
 
     @Test

@@ -2,7 +2,7 @@ package ru.kode.android.build.publish.plugin.core.git.mapper
 
 import kotlinx.serialization.json.Json
 import org.gradle.api.GradleException
-import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.messages.fileCannotBeParsedMessage
 import java.io.File
 

@@ -16,7 +16,7 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.jira.messages.issuesNoFoundMessage

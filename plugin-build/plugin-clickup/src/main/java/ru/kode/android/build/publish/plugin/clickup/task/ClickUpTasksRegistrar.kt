@@ -8,7 +8,7 @@ import ru.kode.android.build.publish.plugin.clickup.config.ClickUpAutomationConf
 import ru.kode.android.build.publish.plugin.clickup.messages.propertiesNotAppliedMessage
 import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtension
 import ru.kode.android.build.publish.plugin.clickup.task.automation.ClickUpAutomationTask
-import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput

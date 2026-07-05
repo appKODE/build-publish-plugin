@@ -12,7 +12,7 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy

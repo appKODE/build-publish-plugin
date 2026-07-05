@@ -76,6 +76,7 @@ Then see [Installation](docs/installation.md) for repositories, version catalogs
 - **[Troubleshooting](docs/troubleshooting.md)**
 - **[Migration guides](docs/migration/index.md)** — [legacy → novo](docs/migration/legacy-to-novo.md),
   **[novo 1.x → 2.0](docs/migration/v2.md)** and **[novo 2.0 → 2.1](docs/migration/v2.1.md)**.
+- **[Roadmap](ROADMAP.md)** — recently shipped work, planned themes, and what is intentionally out of scope.
 
 ## Examples
 

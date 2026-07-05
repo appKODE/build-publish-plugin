@@ -4,7 +4,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
-import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_BUILD_VERSION
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
