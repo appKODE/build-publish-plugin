@@ -15,6 +15,7 @@ dependencies {
     testImplementation(libs.grgitGradle)
 
     testImplementation(gradleTestKit())
+    testImplementation(libs.okhttpMockWebServer)
     testImplementation(platform(libs.junitBom))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

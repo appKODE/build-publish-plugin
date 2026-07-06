@@ -2,8 +2,8 @@ package ru.kode.android.build.publish.plugin.core.util
 
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
-import ru.kode.android.build.publish.plugin.core.enity.CommitRange
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.CommitRange
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit

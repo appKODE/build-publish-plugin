@@ -79,16 +79,26 @@ buildPublishTelegram {
 buildPublishClickUp {
     auth {
         common {
-            apiTokenFile = project.file("clickup-token.txt")
+            account("main") {
+                var provider = project.layout.buildDirectory.file("clickup-api-token.txt").get()
+                provider.asFile.parentFile.mkdirs()
+                provider.asFile.createNewFile()
+                apiTokenFile.set(provider)
+                project("app") {
+                    workspaceName.set("My Workspace")
+                    taskIdPrefix.set("APP")
+                }
+            }
         }
     }
 
     automation {
         common {
-            workspaceName.set("Ilia Nekrasov's Workspace")
             fixVersionPattern = "fix_%2\$s_%1\$s"
             fixVersionFieldName = "Fix version"
             tagPattern = "test_tag_name"
+
+            targetAccount("main") { projectNames("app") }
         }
     }
 }

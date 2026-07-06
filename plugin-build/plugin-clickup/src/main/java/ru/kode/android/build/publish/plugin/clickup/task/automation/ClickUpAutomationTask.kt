@@ -5,11 +5,10 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -21,7 +20,7 @@ import ru.kode.android.build.publish.plugin.clickup.messages.issuesNotFoundMessa
 import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddFixVersionWork
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddTagToTaskWork
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import javax.inject.Inject
@@ -31,8 +30,8 @@ import javax.inject.Inject
  *
  * This task is responsible for:
  * - Extracting issue numbers from the changelog using a specified pattern
- * - Adding version tags to ClickUp tasks mentioned in the changelog
- * - Updating custom fix version fields for tasks
+ * - Routing each issue to its owning project (by custom-task-id prefix)
+ * - Adding version tags and custom fix-version fields to the matching ClickUp tasks
  * - Processing tasks asynchronously using Gradle's Worker API
  *
  * The task is typically registered by [ClickUpTasksRegistrar] based on the build configuration.
@@ -52,9 +51,9 @@ abstract class ClickUpAutomationTask
         }
 
         /**
-         * The network service used to communicate with the ClickUp API.
-         *
-         * This is an internal property that's injected when the task is created.
+         * The ClickUp build service for this variant, holding every configured account. A single service
+         * (not a per-account reference) is handed to the Worker API, so each action selects its account
+         * by [ClickUpProjectBinding.accountName]. Wired up automatically by the plugin.
          */
         @get:Internal
         abstract val service: Property<ClickUpService>
@@ -62,25 +61,10 @@ abstract class ClickUpAutomationTask
         /**
          * The logger service used to log messages during task execution.
          *
-         * This service is used to log messages related to the task execution.
-         *
          * @see LoggerService
          */
         @get:Internal
         abstract val loggerService: Property<LoggerService>
-
-        /**
-         * The name of the ClickUp workspace to operate on.
-         *
-         * This is the name of the ClickUp workspace where tasks are located.
-         * It's used when determining the custom field ID for fix versions.
-         */
-        @get:Input
-        @get:Option(
-            option = "workspaceName",
-            description = "Name of the ClickUp workspace to operate on",
-        )
-        abstract val workspaceName: Property<String>
 
         /**
          * A JSON file containing build tag information.
@@ -100,7 +84,7 @@ abstract class ClickUpAutomationTask
          * The changelog file containing commit messages and issue references.
          *
          * This file is parsed to extract issue numbers that match the [issuePatterns].
-         * Each matching issue will be processed to add tags or update versions.
+         * Each matching issue will be routed to its owning project and processed.
          */
         @get:InputFile
         @get:Option(
@@ -111,10 +95,8 @@ abstract class ClickUpAutomationTask
         abstract val changelogFile: RegularFileProperty
 
         /**
-         * Regular expression pattern used to extract issue numbers from the changelog.
-         *
-         * The pattern should match a ClickUp task id inside the changelog.
-         * For example, if your ClickUp tasks are referenced as `#123`, the pattern could be `#\\d+`.
+         * Regular expression patterns (one per configured changelog issue source) used to extract
+         * ClickUp task ids from the changelog.
          *
          * Note: the task uses the full match (`MatchResult.groupValues[0]`) as the ClickUp task id.
          */
@@ -126,61 +108,13 @@ abstract class ClickUpAutomationTask
         abstract val issuePatterns: ListProperty<String>
 
         /**
-         * Pattern used to format the fix version for ClickUp tasks.
+         * The ClickUp projects targeted by this automation run, resolved from the plugin DSL.
          *
-         * This pattern is formatted using `String.format(...)` and receives:
-         * - `buildVersion`
-         * - `buildNumber`
-         * - `buildVariant`
-         *
-         * Example: `"%s (%d)"` might result in `"1.2.3 (456)"`
-         *
-         * If specified, [fixVersionFieldName] must also be provided.
+         * Each binding carries its account name, workspace, custom-task-id prefix and effective
+         * automation patterns.
          */
-        @get:Input
-        @get:Option(
-            option = "fixVersionPattern",
-            description = "Pattern to format fix versions for ClickUp tasks",
-        )
-        @get:Optional
-        abstract val fixVersionPattern: Property<String>
-
-        /**
-         * The name of the custom field in ClickUp where the fix version is stored.
-         *
-         * The task uses [workspaceName] + this field name to resolve the custom field id
-         * and then updates the field value.
-         *
-         * If specified, [fixVersionPattern] must also be provided.
-         */
-        @get:Input
-        @get:Option(
-            option = "fixVersionFieldName",
-            description = "Name of the custom field where the fix version is stored",
-        )
-        @get:Optional
-        abstract val fixVersionFieldName: Property<String>
-
-        /**
-         * The tag to be added to ClickUp tasks mentioned in the changelog.
-         *
-         * This tag will be added to all tasks that are found in the changelog.
-         * It's typically used to mark which release a task was included in.
-         *
-         * This pattern is formatted using `String.format(...)` and receives:
-         * - `buildVersion`
-         * - `buildNumber`
-         * - `buildVariant`
-         *
-         * If not specified, no tags will be added to tasks.
-         */
-        @get:Input
-        @get:Option(
-            option = "tagPattern",
-            description = "Tag to be added to ClickUp tasks mentioned in the changelog",
-        )
-        @get:Optional
-        abstract val tagPattern: Property<String>
+        @get:Nested
+        abstract val projects: ListProperty<ClickUpProjectBinding>
 
         /**
          * The main task action that processes the changelog and updates ClickUp tasks.
@@ -189,7 +123,8 @@ abstract class ClickUpAutomationTask
          * 1. Reads the build tag and changelog files
          * 2. Extracts issue numbers from the changelog using [issuePatterns]
          * 3. If no issues are found, logs a message and exits
-         * 4. Otherwise, submits work items to update versions and/or add tags
+         * 4. Otherwise, routes each issue to its owning project (by prefix) and submits work items to
+         *    update versions and/or add tags
          *
          * The actual work is performed asynchronously using Gradle's Worker API.
          */
@@ -204,80 +139,87 @@ abstract class ClickUpAutomationTask
                     }
             if (issues.isEmpty()) {
                 loggerService.get().info(issuesNotFoundMessage())
-            } else {
-                val fixVersionFieldId =
-                    service.flatMap { service ->
-                        workspaceName
-                            .zip(fixVersionFieldName) { workspaceName, fixVersionFieldName ->
-                                service.getCustomFieldId(workspaceName, fixVersionFieldName)
-                            }
-                    }
-                val workQueue: WorkQueue = workerExecutor.noIsolation()
-                workQueue.submitUpdateVersionIfPresent(currentBuildTag, issues, fixVersionFieldId)
-                workQueue.submitSetTagIfPresent(currentBuildTag, issues)
+                return
+            }
+
+            val bindings = resolveBindings()
+            val knownPrefixes = bindings.mapTo(mutableSetOf()) { it.taskIdPrefix }
+            val issuesByPrefix = issues.groupBy { it.substringBefore("-").uppercase() }
+            // Issues whose prefix matches no configured project are treated as native ClickUp task ids and
+            // are applied against every targeted project, mirroring ClickUpIssueResolver's native-id
+            // fallback. Without this, native ids (the common case, e.g. "86c72yxu4") would be dropped and
+            // no tag/fix-version would ever be applied.
+            val nativeIssues = issuesByPrefix.filterKeys { it !in knownPrefixes }.values.flatten().toSet()
+            val workQueue: WorkQueue = workerExecutor.noIsolation()
+
+            bindings.forEach { binding ->
+                val bindingIssues = (issuesByPrefix[binding.taskIdPrefix].orEmpty() + nativeIssues).toSet()
+                if (bindingIssues.isNotEmpty()) {
+                    workQueue.applyAutomation(currentBuildTag, binding, bindingIssues)
+                }
             }
         }
 
         /**
-         * Submits work to update the fix version for the given issues, if configured.
-         *
-         * This method checks if both [fixVersionPattern] and [fixVersionFieldName] are set,
-         * and if so, submits a work item to update the fix version for each issue.
-         *
-         * @param currentBuildTag The current build tag containing version and build number
-         * @param issues The set of issue numbers to update
-         * @param fieldId Provider of ClickUp custom field id to update
+         * Resolves the list of project bindings to act on from the configured DSL bindings.
          */
-        private fun WorkQueue.submitUpdateVersionIfPresent(
-            currentBuildTag: Tag.Build,
-            issues: Set<String>,
-            fieldId: Provider<String>,
-        ) {
-            if (fixVersionPattern.isPresent && fixVersionFieldName.isPresent) {
-                val version =
-                    fixVersionPattern.map {
-                        it.format(
-                            currentBuildTag.buildVersion,
-                            currentBuildTag.buildNumber,
-                            currentBuildTag.buildVariant,
-                        )
-                    }
+        private fun resolveBindings(): List<ResolvedBinding> =
+            projects.get().map { binding ->
+                ResolvedBinding(
+                    accountName = binding.accountName.get(),
+                    workspaceName = binding.workspaceName.get(),
+                    taskIdPrefix = binding.taskIdPrefix.get().uppercase(),
+                    fixVersionPattern = binding.fixVersionPattern.orNull,
+                    fixVersionFieldName = binding.fixVersionFieldName.orNull,
+                    tagPattern = binding.tagPattern.orNull,
+                )
+            }
 
+        /**
+         * Submits the enabled automation actions (fix version, tag) for a single project against its
+         * ClickUp account and issue subset. The task's single [service] is handed to every worker as a
+         * build-service reference (never a resolved account), so it isolates cleanly; each action routes
+         * to the project's account via [ResolvedBinding.accountName].
+         */
+        private fun WorkQueue.applyAutomation(
+            currentBuildTag: Tag.Build,
+            binding: ResolvedBinding,
+            issues: Set<String>,
+        ) {
+            if (binding.fixVersionPattern != null && binding.fixVersionFieldName != null) {
                 submit(AddFixVersionWork::class.java) { parameters ->
+                    parameters.accountName.set(binding.accountName)
+                    parameters.workspaceName.set(binding.workspaceName)
+                    parameters.fieldName.set(binding.fixVersionFieldName)
+                    parameters.version.set(binding.fixVersionPattern.formatWith(currentBuildTag))
                     parameters.issues.set(issues)
-                    parameters.version.set(version)
-                    parameters.fieldId.set(fieldId)
                     parameters.service.set(service)
+                    parameters.loggerService.set(loggerService)
+                }
+            }
+            binding.tagPattern?.let { pattern ->
+                submit(AddTagToTaskWork::class.java) { parameters ->
+                    parameters.accountName.set(binding.accountName)
+                    parameters.tagName.set(pattern.formatWith(currentBuildTag))
+                    parameters.issues.set(issues)
+                    parameters.service.set(service)
+                    parameters.loggerService.set(loggerService)
                 }
             }
         }
 
+        private fun String.formatWith(tag: Tag.Build) = format(tag.buildVersion, tag.buildNumber, tag.buildVariant)
+
         /**
-         * Submits work to add the configured tag to the given issues, if a tag is configured.
-         *
-         * This method checks if [tagPattern] is set, and if so, submits a work item
-         * to add the tag to each issue.
-         *
-         * @param issues The set of issue numbers to tag
+         * A fully-resolved project to act on during a single automation run: its owning account name,
+         * workspace, (upper-cased) task-id prefix and effective automation patterns.
          */
-        private fun WorkQueue.submitSetTagIfPresent(
-            currentBuildTag: Tag.Build,
-            issues: Set<String>,
-        ) {
-            if (tagPattern.isPresent) {
-                val tagName =
-                    tagPattern.map {
-                        it.format(
-                            currentBuildTag.buildVersion,
-                            currentBuildTag.buildNumber,
-                            currentBuildTag.buildVariant,
-                        )
-                    }
-                submit(AddTagToTaskWork::class.java) { parameters ->
-                    parameters.issues.set(issues)
-                    parameters.tagName.set(tagName)
-                    parameters.service.set(service)
-                }
-            }
-        }
+        private data class ResolvedBinding(
+            val accountName: String,
+            val workspaceName: String,
+            val taskIdPrefix: String,
+            val fixVersionPattern: String?,
+            val fixVersionFieldName: String?,
+            val tagPattern: String?,
+        )
     }

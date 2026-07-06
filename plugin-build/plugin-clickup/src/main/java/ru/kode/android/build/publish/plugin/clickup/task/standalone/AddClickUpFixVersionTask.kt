@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.clickup.task.standalone
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
@@ -38,10 +39,16 @@ abstract class AddClickUpFixVersionTask
         @get:Option(option = "fieldName", description = "Custom field name that stores the fix version")
         abstract val fieldName: Property<String>
 
+        @get:Input
+        @get:Optional
+        @get:Option(option = "accountName", description = "Name of the ClickUp account to use")
+        abstract val accountName: Property<String>
+
         @TaskAction
         fun addFixVersion() {
             val workQueue = workerExecutor.noIsolation()
             workQueue.submit(StandaloneAddClickUpFixVersionWork::class.java) { params ->
+                params.accountName.set(accountName)
                 params.version.set(version)
                 params.taskIds.set(taskIds)
                 params.workspaceName.set(workspaceName)

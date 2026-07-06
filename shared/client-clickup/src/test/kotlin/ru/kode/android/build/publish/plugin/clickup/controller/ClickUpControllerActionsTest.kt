@@ -48,6 +48,13 @@ class ClickUpControllerActionsTest {
 
         override fun getTaskFields(taskId: String): ClickUpTaskFields = error("unused")
 
+        override fun getTaskName(
+            taskId: String,
+            teamId: String?,
+        ): String? = null
+
+        override fun getTeamId(workspaceName: String): String? = null
+
         override fun deleteCustomFieldFromList(
             workspaceName: String,
             fieldId: String,

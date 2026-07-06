@@ -10,15 +10,18 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
-import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
-import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
-import ru.kode.android.build.publish.plugin.core.enity.IssueSource
+import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.entity.IssueReference
+import ru.kode.android.build.publish.plugin.core.entity.IssueSource
 import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_NAME
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
+import ru.kode.android.build.publish.plugin.core.strategy.ChangelogLineOrKeyUnresolvedStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_TAG_PATTERN
 import ru.kode.android.build.publish.plugin.core.strategy.DecoratedAnnotatedTagMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.KeyAndTitleResolvedStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.KeyRemovingChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.NoChangesChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.NoChangesNotGeneratedChangelogMessageStrategy
@@ -362,6 +365,20 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                             it.notGeneratedChangelogMessageStrategy
                                                 .orElse(NoChangesNotGeneratedChangelogMessageStrategy)
                                         },
+                                    issueReferences =
+                                        changelogConfigProvider
+                                            .flatMap { config -> project.issueReferences(config) }
+                                            .orElse(emptyList()),
+                                    unresolvedIssueStrategy =
+                                        changelogConfigProvider.flatMap {
+                                            it.unresolvedIssueStrategy
+                                                .orElse(ChangelogLineOrKeyUnresolvedStrategy)
+                                        },
+                                    resolvedIssueStrategy =
+                                        changelogConfigProvider.flatMap {
+                                            it.resolvedIssueStrategy
+                                                .orElse(KeyAndTitleResolvedStrategy)
+                                        },
                                 ),
                         )
 
@@ -407,14 +424,7 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                                             ExtensionInput.Changelog(
                                                 issueSources =
                                                     changelogConfigProvider
-                                                        .map { config ->
-                                                            config.issueSourcesConfig.sources.mapNotNull { source ->
-                                                                val pattern =
-                                                                    source.numberPattern.orNull
-                                                                        ?: return@mapNotNull null
-                                                                IssueSource(pattern, source.urlPrefix.orNull)
-                                                            }
-                                                        }
+                                                        .flatMap { config -> project.issueSources(config) }
                                                         .orElse(emptyList()),
                                                 commitMessageKey =
                                                     changelogConfigProvider.flatMap {
@@ -486,3 +496,38 @@ private fun Project.getDefaultVersionCode(): Int? {
             .versionCode
     }
 }
+
+/**
+ * Composes the [config]'s issue references into a lazy [IssueReference] list without forcing any
+ * property: each reference contributes its entry only once its `key` is present (an unkeyed reference
+ * is skipped), pairing that key with the always-defaulted `numberPattern` via [Provider.zip] and
+ * accumulating into a `ListProperty`.
+ */
+private fun Project.issueReferences(config: ChangelogConfig): Provider<List<IssueReference>> =
+    objects.listProperty(IssueReference::class.java).apply {
+        config.issueReferencesConfig.references.forEach { reference ->
+            addAll(
+                reference.key
+                    .zip(reference.numberPattern) { key, pattern -> listOf(IssueReference(key, pattern)) }
+                    .orElse(emptyList()),
+            )
+        }
+    }
+
+/**
+ * Composes the [config]'s issue sources into a lazy [IssueSource] list without forcing any property:
+ * each source contributes its entry only once its `numberPattern` is present, paired with the optional
+ * `urlPrefix` (blank/absent → no link) via [Provider.zip] and accumulated into a `ListProperty`.
+ */
+private fun Project.issueSources(config: ChangelogConfig): Provider<List<IssueSource>> =
+    objects.listProperty(IssueSource::class.java).apply {
+        config.issueSourcesConfig.sources.forEach { source ->
+            addAll(
+                source.numberPattern
+                    .zip(source.urlPrefix.orElse("")) { pattern, urlPrefix ->
+                        listOf(IssueSource(pattern, urlPrefix.ifBlank { null }))
+                    }
+                    .orElse(emptyList()),
+            )
+        }
+    }

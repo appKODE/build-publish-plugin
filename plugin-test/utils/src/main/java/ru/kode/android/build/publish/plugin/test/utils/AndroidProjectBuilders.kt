@@ -361,6 +361,7 @@ fun File.createAndroidProject(
             
             changelogCommon {
                 ${changelogIssueSourcesBlock(foundationConfig.changelog)}
+                ${changelogIssueReferencesBlock(foundationConfig.changelog)}
                 commitMessageKey.set("${foundationConfig.changelog.commitMessageKey}")
                 $changelogStrategy
             }
@@ -369,19 +370,33 @@ fun File.createAndroidProject(
 
     val clickUpConfigBlock =
         clickUpConfig?.let { config ->
+            val accounts =
+                config.accounts.joinToString("\n") { account ->
+                    """
+                    account("${account.name}") {
+                        apiTokenFile.set(project.file("${account.apiTokenFilePath}"))
+                        ${clickUpRegistryProjectsBlock(account.projects)}
+                    }
+                    """.trimIndent()
+                }
             val automation =
                 config.automation?.let { automation ->
                     clickUpAutomationBlock(automation)
+                }.orEmpty()
+            val issueResolution =
+                config.issueResolution?.let { resolution ->
+                    clickUpIssueResolutionBlock(resolution)
                 }.orEmpty()
             """
         buildPublishClickUp {
             auth {
                 common {
-                    apiTokenFile = project.file("${config.auth.apiTokenFilePath}")
+                    $accounts
                 }
             }
-            
+
             $automation
+            $issueResolution
         }
             """
         }.orEmpty()
@@ -451,30 +466,50 @@ fun File.createAndroidProject(
                 }
                     """
                 }
-            val testerGroups =
-                config.distributionCommon.testerGroups?.let { testerGroups ->
-                    """testerGroups(${testerGroups.joinToString { group -> "\"$group\"" }})"""
-                }
-            """
-        buildPublishFirebase {
-            distribution {
+            val commonBlock =
+                config.distributionCommon?.let { common ->
+                    val testerGroups =
+                        common.testerGroups?.let { testerGroups ->
+                            """testerGroups(${testerGroups.joinToString { group -> "\"$group\"" }})"""
+                        }
+                    """
                 common {
-                    serviceCredentialsFile = project.file("${config.distributionCommon.serviceCredentialsFilePath}")
-                    appId.set("${config.distributionCommon.appId}")
-                    artifactType.set(${config.distributionCommon.artifactType})
+                    serviceCredentialsFile = project.file("${common.serviceCredentialsFilePath}")
+                    appId.set("${common.appId}")
+                    artifactType.set(${common.artifactType})
                     ${testerGroups.orEmpty()}
                 }
+                    """
+                }
+            // With no distribution declared at all, still apply the plugin with an empty extension so
+            // tests can assert the finalizeDsl gate (AppDistributionPlugin only applied when non-empty).
+            if (commonBlock == null && buildTypeFirebaseBlock == null) {
+                """
+        buildPublishFirebase {
+        }
+                """
+            } else {
+                """
+        buildPublishFirebase {
+            distribution {
+                ${commonBlock.orEmpty()}
                 ${buildTypeFirebaseBlock.orEmpty()}
             }
         }
-            """
+                """
+            }
         }.orEmpty()
 
     val jiraConfigBlock =
         jiraConfig?.let { config ->
+            val registry = jiraProjectRegistry(config)
             val automation =
                 config.automation?.let { automation ->
                     jiraAutomationBlock(automation)
+                }.orEmpty()
+            val issueResolution =
+                config.issueResolution?.let { resolution ->
+                    jiraIssueResolutionBlock(resolution)
                 }.orEmpty()
             val secondaryInstanceBlocks =
                 config.secondaryAuth.entries.joinToString("\n") { (name, auth) ->
@@ -483,6 +518,7 @@ fun File.createAndroidProject(
                         baseUrl.set("${auth.baseUrl}")
                         credentials.username.set("${auth.username}")
                         credentials.password.set("${auth.password}")
+                        ${jiraRegistryProjectsBlock(registry[name].orEmpty())}
                     }
                     """.trimIndent()
                 }
@@ -494,12 +530,14 @@ fun File.createAndroidProject(
                         baseUrl.set("${config.auth.baseUrl}")
                         credentials.username.set("${config.auth.username}")
                         credentials.password.set("${config.auth.password}")
+                        ${jiraRegistryProjectsBlock(registry["default"].orEmpty())}
                     }
                     $secondaryInstanceBlocks
                 }
             }
 
             $automation
+            $issueResolution
         }
             """
         }.orEmpty()
@@ -681,28 +719,89 @@ private fun changelogIssueSourcesBlock(changelog: FoundationConfig.Changelog): S
     }
 }
 
+private fun changelogIssueReferencesBlock(changelog: FoundationConfig.Changelog): String {
+    if (changelog.issueReferences.isEmpty()) return ""
+    val entries =
+        changelog.issueReferences.joinToString("\n") { reference ->
+            val numberPatternLine =
+                reference.numberPattern
+                    ?.let { pattern -> "\n                numberPattern.set(\"$pattern\")" }
+                    .orEmpty()
+            """
+            issueReference("${reference.name}") {
+                key.set("${reference.key}")$numberPatternLine
+            }
+            """.trimIndent()
+        }
+    // A single reference uses the issueReference(...) shorthand; multiple use the issueReferences { } block.
+    return if (changelog.issueReferences.size == 1) {
+        entries
+    } else {
+        """
+        issueReferences {
+            $entries
+        }
+        """.trimIndent()
+    }
+}
+
+/**
+ * Builds the per-instance project **registry** (`instanceName -> [(projectName, projectKey)]`) from the
+ * explicit `Auth.projects` entries plus every project referenced by `automation`. Entries are deduped by
+ * project name, preserving declaration order. Projects whose `instanceName` names an undeclared instance
+ * are still returned (so callers exercising the unknown-instance failure keep their orphan entry).
+ */
+private fun jiraProjectRegistry(config: JiraConfig): Map<String, List<Pair<String, String>>> {
+    val byInstance = linkedMapOf<String, LinkedHashMap<String, String>>()
+
+    fun put(
+        instance: String,
+        name: String,
+        key: String,
+    ) {
+        byInstance.getOrPut(instance) { LinkedHashMap() }[name] = key
+    }
+    config.auth.projects.forEach { put("default", it.name, it.projectKey) }
+    config.secondaryAuth.forEach { (instance, auth) ->
+        auth.projects.forEach { put(instance, it.name, it.projectKey) }
+    }
+    config.automation?.projects?.forEach { put(it.instanceName ?: "default", it.name, it.projectKey) }
+    return byInstance.mapValues { (_, projects) -> projects.toList() }
+}
+
+private fun jiraRegistryProjectsBlock(projects: List<Pair<String, String>>): String =
+    projects.joinToString("\n") { (name, key) ->
+        """project("$name") { projectKey.set("$key") }"""
+    }
+
 private fun jiraAutomationBlock(automation: JiraConfig.Automation): String {
-    val entries = automation.projects.joinToString("\n") { jiraProjectBlock(it) }
+    val targets =
+        automation.projects
+            .groupBy { it.instanceName ?: "default" }
+            .entries
+            .joinToString("\n") { (instance, projects) ->
+                val projectBlocks = projects.joinToString("\n") { jiraTargetProjectBlock(it) }
+                """
+                targetInstance("$instance") {
+                    $projectBlocks
+                }
+                """.trimIndent()
+            }
     return """
             automation {
                 common {
-                    projects {
-                        $entries
-                    }
+                    $targets
                 }
             }
     """
 }
 
-private fun jiraProjectBlock(project: JiraConfig.Project): String {
-    val instanceName = project.instanceName?.let { name -> """instanceName.set("$name")""" }.orEmpty()
+private fun jiraTargetProjectBlock(project: JiraConfig.Project): String {
     val label = project.labelPattern?.let { pattern -> """labelPattern.set("$pattern")""" }.orEmpty()
     val fixVersion = project.fixVersionPattern?.let { pattern -> """fixVersionPattern.set("$pattern")""" }.orEmpty()
     val statusName = project.targetStatusName?.let { name -> """targetStatusName.set("$name")""" }.orEmpty()
     return """
         project("${project.name}") {
-            projectKey.set("${project.projectKey}")
-            $instanceName
             $label
             $fixVersion
             $statusName
@@ -710,20 +809,64 @@ private fun jiraProjectBlock(project: JiraConfig.Project): String {
         """.trimIndent()
 }
 
+private fun jiraIssueResolutionBlock(resolution: JiraConfig.IssueResolution): String {
+    val selections =
+        resolution.fromInstances.joinToString("\n") { selection ->
+            val names = selection.projectNames.joinToString(", ") { name -> "\"$name\"" }
+            """fromInstance("${selection.instanceName}") { projectNames($names) }"""
+        }
+    return """
+            issueResolution {
+                common {
+                    $selections
+                }
+            }
+    """
+}
+
+private fun clickUpRegistryProjectsBlock(projects: List<ClickUpConfig.RegistryProject>): String =
+    projects.joinToString("\n") { project ->
+        """
+        project("${project.name}") {
+            workspaceName.set("${project.workspaceName}")
+            taskIdPrefix.set("${project.taskIdPrefix}")
+        }
+        """.trimIndent()
+    }
+
 private fun clickUpAutomationBlock(automation: ClickUpConfig.Automation): String {
-    val workspaceName = automation.workspaceName.let { name -> """workspaceName.set("$name")""" }
     val fixVersionPattern =
         automation.fixVersionPattern?.let { """fixVersionPattern.set("$it")""" }.orEmpty()
     val fixVersionFieldName =
         automation.fixVersionFieldName?.let { """fixVersionFieldName.set("$it")""" }.orEmpty()
     val tagPattern = automation.tagPattern?.let { pattern -> """tagPattern.set("$pattern")""" }.orEmpty()
+    val targets =
+        automation.targetAccounts.joinToString("\n") { selection ->
+            val names = selection.projectNames.joinToString(", ") { name -> "\"$name\"" }
+            """targetAccount("${selection.accountName}") { projectNames($names) }"""
+        }
     return """
             automation {
                 common {
-                    $workspaceName
                     $fixVersionPattern
                     $fixVersionFieldName
                     $tagPattern
+                    $targets
+                }
+            }
+    """
+}
+
+private fun clickUpIssueResolutionBlock(resolution: ClickUpConfig.IssueResolution): String {
+    val selections =
+        resolution.fromAccounts.joinToString("\n") { selection ->
+            val names = selection.projectNames.joinToString(", ") { name -> "\"$name\"" }
+            """fromAccount("${selection.accountName}") { projectNames($names) }"""
+        }
+    return """
+            issueResolution {
+                common {
+                    $selections
                 }
             }
     """
@@ -957,6 +1100,7 @@ fun File.getFile(path: String): File {
 fun File.runTask(
     task: String,
     taskArguments: Map<String, String> = emptyMap(),
+    cliArguments: List<String> = emptyList(),
     agpClasspath: List<File> = emptyList(),
     gradleVersion: String = "9.6.1",
     gradleJvmArgs: List<String> = emptyList(),
@@ -964,6 +1108,7 @@ fun File.runTask(
 ): BuildResult {
     val args =
         mutableListOf(task).apply {
+            addAll(cliArguments)
             if (!IS_CI) add("--info")
             add("--stacktrace")
             taskArguments.forEach { (key, value) ->
@@ -1187,28 +1332,57 @@ data class FoundationConfig(
          * [issueNumberPattern] / [issueUrlPrefix] (backward-compatible with single-source tests).
          */
         val issueSources: List<IssueSource> = emptyList(),
+        /**
+         * Commit markers (`CLOSES`/`FIXES`) whose token is auto-resolved to an issue title by a provider
+         * plugin (e.g. Jira `issueResolution`). Empty by default — no `issueReferences { }` is rendered.
+         */
+        val issueReferences: List<IssueReference> = emptyList(),
     ) {
         data class IssueSource(
             val name: String,
             val numberPattern: String,
             val urlPrefix: String? = null,
         )
+
+        data class IssueReference(
+            val name: String,
+            val key: String,
+            val numberPattern: String? = null,
+        )
     }
 }
 
 data class ClickUpConfig(
-    val auth: Auth,
-    val automation: Automation?,
+    val accounts: List<Account>,
+    val automation: Automation? = null,
+    val issueResolution: IssueResolution? = null,
 ) {
-    data class Auth(
+    data class Account(
+        val name: String,
         val apiTokenFilePath: String,
+        val projects: List<RegistryProject> = emptyList(),
+    )
+
+    data class RegistryProject(
+        val name: String,
+        val workspaceName: String,
+        val taskIdPrefix: String,
     )
 
     data class Automation(
-        val workspaceName: String,
-        val fixVersionPattern: String?,
-        val fixVersionFieldName: String?,
-        val tagPattern: String?,
+        val fixVersionPattern: String? = null,
+        val fixVersionFieldName: String? = null,
+        val tagPattern: String? = null,
+        val targetAccounts: List<AccountSelection> = emptyList(),
+    )
+
+    data class IssueResolution(
+        val fromAccounts: List<AccountSelection> = emptyList(),
+    )
+
+    data class AccountSelection(
+        val accountName: String,
+        val projectNames: List<String>,
     )
 }
 
@@ -1249,7 +1423,7 @@ data class NextcloudConfig(
 }
 
 data class FirebaseConfig(
-    val distributionCommon: Distribution,
+    val distributionCommon: Distribution? = null,
     val distributionBuildType: Pair<String, Distribution>? = null,
 ) {
     data class Distribution(
@@ -1262,14 +1436,39 @@ data class FirebaseConfig(
 
 data class JiraConfig(
     val auth: Auth,
-    val automation: Automation?,
+    val automation: Automation? = null,
+    val issueResolution: IssueResolution? = null,
     val secondaryAuth: Map<String, Auth> = emptyMap(),
 ) {
     data class Auth(
         val baseUrl: String,
         val username: String,
         val password: String,
+        /**
+         * Projects declared on this instance's registry (`instance("…") { project("name") { projectKey } }`).
+         * Automation/issueResolution reference them by name. When empty, the registry is derived from
+         * [Automation.projects] so existing automation-only tests keep working unchanged.
+         */
+        val projects: List<RegistryProject> = emptyList(),
     )
+
+    data class RegistryProject(
+        val name: String,
+        val projectKey: String,
+    )
+
+    /**
+     * Opt-in `issueResolution { }` block: resolves changelog `CLOSES`/`FIXES` references to Jira issue
+     * titles, reading from the selected registry projects.
+     */
+    data class IssueResolution(
+        val fromInstances: List<InstanceSelection> = emptyList(),
+    ) {
+        data class InstanceSelection(
+            val instanceName: String = "default",
+            val projectNames: List<String>,
+        )
+    }
 
     data class Automation(
         val projects: List<Project> = emptyList(),

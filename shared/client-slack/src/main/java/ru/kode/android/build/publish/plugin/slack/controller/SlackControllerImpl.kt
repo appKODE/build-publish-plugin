@@ -3,7 +3,7 @@ package ru.kode.android.build.publish.plugin.slack.controller
 import kotlinx.serialization.json.Json
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import ru.kode.android.build.publish.plugin.core.enity.IssueSource
+import ru.kode.android.build.publish.plugin.core.entity.IssueSource
 import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.util.UploadError
 import ru.kode.android.build.publish.plugin.core.util.createPartFromString

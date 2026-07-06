@@ -1,3 +1,6 @@
+import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType
+import ru.kode.android.build.publish.plugin.nextcloud.config.NextcloudShareMode
+
 plugins {
     id("com.android.application")
     id("ru.kode.android.build-publish-novo.foundation")
@@ -6,6 +9,9 @@ plugins {
     id("ru.kode.android.build-publish-novo.telegram")
     id("ru.kode.android.build-publish-novo.clickup")
     id("ru.kode.android.build-publish-novo.play")
+    id("ru.kode.android.build-publish-novo.firebase")
+    id("ru.kode.android.build-publish-novo.slack")
+    id("ru.kode.android.build-publish-novo.nextcloud")
     id("ru.kode.android.build-publish-example.print-tag")
 }
 
@@ -64,6 +70,16 @@ buildPublishFoundation {
             numberPattern.set("AT-\\d+")
             urlPrefix.set("https://jira.atlassian.com/")
         }
+        issueReferences {
+            issueReference("closes") {
+                key.set("CLOSES")
+                numberPattern.set("(\\d+|[A-Z]+-\\d+)")
+            }
+            issueReference("fixes") {
+                key.set("FIXES")
+                numberPattern.set("(\\d+|[A-Z]+-\\d+)")
+            }
+        }
         commitMessageKey.set("CHANGELOG")
     }
 }
@@ -75,27 +91,29 @@ buildPublishJira {
                 baseUrl.set("https://jira.atlassian.com")
                 credentials.username.set("test_user_default")
                 credentials.password.set("test_password_default")
+                project("at") { projectKey.set("AT") }
             }
             instance("legacy") {
                 baseUrl.set("https://legacy.atlassian.com")
                 credentials.username.set("test_user_legacy")
                 credentials.password.set("test_password_legacy")
+                project("legacy") { projectKey.set("LEG") }
             }
         }
     }
     automation {
         common {
-            projects {
-                project("at") {
-                    projectKey.set("AT")
-                    fixVersionPattern.set("fix_%2\$s_%1\$s")
-                }
-                project("legacy") {
-                    projectKey.set("LEG")
-                    instanceName.set("legacy")
-                    targetStatusName.set("Done")
-                }
+            targetInstance("default") {
+                project("at") { fixVersionPattern.set("fix_%2\$s_%1\$s") }
             }
+            targetInstance("legacy") {
+                project("legacy") { targetStatusName.set("Done") }
+            }
+        }
+    }
+    issueResolution {
+        common {
+            fromInstance("default") { projectNames("at") }
         }
     }
 }
@@ -158,14 +176,29 @@ buildPublishTelegram {
 buildPublishClickUp {
     auth {
         common {
-            apiTokenFile = File("clickup-token.txt")
+            account("main") {
+                val provider = project.layout.buildDirectory.file("clickup-api-token.txt").get()
+                provider.asFile.parentFile.mkdirs()
+                provider.asFile.createNewFile()
+                apiTokenFile.set(provider)
+                project("app") {
+                    workspaceName.set("My Workspace")
+                    taskIdPrefix.set("APP")
+                }
+            }
         }
     }
     automation {
         common {
-            fixVersionPattern = "fix_%2\$s_%1\$s"
-            fixVersionFieldName = "Fix version"
-            tagPattern = "test_tag_name"
+            fixVersionPattern.set("fix_%2\$s_%1\$s")
+            fixVersionFieldName.set("Fix version")
+            tagPattern.set("test_tag_name")
+            targetAccount("main") { projectNames("app") }
+        }
+    }
+    issueResolution {
+        common {
+            fromAccount("main") { projectNames("app") }
         }
     }
 }
@@ -193,6 +226,57 @@ buildPublishPlay {
         common {
             trackId.set("Android")
             updatePriority.set(111)
+        }
+    }
+}
+
+buildPublishFirebase {
+    distribution {
+        common {
+            serviceCredentialsFile.set(File("firebase-service-account.json"))
+            appId.set("1:1234567890:android:abcdef123456")
+            artifactType.set(ArtifactType.Bundle)
+            testerGroups("qa-team", "developers")
+        }
+    }
+}
+
+buildPublishSlack {
+    bot {
+        common {
+            webhookUrl.set("https://hooks.slack.com/services/T000/B000/XXXX")
+            uploadApiTokenFile.set(File("slack-upload-token.txt"))
+            iconUrl.set("https://example.com/bot.png")
+        }
+    }
+    changelog {
+        common {
+            attachmentColor.set("#36a64f")
+            userMention("@here")
+        }
+    }
+    distribution {
+        common {
+            destinationChannels("#releases")
+        }
+    }
+}
+
+buildPublishNextcloud {
+    auth {
+        common {
+            baseUrl.set("https://cloud.example.com")
+            credentials.username.set("mobile-bot")
+            credentials.password.set("@password")
+        }
+    }
+    distribution {
+        common {
+            remotePath.set("mobile/example-project/release")
+            compressed.set(false)
+            shareMode.set(NextcloudShareMode.INTERNAL_RECIPIENTS)
+            userRecipients("qa-bot", "release-manager")
+            groupRecipients("android-team")
         }
     }
 }

@@ -20,6 +20,8 @@ import ru.kode.android.build.publish.plugin.clickup.network.entity.GetTeamsRespo
 private const val API_V2 = "v2/"
 private const val QUERY_INCLUDE_TAGS = "include_tags"
 private const val QUERY_INCLUDE_FIELDS = "include_fields"
+private const val QUERY_CUSTOM_TASK_IDS = "custom_task_ids"
+private const val QUERY_TEAM_ID = "team_id"
 
 /**
  * Retrofit API definition for the ClickUp REST endpoints used by this plugin.
@@ -72,6 +74,8 @@ internal interface ClickUpApi {
     fun getTaskFields(
         @Path("task_id") taskId: String,
         @Query(QUERY_INCLUDE_FIELDS) includeFields: Boolean = true,
+        @Query(QUERY_CUSTOM_TASK_IDS) customTaskIds: Boolean? = null,
+        @Query(QUERY_TEAM_ID) teamId: String? = null,
     ): Call<GetTaskResponse>
 
     @POST(API_V2 + "task/{task_id}/field/{field_id}")

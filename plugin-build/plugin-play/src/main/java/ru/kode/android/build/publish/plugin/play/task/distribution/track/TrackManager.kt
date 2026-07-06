@@ -102,38 +102,39 @@ internal class DefaultTrackManager(
         publisher.updateTrack(editId, track)
     }
 
-    @Suppress("NestedBlockDepth") // TODO refactor and simplify TrackManager
     private fun createTrackForSkippedCommit(config: TrackManager.UpdateConfig): Track {
         val track = publisher.getTrack(editId, config.trackName)
+        val existingReleases = track.releases
+        val targetStatus = config.base.releaseStatus.orDefault()
 
-        if (track.releases.isNullOrEmpty()) {
-            track.releases = listOf(TrackRelease().mergeChanges(config.versionCodes, config.base))
-        } else {
-            val hasReleaseToBeUpdated =
-                track.releases.firstOrNull {
-                    it.status == config.base.releaseStatus.orDefault().publishedName
-                } != null
+        track.releases =
+            when {
+                existingReleases.isNullOrEmpty() ->
+                    listOf(TrackRelease().mergeChanges(config.versionCodes, config.base))
 
-            if (hasReleaseToBeUpdated) {
-                for (release in track.releases) {
-                    if (release.status == config.base.releaseStatus.orDefault().publishedName) {
-                        release.mergeChanges(
-                            release.versionCodes.orEmpty() + config.versionCodes,
-                            config.base,
-                        )
-                    }
-                }
-            } else {
-                val release =
-                    TrackRelease().mergeChanges(config.versionCodes, config.base).apply {
-                        maybeCopyChangelogFromPreviousRelease(config.trackName)
-                    }
-                track.releases = track.releases + release
+                existingReleases.any { it.status == targetStatus.publishedName } ->
+                    existingReleases.mergeIntoMatchingStatus(targetStatus, config)
+
+                else ->
+                    existingReleases + appendedReleaseForSkippedCommit(config)
             }
-        }
 
         return track
     }
+
+    private fun List<TrackRelease>.mergeIntoMatchingStatus(
+        targetStatus: ReleaseStatus,
+        config: TrackManager.UpdateConfig,
+    ) = onEach { release ->
+        if (release.status == targetStatus.publishedName) {
+            release.mergeChanges(release.versionCodes.orEmpty() + config.versionCodes, config.base)
+        }
+    }
+
+    private fun appendedReleaseForSkippedCommit(config: TrackManager.UpdateConfig) =
+        TrackRelease().mergeChanges(config.versionCodes, config.base).apply {
+            maybeCopyChangelogFromPreviousRelease(config.trackName)
+        }
 
     private fun createTrackForRollout(config: TrackManager.UpdateConfig): Track {
         val track = publisher.getTrack(editId, config.trackName)

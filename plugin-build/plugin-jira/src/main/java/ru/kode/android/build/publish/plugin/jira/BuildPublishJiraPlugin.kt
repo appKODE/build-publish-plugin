@@ -6,10 +6,15 @@ import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
-import ru.kode.android.build.publish.plugin.core.util.COMMON_CONTAINER_NAME
+import ru.kode.android.build.publish.plugin.core.task.registerStandaloneServiceTask
 import ru.kode.android.build.publish.plugin.core.util.applyWithOptionalAndroid
 import ru.kode.android.build.publish.plugin.core.util.getOrRegisterLoggerService
+import ru.kode.android.build.publish.plugin.core.util.resolveStandaloneService
 import ru.kode.android.build.publish.plugin.core.util.serviceName
+import ru.kode.android.build.publish.plugin.jira.config.JiraAuthConfig
+import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraInstanceEntity
+import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraProjectEntity
+import ru.kode.android.build.publish.plugin.jira.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.jira.extension.BuildPublishJiraExtension
 import ru.kode.android.build.publish.plugin.jira.messages.jiraServicesCreatedMessage
 import ru.kode.android.build.publish.plugin.jira.messages.noAuthConfigsMessage
@@ -66,29 +71,29 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
         val loggerProvider = project.getOrRegisterLoggerService()
         val logger = loggerProvider.get()
 
-        // Flatten the instances declared across every auth config (`common` / `buildVariant(...)`)
-        // into a single service per named instance. Each instance carries its own base URL and
-        // credentials; projects and standalone tasks select one by its name via `instanceName`.
-        val instances = extension.auth.flatMap { it.instances }
-        if (instances.isEmpty()) {
+        if (extension.auth.isEmpty()) {
             logger.info(noAuthConfigsMessage())
             return
         }
 
         logger.info(registeringServicesMessage())
 
+        // One Jira service per `auth` entry (build variant, keyed by its name / "default" common),
+        // mirroring the Telegram single-service model: every service bakes all of that variant's
+        // instances (base URL + credentials + projects) as JSON, and consumers select an instance by
+        // name. Baking happens here (inside finalizeDsl/afterEvaluate) so the plain-string parameters
+        // stay configuration-cache safe.
         val serviceMap =
-            instances.associate { instance ->
-                val name = instance.name
+            extension.auth.associate { authConfig ->
+                val name = authConfig.name
                 val registered =
                     project.gradle.sharedServices.registerIfAbsent(
                         project.serviceName(SERVICE_NAME, name),
                         JiraService::class.java,
-                    ) {
-                        it.maxParallelUsages.set(1)
-                        it.parameters.credentials.set(instance.credentials)
-                        it.parameters.baseUrl.set(instance.baseUrl)
-                        it.parameters.loggerService.set(loggerProvider)
+                    ) { spec ->
+                        spec.maxParallelUsages.set(1)
+                        spec.parameters.instances.set(authConfig.bakeInstances())
+                        spec.parameters.loggerService.set(loggerProvider)
                     }
                 name to (registered as Provider<*>)
             }
@@ -104,49 +109,43 @@ abstract class BuildPublishJiraPlugin : Plugin<Project> {
             ),
         )
 
-        @Suppress("UNCHECKED_CAST")
-        val typedServiceMap =
-            serviceMap.mapValues { (_, provider) -> provider as Provider<JiraService> }
-        val defaultService =
-            typedServiceMap[COMMON_CONTAINER_NAME] ?: typedServiceMap.values.first()
-        registerStandaloneTasks(project, typedServiceMap, defaultService, loggerProvider)
+        registerStandaloneTasks(project, serviceMap.resolveStandaloneService(), loggerProvider)
     }
 
     private fun registerStandaloneTasks(
         project: Project,
-        services: Map<String, Provider<JiraService>>,
-        defaultService: Provider<JiraService>,
+        service: Provider<JiraService>,
         loggerProvider: Provider<LoggerService>,
     ) {
-        project.tasks.register(TaskNames.Jira.ADD_FIX_VERSION, AddJiraFixVersionTask::class.java) { task ->
-            task.service.set(defaultService)
-            task.loggerService.set(loggerProvider)
-            services.forEach { (name, provider) ->
-                task.services.put(name, provider)
-                task.usesService(provider)
-            }
-            task.usesService(defaultService)
-            task.usesService(loggerProvider)
-        }
-        project.tasks.register(TaskNames.Jira.ADD_LABEL, AddJiraLabelTask::class.java) { task ->
-            task.service.set(defaultService)
-            task.loggerService.set(loggerProvider)
-            services.forEach { (name, provider) ->
-                task.services.put(name, provider)
-                task.usesService(provider)
-            }
-            task.usesService(defaultService)
-            task.usesService(loggerProvider)
-        }
-        project.tasks.register(TaskNames.Jira.TRANSITION_ISSUE, TransitionJiraIssueTask::class.java) { task ->
-            task.service.set(defaultService)
-            task.loggerService.set(loggerProvider)
-            services.forEach { (name, provider) ->
-                task.services.put(name, provider)
-                task.usesService(provider)
-            }
-            task.usesService(defaultService)
-            task.usesService(loggerProvider)
-        }
+        project.registerStandaloneServiceTask<AddJiraFixVersionTask, JiraService>(
+            TaskNames.Jira.ADD_FIX_VERSION,
+            service,
+            loggerProvider,
+        )
+        project.registerStandaloneServiceTask<AddJiraLabelTask, JiraService>(
+            TaskNames.Jira.ADD_LABEL,
+            service,
+            loggerProvider,
+        )
+        project.registerStandaloneServiceTask<TransitionJiraIssueTask, JiraService>(
+            TaskNames.Jira.TRANSITION_ISSUE,
+            service,
+            loggerProvider,
+        )
     }
 }
+
+/** Bakes every instance declared on this auth config into the JSON list stored in the service params. */
+private fun JiraAuthConfig.bakeInstances(): List<String> =
+    instances.map { instance ->
+        JiraInstanceEntity(
+            name = instance.name,
+            baseUrl = instance.baseUrl.get(),
+            username = instance.credentials.username.get(),
+            password = instance.credentials.password.get(),
+            projects =
+                instance.projects.mapNotNull { project ->
+                    project.projectKey.orNull?.let { key -> JiraProjectEntity(project.name, key) }
+                },
+        ).toJson()
+    }

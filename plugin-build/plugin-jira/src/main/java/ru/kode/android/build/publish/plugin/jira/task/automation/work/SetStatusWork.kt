@@ -18,6 +18,11 @@ import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
  */
 internal interface SetStatusParameters : WorkParameters {
     /**
+     * The name of the Jira instance (within the shared service) that owns these issues
+     */
+    val instanceName: Property<String>
+
+    /**
      * The set of Jira issue keys to update (e.g., ["PROJ-123", "PROJ-456"])
      */
     val issues: SetProperty<String>
@@ -58,13 +63,14 @@ internal abstract class SetStatusWork : WorkAction<SetStatusParameters> {
     override fun execute() {
         val issues = parameters.issues.get().toList()
         val service = parameters.service.get()
+        val instanceName = parameters.instanceName.get()
         val logger = parameters.loggerService.get()
         val statusTransitionId = parameters.statusTransitionId.orNull
 
         if (statusTransitionId != null) {
             issues.forEach { issue ->
                 try {
-                    service.setStatus(issue, statusTransitionId)
+                    service.setStatus(instanceName, issue, statusTransitionId)
                 } catch (ex: UploadError) {
                     logger.info(failedToUpdateStatusMessage(issue), ex)
                 }

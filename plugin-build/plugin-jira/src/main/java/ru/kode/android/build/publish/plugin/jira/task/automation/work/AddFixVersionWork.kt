@@ -14,6 +14,11 @@ import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
  */
 internal interface AddFixVersionParameters : WorkParameters {
     /**
+     * The name of the Jira instance (within the shared service) that owns these issues
+     */
+    val instanceName: Property<String>
+
+    /**
      * The numeric ID of the Jira project where the version will be created
      */
     val projectId: Property<Long>
@@ -51,13 +56,14 @@ internal interface AddFixVersionParameters : WorkParameters {
 internal abstract class AddFixVersionWork : WorkAction<AddFixVersionParameters> {
     override fun execute() {
         val service = parameters.service.get()
+        val instanceName = parameters.instanceName.get()
         val issues = parameters.issues.get()
         val version = parameters.version.get()
         val projectId = parameters.projectId.get()
 
-        service.createVersion(projectId, version)
+        service.createVersion(instanceName, projectId, version)
         issues.forEach { issue ->
-            service.addFixVersion(issue, version)
+            service.addFixVersion(instanceName, issue, version)
         }
     }
 }

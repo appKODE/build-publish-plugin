@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.core.enity
+package ru.kode.android.build.publish.plugin.core.entity
 
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider

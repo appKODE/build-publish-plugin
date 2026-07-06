@@ -3,12 +3,15 @@ package ru.kode.android.build.publish.plugin.foundation.task
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
-import ru.kode.android.build.publish.plugin.core.enity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
+import ru.kode.android.build.publish.plugin.core.entity.IssueReference
 import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.strategy.AnnotatedTagMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.ChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.EmptyChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.NotGeneratedChangelogMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.ResolvedIssueStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.UnresolvedIssueStrategy
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
@@ -85,6 +88,13 @@ private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskP
         it.changelogMessageStrategy.set(params.changelogMessageStrategy)
         it.emptyChangelogMessageStrategy.set(params.emptyChangelogMessageStrategy)
         it.notGeneratedChangelogMessageStrategy.set(params.notGeneratedChangelogMessageStrategy)
+        it.issueReferences.set(
+            params.issueReferences.map { refs ->
+                refs.associate { reference -> reference.key to reference.numberPattern }
+            },
+        )
+        it.unresolvedIssueStrategy.set(params.unresolvedIssueStrategy)
+        it.resolvedIssueStrategy.set(params.resolvedIssueStrategy)
 
         it.usesService(gitService)
         it.usesService(loggerService)
@@ -129,4 +139,16 @@ internal data class GenerateChangelogTaskParams(
      * Strategy for generating changelog messages when the changelog could not be generated.
      */
     val notGeneratedChangelogMessageStrategy: Provider<NotGeneratedChangelogMessageStrategy>,
+    /**
+     * The configured issue-reference markers (`CLOSES`/`FIXES`) to resolve into changelog entries.
+     */
+    val issueReferences: Provider<List<IssueReference>>,
+    /**
+     * Strategy that renders issue references that could not be resolved by any provider.
+     */
+    val unresolvedIssueStrategy: Provider<UnresolvedIssueStrategy>,
+    /**
+     * Strategy that renders issue references that were resolved to a title.
+     */
+    val resolvedIssueStrategy: Provider<ResolvedIssueStrategy>,
 )

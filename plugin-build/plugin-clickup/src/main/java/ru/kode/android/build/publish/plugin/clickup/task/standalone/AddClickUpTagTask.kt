@@ -3,6 +3,7 @@ package ru.kode.android.build.publish.plugin.clickup.task.standalone
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
@@ -30,10 +31,16 @@ abstract class AddClickUpTagTask
         @get:Option(option = "taskIds", description = "ClickUp task IDs to tag")
         abstract val taskIds: SetProperty<String>
 
+        @get:Input
+        @get:Optional
+        @get:Option(option = "accountName", description = "Name of the ClickUp account to use")
+        abstract val accountName: Property<String>
+
         @TaskAction
         fun addTag() {
             val workQueue = workerExecutor.noIsolation()
             workQueue.submit(StandaloneAddClickUpTagWork::class.java) { params ->
+                params.accountName.set(accountName)
                 params.tag.set(tag)
                 params.taskIds.set(taskIds)
                 params.service.set(service)

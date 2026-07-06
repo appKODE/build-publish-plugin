@@ -4,8 +4,9 @@ A modular Gradle plugin suite that automates Android build publishing workflows:
 version management, changelog generation, and distribution/notification integrations (Firebase, Play
 Store, Slack, Telegram, Jira, Confluence, ClickUp, Nextcloud).
 
-> **Upgrading to 2.0?** 2.0 contains breaking DSL changes. See the
-> **[2.0 migration guide](docs/migration/v2.md)**.
+> **Upgrading?** 2.0 contains breaking DSL changes — see the
+> **[2.0 migration guide](docs/migration/v2.md)**. For the 2.0 → 2.1 changes (Jira multi-instance
+> registry, changelog issue resolution) see the **[2.1 migration guide](docs/migration/v2.1.md)**.
 
 ## Why this suite
 
@@ -73,8 +74,9 @@ Then see [Installation](docs/installation.md) for repositories, version catalogs
   `build-publish-novo-client-*` libraries and CLI-invokable tasks (incl. the Android-free `sender`).
 - **[Custom plugin development](docs/custom-plugins.md)** — extend variant configuration with your own plugin.
 - **[Troubleshooting](docs/troubleshooting.md)**
-- **[Migration guides](docs/migration/index.md)** — [legacy → novo](docs/migration/legacy-to-novo.md)
-  and **[novo 1.x → 2.0](docs/migration/v2.md)**.
+- **[Migration guides](docs/migration/index.md)** — [legacy → novo](docs/migration/legacy-to-novo.md),
+  **[novo 1.x → 2.0](docs/migration/v2.md)** and **[novo 2.0 → 2.1](docs/migration/v2.1.md)**.
+- **[Roadmap](ROADMAP.md)** — recently shipped work, planned themes, and what is intentionally out of scope.
 
 ## Examples
 

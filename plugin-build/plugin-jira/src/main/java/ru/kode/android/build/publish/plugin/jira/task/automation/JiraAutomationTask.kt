@@ -1,14 +1,10 @@
 package ru.kode.android.build.publish.plugin.jira.task.automation
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -20,12 +16,11 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.jira.messages.issuesNoFoundMessage
 import ru.kode.android.build.publish.plugin.jira.messages.noIssuesForProjectMessage
-import ru.kode.android.build.publish.plugin.jira.messages.unknownInstanceNameMessage
 import ru.kode.android.build.publish.plugin.jira.messages.unmatchedIssuesMessage
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddFixVersionWork
@@ -51,7 +46,6 @@ abstract class JiraAutomationTask
     @Inject
     constructor(
         private val workerExecutor: WorkerExecutor,
-        objectFactory: ObjectFactory,
     ) : DefaultTask() {
         init {
             description = "Automates Jira workflows during the build process"
@@ -59,21 +53,12 @@ abstract class JiraAutomationTask
         }
 
         /**
-         * The Jira network services available to this task, keyed by `auth { }` configuration name.
-         *
-         * A project binding selects its service by [JiraProjectBinding.instanceName]; bindings without an
-         * explicit auth name use [defaultService]. Wired up automatically by the plugin.
+         * The Jira build service for this variant, holding every configured instance. A single service
+         * (not a per-project reference) is handed to the Worker API, so each action selects its instance
+         * by [JiraProjectBinding.instanceName]. Wired up automatically by the plugin.
          */
         @get:Internal
-        val services: MapProperty<String, JiraService> =
-            objectFactory.mapProperty(String::class.java, JiraService::class.java)
-
-        /**
-         * The Jira service used by project bindings that do not declare an explicit `instanceName`
-         * (the variant-matched / common service). Wired up automatically by the plugin.
-         */
-        @get:Internal
-        abstract val defaultService: Property<JiraService>
+        abstract val service: Property<JiraService>
 
         /**
          * The logger service used to log messages during the execution of the task.
@@ -143,9 +128,8 @@ abstract class JiraAutomationTask
             val changelog = changelogFile.asFile.get().readText()
             val issues =
                 issuePatterns.get()
-                    .flatMapTo(mutableSetOf()) { pattern ->
-                        Regex(pattern).findAll(changelog).map { it.value }.asIterable()
-                    }
+                    .flatMap { pattern -> Regex(pattern).findAll(changelog).map { it.value }.toList() }
+                    .toSet()
 
             if (issues.isEmpty()) {
                 loggerService.get().info(issuesNoFoundMessage())
@@ -154,19 +138,24 @@ abstract class JiraAutomationTask
 
             val resolvedProjects = resolveProjects()
             val issuesByProjectKey = issues.groupBy { it.substringBefore("-").uppercase() }
-            val matchedIssues = mutableSetOf<String>()
             val workQueue: WorkQueue = workerExecutor.noIsolation()
 
-            resolvedProjects.forEach { project ->
-                val projectIssues = issuesByProjectKey[project.projectKey].orEmpty().toSet()
-                if (projectIssues.isEmpty()) {
-                    loggerService.get().info(noIssuesForProjectMessage(project.projectKey))
-                    return@forEach
+            val projectsWithIssues =
+                resolvedProjects.mapNotNull { project ->
+                    val projectIssues = issuesByProjectKey[project.projectKey].orEmpty().toSet()
+                    if (projectIssues.isEmpty()) {
+                        loggerService.get().info(noIssuesForProjectMessage(project.projectKey))
+                        null
+                    } else {
+                        project to projectIssues
+                    }
                 }
-                matchedIssues += projectIssues
+
+            projectsWithIssues.forEach { (project, projectIssues) ->
                 workQueue.applyAutomation(currentBuildTag, project, projectIssues)
             }
 
+            val matchedIssues = projectsWithIssues.flatMap { (_, projectIssues) -> projectIssues }.toSet()
             val unmatchedIssues = issues - matchedIssues
             if (unmatchedIssues.isNotEmpty()) {
                 loggerService.get().info(
@@ -182,7 +171,7 @@ abstract class JiraAutomationTask
             return projects.get().map { binding ->
                 ResolvedProject(
                     projectKey = binding.projectKey.get().uppercase(),
-                    service = resolveService(binding.instanceName.orNull),
+                    instanceName = binding.instanceName.get(),
                     labelPattern = binding.labelPattern.orNull,
                     fixVersionPattern = binding.fixVersionPattern.orNull,
                     targetStatusName = binding.targetStatusName.orNull,
@@ -191,25 +180,10 @@ abstract class JiraAutomationTask
         }
 
         /**
-         * Resolves a [JiraService] provider for the given [instanceName], falling back to the
-         * variant-matched / common service when no explicit name is provided.
-         *
-         * A provider (rather than the resolved service) is returned so it can be handed to the Worker
-         * API as a build-service reference: passing a resolved [JiraService] instance as a work
-         * parameter fails isolation ("Could not serialize value of type JiraService").
-         */
-        private fun resolveService(instanceName: String?): Provider<JiraService> {
-            if (instanceName == null) return defaultService
-            val available = services.get()
-            if (instanceName !in available) {
-                throw GradleException(unknownInstanceNameMessage(instanceName, available.keys))
-            }
-            return services.getting(instanceName)
-        }
-
-        /**
          * Submits the enabled automation actions (label, fix version, status transition) for a single
-         * project against its own Jira service and issue subset.
+         * project against its Jira instance and issue subset. The task's single [service] is handed to
+         * every worker as a build-service reference (never a resolved instance), so it isolates cleanly;
+         * each action routes to the project's instance via [ResolvedProject.instanceName].
          */
         private fun WorkQueue.applyAutomation(
             currentBuildTag: Tag.Build,
@@ -218,27 +192,35 @@ abstract class JiraAutomationTask
         ) {
             project.labelPattern?.let { pattern ->
                 submit(AddLabelWork::class.java) { parameters ->
+                    parameters.instanceName.set(project.instanceName)
                     parameters.issues.set(issues)
                     parameters.label.set(pattern.formatWith(currentBuildTag))
-                    parameters.service.set(project.service)
+                    parameters.service.set(service)
                 }
             }
             project.fixVersionPattern?.let { pattern ->
-                val projectId = project.service.get().getProjectId(project.projectKey)
+                val projectId = service.get().getProjectId(project.instanceName, project.projectKey)
                 submit(AddFixVersionWork::class.java) { parameters ->
+                    parameters.instanceName.set(project.instanceName)
                     parameters.issues.set(issues)
                     parameters.version.set(pattern.formatWith(currentBuildTag))
                     parameters.projectId.set(projectId)
-                    parameters.service.set(project.service)
+                    parameters.service.set(service)
                 }
             }
             project.targetStatusName?.let { statusName ->
                 val statusTransitionId =
-                    project.service.get().getStatusTransitionId(project.projectKey, statusName, issues.toList())
+                    service.get().getStatusTransitionId(
+                        project.instanceName,
+                        project.projectKey,
+                        statusName,
+                        issues.toList(),
+                    )
                 submit(SetStatusWork::class.java) { parameters ->
+                    parameters.instanceName.set(project.instanceName)
                     parameters.issues.set(issues)
                     parameters.statusTransitionId.set(statusTransitionId)
-                    parameters.service.set(project.service)
+                    parameters.service.set(service)
                     parameters.loggerService.set(loggerService)
                 }
             }
@@ -248,11 +230,11 @@ abstract class JiraAutomationTask
 
         /**
          * A fully-resolved project to act on during a single automation run: its (upper-cased)
-         * project key, the Jira service to use, and its effective automation patterns.
+         * project key, the owning Jira instance name, and its effective automation patterns.
          */
         private data class ResolvedProject(
             val projectKey: String,
-            val service: Provider<JiraService>,
+            val instanceName: String,
             val labelPattern: String?,
             val fixVersionPattern: String?,
             val targetStatusName: String?,

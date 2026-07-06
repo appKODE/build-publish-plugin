@@ -1,4 +1,6 @@
-package ru.kode.android.build.publish.plugin.core.enity
+package ru.kode.android.build.publish.plugin.core.entity
+
+import kotlinx.serialization.Serializable
 
 /**
  * Represents a range of Git commits, defined by two commit SHAs.
@@ -10,6 +12,7 @@ package ru.kode.android.build.publish.plugin.core.enity
  * @see BuildTagSnapshot
  * @see GitCommandExecutor For usage in Git operations
  */
+@Serializable
 data class CommitRange(
     /**
      * The SHA of the starting commit (exclusive). When null, represents the initial commit.

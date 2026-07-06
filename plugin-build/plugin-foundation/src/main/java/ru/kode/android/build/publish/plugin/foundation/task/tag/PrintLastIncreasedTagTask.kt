@@ -27,7 +27,7 @@ import ru.kode.android.build.publish.plugin.core.util.replaceLast
  * @see DefaultTask
  */
 @DisableCachingByDefault
-abstract class PrintLastIncreasedTag : DefaultTask() {
+abstract class PrintLastIncreasedTagTask : DefaultTask() {
     init {
         description = "Task to print last increased tag"
         group = BasePlugin.BUILD_GROUP

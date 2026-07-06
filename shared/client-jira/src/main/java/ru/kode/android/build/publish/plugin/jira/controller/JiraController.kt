@@ -65,6 +65,17 @@ interface JiraController {
     fun getIssueStatus(issue: String): JiraIssueStatus?
 
     /**
+     * Retrieves the summary (title) of a Jira issue.
+     *
+     * Calls: `GET /rest/api/2/issue/{issue}?fields=summary`
+     *
+     * @param issue The Jira issue key (e.g., `"PROJ-123"`).
+     *
+     * @return The issue summary, or `null` when it cannot be retrieved (unknown issue or request error).
+     */
+    fun getIssueSummary(issue: String): String?
+
+    /**
      * Retrieves all statuses available in a Jira project across all workflows.
      *
      * Calls:

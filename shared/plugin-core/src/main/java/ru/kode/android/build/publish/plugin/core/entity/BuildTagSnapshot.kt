@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.core.enity
+package ru.kode.android.build.publish.plugin.core.entity
 
 import kotlinx.serialization.Serializable
 

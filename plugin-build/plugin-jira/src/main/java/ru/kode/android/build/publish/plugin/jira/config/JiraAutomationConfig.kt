@@ -3,137 +3,94 @@ package ru.kode.android.build.publish.plugin.jira.config
 import groovy.lang.Closure
 import groovy.lang.DelegatesTo
 import org.gradle.api.Action
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
 import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 
 /**
- * Configuration for Jira automation rules that can be applied during the build process.
+ * Configuration for Jira automation rules applied during the build process (labels, fix versions,
+ * status transitions).
  *
- * This interface defines the configuration for automating Jira workflows, such as:
- * - Transitioning issues to different statuses
- * - Adding labels based on build information
- * - Updating fix versions
- *
- * An automation rule targets one or more Jira projects — potentially on different Jira instances —
- * declared through the [projects] method. Each project carries its own project key, optional Jira
- * instance (via `instanceName`) and its own automation patterns; changelog issues are routed to a
- * project by their issue-key prefix.
+ * Projects are declared once in the shared registry (under `auth { … instance { project(…) { … } } }`).
+ * An automation rule selects registry projects per instance via [targetInstance]; automation-level
+ * patterns ([labelPattern], [fixVersionPattern], [targetStatusName]) apply to every selected project,
+ * overridable per project inside a `targetInstance` block. Changelog issues are routed to a project by
+ * their issue-key prefix.
  */
 interface JiraAutomationConfig : CommonConfigMergeable<JiraAutomationConfig> {
     val name: String
 
     /**
-     * Jira projects targeted by this automation rule.
-     *
-     * Configure projects through the [projects] method rather than accessing this directly.
-     *
-     * @see projects
-     * @see JiraProjectsConfig
+     * The per-instance project selections this rule targets. Configure via [targetInstance].
      */
     @get:Nested
-    val projectsConfig: JiraProjectsConfig
+    val selectionsConfig: JiraInstanceSelectionsConfig
 
     /**
-     * Configures the Jira projects targeted by this automation rule.
-     *
-     * Each project (added via [JiraProjectsConfig.project]) points at its own project key and,
-     * optionally, its own Jira instance (via `instanceName`) and per-project automation patterns.
-     * Changelog issues are routed to a project by their issue-key prefix (e.g. `PROJ-123` -> `PROJ`).
+     * Default label pattern for every selected project (overridable per project). Formatted with
+     * `buildVersion`, `buildNumber`, `buildVariant`.
+     */
+    @get:Input
+    @get:Optional
+    val labelPattern: Property<String>
+
+    /**
+     * Default fix-version pattern for every selected project (overridable per project).
+     */
+    @get:Input
+    @get:Optional
+    val fixVersionPattern: Property<String>
+
+    /**
+     * Default target status for every selected project (overridable per project).
+     */
+    @get:Input
+    @get:Optional
+    val targetStatusName: Property<String>
+
+    /**
+     * Selects the registry projects to automate on the instance named [instanceName].
      *
      * Example:
      * ```
-     * projects {
-     *     project("main")   { projectKey.set("APP"); fixVersionPattern.set("%s") }
-     *     project("legacy") { projectKey.set("LEG"); instanceName.set("legacy"); targetStatusName.set("Done") }
-     * }
+     * targetInstance("default") { projectNames("app") }
+     * targetInstance("legacy")  { project("leg") { targetStatusName.set("Done") } }
      * ```
      *
-     * @param action A configuration block applied to the [JiraProjectsConfig] container.
-     *
-     * @see JiraProjectsConfig
+     * @param instanceName The auth instance to act on.
+     * @param action A configuration block applied to the [JiraInstanceSelectionConfig].
      */
-    fun projects(action: Action<JiraProjectsConfig>) {
-        action.execute(projectsConfig)
-    }
-
-    /**
-     * Configures the Jira projects using a Groovy closure.
-     *
-     * @param configurationClosure The Groovy closure applied to the [JiraProjectsConfig] container.
-     *
-     * @see projects
-     */
-    fun projects(
-        @DelegatesTo(value = JiraProjectsConfig::class, strategy = Closure.DELEGATE_FIRST)
-        configurationClosure: Closure<in JiraProjectsConfig>,
+    fun targetInstance(
+        instanceName: String,
+        action: Action<JiraInstanceSelectionConfig>,
     ) {
-        projects { target -> configureGroovy(configurationClosure, target) }
+        selectionsConfig.select(instanceName, action)
     }
 
     /**
-     * Shorthand for declaring a single Jira project without the surrounding `projects { }` block.
-     *
-     * Equivalent to `projects { project(name) { … } }`. Use the [projects] block instead when
-     * targeting more than one project.
-     *
-     * @param name A unique identifier for the project (e.g. "main").
-     * @param action A configuration block applied to the new [JiraProjectConfig] instance.
-     */
-    fun project(
-        name: String,
-        action: Action<JiraProjectConfig>,
-    ) {
-        projectsConfig.project(name, action)
-    }
-
-    /**
-     * Shorthand for declaring a single Jira project with the given name using a Groovy closure.
-     *
-     * @param name A unique identifier for the project (e.g. "main").
-     * @param configurationClosure The Groovy closure applied to the new [JiraProjectConfig].
-     *
-     * @see project
-     */
-    fun project(
-        name: String,
-        @DelegatesTo(value = JiraProjectConfig::class, strategy = Closure.DELEGATE_FIRST)
-        configurationClosure: Closure<in JiraProjectConfig>,
-    ) {
-        project(name) { target -> configureGroovy(configurationClosure, target) }
-    }
-
-    /**
-     * Shorthand for declaring the single Jira project of this automation rule without the surrounding
-     * `projects { }` block and without naming it.
-     *
-     * Equivalent to `projects { project("default") { … } }`. Use the named [project] or the
-     * [projects] block when targeting more than one project.
-     *
-     * @param action A configuration block applied to the new [JiraProjectConfig] instance.
-     */
-    fun project(action: Action<JiraProjectConfig>) {
-        projectsConfig.project(DEFAULT_PROJECT_NAME, action)
-    }
-
-    /**
-     * Shorthand for declaring the single unnamed Jira project of this automation rule using a Groovy
+     * Selects the registry projects to automate on the instance named [instanceName] using a Groovy
      * closure.
      *
-     * @param configurationClosure The Groovy closure applied to the new [JiraProjectConfig].
+     * @param instanceName The auth instance to act on.
+     * @param configurationClosure The Groovy closure applied to the [JiraInstanceSelectionConfig].
      *
-     * @see project
+     * @see targetInstance
      */
-    fun project(
-        @DelegatesTo(value = JiraProjectConfig::class, strategy = Closure.DELEGATE_FIRST)
-        configurationClosure: Closure<in JiraProjectConfig>,
+    fun targetInstance(
+        instanceName: String,
+        @DelegatesTo(value = JiraInstanceSelectionConfig::class, strategy = Closure.DELEGATE_FIRST)
+        configurationClosure: Closure<in JiraInstanceSelectionConfig>,
     ) {
-        project { target -> configureGroovy(configurationClosure, target) }
+        targetInstance(instanceName) { target -> configureGroovy(configurationClosure, target) }
     }
 
     override fun inheritFrom(common: JiraAutomationConfig) {
-        projectsConfig.inheritFrom(common.projectsConfig)
+        selectionsConfig.inheritFrom(common.selectionsConfig)
+        labelPattern.convention(common.labelPattern)
+        fixVersionPattern.convention(common.fixVersionPattern)
+        targetStatusName.convention(common.targetStatusName)
     }
 }
-
-private const val DEFAULT_PROJECT_NAME = "default"

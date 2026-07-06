@@ -1,8 +1,13 @@
 package ru.kode.android.build.publish.plugin.core.git
 
-import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.IssueReference
+import ru.kode.android.build.publish.plugin.core.issue.IssueResolver
 import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.messages.buildingChangelogForTagRangeMessage
+import ru.kode.android.build.publish.plugin.core.messages.unresolvedIssueReferenceMessage
+import ru.kode.android.build.publish.plugin.core.strategy.ResolvedIssueStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.UnresolvedIssueStrategy
 
 /**
  * Builds changelogs by extracting and formatting commit messages from Git history.
@@ -48,22 +53,110 @@ class GitChangelogBuilder(
      * @return the generated changelog string, the value from [defaultValueSupplier] if provided,
      *         or `null` if no tag range could be determined or no changelog could be built.
      */
-    @Suppress("ReturnCount")
+    @Suppress("ReturnCount", "LongParameterList")
     fun buildForSnapshot(
         messageKey: String,
         annotatedTagMessageBuilder: (String) -> String,
         messageBuilder: (String) -> String,
         tagSnapshot: BuildTagSnapshot,
+        issueReferences: List<IssueReference>,
+        resolvers: List<IssueResolver>,
+        resolvedStrategy: ResolvedIssueStrategy,
+        unresolvedStrategy: UnresolvedIssueStrategy,
     ): String? {
         logger.info(buildingChangelogForTagRangeMessage(tagSnapshot))
         return buildChangelog(
             snapshot = tagSnapshot,
             annotatedTagMessageBuilder = annotatedTagMessageBuilder,
             commitMessagesResolver = {
-                gitRepository.markedCommitMessages(messageKey, tagSnapshot)
-                    .map(messageBuilder)
+                val manualLines =
+                    gitRepository.markedCommitMessages(messageKey, tagSnapshot).map(messageBuilder)
+                manualLines +
+                    buildReferenceLines(
+                        messageKey = messageKey,
+                        tagSnapshot = tagSnapshot,
+                        issueReferences = issueReferences,
+                        resolvers = resolvers,
+                        resolvedStrategy = resolvedStrategy,
+                        unresolvedStrategy = unresolvedStrategy,
+                        manualLines = manualLines,
+                    )
             },
         )
+    }
+
+    /**
+     * Builds the changelog lines derived from `CLOSES`/`FIXES` issue references: each reference token is
+     * resolved via the first matching [resolvers] and rendered by [resolvedStrategy]; unresolved tokens are
+     * rendered by [unresolvedStrategy] (or skipped). Resolution never throws — a failing resolver is treated
+     * as "unresolved". Tokens already covered by a manual `CHANGELOG:` entry (present in [manualLines]) and
+     * duplicate keys are dropped.
+     */
+    private fun buildReferenceLines(
+        messageKey: String,
+        tagSnapshot: BuildTagSnapshot,
+        issueReferences: List<IssueReference>,
+        resolvers: List<IssueResolver>,
+        resolvedStrategy: ResolvedIssueStrategy,
+        unresolvedStrategy: UnresolvedIssueStrategy,
+        manualLines: List<String>,
+    ): List<String> {
+        if (issueReferences.isEmpty() || resolvers.isEmpty() || tagSnapshot.pointSameCommit) {
+            return emptyList()
+        }
+        return gitRepository.issueReferenceLines(issueReferences, messageKey, tagSnapshot)
+            .flatMap { commit -> commit.referenceLines.map { line -> line to commit.changelogLine } }
+            .mapNotNull { (line, changelogLine) -> parseReferenceToken(line, changelogLine, issueReferences) }
+            .distinctBy { it.token }
+            .filterNot { token -> manualLines.any { it.contains(token.token) } }
+            .map { token -> renderToken(token, resolvers, resolvedStrategy, unresolvedStrategy) }
+            .distinctBy { it.dedupKey }
+            .mapNotNull { it.line }
+    }
+
+    /**
+     * Extracts the reference [token] from a single `CLOSES`/`FIXES` [line], or `null` when the line
+     * carries no known marker or no token follows it.
+     */
+    private fun parseReferenceToken(
+        line: String,
+        commitChangelogLine: String?,
+        issueReferences: List<IssueReference>,
+    ): ReferenceToken? {
+        val reference =
+            issueReferences.firstOrNull { ref ->
+                Regex("\\b" + Regex.escape(ref.key) + "\\b").containsMatchIn(line)
+            } ?: return null
+        val token = Regex(reference.numberPattern).find(line.substringAfter(reference.key))?.value ?: return null
+        return ReferenceToken(token, commitChangelogLine)
+    }
+
+    /**
+     * Renders a parsed [reference] into a changelog entry: its token is resolved via the first matching
+     * [resolvers] and rendered by [resolvedStrategy]; an unresolved token is warned about and rendered by
+     * [unresolvedStrategy]. Resolution never throws — a failing resolver is treated as "unresolved". The
+     * returned [RenderedReference.line] is `null` when the chosen strategy omits the entry; [dedupKey] is
+     * the resolved key (or the token when unresolved) used to drop duplicates across the whole range.
+     */
+    private fun renderToken(
+        reference: ReferenceToken,
+        resolvers: List<IssueResolver>,
+        resolvedStrategy: ResolvedIssueStrategy,
+        unresolvedStrategy: UnresolvedIssueStrategy,
+    ): RenderedReference {
+        val resolved = resolvers.firstNotNullOfOrNull { runCatching { it.resolve(reference.token) }.getOrNull() }
+        return if (resolved != null) {
+            RenderedReference(
+                dedupKey = resolved.key,
+                line = resolvedStrategy.build(resolved.key, resolved.title, reference.commitChangelogLine),
+            )
+        } else {
+            logger.warn(unresolvedIssueReferenceMessage(reference.token))
+            RenderedReference(
+                dedupKey = reference.token,
+                line = unresolvedStrategy.build(reference.token, reference.commitChangelogLine),
+            )
+        }
     }
 
     /**
@@ -99,3 +192,7 @@ class GitChangelogBuilder(
         return messageBuilder.toString().takeIf { it.isNotBlank() }?.trim()
     }
 }
+
+private data class ReferenceToken(val token: String, val commitChangelogLine: String?)
+
+private data class RenderedReference(val dedupKey: String, val line: String?)

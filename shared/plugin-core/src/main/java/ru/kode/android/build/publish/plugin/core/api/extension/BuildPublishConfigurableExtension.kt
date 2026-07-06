@@ -7,7 +7,7 @@ import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
-import ru.kode.android.build.publish.plugin.core.enity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.util.MergeStrategy
 import ru.kode.android.build.publish.plugin.core.util.buildVariant
 import ru.kode.android.build.publish.plugin.core.util.common

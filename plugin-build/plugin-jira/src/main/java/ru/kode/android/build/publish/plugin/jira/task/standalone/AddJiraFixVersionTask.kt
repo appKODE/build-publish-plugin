@@ -1,11 +1,8 @@
 package ru.kode.android.build.publish.plugin.jira.task.standalone
 
-import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
@@ -21,7 +18,6 @@ abstract class AddJiraFixVersionTask
     @Inject
     constructor(
         workerExecutor: WorkerExecutor,
-        objectFactory: ObjectFactory,
     ) : StandaloneServiceTask<JiraService>(workerExecutor) {
         init {
             description = "Adds a fix version to Jira issues"
@@ -44,19 +40,15 @@ abstract class AddJiraFixVersionTask
         @get:Option(option = "instanceName", description = "Name of the Jira auth instance to use")
         abstract val instanceName: Property<String>
 
-        @get:Internal
-        val services: MapProperty<String, JiraService> =
-            objectFactory.mapProperty(String::class.java, JiraService::class.java)
-
         @TaskAction
         fun addFixVersion() {
-            val selectedService = resolveStandaloneJiraService(instanceName, services, service)
             val workQueue = workerExecutor.noIsolation()
             workQueue.submit(StandaloneAddJiraFixVersionWork::class.java) { params ->
+                params.instanceName.set(instanceName)
                 params.version.set(version)
                 params.projectKey.set(projectKey)
                 params.issues.set(issueNumbers)
-                params.service.set(selectedService)
+                params.service.set(service)
                 params.loggerService.set(loggerService)
             }
         }

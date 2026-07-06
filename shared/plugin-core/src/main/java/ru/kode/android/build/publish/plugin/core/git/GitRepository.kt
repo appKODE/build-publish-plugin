@@ -1,7 +1,8 @@
 package ru.kode.android.build.publish.plugin.core.git
 
-import ru.kode.android.build.publish.plugin.core.enity.BuildTagSnapshot
-import ru.kode.android.build.publish.plugin.core.enity.Tag
+import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
+import ru.kode.android.build.publish.plugin.core.entity.IssueReference
+import ru.kode.android.build.publish.plugin.core.entity.Tag
 
 /**
  * Provides high-level Git repository operations tailored for build and publish workflows.
@@ -95,5 +96,20 @@ class GitRepository(
     ): List<String> {
         return gitCommandExecutor
             .extractMarkedCommitMessages(messageKey, buildTagSnapshot.asCommitRange())
+    }
+
+    /**
+     * Extracts issue-reference lines (`CLOSES`/`FIXES`) within the [buildTagSnapshot] range, grouped per
+     * commit and paired with each commit's `CHANGELOG:` line for fallback rendering.
+     *
+     * @see GitCommandExecutor.extractIssueReferenceLines
+     */
+    fun issueReferenceLines(
+        references: List<IssueReference>,
+        commitMessageKey: String,
+        buildTagSnapshot: BuildTagSnapshot,
+    ): List<CommitIssueReferences> {
+        return gitCommandExecutor
+            .extractIssueReferenceLines(references, commitMessageKey, buildTagSnapshot.asCommitRange())
     }
 }

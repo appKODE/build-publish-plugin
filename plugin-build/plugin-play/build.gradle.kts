@@ -17,6 +17,14 @@ dependencies {
 
     compileOnly(libs.agp)
     compileOnly(project(":plugin-foundation"))
+
+    testImplementation(platform(libs.junitBom))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 gradlePlugin {

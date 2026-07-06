@@ -10,8 +10,8 @@ import org.gradle.api.tasks.Optional
  *
  * Instances are built by the task registrar from the plugin DSL (see `JiraTasksRegistrar`): each
  * project's optional automation patterns are already folded together with the automation-level
- * defaults, so the task only needs to read these values and route issues to the matching Jira
- * instance ([instanceName]).
+ * defaults. Carries **data only** — the [instanceName] routes each action to the right instance of the
+ * task's single Jira service at execution time.
  */
 interface JiraProjectBinding {
     /**
@@ -22,11 +22,10 @@ interface JiraProjectBinding {
     val projectKey: Property<String>
 
     /**
-     * The name of the `auth { }` configuration (Jira instance / credentials) to use for this project.
-     * When absent, the task falls back to the variant-matched / common service.
+     * The name of the `auth { }` instance this project lives on; used to select the instance within the
+     * task's single Jira service.
      */
     @get:Input
-    @get:Optional
     val instanceName: Property<String>
 
     @get:Input

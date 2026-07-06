@@ -15,14 +15,15 @@ import java.io.File
 
 /**
  * Offline (no Jira network) test validating configuration and task registration for the
- * multi-project / multi-instance Jira DSL: the `projects { }` container, multiple `auth`
- * configurations, and per-project `instanceName`.
+ * multi-project / multi-instance Jira DSL: the per-instance project registry
+ * (`instance("…") { project("…") { projectKey } }`), multiple `auth` configurations, and the
+ * two-level `targetInstance("…") { projectNames(…) / project("…") { … } }` selection.
  *
- * Evaluating this DSL instantiates the managed `projects` container and registers one Jira build
- * service per auth configuration, so a successful `tasks` run proves the multi-instance wiring holds
- * together without touching a real Jira instance.
+ * Evaluating this DSL builds the shared project registry and registers one Jira build service per auth
+ * configuration, so a successful `tasks` run proves the multi-instance wiring holds together without
+ * touching a real Jira instance.
  *
- * Config-time validation (duplicate project key / unknown auth name) only runs while registering the
+ * Config-time validation (duplicate project key / unknown auth instance) only runs while registering the
  * per-variant automation task, which needs the Foundation plugin and Android build variants. The two
  * `configuration fails …` cases therefore use [createAndroidProject] (Foundation + Jira) and expect a
  * `buildAndFail` — the validation throws during configuration, before any Jira network call.
@@ -32,7 +33,7 @@ class JiraMultiProjectRegistrationTest {
     lateinit var tempDir: File
 
     @Test
-    fun `standalone tasks registered with multiple auth configs and projects block`() {
+    fun `standalone tasks registered with multiple auth configs and per-instance project registries`() {
         val projectDir = File(tempDir, "test-project")
         projectDir.createNonAndroidProject(
             pluginId = "ru.kode.android.build-publish-novo.jira",
@@ -45,100 +46,97 @@ class JiraMultiProjectRegistrationTest {
                                 baseUrl.set("https://jira1.example.com")
                                 credentials.username.set("user1")
                                 credentials.password.set("pass1")
+                                project("main") { projectKey.set("APP") }
                             }
                             instance("secondary") {
                                 baseUrl.set("https://jira2.example.com")
                                 credentials.username.set("user2")
                                 credentials.password.set("pass2")
+                                project("legacy") { projectKey.set("LEG") }
                             }
                         }
                     }
                     automation {
                         common {
-                            targetStatusName.set("Ready for QA")
-                            projects {
+                            targetInstance("default") {
+                                project("main") { targetStatusName.set("Ready for QA") }
+                            }
+                            targetInstance("secondary") {
+                                project("legacy") { targetStatusName.set("Done") }
+                            }
+                        }
+                    }
+                }
+                """.trimIndent(),
+        )
+
+        val result = projectDir.runTask("tasks")
+
+        result.outputShouldContain("BUILD SUCCESSFUL")
+        result.outputShouldContain(TaskNames.Jira.ADD_FIX_VERSION)
+        result.outputShouldContain(TaskNames.Jira.TRANSITION_ISSUE)
+    }
+
+    @Test
+    fun `targetInstance selects a registry project by name without overrides`() {
+        val projectDir = File(tempDir, "test-project")
+        projectDir.createNonAndroidProject(
+            pluginId = "ru.kode.android.build-publish-novo.jira",
+            pluginConfigBlock =
+                """
+                buildPublishJira {
+                    auth {
+                        common {
+                            instance("default") {
+                                baseUrl.set("https://jira1.example.com")
+                                credentials.username.set("user1")
+                                credentials.password.set("pass1")
+                                project("main") { projectKey.set("APP") }
+                            }
+                        }
+                    }
+                    automation {
+                        common {
+                            // Select the registry project by name; no per-project override block needed
+                            targetInstance("default") { projectNames("main") }
+                        }
+                    }
+                }
+                """.trimIndent(),
+        )
+
+        val result = projectDir.runTask("tasks")
+
+        result.outputShouldContain("BUILD SUCCESSFUL")
+        result.outputShouldContain(TaskNames.Jira.ADD_FIX_VERSION)
+        result.outputShouldContain(TaskNames.Jira.TRANSITION_ISSUE)
+    }
+
+    @Test
+    fun `targetInstance applies per-project pattern overrides`() {
+        val projectDir = File(tempDir, "test-project")
+        projectDir.createNonAndroidProject(
+            pluginId = "ru.kode.android.build-publish-novo.jira",
+            pluginConfigBlock =
+                """
+                buildPublishJira {
+                    auth {
+                        common {
+                            instance("default") {
+                                baseUrl.set("https://jira1.example.com")
+                                credentials.username.set("user1")
+                                credentials.password.set("pass1")
+                                project("main") { projectKey.set("APP") }
+                            }
+                        }
+                    }
+                    automation {
+                        common {
+                            targetInstance("default") {
                                 project("main") {
-                                    projectKey.set("APP")
+                                    fixVersionPattern.set("%s")
+                                    targetStatusName.set("Ready for QA")
                                 }
-                                project("legacy") {
-                                    projectKey.set("LEG")
-                                    instanceName.set("secondary")
-                                    targetStatusName.set("Done")
-                                }
-                            }
-                        }
-                    }
-                }
-                """.trimIndent(),
-        )
-
-        val result = projectDir.runTask("tasks")
-
-        result.outputShouldContain("BUILD SUCCESSFUL")
-        result.outputShouldContain(TaskNames.Jira.ADD_FIX_VERSION)
-        result.outputShouldContain(TaskNames.Jira.TRANSITION_ISSUE)
-    }
-
-    @Test
-    fun `single project shorthand registers without a projects block`() {
-        val projectDir = File(tempDir, "test-project")
-        projectDir.createNonAndroidProject(
-            pluginId = "ru.kode.android.build-publish-novo.jira",
-            pluginConfigBlock =
-                """
-                buildPublishJira {
-                    auth {
-                        common {
-                            instance("default") {
-                                baseUrl.set("https://jira1.example.com")
-                                credentials.username.set("user1")
-                                credentials.password.set("pass1")
-                            }
-                        }
-                    }
-                    automation {
-                        common {
-                            // Shorthand: single project, no surrounding projects { } block
-                            project("main") {
-                                projectKey.set("APP")
-                                targetStatusName.set("Ready for QA")
-                            }
-                        }
-                    }
-                }
-                """.trimIndent(),
-        )
-
-        val result = projectDir.runTask("tasks")
-
-        result.outputShouldContain("BUILD SUCCESSFUL")
-        result.outputShouldContain(TaskNames.Jira.ADD_FIX_VERSION)
-        result.outputShouldContain(TaskNames.Jira.TRANSITION_ISSUE)
-    }
-
-    @Test
-    fun `unnamed single project shorthand registers without a projects block`() {
-        val projectDir = File(tempDir, "test-project")
-        projectDir.createNonAndroidProject(
-            pluginId = "ru.kode.android.build-publish-novo.jira",
-            pluginConfigBlock =
-                """
-                buildPublishJira {
-                    auth {
-                        common {
-                            instance("default") {
-                                baseUrl.set("https://jira1.example.com")
-                                credentials.username.set("user1")
-                                credentials.password.set("pass1")
-                            }
-                        }
-                    }
-                    automation {
-                        common {
-                            // Shorthand: single unnamed project, no name and no projects { } block
-                            project {
-                                projectKey.set("APP")
-                                targetStatusName.set("Ready for QA")
                             }
                         }
                     }

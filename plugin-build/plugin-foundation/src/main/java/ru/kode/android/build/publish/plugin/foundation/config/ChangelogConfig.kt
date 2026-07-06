@@ -11,6 +11,8 @@ import ru.kode.android.build.publish.plugin.core.strategy.AnnotatedTagMessageStr
 import ru.kode.android.build.publish.plugin.core.strategy.ChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.EmptyChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.NotGeneratedChangelogMessageStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.ResolvedIssueStrategy
+import ru.kode.android.build.publish.plugin.core.strategy.UnresolvedIssueStrategy
 import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
 import ru.kode.android.build.publish.plugin.core.util.configureGroovy
 
@@ -134,6 +136,86 @@ abstract class ChangelogConfig : CommonConfigMergeable<ChangelogConfig> {
     }
 
     /**
+     * Issue-reference markers (`CLOSES`/`FIXES`) used to derive changelog entries from commit messages.
+     *
+     * Configure references through the [issueReferences] method rather than accessing this directly.
+     *
+     * @see issueReferences
+     * @see IssueReferenceConfig
+     */
+    @get:Nested
+    abstract val issueReferencesConfig: IssueReferencesConfig
+
+    /**
+     * Configures the issue-reference markers used to derive changelog entries from commit messages.
+     *
+     * Each reference (added via [IssueReferencesConfig.issueReference]) names a commit marker
+     * (`CLOSES`/`FIXES`) and the pattern that extracts its issue token. When a provider plugin
+     * (Jira, ClickUp, …) is applied, every extracted token is resolved to its tracker title.
+     *
+     * Example:
+     * ```
+     * issueReferences {
+     *     issueReference("closes") { key.set("CLOSES"); numberPattern.set("(\\d+|[A-Z]+-\\d+)") }
+     *     issueReference("fixes")  { key.set("FIXES");  numberPattern.set("(\\d+|[A-Z]+-\\d+)") }
+     * }
+     * ```
+     *
+     * @param action A configuration block applied to the [IssueReferencesConfig] container.
+     *
+     * @see IssueReferencesConfig
+     */
+    fun issueReferences(action: Action<IssueReferencesConfig>) {
+        action.execute(issueReferencesConfig)
+    }
+
+    /**
+     * Configures the issue-reference markers using a Groovy closure.
+     *
+     * @param configurationClosure The Groovy closure applied to the [IssueReferencesConfig] container.
+     *
+     * @see issueReferences
+     */
+    fun issueReferences(
+        @DelegatesTo(value = IssueReferencesConfig::class, strategy = Closure.DELEGATE_FIRST)
+        configurationClosure: Closure<in IssueReferencesConfig>,
+    ) {
+        issueReferences { target -> configureGroovy(configurationClosure, target) }
+    }
+
+    /**
+     * Shorthand for declaring a single issue reference without the surrounding `issueReferences { }`
+     * block.
+     *
+     * Equivalent to `issueReferences { issueReference(name) { … } }`.
+     *
+     * @param name A unique identifier for the reference (e.g. "closes").
+     * @param action A configuration block applied to the new [IssueReferenceConfig] instance.
+     */
+    fun issueReference(
+        name: String,
+        action: Action<IssueReferenceConfig>,
+    ) {
+        issueReferencesConfig.issueReference(name, action)
+    }
+
+    /**
+     * Shorthand for declaring a single issue reference with the given name using a Groovy closure.
+     *
+     * @param name A unique identifier for the reference (e.g. "closes").
+     * @param configurationClosure The Groovy closure applied to the new [IssueReferenceConfig].
+     *
+     * @see issueReference
+     */
+    fun issueReference(
+        name: String,
+        @DelegatesTo(value = IssueReferenceConfig::class, strategy = Closure.DELEGATE_FIRST)
+        configurationClosure: Closure<in IssueReferenceConfig>,
+    ) {
+        issueReference(name) { target -> configureGroovy(configurationClosure, target) }
+    }
+
+    /**
      * The commit message key used to identify commits that should be included in the changelog.
      *
      * Only commits that contain this key in their message will be included in the
@@ -198,6 +280,89 @@ abstract class ChangelogConfig : CommonConfigMergeable<ChangelogConfig> {
     @get:Input
     @get:Optional
     internal abstract val notGeneratedChangelogMessageStrategy: Property<NotGeneratedChangelogMessageStrategy>
+
+    /**
+     * Strategy that decides how an issue reference is rendered when no provider could resolve its title
+     * (unknown tracker, missing issue, or network failure).
+     *
+     * Defaults to [ru.kode.android.build.publish.plugin.core.strategy.ChangelogLineOrKeyUnresolvedStrategy]:
+     * the commit's `CHANGELOG:` line (if present) already represents the change, otherwise the bare
+     * `[key]` is shown. Resolution stays non-blocking regardless of the chosen strategy.
+     *
+     * @see UnresolvedIssueStrategy
+     */
+    @get:Input
+    @get:Optional
+    internal abstract val unresolvedIssueStrategy: Property<UnresolvedIssueStrategy>
+
+    /**
+     * Configures the strategy used to render issue references that could not be resolved.
+     *
+     * @param action Supplier that returns the desired [UnresolvedIssueStrategy] implementation.
+     *
+     * @see UnresolvedIssueStrategy
+     */
+    fun unresolvedIssueStrategy(action: () -> UnresolvedIssueStrategy) {
+        unresolvedIssueStrategy.set(action())
+    }
+
+    /**
+     * Configures the strategy used to render unresolved issue references using a Groovy closure.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [UnresolvedIssueStrategy] implementation.
+     *
+     * @see UnresolvedIssueStrategy
+     */
+    fun unresolvedIssueStrategy(
+        @DelegatesTo(
+            value = UnresolvedIssueStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out UnresolvedIssueStrategy>,
+    ) {
+        unresolvedIssueStrategy.set(strategyClosure.call())
+    }
+
+    /**
+     * Strategy that decides how an issue reference is rendered once a provider resolved its title.
+     *
+     * Defaults to [ru.kode.android.build.publish.plugin.core.strategy.KeyAndTitleResolvedStrategy]:
+     * `[key] title`. Alternatives drop the key ([ru.kode.android.build.publish.plugin.core.strategy.TitleOnlyResolvedStrategy])
+     * or the title ([ru.kode.android.build.publish.plugin.core.strategy.KeyOnlyResolvedStrategy]).
+     *
+     * @see ResolvedIssueStrategy
+     */
+    @get:Input
+    @get:Optional
+    internal abstract val resolvedIssueStrategy: Property<ResolvedIssueStrategy>
+
+    /**
+     * Configures the strategy used to render issue references that were resolved to a title.
+     *
+     * @param action Supplier that returns the desired [ResolvedIssueStrategy] implementation.
+     *
+     * @see ResolvedIssueStrategy
+     */
+    fun resolvedIssueStrategy(action: () -> ResolvedIssueStrategy) {
+        resolvedIssueStrategy.set(action())
+    }
+
+    /**
+     * Configures the strategy used to render resolved issue references using a Groovy closure.
+     *
+     * @param strategyClosure Groovy closure that returns the desired [ResolvedIssueStrategy] implementation.
+     *
+     * @see ResolvedIssueStrategy
+     */
+    fun resolvedIssueStrategy(
+        @DelegatesTo(
+            value = ResolvedIssueStrategy::class,
+            strategy = Closure.DELEGATE_FIRST,
+        )
+        strategyClosure: Closure<out ResolvedIssueStrategy>,
+    ) {
+        resolvedIssueStrategy.set(strategyClosure.call())
+    }
 
     /**
      * Configures the strategy used to format annotated tag messages in the changelog.
@@ -318,11 +483,14 @@ abstract class ChangelogConfig : CommonConfigMergeable<ChangelogConfig> {
 
     override fun inheritFrom(common: ChangelogConfig) {
         issueSourcesConfig.inheritFrom(common.issueSourcesConfig)
+        issueReferencesConfig.inheritFrom(common.issueReferencesConfig)
         commitMessageKey.convention(common.commitMessageKey)
         annotatedTagMessageStrategy.convention(common.annotatedTagMessageStrategy)
         changelogMessageStrategy.convention(common.changelogMessageStrategy)
         emptyChangelogMessageStrategy.convention(common.emptyChangelogMessageStrategy)
         notGeneratedChangelogMessageStrategy.convention(common.notGeneratedChangelogMessageStrategy)
+        unresolvedIssueStrategy.convention(common.unresolvedIssueStrategy)
+        resolvedIssueStrategy.convention(common.resolvedIssueStrategy)
     }
 }
 

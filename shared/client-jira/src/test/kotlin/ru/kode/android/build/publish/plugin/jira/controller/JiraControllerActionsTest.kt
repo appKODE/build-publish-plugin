@@ -30,6 +30,8 @@ class JiraControllerActionsTest {
 
         override fun getIssueStatus(issue: String): JiraIssueStatus? = null
 
+        override fun getIssueSummary(issue: String): String? = null
+
         override fun getProjectAvailableStatuses(projectKey: String): List<JiraIssueStatus> = emptyList()
 
         override fun getProjectId(projectKey: String): Long {

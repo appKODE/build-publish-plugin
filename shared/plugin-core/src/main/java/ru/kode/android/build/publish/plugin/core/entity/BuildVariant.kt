@@ -1,4 +1,6 @@
-package ru.kode.android.build.publish.plugin.core.enity
+package ru.kode.android.build.publish.plugin.core.entity
+
+import kotlinx.serialization.Serializable
 
 /**
  * Represents a build variant in an Android project, which is a combination of build type and product flavors.
@@ -9,6 +11,7 @@ package ru.kode.android.build.publish.plugin.core.enity
  *
  * @see ProductFlavor for information about product flavor configurations.
  */
+@Serializable
 data class BuildVariant(
     /**
      * The full name of the build variant (e.g., "stagingDebug"), which is a combination of
@@ -44,6 +47,7 @@ data class BuildVariant(
      * can specify its own application ID, version information, and other build configurations that override
      * the default settings in the main source set.
      */
+    @Serializable
     data class ProductFlavor(
         /**
          * The dimension that this product flavor belongs to. Dimensions are used to group
