@@ -4,7 +4,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
-import ru.kode.android.build.publish.plugin.core.util.CollectionStrategy
+import ru.kode.android.gradle.commons.util.CollectionStrategy
 import javax.inject.Inject
 
 /**

@@ -17,9 +17,9 @@ import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.core.util.BUNDLE_FILE_EXTENSION
 import ru.kode.android.build.publish.plugin.play.service.network.PlayNetworkService
 import ru.kode.android.build.publish.plugin.play.task.distribution.work.PlayUploadWork
+import ru.kode.android.gradle.commons.util.BUNDLE_FILE_EXTENSION
 import javax.inject.Inject
 
 /**

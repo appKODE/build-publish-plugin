@@ -5,7 +5,6 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.entity.IssueReference
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.strategy.AnnotatedTagMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.ChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.EmptyChangelogMessageStrategy
@@ -19,6 +18,7 @@ import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.core.util.changelogFileProvider
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServiceExtension
 import ru.kode.android.build.publish.plugin.foundation.task.changelog.GenerateChangelogTask
+import ru.kode.android.gradle.commons.logger.LoggerServiceExtension
 
 /**
  * Utility object for registering changelog-related tasks in the build process.

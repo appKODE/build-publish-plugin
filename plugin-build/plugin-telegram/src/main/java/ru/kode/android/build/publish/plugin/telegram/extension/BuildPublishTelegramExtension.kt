@@ -8,12 +8,8 @@ import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
-import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramBotsConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramChangelogConfig
 import ru.kode.android.build.publish.plugin.telegram.config.TelegramDistributionConfig
@@ -25,6 +21,10 @@ import ru.kode.android.build.publish.plugin.telegram.task.TelegramBundleDistribu
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramChangelogTaskParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramLookupTaskParams
 import ru.kode.android.build.publish.plugin.telegram.task.TelegramTasksRegistrar
+import ru.kode.android.gradle.commons.api.container.PluginDomainObjectContainer
+import ru.kode.android.gradle.commons.util.configureGroovy
+import ru.kode.android.gradle.commons.util.getByNameOrNullableCommon
+import ru.kode.android.gradle.commons.util.getByNameOrRequiredCommon
 import javax.inject.Inject
 
 /**
@@ -153,10 +153,10 @@ abstract class BuildPublishTelegramExtension
          * @param configurationAction Action to configure bot settings
          */
         fun bots(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<TelegramBotsConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<PluginDomainObjectContainer<TelegramBotsConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(bots)
+            val container = PluginDomainObjectContainer(bots)
             configurationAction.execute(container)
         }
 
@@ -170,10 +170,10 @@ abstract class BuildPublishTelegramExtension
          * @param configurationClosure Groovy closure to configure bot settings
          */
         fun bots(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<TelegramBotsConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<TelegramBotsConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(bots)
+            val container = PluginDomainObjectContainer(bots)
             configureGroovy(configurationClosure, container)
         }
 
@@ -186,10 +186,10 @@ abstract class BuildPublishTelegramExtension
          * @param configurationAction Action to configure changelog settings
          */
         fun changelog(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<TelegramChangelogConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<PluginDomainObjectContainer<TelegramChangelogConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(changelog)
+            val container = PluginDomainObjectContainer(changelog)
             configurationAction.execute(container)
         }
 
@@ -203,10 +203,10 @@ abstract class BuildPublishTelegramExtension
          * @param configurationClosure Closure to configure changelog settings
          */
         fun changelog(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<TelegramChangelogConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<TelegramChangelogConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(changelog)
+            val container = PluginDomainObjectContainer(changelog)
             configureGroovy(configurationClosure, container)
         }
 
@@ -215,7 +215,7 @@ abstract class BuildPublishTelegramExtension
          *
          * This method allows you to configure Telegram lookup settings that apply to all
          * build variants. It registers a common configuration that applies to all
-         * lookups using the [BuildPublishDomainObjectContainer] abstraction.
+         * lookups using the [PluginDomainObjectContainer] abstraction.
          *
          * @param configurationAction Action to configure common lookup settings
          */
@@ -228,7 +228,7 @@ abstract class BuildPublishTelegramExtension
          *
          * This method allows you to configure Telegram lookup settings that apply to all
          * build variants. It registers a common configuration that applies to all
-         * lookups using the [BuildPublishDomainObjectContainer] abstraction.
+         * lookups using the [PluginDomainObjectContainer] abstraction.
          *
          * @param configurationAction Action to configure common lookup settings
          */
@@ -252,8 +252,8 @@ abstract class BuildPublishTelegramExtension
          *
          * @param configurationAction Action to configure distribution settings
          */
-        fun distribution(configurationAction: Action<BuildPublishDomainObjectContainer<TelegramDistributionConfig>>) {
-            val container = BuildPublishDomainObjectContainer(distribution)
+        fun distribution(configurationAction: Action<PluginDomainObjectContainer<TelegramDistributionConfig>>) {
+            val container = PluginDomainObjectContainer(distribution)
             configurationAction.execute(container)
         }
 
@@ -268,12 +268,12 @@ abstract class BuildPublishTelegramExtension
          */
         fun distribution(
             @DelegatesTo(
-                value = BuildPublishDomainObjectContainer::class,
+                value = PluginDomainObjectContainer::class,
                 strategy = Closure.DELEGATE_FIRST,
             )
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<TelegramDistributionConfig>>,
+            configurationClosure: Closure<in PluginDomainObjectContainer<TelegramDistributionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(distribution)
+            val container = PluginDomainObjectContainer(distribution)
             configureGroovy(configurationClosure, container)
         }
 
@@ -282,7 +282,7 @@ abstract class BuildPublishTelegramExtension
          *
          * This method allows you to configure Telegram bot settings that apply to all
          * build variants. It registers a common configuration that applies to all
-         * bots using the [BuildPublishDomainObjectContainer] abstraction.
+         * bots using the [PluginDomainObjectContainer] abstraction.
          *
          * @param configurationAction Action to configure common bot settings
          */
@@ -295,7 +295,7 @@ abstract class BuildPublishTelegramExtension
          *
          * This method allows you to configure Telegram bot settings that apply to all
          * build variants using a Groovy closure. It registers a common configuration
-         * that applies to all bots using the [BuildPublishDomainObjectContainer] abstraction.
+         * that applies to all bots using the [PluginDomainObjectContainer] abstraction.
          *
          * @param configurationClosure Groovy closure to configure common bot settings
          */
@@ -315,7 +315,7 @@ abstract class BuildPublishTelegramExtension
          * Configures common changelog settings that apply to all build variants.
          *
          * This method registers a common configuration that applies to all changelog settings
-         * using the [BuildPublishDomainObjectContainer] abstraction. The configuration will
+         * using the [PluginDomainObjectContainer] abstraction. The configuration will
          * be applied to all changelog settings with variant-specific configurations as a
          * fallback.
          *
@@ -329,7 +329,7 @@ abstract class BuildPublishTelegramExtension
          * Configures common changelog settings that apply to all build variants using Groovy DSL.
          *
          * This method registers a common configuration that applies to all changelog settings
-         * using the [BuildPublishDomainObjectContainer] abstraction. The configuration will
+         * using the [PluginDomainObjectContainer] abstraction. The configuration will
          * be applied to all changelog settings with variant-specific configurations as a
          * fallback.
          *
@@ -351,7 +351,7 @@ abstract class BuildPublishTelegramExtension
          * Configures common distribution settings that apply to all build variants.
          *
          * This method registers a common configuration that applies to all distribution settings
-         * using the [BuildPublishDomainObjectContainer] abstraction. The configuration will
+         * using the [PluginDomainObjectContainer] abstraction. The configuration will
          * be applied to all distribution settings with variant-specific configurations as a
          * fallback.
          *
@@ -365,7 +365,7 @@ abstract class BuildPublishTelegramExtension
          * Configures common distribution settings that apply to all build variants using Groovy DSL.
          *
          * This method registers a common configuration that applies to all distribution settings
-         * using the [BuildPublishDomainObjectContainer] abstraction. The configuration will
+         * using the [PluginDomainObjectContainer] abstraction. The configuration will
          * be applied to all distribution settings with variant-specific configurations as a
          * fallback.
          *

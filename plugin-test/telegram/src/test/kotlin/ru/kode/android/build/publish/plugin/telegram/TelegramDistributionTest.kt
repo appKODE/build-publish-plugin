@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLogger
 import ru.kode.android.build.publish.plugin.telegram.controller.TelegramController
 import ru.kode.android.build.publish.plugin.telegram.controller.TelegramControllerFactory
 import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
@@ -25,6 +24,7 @@ import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import ru.kode.android.build.publish.plugin.test.utils.runTaskWithFail
 import ru.kode.android.build.publish.plugin.test.utils.runTasks
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLogger
 import java.io.File
 import java.io.IOException
 

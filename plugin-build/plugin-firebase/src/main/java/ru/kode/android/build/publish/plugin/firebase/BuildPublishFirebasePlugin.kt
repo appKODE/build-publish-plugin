@@ -7,11 +7,11 @@ import com.google.firebase.appdistribution.gradle.AppDistributionPlugin
 import com.google.firebase.appdistribution.gradle.tasks.UploadDistributionTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
-import ru.kode.android.build.publish.plugin.core.util.ProxyAuthenticator
-import ru.kode.android.build.publish.plugin.core.util.createHttpProxy
-import ru.kode.android.build.publish.plugin.core.util.createHttpsProxy
 import ru.kode.android.build.publish.plugin.firebase.extension.BuildPublishFirebaseExtension
+import ru.kode.android.gradle.commons.logger.LoggerServiceExtension
+import ru.kode.android.gradle.commons.util.ProxyAuthenticator
+import ru.kode.android.gradle.commons.util.createHttpProxy
+import ru.kode.android.gradle.commons.util.createHttpsProxy
 import java.net.Authenticator
 
 internal const val EXTENSION_NAME = "buildPublishFirebase"

@@ -14,7 +14,6 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
@@ -23,6 +22,7 @@ import ru.kode.android.build.publish.plugin.foundation.messages.formDefaultVersi
 import ru.kode.android.build.publish.plugin.foundation.messages.formNullVersionCodeMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.formRichVersionCodeMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionCodeParamsMessage
+import ru.kode.android.gradle.commons.logger.LoggerService
 
 /**
  * Computes the `versionCode` value for a specific Android build variant.

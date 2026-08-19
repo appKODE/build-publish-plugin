@@ -4,7 +4,6 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.play.messages.errorAppDoesNotExistMessage
 import ru.kode.android.build.publish.plugin.play.messages.errorResponseMessage
 import ru.kode.android.build.publish.plugin.play.messages.failedToFetchEditIdMessage
@@ -22,6 +21,7 @@ import ru.kode.android.build.publish.plugin.play.task.distribution.publisher.cre
 import ru.kode.android.build.publish.plugin.play.task.distribution.track.DefaultEditManager
 import ru.kode.android.build.publish.plugin.play.task.distribution.track.DefaultTrackManager
 import ru.kode.android.build.publish.plugin.play.task.distribution.track.TrackManager
+import ru.kode.android.gradle.commons.logger.LoggerService
 import java.io.File
 import javax.inject.Inject
 

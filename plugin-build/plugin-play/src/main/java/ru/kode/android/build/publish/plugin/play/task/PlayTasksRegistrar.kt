@@ -8,10 +8,10 @@ import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
 import ru.kode.android.build.publish.plugin.play.config.PlayDistributionConfig
 import ru.kode.android.build.publish.plugin.play.service.PlayServiceExtension
 import ru.kode.android.build.publish.plugin.play.task.distribution.PlayDistributionTask
+import ru.kode.android.gradle.commons.util.getByNameOrCommon
 
 /**
  * Utility object for registering Play Store related Gradle tasks.

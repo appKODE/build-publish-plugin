@@ -16,12 +16,12 @@ import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtens
 import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
 import ru.kode.android.build.publish.plugin.clickup.task.standalone.AddClickUpFixVersionTask
 import ru.kode.android.build.publish.plugin.clickup.task.standalone.AddClickUpTagTask
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.task.registerStandaloneServiceTask
-import ru.kode.android.build.publish.plugin.core.util.applyWithOptionalAndroid
-import ru.kode.android.build.publish.plugin.core.util.getOrRegisterLoggerService
-import ru.kode.android.build.publish.plugin.core.util.serviceName
+import ru.kode.android.gradle.commons.logger.LoggerService
+import ru.kode.android.gradle.commons.util.applyWithOptionalAndroid
+import ru.kode.android.gradle.commons.util.getOrRegisterLoggerService
+import ru.kode.android.gradle.commons.util.serviceName
 
 internal const val EXTENSION_NAME = "buildPublishClickUp"
 private const val SERVICE_NAME = "clickUpService"

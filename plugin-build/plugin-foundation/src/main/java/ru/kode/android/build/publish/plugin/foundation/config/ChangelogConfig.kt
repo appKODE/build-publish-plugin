@@ -13,8 +13,8 @@ import ru.kode.android.build.publish.plugin.core.strategy.EmptyChangelogMessageS
 import ru.kode.android.build.publish.plugin.core.strategy.NotGeneratedChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.ResolvedIssueStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.UnresolvedIssueStrategy
-import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
+import ru.kode.android.gradle.commons.util.CommonConfigMergeable
+import ru.kode.android.gradle.commons.util.configureGroovy
 
 /**
  * Configuration interface for changelog generation settings.

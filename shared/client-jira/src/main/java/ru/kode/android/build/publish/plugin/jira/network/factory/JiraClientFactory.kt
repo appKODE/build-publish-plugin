@@ -1,11 +1,10 @@
 package ru.kode.android.build.publish.plugin.jira.network.factory
 
-import okhttp3.Credentials
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
-import ru.kode.android.build.publish.plugin.core.util.buildLoggingInterceptor
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.util.addProxyIfAvailable
+import ru.kode.android.gradle.commons.util.buildBasicAuthInterceptor
+import ru.kode.android.gradle.commons.util.buildLoggingInterceptor
 import java.util.concurrent.TimeUnit
 
 private const val HTTP_CONNECT_TIMEOUT_SECONDS = 30L
@@ -32,30 +31,15 @@ internal object JiraClientFactory {
             .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            .addInterceptor(AttachTokenInterceptor(username, password))
+            .addInterceptor(
+                buildBasicAuthInterceptor(
+                    username = username,
+                    password = password,
+                    extraHeaders = mapOf("Content-Type" to "application/json"),
+                ),
+            )
             .addProxyIfAvailable(logger)
             .addNetworkInterceptor(loggingInterceptor)
             .build()
     }
-}
-
-/**
- * Interceptor that attaches the username and password as basic authentication
- * to each request.
- *
- * @property username The username used for authentication.
- * @property password The password used for authentication.
- */
-private class AttachTokenInterceptor(
-    private val username: String,
-    private val password: String,
-) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain) =
-        chain.proceed(
-            chain.request()
-                .newBuilder()
-                .addHeader(name = "Content-Type", "application/json")
-                .addHeader("Authorization", Credentials.basic(username, password))
-                .build(),
-        )
 }

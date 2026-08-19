@@ -16,12 +16,12 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.nextcloud.config.NextcloudShareMode
 import ru.kode.android.build.publish.plugin.nextcloud.service.NextcloudService
 import ru.kode.android.build.publish.plugin.nextcloud.task.NextcloudRemoteFileNameContext
 import ru.kode.android.build.publish.plugin.nextcloud.task.distribution.work.NextcloudUploadWork
 import ru.kode.android.build.publish.plugin.nextcloud.task.resolveChangelogRemoteFileName
+import ru.kode.android.gradle.commons.logger.LoggerService
 import javax.inject.Inject
 
 @DisableCachingByDefault

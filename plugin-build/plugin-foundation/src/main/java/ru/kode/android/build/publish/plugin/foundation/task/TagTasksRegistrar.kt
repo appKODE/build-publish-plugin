@@ -5,7 +5,6 @@ import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_BUILD_VERSION
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.OutputBundleNameStrategy
@@ -28,6 +27,7 @@ import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeVersionCo
 import ru.kode.android.build.publish.plugin.foundation.task.tag.ComputeVersionNameTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.GetLastTagSnapshotTask
 import ru.kode.android.build.publish.plugin.foundation.task.tag.PrintLastIncreasedTagTask
+import ru.kode.android.gradle.commons.logger.LoggerServiceExtension
 
 const val DEFAULT_VERSION_NAME = DEFAULT_BUILD_VERSION
 

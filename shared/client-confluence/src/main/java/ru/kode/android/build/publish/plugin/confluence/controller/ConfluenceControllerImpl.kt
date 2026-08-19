@@ -10,8 +10,8 @@ import ru.kode.android.build.publish.plugin.confluence.messages.removeCommentFai
 import ru.kode.android.build.publish.plugin.confluence.messages.uploadFileFailedMessage
 import ru.kode.android.build.publish.plugin.confluence.network.api.ConfluenceApi
 import ru.kode.android.build.publish.plugin.confluence.network.entity.AddCommentRequest
-import ru.kode.android.build.publish.plugin.core.util.executeNoResult
-import ru.kode.android.build.publish.plugin.core.util.executeWithResult
+import ru.kode.android.gradle.commons.util.executeNoResult
+import ru.kode.android.gradle.commons.util.executeWithResult
 import java.io.File
 
 /**

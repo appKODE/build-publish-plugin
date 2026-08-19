@@ -7,7 +7,6 @@ import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.entity.CommitRange
 import ru.kode.android.build.publish.plugin.core.entity.IssueReference
 import ru.kode.android.build.publish.plugin.core.entity.Tag
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.messages.cannotReturnTagMessage
 import ru.kode.android.build.publish.plugin.core.messages.finTagsByRegexAfterSortingMessage
 import ru.kode.android.build.publish.plugin.core.messages.findTagsByRegexAfterFilterMessage
@@ -15,6 +14,7 @@ import ru.kode.android.build.publish.plugin.core.messages.findTagsByRegexBeforeF
 import ru.kode.android.build.publish.plugin.core.util.getBuildNumber
 import ru.kode.android.build.publish.plugin.core.util.getCommitsByRange
 import ru.kode.android.build.publish.plugin.core.util.utcDateTime
+import ru.kode.android.gradle.commons.logger.PluginLogger
 import org.ajoberstar.grgit.Tag as GrgitTag
 
 /**

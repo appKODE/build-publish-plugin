@@ -4,11 +4,11 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
-import ru.kode.android.build.publish.plugin.core.util.UploadError
 import ru.kode.android.build.publish.plugin.jira.messages.failedToUpdateStatusMessage
 import ru.kode.android.build.publish.plugin.jira.messages.notPossibleToUpdateStatusMessage
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
+import ru.kode.android.gradle.commons.logger.LoggerService
+import ru.kode.android.gradle.commons.util.UploadError
 
 /**
  * Parameters for the [SetStatusWork] work action.

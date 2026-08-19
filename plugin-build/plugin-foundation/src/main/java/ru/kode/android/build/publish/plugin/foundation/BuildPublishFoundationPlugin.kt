@@ -14,10 +14,6 @@ import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.entity.IssueReference
 import ru.kode.android.build.publish.plugin.core.entity.IssueSource
-import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_EXTENSION_NAME
-import ru.kode.android.build.publish.plugin.core.logger.LOGGER_SERVICE_NAME
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.strategy.ChangelogLineOrKeyUnresolvedStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_TAG_PATTERN
 import ru.kode.android.build.publish.plugin.core.strategy.DecoratedAnnotatedTagMessageStrategy
@@ -25,12 +21,6 @@ import ru.kode.android.build.publish.plugin.core.strategy.KeyAndTitleResolvedStr
 import ru.kode.android.build.publish.plugin.core.strategy.KeyRemovingChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.NoChangesChangelogMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.NoChangesNotGeneratedChangelogMessageStrategy
-import ru.kode.android.build.publish.plugin.core.util.APK_FILE_EXTENSION
-import ru.kode.android.build.publish.plugin.core.util.BUNDLE_FILE_EXTENSION
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
-import ru.kode.android.build.publish.plugin.core.util.replaceLast
-import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.foundation.config.OutputConfig
 import ru.kode.android.build.publish.plugin.foundation.extension.BuildPublishFoundationExtension
@@ -51,6 +41,16 @@ import ru.kode.android.build.publish.plugin.foundation.task.TagTasksRegistrar
 import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameApkTask
 import ru.kode.android.build.publish.plugin.foundation.task.rename.RenameBundleTask
 import ru.kode.android.build.publish.plugin.foundation.validate.stopExecutionIfNotSupported
+import ru.kode.android.gradle.commons.logger.LOGGER_SERVICE_EXTENSION_NAME
+import ru.kode.android.gradle.commons.logger.LOGGER_SERVICE_NAME
+import ru.kode.android.gradle.commons.logger.LoggerService
+import ru.kode.android.gradle.commons.logger.LoggerServiceExtension
+import ru.kode.android.gradle.commons.util.APK_FILE_EXTENSION
+import ru.kode.android.gradle.commons.util.BUNDLE_FILE_EXTENSION
+import ru.kode.android.gradle.commons.util.getByNameOrNullableCommon
+import ru.kode.android.gradle.commons.util.getByNameOrRequiredCommon
+import ru.kode.android.gradle.commons.util.replaceLast
+import ru.kode.android.gradle.commons.util.serviceName
 
 /**
  * Name of the foundation extension exposed by this plugin.

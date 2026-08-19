@@ -4,7 +4,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.tasks.TaskProvider
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.gradle.commons.logger.LoggerService
 
 /**
  * Registers a [StandaloneServiceTask] and wires its shared [service]/[loggerService] inputs plus the

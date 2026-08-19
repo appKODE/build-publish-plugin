@@ -14,7 +14,6 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.OutputBundleNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.SimpleApkNamingStrategy
@@ -24,6 +23,7 @@ import ru.kode.android.build.publish.plugin.foundation.messages.computedBundleOu
 import ru.kode.android.build.publish.plugin.foundation.messages.formRichBundleFileNameMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.formSimpleBundleFileNameMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.resolvedBundleOutputFileNameParamsMessage
+import ru.kode.android.gradle.commons.logger.LoggerService
 
 /**
  * Computes the final output Bundle (AAB) file name for a specific Android build variant.

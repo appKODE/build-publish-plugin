@@ -22,13 +22,13 @@ import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtens
 import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpAutomationTaskParams
 import ru.kode.android.build.publish.plugin.clickup.task.ClickUpTasksRegistrar
-import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
+import ru.kode.android.gradle.commons.api.container.PluginDomainObjectContainer
+import ru.kode.android.gradle.commons.util.configureGroovy
+import ru.kode.android.gradle.commons.util.getByNameOrCommon
+import ru.kode.android.gradle.commons.util.getByNameOrNullableCommon
+import ru.kode.android.gradle.commons.util.getByNameOrRequiredCommon
 import javax.inject.Inject
 
 /**
@@ -128,10 +128,10 @@ abstract class BuildPublishClickUpExtension
          * @see ClickUpAuthConfig For available configuration options
          */
         fun auth(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<in BuildPublishDomainObjectContainer<ClickUpAuthConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<in PluginDomainObjectContainer<ClickUpAuthConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(auth)
+            val container = PluginDomainObjectContainer(auth)
             configurationAction.execute(container)
         }
 
@@ -145,10 +145,10 @@ abstract class BuildPublishClickUpExtension
          * @see ClickUpAuthConfig For available configuration options
          */
         fun auth(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ClickUpAuthConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<ClickUpAuthConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(auth)
+            val container = PluginDomainObjectContainer(auth)
             configureGroovy(configurationClosure, container)
         }
 
@@ -161,10 +161,10 @@ abstract class BuildPublishClickUpExtension
          * @see ClickUpAutomationConfig For available configuration options
          */
         fun automation(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<in BuildPublishDomainObjectContainer<ClickUpAutomationConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<in PluginDomainObjectContainer<ClickUpAutomationConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(automation)
+            val container = PluginDomainObjectContainer(automation)
             configurationAction.execute(container)
         }
 
@@ -177,10 +177,10 @@ abstract class BuildPublishClickUpExtension
          * @see ClickUpAutomationConfig For available configuration options
          */
         fun automation(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ClickUpAutomationConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<ClickUpAutomationConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(automation)
+            val container = PluginDomainObjectContainer(automation)
             configureGroovy(configurationClosure, container)
         }
 
@@ -261,10 +261,10 @@ abstract class BuildPublishClickUpExtension
          * @see ClickUpIssueResolutionConfig For available configuration options
          */
         fun issueResolution(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<in BuildPublishDomainObjectContainer<ClickUpIssueResolutionConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<in PluginDomainObjectContainer<ClickUpIssueResolutionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(issueResolution)
+            val container = PluginDomainObjectContainer(issueResolution)
             configurationAction.execute(container)
         }
 
@@ -274,10 +274,10 @@ abstract class BuildPublishClickUpExtension
          * @param configurationClosure The Groovy closure applied to the issue-resolution container
          */
         fun issueResolution(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ClickUpIssueResolutionConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<ClickUpIssueResolutionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(issueResolution)
+            val container = PluginDomainObjectContainer(issueResolution)
             configureGroovy(configurationClosure, container)
         }
 

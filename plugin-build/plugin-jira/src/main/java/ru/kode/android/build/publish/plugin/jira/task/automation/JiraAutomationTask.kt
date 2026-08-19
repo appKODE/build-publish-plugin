@@ -18,7 +18,6 @@ import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.jira.messages.issuesNoFoundMessage
 import ru.kode.android.build.publish.plugin.jira.messages.noIssuesForProjectMessage
 import ru.kode.android.build.publish.plugin.jira.messages.unmatchedIssuesMessage
@@ -26,6 +25,7 @@ import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddFixVersionWork
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.AddLabelWork
 import ru.kode.android.build.publish.plugin.jira.task.automation.work.SetStatusWork
+import ru.kode.android.gradle.commons.logger.LoggerService
 import javax.inject.Inject
 
 /**

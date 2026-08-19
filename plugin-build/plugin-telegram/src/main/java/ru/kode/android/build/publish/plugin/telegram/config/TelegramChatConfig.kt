@@ -3,7 +3,7 @@ package ru.kode.android.build.publish.plugin.telegram.config
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
-import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.gradle.commons.util.CommonConfigMergeable
 
 /**
  * Configuration for a Telegram chat where the bot will send messages.

@@ -1,11 +1,11 @@
 package ru.kode.android.build.publish.plugin.nextcloud.service
 
-import ru.kode.android.build.publish.plugin.core.api.service.BasicAuthBuildService
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.nextcloud.config.NextcloudShareMode
 import ru.kode.android.build.publish.plugin.nextcloud.controller.NextcloudController
 import ru.kode.android.build.publish.plugin.nextcloud.controller.entity.NextcloudSharingResult
 import ru.kode.android.build.publish.plugin.nextcloud.controller.factory.NextcloudControllerFactory
+import ru.kode.android.gradle.commons.api.service.BasicAuthBuildService
+import ru.kode.android.gradle.commons.logger.PluginLogger
 import java.io.File
 import javax.inject.Inject
 

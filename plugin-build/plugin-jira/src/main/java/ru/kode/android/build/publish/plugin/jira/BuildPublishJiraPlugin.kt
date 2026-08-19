@@ -4,13 +4,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.task.registerStandaloneServiceTask
-import ru.kode.android.build.publish.plugin.core.util.applyWithOptionalAndroid
-import ru.kode.android.build.publish.plugin.core.util.getOrRegisterLoggerService
-import ru.kode.android.build.publish.plugin.core.util.resolveStandaloneService
-import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.jira.config.JiraAuthConfig
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraInstanceEntity
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraProjectEntity
@@ -25,6 +20,11 @@ import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 import ru.kode.android.build.publish.plugin.jira.task.standalone.AddJiraFixVersionTask
 import ru.kode.android.build.publish.plugin.jira.task.standalone.AddJiraLabelTask
 import ru.kode.android.build.publish.plugin.jira.task.standalone.TransitionJiraIssueTask
+import ru.kode.android.gradle.commons.logger.LoggerService
+import ru.kode.android.gradle.commons.util.applyWithOptionalAndroid
+import ru.kode.android.gradle.commons.util.getOrRegisterLoggerService
+import ru.kode.android.gradle.commons.util.resolveStandaloneService
+import ru.kode.android.gradle.commons.util.serviceName
 
 internal const val EXTENSION_NAME = "buildPublishJira"
 private const val SERVICE_NAME = "jiraService"

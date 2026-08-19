@@ -10,7 +10,7 @@ import ru.kode.android.build.publish.plugin.core.strategy.OutputApkNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.OutputBundleNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionCodeStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
-import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.gradle.commons.util.CommonConfigMergeable
 
 /**
  * Configuration interface for build output settings.

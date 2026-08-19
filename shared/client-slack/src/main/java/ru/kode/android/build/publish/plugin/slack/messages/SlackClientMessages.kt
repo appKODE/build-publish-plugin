@@ -2,7 +2,7 @@
 
 package ru.kode.android.build.publish.plugin.slack.messages
 
-import ru.kode.android.build.publish.plugin.core.util.SecretRedaction
+import ru.kode.android.gradle.commons.util.SecretRedaction
 
 fun blockTextHasMoreSymbolsMessage(maxSymbols: Int): String =
     "Message block text exceeds the maximum allowed length of $maxSymbols characters."

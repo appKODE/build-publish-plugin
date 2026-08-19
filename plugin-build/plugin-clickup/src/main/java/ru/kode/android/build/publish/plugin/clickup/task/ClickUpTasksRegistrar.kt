@@ -13,12 +13,12 @@ import ru.kode.android.build.publish.plugin.clickup.service.ClickUpServiceExtens
 import ru.kode.android.build.publish.plugin.clickup.task.automation.ClickUpAutomationTask
 import ru.kode.android.build.publish.plugin.clickup.task.automation.ClickUpProjectBinding
 import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
+import ru.kode.android.gradle.commons.logger.LoggerServiceExtension
+import ru.kode.android.gradle.commons.util.getByNameOrCommon
 
 /**
  * Registrar for ClickUp-related Gradle tasks.

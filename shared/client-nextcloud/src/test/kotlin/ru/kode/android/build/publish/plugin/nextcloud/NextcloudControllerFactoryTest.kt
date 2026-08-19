@@ -2,8 +2,8 @@ package ru.kode.android.build.publish.plugin.nextcloud
 
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLog
 import ru.kode.android.build.publish.plugin.nextcloud.controller.factory.NextcloudControllerFactory
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLog
 
 class NextcloudControllerFactoryTest {
     @Test

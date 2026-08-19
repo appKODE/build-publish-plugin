@@ -7,11 +7,11 @@ import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.core.entity.IssueSource
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.slack.controller.SlackController
 import ru.kode.android.build.publish.plugin.slack.controller.SlackControllerFactory
 import ru.kode.android.build.publish.plugin.slack.controller.SlackMessage
 import ru.kode.android.build.publish.plugin.slack.messages.uploadApiTokenRequiredMessage
+import ru.kode.android.gradle.commons.logger.LoggerService
 import java.io.File
 import javax.inject.Inject
 

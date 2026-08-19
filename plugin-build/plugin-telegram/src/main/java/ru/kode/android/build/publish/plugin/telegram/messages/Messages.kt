@@ -3,11 +3,11 @@
 package ru.kode.android.build.publish.plugin.telegram.messages
 
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
-import ru.kode.android.build.publish.plugin.core.util.capitalized
 import ru.kode.android.build.publish.plugin.telegram.EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.telegram.SERVICE_EXTENSION_NAME
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.DestinationTelegramBot
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramLastMessage
+import ru.kode.android.gradle.commons.util.capitalized
 import java.io.File
 
 fun sendingTelegramMessageMessage(): String = "Sending Telegram message"

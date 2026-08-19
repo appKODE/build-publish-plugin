@@ -9,18 +9,18 @@ import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
-import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
-import ru.kode.android.build.publish.plugin.core.util.APK_FILE_EXTENSION
-import ru.kode.android.build.publish.plugin.core.util.BUNDLE_FILE_EXTENSION
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType
 import ru.kode.android.build.publish.plugin.firebase.config.FirebaseDistributionConfig
 import ru.kode.android.build.publish.plugin.firebase.messages.appDistributionConfigNotFoundMessage
 import ru.kode.android.build.publish.plugin.firebase.messages.provideDistributionConfigMessage
+import ru.kode.android.gradle.commons.api.container.PluginDomainObjectContainer
+import ru.kode.android.gradle.commons.util.APK_FILE_EXTENSION
+import ru.kode.android.gradle.commons.util.BUNDLE_FILE_EXTENSION
+import ru.kode.android.gradle.commons.util.configureGroovy
+import ru.kode.android.gradle.commons.util.getByNameOrNullableCommon
+import ru.kode.android.gradle.commons.util.getByNameOrRequiredCommon
 import javax.inject.Inject
 
 /**
@@ -74,10 +74,10 @@ abstract class BuildPublishFirebaseExtension
          * @see FirebaseDistributionConfig
          */
         fun distribution(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<FirebaseDistributionConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<PluginDomainObjectContainer<FirebaseDistributionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(distribution)
+            val container = PluginDomainObjectContainer(distribution)
             configurationAction.execute(container)
         }
 
@@ -85,7 +85,7 @@ abstract class BuildPublishFirebaseExtension
          * Configures Firebase Distribution settings for different build variants using Groovy closure syntax.
          *
          * This method provides Groovy DSL support for configuring distribution settings.
-         * It wraps the distribution container in a [BuildPublishDomainObjectContainer] for
+         * It wraps the distribution container in a [PluginDomainObjectContainer] for
          * variant-specific configuration.
          *
          * @param configurationClosure The Groovy closure to configure the distribution container
@@ -93,10 +93,10 @@ abstract class BuildPublishFirebaseExtension
          * @see distribution
          */
         fun distribution(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<FirebaseDistributionConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<FirebaseDistributionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(distribution)
+            val container = PluginDomainObjectContainer(distribution)
             configureGroovy(configurationClosure, container)
         }
 

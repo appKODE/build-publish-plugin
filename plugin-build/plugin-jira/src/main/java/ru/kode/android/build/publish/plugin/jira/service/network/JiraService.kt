@@ -5,8 +5,6 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
-import ru.kode.android.build.publish.plugin.core.util.COMMON_CONTAINER_NAME
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.addFixVersionToIssues
 import ru.kode.android.build.publish.plugin.jira.controller.addLabelToIssues
@@ -15,6 +13,8 @@ import ru.kode.android.build.publish.plugin.jira.controller.factory.JiraControll
 import ru.kode.android.build.publish.plugin.jira.controller.mappers.jiraInstanceFromJson
 import ru.kode.android.build.publish.plugin.jira.controller.transitionIssues
 import ru.kode.android.build.publish.plugin.jira.messages.unknownInstanceNameMessage
+import ru.kode.android.gradle.commons.logger.LoggerService
+import ru.kode.android.gradle.commons.util.COMMON_CONTAINER_NAME
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 

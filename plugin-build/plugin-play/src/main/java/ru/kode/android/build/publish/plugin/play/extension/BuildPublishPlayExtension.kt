@@ -7,16 +7,16 @@ import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
-import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.play.config.PlayAuthConfig
 import ru.kode.android.build.publish.plugin.play.config.PlayDistributionConfig
 import ru.kode.android.build.publish.plugin.play.task.PlayTaskParams
 import ru.kode.android.build.publish.plugin.play.task.PlayTasksRegistrar
+import ru.kode.android.gradle.commons.api.container.PluginDomainObjectContainer
+import ru.kode.android.gradle.commons.util.configureGroovy
+import ru.kode.android.gradle.commons.util.getByNameOrNullableCommon
+import ru.kode.android.gradle.commons.util.getByNameOrRequiredCommon
 import javax.inject.Inject
 
 /**
@@ -95,10 +95,10 @@ abstract class BuildPublishPlayExtension
          * @param configurationAction The action to configure authentication settings
          */
         fun auth(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<PlayAuthConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<PluginDomainObjectContainer<PlayAuthConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(auth)
+            val container = PluginDomainObjectContainer(auth)
             configurationAction.execute(container)
         }
 
@@ -108,10 +108,10 @@ abstract class BuildPublishPlayExtension
          * @param configurationClosure The Groovy closure to configure authentication settings
          */
         fun auth(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<PlayAuthConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<PlayAuthConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(auth)
+            val container = PluginDomainObjectContainer(auth)
             configureGroovy(configurationClosure, container)
         }
 
@@ -121,18 +121,18 @@ abstract class BuildPublishPlayExtension
          * @param configurationAction The action to configure distribution settings
          */
         fun distribution(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<PlayDistributionConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<PluginDomainObjectContainer<PlayDistributionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(distribution)
+            val container = PluginDomainObjectContainer(distribution)
             configurationAction.execute(container)
         }
 
         fun distribution(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<PlayDistributionConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<PlayDistributionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(distribution)
+            val container = PluginDomainObjectContainer(distribution)
             configureGroovy(configurationClosure, container)
         }
 

@@ -6,9 +6,11 @@ plugins {
 }
 
 group = "ru.kode.android"
-version = libs.versions.buildPublishShared.get()
+version = libs.versions.buildPublishPlugin.get()
 
 dependencies {
+    api("ru.kode.android:gradle-plugin-commons:1.0.0")
+
     implementation(gradleApi())
     implementation(libs.grgitCore)
     implementation(libs.okhttp)

@@ -1,12 +1,12 @@
 package ru.kode.android.build.publish.plugin.slack.controller
 
 import kotlinx.serialization.json.Json
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLog
 import ru.kode.android.build.publish.plugin.slack.network.factory.SlackClientFactory
 import ru.kode.android.build.publish.plugin.slack.network.factory.SlackRetrofitBuilderFactory
 import ru.kode.android.build.publish.plugin.slack.network.factory.SlackUploadApiFactory
 import ru.kode.android.build.publish.plugin.slack.network.factory.SlackWebhookApiFactory
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLog
 
 object SlackControllerFactory {
     fun build(logger: PluginLogger): SlackController {

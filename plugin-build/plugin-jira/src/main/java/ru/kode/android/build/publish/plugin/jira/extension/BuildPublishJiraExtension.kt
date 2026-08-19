@@ -9,13 +9,8 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.jira.config.JiraAuthConfig
 import ru.kode.android.build.publish.plugin.jira.config.JiraAutomationConfig
 import ru.kode.android.build.publish.plugin.jira.config.JiraIssueResolutionConfig
@@ -29,6 +24,11 @@ import ru.kode.android.build.publish.plugin.jira.service.JiraServiceExtension
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 import ru.kode.android.build.publish.plugin.jira.task.JiraAutomationTaskParams
 import ru.kode.android.build.publish.plugin.jira.task.JiraTasksRegistrar
+import ru.kode.android.gradle.commons.api.container.PluginDomainObjectContainer
+import ru.kode.android.gradle.commons.util.configureGroovy
+import ru.kode.android.gradle.commons.util.getByNameOrCommon
+import ru.kode.android.gradle.commons.util.getByNameOrNullableCommon
+import ru.kode.android.gradle.commons.util.getByNameOrRequiredCommon
 import javax.inject.Inject
 
 /**
@@ -122,10 +122,10 @@ abstract class BuildPublishJiraExtension
          * @see JiraAuthConfig For available configuration options
          */
         fun auth(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<JiraAuthConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<PluginDomainObjectContainer<JiraAuthConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(auth)
+            val container = PluginDomainObjectContainer(auth)
             configurationAction.execute(container)
         }
 
@@ -136,10 +136,10 @@ abstract class BuildPublishJiraExtension
          * @see JiraAuthConfig For available configuration options
          */
         fun auth(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<JiraAuthConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<JiraAuthConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(auth)
+            val container = PluginDomainObjectContainer(auth)
             configureGroovy(configurationClosure, container)
         }
 
@@ -150,10 +150,10 @@ abstract class BuildPublishJiraExtension
          * @see JiraAutomationConfig For available configuration options
          */
         fun automation(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<JiraAutomationConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<PluginDomainObjectContainer<JiraAutomationConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(automation)
+            val container = PluginDomainObjectContainer(automation)
             configurationAction.execute(container)
         }
 
@@ -164,10 +164,10 @@ abstract class BuildPublishJiraExtension
          * @see JiraAutomationConfig For available configuration options
          */
         fun automation(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<JiraAutomationConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<JiraAutomationConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(automation)
+            val container = PluginDomainObjectContainer(automation)
             configureGroovy(configurationClosure, container)
         }
 
@@ -233,10 +233,10 @@ abstract class BuildPublishJiraExtension
          * @see JiraIssueResolutionConfig For available configuration options
          */
         fun issueResolution(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<JiraIssueResolutionConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<PluginDomainObjectContainer<JiraIssueResolutionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(issueResolution)
+            val container = PluginDomainObjectContainer(issueResolution)
             configurationAction.execute(container)
         }
 
@@ -246,10 +246,10 @@ abstract class BuildPublishJiraExtension
          * @param configurationClosure The Groovy closure applied to the issue-resolution container
          */
         fun issueResolution(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<JiraIssueResolutionConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<JiraIssueResolutionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(issueResolution)
+            val container = PluginDomainObjectContainer(issueResolution)
             configureGroovy(configurationClosure, container)
         }
 

@@ -1,8 +1,5 @@
 package ru.kode.android.build.publish.plugin.jira.controller
 
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.util.executeNoResult
-import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraFixVersion
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueStatus
 import ru.kode.android.build.publish.plugin.jira.controller.entity.JiraIssueTransition
@@ -27,6 +24,9 @@ import ru.kode.android.build.publish.plugin.jira.network.entity.CreateVersionReq
 import ru.kode.android.build.publish.plugin.jira.network.entity.RemoveFixVersionRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.RemoveLabelRequest
 import ru.kode.android.build.publish.plugin.jira.network.entity.SetStatusRequest
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.util.executeNoResult
+import ru.kode.android.gradle.commons.util.executeWithResult
 
 /**
  * Controller for interacting with the Jira API.

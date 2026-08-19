@@ -12,13 +12,13 @@ import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceServiceExtension
 import ru.kode.android.build.publish.plugin.confluence.task.standalone.AddConfluenceCommentTask
 import ru.kode.android.build.publish.plugin.confluence.task.standalone.UploadToConfluenceTask
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.task.registerStandaloneServiceTask
-import ru.kode.android.build.publish.plugin.core.util.applyWithOptionalAndroid
-import ru.kode.android.build.publish.plugin.core.util.getOrRegisterLoggerService
-import ru.kode.android.build.publish.plugin.core.util.resolveStandaloneService
-import ru.kode.android.build.publish.plugin.core.util.serviceName
+import ru.kode.android.gradle.commons.logger.LoggerService
+import ru.kode.android.gradle.commons.util.applyWithOptionalAndroid
+import ru.kode.android.gradle.commons.util.getOrRegisterLoggerService
+import ru.kode.android.gradle.commons.util.resolveStandaloneService
+import ru.kode.android.gradle.commons.util.serviceName
 
 internal const val EXTENSION_NAME = "buildPublishConfluence"
 private const val SERVICE_NAME = "confluenceService"

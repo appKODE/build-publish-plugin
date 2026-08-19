@@ -2,7 +2,7 @@ package ru.kode.android.build.publish.plugin.play.config
 
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.gradle.commons.util.CommonConfigMergeable
 
 /**
  * Configuration interface for Google Play distribution settings.

@@ -4,12 +4,6 @@ import kotlinx.serialization.json.Json
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.kode.android.build.publish.plugin.core.entity.IssueSource
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.util.UploadError
-import ru.kode.android.build.publish.plugin.core.util.createPartFromString
-import ru.kode.android.build.publish.plugin.core.util.ellipsizeAt
-import ru.kode.android.build.publish.plugin.core.util.executeNoResult
-import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 import ru.kode.android.build.publish.plugin.core.zip.zipped
 import ru.kode.android.build.publish.plugin.slack.messages.blockTextHasMoreSymbolsMessage
 import ru.kode.android.build.publish.plugin.slack.messages.failedToSendChangelogMessage
@@ -19,6 +13,12 @@ import ru.kode.android.build.publish.plugin.slack.network.SlackApi
 import ru.kode.android.build.publish.plugin.slack.network.SlackUploadApi
 import ru.kode.android.build.publish.plugin.slack.network.entity.SlackChangelogBody
 import ru.kode.android.build.publish.plugin.slack.network.entity.UploadingFileRequest
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.util.UploadError
+import ru.kode.android.gradle.commons.util.createPartFromString
+import ru.kode.android.gradle.commons.util.ellipsizeAt
+import ru.kode.android.gradle.commons.util.executeNoResult
+import ru.kode.android.gradle.commons.util.executeWithResult
 import java.io.File
 
 private const val BLOCK_TYPE_HEADER = "header"

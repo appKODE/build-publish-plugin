@@ -22,7 +22,7 @@ import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddFixV
 import ru.kode.android.build.publish.plugin.clickup.task.automation.work.AddTagToTaskWork
 import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.gradle.commons.logger.LoggerService
 import javax.inject.Inject
 
 /**

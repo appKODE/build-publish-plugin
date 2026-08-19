@@ -4,8 +4,8 @@ import groovy.lang.Closure
 import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.tasks.Nested
-import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
+import ru.kode.android.gradle.commons.util.CommonConfigMergeable
+import ru.kode.android.gradle.commons.util.configureGroovy
 
 /**
  * Configuration for resolving `CLOSES`/`FIXES` changelog references to ClickUp task names.

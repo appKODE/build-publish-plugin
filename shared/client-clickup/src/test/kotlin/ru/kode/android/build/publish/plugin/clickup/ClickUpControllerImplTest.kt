@@ -16,7 +16,7 @@ import ru.kode.android.build.publish.plugin.clickup.controller.ClickUpController
 import ru.kode.android.build.publish.plugin.clickup.controller.ClickUpControllerImpl
 import ru.kode.android.build.publish.plugin.clickup.controller.factory.ClickUpControllerFactory
 import ru.kode.android.build.publish.plugin.clickup.network.api.ClickUpApi
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLog
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLog
 
 class ClickUpControllerImplTest {
     private val server = MockWebServer()

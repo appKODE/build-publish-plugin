@@ -1,5 +1,6 @@
 package com.example.customplugin
 
+import com.android.build.api.variant.ApplicationVariant
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.NamedDomainObjectContainer
@@ -13,14 +14,13 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
-import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
+import ru.kode.android.gradle.commons.api.container.PluginDomainObjectContainer
+import ru.kode.android.gradle.commons.util.getByNameOrRequiredCommon
 import javax.inject.Inject
-import com.android.build.api.variant.ApplicationVariant
 
 private const val EXTENSION_NAME = "buildPublishPrintTag"
 
@@ -28,7 +28,7 @@ class CustomBuildPublishPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.extensions.create(
             EXTENSION_NAME,
-            CustomBuildPublishExtension::class.java
+            CustomBuildPublishExtension::class.java,
         )
     }
 }
@@ -36,7 +36,6 @@ class CustomBuildPublishPlugin : Plugin<Project> {
 abstract class CustomBuildPublishExtension
     @Inject
     constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
-
         internal val message: NamedDomainObjectContainer<MessageConfig> =
             objectFactory.domainObjectContainer(MessageConfig::class.java)
 
@@ -44,8 +43,8 @@ abstract class CustomBuildPublishExtension
             message.getByNameOrRequiredCommon(buildName)
         }
 
-        fun message(configurationAction: Action<BuildPublishDomainObjectContainer<MessageConfig>>) {
-            val container = BuildPublishDomainObjectContainer(message)
+        fun message(configurationAction: Action<PluginDomainObjectContainer<MessageConfig>>) {
+            val container = PluginDomainObjectContainer(message)
             configurationAction.execute(container)
         }
 
@@ -53,12 +52,16 @@ abstract class CustomBuildPublishExtension
             common(message, configurationAction)
         }
 
-        override fun configure(project: Project, input: ExtensionInput, variant: ApplicationVariant) {
+        override fun configure(
+            project: Project,
+            input: ExtensionInput,
+            variant: ApplicationVariant,
+        ) {
             val messageConfig = messageConfig(input.buildVariant.name)
 
             project.tasks.register(
                 "printTagExample${input.buildVariant.capitalizedName()}",
-                PrintLastTagTask::class.java
+                PrintLastTagTask::class.java,
             ) {
                 it.buildTagSnapshotFile.set(input.output.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
                 it.message.set(messageConfig.additionalText)
