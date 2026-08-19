@@ -3,7 +3,7 @@ package ru.kode.android.build.publish.plugin.confluence
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import ru.kode.android.build.publish.plugin.confluence.controller.factory.ConfluenceControllerFactory
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLog
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLog
 
 class ConfluenceControllerFactoryTest {
     @Test

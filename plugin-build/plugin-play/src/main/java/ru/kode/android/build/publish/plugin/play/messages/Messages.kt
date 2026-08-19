@@ -2,7 +2,7 @@
 
 package ru.kode.android.build.publish.plugin.play.messages
 
-import ru.kode.android.build.publish.plugin.core.util.capitalized
+import ru.kode.android.gradle.commons.util.capitalized
 import java.io.File
 
 fun stepRequestingTrackEditMessage(): String = "Step 1/4: Requesting track edit..."

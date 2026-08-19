@@ -12,11 +12,11 @@ import com.google.api.services.androidpublisher.model.DeobfuscationFilesUploadRe
 import com.google.api.services.androidpublisher.model.ExpansionFile
 import com.google.api.services.androidpublisher.model.InAppProduct
 import com.google.api.services.androidpublisher.model.Track
-import ru.kode.android.build.publish.plugin.core.util.APK_FILE_EXTENSION
 import ru.kode.android.build.publish.plugin.play.messages.startingUploadMessage
 import ru.kode.android.build.publish.plugin.play.messages.updatingTrackMessage
 import ru.kode.android.build.publish.plugin.play.messages.uploadCompleteMessage
 import ru.kode.android.build.publish.plugin.play.messages.uploadingProgressMessage
+import ru.kode.android.gradle.commons.util.APK_FILE_EXTENSION
 import java.io.File
 import kotlin.math.roundToInt
 

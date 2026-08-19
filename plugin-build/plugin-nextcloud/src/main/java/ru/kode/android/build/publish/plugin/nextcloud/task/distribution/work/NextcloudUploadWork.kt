@@ -6,7 +6,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.zip.zipped
 import ru.kode.android.build.publish.plugin.nextcloud.config.NextcloudShareMode
 import ru.kode.android.build.publish.plugin.nextcloud.messages.internalShareReadyMessage
@@ -15,6 +14,7 @@ import ru.kode.android.build.publish.plugin.nextcloud.messages.shareCreatedMessa
 import ru.kode.android.build.publish.plugin.nextcloud.messages.shareReusedMessage
 import ru.kode.android.build.publish.plugin.nextcloud.messages.uploadFailedMessage
 import ru.kode.android.build.publish.plugin.nextcloud.service.NextcloudService
+import ru.kode.android.gradle.commons.logger.LoggerService
 
 interface NextcloudUploadParameters : WorkParameters {
     val outputFile: RegularFileProperty

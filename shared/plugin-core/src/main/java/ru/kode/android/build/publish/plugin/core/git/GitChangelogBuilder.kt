@@ -3,11 +3,11 @@ package ru.kode.android.build.publish.plugin.core.git
 import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.entity.IssueReference
 import ru.kode.android.build.publish.plugin.core.issue.IssueResolver
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
 import ru.kode.android.build.publish.plugin.core.messages.buildingChangelogForTagRangeMessage
 import ru.kode.android.build.publish.plugin.core.messages.unresolvedIssueReferenceMessage
 import ru.kode.android.build.publish.plugin.core.strategy.ResolvedIssueStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.UnresolvedIssueStrategy
+import ru.kode.android.gradle.commons.logger.PluginLogger
 
 /**
  * Builds changelogs by extracting and formatting commit messages from Git history.

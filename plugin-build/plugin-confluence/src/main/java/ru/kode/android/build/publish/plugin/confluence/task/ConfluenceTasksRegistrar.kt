@@ -8,10 +8,10 @@ import ru.kode.android.build.publish.plugin.confluence.config.ConfluenceDistribu
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceServiceExtension
 import ru.kode.android.build.publish.plugin.confluence.task.distribution.ConfluenceDistributionTask
 import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.util.capitalizedName
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrCommon
+import ru.kode.android.gradle.commons.logger.LoggerServiceExtension
+import ru.kode.android.gradle.commons.util.getByNameOrCommon
 
 /**
  * Registers and configures Confluence-related tasks for the build.

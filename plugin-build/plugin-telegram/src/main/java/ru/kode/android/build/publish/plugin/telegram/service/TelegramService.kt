@@ -6,7 +6,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.core.entity.IssueSource
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.telegram.controller.TelegramController
 import ru.kode.android.build.publish.plugin.telegram.controller.TelegramControllerFactory
 import ru.kode.android.build.publish.plugin.telegram.controller.TelegramMessage
@@ -16,6 +15,7 @@ import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramB
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramLastMessage
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.telegramBotFromJson
 import ru.kode.android.build.publish.plugin.telegram.messages.noMatchingConfigurationMessage
+import ru.kode.android.gradle.commons.logger.LoggerService
 import java.io.File
 import javax.inject.Inject
 

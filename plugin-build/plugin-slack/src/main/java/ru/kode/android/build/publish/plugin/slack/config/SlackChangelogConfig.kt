@@ -4,9 +4,9 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
-import ru.kode.android.build.publish.plugin.core.util.CollectionStrategy
-import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
-import ru.kode.android.build.publish.plugin.core.util.inheritFrom
+import ru.kode.android.gradle.commons.util.CollectionStrategy
+import ru.kode.android.gradle.commons.util.CommonConfigMergeable
+import ru.kode.android.gradle.commons.util.inheritFrom
 
 /**
  * Configuration class for Slack changelog notification settings.

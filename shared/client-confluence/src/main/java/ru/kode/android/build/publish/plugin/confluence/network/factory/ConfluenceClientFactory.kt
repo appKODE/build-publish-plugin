@@ -2,7 +2,6 @@ package ru.kode.android.build.publish.plugin.confluence.network.factory
 
 import okhttp3.ConnectionPool
 import okhttp3.ConnectionSpec
-import okhttp3.Credentials
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
@@ -13,10 +12,11 @@ import okio.IOException
 import ru.kode.android.build.publish.plugin.confluence.messages.eofHandshakeRetryMessage
 import ru.kode.android.build.publish.plugin.confluence.messages.ioExceptionRetryMessage
 import ru.kode.android.build.publish.plugin.confluence.messages.sslHandshakeRetryMessage
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.util.NetworkProxy
-import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
-import ru.kode.android.build.publish.plugin.core.util.buildLoggingInterceptor
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.util.NetworkProxy
+import ru.kode.android.gradle.commons.util.addProxyIfAvailable
+import ru.kode.android.gradle.commons.util.buildBasicAuthInterceptor
+import ru.kode.android.gradle.commons.util.buildLoggingInterceptor
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLHandshakeException
 
@@ -93,31 +93,10 @@ private fun buildClient(
         .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
         .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
         .let(apply)
-        .addInterceptor(AttachTokenInterceptor(username, password))
+        .addInterceptor(buildBasicAuthInterceptor(username = username, password = password))
         .addInterceptor(RetryHandshakeInterceptor(logger))
         .addNetworkInterceptor(loggingInterceptor)
         .build()
-}
-
-/**
- * Interceptor that attaches the username and password as basic authentication
- * to each request.
- *
- * @property username The username used for authentication.
- * @property password The password used for authentication.
- */
-private class AttachTokenInterceptor(
-    private val username: String,
-    private val password: String,
-) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val originalRequest = chain.request()
-        val newRequest =
-            originalRequest.newBuilder()
-                .addHeader(name = "Authorization", Credentials.basic(username, password))
-                .build()
-        return chain.proceed(newRequest)
-    }
 }
 
 /**

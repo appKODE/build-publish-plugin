@@ -8,12 +8,8 @@ import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
-import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.slack.config.SlackBotConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackChangelogConfig
 import ru.kode.android.build.publish.plugin.slack.config.SlackDistributionConfig
@@ -23,6 +19,10 @@ import ru.kode.android.build.publish.plugin.slack.task.SlackApkDistributionTaskP
 import ru.kode.android.build.publish.plugin.slack.task.SlackBundleDistributionTaskParams
 import ru.kode.android.build.publish.plugin.slack.task.SlackChangelogTaskParams
 import ru.kode.android.build.publish.plugin.slack.task.SlackTasksRegistrar
+import ru.kode.android.gradle.commons.api.container.PluginDomainObjectContainer
+import ru.kode.android.gradle.commons.util.configureGroovy
+import ru.kode.android.gradle.commons.util.getByNameOrNullableCommon
+import ru.kode.android.gradle.commons.util.getByNameOrRequiredCommon
 import javax.inject.Inject
 
 /**
@@ -124,10 +124,10 @@ abstract class BuildPublishSlackExtension
          * @see SlackBotConfig For available configuration options
          */
         fun bot(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<SlackBotConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<PluginDomainObjectContainer<SlackBotConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(bot)
+            val container = PluginDomainObjectContainer(bot)
             configurationAction.execute(container)
         }
 
@@ -139,10 +139,10 @@ abstract class BuildPublishSlackExtension
          * @see SlackBotConfig For available configuration options
          */
         fun bot(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<SlackBotConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<SlackBotConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(bot)
+            val container = PluginDomainObjectContainer(bot)
             configureGroovy(configurationClosure, container)
         }
 
@@ -153,10 +153,10 @@ abstract class BuildPublishSlackExtension
          * @see SlackChangelogConfig For available configuration options
          */
         fun changelog(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<SlackChangelogConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<PluginDomainObjectContainer<SlackChangelogConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(changelog)
+            val container = PluginDomainObjectContainer(changelog)
             configurationAction.execute(container)
         }
 
@@ -167,10 +167,10 @@ abstract class BuildPublishSlackExtension
          * @see SlackChangelogConfig For available configuration options
          */
         fun changelog(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<SlackChangelogConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<SlackChangelogConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(changelog)
+            val container = PluginDomainObjectContainer(changelog)
             configureGroovy(configurationClosure, container)
         }
 
@@ -181,10 +181,10 @@ abstract class BuildPublishSlackExtension
          * @see SlackDistributionConfig For available configuration options
          */
         fun distribution(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<BuildPublishDomainObjectContainer<SlackDistributionConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<PluginDomainObjectContainer<SlackDistributionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(distribution)
+            val container = PluginDomainObjectContainer(distribution)
             configurationAction.execute(container)
         }
 
@@ -195,10 +195,10 @@ abstract class BuildPublishSlackExtension
          * @see SlackDistributionConfig For available configuration options
          */
         fun distribution(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<SlackDistributionConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<SlackDistributionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(distribution)
+            val container = PluginDomainObjectContainer(distribution)
             configureGroovy(configurationClosure, container)
         }
 

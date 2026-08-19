@@ -5,9 +5,9 @@ import groovy.lang.DelegatesTo
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
-import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
-import ru.kode.android.build.publish.plugin.core.util.inheritNamedFrom
+import ru.kode.android.gradle.commons.util.CommonConfigMergeable
+import ru.kode.android.gradle.commons.util.configureGroovy
+import ru.kode.android.gradle.commons.util.inheritNamedFrom
 import javax.inject.Inject
 
 /**

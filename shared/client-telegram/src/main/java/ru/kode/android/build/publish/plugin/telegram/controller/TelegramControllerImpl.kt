@@ -4,10 +4,6 @@ import okhttp3.Credentials
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.kode.android.build.publish.plugin.core.entity.IssueSource
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.util.createPartFromString
-import ru.kode.android.build.publish.plugin.core.util.executeNoResult
-import ru.kode.android.build.publish.plugin.core.util.executeWithResult
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.ChatSpecificTelegramBot
 import ru.kode.android.build.publish.plugin.telegram.controller.entity.TelegramLastMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.sendingMessageBotMessage
@@ -15,6 +11,10 @@ import ru.kode.android.build.publish.plugin.telegram.messages.uploadFileStartedM
 import ru.kode.android.build.publish.plugin.telegram.network.api.TelegramDistributionApi
 import ru.kode.android.build.publish.plugin.telegram.network.api.TelegramWebhookApi
 import ru.kode.android.build.publish.plugin.telegram.network.entity.SendMessageRequest
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.util.createPartFromString
+import ru.kode.android.gradle.commons.util.executeNoResult
+import ru.kode.android.gradle.commons.util.executeWithResult
 import java.io.File
 
 internal const val TELEGRAM_DEFAULT_BASE_RUL = "https://api.telegram.org"

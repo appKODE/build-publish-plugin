@@ -4,7 +4,6 @@ import org.gradle.api.logging.Logger
 import org.gradle.testkit.runner.BuildResult
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLogger
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.factory.JiraControllerFactory
 import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
@@ -19,6 +18,7 @@ import ru.kode.android.build.publish.plugin.test.utils.getFile
 import ru.kode.android.build.publish.plugin.test.utils.initGit
 import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
 import ru.kode.android.build.publish.plugin.test.utils.runTask
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLogger
 import java.io.File
 
 /**

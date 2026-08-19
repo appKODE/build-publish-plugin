@@ -4,13 +4,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.task.registerStandaloneServiceTask
-import ru.kode.android.build.publish.plugin.core.util.applyWithOptionalAndroid
-import ru.kode.android.build.publish.plugin.core.util.getOrRegisterLoggerService
-import ru.kode.android.build.publish.plugin.core.util.resolveStandaloneService
-import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.slack.extension.BuildPublishSlackExtension
 import ru.kode.android.build.publish.plugin.slack.messages.noBotsConfiguredMessage
 import ru.kode.android.build.publish.plugin.slack.messages.registeringServicesMessage
@@ -19,6 +14,11 @@ import ru.kode.android.build.publish.plugin.slack.service.SlackService
 import ru.kode.android.build.publish.plugin.slack.service.SlackServiceExtension
 import ru.kode.android.build.publish.plugin.slack.task.standalone.SendSlackFileTask
 import ru.kode.android.build.publish.plugin.slack.task.standalone.SendSlackMessageTask
+import ru.kode.android.gradle.commons.logger.LoggerService
+import ru.kode.android.gradle.commons.util.applyWithOptionalAndroid
+import ru.kode.android.gradle.commons.util.getOrRegisterLoggerService
+import ru.kode.android.gradle.commons.util.resolveStandaloneService
+import ru.kode.android.gradle.commons.util.serviceName
 
 internal const val EXTENSION_NAME = "buildPublishSlack"
 private const val SERVICE_NAME = "slackService"
@@ -31,7 +31,6 @@ abstract class BuildPublishSlackPlugin : Plugin<Project> {
         @Suppress("UNCHECKED_CAST")
         val servicesProperty =
             project.objects.mapProperty(String::class.java, Provider::class.java)
-                as MapProperty<String, Provider<*>>
         servicesProperty.set(emptyMap())
 
         project.extensions.create(SERVICE_EXTENSION_NAME, SlackServiceExtension::class.java, servicesProperty)

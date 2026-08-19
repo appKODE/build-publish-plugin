@@ -4,9 +4,9 @@ import ru.kode.android.build.publish.plugin.confluence.controller.ConfluenceCont
 import ru.kode.android.build.publish.plugin.confluence.controller.ConfluenceControllerImpl
 import ru.kode.android.build.publish.plugin.confluence.network.factory.ConfluenceApiFactory
 import ru.kode.android.build.publish.plugin.confluence.network.factory.ConfluenceClientFactory
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLog
-import ru.kode.android.build.publish.plugin.core.util.NetworkProxy
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLog
+import ru.kode.android.gradle.commons.util.NetworkProxy
 
 /**
  * Factory for creating instances of [ConfluenceController].

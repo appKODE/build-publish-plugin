@@ -3,7 +3,7 @@ package ru.kode.android.build.publish.plugin.jira.config
 import org.gradle.api.Named
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.gradle.commons.util.CommonConfigMergeable
 
 /**
  * A Jira project declared in the shared registry, nested under an `auth` instance:

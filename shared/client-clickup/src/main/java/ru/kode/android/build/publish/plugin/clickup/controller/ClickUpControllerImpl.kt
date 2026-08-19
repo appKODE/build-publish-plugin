@@ -22,9 +22,9 @@ import ru.kode.android.build.publish.plugin.clickup.network.api.ClickUpApi
 import ru.kode.android.build.publish.plugin.clickup.network.entity.AddFieldToTaskRequest
 import ru.kode.android.build.publish.plugin.clickup.network.entity.ClearCustomFieldRequest
 import ru.kode.android.build.publish.plugin.clickup.network.entity.CreateCustomFieldRequest
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.util.executeNoResult
-import ru.kode.android.build.publish.plugin.core.util.executeWithResult
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.util.executeNoResult
+import ru.kode.android.gradle.commons.util.executeWithResult
 
 /**
  * Default implementation of [ClickUpController] backed by [ClickUpApi].

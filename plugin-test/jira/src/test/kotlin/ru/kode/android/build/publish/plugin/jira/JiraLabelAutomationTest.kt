@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLogger
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.factory.JiraControllerFactory
 import ru.kode.android.build.publish.plugin.jira.messages.failedToAddLabelMessage
@@ -26,6 +25,7 @@ import ru.kode.android.build.publish.plugin.test.utils.outputShouldNotContain
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
 import ru.kode.android.build.publish.plugin.test.utils.runTaskWithFail
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLogger
 import java.io.File
 import java.io.IOException
 

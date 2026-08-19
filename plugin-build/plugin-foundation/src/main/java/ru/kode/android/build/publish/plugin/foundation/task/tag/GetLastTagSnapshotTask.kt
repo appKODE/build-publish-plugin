@@ -11,10 +11,10 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
 import ru.kode.android.build.publish.plugin.foundation.task.tag.work.GenerateTagSnapshotWork
+import ru.kode.android.gradle.commons.logger.LoggerService
 import javax.inject.Inject
 
 /**

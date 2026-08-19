@@ -5,8 +5,8 @@ import ru.kode.android.build.publish.plugin.clickup.controller.ClickUpController
 import ru.kode.android.build.publish.plugin.clickup.network.factory.CLICK_UP_API_BASE_URL
 import ru.kode.android.build.publish.plugin.clickup.network.factory.ClickUpApiFactory
 import ru.kode.android.build.publish.plugin.clickup.network.factory.ClickUpClientFactory
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLog
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLog
 
 /**
  * Factory for constructing a fully configured [ClickUpController] instance.

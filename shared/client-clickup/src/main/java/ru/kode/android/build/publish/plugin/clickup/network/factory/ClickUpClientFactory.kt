@@ -2,9 +2,9 @@ package ru.kode.android.build.publish.plugin.clickup.network.factory
 
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.util.addProxyIfAvailable
-import ru.kode.android.build.publish.plugin.core.util.buildLoggingInterceptor
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.util.addProxyIfAvailable
+import ru.kode.android.gradle.commons.util.buildLoggingInterceptor
 import java.util.concurrent.TimeUnit
 
 private const val HTTP_CONNECT_TIMEOUT_SECONDS = 60L

@@ -4,13 +4,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.task.registerStandaloneServiceTask
-import ru.kode.android.build.publish.plugin.core.util.applyWithOptionalAndroid
-import ru.kode.android.build.publish.plugin.core.util.getOrRegisterLoggerService
-import ru.kode.android.build.publish.plugin.core.util.resolveStandaloneService
-import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.nextcloud.extension.BuildPublishNextcloudExtension
 import ru.kode.android.build.publish.plugin.nextcloud.messages.noAuthConfigsMessage
 import ru.kode.android.build.publish.plugin.nextcloud.messages.registeringServicesMessage
@@ -18,6 +13,11 @@ import ru.kode.android.build.publish.plugin.nextcloud.messages.servicesCreatedMe
 import ru.kode.android.build.publish.plugin.nextcloud.service.NextcloudService
 import ru.kode.android.build.publish.plugin.nextcloud.service.NextcloudServiceExtension
 import ru.kode.android.build.publish.plugin.nextcloud.task.standalone.UploadToNextcloudTask
+import ru.kode.android.gradle.commons.logger.LoggerService
+import ru.kode.android.gradle.commons.util.applyWithOptionalAndroid
+import ru.kode.android.gradle.commons.util.getOrRegisterLoggerService
+import ru.kode.android.gradle.commons.util.resolveStandaloneService
+import ru.kode.android.gradle.commons.util.serviceName
 
 internal const val EXTENSION_NAME = "buildPublishNextcloud"
 private const val SERVICE_NAME = "nextcloudService"

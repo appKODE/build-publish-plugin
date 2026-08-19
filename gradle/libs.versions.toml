@@ -1,20 +1,19 @@
 [versions]
-buildPublishPlugin = "2.1.1"
-buildPublishShared = "2.1.1"
-kotlin = "2.4.0"
-agp = "9.2.1"
+buildPublishPlugin = "2.1.2"
+kotlin = "2.4.10"
+agp = "9.3.1"
 detekt = "1.23.8"
 ktlint = "12.1.2"
 firebaseAppdistribution = "5.3.0"
 grgit = "5.3.3"
 publish = "2.1.1"
-okhttp = "5.4.0"
+okhttp = "5.5.0"
 retrofit = "3.0.0"
 retrofitSerialzation = "1.0.0"
-junit = "6.1.1"
-ksp = "2.3.9"
+junit = "6.1.3"
+ksp = "2.3.11"
 play-publish = "v3-rev20260625-2.0.0"
-googleAuth = "1.48.0"
+googleAuth = "1.50.0"
 kotlinxSerialization = "1.11.0"
 vanniktechMavenPublish = "0.37.0"
 
@@ -30,13 +29,13 @@ grgitCore = { module = "org.ajoberstar.grgit:grgit-core", version.ref = "grgit" 
 grgitGradle = { module = "org.ajoberstar.grgit:grgit-gradle", version.ref = "grgit" }
 junitBom = { module = "org.junit:junit-bom", version.ref = "junit" }
 serializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
-plugin-core = { group = "ru.kode.android", name = "build-publish-novo-core", version.ref = "buildPublishShared" }
-client-slack = { group = "ru.kode.android", name = "build-publish-novo-client-slack", version.ref = "buildPublishShared" }
-client-telegram = { group = "ru.kode.android", name = "build-publish-novo-client-telegram", version.ref = "buildPublishShared" }
-client-nextcloud = { group = "ru.kode.android", name = "build-publish-novo-client-nextcloud", version.ref = "buildPublishShared" }
-client-jira = { group = "ru.kode.android", name = "build-publish-novo-client-jira", version.ref = "buildPublishShared" }
-client-confluence = { group = "ru.kode.android", name = "build-publish-novo-client-confluence", version.ref = "buildPublishShared" }
-client-clickup = { group = "ru.kode.android", name = "build-publish-novo-client-clickup", version.ref = "buildPublishShared" }
+plugin-core = { group = "ru.kode.android", name = "build-publish-novo-core", version.ref = "buildPublishPlugin" }
+client-slack = { group = "ru.kode.android", name = "build-publish-novo-client-slack", version.ref = "buildPublishPlugin" }
+client-telegram = { group = "ru.kode.android", name = "build-publish-novo-client-telegram", version.ref = "buildPublishPlugin" }
+client-nextcloud = { group = "ru.kode.android", name = "build-publish-novo-client-nextcloud", version.ref = "buildPublishPlugin" }
+client-jira = { group = "ru.kode.android", name = "build-publish-novo-client-jira", version.ref = "buildPublishPlugin" }
+client-confluence = { group = "ru.kode.android", name = "build-publish-novo-client-confluence", version.ref = "buildPublishPlugin" }
+client-clickup = { group = "ru.kode.android", name = "build-publish-novo-client-clickup", version.ref = "buildPublishPlugin" }
 
 # Plugin coordinates — consumed by the plugin-test integration modules (composite build substitutes
 # each to its local `:plugin-*` project). Same real-coordinate + substitution pattern as plugin-core.

@@ -12,8 +12,8 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.foundation.messages.renameApkMessage
+import ru.kode.android.gradle.commons.logger.LoggerService
 import java.io.File
 import javax.inject.Inject
 

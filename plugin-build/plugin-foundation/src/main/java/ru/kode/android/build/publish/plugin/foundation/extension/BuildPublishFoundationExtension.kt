@@ -6,13 +6,13 @@ import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
-import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
 import ru.kode.android.build.publish.plugin.foundation.config.ChangelogConfig
 import ru.kode.android.build.publish.plugin.foundation.config.OutputConfig
+import ru.kode.android.gradle.commons.api.container.PluginDomainObjectContainer
+import ru.kode.android.gradle.commons.util.configureGroovy
+import ru.kode.android.gradle.commons.util.getByNameOrNullableCommon
+import ru.kode.android.gradle.commons.util.getByNameOrRequiredCommon
 import javax.inject.Inject
 
 /**
@@ -122,8 +122,8 @@ abstract class BuildPublishFoundationExtension
          * @param configurationAction The action to configure the output container.
          * @see OutputConfig
          */
-        fun output(configurationAction: Action<in BuildPublishDomainObjectContainer<OutputConfig>>) {
-            val container = BuildPublishDomainObjectContainer(output)
+        fun output(configurationAction: Action<in PluginDomainObjectContainer<OutputConfig>>) {
+            val container = PluginDomainObjectContainer(output)
             configurationAction.execute(container)
         }
 
@@ -137,10 +137,10 @@ abstract class BuildPublishFoundationExtension
          * @see OutputConfig
          */
         fun output(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<OutputConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<OutputConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(output)
+            val container = PluginDomainObjectContainer(output)
             configureGroovy(configurationClosure, container)
         }
 
@@ -154,10 +154,10 @@ abstract class BuildPublishFoundationExtension
          * @see ChangelogConfig
          */
         fun changelog(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<in BuildPublishDomainObjectContainer<ChangelogConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<in PluginDomainObjectContainer<ChangelogConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(changelog)
+            val container = PluginDomainObjectContainer(changelog)
             configurationAction.execute(container)
         }
 
@@ -171,10 +171,10 @@ abstract class BuildPublishFoundationExtension
          * @see ChangelogConfig
          */
         fun changelog(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ChangelogConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<ChangelogConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(changelog)
+            val container = PluginDomainObjectContainer(changelog)
             configureGroovy(configurationClosure, container)
         }
 

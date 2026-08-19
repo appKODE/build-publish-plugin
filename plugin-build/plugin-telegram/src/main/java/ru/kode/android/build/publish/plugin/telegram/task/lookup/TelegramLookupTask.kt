@@ -10,11 +10,11 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.telegram.messages.configErrorExceptionMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.configErrorMessage
 import ru.kode.android.build.publish.plugin.telegram.messages.lookupSuccessMessage
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
+import ru.kode.android.gradle.commons.logger.LoggerService
 
 /**
  * A Gradle task for looking up the last message in a Telegram chat.

@@ -2,7 +2,7 @@
 
 package ru.kode.android.build.publish.plugin.telegram.messages
 
-import ru.kode.android.build.publish.plugin.core.util.SecretRedaction
+import ru.kode.android.gradle.commons.util.SecretRedaction
 
 fun sendingMessageBotMessage(
     botName: String,

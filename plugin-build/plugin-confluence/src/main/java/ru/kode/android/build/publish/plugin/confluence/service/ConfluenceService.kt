@@ -2,8 +2,8 @@ package ru.kode.android.build.publish.plugin.confluence.service
 
 import ru.kode.android.build.publish.plugin.confluence.controller.ConfluenceController
 import ru.kode.android.build.publish.plugin.confluence.controller.factory.ConfluenceControllerFactory
-import ru.kode.android.build.publish.plugin.core.api.service.BasicAuthBuildService
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
+import ru.kode.android.gradle.commons.api.service.BasicAuthBuildService
+import ru.kode.android.gradle.commons.logger.PluginLogger
 import java.io.File
 import javax.inject.Inject
 

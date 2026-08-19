@@ -4,8 +4,8 @@ import org.ajoberstar.grgit.gradle.GrgitServiceExtension
 import org.ajoberstar.grgit.gradle.GrgitServicePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
-import ru.kode.android.build.publish.plugin.core.util.serviceName
+import ru.kode.android.gradle.commons.logger.LoggerServiceExtension
+import ru.kode.android.gradle.commons.util.serviceName
 
 internal const val GOT_EXECUTOR_SERVICE_NAME = "gitExecutorService"
 internal const val GIT_EXECUTOR_SERVICE_NAME_EXTENSION = "gitExecutorServiceExtension"

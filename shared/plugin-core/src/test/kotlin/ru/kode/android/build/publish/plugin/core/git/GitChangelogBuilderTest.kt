@@ -13,7 +13,6 @@ import ru.kode.android.build.publish.plugin.core.entity.IssueReference
 import ru.kode.android.build.publish.plugin.core.entity.Tag
 import ru.kode.android.build.publish.plugin.core.issue.IssueResolver
 import ru.kode.android.build.publish.plugin.core.issue.ResolvedIssue
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLog
 import ru.kode.android.build.publish.plugin.core.strategy.ChangelogLineOrKeyUnresolvedStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.KeyAndTitleResolvedStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.KeyOnlyResolvedStrategy
@@ -22,6 +21,7 @@ import ru.kode.android.build.publish.plugin.core.strategy.ResolvedIssueStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.SkipUnresolvedStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.TitleOnlyResolvedStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.UnresolvedIssueStrategy
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLog
 import java.io.File
 
 class GitChangelogBuilderTest {

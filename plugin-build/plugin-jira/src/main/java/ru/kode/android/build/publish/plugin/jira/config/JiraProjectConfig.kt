@@ -4,7 +4,7 @@ import org.gradle.api.Named
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
-import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
+import ru.kode.android.gradle.commons.util.CommonConfigMergeable
 
 /**
  * Per-project automation pattern override, declared inside a `targetInstance("…") { project("…") { … } }`

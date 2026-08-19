@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import ru.kode.android.build.publish.plugin.clickup.controller.ClickUpController
 import ru.kode.android.build.publish.plugin.clickup.controller.factory.ClickUpControllerFactory
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLogger
 import ru.kode.android.build.publish.plugin.test.utils.AlwaysInfoLogger
 import ru.kode.android.build.publish.plugin.test.utils.BuildType
 import ru.kode.android.build.publish.plugin.test.utils.ClickUpConfig
@@ -24,6 +23,7 @@ import ru.kode.android.build.publish.plugin.test.utils.outputShouldContain
 import ru.kode.android.build.publish.plugin.test.utils.outputShouldNotContain
 import ru.kode.android.build.publish.plugin.test.utils.printFilesRecursively
 import ru.kode.android.build.publish.plugin.test.utils.runTask
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLogger
 import java.io.File
 import java.io.IOException
 

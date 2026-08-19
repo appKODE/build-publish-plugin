@@ -15,7 +15,6 @@ import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
 import ru.kode.android.build.publish.plugin.core.entity.IssueReference
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.strategy.AnnotatedTagMessageStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.ChangelogLineOrKeyUnresolvedStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.ChangelogMessageStrategy
@@ -28,6 +27,7 @@ import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutpu
 import ru.kode.android.build.publish.plugin.foundation.messages.changelogGeneratedMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.noChangesChangelogMessage
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
+import ru.kode.android.gradle.commons.logger.LoggerService
 import kotlin.io.writeText
 
 /**

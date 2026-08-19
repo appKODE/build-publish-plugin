@@ -5,7 +5,7 @@ import org.gradle.api.provider.SetProperty
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.clickup.service.network.ClickUpService
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.gradle.commons.logger.LoggerService
 
 /**
  * Parameters for the [AddTagToTaskWork] work action.

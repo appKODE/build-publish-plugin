@@ -1,11 +1,11 @@
 package ru.kode.android.build.publish.plugin.jira.controller.factory
 
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLog
 import ru.kode.android.build.publish.plugin.jira.controller.JiraController
 import ru.kode.android.build.publish.plugin.jira.controller.JiraControllerImpl
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraApiFactory
 import ru.kode.android.build.publish.plugin.jira.network.factory.JiraClientFactory
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLog
 
 /**
  * Factory for creating instances of [JiraController].

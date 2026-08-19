@@ -7,7 +7,7 @@ import org.gradle.api.services.BuildService
 import org.gradle.api.tasks.Internal
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkerExecutor
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.gradle.commons.logger.LoggerService
 import javax.inject.Inject
 
 @DisableCachingByDefault

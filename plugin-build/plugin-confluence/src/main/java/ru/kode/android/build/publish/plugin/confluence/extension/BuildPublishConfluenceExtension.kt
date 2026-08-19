@@ -14,13 +14,13 @@ import ru.kode.android.build.publish.plugin.confluence.messages.needProvideDistr
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceApkDistributionTaskParams
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceBundleDistributionTaskParams
 import ru.kode.android.build.publish.plugin.confluence.task.ConfluenceTasksRegistrar
-import ru.kode.android.build.publish.plugin.core.api.config.BasicAuthConfig
-import ru.kode.android.build.publish.plugin.core.api.container.BuildPublishDomainObjectContainer
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrNullableCommon
-import ru.kode.android.build.publish.plugin.core.util.getByNameOrRequiredCommon
+import ru.kode.android.gradle.commons.api.config.BasicAuthConfig
+import ru.kode.android.gradle.commons.api.container.PluginDomainObjectContainer
+import ru.kode.android.gradle.commons.util.configureGroovy
+import ru.kode.android.gradle.commons.util.getByNameOrNullableCommon
+import ru.kode.android.gradle.commons.util.getByNameOrRequiredCommon
 import javax.inject.Inject
 
 /**
@@ -99,10 +99,10 @@ abstract class BuildPublishConfluenceExtension
          * @param configurationAction The action to configure authentication settings
          */
         fun auth(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<in BuildPublishDomainObjectContainer<BasicAuthConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<in PluginDomainObjectContainer<BasicAuthConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(auth)
+            val container = PluginDomainObjectContainer(auth)
             configurationAction.execute(container)
         }
 
@@ -112,10 +112,10 @@ abstract class BuildPublishConfluenceExtension
          * @param configurationClosure The Groovy closure to configure authentication settings
          */
         fun auth(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<BasicAuthConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<BasicAuthConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(auth)
+            val container = PluginDomainObjectContainer(auth)
             configureGroovy(configurationClosure, container)
         }
 
@@ -125,10 +125,10 @@ abstract class BuildPublishConfluenceExtension
          * @param configurationAction The action to configure distribution settings
          */
         fun distribution(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationAction: Action<in BuildPublishDomainObjectContainer<ConfluenceDistributionConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<in PluginDomainObjectContainer<ConfluenceDistributionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(distribution)
+            val container = PluginDomainObjectContainer(distribution)
             configurationAction.execute(container)
         }
 
@@ -138,10 +138,10 @@ abstract class BuildPublishConfluenceExtension
          * @param configurationClosure The Groovy closure to configure distribution settings
          */
         fun distribution(
-            @DelegatesTo(BuildPublishDomainObjectContainer::class)
-            configurationClosure: Closure<in BuildPublishDomainObjectContainer<ConfluenceDistributionConfig>>,
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<ConfluenceDistributionConfig>>,
         ) {
-            val container = BuildPublishDomainObjectContainer(distribution)
+            val container = PluginDomainObjectContainer(distribution)
             configureGroovy(configurationClosure, container)
         }
 

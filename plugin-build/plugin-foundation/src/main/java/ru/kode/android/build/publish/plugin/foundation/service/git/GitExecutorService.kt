@@ -7,7 +7,7 @@ import org.gradle.api.services.BuildServiceParameters
 import ru.kode.android.build.publish.plugin.core.git.GitChangelogBuilder
 import ru.kode.android.build.publish.plugin.core.git.GitCommandExecutor
 import ru.kode.android.build.publish.plugin.core.git.GitRepository
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
+import ru.kode.android.gradle.commons.logger.LoggerService
 import javax.inject.Inject
 
 /**

@@ -14,7 +14,6 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.strategy.BuildVersionNameStrategy
 import ru.kode.android.build.publish.plugin.core.strategy.VersionNameStrategy
 import ru.kode.android.build.publish.plugin.foundation.messages.computedVersionNameMessage
@@ -23,6 +22,7 @@ import ru.kode.android.build.publish.plugin.foundation.messages.formNullVersionN
 import ru.kode.android.build.publish.plugin.foundation.messages.formRichVersionNameMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.resolvedVersionNameMessage
 import ru.kode.android.build.publish.plugin.foundation.task.DEFAULT_VERSION_NAME
+import ru.kode.android.gradle.commons.logger.LoggerService
 
 /**
  * Computes the `versionName` value for a specific Android build variant.

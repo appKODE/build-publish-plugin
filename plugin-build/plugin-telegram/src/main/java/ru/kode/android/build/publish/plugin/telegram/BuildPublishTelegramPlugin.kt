@@ -4,13 +4,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
 import ru.kode.android.build.publish.plugin.core.task.registerStandaloneServiceTask
-import ru.kode.android.build.publish.plugin.core.util.applyWithOptionalAndroid
-import ru.kode.android.build.publish.plugin.core.util.getOrRegisterLoggerService
-import ru.kode.android.build.publish.plugin.core.util.resolveStandaloneService
-import ru.kode.android.build.publish.plugin.core.util.serviceName
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.mapToEntity
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.toJson
 import ru.kode.android.build.publish.plugin.telegram.extension.BuildPublishTelegramExtension
@@ -21,6 +16,11 @@ import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramServiceExtension
 import ru.kode.android.build.publish.plugin.telegram.task.standalone.SendTelegramFileTask
 import ru.kode.android.build.publish.plugin.telegram.task.standalone.SendTelegramMessageTask
+import ru.kode.android.gradle.commons.logger.LoggerService
+import ru.kode.android.gradle.commons.util.applyWithOptionalAndroid
+import ru.kode.android.gradle.commons.util.getOrRegisterLoggerService
+import ru.kode.android.gradle.commons.util.resolveStandaloneService
+import ru.kode.android.gradle.commons.util.serviceName
 
 internal const val EXTENSION_NAME = "buildPublishTelegram"
 internal const val SERVICE_EXTENSION_NAME = "telegramServiceExtension"
@@ -34,7 +34,6 @@ abstract class BuildPublishTelegramPlugin : Plugin<Project> {
         @Suppress("UNCHECKED_CAST")
         val servicesProperty =
             project.objects.mapProperty(String::class.java, Provider::class.java)
-                as MapProperty<String, Provider<*>>
         servicesProperty.set(emptyMap())
 
         project.extensions.create(SERVICE_EXTENSION_NAME, TelegramServiceExtension::class.java, servicesProperty)

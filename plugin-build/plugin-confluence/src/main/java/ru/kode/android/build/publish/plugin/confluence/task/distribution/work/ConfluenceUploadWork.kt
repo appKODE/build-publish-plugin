@@ -6,9 +6,9 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.confluence.messages.uploadFailedMessage
 import ru.kode.android.build.publish.plugin.confluence.service.ConfluenceService
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
-import ru.kode.android.build.publish.plugin.core.util.RequestError
 import ru.kode.android.build.publish.plugin.core.zip.zipped
+import ru.kode.android.gradle.commons.logger.LoggerService
+import ru.kode.android.gradle.commons.util.RequestError
 
 /**
  * Parameters required for the Confluence upload work action.

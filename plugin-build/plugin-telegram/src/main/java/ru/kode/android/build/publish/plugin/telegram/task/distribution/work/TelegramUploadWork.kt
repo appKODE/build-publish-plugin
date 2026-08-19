@@ -4,12 +4,12 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
-import ru.kode.android.build.publish.plugin.core.util.RequestError
 import ru.kode.android.build.publish.plugin.core.zip.zipped
 import ru.kode.android.build.publish.plugin.telegram.controller.mappers.destinationTelegramBotsFromJson
 import ru.kode.android.build.publish.plugin.telegram.messages.telegramUploadFailedMessage
 import ru.kode.android.build.publish.plugin.telegram.service.TelegramService
+import ru.kode.android.gradle.commons.logger.LoggerService
+import ru.kode.android.gradle.commons.util.RequestError
 
 /**
  * Parameters required for the [TelegramUploadWork] task.

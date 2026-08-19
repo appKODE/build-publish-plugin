@@ -7,7 +7,6 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.git.mapper.toJson
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.core.strategy.DEFAULT_VERSION_CODE
 import ru.kode.android.build.publish.plugin.core.strategy.HardcodedTagGenerationStrategy
 import ru.kode.android.build.publish.plugin.foundation.messages.invalidTagMessage
@@ -15,6 +14,7 @@ import ru.kode.android.build.publish.plugin.foundation.messages.tagNotCreatedMes
 import ru.kode.android.build.publish.plugin.foundation.messages.usingStabMessage
 import ru.kode.android.build.publish.plugin.foundation.messages.validBuildTagFoundMessage
 import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorService
+import ru.kode.android.gradle.commons.logger.LoggerService
 import javax.inject.Inject
 
 /**

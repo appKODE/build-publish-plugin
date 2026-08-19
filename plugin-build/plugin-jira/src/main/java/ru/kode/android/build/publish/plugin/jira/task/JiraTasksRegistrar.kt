@@ -5,7 +5,6 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import ru.kode.android.build.publish.plugin.core.entity.BuildVariant
-import ru.kode.android.build.publish.plugin.core.logger.LoggerServiceExtension
 import ru.kode.android.build.publish.plugin.core.task.GenerateChangelogTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.GetLastTagSnapshotTaskOutput
 import ru.kode.android.build.publish.plugin.core.task.TaskNames
@@ -17,6 +16,7 @@ import ru.kode.android.build.publish.plugin.jira.messages.unknownProjectNameMess
 import ru.kode.android.build.publish.plugin.jira.service.network.JiraService
 import ru.kode.android.build.publish.plugin.jira.task.automation.JiraAutomationTask
 import ru.kode.android.build.publish.plugin.jira.task.automation.JiraProjectBinding
+import ru.kode.android.gradle.commons.logger.LoggerServiceExtension
 
 /**
  * Registrar for Jira-related Gradle tasks.

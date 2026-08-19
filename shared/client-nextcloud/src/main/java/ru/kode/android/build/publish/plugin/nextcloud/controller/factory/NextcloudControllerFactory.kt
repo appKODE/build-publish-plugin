@@ -1,12 +1,12 @@
 package ru.kode.android.build.publish.plugin.nextcloud.controller.factory
 
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLog
-import ru.kode.android.build.publish.plugin.core.util.NetworkProxy
 import ru.kode.android.build.publish.plugin.nextcloud.controller.NextcloudController
 import ru.kode.android.build.publish.plugin.nextcloud.controller.NextcloudControllerImpl
 import ru.kode.android.build.publish.plugin.nextcloud.network.factory.NextcloudApiFactory
 import ru.kode.android.build.publish.plugin.nextcloud.network.factory.NextcloudClientFactory
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLog
+import ru.kode.android.gradle.commons.util.NetworkProxy
 
 object NextcloudControllerFactory {
     fun build(

@@ -8,10 +8,10 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
-import ru.kode.android.build.publish.plugin.core.util.CommonConfigMergeable
-import ru.kode.android.build.publish.plugin.core.util.configureGroovy
-import ru.kode.android.build.publish.plugin.core.util.inheritFrom
-import ru.kode.android.build.publish.plugin.core.util.inheritNamedFrom
+import ru.kode.android.gradle.commons.util.CommonConfigMergeable
+import ru.kode.android.gradle.commons.util.configureGroovy
+import ru.kode.android.gradle.commons.util.inheritFrom
+import ru.kode.android.gradle.commons.util.inheritNamedFrom
 import javax.inject.Inject
 
 /**

@@ -12,6 +12,10 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 2.1.2
+* Migrate to Gradle commons library
+* Update some dependencies 
+
 ### 2.1.1
 
 > **Use this instead of 2.1.0.** The 2.1.0 release was published incompletely (only part of the

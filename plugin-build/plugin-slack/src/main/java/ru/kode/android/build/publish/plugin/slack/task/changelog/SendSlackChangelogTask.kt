@@ -17,10 +17,10 @@ import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkQueue
 import org.gradle.workers.WorkerExecutor
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
 import ru.kode.android.build.publish.plugin.slack.messages.changelogFileNotFoundMessage
 import ru.kode.android.build.publish.plugin.slack.service.SlackService
 import ru.kode.android.build.publish.plugin.slack.task.changelog.work.SendSlackChangelogWork
+import ru.kode.android.gradle.commons.logger.LoggerService
 import javax.inject.Inject
 
 /**

@@ -12,8 +12,8 @@ import ru.kode.android.build.publish.plugin.clickup.controller.entity.ClickUpAcc
 import ru.kode.android.build.publish.plugin.clickup.controller.factory.ClickUpControllerFactory
 import ru.kode.android.build.publish.plugin.clickup.controller.mappers.clickUpAccountFromJson
 import ru.kode.android.build.publish.plugin.clickup.messages.unknownAccountNameMessage
-import ru.kode.android.build.publish.plugin.core.logger.LoggerService
-import ru.kode.android.build.publish.plugin.core.util.COMMON_CONTAINER_NAME
+import ru.kode.android.gradle.commons.logger.LoggerService
+import ru.kode.android.gradle.commons.util.COMMON_CONTAINER_NAME
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 

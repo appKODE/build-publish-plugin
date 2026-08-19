@@ -1,12 +1,12 @@
 package ru.kode.android.build.publish.plugin.telegram.controller
 
 import kotlinx.serialization.json.Json
-import ru.kode.android.build.publish.plugin.core.logger.PluginLogger
-import ru.kode.android.build.publish.plugin.core.logger.pluginLoggerFromLog
 import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramClientFactory
 import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramDistributionApiFactory
 import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramRetrofitBuilderFactory
 import ru.kode.android.build.publish.plugin.telegram.network.factory.TelegramWebhookApiFactory
+import ru.kode.android.gradle.commons.logger.PluginLogger
+import ru.kode.android.gradle.commons.logger.pluginLoggerFromLog
 
 object TelegramControllerFactory {
     fun build(logger: PluginLogger): TelegramController {
