@@ -24,9 +24,9 @@ private const val UNKNOWN_COMMIT_INDEX = -1
  */
 fun Grgit.getCommitsByRange(range: CommitRange?): List<Commit> {
     return when {
-        range == null -> this.log()
+        range == null -> this.logOrEmpty()
         range.sha1 == null -> {
-            val commits = this.log()
+            val commits = this.logOrEmpty()
             val lastCommitIndex = commits.indexOfFirst { it.id == range.sha2 }
             return if (lastCommitIndex == UNKNOWN_COMMIT_INDEX) {
                 commits
@@ -36,6 +36,18 @@ fun Grgit.getCommitsByRange(range: CommitRange?): List<Commit> {
         }
 
         else -> this.log { options -> options.range(range.sha1, range.sha2) }
+    }
+}
+
+/**
+ * Like [Grgit.log], but returns an empty list instead of throwing when the repository has no
+ * HEAD (e.g. a freshly checked-out repo with zero commits).
+ */
+fun Grgit.logOrEmpty(): List<Commit> {
+    return try {
+        this.log()
+    } catch (_: Exception) {
+        emptyList()
     }
 }
 

@@ -13,6 +13,7 @@ import ru.kode.android.build.publish.plugin.core.messages.findTagsByRegexAfterFi
 import ru.kode.android.build.publish.plugin.core.messages.findTagsByRegexBeforeFilterMessage
 import ru.kode.android.build.publish.plugin.core.util.getBuildNumber
 import ru.kode.android.build.publish.plugin.core.util.getCommitsByRange
+import ru.kode.android.build.publish.plugin.core.util.logOrEmpty
 import ru.kode.android.build.publish.plugin.core.util.utcDateTime
 import ru.kode.android.gradle.commons.logger.PluginLogger
 import org.ajoberstar.grgit.Tag as GrgitTag
@@ -240,7 +241,7 @@ class GitCommandExecutor(
         buildTagRegex: Regex,
         ciCommitTag: String?,
     ): List<GrgitTag> {
-        val commitsLog = grgit.log()
+        val commitsLog = grgit.logOrEmpty()
         val tagsList = grgit.tag.list()
 
         return tagsList

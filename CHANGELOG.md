@@ -12,6 +12,13 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 2.1.3
+* **Fix (`NoHeadException` crash):** `getLastTagSnapshot*` (and changelog commit-message/issue-reference
+  extraction) crashed with `No HEAD exists and no explicit starting revision was specified` on a
+  repository checkout with zero commits (e.g. a fresh `actions/checkout` of an empty branch). Git log
+  reads now fall back to an empty commit list instead of throwing, so these tasks degrade to their
+  existing "no tag found" / stub behaviour rather than failing the build
+
 ### 2.1.2
 * Migrate to Gradle commons library
 * Update some dependencies 
