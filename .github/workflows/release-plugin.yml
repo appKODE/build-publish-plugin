@@ -6,7 +6,7 @@ on:
       - '*'
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
@@ -38,5 +38,20 @@ jobs:
       - name: Publish on Plugin Portal
         run: ./gradlew --project-dir plugin-build setupPluginUploadFromEnvironment publishPlugins
         if: success()
+      # Release notes are the tag's section of CHANGELOG.md: tag `novo-X.Y.Z` -> first "### X.Y.Z"
+      # heading, which is the build-publish-novo one (the core and legacy sections come after it).
+      # Relative links (docs/..., MIGRATION.md) are pinned to the tag so they resolve from the release page.
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          awk -v h="### ${GITHUB_REF_NAME#novo-}" \
+            'f && /^(### |## |---)/ { exit } $0 == h { f = 1; next } f' CHANGELOG.md \
+            | sed -E "s#\]\(((docs/|[A-Za-z_-]+\.md)[^)]*)\)#](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/\1)#g" > release-notes.md
+          if grep -q '[^[:space:]]' release-notes.md; then
+            gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --notes-file release-notes.md
+          else
+            gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --generate-notes
+          fi
       - name: Stop Gradle
         run: ./gradlew --stop
