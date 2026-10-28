@@ -2,6 +2,10 @@ package ru.kode.android.build.publish.plugin.core.git
 
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
+import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.treewalk.TreeWalk
 import org.gradle.api.GradleException
 import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.entity.CommitRange
@@ -16,6 +20,8 @@ import ru.kode.android.build.publish.plugin.core.util.getCommitsByRange
 import ru.kode.android.build.publish.plugin.core.util.logOrEmpty
 import ru.kode.android.build.publish.plugin.core.util.utcDateTime
 import ru.kode.android.gradle.commons.logger.PluginLogger
+import java.nio.file.FileSystems
+import java.nio.file.Path
 import org.ajoberstar.grgit.Tag as GrgitTag
 
 /**
@@ -372,7 +378,56 @@ Fix      * commit ancestry and build numbers.
     private fun findCommit(commitSha: String): Commit {
         return grgit.resolve.toCommit(commitSha)
     }
+
+    /**
+     * Commit time of [commitSha] as epoch milliseconds (UTC, minute precision).
+     */
+    fun commitTimeMs(commitSha: String): Long = findCommit(commitSha).utcDateTime().toInstant().toEpochMilli()
+
+    /**
+     * Walks the tree of [commitSha] (not the working copy) and calls [action] with the path and UTF-8
+     * content of every file whose repository-relative path matches one of the [globs]
+     * (`java.nio` glob syntax, e.g. `**.kt`). Binary files and files bigger than
+     * [MAX_TEXT_FILE_BYTES] are skipped.
+     *
+     * Reading from the commit makes the result identical on CI and locally and allows comparing
+     * two releases without checking either of them out.
+     */
+    fun forEachFileAt(
+        commitSha: String,
+        globs: List<String>,
+        action: (path: String, content: String) -> Unit,
+    ) {
+        if (globs.isEmpty()) return
+        val fileSystem = FileSystems.getDefault()
+        val matchers = globs.map { fileSystem.getPathMatcher("glob:$it") }
+        val repository = grgit.repository.jgit.repository
+        val commitId = requireNotNull(repository.resolve(commitSha)) { "Commit $commitSha not found" }
+        val tree = RevWalk(repository).use { it.parseCommit(commitId).tree }
+        TreeWalk(repository).use { treeWalk ->
+            treeWalk.addTree(tree)
+            treeWalk.isRecursive = true
+            while (treeWalk.next()) {
+                val path = treeWalk.pathString
+                val matches = matchers.any { it.matches(Path.of(path)) }
+                val content = if (matches) repository.readText(treeWalk.getObjectId(0)) else null
+                if (content != null) action(path, content)
+            }
+        }
+    }
 }
+
+private const val MAX_TEXT_FILE_BYTES = 2L * 1024 * 1024
+
+/**
+ * UTF-8 content of the blob [id], or `null` for binary files and files bigger than [MAX_TEXT_FILE_BYTES].
+ */
+private fun Repository.readText(id: ObjectId): String? =
+    open(id)
+        .takeIf { it.size <= MAX_TEXT_FILE_BYTES }
+        ?.bytes
+        ?.takeUnless { it.contains(0) }
+        ?.toString(Charsets.UTF_8)
 
 /**
  * Represents the details of a Git tag, including its commit index, commit time in milliseconds,

@@ -11,11 +11,17 @@ import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import ru.kode.android.build.publish.plugin.core.api.extension.BuildPublishConfigurableExtension
 import ru.kode.android.build.publish.plugin.core.entity.ExtensionInput
+import ru.kode.android.build.publish.plugin.core.task.TaskNames
+import ru.kode.android.build.publish.plugin.core.util.capitalizedName
 import ru.kode.android.build.publish.plugin.firebase.config.ArtifactType
 import ru.kode.android.build.publish.plugin.firebase.config.FirebaseDistributionConfig
+import ru.kode.android.build.publish.plugin.firebase.config.FirebaseRemoteConfigConfig
 import ru.kode.android.build.publish.plugin.firebase.messages.appDistributionConfigNotFoundMessage
 import ru.kode.android.build.publish.plugin.firebase.messages.provideDistributionConfigMessage
+import ru.kode.android.build.publish.plugin.firebase.task.remoteconfig.CheckFirebaseRemoteConfigTask
+import ru.kode.android.build.publish.plugin.foundation.service.git.GitExecutorServiceExtension
 import ru.kode.android.gradle.commons.api.container.PluginDomainObjectContainer
+import ru.kode.android.gradle.commons.logger.LoggerServiceExtension
 import ru.kode.android.gradle.commons.util.APK_FILE_EXTENSION
 import ru.kode.android.gradle.commons.util.BUNDLE_FILE_EXTENSION
 import ru.kode.android.gradle.commons.util.configureGroovy
@@ -127,6 +133,63 @@ abstract class BuildPublishFirebaseExtension
         }
 
         /**
+         * Container for Firebase Remote Config audit configurations, selected by build variant name
+         * (with support for a `common` config). Each configured variant gets a
+         * `checkFirebaseRemoteConfig<Variant>` task.
+         */
+        val remoteConfig: NamedDomainObjectContainer<FirebaseRemoteConfigConfig> =
+            objectFactory.domainObjectContainer(FirebaseRemoteConfigConfig::class.java)
+
+        /**
+         * Retrieves the Remote Config audit configuration for the build variant, or null if not found.
+         */
+        val remoteConfigOrNull: (buildName: String) -> FirebaseRemoteConfigConfig? = { buildName ->
+            remoteConfig.getByNameOrNullableCommon(buildName)
+        }
+
+        /**
+         * Configures Remote Config audit settings for different build variants.
+         */
+        fun remoteConfig(
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationAction: Action<PluginDomainObjectContainer<FirebaseRemoteConfigConfig>>,
+        ) {
+            configurationAction.execute(PluginDomainObjectContainer(remoteConfig))
+        }
+
+        /**
+         * Configures Remote Config audit settings for different build variants using Groovy closure syntax.
+         */
+        fun remoteConfig(
+            @DelegatesTo(PluginDomainObjectContainer::class)
+            configurationClosure: Closure<in PluginDomainObjectContainer<FirebaseRemoteConfigConfig>>,
+        ) {
+            configureGroovy(configurationClosure, PluginDomainObjectContainer(remoteConfig))
+        }
+
+        /**
+         * Configures common Remote Config audit settings that apply to all build variants.
+         */
+        fun remoteConfigCommon(configurationAction: Action<FirebaseRemoteConfigConfig>) {
+            common(remoteConfig, configurationAction)
+        }
+
+        /**
+         * Configures common Remote Config audit settings that apply to all build variants using Groovy DSL.
+         */
+        fun remoteConfigCommon(
+            @DelegatesTo(
+                value = FirebaseRemoteConfigConfig::class,
+                strategy = Closure.DELEGATE_FIRST,
+            )
+            configurationClosure: Closure<in FirebaseRemoteConfigConfig>,
+        ) {
+            common(remoteConfig) { target ->
+                configureGroovy(configurationClosure, target)
+            }
+        }
+
+        /**
          * Configures the official Firebase App Distribution variant extension.
          *
          * This method is called for each Android variant and sets:
@@ -140,10 +203,24 @@ abstract class BuildPublishFirebaseExtension
             variant: ApplicationVariant,
         ) {
             val buildVariantName = input.buildVariant.name
-            val distributionConfig =
-                distributionConfigOrNull(buildVariantName)
-                    ?: throw GradleException(provideDistributionConfigMessage(buildVariantName))
+            val distributionConfig = distributionConfigOrNull(buildVariantName)
+            val remoteConfigConfig = remoteConfigOrNull(buildVariantName)
+            if (distributionConfig == null && remoteConfigConfig == null) {
+                throw GradleException(provideDistributionConfigMessage(buildVariantName))
+            }
+            if (distributionConfig != null) {
+                configureDistribution(input, variant, distributionConfig)
+            }
+            if (remoteConfigConfig != null) {
+                registerRemoteConfigTask(project, input, variant, remoteConfigConfig)
+            }
+        }
 
+        private fun configureDistribution(
+            input: ExtensionInput,
+            variant: ApplicationVariant,
+            distributionConfig: FirebaseDistributionConfig,
+        ) {
             variant.getExtension(AppDistributionVariantExtension::class.java)?.apply {
                 appId.set(distributionConfig.appId)
                 serviceCredentialsFile.set(distributionConfig.serviceCredentialsFile.map { it.asFile.path })
@@ -157,6 +234,36 @@ abstract class BuildPublishFirebaseExtension
                 )
                 groups.set(distributionConfig.testerGroups.map { it.joinToString(",") })
                 releaseNotesFile.set(input.changelog.fileProvider.map { it.changelogFile.get().asFile.path })
-            } ?: throw GradleException(appDistributionConfigNotFoundMessage(buildVariantName))
+            } ?: throw GradleException(appDistributionConfigNotFoundMessage(input.buildVariant.name))
+        }
+
+        private fun registerRemoteConfigTask(
+            project: Project,
+            input: ExtensionInput,
+            variant: ApplicationVariant,
+            config: FirebaseRemoteConfigConfig,
+        ) {
+            val gitService = project.extensions.getByType(GitExecutorServiceExtension::class.java).service
+            val loggerService = project.extensions.getByType(LoggerServiceExtension::class.java).service
+            val output = variant.outputs.firstOrNull()
+            project.tasks.register(
+                "${TaskNames.Firebase.CHECK_REMOTE_CONFIG_PREFIX}${input.buildVariant.capitalizedName()}",
+                CheckFirebaseRemoteConfigTask::class.java,
+            ) {
+                it.buildTagSnapshotFile.set(input.output.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })
+                it.configureFrom(config)
+                output?.let { variantOutput ->
+                    it.appVersion.set(variantOutput.versionName)
+                    it.appBuild.set(variantOutput.versionCode.map { code -> code.toString() })
+                }
+                it.outputDirectory.set(
+                    project.layout.buildDirectory.dir("firebase/remote-config/${input.buildVariant.name}"),
+                )
+                it.gitExecutorService.set(gitService)
+                it.loggerService.set(loggerService)
+                it.usesService(gitService)
+                it.usesService(loggerService)
+                it.dependsOn(input.output.buildTagSnapshotProvider)
+            }
         }
     }

@@ -12,6 +12,24 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### Unreleased
+* **Firebase Remote Config audit:** new `checkFirebaseRemoteConfig<Variant>` task in the Firebase plugin
+  (`buildPublishFirebase { remoteConfig / remoteConfigCommon { ... } }`). It compares Remote Config keys declared
+  in code at the last release tag and the previous one (configurable regex / `defaultsXml()` / custom extractors)
+  with the live template and reports added, removed, missing and unused keys, conditional values that target the
+  release version, and template versions changed since the previous release. Writes `report.md` and
+  `report.json`, fails on `Fail` findings. See [docs](docs/plugins/firebase.md#remote-config-audit)
+* **Remote Config audit extras:** `PotentiallyStale` findings from `owner=` / `type=` / `created=` / `expires=`
+  metadata in parameter descriptions and `flagLifetimes`; `DefaultsMismatch` findings comparing
+  `inAppDefaults(...)` XML files with Firebase defaults; a SARIF 2.1.0 `report.sarif` for code scanning
+* **Sender plugin:** new Android-free `checkFirebaseRemoteConfig` task
+  (`buildPublishSender { firebaseRemoteConfig { ... } }`), release tags matched by `buildTagPattern`
+* The Firebase plugin no longer requires a `distribution` config when `remoteConfig` is configured
+* New library `ru.kode.android:build-publish-novo-client-firebase` (Remote Config REST client)
+* **Compressed uploads keep the source type in the archive name** (`app-release-vc33-apk.zip` /
+  `app-release-vc33-aab.zip`), so an APK and a bundle of one build no longer share a name (Telegram, Slack,
+  Confluence, Nextcloud). Changes the uploaded file name for compressed distributions
+
 ### 2.1.3
 * **Fix (`NoHeadException` crash):** `getLastTagSnapshot*` (and changelog commit-message/issue-reference
   extraction) crashed with `No HEAD exists and no explicit starting revision was specified` on a

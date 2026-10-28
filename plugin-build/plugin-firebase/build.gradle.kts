@@ -16,8 +16,10 @@ dependencies {
     implementation(libs.okhttpLogging)
     implementation(libs.retrofit)
     implementation(libs.firebaseAppdistribution)
+    implementation(libs.client.firebase)
 
     compileOnly(libs.agp)
+    compileOnly(project(":plugin-foundation"))
 }
 
 gradlePlugin {

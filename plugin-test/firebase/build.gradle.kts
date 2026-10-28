@@ -17,6 +17,7 @@ dependencies {
     testImplementation(gradleApi())
     testImplementation(libs.grgitCore)
     testImplementation(libs.grgitGradle)
+    testImplementation(libs.okhttpMockWebServer)
 
     testImplementation(gradleTestKit())
     testImplementation(platform(libs.junitBom))

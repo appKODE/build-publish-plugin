@@ -36,6 +36,7 @@ client-nextcloud = { group = "ru.kode.android", name = "build-publish-novo-clien
 client-jira = { group = "ru.kode.android", name = "build-publish-novo-client-jira", version.ref = "buildPublishPlugin" }
 client-confluence = { group = "ru.kode.android", name = "build-publish-novo-client-confluence", version.ref = "buildPublishPlugin" }
 client-clickup = { group = "ru.kode.android", name = "build-publish-novo-client-clickup", version.ref = "buildPublishPlugin" }
+client-firebase = { group = "ru.kode.android", name = "build-publish-novo-client-firebase", version.ref = "buildPublishPlugin" }
 
 # Plugin coordinates — consumed by the plugin-test integration modules (composite build substitutes
 # each to its local `:plugin-*` project). Same real-coordinate + substitution pattern as plugin-core.

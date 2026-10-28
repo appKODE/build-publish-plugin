@@ -22,6 +22,7 @@ includeBuild("shared") {
         substitute(module("ru.kode.android:build-publish-novo-core")).using(project(":plugin-core"))
         substitute(module("ru.kode.android:build-publish-novo-client-slack")).using(project(":client-slack"))
         substitute(module("ru.kode.android:build-publish-novo-client-telegram")).using(project(":client-telegram"))
+        substitute(module("ru.kode.android:build-publish-novo-client-firebase")).using(project(":client-firebase"))
         substitute(module("ru.kode.android:build-publish-novo-client-nextcloud")).using(project(":client-nextcloud"))
         substitute(module("ru.kode.android:build-publish-novo-client-jira")).using(project(":client-jira"))
         substitute(module("ru.kode.android:build-publish-novo-client-confluence")).using(project(":client-confluence"))
