@@ -70,5 +70,6 @@ includeBuild("../shared") {
         substitute(module("ru.kode.android:build-publish-novo-client-jira")).using(project(":client-jira"))
         substitute(module("ru.kode.android:build-publish-novo-client-confluence")).using(project(":client-confluence"))
         substitute(module("ru.kode.android:build-publish-novo-client-clickup")).using(project(":client-clickup"))
+        substitute(module("ru.kode.android:build-publish-novo-client-firebase")).using(project(":client-firebase"))
     }
 }

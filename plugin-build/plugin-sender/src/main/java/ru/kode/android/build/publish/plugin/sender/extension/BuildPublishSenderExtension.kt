@@ -6,6 +6,7 @@ import org.gradle.api.Action
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import ru.kode.android.build.publish.plugin.firebase.config.FirebaseRemoteConfigConfig
 import ru.kode.android.gradle.commons.util.configureGroovy
 import javax.inject.Inject
 
@@ -18,6 +19,7 @@ abstract class BuildPublishSenderExtension
         internal var jiraConfig: SenderJiraConfig? = null
         internal var confluenceConfig: SenderConfluenceConfig? = null
         internal var clickUpConfig: SenderClickUpConfig? = null
+        internal var firebaseRemoteConfig: SenderFirebaseRemoteConfigConfig? = null
 
         fun slack(action: Action<SenderSlackConfig>) {
             val config = objects.newInstance(SenderSlackConfig::class.java)
@@ -96,6 +98,22 @@ abstract class BuildPublishSenderExtension
         ) {
             clickUp { target -> configureGroovy(configurationClosure, target) }
         }
+
+        /**
+         * Registers the `checkFirebaseRemoteConfig` audit task; see [SenderFirebaseRemoteConfigConfig].
+         */
+        fun firebaseRemoteConfig(action: Action<SenderFirebaseRemoteConfigConfig>) {
+            val config = objects.newInstance(SenderFirebaseRemoteConfigConfig::class.java)
+            action.execute(config)
+            firebaseRemoteConfig = config
+        }
+
+        fun firebaseRemoteConfig(
+            @DelegatesTo(value = SenderFirebaseRemoteConfigConfig::class, strategy = Closure.DELEGATE_FIRST)
+            configurationClosure: Closure<in SenderFirebaseRemoteConfigConfig>,
+        ) {
+            firebaseRemoteConfig { target -> configureGroovy(configurationClosure, target) }
+        }
     }
 
 abstract class SenderSlackConfig {
@@ -130,4 +148,22 @@ abstract class SenderConfluenceConfig {
 
 abstract class SenderClickUpConfig {
     abstract val apiTokenFile: RegularFileProperty
+}
+
+/**
+ * Remote Config audit without an Android build: release tags are found by [buildTagPattern] instead of the
+ * build variant, and the version used for `app.version` / `app.build` conditions comes from the tag
+ * (`1.0.2` and `2` for `v1.0.2`) unless [appVersion] / [appBuild] are set.
+ */
+abstract class SenderFirebaseRemoteConfigConfig : FirebaseRemoteConfigConfig() {
+    override val name: String get() = "sender"
+
+    /**
+     * Regular expression of release tags whose first group is the build number, e.g. `v\d+\.\d+\.(\d+)`.
+     */
+    abstract val buildTagPattern: Property<String>
+
+    abstract val appVersion: Property<String>
+
+    abstract val appBuild: Property<String>
 }

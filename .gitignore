@@ -10,3 +10,5 @@
 /build
 *.salive
 CLAUDE.md
+*.hprof
+.kotlin/

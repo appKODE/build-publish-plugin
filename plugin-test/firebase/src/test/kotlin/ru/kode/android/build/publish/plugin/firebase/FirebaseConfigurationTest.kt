@@ -85,7 +85,7 @@ class FirebaseConfigurationTest {
         val result = projectDir.runTaskWithFail("tasks")
 
         assertTrue(
-            result.output.contains("MISSING FIREBASE DISTRIBUTION CONFIGURATION"),
+            result.output.contains("MISSING FIREBASE CONFIGURATION"),
             "Configuration should fail with the missing-distribution guidance, output was:\n${result.output}",
         )
     }

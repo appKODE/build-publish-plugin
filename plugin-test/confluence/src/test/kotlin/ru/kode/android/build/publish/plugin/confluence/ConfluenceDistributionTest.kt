@@ -346,10 +346,10 @@ class ConfluenceDistributionTest {
         val afterAutomationComments = confluenceController.getComments(pageId)
 
         assertTrue {
-            afterAutomationAttachments.last().fileName.contains("autotest-debug-vc2-$currentDate.zip")
+            afterAutomationAttachments.last().fileName.contains("autotest-debug-vc2-$currentDate-apk.zip")
         }
         assertTrue {
-            afterAutomationComments.last().html.contains("autotest-debug-vc2-$currentDate.zip")
+            afterAutomationComments.last().html.contains("autotest-debug-vc2-$currentDate-apk.zip")
         }
     }
 

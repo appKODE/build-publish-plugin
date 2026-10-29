@@ -19,14 +19,14 @@ fun provideDistributionConfigMessage(buildVariantName: String): String {
     return """
         
         |============================================================
-        |        MISSING FIREBASE DISTRIBUTION CONFIGURATION   
+        |        MISSING FIREBASE CONFIGURATION
         |============================================================
-        | No distribution configuration found 
+        | Neither distribution nor remoteConfig configuration found
         | for build variant: $buildVariantName
         |
         | REQUIRED ACTION:
-        |  1. Add the distribution configuration for $buildVariantName
-        |  2. Include at minimum the Firebase App ID
+        |  Add a distribution and/or remoteConfig configuration
+        |  for $buildVariantName
         |
         | EXAMPLE CONFIGURATION:
         | $EXTENSION_NAME {
@@ -34,6 +34,9 @@ fun provideDistributionConfigMessage(buildVariantName: String): String {
         |         common { // Or buildVariant($buildVariantName)
         |               // Your distribution settings here
         |         }
+        |     }
+        |     remoteConfigCommon {
+        |         // Your Remote Config audit settings here
         |     }
         | }
         |============================================================

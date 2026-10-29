@@ -481,23 +481,33 @@ fun File.createAndroidProject(
                 }
                     """
                 }
-            // With no distribution declared at all, still apply the plugin with an empty extension so
-            // tests can assert the finalizeDsl gate (AppDistributionPlugin only applied when non-empty).
-            if (commonBlock == null && buildTypeFirebaseBlock == null) {
-                """
-        buildPublishFirebase {
-        }
-                """
-            } else {
-                """
-        buildPublishFirebase {
+            val distributionBlock =
+                if (commonBlock == null && buildTypeFirebaseBlock == null) {
+                    // With no distribution declared at all, still apply the plugin with an empty extension so
+                    // tests can assert the finalizeDsl gate (AppDistributionPlugin only applied when non-empty).
+                    ""
+                } else {
+                    """
             distribution {
                 ${commonBlock.orEmpty()}
                 ${buildTypeFirebaseBlock.orEmpty()}
             }
-        }
-                """
+                    """
+                }
+            val remoteConfigBlock =
+                config.remoteConfigCommon?.let {
+                    """
+            remoteConfigCommon {
+                $it
             }
+                    """
+                }.orEmpty()
+            """
+        buildPublishFirebase {
+            $distributionBlock
+            $remoteConfigBlock
+        }
+            """
         }.orEmpty()
 
     val jiraConfigBlock =
@@ -1425,6 +1435,10 @@ data class NextcloudConfig(
 data class FirebaseConfig(
     val distributionCommon: Distribution? = null,
     val distributionBuildType: Pair<String, Distribution>? = null,
+    /**
+     * Raw Groovy body of the `remoteConfigCommon {}` block.
+     */
+    val remoteConfigCommon: String? = null,
 ) {
     data class Distribution(
         val serviceCredentialsFilePath: String,
