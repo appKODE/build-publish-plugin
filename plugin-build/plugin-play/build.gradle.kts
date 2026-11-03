@@ -38,7 +38,7 @@ gradlePlugin {
             implementationClass = "ru.kode.android.build.publish.plugin.play.BuildPublishPlayPlugin"
             version = project.version
             description = "Android plugin to publish bundles to Google Play with changelogs"
-            tags.set(listOf("google play", "publish", "changelog", "build"))
+            tags.set(listOf("google-play", "publish", "changelog", "build"))
         }
     }
 }

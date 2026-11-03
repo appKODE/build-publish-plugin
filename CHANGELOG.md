@@ -12,6 +12,10 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 2.2.1
+* Fix Plugin Portal publishing of the Play plugin: its `google play` tag is now `google-play`, so the Play
+  and Telegram plugins are published (2.2.0 is missing on the Portal for both)
+
 ### 2.2.0
 * **Firebase Remote Config audit:** new `checkFirebaseRemoteConfig<Variant>` task in the Firebase plugin
   (`buildPublishFirebase { remoteConfig / remoteConfigCommon { ... } }`). It compares Remote Config keys declared
