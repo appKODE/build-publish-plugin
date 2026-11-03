@@ -4,31 +4,25 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 
-fun Project.changelogFileProvider(variantName: String): Provider<RegularFile> {
-    return this.layout.buildDirectory.file("changelog-$variantName.txt")
-}
+fun Project.changelogFileProvider(variantName: String): Provider<RegularFile> =
+    this.layout.buildDirectory.file("changelog-$variantName.txt")
 
-fun Project.tagBuildSnapshotFileProvider(variantName: String): Provider<RegularFile> {
-    return project.layout.buildDirectory
+fun Project.tagBuildSnapshotFileProvider(variantName: String): Provider<RegularFile> =
+    project.layout.buildDirectory
         .file("tag-build-snapshot-$variantName.json")
-}
 
-fun Project.versionCodeFileProvider(variantName: String): Provider<RegularFile> {
-    return project.layout.buildDirectory
+fun Project.versionCodeFileProvider(variantName: String): Provider<RegularFile> =
+    project.layout.buildDirectory
         .file("version-code-$variantName.txt")
-}
 
-fun Project.apkOutputFileNameProvider(variantName: String): Provider<RegularFile> {
-    return project.layout.buildDirectory
+fun Project.apkOutputFileNameProvider(variantName: String): Provider<RegularFile> =
+    project.layout.buildDirectory
         .file("apk-output-filename-$variantName.txt")
-}
 
-fun Project.bundleOutputFileNameProvider(variantName: String): Provider<RegularFile> {
-    return project.layout.buildDirectory
+fun Project.bundleOutputFileNameProvider(variantName: String): Provider<RegularFile> =
+    project.layout.buildDirectory
         .file("bundle-output-filename-$variantName.txt")
-}
 
-fun Project.versionNameProvider(variantName: String): Provider<RegularFile> {
-    return project.layout.buildDirectory
+fun Project.versionNameProvider(variantName: String): Provider<RegularFile> =
+    project.layout.buildDirectory
         .file("version-name-$variantName.txt")
-}

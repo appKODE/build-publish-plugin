@@ -86,10 +86,9 @@ private fun resolveBuildVersion(context: NextcloudRemoteFileNameContext): String
 private fun sanitizeSegment(
     value: String,
     fallback: String,
-): String {
-    return value
+): String =
+    value
         .trim()
         .replace(NON_SAFE_FILE_CHARS_REGEX, "-")
         .trim('-')
         .ifBlank { fallback }
-}

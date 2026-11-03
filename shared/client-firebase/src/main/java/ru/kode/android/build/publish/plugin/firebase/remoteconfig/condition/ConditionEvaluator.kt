@@ -25,7 +25,9 @@ class ConditionEvaluator(
         runCatching { Parser(expression).parse() }
             .getOrDefault(ConditionResult.Unknown)
 
-    private inner class Parser(private val text: String) {
+    private inner class Parser(
+        private val text: String,
+    ) {
         private var pos = 0
 
         fun parse(): ConditionResult {

@@ -39,7 +39,10 @@ class AnalyzerTest {
                     "literal_only" to parameter(),
                     "ios_flag" to parameter(),
                 ),
-            parameterGroups = mapOf("group" to RemoteConfigParameterGroup(parameters = mapOf("grouped" to parameter()))),
+            parameterGroups =
+                mapOf(
+                    "group" to RemoteConfigParameterGroup(parameters = mapOf("grouped" to parameter())),
+                ),
         )
 
     private fun input(

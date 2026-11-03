@@ -18,7 +18,8 @@ internal interface StandaloneAddClickUpFixVersionParameters : ServiceWorkParamet
 
 internal abstract class StandaloneAddClickUpFixVersionWork
     @Inject
-    constructor() : WorkAction<StandaloneAddClickUpFixVersionParameters> {
+    constructor() :
+    WorkAction<StandaloneAddClickUpFixVersionParameters> {
         override fun execute() {
             parameters.service.get().addFixVersionToTasks(
                 accountName = parameters.accountName.getOrElse(""),

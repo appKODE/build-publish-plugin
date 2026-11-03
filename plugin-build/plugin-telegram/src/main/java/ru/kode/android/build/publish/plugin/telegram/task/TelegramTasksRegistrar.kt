@@ -60,9 +60,7 @@ internal object TelegramTasksRegistrar {
         project: Project,
         config: TelegramChangelogConfig,
         params: TelegramChangelogTaskParams,
-    ): TaskProvider<SendTelegramChangelogTask> {
-        return project.registerSendTelegramChangelogTask(config, params)
-    }
+    ): TaskProvider<SendTelegramChangelogTask> = project.registerSendTelegramChangelogTask(config, params)
 
     /**
      * Registers a task for sending distribution notifications to Telegram.
@@ -87,8 +85,8 @@ internal object TelegramTasksRegistrar {
         project: Project,
         config: TelegramDistributionConfig,
         params: TelegramApkDistributionTaskParams,
-    ): TaskProvider<TelegramDistributionTask>? {
-        return if (config.destinationBots.isPresent) {
+    ): TaskProvider<TelegramDistributionTask>? =
+        if (config.destinationBots.isPresent) {
             project.registerTelegramUploadAokTask(config, params)
         } else {
             val logger =
@@ -99,7 +97,6 @@ internal object TelegramTasksRegistrar {
             logger.info(distributionTaskNotCreatedMessage())
             null
         }
-    }
 
     /**
      * Registers a task for sending distribution notifications to Telegram.
@@ -124,8 +121,8 @@ internal object TelegramTasksRegistrar {
         project: Project,
         config: TelegramDistributionConfig,
         params: TelegramBundleDistributionTaskParams,
-    ): TaskProvider<TelegramDistributionTask>? {
-        return if (config.destinationBots.isPresent) {
+    ): TaskProvider<TelegramDistributionTask>? =
+        if (config.destinationBots.isPresent) {
             project.registerTelegramBundleUploadTask(config, params)
         } else {
             val logger =
@@ -136,7 +133,6 @@ internal object TelegramTasksRegistrar {
             logger.info(distributionBundleTaskNotCreatedMessage())
             null
         }
-    }
 
     /**
      * Registers a Telegram lookup notification task in the project.
@@ -158,9 +154,7 @@ internal object TelegramTasksRegistrar {
         project: Project,
         config: TelegramLookupConfig,
         params: TelegramLookupTaskParams,
-    ): TaskProvider<TelegramLookupTask>? {
-        return project.registerTelegramLookupTask(config, params)
-    }
+    ): TaskProvider<TelegramLookupTask>? = project.registerTelegramLookupTask(config, params)
 }
 
 /**
@@ -185,8 +179,8 @@ internal object TelegramTasksRegistrar {
 private fun Project.registerSendTelegramChangelogTask(
     changelogConfig: TelegramChangelogConfig,
     params: TelegramChangelogTaskParams,
-): TaskProvider<SendTelegramChangelogTask> {
-    return tasks.register(
+): TaskProvider<SendTelegramChangelogTask> =
+    tasks.register(
         "${TaskNames.Telegram.SEND_CHANGELOG_PREFIX}${params.buildVariant.capitalizedName()}",
         SendTelegramChangelogTask::class.java,
     ) {
@@ -219,7 +213,6 @@ private fun Project.registerSendTelegramChangelogTask(
 
         it.dependsOn(params.buildTagSnapshotProvider, params.changelogFileProvider)
     }
-}
 
 /**
  * Registers a Telegram distribution upload notification task in the project.
@@ -244,8 +237,8 @@ private fun Project.registerSendTelegramChangelogTask(
 private fun Project.registerTelegramUploadAokTask(
     distributionConfig: TelegramDistributionConfig,
     params: TelegramApkDistributionTaskParams,
-): TaskProvider<TelegramDistributionTask> {
-    return tasks.register(
+): TaskProvider<TelegramDistributionTask> =
+    tasks.register(
         "${TaskNames.Telegram.DISTRIBUTION_UPLOAD_PREFIX}${params.buildVariant.capitalizedName()}",
         TelegramDistributionTask::class.java,
     ) {
@@ -269,7 +262,6 @@ private fun Project.registerTelegramUploadAokTask(
         it.usesService(service)
         it.usesService(loggerService)
     }
-}
 
 /**
  * Registers a Telegram distribution upload notification task in the project.
@@ -293,8 +285,8 @@ private fun Project.registerTelegramUploadAokTask(
 private fun Project.registerTelegramBundleUploadTask(
     distributionConfig: TelegramDistributionConfig,
     params: TelegramBundleDistributionTaskParams,
-): TaskProvider<TelegramDistributionTask>? {
-    return tasks.register(
+): TaskProvider<TelegramDistributionTask>? =
+    tasks.register(
         "${TaskNames.Telegram.DISTRIBUTION_UPLOAD_BUNDLE_PREFIX}${params.buildVariant.capitalizedName()}",
         TelegramDistributionTask::class.java,
     ) {
@@ -318,7 +310,6 @@ private fun Project.registerTelegramBundleUploadTask(
         it.usesService(service)
         it.usesService(loggerService)
     }
-}
 
 /**
  * Registers a Telegram lookup notification task in the project.
@@ -342,8 +333,8 @@ private fun Project.registerTelegramBundleUploadTask(
 private fun Project.registerTelegramLookupTask(
     distributionConfig: TelegramLookupConfig,
     params: TelegramLookupTaskParams,
-): TaskProvider<TelegramLookupTask>? {
-    return tasks.register(
+): TaskProvider<TelegramLookupTask>? =
+    tasks.register(
         "${TaskNames.Telegram.LOOKUP_PREFIX}${params.buildVariant.capitalizedName()}",
         TelegramLookupTask::class.java,
     ) {
@@ -368,7 +359,6 @@ private fun Project.registerTelegramLookupTask(
         it.usesService(service)
         it.usesService(loggerService)
     }
-}
 
 /**
  * Parameters for configuring a Telegram changelog notification task.

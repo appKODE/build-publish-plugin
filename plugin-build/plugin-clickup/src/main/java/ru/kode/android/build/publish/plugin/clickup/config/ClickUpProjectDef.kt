@@ -13,7 +13,9 @@ import ru.kode.android.gradle.commons.util.CommonConfigMergeable
  * here. Project names are unique per account; the [taskIdPrefix] must be globally unique so changelog
  * references can be routed by their custom-task-id prefix (e.g. `APP-123` -> `APP`).
  */
-interface ClickUpProjectDef : Named, CommonConfigMergeable<ClickUpProjectDef> {
+interface ClickUpProjectDef :
+    Named,
+    CommonConfigMergeable<ClickUpProjectDef> {
     /**
      * The ClickUp workspace (team) name this project maps to, used to resolve the `team_id` that scopes
      * custom-task-id lookups.

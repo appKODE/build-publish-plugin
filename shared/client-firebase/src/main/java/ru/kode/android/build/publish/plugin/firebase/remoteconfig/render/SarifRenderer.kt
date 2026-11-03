@@ -68,34 +68,65 @@ private data class Log(
 )
 
 @Serializable
-private data class Run(val tool: Tool, val results: List<Result>)
+private data class Run(
+    val tool: Tool,
+    val results: List<Result>,
+)
 
 @Serializable
-private data class Tool(val driver: Driver)
+private data class Tool(
+    val driver: Driver,
+)
 
 @Serializable
-private data class Driver(val name: String, val informationUri: String, val rules: List<Rule>)
+private data class Driver(
+    val name: String,
+    val informationUri: String,
+    val rules: List<Rule>,
+)
 
 @Serializable
-private data class Rule(val id: String, val shortDescription: Text, val defaultConfiguration: Configuration)
+private data class Rule(
+    val id: String,
+    val shortDescription: Text,
+    val defaultConfiguration: Configuration,
+)
 
 @Serializable
-private data class Configuration(val level: String)
+private data class Configuration(
+    val level: String,
+)
 
 @Serializable
-private data class Text(val text: String)
+private data class Text(
+    val text: String,
+)
 
 @Serializable
-private data class Result(val ruleId: String, val level: String, val message: Text, val locations: List<Location>)
+private data class Result(
+    val ruleId: String,
+    val level: String,
+    val message: Text,
+    val locations: List<Location>,
+)
 
 @Serializable
-private data class Location(val physicalLocation: PhysicalLocation)
+private data class Location(
+    val physicalLocation: PhysicalLocation,
+)
 
 @Serializable
-private data class PhysicalLocation(val artifactLocation: ArtifactLocation, val region: Region)
+private data class PhysicalLocation(
+    val artifactLocation: ArtifactLocation,
+    val region: Region,
+)
 
 @Serializable
-private data class ArtifactLocation(val uri: String)
+private data class ArtifactLocation(
+    val uri: String,
+)
 
 @Serializable
-private data class Region(val startLine: Int)
+private data class Region(
+    val startLine: Int,
+)

@@ -124,7 +124,11 @@ private fun ClickUpAuthConfig.bakeAccounts(): List<String> =
     accounts.map { account ->
         ClickUpAccountEntity(
             name = account.name,
-            token = account.apiTokenFile.get().asFile.readText(),
+            token =
+                account.apiTokenFile
+                    .get()
+                    .asFile
+                    .readText(),
             projects =
                 account.projects.mapNotNull { project ->
                     val prefix = project.taskIdPrefix.orNull ?: return@mapNotNull null

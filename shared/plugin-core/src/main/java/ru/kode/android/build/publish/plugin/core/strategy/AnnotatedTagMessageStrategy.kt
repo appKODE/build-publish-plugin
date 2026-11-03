@@ -30,7 +30,5 @@ object DecoratedAnnotatedTagMessageStrategy : AnnotatedTagMessageStrategy {
      * @param annotatedTagMessage The raw annotated tag message from Git.
      * @return The message wrapped in asterisks for emphasis (e.g., `*message*`).
      */
-    override fun build(annotatedTagMessage: String): String {
-        return "*$annotatedTagMessage*"
-    }
+    override fun build(annotatedTagMessage: String): String = "*$annotatedTagMessage*"
 }

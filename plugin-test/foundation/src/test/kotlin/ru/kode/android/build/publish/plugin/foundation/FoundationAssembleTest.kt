@@ -77,7 +77,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleDebug-vc321-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -196,7 +197,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-internal-vc167-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -282,7 +284,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleDebug-vc321-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -358,7 +361,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleDebug-vc321-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -431,7 +435,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleDebug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -492,7 +497,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleDebug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -577,7 +583,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -679,7 +686,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/release")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-release-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -779,7 +787,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/release")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-release-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -890,7 +899,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/release")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-release-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -999,7 +1009,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/release")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-release-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1109,7 +1120,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/release")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-release-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1219,7 +1231,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/release")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-release-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1328,7 +1341,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1437,7 +1451,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1542,7 +1557,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1646,7 +1662,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1749,7 +1766,8 @@ class FoundationAssembleTest {
 
         val apkDir1 = projectDir.getFile("app/build/outputs/apk/internal")
         val givenOutputFile1 =
-            apkDir1.listFiles()
+            apkDir1
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-internal-vc208-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1813,7 +1831,8 @@ class FoundationAssembleTest {
 
         val apkDir2 = projectDir.getFile("app/build/outputs/apk/internal")
         val givenOutputFile2 =
-            apkDir2.listFiles()
+            apkDir2
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
         val givenOutputFileManifestProperties2 = givenOutputFile2.extractManifestProperties()
@@ -1920,7 +1939,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
                 ?: false
 
@@ -1985,7 +2005,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/internal")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-internal-vc209-\\d{8}\\.apk")) }
                 ?: false
 
@@ -2154,7 +2175,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleDebug-vc321-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -2459,14 +2481,16 @@ class FoundationAssembleTest {
 
         val debugApkDir = projectDir.getFile("app/build/outputs/apk/google/debug")
         val givenOutputFileDebug =
-            debugApkDir.listFiles()
+            debugApkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleDebug-vc321-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
         val givenOutputFileDebugManifestProperties = givenOutputFileDebug.extractManifestProperties()
 
         val internalApkDir = projectDir.getFile("app/build/outputs/apk/google/internal")
         val givenOutputFileInternal =
-            internalApkDir.listFiles()
+            internalApkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleInternal-vc321-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
         val givenOutputFileInternalManifestProperties = givenOutputFileInternal.extractManifestProperties()
@@ -2590,7 +2614,8 @@ class FoundationAssembleTest {
 
         val internalApkDir = projectDir.getFile("app/build/outputs/apk/google/internal")
         val givenOutputFileInternal =
-            internalApkDir.listFiles()
+            internalApkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleInternal-vc321-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
         val givenOutputFileInternalManifestProperties = givenOutputFileInternal.extractManifestProperties()
@@ -2700,7 +2725,8 @@ class FoundationAssembleTest {
 
         val internalApkDir = projectDir.getFile("app/build/outputs/apk/google/internal")
         val givenOutputFileInternal1 =
-            internalApkDir.listFiles()
+            internalApkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleInternal-vc321-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
         val givenOutputFileInternalManifestProperties1 = givenOutputFileInternal1.extractManifestProperties()
@@ -2716,7 +2742,8 @@ class FoundationAssembleTest {
         val internalResult2: BuildResult = projectDir.runTask(givenInternalAssembleTask)
 
         val givenOutputFileInternal2 =
-            internalApkDir.listFiles()
+            internalApkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleInternal-vc322-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
         val givenOutputFileInternalManifestProperties2 = givenOutputFileInternal2.extractManifestProperties()
@@ -2828,7 +2855,8 @@ class FoundationAssembleTest {
 
         val internalApkDir = projectDir.getFile("app/build/outputs/apk/google/internal")
         val givenOutputFileInternal =
-            internalApkDir.listFiles()
+            internalApkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleInternal-vc390-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
         val givenOutputFileInternalManifestProperties = givenOutputFileInternal.extractManifestProperties()
@@ -2961,7 +2989,8 @@ class FoundationAssembleTest {
 
         val internalApkDir = projectDir.getFile("app/build/outputs/apk/internal")
         val givenOutputFileInternal =
-            internalApkDir.listFiles()
+            internalApkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-internal-vc390-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
         val givenOutputFileInternalManifestProperties = givenOutputFileInternal.extractManifestProperties()
@@ -3083,7 +3112,8 @@ class FoundationAssembleTest {
 
         val internalApkDir = projectDir.getFile("app/build/outputs/apk/google/internal")
         val givenOutputFileInternal =
-            internalApkDir.listFiles()
+            internalApkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-googleInternal-vc321-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
         val givenOutputFileInternalManifestProperties = givenOutputFileInternal.extractManifestProperties()
@@ -3288,7 +3318,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/cabinet/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-cabinetDebug-vc323-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -3348,7 +3379,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/cabinet/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-cabinetDebug-vc1-\\d{8}\\.apk")) }
                 ?: false
 
@@ -3396,7 +3428,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/cabinet/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-cabinetDebug-vc323-\\d{8}\\.apk")) }
                 ?: false
 
@@ -3444,7 +3477,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/cabinet/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-cabinetDebug-vc323-\\d{8}\\.apk")) }
                 ?: false
 
@@ -3510,7 +3544,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/cabinet/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-cabinetDebug-vc323-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -3605,7 +3640,8 @@ class FoundationAssembleTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/finance/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-financeDebug-vc323-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 

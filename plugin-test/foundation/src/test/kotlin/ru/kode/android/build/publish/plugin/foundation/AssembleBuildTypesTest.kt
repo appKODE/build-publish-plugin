@@ -64,7 +64,8 @@ class AssembleBuildTypesTest {
 
         val bundleDir = projectDir.getFile("app/build/outputs/bundle/debug")
         val renamedFile =
-            bundleDir.listFiles()
+            bundleDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.aab")) }
 
         result.outputShouldContain("BUILD SUCCESSFUL")
@@ -100,7 +101,8 @@ class AssembleBuildTypesTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -175,7 +177,8 @@ class AssembleBuildTypesTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -250,7 +253,8 @@ class AssembleBuildTypesTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc0-\\d{8}\\.apk")) }
                 ?: false
 
@@ -294,7 +298,8 @@ class AssembleBuildTypesTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -382,7 +387,8 @@ class AssembleBuildTypesTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 

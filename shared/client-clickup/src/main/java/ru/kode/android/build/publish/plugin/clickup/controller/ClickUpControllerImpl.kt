@@ -87,7 +87,8 @@ internal class ClickUpControllerImpl(
         val list =
             getListsInSpace(space.id).firstOrNull()
                 ?: throw IllegalStateException(listNotFoundForDeleteMessage(space, fieldId))
-        api.deleteCustomFieldFromList(list.id, fieldId)
+        api
+            .deleteCustomFieldFromList(list.id, fieldId)
             .executeNoResult()
             .onFailure { logger.error(failedToDeleteCustomFieldMessage(fieldId, list), it) }
     }
@@ -105,7 +106,8 @@ internal class ClickUpControllerImpl(
         taskId: String,
         tagName: String,
     ) {
-        api.addTagToTask(taskId, tagName)
+        api
+            .addTagToTask(taskId, tagName)
             .executeWithResult()
             .onFailure { logger.error(failedAddTagMessage(tagName, taskId), it) }
     }
@@ -123,7 +125,8 @@ internal class ClickUpControllerImpl(
         taskId: String,
         tagName: String,
     ) {
-        api.removeTag(taskId, tagName)
+        api
+            .removeTag(taskId, tagName)
             .executeNoResult()
             .onFailure { logger.error(failedToRemoveTagMessage(tagName, taskId), it) }
         logger.info(tagRemovedMessage(tagName, taskId))
@@ -140,7 +143,8 @@ internal class ClickUpControllerImpl(
      */
     override fun getTaskTags(taskId: String): ClickUpTaskTags {
         val response =
-            api.getTaskTags(taskId, includeTags = true)
+            api
+                .getTaskTags(taskId, includeTags = true)
                 .executeWithResult()
                 .getOrThrow()
         val tags = response.tags.map { it.name }
@@ -152,16 +156,19 @@ internal class ClickUpControllerImpl(
         teamId: String?,
     ): String? {
         val customTaskIds = teamId != null
-        return api.getTaskFields(taskId, customTaskIds = customTaskIds, teamId = teamId)
+        return api
+            .getTaskFields(taskId, customTaskIds = customTaskIds, teamId = teamId)
             .executeWithResult()
             .onFailure { logger.error(failedToGetTaskNameMessage(taskId), it) }
             .getOrNull()
             ?.name
     }
 
-    override fun getTeamId(workspaceName: String): String? {
-        return getTeams().firstOrNull { it.name.equals(workspaceName, ignoreCase = true) }?.id
-    }
+    override fun getTeamId(workspaceName: String): String? =
+        getTeams()
+            .firstOrNull {
+                it.name.equals(workspaceName, ignoreCase = true)
+            }?.id
 
     /**
      * Clears a custom field value for a ClickUp task.
@@ -176,7 +183,8 @@ internal class ClickUpControllerImpl(
         taskId: String,
         fieldId: String,
     ) {
-        api.clearCustomField(taskId, fieldId, ClearCustomFieldRequest(value = ""))
+        api
+            .clearCustomField(taskId, fieldId, ClearCustomFieldRequest(value = ""))
             .executeNoResult()
             .getOrThrow()
         logger.info(customFieldClearedMessage(fieldId, taskId))
@@ -193,7 +201,8 @@ internal class ClickUpControllerImpl(
      */
     override fun getTaskFields(taskId: String): ClickUpTaskFields {
         val response =
-            api.getTaskFields(taskId, includeFields = true)
+            api
+                .getTaskFields(taskId, includeFields = true)
                 .executeWithResult()
                 .getOrThrow()
 
@@ -229,7 +238,8 @@ internal class ClickUpControllerImpl(
         fieldValue: String,
     ) {
         val request = AddFieldToTaskRequest(value = fieldValue)
-        api.addFieldToTask(taskId, fieldId, request)
+        api
+            .addFieldToTask(taskId, fieldId, request)
             .executeNoResult()
             .onFailure { logger.error(failedAddFieldMessage(fieldId, taskId), it) }
     }
@@ -270,7 +280,8 @@ internal class ClickUpControllerImpl(
         listId: String,
     ): String {
         val request = CreateCustomFieldRequest(name = fieldName, type = "text")
-        return api.createCustomField(listId, request)
+        return api
+            .createCustomField(listId, request)
             .executeWithResult()
             .getOrThrow()
             .field

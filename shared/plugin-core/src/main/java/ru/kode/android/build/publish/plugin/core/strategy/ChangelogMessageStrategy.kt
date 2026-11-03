@@ -37,9 +37,7 @@ object KeyPreservingChangelogMessageStrategy : ChangelogMessageStrategy {
         message: String,
         commitMessageKey: String,
         tagSnapshot: BuildTagSnapshot,
-    ): String {
-        return "• $message".trim()
-    }
+    ): String = "• $message".trim()
 }
 
 /**

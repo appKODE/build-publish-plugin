@@ -86,14 +86,14 @@ class GitCommandExecutor(
     fun extractMarkedCommitMessages(
         key: String,
         range: CommitRange?,
-    ): List<String> {
-        return grgit.getCommitsByRange(range)
+    ): List<String> =
+        grgit
+            .getCommitsByRange(range)
             .flatMap { commit ->
                 commit.fullMessage
                     .split('\n')
                     .filter { message -> message.contains(key) }
             }
-    }
 
     /**
      * Extracts issue-reference lines (e.g. `CLOSES: 3458`, `FIXES: TBI-42`) from commits in the range,
@@ -114,7 +114,8 @@ class GitCommandExecutor(
     ): List<CommitIssueReferences> {
         if (references.isEmpty()) return emptyList()
         val referenceMatchers = references.map { Regex("\\b" + Regex.escape(it.key) + "\\b") }
-        return grgit.getCommitsByRange(range)
+        return grgit
+            .getCommitsByRange(range)
             .mapNotNull { commit ->
                 val lines = commit.fullMessage.split('\n')
                 val referenceLines =
@@ -269,8 +270,7 @@ class GitCommandExecutor(
                 val commitTimeMs = commit?.utcDateTime()?.toInstant()?.toEpochMilli() ?: 0L
                 val buildNumber = tag.getBuildNumber(buildTagRegex)
                 TagDetails(tag, commitIndex, commitTimeMs, buildNumber)
-            }
-            .sortedWith { tagDetails1, tagDetails2 ->
+            }.sortedWith { tagDetails1, tagDetails2 ->
                 if (tagDetails1.commitIndex >= 0 && tagDetails2.commitIndex >= 0) {
                     if (tagDetails1.commitIndex != tagDetails2.commitIndex) {
                         return@sortedWith tagDetails1.commitIndex.compareTo(tagDetails2.commitIndex)
@@ -280,16 +280,14 @@ class GitCommandExecutor(
                     }
                 }
                 tagDetails2.buildNumber.compareTo(tagDetails1.buildNumber)
-            }
-            .let { sorted ->
+            }.let { sorted ->
                 if (ciCommitTag == null) {
                     sorted
                 } else {
                     val ciTagIndex = sorted.indexOfFirst { it.tag.name == ciCommitTag }
                     if (ciTagIndex >= 0) sorted.drop(ciTagIndex) else sorted
                 }
-            }
-            .map { it.tag }
+            }.map { it.tag }
             .also { tags -> logger.info(finTagsByRegexAfterSortingMessage(tags)) }
     }
 
@@ -322,7 +320,8 @@ Fix      * commit ancestry and build numbers.
         tags: List<GrgitTag>,
         buildTagRegex: Regex,
     ) {
-        tags.zipWithNext()
+        tags
+            .zipWithNext()
             .forEach { (lastTag, previousTag) ->
                 val lastTagCommit = findCommit(lastTag.commit.id)
                 val previousTagCommit = findCommit(previousTag.commit.id)
@@ -375,9 +374,7 @@ Fix      * commit ancestry and build numbers.
      * println("Commit message: ${commit.fullMessage}")
      * ```
      */
-    private fun findCommit(commitSha: String): Commit {
-        return grgit.resolve.toCommit(commitSha)
-    }
+    private fun findCommit(commitSha: String): Commit = grgit.resolve.toCommit(commitSha)
 
     /**
      * Commit time of [commitSha] as epoch milliseconds (UTC, minute precision).

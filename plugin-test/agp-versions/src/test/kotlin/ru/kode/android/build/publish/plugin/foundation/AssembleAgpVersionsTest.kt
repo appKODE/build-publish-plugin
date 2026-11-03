@@ -195,7 +195,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/intermediates/apk/renameApkDebug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -284,7 +285,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/intermediates/apk/renameApkDebug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -367,7 +369,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -444,7 +447,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -521,7 +525,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -598,7 +603,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -675,7 +681,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -752,7 +759,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -829,7 +837,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -906,7 +915,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -983,7 +993,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1060,7 +1071,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1138,7 +1150,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1216,7 +1229,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1350,7 +1364,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1488,7 +1503,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1636,7 +1652,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1724,7 +1741,8 @@ class AssembleAgpVersionsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 

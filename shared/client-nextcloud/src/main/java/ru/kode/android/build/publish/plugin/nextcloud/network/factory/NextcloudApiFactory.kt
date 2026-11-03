@@ -25,7 +25,8 @@ internal object NextcloudApiFactory {
         val contentType = "application/json".toMediaType()
         val json = Json { ignoreUnknownKeys = true }
 
-        return Retrofit.Builder()
+        return Retrofit
+            .Builder()
             .baseUrl(baseUrl)
             .client(client)
             .addConverterFactory(json.asConverterFactory(contentType))

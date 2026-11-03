@@ -64,8 +64,7 @@ fun analyze(input: AnalyzerInput): List<Finding> {
         remote.keys
             .filter { key ->
                 key !in current && key !in input.usedKeys && input.dynamicKeyPrefixes.none { key.startsWith(it) }
-            }
-            .sorted()
+            }.sorted()
             .forEach { add(Finding.UnusedInRemote(it, remote.getValue(it).description)) }
         remote.toSortedMap().forEach { (key, parameter) ->
             parameter.conditionalValues.forEach { (condition, value) ->
@@ -152,7 +151,10 @@ fun changedKeys(
     return (oldParameters.keys + newParameters.keys)
         .filter { key ->
             oldParameters[key] != newParameters[key] ||
-                newParameters[key]?.conditionalValues?.keys.orEmpty().any { it in changedConditions }
-        }
-        .sorted()
+                newParameters[key]
+                    ?.conditionalValues
+                    ?.keys
+                    .orEmpty()
+                    .any { it in changedConditions }
+        }.sorted()
 }

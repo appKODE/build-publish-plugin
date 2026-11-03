@@ -13,7 +13,6 @@ internal object TelegramWebhookApiFactory {
      * @param retrofitBuilder The [Retrofit.Builder] to be used for building the [Retrofit] instance.
      * @return A new instance of [TelegramWebhookApi].
      */
-    fun build(retrofitBuilder: Retrofit.Builder): TelegramWebhookApi {
-        return retrofitBuilder.build().create(TelegramWebhookApi::class.java)
-    }
+    fun build(retrofitBuilder: Retrofit.Builder): TelegramWebhookApi =
+        retrofitBuilder.build().create(TelegramWebhookApi::class.java)
 }

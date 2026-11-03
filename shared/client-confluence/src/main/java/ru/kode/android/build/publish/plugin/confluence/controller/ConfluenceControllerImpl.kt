@@ -50,8 +50,7 @@ internal class ConfluenceControllerImpl(
             .uploadAttachment(
                 pageId = pageId,
                 file = filePart,
-            )
-            .executeNoResult()
+            ).executeNoResult()
             .getOrElse { throw IllegalStateException(uploadFileFailedMessage(file.name, pageId), it) }
     }
 
@@ -83,8 +82,7 @@ internal class ConfluenceControllerImpl(
                                 AddCommentRequest.Storage(comment, "storage"),
                             ),
                     ),
-            )
-            .executeNoResult()
+            ).executeNoResult()
             .getOrElse { throw IllegalStateException(addCommentFailedMessage(pageId, fileName), it) }
     }
 
@@ -94,8 +92,9 @@ internal class ConfluenceControllerImpl(
      * @param pageId The ID of the Confluence page to retrieve attachments for.
      * @return A list of [ConfluenceAttachment] objects representing the attachments on the page.
      */
-    override fun getAttachments(pageId: String): List<ConfluenceAttachment> {
-        return api.getAttachments(pageId)
+    override fun getAttachments(pageId: String): List<ConfluenceAttachment> =
+        api
+            .getAttachments(pageId)
             .executeWithResult()
             .getOrThrow()
             .results
@@ -105,7 +104,6 @@ internal class ConfluenceControllerImpl(
                     fileName = it.title,
                 )
             }
-    }
 
     /**
      * Retrieves a list of comments for a given Confluence page.
@@ -113,8 +111,9 @@ internal class ConfluenceControllerImpl(
      * @param pageId The ID of the Confluence page to retrieve comments for.
      * @return A list of [ConfluenceComment] objects representing the comments on the page.
      */
-    override fun getComments(pageId: String): List<ConfluenceComment> {
-        return api.getComments(pageId)
+    override fun getComments(pageId: String): List<ConfluenceComment> =
+        api
+            .getComments(pageId)
             .executeWithResult()
             .getOrThrow()
             .results
@@ -124,7 +123,6 @@ internal class ConfluenceControllerImpl(
                     html = it.body.storage.value,
                 )
             }
-    }
 
     /**
      * Removes an attachment from Confluence.

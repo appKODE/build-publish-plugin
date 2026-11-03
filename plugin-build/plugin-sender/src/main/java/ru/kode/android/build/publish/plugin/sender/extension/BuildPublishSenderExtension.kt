@@ -12,7 +12,9 @@ import javax.inject.Inject
 
 abstract class BuildPublishSenderExtension
     @Inject
-    constructor(private val objects: ObjectFactory) {
+    constructor(
+        private val objects: ObjectFactory,
+    ) {
         internal var slackConfig: SenderSlackConfig? = null
         internal var telegramConfig: SenderTelegramConfig? = null
         internal var nextcloudConfig: SenderNextcloudConfig? = null

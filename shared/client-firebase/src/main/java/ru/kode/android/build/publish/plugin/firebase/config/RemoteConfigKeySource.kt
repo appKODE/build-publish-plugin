@@ -19,7 +19,9 @@ import javax.inject.Inject
  */
 abstract class RemoteConfigKeySource
     @Inject
-    constructor(val name: String) {
+    constructor(
+        val name: String,
+    ) {
         /**
          * Repository-relative `java.nio` globs of the files to scan.
          */

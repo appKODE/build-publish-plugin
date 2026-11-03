@@ -28,8 +28,8 @@ object ConfluenceControllerFactory {
         password: String,
         logger: PluginLogger,
         proxy: () -> NetworkProxy? = { null },
-    ): ConfluenceController {
-        return ConfluenceControllerImpl(
+    ): ConfluenceController =
+        ConfluenceControllerImpl(
             baseUrl = baseUrl,
             api =
                 ConfluenceApiFactory.build(
@@ -43,7 +43,6 @@ object ConfluenceControllerFactory {
                     baseUrl = baseUrl,
                 ),
         )
-    }
 
     fun build(
         baseUrl: String,

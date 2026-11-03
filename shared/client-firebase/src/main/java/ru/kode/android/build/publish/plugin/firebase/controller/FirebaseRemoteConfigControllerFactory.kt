@@ -26,7 +26,8 @@ object FirebaseRemoteConfigControllerFactory {
         val json = Json { ignoreUnknownKeys = true }
         val key = json.decodeFromString<ServiceAccountKey>(serviceCredentialsFile.readText())
         val api =
-            Retrofit.Builder()
+            Retrofit
+                .Builder()
                 .baseUrl(STUB_BASE_URL)
                 .client(FirebaseRemoteConfigClientFactory.build(key, logger, json))
                 .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))

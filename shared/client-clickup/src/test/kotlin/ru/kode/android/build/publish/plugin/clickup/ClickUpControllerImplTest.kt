@@ -37,7 +37,8 @@ class ClickUpControllerImplTest {
         val contentType = "application/json".toMediaType()
         val json = Json { ignoreUnknownKeys = true }
         val api =
-            Retrofit.Builder()
+            Retrofit
+                .Builder()
                 .baseUrl(server.url("/"))
                 .client(OkHttpClient())
                 .addConverterFactory(json.asConverterFactory(contentType))

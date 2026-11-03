@@ -182,7 +182,8 @@ abstract class GenerateChangelogTask : GenerateChangelogTaskOutput() {
         val annotatedTagMessageStrategy = annotatedTagMessageStrategy.get()
 
         val changelog =
-            gitExecutorService.get()
+            gitExecutorService
+                .get()
                 .gitChangelogBuilder
                 .buildForSnapshot(
                     messageKey = commitMessageKey,
@@ -195,7 +196,8 @@ abstract class GenerateChangelogTask : GenerateChangelogTaskOutput() {
                     },
                     tagSnapshot = tagSnapshot,
                     issueReferences =
-                        issueReferences.getOrElse(emptyMap())
+                        issueReferences
+                            .getOrElse(emptyMap())
                             .map { (key, pattern) -> IssueReference(key, pattern) },
                     resolvers = issueResolvers.getOrElse(emptyList()),
                     resolvedStrategy =

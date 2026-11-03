@@ -207,17 +207,19 @@ internal class TelegramControllerImpl(
                     Credentials.basic(it.username, it.password)
                 }
 
-            webhookApi.send(
-                authorization,
-                webhookUrl,
-                SendMessageRequest(
-                    chat_id = bot.chatId,
-                    message_thread_id = bot.topicId,
-                    text = message,
-                    parse_mode = "HTML",
-                    disable_web_page_preview = true,
-                ),
-            ).executeNoResult().getOrThrow()
+            webhookApi
+                .send(
+                    authorization,
+                    webhookUrl,
+                    SendMessageRequest(
+                        chat_id = bot.chatId,
+                        message_thread_id = bot.topicId,
+                        text = message,
+                        parse_mode = "HTML",
+                        disable_web_page_preview = true,
+                    ),
+                ).executeNoResult()
+                .getOrThrow()
         }
     }
 }
@@ -286,12 +288,11 @@ private fun formatIssuesHtml(
  * @param input The input string to escape.
  * @return The escaped string.
  */
-private fun escapeHtml(input: String): String {
-    return input
+private fun escapeHtml(input: String): String =
+    input
         .replace("&", "&amp;")
         .replace("<", "&lt;")
         .replace(">", "&gt;")
-}
 
 /**
  * Splits the string into lines of maximum [maxLength] characters.

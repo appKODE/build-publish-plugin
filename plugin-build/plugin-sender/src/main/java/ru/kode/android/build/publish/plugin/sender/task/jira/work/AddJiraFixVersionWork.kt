@@ -21,14 +21,15 @@ internal abstract class AddJiraFixVersionWork
     @Inject
     constructor() : WorkAction<AddJiraFixVersionParameters> {
         override fun execute() {
-            JiraControllerFactory.build(
-                baseUrl = parameters.baseUrl.get(),
-                username = parameters.username.get(),
-                password = parameters.apiToken.get(),
-            ).addFixVersionToIssues(
-                projectKey = parameters.projectKey.get(),
-                version = parameters.version.get(),
-                issues = parameters.issues.get(),
-            )
+            JiraControllerFactory
+                .build(
+                    baseUrl = parameters.baseUrl.get(),
+                    username = parameters.username.get(),
+                    password = parameters.apiToken.get(),
+                ).addFixVersionToIssues(
+                    projectKey = parameters.projectKey.get(),
+                    version = parameters.version.get(),
+                    issues = parameters.issues.get(),
+                )
         }
     }

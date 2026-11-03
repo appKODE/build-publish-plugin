@@ -11,11 +11,17 @@ data class RegexKeyExtractor(
         path: String,
         content: String,
     ): List<KeyOccurrence> =
-        Regex(pattern).findAll(content).map { match ->
-            val key = match.groups.drop(1).firstOrNull { it != null }?.value ?: match.value
-            val line = content.subSequence(0, match.range.first).count { it == '\n' } + 1
-            KeyOccurrence(key, path, line)
-        }.toList()
+        Regex(pattern)
+            .findAll(content)
+            .map { match ->
+                val key =
+                    match.groups
+                        .drop(1)
+                        .firstOrNull { it != null }
+                        ?.value ?: match.value
+                val line = content.subSequence(0, match.range.first).count { it == '\n' } + 1
+                KeyOccurrence(key, path, line)
+            }.toList()
 
     companion object {
         /**

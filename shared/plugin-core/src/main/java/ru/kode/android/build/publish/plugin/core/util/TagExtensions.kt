@@ -43,13 +43,12 @@ fun Grgit.getCommitsByRange(range: CommitRange?): List<Commit> {
  * Like [Grgit.log], but returns an empty list instead of throwing when the repository has no
  * HEAD (e.g. a freshly checked-out repo with zero commits).
  */
-fun Grgit.logOrEmpty(): List<Commit> {
-    return try {
+fun Grgit.logOrEmpty(): List<Commit> =
+    try {
         this.log()
     } catch (_: Exception) {
         emptyList()
     }
-}
 
 /**
  * Converts this [Commit]'s date-time to a UTC [ZonedDateTime], truncated to minutes.
@@ -60,32 +59,25 @@ fun Grgit.logOrEmpty(): List<Commit> {
  *
  * @return A [ZonedDateTime] representing the commit's date-time in UTC, truncated to minutes.
  */
-fun Commit.utcDateTime(): ZonedDateTime {
-    return this.dateTime
+fun Commit.utcDateTime(): ZonedDateTime =
+    this.dateTime
         .withZoneSameInstant(ZoneOffset.UTC)
         .truncatedTo(ChronoUnit.MINUTES)
-}
 
 /**
  * Extracts the build number from this [GrgitTag]'s name using the provided regular expression.
  */
-fun GrgitTag.getBuildNumber(regex: Regex): Int {
-    return this.name.getBuildNumber(regex)
-}
+fun GrgitTag.getBuildNumber(regex: Regex): Int = this.name.getBuildNumber(regex)
 
 /**
  * Extracts the build number from this [Tag]'s name using the provided regular expression.
  */
-fun Tag.getBuildNumber(regex: Regex): Int {
-    return this.name.getBuildNumber(regex)
-}
+fun Tag.getBuildNumber(regex: Regex): Int = this.name.getBuildNumber(regex)
 
 /**
  * Extracts the build number from this string using the provided regular expression.
  */
-fun String.getBuildNumber(regex: Regex): Int {
-    return this.extractIntBy(regex)
-}
+fun String.getBuildNumber(regex: Regex): Int = this.extractIntBy(regex)
 
 /**
  * Extracts an integer value from the string using the given [regex].
@@ -99,9 +91,10 @@ fun String.getBuildNumber(regex: Regex): Int {
  * @param regex The [Regex] pattern used to extract the integer.
  * @return The extracted integer, or `0` if extraction fails.
  */
-private fun String.extractIntBy(regex: Regex): Int {
-    return regex.find(this)?.groupValues
+private fun String.extractIntBy(regex: Regex): Int =
+    regex
+        .find(this)
+        ?.groupValues
         ?.get(1)
         ?.toIntOrNull()
         ?: 0
-}

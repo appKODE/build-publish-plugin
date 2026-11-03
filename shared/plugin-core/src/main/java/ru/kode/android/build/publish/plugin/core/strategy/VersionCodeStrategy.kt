@@ -41,9 +41,7 @@ object BuildVersionCodeStrategy : VersionCodeStrategy {
     override fun build(
         buildVariant: BuildVariant,
         tag: Tag.Build?,
-    ): Int {
-        return tag?.buildNumber ?: DEFAULT_VERSION_CODE
-    }
+    ): Int = tag?.buildNumber ?: DEFAULT_VERSION_CODE
 }
 
 /**
@@ -65,9 +63,7 @@ class FixedVersionCodeStrategy(
     override fun build(
         buildVariant: BuildVariant,
         tag: Tag.Build?,
-    ): Int {
-        return versionCodeProvider()
-    }
+    ): Int = versionCodeProvider()
 }
 
 /**
@@ -96,8 +92,8 @@ object SemanticVersionFlattenedCodeStrategy : VersionCodeStrategy {
     override fun build(
         buildVariant: BuildVariant,
         tag: Tag.Build?,
-    ): Int {
-        return if (tag != null) {
+    ): Int =
+        if (tag != null) {
             val parts = tag.buildVersion.split(".")
             val major = parts[0].toInt()
             val minor = parts[1].toInt()
@@ -105,5 +101,4 @@ object SemanticVersionFlattenedCodeStrategy : VersionCodeStrategy {
         } else {
             DEFAULT_VERSION_CODE
         }
-    }
 }

@@ -18,7 +18,8 @@ internal abstract class AddClickUpTagWork
     @Inject
     constructor() : WorkAction<AddClickUpTagParameters> {
         override fun execute() {
-            ClickUpControllerFactory.build(token = parameters.apiToken.get())
+            ClickUpControllerFactory
+                .build(token = parameters.apiToken.get())
                 .addTagToTasks(
                     tagName = parameters.tag.get(),
                     taskIds = parameters.taskIds.get(),

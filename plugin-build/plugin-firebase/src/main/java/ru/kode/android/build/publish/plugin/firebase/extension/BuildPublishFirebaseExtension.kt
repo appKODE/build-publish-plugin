@@ -42,7 +42,9 @@ import javax.inject.Inject
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishFirebaseExtension
     @Inject
-    constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
+    constructor(
+        objectFactory: ObjectFactory,
+    ) : BuildPublishConfigurableExtension() {
         /**
          * Container for Firebase App Distribution configurations.
          *
@@ -233,7 +235,13 @@ abstract class BuildPublishFirebaseExtension
                     },
                 )
                 groups.set(distributionConfig.testerGroups.map { it.joinToString(",") })
-                releaseNotesFile.set(input.changelog.fileProvider.map { it.changelogFile.get().asFile.path })
+                releaseNotesFile.set(
+                    input.changelog.fileProvider.map {
+                        it.changelogFile
+                            .get()
+                            .asFile.path
+                    },
+                )
             } ?: throw GradleException(appDistributionConfigNotFoundMessage(input.buildVariant.name))
         }
 

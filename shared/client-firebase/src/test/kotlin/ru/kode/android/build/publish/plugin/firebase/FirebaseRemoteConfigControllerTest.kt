@@ -38,7 +38,14 @@ class FirebaseRemoteConfigControllerTest {
 
         assertEquals(setOf("top_key", "grouped_key"), template.allParameters.keys)
         assertEquals("app.version >= '1.0'", template.conditions.single().expression)
-        assertEquals("on", template.allParameters.getValue("grouped_key").conditionalValues.getValue("new").display())
+        assertEquals(
+            "on",
+            template.allParameters
+                .getValue("grouped_key")
+                .conditionalValues
+                .getValue("new")
+                .display(),
+        )
         assertEquals("7", template.version?.versionNumber)
         val tokenRequests = requests.filter { it.path == "/token" }
         assertEquals(1, tokenRequests.size, "token must be cached between calls")

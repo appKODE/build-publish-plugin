@@ -47,11 +47,13 @@ internal fun createPublisher(credentials: InputStream): AndroidPublisher {
             )
         }.createScoped(listOf(AndroidPublisherScopes.ANDROIDPUBLISHER))
 
-    return AndroidPublisher.Builder(
-        transport,
-        GsonFactory.getDefaultInstance(),
-        AndroidPublisherAdapter(credential),
-    ).setApplicationName("PLUGIN_NAME").build()
+    return AndroidPublisher
+        .Builder(
+            transport,
+            GsonFactory.getDefaultInstance(),
+            AndroidPublisherAdapter(credential),
+        ).setApplicationName("PLUGIN_NAME")
+        .build()
 }
 
 /**
@@ -90,7 +92,8 @@ private fun createHttpTransport(): HttpTransport {
                 UsernamePasswordCredentials(proxyUser, proxyPassword),
             )
             val httpClient =
-                ApacheHttpTransport.newDefaultHttpClientBuilder()
+                ApacheHttpTransport
+                    .newDefaultHttpClientBuilder()
                     .setProxyAuthenticationStrategy(ProxyAuthenticationStrategy.INSTANCE)
                     .setDefaultCredentialsProvider(credentials)
                     .build()
@@ -106,13 +109,15 @@ private class AndroidPublisherAdapter(
     override fun initialize(request: HttpRequest) {
         val backOffHandler =
             HttpBackOffUnsuccessfulResponseHandler(
-                ExponentialBackOff.Builder()
+                ExponentialBackOff
+                    .Builder()
                     .setMaxElapsedTimeMillis(TimeUnit.MINUTES.toMillis(3).toInt())
                     .build(),
             )
 
         super.initialize(
-            request.setReadTimeout(0)
+            request
+                .setReadTimeout(0)
                 .setUnsuccessfulResponseHandler(backOffHandler),
         )
     }

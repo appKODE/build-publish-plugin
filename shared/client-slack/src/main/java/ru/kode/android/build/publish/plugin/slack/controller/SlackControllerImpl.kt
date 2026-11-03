@@ -48,8 +48,7 @@ internal class SlackControllerImpl(
                     authorisation = getAuthorisationHeader(uploadToken),
                     fileName = zippedFile.name,
                     length = zippedFile.length(),
-                )
-                .executeWithResult()
+                ).executeWithResult()
                 .getOrThrow()
 
         if (getUrlResponse.ok) {
@@ -67,8 +66,7 @@ internal class SlackControllerImpl(
                     url = url,
                     fileName = createPartFromString(zippedFile.name),
                     filePart = filePart,
-                )
-                .executeWithResult()
+                ).executeWithResult()
                 .getOrThrow()
 
             val files =
@@ -81,8 +79,7 @@ internal class SlackControllerImpl(
                     files = files,
                     channels = channels.joinToString(),
                     initialComment = initialComment,
-                )
-                .executeWithResult()
+                ).executeWithResult()
                 .getOrThrow()
         } else {
             throw UploadError(requireNotNull(getUrlResponse.error))
@@ -91,7 +88,8 @@ internal class SlackControllerImpl(
 
     override fun send(message: SlackMessage) {
         val changelogMessages =
-            message.text.formatIssues(message.issueSources)
+            message.text
+                .formatIssues(message.issueSources)
                 .split("\n")
                 .filter { it.isNotBlank() }
         val splitAttachmentBlocks =
@@ -126,11 +124,12 @@ internal class SlackControllerImpl(
                 SlackChangelogBody.Text(
                     type = TEXT_TYPE_PLAIN_TEXT,
                     text =
-                        text.also {
-                            if (it.length > MAX_BLOCK_SYMBOLS) {
-                                logger.info(headerTextHasMoreSymbolsMessage(MAX_BLOCK_SYMBOLS))
-                            }
-                        }.ellipsizeAt(MAX_BLOCK_SYMBOLS),
+                        text
+                            .also {
+                                if (it.length > MAX_BLOCK_SYMBOLS) {
+                                    logger.info(headerTextHasMoreSymbolsMessage(MAX_BLOCK_SYMBOLS))
+                                }
+                            }.ellipsizeAt(MAX_BLOCK_SYMBOLS),
                 ),
         )
 
@@ -145,11 +144,12 @@ internal class SlackControllerImpl(
                 SlackChangelogBody.Text(
                     type = textType,
                     text =
-                        text.also {
-                            if (it.length > MAX_BLOCK_SYMBOLS) {
-                                logger.info(blockTextHasMoreSymbolsMessage(MAX_BLOCK_SYMBOLS))
-                            }
-                        }.ellipsizeAt(MAX_BLOCK_SYMBOLS),
+                        text
+                            .also {
+                                if (it.length > MAX_BLOCK_SYMBOLS) {
+                                    logger.info(blockTextHasMoreSymbolsMessage(MAX_BLOCK_SYMBOLS))
+                                }
+                            }.ellipsizeAt(MAX_BLOCK_SYMBOLS),
                 ),
         )
     }

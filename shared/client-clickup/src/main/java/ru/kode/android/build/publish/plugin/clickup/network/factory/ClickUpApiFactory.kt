@@ -21,7 +21,8 @@ internal object ClickUpApiFactory {
         val contentType = MEDIA_TYPE_JSON.toMediaType()
         val json = Json { ignoreUnknownKeys = true }
 
-        return Retrofit.Builder()
+        return Retrofit
+            .Builder()
             .baseUrl(baseUrl)
             .client(client)
             .addConverterFactory(json.asConverterFactory(contentType))

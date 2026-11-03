@@ -46,9 +46,7 @@ internal object SlackTasksRegistrar {
         botConfig: SlackBotConfig,
         changelogConfig: SlackChangelogConfig,
         params: SlackChangelogTaskParams,
-    ): TaskProvider<SendSlackChangelogTask> {
-        return project.registerSendSlackChangelogTask(botConfig, changelogConfig, params)
-    }
+    ): TaskProvider<SendSlackChangelogTask> = project.registerSendSlackChangelogTask(botConfig, changelogConfig, params)
 
     /**
      * Registers a task for uploading APK to Slack for distribution.
@@ -66,8 +64,8 @@ internal object SlackTasksRegistrar {
         project: Project,
         distributionConfig: SlackDistributionConfig,
         params: SlackApkDistributionTaskParams,
-    ): TaskProvider<SlackDistributionTask>? {
-        return if (distributionConfig.destinationChannels.isPresent) {
+    ): TaskProvider<SlackDistributionTask>? =
+        if (distributionConfig.destinationChannels.isPresent) {
             project.registerApkSlackDistributionTask(distributionConfig, params)
         } else {
             val logger =
@@ -78,7 +76,6 @@ internal object SlackTasksRegistrar {
             logger.info(apkDistributionNotCreatedMessage())
             null
         }
-    }
 
     /**
      * Registers a task for uploading Bundle to Slack for distribution.
@@ -96,8 +93,8 @@ internal object SlackTasksRegistrar {
         project: Project,
         distributionConfig: SlackDistributionConfig,
         params: SlackBundleDistributionTaskParams,
-    ): TaskProvider<SlackDistributionTask>? {
-        return if (distributionConfig.destinationChannels.isPresent) {
+    ): TaskProvider<SlackDistributionTask>? =
+        if (distributionConfig.destinationChannels.isPresent) {
             project.registerBundleSlackDistributionTask(distributionConfig, params)
         } else {
             val logger =
@@ -108,7 +105,6 @@ internal object SlackTasksRegistrar {
             logger.info(bundleDistributionNotCreatedMessage())
             null
         }
-    }
 }
 
 /**
@@ -124,8 +120,8 @@ private fun Project.registerSendSlackChangelogTask(
     botConfig: SlackBotConfig,
     changelogConfig: SlackChangelogConfig,
     params: SlackChangelogTaskParams,
-): TaskProvider<SendSlackChangelogTask> {
-    return tasks.register(
+): TaskProvider<SendSlackChangelogTask> =
+    tasks.register(
         "${TaskNames.Slack.SEND_CHANGELOG_PREFIX}${params.buildVariant.capitalizedName()}",
         SendSlackChangelogTask::class.java,
     ) {
@@ -159,7 +155,6 @@ private fun Project.registerSendSlackChangelogTask(
 
         it.dependsOn(params.buildTagSnapshotProvider, params.changelogFileProvider)
     }
-}
 
 /**
  * Registers a task for uploading APK to Slack for distribution.
@@ -172,8 +167,8 @@ private fun Project.registerSendSlackChangelogTask(
 private fun Project.registerApkSlackDistributionTask(
     distributionConfig: SlackDistributionConfig,
     params: SlackApkDistributionTaskParams,
-): TaskProvider<SlackDistributionTask> {
-    return tasks.register(
+): TaskProvider<SlackDistributionTask> =
+    tasks.register(
         "${TaskNames.Slack.DISTRIBUTION_UPLOAD_PREFIX}${params.buildVariant.capitalizedName()}",
         SlackDistributionTask::class.java,
     ) {
@@ -200,7 +195,6 @@ private fun Project.registerApkSlackDistributionTask(
 
         it.dependsOn(params.buildTagSnapshotProvider)
     }
-}
 
 /**
  * Registers a task for uploading Bundle to Slack for distribution.
@@ -213,8 +207,8 @@ private fun Project.registerApkSlackDistributionTask(
 private fun Project.registerBundleSlackDistributionTask(
     distributionConfig: SlackDistributionConfig,
     params: SlackBundleDistributionTaskParams,
-): TaskProvider<SlackDistributionTask>? {
-    return tasks.register(
+): TaskProvider<SlackDistributionTask>? =
+    tasks.register(
         "${TaskNames.Slack.DISTRIBUTION_UPLOAD_BUNDLE_PREFIX}${params.buildVariant.capitalizedName()}",
         SlackDistributionTask::class.java,
     ) {
@@ -241,7 +235,6 @@ private fun Project.registerBundleSlackDistributionTask(
 
         it.dependsOn(params.buildTagSnapshotProvider)
     }
-}
 
 /**
  * Parameters for configuring a Slack changelog notification task.

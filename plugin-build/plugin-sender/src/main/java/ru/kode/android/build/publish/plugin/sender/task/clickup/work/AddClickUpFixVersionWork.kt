@@ -18,9 +18,11 @@ internal interface AddClickUpFixVersionParameters : WorkParameters {
 
 internal abstract class AddClickUpFixVersionWork
     @Inject
-    constructor() : WorkAction<AddClickUpFixVersionParameters> {
+    constructor() :
+    WorkAction<AddClickUpFixVersionParameters> {
         override fun execute() {
-            ClickUpControllerFactory.build(token = parameters.apiToken.get())
+            ClickUpControllerFactory
+                .build(token = parameters.apiToken.get())
                 .addFixVersionToTasks(
                     workspaceName = parameters.workspaceName.get(),
                     fieldName = parameters.fieldName.get(),

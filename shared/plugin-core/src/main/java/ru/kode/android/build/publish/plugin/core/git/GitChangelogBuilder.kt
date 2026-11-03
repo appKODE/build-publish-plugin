@@ -104,7 +104,8 @@ class GitChangelogBuilder(
         if (issueReferences.isEmpty() || resolvers.isEmpty() || tagSnapshot.pointSameCommit) {
             return emptyList()
         }
-        return gitRepository.issueReferenceLines(issueReferences, messageKey, tagSnapshot)
+        return gitRepository
+            .issueReferenceLines(issueReferences, messageKey, tagSnapshot)
             .flatMap { commit -> commit.referenceLines.map { line -> line to commit.changelogLine } }
             .mapNotNull { (line, changelogLine) -> parseReferenceToken(line, changelogLine, issueReferences) }
             .distinctBy { it.token }
@@ -193,6 +194,12 @@ class GitChangelogBuilder(
     }
 }
 
-private data class ReferenceToken(val token: String, val commitChangelogLine: String?)
+private data class ReferenceToken(
+    val token: String,
+    val commitChangelogLine: String?,
+)
 
-private data class RenderedReference(val dedupKey: String, val line: String?)
+private data class RenderedReference(
+    val dedupKey: String,
+    val line: String?,
+)

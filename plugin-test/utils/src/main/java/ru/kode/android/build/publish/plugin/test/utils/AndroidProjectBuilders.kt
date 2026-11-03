@@ -148,8 +148,7 @@ fun File.createAndroidProject(
                 """
                 ${buildTypeBuilder(it)}
             """
-            }
-            .let { buildType ->
+            }.let { buildType ->
                 """
             buildTypes {
             $buildType 
@@ -163,8 +162,7 @@ fun File.createAndroidProject(
             ?.joinToString { dimension -> "\"$dimension\"" }
             ?.let { dimension ->
                 "flavorDimensions += [$dimension]"
-            }
-            .orEmpty()
+            }.orEmpty()
     val productFlavorsBlock =
         productFlavors
             .takeIf { flavor -> flavor.isNotEmpty() }
@@ -198,29 +196,35 @@ fun File.createAndroidProject(
     val buildTypeOutputBlock1 =
         foundationConfig.buildTypeOutput?.let { (name, config) ->
             val useVersionsFromTag =
-                config.useVersionsFromTag?.let { use ->
-                    "useVersionsFromTag.set($use)"
-                }.orEmpty()
+                config.useVersionsFromTag
+                    ?.let { use ->
+                        "useVersionsFromTag.set($use)"
+                    }.orEmpty()
             val useStabs =
-                config.useStubsForTagAsFallback?.let { use ->
-                    "useStubsForTagAsFallback.set($use)"
-                }.orEmpty()
+                config.useStubsForTagAsFallback
+                    ?.let { use ->
+                        "useStubsForTagAsFallback.set($use)"
+                    }.orEmpty()
             val useDefaults =
-                config.useDefaultsForVersionsAsFallback?.let { use ->
-                    "useDefaultsForVersionsAsFallback.set($use)"
-                }.orEmpty()
+                config.useDefaultsForVersionsAsFallback
+                    ?.let { use ->
+                        "useDefaultsForVersionsAsFallback.set($use)"
+                    }.orEmpty()
             val pattern =
-                config.buildTagPatternBuilderFunctions?.let { pattern ->
-                    buildTagPatternBlock(pattern)
-                }.orEmpty()
+                config.buildTagPatternBuilderFunctions
+                    ?.let { pattern ->
+                        buildTagPatternBlock(pattern)
+                    }.orEmpty()
             val versionName =
-                config.versionNameStrategy?.let { strategy ->
-                    """versionNameStrategy { $strategy }"""
-                }.orEmpty()
+                config.versionNameStrategy
+                    ?.let { strategy ->
+                        """versionNameStrategy { $strategy }"""
+                    }.orEmpty()
             val versionTag =
-                config.versionCodeStrategy?.let { strategy ->
-                    """versionCodeStrategy { $strategy }"""
-                }.orEmpty()
+                config.versionCodeStrategy
+                    ?.let { strategy ->
+                        """versionCodeStrategy { $strategy }"""
+                    }.orEmpty()
 
             """
                 buildVariant("$name") {
@@ -237,29 +241,35 @@ fun File.createAndroidProject(
     val buildTypeOutputBlock2 =
         foundationConfig.buildTypeOutput2?.let { (name, config) ->
             val useVersionsFromTag =
-                config.useVersionsFromTag?.let { use ->
-                    "useVersionsFromTag.set($use)"
-                }.orEmpty()
+                config.useVersionsFromTag
+                    ?.let { use ->
+                        "useVersionsFromTag.set($use)"
+                    }.orEmpty()
             val useStubs =
-                config.useStubsForTagAsFallback?.let { use ->
-                    "useStubsForTagAsFallback.set($use)"
-                }.orEmpty()
+                config.useStubsForTagAsFallback
+                    ?.let { use ->
+                        "useStubsForTagAsFallback.set($use)"
+                    }.orEmpty()
             val yseDefaults =
-                config.useDefaultsForVersionsAsFallback?.let { use ->
-                    "useDefaultsForVersionsAsFallback.set($use)"
-                }.orEmpty()
+                config.useDefaultsForVersionsAsFallback
+                    ?.let { use ->
+                        "useDefaultsForVersionsAsFallback.set($use)"
+                    }.orEmpty()
             val pattern =
-                config.buildTagPatternBuilderFunctions?.let { pattern ->
-                    buildTagPatternBlock(pattern)
-                }.orEmpty()
+                config.buildTagPatternBuilderFunctions
+                    ?.let { pattern ->
+                        buildTagPatternBlock(pattern)
+                    }.orEmpty()
             val versionName =
-                config.versionNameStrategy?.let { strategy ->
-                    """versionNameStrategy { $strategy }"""
-                }.orEmpty()
+                config.versionNameStrategy
+                    ?.let { strategy ->
+                        """versionNameStrategy { $strategy }"""
+                    }.orEmpty()
             val versionCode =
-                config.versionCodeStrategy?.let { strategy ->
-                    """versionCodeStrategy { $strategy }"""
-                }.orEmpty()
+                config.versionCodeStrategy
+                    ?.let { strategy ->
+                        """versionCodeStrategy { $strategy }"""
+                    }.orEmpty()
             """
                 buildVariant("$name") {
                     baseFileName.set("${config.baseFileName}")
@@ -275,29 +285,35 @@ fun File.createAndroidProject(
     val buildTypeOutputBlock3 =
         foundationConfig.buildTypeOutput3?.let { (name, config) ->
             val useVersions =
-                config.useVersionsFromTag?.let { use ->
-                    "useVersionsFromTag.set($use)"
-                }.orEmpty()
+                config.useVersionsFromTag
+                    ?.let { use ->
+                        "useVersionsFromTag.set($use)"
+                    }.orEmpty()
             val useStubs =
-                config.useStubsForTagAsFallback?.let { use ->
-                    "useStubsForTagAsFallback.set($use)"
-                }.orEmpty()
+                config.useStubsForTagAsFallback
+                    ?.let { use ->
+                        "useStubsForTagAsFallback.set($use)"
+                    }.orEmpty()
             val useDefaults =
-                config.useDefaultsForVersionsAsFallback?.let { use ->
-                    "useDefaultsForVersionsAsFallback.set($use)"
-                }.orEmpty()
+                config.useDefaultsForVersionsAsFallback
+                    ?.let { use ->
+                        "useDefaultsForVersionsAsFallback.set($use)"
+                    }.orEmpty()
             val pattern =
-                config.buildTagPatternBuilderFunctions?.let { pattern ->
-                    buildTagPatternBlock(pattern)
-                }.orEmpty()
+                config.buildTagPatternBuilderFunctions
+                    ?.let { pattern ->
+                        buildTagPatternBlock(pattern)
+                    }.orEmpty()
             val versionName =
-                config.versionNameStrategy?.let { strategy ->
-                    """versionNameStrategy { $strategy }"""
-                }.orEmpty()
+                config.versionNameStrategy
+                    ?.let { strategy ->
+                        """versionNameStrategy { $strategy }"""
+                    }.orEmpty()
             val versionCode =
-                config.versionCodeStrategy?.let { strategy ->
-                    """versionCodeStrategy { $strategy }"""
-                }.orEmpty()
+                config.versionCodeStrategy
+                    ?.let { strategy ->
+                        """versionCodeStrategy { $strategy }"""
+                    }.orEmpty()
             """
                 buildVariant("$name") {
                     baseFileName.set("${config.baseFileName}")
@@ -311,33 +327,39 @@ fun File.createAndroidProject(
         """
         }
     val useVersions =
-        foundationConfig.output.useVersionsFromTag?.let { use ->
-            "useVersionsFromTag.set($use)"
-        }.orEmpty()
+        foundationConfig.output.useVersionsFromTag
+            ?.let { use ->
+                "useVersionsFromTag.set($use)"
+            }.orEmpty()
     val useStubs =
-        foundationConfig.output.useStubsForTagAsFallback?.let { use ->
-            "useStubsForTagAsFallback.set($use)"
-        }.orEmpty()
+        foundationConfig.output.useStubsForTagAsFallback
+            ?.let { use ->
+                "useStubsForTagAsFallback.set($use)"
+            }.orEmpty()
     val useDefaults =
         foundationConfig.output.useDefaultsForVersionsAsFallback?.let { use ->
             "useDefaultsForVersionsAsFallback.set($use)"
         }
     val pattern =
-        foundationConfig.output.buildTagPatternBuilderFunctions?.let { pattern ->
-            buildTagPatternBlock(pattern)
-        }.orEmpty()
+        foundationConfig.output.buildTagPatternBuilderFunctions
+            ?.let { pattern ->
+                buildTagPatternBlock(pattern)
+            }.orEmpty()
     val commonVersionName =
-        foundationConfig.output.versionNameStrategy?.let { strategy ->
-            """versionNameStrategy { $strategy }"""
-        }.orEmpty()
+        foundationConfig.output.versionNameStrategy
+            ?.let { strategy ->
+                """versionNameStrategy { $strategy }"""
+            }.orEmpty()
     val commonVersionCode =
-        foundationConfig.output.versionCodeStrategy?.let { strategy ->
-            """versionCodeStrategy { $strategy }"""
-        }.orEmpty()
+        foundationConfig.output.versionCodeStrategy
+            ?.let { strategy ->
+                """versionCodeStrategy { $strategy }"""
+            }.orEmpty()
     val changelogStrategy =
-        foundationConfig.changelog.changelogMessageStrategy?.let { strategy ->
-            "changelogMessageStrategy { $strategy }"
-        }.orEmpty()
+        foundationConfig.changelog.changelogMessageStrategy
+            ?.let { strategy ->
+                "changelogMessageStrategy { $strategy }"
+            }.orEmpty()
     val foundationConfigBlock = """
         buildPublishFoundation {
             bodyLogging.set(${foundationConfig.bodyLogging})
@@ -369,25 +391,28 @@ fun File.createAndroidProject(
     """
 
     val clickUpConfigBlock =
-        clickUpConfig?.let { config ->
-            val accounts =
-                config.accounts.joinToString("\n") { account ->
-                    """
-                    account("${account.name}") {
-                        apiTokenFile.set(project.file("${account.apiTokenFilePath}"))
-                        ${clickUpRegistryProjectsBlock(account.projects)}
+        clickUpConfig
+            ?.let { config ->
+                val accounts =
+                    config.accounts.joinToString("\n") { account ->
+                        """
+                        account("${account.name}") {
+                            apiTokenFile.set(project.file("${account.apiTokenFilePath}"))
+                            ${clickUpRegistryProjectsBlock(account.projects)}
+                        }
+                        """.trimIndent()
                     }
-                    """.trimIndent()
-                }
-            val automation =
-                config.automation?.let { automation ->
-                    clickUpAutomationBlock(automation)
-                }.orEmpty()
-            val issueResolution =
-                config.issueResolution?.let { resolution ->
-                    clickUpIssueResolutionBlock(resolution)
-                }.orEmpty()
-            """
+                val automation =
+                    config.automation
+                        ?.let { automation ->
+                            clickUpAutomationBlock(automation)
+                        }.orEmpty()
+                val issueResolution =
+                    config.issueResolution
+                        ?.let { resolution ->
+                            clickUpIssueResolutionBlock(resolution)
+                        }.orEmpty()
+                """
         buildPublishClickUp {
             auth {
                 common {
@@ -399,15 +424,17 @@ fun File.createAndroidProject(
             $issueResolution
         }
             """
-        }.orEmpty()
+            }.orEmpty()
 
     val confluenceConfigBlock =
-        confluenceConfig?.let { config ->
-            val distribution =
-                config.distribution?.let { distribution ->
-                    confluenceDistributionBlock(distribution)
-                }.orEmpty()
-            """
+        confluenceConfig
+            ?.let { config ->
+                val distribution =
+                    config.distribution
+                        ?.let { distribution ->
+                            confluenceDistributionBlock(distribution)
+                        }.orEmpty()
+                """
         buildPublishConfluence {
             auth {
                 common {
@@ -420,13 +447,15 @@ fun File.createAndroidProject(
             $distribution
         }
             """
-        }.orEmpty()
+            }.orEmpty()
 
     val nextcloudConfigBlock =
-        nextcloudConfig?.let { config ->
-            val auth =
-                config.auth?.let { auth ->
-                    """
+        nextcloudConfig
+            ?.let { config ->
+                val auth =
+                    config.auth
+                        ?.let { auth ->
+                            """
             auth {
                 common {
                     baseUrl.set("${auth.baseUrl}")
@@ -435,29 +464,32 @@ fun File.createAndroidProject(
                 }
             }
                     """
-                }.orEmpty()
-            val distribution =
-                config.distribution?.let { distribution ->
-                    nextcloudDistributionBlock(distribution)
-                }.orEmpty()
-            """
+                        }.orEmpty()
+                val distribution =
+                    config.distribution
+                        ?.let { distribution ->
+                            nextcloudDistributionBlock(distribution)
+                        }.orEmpty()
+                """
         buildPublishNextcloud {
             $auth
 
             $distribution
         }
             """
-        }.orEmpty()
+            }.orEmpty()
 
     val firebaseConfigBlock =
-        firebaseConfig?.let { config ->
-            val buildTypeFirebaseBlock =
-                config.distributionBuildType?.let { (name, config) ->
-                    val testerGroups =
-                        config.testerGroups?.let { testerGroups ->
-                            """testerGroups(${testerGroups.joinToString { group -> "\"$group\"" }})"""
-                        }.orEmpty()
-                    """
+        firebaseConfig
+            ?.let { config ->
+                val buildTypeFirebaseBlock =
+                    config.distributionBuildType?.let { (name, config) ->
+                        val testerGroups =
+                            config.testerGroups
+                                ?.let { testerGroups ->
+                                    """testerGroups(${testerGroups.joinToString { group -> "\"$group\"" }})"""
+                                }.orEmpty()
+                        """
                 buildVariant("$name") {
                     serviceCredentialsFile = project.file("${config.serviceCredentialsFilePath}")
                     appId.set("${config.appId}")
@@ -465,14 +497,14 @@ fun File.createAndroidProject(
                     $testerGroups
                 }
                     """
-                }
-            val commonBlock =
-                config.distributionCommon?.let { common ->
-                    val testerGroups =
-                        common.testerGroups?.let { testerGroups ->
-                            """testerGroups(${testerGroups.joinToString { group -> "\"$group\"" }})"""
-                        }
-                    """
+                    }
+                val commonBlock =
+                    config.distributionCommon?.let { common ->
+                        val testerGroups =
+                            common.testerGroups?.let { testerGroups ->
+                                """testerGroups(${testerGroups.joinToString { group -> "\"$group\"" }})"""
+                            }
+                        """
                 common {
                     serviceCredentialsFile = project.file("${common.serviceCredentialsFilePath}")
                     appId.set("${common.appId}")
@@ -480,59 +512,63 @@ fun File.createAndroidProject(
                     ${testerGroups.orEmpty()}
                 }
                     """
-                }
-            val distributionBlock =
-                if (commonBlock == null && buildTypeFirebaseBlock == null) {
-                    // With no distribution declared at all, still apply the plugin with an empty extension so
-                    // tests can assert the finalizeDsl gate (AppDistributionPlugin only applied when non-empty).
-                    ""
-                } else {
-                    """
+                    }
+                val distributionBlock =
+                    if (commonBlock == null && buildTypeFirebaseBlock == null) {
+                        // With no distribution declared at all, still apply the plugin with an empty extension so
+                        // tests can assert the finalizeDsl gate (AppDistributionPlugin only applied when non-empty).
+                        ""
+                    } else {
+                        """
             distribution {
                 ${commonBlock.orEmpty()}
                 ${buildTypeFirebaseBlock.orEmpty()}
             }
                     """
-                }
-            val remoteConfigBlock =
-                config.remoteConfigCommon?.let {
-                    """
+                    }
+                val remoteConfigBlock =
+                    config.remoteConfigCommon
+                        ?.let {
+                            """
             remoteConfigCommon {
                 $it
             }
                     """
-                }.orEmpty()
-            """
+                        }.orEmpty()
+                """
         buildPublishFirebase {
             $distributionBlock
             $remoteConfigBlock
         }
             """
-        }.orEmpty()
+            }.orEmpty()
 
     val jiraConfigBlock =
-        jiraConfig?.let { config ->
-            val registry = jiraProjectRegistry(config)
-            val automation =
-                config.automation?.let { automation ->
-                    jiraAutomationBlock(automation)
-                }.orEmpty()
-            val issueResolution =
-                config.issueResolution?.let { resolution ->
-                    jiraIssueResolutionBlock(resolution)
-                }.orEmpty()
-            val secondaryInstanceBlocks =
-                config.secondaryAuth.entries.joinToString("\n") { (name, auth) ->
-                    """
-                    instance("$name") {
-                        baseUrl.set("${auth.baseUrl}")
-                        credentials.username.set("${auth.username}")
-                        credentials.password.set("${auth.password}")
-                        ${jiraRegistryProjectsBlock(registry[name].orEmpty())}
+        jiraConfig
+            ?.let { config ->
+                val registry = jiraProjectRegistry(config)
+                val automation =
+                    config.automation
+                        ?.let { automation ->
+                            jiraAutomationBlock(automation)
+                        }.orEmpty()
+                val issueResolution =
+                    config.issueResolution
+                        ?.let { resolution ->
+                            jiraIssueResolutionBlock(resolution)
+                        }.orEmpty()
+                val secondaryInstanceBlocks =
+                    config.secondaryAuth.entries.joinToString("\n") { (name, auth) ->
+                        """
+                        instance("$name") {
+                            baseUrl.set("${auth.baseUrl}")
+                            credentials.username.set("${auth.username}")
+                            credentials.password.set("${auth.password}")
+                            ${jiraRegistryProjectsBlock(registry[name].orEmpty())}
+                        }
+                        """.trimIndent()
                     }
-                    """.trimIndent()
-                }
-            """
+                """
         buildPublishJira {
             auth {
                 common {
@@ -550,44 +586,49 @@ fun File.createAndroidProject(
             $issueResolution
         }
             """
-        }.orEmpty()
+            }.orEmpty()
 
     val playConfigBlock =
-        playConfig?.let { config ->
-            """
-            buildPublishPlay {
-                auth {
-                    common {
-                        apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
-                        appId.set("${config.auth.appId}")
+        playConfig
+            ?.let { config ->
+                """
+                buildPublishPlay {
+                    auth {
+                        common {
+                            apiTokenFile.set(File("${config.auth.apiTokenFilePath}"))
+                            appId.set("${config.auth.appId}")
+                        }
+                    }
+                
+                    distribution {
+                        common {
+                            trackId.set("${config.distribution.trackId}")
+                            updatePriority.set(${config.distribution.updatePriority})
+                        }
                     }
                 }
-            
-                distribution {
-                    common {
-                        trackId.set("${config.distribution.trackId}")
-                        updatePriority.set(${config.distribution.updatePriority})
-                    }
-                }
-            }
-            """.trimIndent()
-        }.orEmpty()
+                """.trimIndent()
+            }.orEmpty()
 
     val slackConfigBlock =
-        slackConfig?.let { config ->
-            val uploadPath =
-                config.bot.uploadApiTokenFilePath?.let { path ->
-                    """uploadApiTokenFile = project.file("$path")"""
-                }.orEmpty()
-            val changelog =
-                config.changelog?.let { changelog ->
-                    slackChangelogBlock(changelog)
-                }.orEmpty()
-            val distribution =
-                config.distribution?.let { distribution ->
-                    slackDistributionBlock(distribution)
-                }.orEmpty()
-            """
+        slackConfig
+            ?.let { config ->
+                val uploadPath =
+                    config.bot.uploadApiTokenFilePath
+                        ?.let { path ->
+                            """uploadApiTokenFile = project.file("$path")"""
+                        }.orEmpty()
+                val changelog =
+                    config.changelog
+                        ?.let { changelog ->
+                            slackChangelogBlock(changelog)
+                        }.orEmpty()
+                val distribution =
+                    config.distribution
+                        ?.let { distribution ->
+                            slackDistributionBlock(distribution)
+                        }.orEmpty()
+                """
         buildPublishSlack {
             bot {
                 common {
@@ -600,25 +641,29 @@ fun File.createAndroidProject(
             $distribution
         }
             """
-        }.orEmpty()
+            }.orEmpty()
 
     val telegramConfigBlock =
-        telegramConfig?.let { config ->
-            val bots =
-                config.bots.bots.takeIf { it.isNotEmpty() }?.let { telegramBotsBlock(it) }.orEmpty()
-            val lookup = config.lookup?.let { lookup -> telegramLookupBlock(lookup) }.orEmpty()
-            val changelog = config.changelog?.let { changelog -> telegramChangelogBlock(changelog) }.orEmpty()
-            val distribution =
-                config.distribution?.let { telegramDistributionBlock(it) }.orEmpty()
-            """
-            buildPublishTelegram {
-                $bots
-                $lookup
-                $changelog
-                $distribution
-            }
-            """.trimIndent()
-        }.orEmpty()
+        telegramConfig
+            ?.let { config ->
+                val bots =
+                    config.bots.bots
+                        .takeIf { it.isNotEmpty() }
+                        ?.let { telegramBotsBlock(it) }
+                        .orEmpty()
+                val lookup = config.lookup?.let { lookup -> telegramLookupBlock(lookup) }.orEmpty()
+                val changelog = config.changelog?.let { changelog -> telegramChangelogBlock(changelog) }.orEmpty()
+                val distribution =
+                    config.distribution?.let { telegramDistributionBlock(it) }.orEmpty()
+                """
+                buildPublishTelegram {
+                    $bots
+                    $lookup
+                    $changelog
+                    $distribution
+                }
+                """.trimIndent()
+            }.orEmpty()
 
     val appBuildFileContent =
         """
@@ -882,8 +927,8 @@ private fun clickUpIssueResolutionBlock(resolution: ClickUpConfig.IssueResolutio
     """
 }
 
-private fun confluenceDistributionBlock(distribution: ConfluenceConfig.Distribution): String {
-    return """
+private fun confluenceDistributionBlock(distribution: ConfluenceConfig.Distribution): String =
+    """
            distribution {
                 common {
                     compressed.set(${distribution.compressed})
@@ -891,13 +936,13 @@ private fun confluenceDistributionBlock(distribution: ConfluenceConfig.Distribut
                 }
            }
     """
-}
 
 private fun nextcloudDistributionBlock(distribution: NextcloudConfig.Distribution): String {
     val shareMode =
-        distribution.shareMode?.let { mode ->
-            "shareMode.set(ru.kode.android.build.publish.plugin.nextcloud.config.NextcloudShareMode.$mode)"
-        }.orEmpty()
+        distribution.shareMode
+            ?.let { mode ->
+                "shareMode.set(ru.kode.android.build.publish.plugin.nextcloud.config.NextcloudShareMode.$mode)"
+            }.orEmpty()
     val userRecipients =
         if (distribution.userRecipients.isNotEmpty()) {
             "userRecipients(${distribution.userRecipients.joinToString { value -> "\"$value\"" }})"
@@ -1077,11 +1122,11 @@ private fun File.printFilesRecursivelyInternal(
     return false
 }
 
-private fun String.removeEmptyLines(): String {
-    return this.lines()
+private fun String.removeEmptyLines(): String =
+    this
+        .lines()
         .filter { line -> line.trim().isNotEmpty() }
         .joinToString("\n")
-}
 
 fun File.printFilesRecursively(prefix: String = "") {
     println("--- FILES START ---")
@@ -1126,13 +1171,17 @@ fun File.runTask(
             }
         }
     val env =
-        System.getenv().toMutableMap().apply {
-            if (gradleJvmArgs.isNotEmpty()) {
-                this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
-            }
-            putAll(environment)
-        }.withSecretEnvironment()
-    return GradleRunner.create()
+        System
+            .getenv()
+            .toMutableMap()
+            .apply {
+                if (gradleJvmArgs.isNotEmpty()) {
+                    this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
+                }
+                putAll(environment)
+            }.withSecretEnvironment()
+    return GradleRunner
+        .create()
         .withProjectDir(this)
         .withArguments(args)
         .withEnvironment(env)
@@ -1142,8 +1191,7 @@ fun File.runTask(
             } else {
                 withPluginClasspath()
             }
-        }
-        .withGradleVersion(gradleVersion)
+        }.withGradleVersion(gradleVersion)
         .forwardOutput()
         .build()
 }
@@ -1164,12 +1212,16 @@ fun File.runTasks(
             }
         }
     val env =
-        System.getenv().toMutableMap().apply {
-            if (gradleJvmArgs.isNotEmpty()) {
-                this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
-            }
-        }.withSecretEnvironment()
-    return GradleRunner.create()
+        System
+            .getenv()
+            .toMutableMap()
+            .apply {
+                if (gradleJvmArgs.isNotEmpty()) {
+                    this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
+                }
+            }.withSecretEnvironment()
+    return GradleRunner
+        .create()
         .withProjectDir(this)
         .withArguments(args)
         .withEnvironment(env)
@@ -1179,8 +1231,7 @@ fun File.runTasks(
             } else {
                 withPluginClasspath()
             }
-        }
-        .withGradleVersion(gradleVersion)
+        }.withGradleVersion(gradleVersion)
         .forwardOutput()
         .build()
 }
@@ -1200,12 +1251,16 @@ fun File.runTaskWithFail(
             }
         }
     val env =
-        System.getenv().toMutableMap().apply {
-            if (gradleJvmArgs.isNotEmpty()) {
-                this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
-            }
-        }.withSecretEnvironment()
-    return GradleRunner.create()
+        System
+            .getenv()
+            .toMutableMap()
+            .apply {
+                if (gradleJvmArgs.isNotEmpty()) {
+                    this["GRADLE_OPTS"] = gradleJvmArgs.joinToString(" ")
+                }
+            }.withSecretEnvironment()
+    return GradleRunner
+        .create()
         .withProjectDir(this)
         .withArguments(args)
         .withEnvironment(env)
@@ -1215,8 +1270,7 @@ fun File.runTaskWithFail(
             } else {
                 withPluginClasspath()
             }
-        }
-        .withGradleVersion(gradleVersion)
+        }.withGradleVersion(gradleVersion)
         .forwardOutput()
         .buildAndFail()
 }
@@ -1236,7 +1290,8 @@ private fun prepareClasspath(agpClassPath: List<File>): List<File> {
 
 fun resolveRequiredAgpJars(agpVersion: String): List<File> {
     val project =
-        ProjectBuilder.builder()
+        ProjectBuilder
+            .builder()
             .withName("temp-resolver")
             .build()
 
@@ -1246,15 +1301,17 @@ fun resolveRequiredAgpJars(agpVersion: String): List<File> {
     }
 
     val pluginClasspath =
-        project.buildscript.configurations.getByName("classpath").apply {
-            dependencies.clear()
-            dependencies.add(project.dependencies.create("com.android.tools.build:gradle:$agpVersion"))
-            dependencies.add(
-                project.dependencies.create(
-                    "com.android.application:com.android.application.gradle.plugin:$agpVersion",
-                ),
-            )
-        }.resolve()
+        project.buildscript.configurations
+            .getByName("classpath")
+            .apply {
+                dependencies.clear()
+                dependencies.add(project.dependencies.create("com.android.tools.build:gradle:$agpVersion"))
+                dependencies.add(
+                    project.dependencies.create(
+                        "com.android.application:com.android.application.gradle.plugin:$agpVersion",
+                    ),
+                )
+            }.resolve()
 
     return pluginClasspath.toList()
 }

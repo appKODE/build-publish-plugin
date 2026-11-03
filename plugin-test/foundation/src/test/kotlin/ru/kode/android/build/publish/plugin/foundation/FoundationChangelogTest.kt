@@ -93,7 +93,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -202,7 +203,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -313,7 +315,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -426,7 +429,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -539,7 +543,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -652,7 +657,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -765,7 +771,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -879,7 +886,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -993,7 +1001,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1106,7 +1115,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1144,8 +1154,7 @@ class FoundationChangelogTest {
                 .filter {
                     it.contains("Task :app:getLastTagSnapshotDebug") ||
                         it.contains("Task :app:generateChangelogDebug")
-                }
-                .size,
+                }.size,
             2,
             "Each task executed without duplications",
         )
@@ -1227,7 +1236,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: false
 
@@ -1326,7 +1336,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1436,7 +1447,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1474,8 +1486,7 @@ class FoundationChangelogTest {
                 .filter {
                     it.contains("Task :app:getLastTagSnapshotDebug") ||
                         it.contains("Task :app:generateChangelogDebug")
-                }
-                .size,
+                }.size,
             2,
             "Each task executed without duplications",
         )
@@ -1556,7 +1567,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: false
 
@@ -1668,7 +1680,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1807,7 +1820,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -1946,7 +1960,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -2078,7 +2093,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -2127,8 +2143,7 @@ class FoundationChangelogTest {
                 .filter {
                     it.contains("Task :app:getLastTagSnapshotDebug") ||
                         it.contains("Task :app:generateChangelogDebug")
-                }
-                .size,
+                }.size,
             2,
             "Each task executed without duplications",
         )
@@ -2224,7 +2239,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -2348,7 +2364,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -2484,7 +2501,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -2533,8 +2551,7 @@ class FoundationChangelogTest {
                 .filter {
                     it.contains("Task :app:getLastTagSnapshotDebug") ||
                         it.contains("Task :app:generateChangelogDebug")
-                }
-                .size,
+                }.size,
             2,
             "Each task executed without duplications",
         )
@@ -2629,7 +2646,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -2753,7 +2771,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -2880,7 +2899,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -2999,7 +3019,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -3120,7 +3141,8 @@ class FoundationChangelogTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 

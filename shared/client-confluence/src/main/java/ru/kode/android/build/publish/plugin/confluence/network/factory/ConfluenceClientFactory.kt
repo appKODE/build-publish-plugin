@@ -38,11 +38,10 @@ internal object ConfluenceClientFactory {
         username: String,
         password: String,
         logger: PluginLogger,
-    ): OkHttpClient {
-        return buildClient(logger, username, password) {
+    ): OkHttpClient =
+        buildClient(logger, username, password) {
             it.addProxyIfAvailable(logger)
         }
-    }
 
     /**
      * Creates an OkHttpClient instance with the necessary configuration for Confluence API communication.
@@ -58,11 +57,10 @@ internal object ConfluenceClientFactory {
         password: String,
         logger: PluginLogger,
         proxy: () -> NetworkProxy?,
-    ): OkHttpClient {
-        return buildClient(logger, username, password) {
+    ): OkHttpClient =
+        buildClient(logger, username, password) {
             it.addProxyIfAvailable(logger, proxy, proxy)
         }
-    }
 }
 
 /**
@@ -81,11 +79,13 @@ private fun buildClient(
 ): OkHttpClient {
     val loggingInterceptor = buildLoggingInterceptor(logger)
     val tls =
-        ConnectionSpec.Builder(ConnectionSpec.COMPATIBLE_TLS)
+        ConnectionSpec
+            .Builder(ConnectionSpec.COMPATIBLE_TLS)
             .tlsVersions(TlsVersion.TLS_1_2)
             .build()
 
-    return OkHttpClient.Builder()
+    return OkHttpClient
+        .Builder()
         .protocols(listOf(Protocol.HTTP_1_1))
         .connectionSpecs(listOf(tls))
         .connectionPool(ConnectionPool(0, 1, TimeUnit.SECONDS))

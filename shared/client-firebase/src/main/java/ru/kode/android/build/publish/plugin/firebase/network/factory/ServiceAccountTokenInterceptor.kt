@@ -42,7 +42,9 @@ internal class ServiceAccountTokenInterceptor(
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request =
-            chain.request().newBuilder()
+            chain
+                .request()
+                .newBuilder()
                 .header("Authorization", "Bearer ${accessToken()}")
                 .build()
         return chain.proceed(request)
@@ -53,11 +55,17 @@ internal class ServiceAccountTokenInterceptor(
         val now = clock()
         token?.takeIf { now < expiresAt - TOKEN_REFRESH_MARGIN_SECONDS }?.let { return it }
         val body =
-            FormBody.Builder()
+            FormBody
+                .Builder()
                 .add("grant_type", GRANT_TYPE)
                 .add("assertion", signedAssertion(now))
                 .build()
-        val request = Request.Builder().url(key.tokenUri).post(body).build()
+        val request =
+            Request
+                .Builder()
+                .url(key.tokenUri)
+                .post(body)
+                .build()
         val response =
             tokenClient.newCall(request).execute().use { response ->
                 val text = response.body.string()

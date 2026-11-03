@@ -17,7 +17,8 @@ internal interface SendTelegramMessageParameters : ServiceWorkParameters {
 
 internal abstract class SendTelegramMessageWork
     @Inject
-    constructor() : WorkAction<SendTelegramMessageParameters> {
+    constructor() :
+    WorkAction<SendTelegramMessageParameters> {
         override fun execute() {
             parameters.loggerService.get().info(sendingTelegramMessageMessage())
             val destinationBot =

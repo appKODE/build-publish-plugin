@@ -12,7 +12,7 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
-### Unreleased
+### 2.2.0
 * **Firebase Remote Config audit:** new `checkFirebaseRemoteConfig<Variant>` task in the Firebase plugin
   (`buildPublishFirebase { remoteConfig / remoteConfigCommon { ... } }`). It compares Remote Config keys declared
   in code at the last release tag and the previous one (configurable regex / `defaultsXml()` / custom extractors)
@@ -29,6 +29,12 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 * **Compressed uploads keep the source type in the archive name** (`app-release-vc33-apk.zip` /
   `app-release-vc33-aab.zip`), so an APK and a bundle of one build no longer share a name (Telegram, Slack,
   Confluence, Nextcloud). Changes the uploaded file name for compressed distributions
+* **Security:** Firebase App Distribution Gradle plugin 5.3.0 → 5.3.1. 5.3.0 and earlier still trust the
+  revoked eMudhra intermediate CAs ([Firebase advisory](https://firebase.google.com/support/guides/compromised-emudhra-intermediate-ca#android-apps-distro-gradle-plugin))
+* Update dependencies: Kotlin 2.4.21, AGP 9.5.0, KSP 2.3.13, OkHttp 5.5.1, kotlinx.serialization 1.12.0,
+  google-auth 1.55.0, androidpublisher v3-rev20261026-2.9.2, Gradle 9.8.2
+* Build tooling: ktlint-gradle 14.2.0, plugin-publish 2.2.1, junit-pioneer 2.3.0; sources reformatted for the
+  newer ktlint rules
 
 ### 2.1.3
 * **Fix (`NoHeadException` crash):** `getLastTagSnapshot*` (and changelog commit-message/issue-reference

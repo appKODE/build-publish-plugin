@@ -17,7 +17,10 @@ sealed interface Finding {
      */
     @Serializable
     @SerialName("ADDED_IN_RELEASE")
-    data class AddedInRelease(val key: String, val occurrences: List<KeyOccurrence>) : Finding {
+    data class AddedInRelease(
+        val key: String,
+        val occurrences: List<KeyOccurrence>,
+    ) : Finding {
         override val type get() = FindingType.AddedInRelease
     }
 
@@ -26,7 +29,10 @@ sealed interface Finding {
      */
     @Serializable
     @SerialName("REMOVED_IN_RELEASE")
-    data class RemovedInRelease(val key: String, val occurrences: List<KeyOccurrence>) : Finding {
+    data class RemovedInRelease(
+        val key: String,
+        val occurrences: List<KeyOccurrence>,
+    ) : Finding {
         override val type get() = FindingType.RemovedInRelease
     }
 
@@ -35,7 +41,10 @@ sealed interface Finding {
      */
     @Serializable
     @SerialName("MISSING_IN_REMOTE")
-    data class MissingInRemote(val key: String, val occurrences: List<KeyOccurrence>) : Finding {
+    data class MissingInRemote(
+        val key: String,
+        val occurrences: List<KeyOccurrence>,
+    ) : Finding {
         override val type get() = FindingType.MissingInRemote
     }
 
@@ -44,7 +53,10 @@ sealed interface Finding {
      */
     @Serializable
     @SerialName("UNUSED_IN_REMOTE")
-    data class UnusedInRemote(val key: String, val description: String?) : Finding {
+    data class UnusedInRemote(
+        val key: String,
+        val description: String?,
+    ) : Finding {
         override val type get() = FindingType.UnusedInRemote
     }
 

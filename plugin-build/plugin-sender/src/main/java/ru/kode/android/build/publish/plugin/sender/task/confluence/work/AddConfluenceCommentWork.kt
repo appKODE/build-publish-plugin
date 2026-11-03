@@ -16,15 +16,17 @@ internal interface AddConfluenceCommentParameters : WorkParameters {
 
 internal abstract class AddConfluenceCommentWork
     @Inject
-    constructor() : WorkAction<AddConfluenceCommentParameters> {
+    constructor() :
+    WorkAction<AddConfluenceCommentParameters> {
         override fun execute() {
-            ConfluenceControllerFactory.build(
-                baseUrl = parameters.baseUrl.get(),
-                username = parameters.username.get(),
-                password = parameters.apiToken.get(),
-            ).addComment(
-                pageId = parameters.pageId.get(),
-                fileName = parameters.fileName.get(),
-            )
+            ConfluenceControllerFactory
+                .build(
+                    baseUrl = parameters.baseUrl.get(),
+                    username = parameters.username.get(),
+                    password = parameters.apiToken.get(),
+                ).addComment(
+                    pageId = parameters.pageId.get(),
+                    fileName = parameters.fileName.get(),
+                )
         }
     }

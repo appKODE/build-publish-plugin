@@ -28,7 +28,8 @@ internal object JiraApiFactory {
         val contentType = MEDIA_TYPE_JSON.toMediaType()
         val json = Json { ignoreUnknownKeys = true }
 
-        return Retrofit.Builder()
+        return Retrofit
+            .Builder()
             .baseUrl("$baseUrl$JIRA_API_PATH")
             .client(client)
             .addConverterFactory(json.asConverterFactory(contentType))

@@ -521,7 +521,7 @@ style:
   CanBeNonNullable:
     active: false
   CascadingCallWrapping:
-    active: true
+    active: false # ktlint chain-method-continuation owns call-chain wrapping
     includeElvis: true
   ClassOrdering:
     active: false

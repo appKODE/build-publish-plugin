@@ -39,20 +39,17 @@ abstract class NextcloudService
             shareMode: NextcloudShareMode,
             userRecipients: Set<String>,
             groupRecipients: Set<String>,
-        ): NextcloudSharingResult {
-            return controller.shareFile(
+        ): NextcloudSharingResult =
+            controller.shareFile(
                 remotePath = remotePath,
                 remoteFileName = remoteFileName,
                 shareMode = shareMode,
                 userRecipients = userRecipients,
                 groupRecipients = groupRecipients,
             )
-        }
 
         fun resolveRemoteFilePath(
             remotePath: String,
             fileName: String,
-        ): String {
-            return controller.resolveRemoteFilePath(remotePath, fileName)
-        }
+        ): String = controller.resolveRemoteFilePath(remotePath, fileName)
     }

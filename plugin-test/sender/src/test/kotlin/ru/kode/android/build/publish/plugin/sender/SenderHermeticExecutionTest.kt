@@ -73,9 +73,8 @@ class SenderHermeticExecutionTest {
         // The message may be split into chunks, so answer every POST with a 200.
         server.dispatcher =
             object : Dispatcher() {
-                override fun dispatch(request: RecordedRequest): MockResponse {
-                    return MockResponse().setResponseCode(200).setBody("")
-                }
+                override fun dispatch(request: RecordedRequest): MockResponse =
+                    MockResponse().setResponseCode(200).setBody("")
             }
         val projectDir = File(tempDir, "test-telegram")
         val baseUrl = server.url("/").toString().trimEnd('/')

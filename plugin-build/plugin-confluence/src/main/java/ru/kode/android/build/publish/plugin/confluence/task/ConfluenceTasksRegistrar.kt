@@ -30,9 +30,8 @@ internal object ConfluenceTasksRegistrar {
         project: Project,
         distributionConfig: ConfluenceDistributionConfig,
         params: ConfluenceApkDistributionTaskParams,
-    ): TaskProvider<ConfluenceDistributionTask> {
-        return project.registerApkConfluenceDistributionTask(distributionConfig, params)
-    }
+    ): TaskProvider<ConfluenceDistributionTask> =
+        project.registerApkConfluenceDistributionTask(distributionConfig, params)
 
     /**
      * Registers a Confluence Bundle distribution upload task for the given configuration.
@@ -47,9 +46,8 @@ internal object ConfluenceTasksRegistrar {
         project: Project,
         distributionConfig: ConfluenceDistributionConfig,
         params: ConfluenceBundleDistributionTaskParams,
-    ): TaskProvider<ConfluenceDistributionTask>? {
-        return project.registerBundleConfluenceDistributionTask(distributionConfig, params)
-    }
+    ): TaskProvider<ConfluenceDistributionTask>? =
+        project.registerBundleConfluenceDistributionTask(distributionConfig, params)
 }
 
 /**
@@ -64,8 +62,8 @@ internal object ConfluenceTasksRegistrar {
 private fun Project.registerApkConfluenceDistributionTask(
     distributionConfig: ConfluenceDistributionConfig,
     params: ConfluenceApkDistributionTaskParams,
-): TaskProvider<ConfluenceDistributionTask> {
-    return tasks.register(
+): TaskProvider<ConfluenceDistributionTask> =
+    tasks.register(
         "${TaskNames.Confluence.DISTRIBUTION_UPLOAD_PREFIX}${params.buildVariant.capitalizedName()}",
         ConfluenceDistributionTask::class.java,
     ) {
@@ -89,7 +87,6 @@ private fun Project.registerApkConfluenceDistributionTask(
         it.usesService(service)
         it.usesService(loggerService)
     }
-}
 
 /**
  * Registers a Bundle Confluence distribution task for the current project.
@@ -103,8 +100,8 @@ private fun Project.registerApkConfluenceDistributionTask(
 private fun Project.registerBundleConfluenceDistributionTask(
     distributionConfig: ConfluenceDistributionConfig,
     params: ConfluenceBundleDistributionTaskParams,
-): TaskProvider<ConfluenceDistributionTask>? {
-    return tasks.register(
+): TaskProvider<ConfluenceDistributionTask>? =
+    tasks.register(
         "${TaskNames.Confluence.DISTRIBUTION_UPLOAD_BUNDLE_PREFIX}${params.buildVariant.capitalizedName()}",
         ConfluenceDistributionTask::class.java,
     ) {
@@ -128,7 +125,6 @@ private fun Project.registerBundleConfluenceDistributionTask(
         it.usesService(service)
         it.usesService(loggerService)
     }
-}
 
 /**
  * Parameters required to create a APK Confluence distribution task.

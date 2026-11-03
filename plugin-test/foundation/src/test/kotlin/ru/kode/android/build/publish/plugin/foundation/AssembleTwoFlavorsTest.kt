@@ -71,7 +71,8 @@ class AssembleTwoFlavorsTest {
 
         val debugApkDir = projectDir.getFile("app/build/outputs/apk/demo/debug")
         val givenDebugOutputFile =
-            debugApkDir.listFiles()
+            debugApkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-demoDebug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -82,7 +83,8 @@ class AssembleTwoFlavorsTest {
 
         val releaseApkDir = projectDir.getFile("app/build/outputs/apk/pro/release")
         val givenReleaseOutputFile =
-            releaseApkDir.listFiles()
+            releaseApkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-proRelease-vc2-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -195,7 +197,8 @@ class AssembleTwoFlavorsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/demoFree/debug")
         val givenOutputFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.matches(Regex("autotest-demoFreeDebug-vc1-\\d{8}\\.apk")) }
                 ?: throw AssertionError("Output file not found")
 
@@ -277,7 +280,8 @@ class AssembleTwoFlavorsTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/demoFree/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-demoFreeDebug-vc0-\\d{8}\\.apk")) }
                 ?: false
 

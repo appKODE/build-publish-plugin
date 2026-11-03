@@ -1,7 +1,7 @@
 package ru.kode.android.build.publish.plugin.firebase.messages
 
-fun remoteConfigFailedMessage(failures: List<String>): String {
-    return """
+fun remoteConfigFailedMessage(failures: List<String>): String =
+    """
         
         |============================================================
         |        FIREBASE REMOTE CONFIG AUDIT FAILED
@@ -13,5 +13,4 @@ fun remoteConfigFailedMessage(failures: List<String>): String {
         | Fix them or lower their severity with
         | severity(<type>, <severity>) in the Remote Config block
         |============================================================
-        """.trimMargin()
-}
+    """.trimMargin()

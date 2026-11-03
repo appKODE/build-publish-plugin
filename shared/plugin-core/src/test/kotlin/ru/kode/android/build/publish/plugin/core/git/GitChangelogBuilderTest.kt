@@ -228,7 +228,10 @@ class GitChangelogBuilderTest {
             build(
                 // "DISCLOSES" contains "CLOSES" as a substring but is not the CLOSES marker
                 commitMessages = listOf("Docs\n\nDISCLOSES: 3458"),
-                resolvers = listOf(FakeResolver(titles = mapOf("3458" to ResolvedIssue("TBI-3458", "Should not appear")))),
+                resolvers =
+                    listOf(
+                        FakeResolver(titles = mapOf("3458" to ResolvedIssue("TBI-3458", "Should not appear"))),
+                    ),
             )
 
         assertNull(changelog)

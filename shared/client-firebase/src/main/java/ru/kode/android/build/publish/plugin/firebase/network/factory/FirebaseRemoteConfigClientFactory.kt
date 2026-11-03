@@ -17,12 +17,14 @@ internal object FirebaseRemoteConfigClientFactory {
         json: Json,
     ): OkHttpClient {
         val tokenClient =
-            OkHttpClient.Builder()
+            OkHttpClient
+                .Builder()
                 .connectTimeout(HTTP_TIMEOUT_MINUTES, TimeUnit.MINUTES)
                 .readTimeout(HTTP_TIMEOUT_MINUTES, TimeUnit.MINUTES)
                 .addProxyIfAvailable(logger)
                 .build()
-        return tokenClient.newBuilder()
+        return tokenClient
+            .newBuilder()
             .addInterceptor(ServiceAccountTokenInterceptor(key, tokenClient, json))
             .addNetworkInterceptor(buildLoggingInterceptor(logger))
             .build()

@@ -39,11 +39,10 @@ internal fun TelegramBotConfig.mapToEntity(): TelegramBot {
 }
 
 @Suppress("TooGenericExceptionCaught")
-internal fun Set<DestinationTelegramBotConfig>.mapToEntity(): List<DestinationTelegramBot> {
-    return this.map {
+internal fun Set<DestinationTelegramBotConfig>.mapToEntity(): List<DestinationTelegramBot> =
+    this.map {
         DestinationTelegramBot(
             botName = it.botName.get(),
             chatNames = it.chatNames.get().toList(),
         )
     }
-}

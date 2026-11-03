@@ -137,7 +137,8 @@ class TelegramLookupTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -241,7 +242,8 @@ class TelegramLookupTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -352,7 +354,8 @@ class TelegramLookupTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -454,7 +457,8 @@ class TelegramLookupTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -565,7 +569,8 @@ class TelegramLookupTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -590,10 +595,9 @@ class TelegramLookupTest {
     }
 }
 
-private fun getChangelog(): String {
-    return """
-        [TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
-        [TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
-        [TEST-3158] [Android] Goofy’s final SBP screen shows all the goofy statuses after he paid his cookie subscription
-        """.trimIndent()
-}
+private fun getChangelog(): String =
+    """
+    [TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
+    [TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
+    [TEST-3158] [Android] Goofy’s final SBP screen shows all the goofy statuses after he paid his cookie subscription
+    """.trimIndent()

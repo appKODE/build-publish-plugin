@@ -27,35 +27,46 @@ internal class DefaultPlayPublisher(
     private val publisher: AndroidPublisher,
     override val appId: String,
 ) : InternalPlayPublisher {
-    override fun insertEdit(): EditResponse {
-        return try {
-            EditResponse.Success(publisher.edits().insert(appId, null).execute().id)
+    override fun insertEdit(): EditResponse =
+        try {
+            EditResponse.Success(
+                publisher
+                    .edits()
+                    .insert(appId, null)
+                    .execute()
+                    .id,
+            )
         } catch (e: GoogleJsonResponseException) {
             EditResponse.Failure(e)
         }
-    }
 
-    override fun getEdit(id: String): EditResponse {
-        return try {
-            EditResponse.Success(publisher.edits().get(appId, id).execute().id)
+    override fun getEdit(id: String): EditResponse =
+        try {
+            EditResponse.Success(
+                publisher
+                    .edits()
+                    .get(appId, id)
+                    .execute()
+                    .id,
+            )
         } catch (e: GoogleJsonResponseException) {
             EditResponse.Failure(e)
         }
-    }
 
     override fun commitEdit(
         id: String,
         sendChangesForReview: Boolean,
-    ): CommitResponse {
-        return try {
-            publisher.edits().commit(appId, id)
+    ): CommitResponse =
+        try {
+            publisher
+                .edits()
+                .commit(appId, id)
                 .setChangesNotSentForReview(!sendChangesForReview)
                 .execute()
             CommitResponse.Success
         } catch (e: GoogleJsonResponseException) {
             CommitResponse.Failure(e)
         }
-    }
 
     override fun validateEdit(id: String) {
         publisher.edits().validate(appId, id).execute()
@@ -64,9 +75,13 @@ internal class DefaultPlayPublisher(
     override fun getTrack(
         editId: String,
         track: String,
-    ): Track {
-        return try {
-            publisher.edits().tracks().get(appId, editId, track).execute()
+    ): Track =
+        try {
+            publisher
+                .edits()
+                .tracks()
+                .get(appId, editId, track)
+                .execute()
         } catch (e: GoogleJsonResponseException) {
             if (e has "notFound") {
                 Track().setTrack(track)
@@ -74,11 +89,15 @@ internal class DefaultPlayPublisher(
                 throw e
             }
         }
-    }
 
-    override fun listTracks(editId: String): List<Track> {
-        return publisher.edits().tracks().list(appId, editId).execute()?.tracks.orEmpty()
-    }
+    override fun listTracks(editId: String): List<Track> =
+        publisher
+            .edits()
+            .tracks()
+            .list(appId, editId)
+            .execute()
+            ?.tracks
+            .orEmpty()
 
     override fun updateTrack(
         editId: String,
@@ -92,7 +111,11 @@ internal class DefaultPlayPublisher(
                 trackName = track.track,
             ),
         )
-        publisher.edits().tracks().update(appId, editId, track.track, track).execute()
+        publisher
+            .edits()
+            .tracks()
+            .update(appId, editId, track.track, track)
+            .execute()
     }
 
     override fun uploadBundle(
@@ -100,7 +123,10 @@ internal class DefaultPlayPublisher(
         bundleFile: File,
     ): Bundle {
         val content = FileContent(MIME_TYPE_STREAM, bundleFile)
-        return publisher.edits().bundles().upload(appId, editId, content)
+        return publisher
+            .edits()
+            .bundles()
+            .upload(appId, editId, content)
             .trackUploadProgress("App Bundle", bundleFile)
             .execute()
     }
@@ -110,7 +136,10 @@ internal class DefaultPlayPublisher(
         apkFile: File,
     ): Apk {
         val content = FileContent(MIME_TYPE_APK, apkFile)
-        return publisher.edits().apks().upload(appId, editId, content)
+        return publisher
+            .edits()
+            .apks()
+            .upload(appId, editId, content)
             .trackUploadProgress(APK_FILE_EXTENSION.uppercase(), apkFile)
             .execute()
     }
@@ -122,7 +151,9 @@ internal class DefaultPlayPublisher(
         obbVersion: Int,
     ) {
         val obb = ExpansionFile().also { it.referencesVersion = obbVersion }
-        publisher.edits().expansionfiles()
+        publisher
+            .edits()
+            .expansionfiles()
             .update(appId, editId, appVersion, type, obb)
             .execute()
     }
@@ -140,7 +171,9 @@ internal class DefaultPlayPublisher(
                 "nativeCode" -> "native debug symbols"
                 else -> type
             }
-        return publisher.edits().deobfuscationfiles()
+        return publisher
+            .edits()
+            .deobfuscationfiles()
             .upload(appId, editId, versionCode, type, mapping)
             .trackUploadProgress("$humanFileName file", file)
             .execute()
@@ -148,7 +181,8 @@ internal class DefaultPlayPublisher(
 
     override fun uploadInternalSharingBundle(bundleFile: File): UploadInternalSharingArtifactResponse {
         val bundle =
-            publisher.internalappsharingartifacts()
+            publisher
+                .internalappsharingartifacts()
                 .uploadbundle(appId, FileContent(MIME_TYPE_STREAM, bundleFile))
                 .trackUploadProgress("App Bundle", bundleFile)
                 .execute()
@@ -158,7 +192,8 @@ internal class DefaultPlayPublisher(
 
     override fun uploadInternalSharingApk(apkFile: File): UploadInternalSharingArtifactResponse {
         val apk =
-            publisher.internalappsharingartifacts()
+            publisher
+                .internalappsharingartifacts()
                 .uploadapk(appId, FileContent(MIME_TYPE_APK, apkFile))
                 .trackUploadProgress(APK_FILE_EXTENSION.uppercase(), apkFile)
                 .execute()
@@ -176,7 +211,12 @@ internal class DefaultPlayPublisher(
 
         var token: String? = null
         do {
-            val response = publisher.inappproducts().list(appId).withToken(token).execute()
+            val response =
+                publisher
+                    .inappproducts()
+                    .list(appId)
+                    .withToken(token)
+                    .execute()
             products += response.inappproduct.orEmpty()
             token = response.tokenPagination?.nextPageToken
         } while (token != null)
@@ -187,7 +227,9 @@ internal class DefaultPlayPublisher(
     }
 
     override fun insertInAppProduct(productFile: File) {
-        publisher.inappproducts().insert(appId, readProductFile(productFile))
+        publisher
+            .inappproducts()
+            .insert(appId, readProductFile(productFile))
             .apply { autoConvertMissingPrices = true }
             .execute()
     }
@@ -195,7 +237,9 @@ internal class DefaultPlayPublisher(
     override fun updateInAppProduct(productFile: File): UpdateProductResponse {
         val product = readProductFile(productFile)
         try {
-            publisher.inappproducts().update(appId, product.sku, product)
+            publisher
+                .inappproducts()
+                .update(appId, product.sku, product)
                 .apply { autoConvertMissingPrices = true }
                 .execute()
         } catch (e: GoogleJsonResponseException) {
@@ -211,7 +255,8 @@ internal class DefaultPlayPublisher(
 
     private fun readProductFile(product: File) =
         product.inputStream().use {
-            GsonFactory.getDefaultInstance()
+            GsonFactory
+                .getDefaultInstance()
                 .createJsonParser(it)
                 .parse(InAppProduct::class.java)
         }

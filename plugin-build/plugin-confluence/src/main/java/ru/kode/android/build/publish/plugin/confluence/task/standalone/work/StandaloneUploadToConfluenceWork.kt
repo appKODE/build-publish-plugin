@@ -16,7 +16,8 @@ internal interface StandaloneUploadToConfluenceParameters : ServiceWorkParameter
 
 internal abstract class StandaloneUploadToConfluenceWork
     @Inject
-    constructor() : WorkAction<StandaloneUploadToConfluenceParameters> {
+    constructor() :
+    WorkAction<StandaloneUploadToConfluenceParameters> {
         override fun execute() {
             val file = parameters.file.asFile.get()
             val pageId = parameters.pageId.get()

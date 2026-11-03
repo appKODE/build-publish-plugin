@@ -74,7 +74,9 @@ class FirebaseRemoteConfigTest {
         listOf("literal_key", "survey_42", "ios_only").forEach {
             assertTrue(!report.contains("\"$it\""), "$it must not be reported, was:\n$report")
         }
-        assertTrue(projectDir.getFile("app/build/firebase/remote-config/debug/report.md").readText().contains("`new_key`"))
+        assertTrue(
+            projectDir.getFile("app/build/firebase/remote-config/debug/report.md").readText().contains("`new_key`"),
+        )
         val sarif = projectDir.getFile("app/build/firebase/remote-config/debug/report.sarif").readText()
         listOf(
             """"version": "2.1.0"""",
@@ -139,7 +141,8 @@ class FirebaseRemoteConfigTest {
         git.tag.addNamed("v1.0.2-debug")
     }
 
-    private fun keys(vararg keys: Pair<String, String>) = keys.joinToString("\n") { (name, value) -> """const val $name = "$value"""" }
+    private fun keys(vararg keys: Pair<String, String>) =
+        keys.joinToString("\n") { (name, value) -> """const val $name = "$value"""" }
 
     private companion object {
         const val TASK = "checkFirebaseRemoteConfigDebug"

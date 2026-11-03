@@ -289,12 +289,12 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                         )
 
                     val renameApkTransformationRequest =
-                        variant.artifacts.use(renameApkTaskProvider)
+                        variant.artifacts
+                            .use(renameApkTaskProvider)
                             .wiredWithDirectories(
                                 RenameApkTask::inputDir,
                                 RenameApkTask::outputDir,
-                            )
-                            .toTransformMany(SingleArtifact.APK)
+                            ).toTransformMany(SingleArtifact.APK)
 
                     renameApkTaskProvider.configure { it.transformationRequest.set(renameApkTransformationRequest) }
 
@@ -307,12 +307,12 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                             ),
                         )
 
-                    variant.artifacts.use(renameBundleTaskProvider)
+                    variant.artifacts
+                        .use(renameBundleTaskProvider)
                         .wiredWithFiles(
                             RenameBundleTask::inputFile,
                             RenameBundleTask::outputFile,
-                        )
-                        .toTransform(SingleArtifact.BUNDLE)
+                        ).toTransform(SingleArtifact.BUNDLE)
 
                     TagTasksRegistrar.registerPrintLastIncreasedTagTask(
                         project = project,
@@ -405,11 +405,9 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
                         .filter { schema ->
                             val extensionType: Class<*> = schema.publicType.concreteClass
                             BuildPublishConfigurableExtension::class.java.isAssignableFrom(extensionType)
-                        }
-                        .map { schema ->
+                        }.map { schema ->
                             project.extensions.getByName(schema.name) as BuildPublishConfigurableExtension
-                        }
-                        .onEach { extension ->
+                        }.onEach { extension ->
                             logger.info(
                                 configureExtensionMessage(
                                     extension.toString(),
@@ -468,8 +466,8 @@ abstract class BuildPublishFoundationPlugin : Plugin<Project> {
 }
 
 @Suppress("DEPRECATION") // Support old variant
-private fun Project.getDefaultVersionName(): String? {
-    return try {
+private fun Project.getDefaultVersionName(): String? =
+    try {
         extensions
             .getByType(com.android.build.api.dsl.ApplicationExtension::class.java)
             .defaultConfig
@@ -480,11 +478,10 @@ private fun Project.getDefaultVersionName(): String? {
             .defaultConfig
             .versionName
     }
-}
 
 @Suppress("DEPRECATION") // Support old variant
-private fun Project.getDefaultVersionCode(): Int? {
-    return try {
+private fun Project.getDefaultVersionCode(): Int? =
+    try {
         extensions
             .getByType(com.android.build.api.dsl.ApplicationExtension::class.java)
             .defaultConfig
@@ -495,7 +492,6 @@ private fun Project.getDefaultVersionCode(): Int? {
             .defaultConfig
             .versionCode
     }
-}
 
 /**
  * Composes the [config]'s issue references into a lazy [IssueReference] list without forcing any
@@ -526,8 +522,7 @@ private fun Project.issueSources(config: ChangelogConfig): Provider<List<IssueSo
                 source.numberPattern
                     .zip(source.urlPrefix.orElse("")) { pattern, urlPrefix ->
                         listOf(IssueSource(pattern, urlPrefix.ifBlank { null }))
-                    }
-                    .orElse(emptyList()),
+                    }.orElse(emptyList()),
             )
         }
     }

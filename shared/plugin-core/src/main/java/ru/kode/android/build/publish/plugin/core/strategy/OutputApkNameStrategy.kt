@@ -88,9 +88,7 @@ object SimpleApkNamingStrategy : OutputApkNameStrategy {
         outputFileName: String,
         tag: Tag.Build?,
         baseFileName: String?,
-    ): String {
-        return createDefaultOutputFileName(baseFileName, outputFileName)
-    }
+    ): String = createDefaultOutputFileName(baseFileName, outputFileName)
 }
 
 /**

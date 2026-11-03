@@ -33,7 +33,6 @@ ktlint {
   debug = false
   android = false
   ignoreFailures = false
-  disabledRules = ["import-ordering"]
   filter {
     include("src/main/**/*.kt")
   }

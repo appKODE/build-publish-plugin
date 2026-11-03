@@ -162,7 +162,8 @@ class ClickUpAllAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -185,19 +186,39 @@ class ClickUpAllAutomationTest {
         )
 
         val tagsAfterAutomation1 = clickUpController.getTaskTags(givenIssueKey1).tags
-        assertTrue(tagsAfterAutomation1.contains(expectedTag), "Expected tag $expectedTag to be added to the first task")
+        assertTrue(
+            tagsAfterAutomation1.contains(expectedTag),
+            "Expected tag $expectedTag to be added to the first task",
+        )
 
         val tagsAfterAutomation2 = clickUpController.getTaskTags(givenIssueKey2).tags
-        assertTrue(tagsAfterAutomation2.contains(expectedTag), "Expected tag $expectedTag to be added to the second task")
+        assertTrue(
+            tagsAfterAutomation2.contains(expectedTag),
+            "Expected tag $expectedTag to be added to the second task",
+        )
 
         val fixVersions1 =
-            clickUpController.getTaskFields(givenIssueKey1).fields
-                .find { it.id == fixVersionFieldId }?.value
-        assertEquals(expectedFixVersion, fixVersions1, "Expected fix version $expectedFixVersion to be set for first task")
+            clickUpController
+                .getTaskFields(givenIssueKey1)
+                .fields
+                .find { it.id == fixVersionFieldId }
+                ?.value
+        assertEquals(
+            expectedFixVersion,
+            fixVersions1,
+            "Expected fix version $expectedFixVersion to be set for first task",
+        )
 
         val fixVersions2 =
-            clickUpController.getTaskFields(givenIssueKey2).fields
-                .find { it.id == fixVersionFieldId }?.value
-        assertEquals(expectedFixVersion, fixVersions2, "Expected fix version $expectedFixVersion to be set for second task")
+            clickUpController
+                .getTaskFields(givenIssueKey2)
+                .fields
+                .find { it.id == fixVersionFieldId }
+                ?.value
+        assertEquals(
+            expectedFixVersion,
+            fixVersions2,
+            "Expected fix version $expectedFixVersion to be set for second task",
+        )
     }
 }

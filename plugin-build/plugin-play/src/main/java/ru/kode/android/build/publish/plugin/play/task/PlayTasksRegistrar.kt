@@ -36,9 +36,7 @@ internal object PlayTasksRegistrar {
         project: Project,
         distributionConfig: PlayDistributionConfig,
         params: PlayTaskParams,
-    ): TaskProvider<PlayDistributionTask> {
-        return project.registerPlayDistributionTask(distributionConfig, params)
-    }
+    ): TaskProvider<PlayDistributionTask> = project.registerPlayDistributionTask(distributionConfig, params)
 }
 
 /**

@@ -42,8 +42,8 @@ object HardcodedTagGenerationStrategy : TagGenerationStrategy {
      * @return The build tag metadata with hardcoded default stub values.
      * @see [Tag.Build] for more details about the generated tag metadata.
      */
-    override fun build(buildVariant: String): Tag.Build {
-        return Tag.Build(
+    override fun build(buildVariant: String): Tag.Build =
+        Tag.Build(
             name = DEFAULT_TAG_NAME.format(buildVariant),
             commitSha = DEFAULT_TAG_COMMIT_SHA,
             message = DEFAULT_TAG_COMMIT_MESSAGE,
@@ -51,5 +51,4 @@ object HardcodedTagGenerationStrategy : TagGenerationStrategy {
             buildVariant = buildVariant,
             buildNumber = DEFAULT_VERSION_CODE,
         )
-    }
 }

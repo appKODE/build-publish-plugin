@@ -14,7 +14,9 @@ import ru.kode.android.gradle.commons.util.CommonConfigMergeable
  * must be globally unique so changelog issues can be routed by their key prefix (e.g. `APP-123` ->
  * `APP`).
  */
-interface JiraProjectDef : Named, CommonConfigMergeable<JiraProjectDef> {
+interface JiraProjectDef :
+    Named,
+    CommonConfigMergeable<JiraProjectDef> {
     /**
      * The Jira project key (e.g. `"APP"`). Issues whose key prefix matches this value belong to this
      * project.

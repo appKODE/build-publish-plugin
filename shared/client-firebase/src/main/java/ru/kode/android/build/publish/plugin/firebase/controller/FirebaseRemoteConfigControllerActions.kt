@@ -56,8 +56,7 @@ fun FirebaseRemoteConfigController.audit(
                         ?.let { previousTag ->
                             val since = Instant.ofEpochMilli(git.commitTimeMs(previousTag.commitSha))
                             changesSince(request.projectId, since, notes, logger)
-                        }
-                        .orEmpty(),
+                        }.orEmpty(),
                 today = Instant.ofEpochMilli(git.commitTimeMs(current.commitSha)).atZone(ZoneOffset.UTC).toLocalDate(),
                 lifetimes = request.flagLifetimes,
                 inAppDefaults = git.readInAppDefaults(current.commitSha, request.inAppDefaultsIncludes, logger),

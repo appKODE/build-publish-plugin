@@ -78,20 +78,22 @@ abstract class TelegramService
     }
 
 @Suppress("MaxLineLength")
-private fun Collection<TelegramBot>.mapToChatSpecificBots(destinationBots: List<DestinationTelegramBot>): List<ChatSpecificTelegramBot> {
-    return destinationBots
+private fun Collection<TelegramBot>.mapToChatSpecificBots(
+    destinationBots: List<DestinationTelegramBot>,
+): List<ChatSpecificTelegramBot> =
+    destinationBots
         .flatMap { destinationBot ->
             val botName = destinationBot.botName
             val bot = this.firstOrNull { it.name == botName }
             bot?.mapToChatSpecificBot(destinationBot)
                 ?: throw GradleException(noMatchingConfigurationMessage(destinationBot))
         }
-}
 
 @Suppress("TooGenericExceptionThrown")
 private fun TelegramBot.mapToChatSpecificBot(destinationBot: DestinationTelegramBot): List<ChatSpecificTelegramBot> {
     val chatNames = destinationBot.chatNames
-    return chats.filter { it.name in chatNames }
+    return chats
+        .filter { it.name in chatNames }
         .map { chat ->
             val authPassword = this.basicAuth?.password
             val authUserName = this.basicAuth?.username

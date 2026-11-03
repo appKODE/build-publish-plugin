@@ -116,11 +116,12 @@ internal class NextcloudControllerImpl(
         encodedRemoteFilePath: String,
         file: File,
     ) {
-        api.uploadFile(
-            username = davUser,
-            remoteFilePath = encodedRemoteFilePath,
-            body = file.asRequestBody(),
-        ).executeNoResult(setOf(200, 201, 204))
+        api
+            .uploadFile(
+                username = davUser,
+                remoteFilePath = encodedRemoteFilePath,
+                body = file.asRequestBody(),
+            ).executeNoResult(setOf(200, 201, 204))
     }
 
     private fun ensureFolders(
@@ -131,10 +132,11 @@ internal class NextcloudControllerImpl(
         var currentPath = ""
         pathParts.forEach { part ->
             currentPath = if (currentPath.isBlank()) part else "$currentPath/$part"
-            api.createFolder(
-                username = davUser,
-                remoteFolderPath = encodePathSegments(currentPath),
-            ).executeNoResult(successCodes = setOf(200, 201, 204, 301, 405))
+            api
+                .createFolder(
+                    username = davUser,
+                    remoteFolderPath = encodePathSegments(currentPath),
+                ).executeNoResult(successCodes = setOf(200, 201, 204, 301, 405))
         }
     }
 
@@ -165,11 +167,12 @@ internal class NextcloudControllerImpl(
         }
 
         val createResponse =
-            api.createShare(
-                path = path,
-                shareType = PUBLIC_SHARE_TYPE,
-                permissions = READ_ONLY_PERMISSION,
-            ).executeOcs()
+            api
+                .createShare(
+                    path = path,
+                    shareType = PUBLIC_SHARE_TYPE,
+                    permissions = READ_ONLY_PERMISSION,
+                ).executeOcs()
 
         if (createResponse.ocs.meta.isSuccess()) {
             parseShares(createResponse.ocs.data).firstOrNull()?.let { createdShare ->
@@ -199,7 +202,9 @@ internal class NextcloudControllerImpl(
             cannotCreateShareMessage(
                 path = path,
                 statusCode = createResponse.ocs.meta.statusCode,
-                statusMessage = createResponse.ocs.meta.message.orEmpty(),
+                statusMessage =
+                    createResponse.ocs.meta.message
+                        .orEmpty(),
             ),
         )
     }
@@ -264,12 +269,13 @@ internal class NextcloudControllerImpl(
         shareWith: String,
     ): ParsedShare {
         val response =
-            api.createShare(
-                path = path,
-                shareType = shareType,
-                shareWith = shareWith,
-                permissions = READ_ONLY_PERMISSION,
-            ).executeOcs()
+            api
+                .createShare(
+                    path = path,
+                    shareType = shareType,
+                    shareWith = shareWith,
+                    permissions = READ_ONLY_PERMISSION,
+                ).executeOcs()
 
         if (!response.ocs.meta.isSuccess()) {
             throw IllegalStateException(
@@ -278,7 +284,9 @@ internal class NextcloudControllerImpl(
                     shareType = shareType,
                     shareWith = shareWith,
                     statusCode = response.ocs.meta.statusCode,
-                    statusMessage = response.ocs.meta.message.orEmpty(),
+                    statusMessage =
+                        response.ocs.meta.message
+                            .orEmpty(),
                 ),
             )
         }
@@ -317,20 +325,21 @@ internal class NextcloudControllerImpl(
                 cannotGetSharesMessage(
                     path = path,
                     statusCode = sharesResponse.ocs.meta.statusCode,
-                    statusMessage = sharesResponse.ocs.meta.message.orEmpty(),
+                    statusMessage =
+                        sharesResponse.ocs.meta.message
+                            .orEmpty(),
                 ),
             )
         }
         return parseShares(sharesResponse.ocs.data)
     }
 
-    private fun parseShares(data: JsonElement): List<ParsedShare> {
-        return when (data) {
+    private fun parseShares(data: JsonElement): List<ParsedShare> =
+        when (data) {
             is JsonArray -> data.mapNotNull { (it as? JsonObject)?.toParsedShare() }
             is JsonObject -> listOfNotNull(data.toParsedShare())
             else -> emptyList()
         }
-    }
 
     private fun JsonObject.toParsedShare(): ParsedShare? {
         val shareType = this["share_type"]?.jsonPrimitive?.intOrNull ?: return null
@@ -369,19 +378,22 @@ internal class NextcloudControllerImpl(
         return normalized
     }
 
-    private fun normalizeRecipients(values: Set<String>): Set<String> {
-        return values.map { it.trim() }.filter { it.isNotBlank() }.toSet()
-    }
+    private fun normalizeRecipients(values: Set<String>): Set<String> =
+        values
+            .map {
+                it.trim()
+            }.filter { it.isNotBlank() }
+            .toSet()
 
-    private fun encodePathSegments(path: String): String {
-        return path
+    private fun encodePathSegments(path: String): String =
+        path
             .split('/')
             .filter { it.isNotBlank() }
             .joinToString("/") { segment ->
-                URLEncoder.encode(segment, StandardCharsets.UTF_8)
+                URLEncoder
+                    .encode(segment, StandardCharsets.UTF_8)
                     .replace("+", "%20")
             }
-    }
 }
 
 private data class ParsedShare(
@@ -428,8 +440,7 @@ private fun Call<OcsJsonResponse>.executeOcs(): OcsJsonResponse {
     throw NextcloudHttpException(code, errorBody)
 }
 
-private fun OcsMeta.isSuccess(): Boolean {
-    return status.equals("ok", ignoreCase = true) ||
+private fun OcsMeta.isSuccess(): Boolean =
+    status.equals("ok", ignoreCase = true) ||
         statusCode == OCS_SUCCESS_CODE ||
         statusCode == OCS_OK_STATUS_CODE
-}

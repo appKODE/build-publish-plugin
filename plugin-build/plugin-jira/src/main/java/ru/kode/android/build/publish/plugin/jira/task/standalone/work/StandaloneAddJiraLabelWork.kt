@@ -16,7 +16,8 @@ internal interface StandaloneAddJiraLabelParameters : ServiceWorkParameters {
 
 internal abstract class StandaloneAddJiraLabelWork
     @Inject
-    constructor() : WorkAction<StandaloneAddJiraLabelParameters> {
+    constructor() :
+    WorkAction<StandaloneAddJiraLabelParameters> {
         override fun execute() {
             parameters.service.get().addLabelToIssues(
                 instanceName = parameters.instanceName.getOrElse(""),

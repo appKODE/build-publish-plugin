@@ -27,7 +27,8 @@ internal class FirebaseRemoteConfigControllerImpl(
         var pageToken: String? = null
         do {
             val page =
-                api.listVersions(url, startTime.toString(), MAX_PAGE_SIZE, pageToken)
+                api
+                    .listVersions(url, startTime.toString(), MAX_PAGE_SIZE, pageToken)
                     .executeWithResult()
                     .getOrThrow()
             versions += page.versions

@@ -59,7 +59,8 @@ class ComputeVersionCodeTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/release")
         val apkFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.endsWith(".apk") }
                 ?: throw AssertionError("APK file not found")
         val manifestProperties = apkFile.extractManifestProperties()
@@ -102,7 +103,8 @@ class ComputeVersionCodeTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/release")
         val apkFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.endsWith(".apk") }
                 ?: throw AssertionError("APK file not found")
         val manifestProperties = apkFile.extractManifestProperties()
@@ -145,7 +147,8 @@ class ComputeVersionCodeTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/release")
         val apkFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.endsWith(".apk") }
                 ?: throw AssertionError("APK file not found")
         val manifestProperties = apkFile.extractManifestProperties()
@@ -189,7 +192,8 @@ class ComputeVersionCodeTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/release")
         val apkFile =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.first { it.name.endsWith(".apk") }
                 ?: throw AssertionError("APK file not found")
         val manifestProperties = apkFile.extractManifestProperties()
