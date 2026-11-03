@@ -29,7 +29,9 @@ import javax.inject.Inject
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishFoundationExtension
     @Inject
-    constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
+    constructor(
+        objectFactory: ObjectFactory,
+    ) : BuildPublishConfigurableExtension() {
         /**
          * Enables verbose logging for the build and publish plugins.
          *
@@ -38,7 +40,8 @@ abstract class BuildPublishFoundationExtension
          * Default value is `false`.
          */
         val verboseLogging: Property<Boolean> =
-            objectFactory.property(Boolean::class.java)
+            objectFactory
+                .property(Boolean::class.java)
                 .convention(false)
 
         /**
@@ -50,7 +53,8 @@ abstract class BuildPublishFoundationExtension
          * Default value is `false`.
          */
         val bodyLogging: Property<Boolean> =
-            objectFactory.property(Boolean::class.java)
+            objectFactory
+                .property(Boolean::class.java)
                 .convention(false)
 
         /**

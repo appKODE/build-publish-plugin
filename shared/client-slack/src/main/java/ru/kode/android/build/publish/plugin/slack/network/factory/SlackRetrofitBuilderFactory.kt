@@ -14,7 +14,8 @@ internal object SlackRetrofitBuilderFactory {
         json: Json,
     ): Retrofit.Builder {
         val contentType = MEDIA_TYPE_JSON.toMediaType()
-        return Retrofit.Builder()
+        return Retrofit
+            .Builder()
             .client(client)
             .addConverterFactory(json.asConverterFactory(contentType))
     }

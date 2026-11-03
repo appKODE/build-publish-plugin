@@ -19,8 +19,8 @@ object ClickUpControllerFactory {
         token: String,
         logger: PluginLogger,
         baseUrl: String = CLICK_UP_API_BASE_URL,
-    ): ClickUpController {
-        return ClickUpControllerImpl(
+    ): ClickUpController =
+        ClickUpControllerImpl(
             api =
                 ClickUpApiFactory.build(
                     client = ClickUpClientFactory.build(token, logger),
@@ -28,7 +28,6 @@ object ClickUpControllerFactory {
                 ),
             logger = logger,
         )
-    }
 
     fun build(
         token: String,

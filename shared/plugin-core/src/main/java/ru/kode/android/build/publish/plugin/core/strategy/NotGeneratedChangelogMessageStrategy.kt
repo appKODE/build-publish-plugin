@@ -47,13 +47,12 @@ object NoChangesNotGeneratedChangelogMessageStrategy : NotGeneratedChangelogMess
     override fun build(
         buildTagPattern: String,
         currentBuildTag: Tag.Build,
-    ): String {
-        return """
-            🧩 *Changelog not generated*
-            Pattern: `$buildTagPattern`
-            Build: `${currentBuildTag.name}`
+    ): String =
+        """
+        🧩 *Changelog not generated*
+        Pattern: `$buildTagPattern`
+        Build: `${currentBuildTag.name}`
 
-            No meaningful changes were found for this build.
-            """.trimIndent()
-    }
+        No meaningful changes were found for this build.
+        """.trimIndent()
 }

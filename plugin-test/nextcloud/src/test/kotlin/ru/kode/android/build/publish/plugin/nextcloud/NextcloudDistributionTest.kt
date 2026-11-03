@@ -652,7 +652,7 @@ class NextcloudDistributionTest {
 
         val result = projectDir.runTask("nextcloudDistributionUploadBundleDebug")
 
-        result.outputShouldContain("autotest-1.0-debug.zip")
+        result.outputShouldContain("autotest-1.0-debug-aab.zip")
         result.outputShouldContain("Nextcloud public share")
     }
 

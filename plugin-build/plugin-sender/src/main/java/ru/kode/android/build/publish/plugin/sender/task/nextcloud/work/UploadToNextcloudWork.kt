@@ -20,14 +20,15 @@ internal abstract class UploadToNextcloudWork
     @Inject
     constructor() : WorkAction<UploadToNextcloudParameters> {
         override fun execute() {
-            NextcloudControllerFactory.build(
-                baseUrl = parameters.baseUrl.get(),
-                username = parameters.username.get(),
-                password = parameters.password.get(),
-            ).uploadFile(
-                remotePath = parameters.remotePath.get(),
-                remoteFileName = parameters.remoteFileName.get(),
-                file = parameters.file.asFile.get(),
-            )
+            NextcloudControllerFactory
+                .build(
+                    baseUrl = parameters.baseUrl.get(),
+                    username = parameters.username.get(),
+                    password = parameters.password.get(),
+                ).uploadFile(
+                    remotePath = parameters.remotePath.get(),
+                    remoteFileName = parameters.remoteFileName.get(),
+                    file = parameters.file.asFile.get(),
+                )
         }
     }

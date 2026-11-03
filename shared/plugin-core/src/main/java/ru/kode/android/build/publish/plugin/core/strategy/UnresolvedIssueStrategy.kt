@@ -59,7 +59,9 @@ object SkipUnresolvedStrategy : UnresolvedIssueStrategy {
 /**
  * Renders `• [key] <text>` using a fixed [text] for every unresolved reference.
  */
-class FallbackTextUnresolvedStrategy(private val text: String) : UnresolvedIssueStrategy {
+class FallbackTextUnresolvedStrategy(
+    private val text: String,
+) : UnresolvedIssueStrategy {
     override fun build(
         key: String,
         commitChangelogLine: String?,

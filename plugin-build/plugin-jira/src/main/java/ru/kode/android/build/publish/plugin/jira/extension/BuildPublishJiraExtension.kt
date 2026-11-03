@@ -44,7 +44,9 @@ import javax.inject.Inject
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishJiraExtension
     @Inject
-    constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
+    constructor(
+        objectFactory: ObjectFactory,
+    ) : BuildPublishConfigurableExtension() {
         /**
          * Container for Jira authentication configurations.
          *
@@ -377,7 +379,10 @@ abstract class BuildPublishJiraExtension
                             )
                     selection.projectNames.get().map { projectName ->
                         val projectKey =
-                            instanceConfig.projects.findByName(projectName)?.projectKey?.orNull
+                            instanceConfig.projects
+                                .findByName(projectName)
+                                ?.projectKey
+                                ?.orNull
                                 ?: throw GradleException(
                                     unknownProjectNameMessage(projectName, instanceName, instanceConfig.projects.names),
                                 )

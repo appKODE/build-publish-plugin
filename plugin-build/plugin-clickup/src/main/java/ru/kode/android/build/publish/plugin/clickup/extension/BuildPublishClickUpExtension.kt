@@ -43,7 +43,9 @@ import javax.inject.Inject
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishClickUpExtension
     @Inject
-    constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
+    constructor(
+        objectFactory: ObjectFactory,
+    ) : BuildPublishConfigurableExtension() {
         /**
          * Container for ClickUp authentication configurations.
          *
@@ -393,7 +395,9 @@ abstract class BuildPublishClickUpExtension
 
             val accountWorkspaceByPrefix = prefixEntries.toMap()
             val fallbackAccounts =
-                resolutionConfig.selectionsConfig.selections.map { it.name }.distinct()
+                resolutionConfig.selectionsConfig.selections
+                    .map { it.name }
+                    .distinct()
 
             val resolver = ClickUpIssueResolver(service, accountWorkspaceByPrefix, fallbackAccounts)
             input.changelog.fileProvider.configure { task ->

@@ -127,7 +127,8 @@ abstract class JiraAutomationTask
             val currentBuildTag = fromJson(buildTagSnapshotFile.asFile.get()).current
             val changelog = changelogFile.asFile.get().readText()
             val issues =
-                issuePatterns.get()
+                issuePatterns
+                    .get()
                     .flatMap { pattern -> Regex(pattern).findAll(changelog).map { it.value }.toList() }
                     .toSet()
 
@@ -167,8 +168,8 @@ abstract class JiraAutomationTask
         /**
          * Resolves the list of projects to act on from the configured project bindings.
          */
-        private fun resolveProjects(): List<ResolvedProject> {
-            return projects.get().map { binding ->
+        private fun resolveProjects(): List<ResolvedProject> =
+            projects.get().map { binding ->
                 ResolvedProject(
                     projectKey = binding.projectKey.get().uppercase(),
                     instanceName = binding.instanceName.get(),
@@ -177,7 +178,6 @@ abstract class JiraAutomationTask
                     targetStatusName = binding.targetStatusName.orNull,
                 )
             }
-        }
 
         /**
          * Submits the enabled automation actions (label, fix version, status transition) for a single

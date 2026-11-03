@@ -63,9 +63,7 @@ internal object TagTasksRegistrar {
     internal fun registerGetLastTagSnapshotTask(
         project: Project,
         params: LastTagSnapshotTaskParams,
-    ): TaskProvider<GetLastTagSnapshotTask> {
-        return project.registerGetLastTagSnapshotTask(params)
-    }
+    ): TaskProvider<GetLastTagSnapshotTask> = project.registerGetLastTagSnapshotTask(params)
 
     /**
      * Registers a task that computes `versionCode` for the given build variant.
@@ -82,9 +80,7 @@ internal object TagTasksRegistrar {
     internal fun registerComputeVersionCodeTask(
         project: Project,
         params: ComputeVersionCodeParams,
-    ): TaskProvider<ComputeVersionCodeTask> {
-        return project.registerComputeVersionCodeTask(params)
-    }
+    ): TaskProvider<ComputeVersionCodeTask> = project.registerComputeVersionCodeTask(params)
 
     /**
      * Registers a task that computes the final APK output file name for the given build variant.
@@ -101,9 +97,7 @@ internal object TagTasksRegistrar {
     internal fun registerComputeApkOutputFileNameTask(
         project: Project,
         params: ComputeApkOutputFileNameParams,
-    ): TaskProvider<ComputeApkOutputFileNameTask> {
-        return project.registerComputeApkOutputFileNameTask(params)
-    }
+    ): TaskProvider<ComputeApkOutputFileNameTask> = project.registerComputeApkOutputFileNameTask(params)
 
     /**
      * Registers a task that computes the final Bundle output file name for the given build variant.
@@ -120,9 +114,7 @@ internal object TagTasksRegistrar {
     internal fun registerComputeBundleOutputFileNameTask(
         project: Project,
         params: ComputeBundleOutputFileNameParams,
-    ): TaskProvider<ComputeBundleOutputFileNameTask> {
-        return project.registerComputeBundleOutputFileNameTask(params)
-    }
+    ): TaskProvider<ComputeBundleOutputFileNameTask> = project.registerComputeBundleOutputFileNameTask(params)
 
     /**
      * Registers a task that computes `versionName` for the given build variant.
@@ -139,9 +131,7 @@ internal object TagTasksRegistrar {
     internal fun registerComputeVersionNameTask(
         project: Project,
         params: ComputeVersionNameParams,
-    ): TaskProvider<ComputeVersionNameTask> {
-        return project.registerComputeVersionNameTask(params)
-    }
+    ): TaskProvider<ComputeVersionNameTask> = project.registerComputeVersionNameTask(params)
 
     /**
      * Registers a task to print the last increased tag information.
@@ -154,9 +144,7 @@ internal object TagTasksRegistrar {
     internal fun registerPrintLastIncreasedTagTask(
         project: Project,
         params: PrintLastIncreasedTagTaskParams,
-    ): TaskProvider<PrintLastIncreasedTagTask> {
-        return project.registerPrintLastIncreasedTagTask(params)
-    }
+    ): TaskProvider<PrintLastIncreasedTagTask> = project.registerPrintLastIncreasedTagTask(params)
 
     /**
      * Registers a task that performs the final APK rename/copy for the given build variant.
@@ -169,9 +157,7 @@ internal object TagTasksRegistrar {
     internal fun registerRenameApkTask(
         project: Project,
         params: RenameApkTaskParams,
-    ): TaskProvider<RenameApkTask> {
-        return project.registerRenameApkTask(params)
-    }
+    ): TaskProvider<RenameApkTask> = project.registerRenameApkTask(params)
 
     /**
      * Registers a task that performs the final Bundle rename/copy for the given build variant.
@@ -184,9 +170,7 @@ internal object TagTasksRegistrar {
     internal fun registerRenameBundleTask(
         project: Project,
         params: RenameBundleTaskParams,
-    ): TaskProvider<RenameBundleTask> {
-        return project.registerRenameBundleTask(params)
-    }
+    ): TaskProvider<RenameBundleTask> = project.registerRenameBundleTask(params)
 }
 
 /**
@@ -247,7 +231,9 @@ private fun Project.registerRenameBundleTask(params: RenameBundleTaskParams): Ta
  * @return A [TaskProvider] for the registered [GetLastTagSnapshotTask]
  */
 @Suppress("MaxLineLength") // One parameter function
-private fun Project.registerGetLastTagSnapshotTask(params: LastTagSnapshotTaskParams): TaskProvider<GetLastTagSnapshotTask> {
+private fun Project.registerGetLastTagSnapshotTask(
+    params: LastTagSnapshotTaskParams,
+): TaskProvider<GetLastTagSnapshotTask> {
     val variant = params.buildVariant
     val tagBuildSnapshotFile = project.tagBuildSnapshotFileProvider(variant.name)
     val taskName = "${TaskNames.Foundation.GET_LAST_TAG_SNAPSHOT_PREFIX}${variant.capitalizedName()}"
@@ -279,7 +265,9 @@ private fun Project.registerGetLastTagSnapshotTask(params: LastTagSnapshotTaskPa
  * Registers a [ComputeVersionCodeTask] task for the given [params].
  */
 @Suppress("MaxLineLength") // One parameter function
-private fun Project.registerComputeVersionCodeTask(params: ComputeVersionCodeParams): TaskProvider<ComputeVersionCodeTask> {
+private fun Project.registerComputeVersionCodeTask(
+    params: ComputeVersionCodeParams,
+): TaskProvider<ComputeVersionCodeTask> {
     val variant = params.buildVariant
     val taskName = "${TaskNames.Foundation.COMPUTE_VERSION_CODE_PREFIX}${variant.capitalizedName()}"
     val versionCodeFile = project.versionCodeFileProvider(variant.name)
@@ -372,7 +360,9 @@ private fun Project.registerComputeBundleOutputFileNameTask(
  * Registers a [ComputeVersionNameTask] task for the given [params].
  */
 @Suppress("MaxLineLength") // One parameter function
-private fun Project.registerComputeVersionNameTask(params: ComputeVersionNameParams): TaskProvider<ComputeVersionNameTask> {
+private fun Project.registerComputeVersionNameTask(
+    params: ComputeVersionNameParams,
+): TaskProvider<ComputeVersionNameTask> {
     val variant = params.buildVariant
     val taskName = "${TaskNames.Foundation.COMPUTE_VERSION_NAME_PREFIX}${variant.capitalizedName()}"
     val versionNameFile = project.versionNameProvider(variant.name)
@@ -409,7 +399,9 @@ private fun Project.registerComputeVersionNameTask(params: ComputeVersionNamePar
  * @return A [TaskProvider] for the registered [PrintLastIncreasedTagTask] task
  */
 @Suppress("MaxLineLength") // One parameter function
-private fun Project.registerPrintLastIncreasedTagTask(params: PrintLastIncreasedTagTaskParams): TaskProvider<PrintLastIncreasedTagTask> {
+private fun Project.registerPrintLastIncreasedTagTask(
+    params: PrintLastIncreasedTagTaskParams,
+): TaskProvider<PrintLastIncreasedTagTask> {
     val taskName = "${TaskNames.Foundation.PRINT_LAST_INCREASED_TAG_PREFIX}${params.buildVariant.capitalizedName()}"
     return tasks.register(taskName, PrintLastIncreasedTagTask::class.java) { task ->
         task.buildTagSnapshotFile.set(params.buildTagSnapshotProvider.flatMap { it.buildTagSnapshotFile })

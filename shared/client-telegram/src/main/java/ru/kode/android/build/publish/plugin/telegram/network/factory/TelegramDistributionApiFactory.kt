@@ -13,7 +13,6 @@ internal object TelegramDistributionApiFactory {
      * @param retrofitBuilder The [Retrofit.Builder] to be used for creating the instance.
      * @return A new instance of [TelegramDistributionApi].
      */
-    fun build(retrofitBuilder: Retrofit.Builder): TelegramDistributionApi {
-        return retrofitBuilder.build().create(TelegramDistributionApi::class.java)
-    }
+    fun build(retrofitBuilder: Retrofit.Builder): TelegramDistributionApi =
+        retrofitBuilder.build().create(TelegramDistributionApi::class.java)
 }

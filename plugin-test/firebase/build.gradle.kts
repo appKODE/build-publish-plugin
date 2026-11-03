@@ -17,11 +17,12 @@ dependencies {
     testImplementation(gradleApi())
     testImplementation(libs.grgitCore)
     testImplementation(libs.grgitGradle)
+    testImplementation(libs.okhttpMockWebServer)
 
     testImplementation(gradleTestKit())
     testImplementation(platform(libs.junitBom))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("org.junit-pioneer:junit-pioneer:1.9.1")
+    testImplementation(libs.junitPioneer)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

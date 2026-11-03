@@ -20,13 +20,14 @@ internal abstract class AddJiraLabelWork
     @Inject
     constructor() : WorkAction<AddJiraLabelParameters> {
         override fun execute() {
-            JiraControllerFactory.build(
-                baseUrl = parameters.baseUrl.get(),
-                username = parameters.username.get(),
-                password = parameters.apiToken.get(),
-            ).addLabelToIssues(
-                label = parameters.label.get(),
-                issues = parameters.issues.get(),
-            )
+            JiraControllerFactory
+                .build(
+                    baseUrl = parameters.baseUrl.get(),
+                    username = parameters.username.get(),
+                    password = parameters.apiToken.get(),
+                ).addLabelToIssues(
+                    label = parameters.label.get(),
+                    issues = parameters.issues.get(),
+                )
         }
     }

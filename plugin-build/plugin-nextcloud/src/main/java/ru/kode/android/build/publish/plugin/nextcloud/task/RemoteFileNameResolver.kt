@@ -26,18 +26,20 @@ internal fun resolveArtifactRemoteFileName(
         ?.let { return it }
 
     val buildVersion = resolveBuildVersion(context)
-    val extension =
-        if (compressed) {
-            "zip"
-        } else {
-            sourceFile.extension.takeIf { it.isNotBlank() } ?: DEFAULT_FILE_EXTENSION
-        }
+    val sourceExtension = sourceFile.extension.takeIf { it.isNotBlank() } ?: DEFAULT_FILE_EXTENSION
+    val segments =
+        listOf(
+            sanitizeSegment(context.baseOutputFileName, "artifact"),
+            sanitizeSegment(buildVersion, DEFAULT_BUILD_VERSION),
+            sanitizeSegment(context.buildVariantName, "variant"),
+        )
 
-    return listOf(
-        sanitizeSegment(context.baseOutputFileName, "artifact"),
-        sanitizeSegment(buildVersion, DEFAULT_BUILD_VERSION),
-        sanitizeSegment(context.buildVariantName, "variant"),
-    ).joinToString("-") + ".${sanitizeSegment(extension, DEFAULT_FILE_EXTENSION)}"
+    // A compressed APK and bundle of one build would share a name; keep the source type in it.
+    return if (compressed) {
+        (segments + sanitizeSegment(sourceExtension, DEFAULT_FILE_EXTENSION)).joinToString("-") + ".zip"
+    } else {
+        segments.joinToString("-") + ".${sanitizeSegment(sourceExtension, DEFAULT_FILE_EXTENSION)}"
+    }
 }
 
 internal fun resolveChangelogRemoteFileName(
@@ -84,10 +86,9 @@ private fun resolveBuildVersion(context: NextcloudRemoteFileNameContext): String
 private fun sanitizeSegment(
     value: String,
     fallback: String,
-): String {
-    return value
+): String =
+    value
         .trim()
         .replace(NON_SAFE_FILE_CHARS_REGEX, "-")
         .trim('-')
         .ifBlank { fallback }
-}

@@ -9,4 +9,5 @@ dependencies {
     implementation(gradleApi())
     implementation(gradleTestKit())
     implementation(libs.grgitCore)
+    implementation(libs.okhttpMockWebServer)
 }

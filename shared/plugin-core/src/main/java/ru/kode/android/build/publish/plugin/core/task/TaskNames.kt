@@ -70,4 +70,8 @@ object TaskNames {
     object Play {
         const val DISTRIBUTION_UPLOAD_PREFIX = "playUpload"
     }
+
+    object Firebase {
+        const val CHECK_REMOTE_CONFIG_PREFIX = "checkFirebaseRemoteConfig"
+    }
 }

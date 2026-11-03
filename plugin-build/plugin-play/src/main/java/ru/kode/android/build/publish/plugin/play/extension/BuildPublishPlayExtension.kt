@@ -28,7 +28,9 @@ import javax.inject.Inject
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishPlayExtension
     @Inject
-    constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
+    constructor(
+        objectFactory: ObjectFactory,
+    ) : BuildPublishConfigurableExtension() {
         /**
          * Container for Google Play authentication configurations.
          *

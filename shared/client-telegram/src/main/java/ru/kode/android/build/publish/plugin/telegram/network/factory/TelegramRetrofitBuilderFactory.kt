@@ -25,7 +25,8 @@ internal object TelegramRetrofitBuilderFactory {
         json: Json,
     ): Retrofit.Builder {
         val contentType = MEDIA_TYPE_JSON.toMediaType()
-        return Retrofit.Builder()
+        return Retrofit
+            .Builder()
             .baseUrl(STUB_BASE_URL)
             .client(client)
             .addConverterFactory(json.asConverterFactory(contentType))

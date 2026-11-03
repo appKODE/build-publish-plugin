@@ -18,7 +18,8 @@ internal object ClickUpClientFactory {
         logger: PluginLogger,
     ): OkHttpClient {
         val loggingInterceptor = buildLoggingInterceptor(logger)
-        return OkHttpClient.Builder()
+        return OkHttpClient
+            .Builder()
             .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -35,7 +36,8 @@ private class AttachTokenInterceptor(
     override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
         val originalRequest = chain.request()
         val newRequest =
-            originalRequest.newBuilder()
+            originalRequest
+                .newBuilder()
                 .addHeader(name = "Content-Type", "application/json")
                 .addHeader(name = "Authorization", apiToken)
                 .build()

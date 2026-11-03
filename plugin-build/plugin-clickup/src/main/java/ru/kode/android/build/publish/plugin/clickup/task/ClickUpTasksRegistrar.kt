@@ -50,9 +50,7 @@ internal object ClickUpTasksRegistrar {
         authConfig: ClickUpAuthConfig,
         automationConfig: ClickUpAutomationConfig,
         params: ClickUpAutomationTaskParams,
-    ): TaskProvider<ClickUpAutomationTask>? {
-        return project.registerClickUpTasks(authConfig, automationConfig, params)
-    }
+    ): TaskProvider<ClickUpAutomationTask>? = project.registerClickUpTasks(authConfig, automationConfig, params)
 }
 
 /**

@@ -68,7 +68,10 @@ internal class DefaultTrackManager(
         val track =
             if (config.didPreviousBuildSkipCommit) {
                 createTrackForSkippedCommit(config)
-            } else if (config.base.releaseStatus.orDefault().isRollout()) {
+            } else if (config.base.releaseStatus
+                    .orDefault()
+                    .isRollout()
+            ) {
                 createTrackForRollout(config)
             } else {
                 createDefaultTrack(config)
@@ -79,7 +82,12 @@ internal class DefaultTrackManager(
 
     override fun promote(config: TrackManager.PromoteConfig) {
         val track = publisher.getTrack(editId, config.fromTrackName)
-        check(track.releases.orEmpty().flatMap { it.versionCodes.orEmpty() }.isNotEmpty()) {
+        check(
+            track.releases
+                .orEmpty()
+                .flatMap { it.versionCodes.orEmpty() }
+                .isNotEmpty(),
+        ) {
             "Track '${config.fromTrackName}' has no releases. Did you mean to run publish?"
         }
 
@@ -91,11 +99,12 @@ internal class DefaultTrackManager(
         // not allowed. This is how we deal with an update from inProgress -> completed. We update
         // all the tracks to completed, then get rid of the one that used to be inProgress.
         track.releases =
-            track.releases.sortedByDescending {
-                it.versionCodes?.maxOrNull()
-            }.distinctBy {
-                it.status
-            }
+            track.releases
+                .sortedByDescending {
+                    it.versionCodes?.maxOrNull()
+                }.distinctBy {
+                    it.status
+                }
 
         println(promotingReleaseMessage(track.track))
         track.track = config.promoteTrackName
@@ -163,7 +172,8 @@ internal class DefaultTrackManager(
         if (!releaseNotes.isNullOrEmpty()) return
 
         val previousRelease =
-            publisher.getTrack(editId, trackName)
+            publisher
+                .getTrack(editId, trackName)
                 .releases
                 .orEmpty()
                 .maxByOrNull { it.versionCodes.orEmpty().maxOrNull() ?: 1 }

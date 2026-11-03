@@ -45,9 +45,7 @@ internal object ChangelogTasksRegistrar {
     internal fun registerGenerateChangelogTask(
         project: Project,
         params: GenerateChangelogTaskParams,
-    ): TaskProvider<out GenerateChangelogTaskOutput> {
-        return project.registerGenerateChangelogTask(params)
-    }
+    ): TaskProvider<out GenerateChangelogTaskOutput> = project.registerGenerateChangelogTask(params)
 }
 
 /**
@@ -62,7 +60,9 @@ internal object ChangelogTasksRegistrar {
  * @return A [TaskProvider] for the registered [GenerateChangelogTask].
  */
 @Suppress("MaxLineLength") // One parameter function
-private fun Project.registerGenerateChangelogTask(params: GenerateChangelogTaskParams): TaskProvider<out GenerateChangelogTaskOutput> {
+private fun Project.registerGenerateChangelogTask(
+    params: GenerateChangelogTaskParams,
+): TaskProvider<out GenerateChangelogTaskOutput> {
     val buildVariant = params.buildVariant
     val changelogFile = project.changelogFileProvider(buildVariant.name)
     return tasks.register(

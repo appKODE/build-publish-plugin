@@ -17,15 +17,17 @@ internal interface UploadToConfluenceParameters : WorkParameters {
 
 internal abstract class UploadToConfluenceWork
     @Inject
-    constructor() : WorkAction<UploadToConfluenceParameters> {
+    constructor() :
+    WorkAction<UploadToConfluenceParameters> {
         override fun execute() {
-            ConfluenceControllerFactory.build(
-                baseUrl = parameters.baseUrl.get(),
-                username = parameters.username.get(),
-                password = parameters.apiToken.get(),
-            ).uploadFile(
-                pageId = parameters.pageId.get(),
-                file = parameters.file.asFile.get(),
-            )
+            ConfluenceControllerFactory
+                .build(
+                    baseUrl = parameters.baseUrl.get(),
+                    username = parameters.username.get(),
+                    password = parameters.apiToken.get(),
+                ).uploadFile(
+                    pageId = parameters.pageId.get(),
+                    file = parameters.file.asFile.get(),
+                )
         }
     }

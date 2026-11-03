@@ -17,7 +17,8 @@ internal interface StandaloneTransitionJiraIssueParameters : ServiceWorkParamete
 
 internal abstract class StandaloneTransitionJiraIssueWork
     @Inject
-    constructor() : WorkAction<StandaloneTransitionJiraIssueParameters> {
+    constructor() :
+    WorkAction<StandaloneTransitionJiraIssueParameters> {
         override fun execute() {
             parameters.service.get().transitionIssues(
                 instanceName = parameters.instanceName.getOrElse(""),

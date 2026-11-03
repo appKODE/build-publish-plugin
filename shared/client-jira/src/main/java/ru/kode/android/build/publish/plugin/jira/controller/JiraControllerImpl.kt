@@ -134,7 +134,8 @@ internal class JiraControllerImpl(
      */
     override fun getIssueStatus(issue: String): JiraIssueStatus? {
         val status =
-            api.getStatus(issue)
+            api
+                .getStatus(issue)
                 .executeWithResult()
                 .onFailure { logger.error(failedToGetIssueStatusMessage(issue), it) }
                 .getOrNull()
@@ -149,14 +150,14 @@ internal class JiraControllerImpl(
         }
     }
 
-    override fun getIssueSummary(issue: String): String? {
-        return api.getSummary(issue)
+    override fun getIssueSummary(issue: String): String? =
+        api
+            .getSummary(issue)
             .executeWithResult()
             .onFailure { logger.error(failedToGetIssueSummaryMessage(issue), it) }
             .getOrNull()
             ?.fields
             ?.summary
-    }
 
     /**
      * Retrieves all statuses available in a Jira project across all workflows.
@@ -171,7 +172,8 @@ internal class JiraControllerImpl(
      */
     override fun getProjectAvailableStatuses(projectKey: String): List<JiraIssueStatus> {
         val workflows =
-            api.getProjectStatuses(projectKey)
+            api
+                .getProjectStatuses(projectKey)
                 .executeWithResult()
                 .getOrThrow()
 
@@ -182,8 +184,7 @@ internal class JiraControllerImpl(
                     id = status.id,
                     name = status.name,
                 )
-            }
-            .distinctBy { it.id }
+            }.distinctBy { it.id }
     }
 
     /**
@@ -198,7 +199,8 @@ internal class JiraControllerImpl(
      */
     override fun getProjectId(projectKey: String): Long {
         val project =
-            api.getProject(projectKey)
+            api
+                .getProject(projectKey)
                 .executeWithResult()
                 .getOrThrow()
 
@@ -270,7 +272,8 @@ internal class JiraControllerImpl(
      */
     override fun getIssueLabels(issue: String): List<String> {
         val response =
-            api.getLabels(issue)
+            api
+                .getLabels(issue)
                 .executeWithResult()
                 .getOrNull()
 
@@ -295,7 +298,8 @@ internal class JiraControllerImpl(
                 name = version,
                 projectId = projectId,
             )
-        api.createVersion(request)
+        api
+            .createVersion(request)
             .executeNoResult()
             .onFailure { logger.error(failedToCreateProjectVersionMessage(version, projectId), it) }
     }
@@ -314,8 +318,7 @@ internal class JiraControllerImpl(
                 versionId = versionId,
                 moveFixIssuesTo = null,
                 moveAffectedIssuesTo = null,
-            )
-            .executeNoResult()
+            ).executeNoResult()
             .onFailure { logger.error(failedToRemoveVersionMessage(versionId), it) }
     }
 
@@ -328,8 +331,9 @@ internal class JiraControllerImpl(
      * @throws IOException If the network request fails
      * @throws JiraApiException If the Jira API returns an error
      */
-    override fun getProjectVersions(projectKey: String): List<JiraFixVersion> {
-        return api.getProjectVersions(projectKey)
+    override fun getProjectVersions(projectKey: String): List<JiraFixVersion> =
+        api
+            .getProjectVersions(projectKey)
             .executeWithResult()
             .getOrThrow()
             .map {
@@ -338,7 +342,6 @@ internal class JiraControllerImpl(
                     name = it.name,
                 )
             }
-    }
 
     /**
      * Adds a fix version to a Jira issue.
@@ -396,7 +399,8 @@ internal class JiraControllerImpl(
                     ),
             )
 
-        api.removeFixVersion(issue, request)
+        api
+            .removeFixVersion(issue, request)
             .executeNoResult()
             .onFailure { logger.error(failedToRemoveFixVersionMessage(issue), it) }
     }
@@ -406,8 +410,9 @@ internal class JiraControllerImpl(
      *
      * @param issue The issue key (e.g., "PROJ-123")
      */
-    override fun getIssueFixVersions(issue: String): List<JiraFixVersion> {
-        return api.getFixVersions(issue)
+    override fun getIssueFixVersions(issue: String): List<JiraFixVersion> =
+        api
+            .getFixVersions(issue)
             .executeWithResult()
             .onFailure { logger.error(failedToGetIssueFixVersionMessage(issue), it) }
             .getOrNull()
@@ -420,7 +425,6 @@ internal class JiraControllerImpl(
                     name = it.name,
                 )
             }
-    }
 
     /**
      * Retrieves all available transitions for a Jira issue.
@@ -448,7 +452,8 @@ internal class JiraControllerImpl(
      */
     private fun getAvailableIssueTransitions(issue: String): List<JiraIssueTransition> {
         val response =
-            api.getAvailableTransitions(issue)
+            api
+                .getAvailableTransitions(issue)
                 .executeWithResult()
                 .getOrThrow()
 

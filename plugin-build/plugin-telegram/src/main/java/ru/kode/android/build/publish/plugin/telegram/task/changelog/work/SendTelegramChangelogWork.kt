@@ -82,7 +82,8 @@ internal interface SendTelegramChangelogParameters : WorkParameters {
  */
 internal abstract class SendTelegramChangelogWork
     @Inject
-    constructor() : WorkAction<SendTelegramChangelogParameters> {
+    constructor() :
+    WorkAction<SendTelegramChangelogParameters> {
         override fun execute() {
             val service = parameters.service.get()
             val logger = parameters.loggerService.get()
@@ -94,7 +95,10 @@ internal abstract class SendTelegramChangelogWork
             service.send(
                 changelog = parameters.changelog.get(),
                 header = header,
-                userMentions = parameters.userMentions.orNull?.toList().orEmpty(),
+                userMentions =
+                    parameters.userMentions.orNull
+                        ?.toList()
+                        .orEmpty(),
                 issueSources =
                     parameters.issueSources.get().map { (pattern, url) ->
                         IssueSource(pattern, url.ifBlank { null })

@@ -25,8 +25,8 @@ object JiraControllerFactory {
         username: String,
         password: String,
         logger: PluginLogger,
-    ): JiraController {
-        return JiraControllerImpl(
+    ): JiraController =
+        JiraControllerImpl(
             api =
                 JiraApiFactory.build(
                     client =
@@ -39,7 +39,6 @@ object JiraControllerFactory {
                 ),
             logger = logger,
         )
-    }
 
     fun build(
         baseUrl: String,

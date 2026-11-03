@@ -65,7 +65,11 @@ class DefaultTrackManagerTest {
 
         manager.promote(promoteConfig(from = "internal", to = "production"))
 
-        val statuses = publisher.updatedTracks.single().releases.map { it.status }
+        val statuses =
+            publisher.updatedTracks
+                .single()
+                .releases
+                .map { it.status }
         assertEquals(setOf("completed", "inProgress"), statuses.toSet())
     }
 
@@ -83,7 +87,11 @@ class DefaultTrackManagerTest {
             ),
         )
 
-        val release = publisher.updatedTracks.single().releases.single()
+        val release =
+            publisher.updatedTracks
+                .single()
+                .releases
+                .single()
         assertEquals("inProgress", release.status)
         assertEquals(0.1, release.userFraction)
     }
@@ -98,7 +106,11 @@ class DefaultTrackManagerTest {
             ),
         )
 
-        val release = publisher.updatedTracks.single().releases.single()
+        val release =
+            publisher.updatedTracks
+                .single()
+                .releases
+                .single()
         assertEquals("halted", release.status)
         assertEquals(0.1, release.userFraction)
     }
@@ -114,7 +126,11 @@ class DefaultTrackManagerTest {
             ),
         )
 
-        val release = publisher.updatedTracks.single().releases.single()
+        val release =
+            publisher.updatedTracks
+                .single()
+                .releases
+                .single()
         assertEquals("completed", release.status)
         assertNull(release.userFraction)
     }
@@ -224,7 +240,11 @@ class DefaultTrackManagerTest {
             ),
         )
 
-        val appended = publisher.updatedTracks.single().releases.single { it.status == "completed" }
+        val appended =
+            publisher.updatedTracks
+                .single()
+                .releases
+                .single { it.status == "completed" }
         assertEquals(1, appended.releaseNotes.size)
         assertEquals("en-US", appended.releaseNotes.single().language)
         assertEquals("Draft notes", appended.releaseNotes.single().text)
@@ -256,7 +276,12 @@ class DefaultTrackManagerTest {
             ),
         )
 
-        val notes = publisher.updatedTracks.single().releases.single().releaseNotes
+        val notes =
+            publisher.updatedTracks
+                .single()
+                .releases
+                .single()
+                .releaseNotes
         assertEquals(
             mapOf("en-US" to "New notes", "ru-RU" to "Существующие"),
             notes.associate { it.language to it.text },

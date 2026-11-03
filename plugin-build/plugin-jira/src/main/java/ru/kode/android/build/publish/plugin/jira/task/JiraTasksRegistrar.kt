@@ -36,9 +36,7 @@ internal object JiraTasksRegistrar {
         automationConfig: JiraAutomationConfig,
         service: Provider<JiraService>,
         params: JiraAutomationTaskParams,
-    ): TaskProvider<JiraAutomationTask>? {
-        return project.registerJiraTasks(authConfig, automationConfig, service, params)
-    }
+    ): TaskProvider<JiraAutomationTask>? = project.registerJiraTasks(authConfig, automationConfig, service, params)
 }
 
 private fun Project.registerJiraTasks(

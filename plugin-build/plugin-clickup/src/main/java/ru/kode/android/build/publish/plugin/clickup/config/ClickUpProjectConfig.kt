@@ -14,7 +14,9 @@ import ru.kode.android.gradle.commons.util.CommonConfigMergeable
  * this override only tweaks the automation patterns for one referenced project. Any unset pattern falls
  * back to the automation-level default. Declaring `project("name") { … }` also selects that project.
  */
-interface ClickUpProjectConfig : Named, CommonConfigMergeable<ClickUpProjectConfig> {
+interface ClickUpProjectConfig :
+    Named,
+    CommonConfigMergeable<ClickUpProjectConfig> {
     /**
      * Pattern for the fix-version value set on ClickUp tasks of this project. Falls back to the
      * automation-level `fixVersionPattern`. Formatted with `buildVersion`, `buildNumber`, `buildVariant`.

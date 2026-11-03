@@ -93,10 +93,9 @@ class GitRepository(
     fun markedCommitMessages(
         messageKey: String,
         buildTagSnapshot: BuildTagSnapshot,
-    ): List<String> {
-        return gitCommandExecutor
+    ): List<String> =
+        gitCommandExecutor
             .extractMarkedCommitMessages(messageKey, buildTagSnapshot.asCommitRange())
-    }
 
     /**
      * Extracts issue-reference lines (`CLOSES`/`FIXES`) within the [buildTagSnapshot] range, grouped per
@@ -108,8 +107,7 @@ class GitRepository(
         references: List<IssueReference>,
         commitMessageKey: String,
         buildTagSnapshot: BuildTagSnapshot,
-    ): List<CommitIssueReferences> {
-        return gitCommandExecutor
+    ): List<CommitIssueReferences> =
+        gitCommandExecutor
             .extractIssueReferenceLines(references, commitMessageKey, buildTagSnapshot.asCommitRange())
-    }
 }

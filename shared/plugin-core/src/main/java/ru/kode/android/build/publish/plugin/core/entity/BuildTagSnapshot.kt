@@ -52,7 +52,5 @@ data class BuildTagSnapshot(
      * @return A [CommitRange] representing the same snapshot of commits as this tag snapshot
      * @see CommitRange For information about the commit snapshot format
      */
-    fun asCommitRange(): CommitRange {
-        return CommitRange(previousOnDifferentCommit?.commitSha, current.commitSha)
-    }
+    fun asCommitRange(): CommitRange = CommitRange(previousOnDifferentCommit?.commitSha, current.commitSha)
 }

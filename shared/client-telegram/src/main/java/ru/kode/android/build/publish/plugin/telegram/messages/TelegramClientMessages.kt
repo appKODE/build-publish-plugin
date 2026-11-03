@@ -25,12 +25,14 @@ fun tooManyRequestsMessage(
 
 fun reachedMaxTriesMessage(maxRetries: Int): String = "Reached maximum retry attempts ($maxRetries). Giving up."
 
-fun botWithoutChatMessage(botName: String): String = "Bot '$botName' is missing required chat configuration (chatId is empty or missing)"
+fun botWithoutChatMessage(botName: String): String =
+    "Bot '$botName' is missing required chat configuration (chatId is empty or missing)"
 
 @Suppress("FunctionOnlyReturningConstant")
 fun telegramBotFailedEncodeToJsonMessage(): String = "Failed to serialize TelegramBot configuration to JSON"
 
-fun telegramBotJsonParsingFailedMessage(json: String): String = "Failed to parse Telegram bot configuration from JSON: ${json.take(200)}"
+fun telegramBotJsonParsingFailedMessage(json: String): String =
+    "Failed to parse Telegram bot configuration from JSON: ${json.take(200)}"
 
 @Suppress("FunctionOnlyReturningConstant")
 fun destinationBotsEncodeToJsonFailedMessage(): String = "Failed to serialize the list of destination bots to JSON"

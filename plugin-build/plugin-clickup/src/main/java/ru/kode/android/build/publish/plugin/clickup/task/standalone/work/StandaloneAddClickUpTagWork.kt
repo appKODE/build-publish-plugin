@@ -16,7 +16,8 @@ internal interface StandaloneAddClickUpTagParameters : ServiceWorkParameters {
 
 internal abstract class StandaloneAddClickUpTagWork
     @Inject
-    constructor() : WorkAction<StandaloneAddClickUpTagParameters> {
+    constructor() :
+    WorkAction<StandaloneAddClickUpTagParameters> {
         override fun execute() {
             parameters.service.get().addTagToTasks(
                 accountName = parameters.accountName.getOrElse(""),

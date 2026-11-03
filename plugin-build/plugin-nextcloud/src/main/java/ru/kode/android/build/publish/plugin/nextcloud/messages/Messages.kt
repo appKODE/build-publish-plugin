@@ -8,150 +8,140 @@ fun uploadingToNextcloudMessage(
     remoteFileName: String,
 ): String = "Uploading $fileName to Nextcloud at $remotePath/$remoteFileName"
 
-fun servicesCreatedMessage(servicesKeys: Set<String>): String {
-    return """
+fun servicesCreatedMessage(servicesKeys: Set<String>): String =
+    """
 
-        |============================================================
-        |                NEXTCLOUD SERVICES CREATED
-        |============================================================
-        | Successfully created Nextcloud services:
-        |
-        | ${servicesKeys.joinToString("\n") { "• $it" }}
-        |
-        |============================================================
-        """.trimIndent()
-}
+    |============================================================
+    |                NEXTCLOUD SERVICES CREATED
+    |============================================================
+    | Successfully created Nextcloud services:
+    |
+    | ${servicesKeys.joinToString("\n") { "• $it" }}
+    |
+    |============================================================
+    """.trimIndent()
 
-fun registeringServicesMessage(): String {
-    return """
+fun registeringServicesMessage(): String =
+    """
 
-        |============================================================
-        |              REGISTERING NEXTCLOUD SERVICES
-        |============================================================
-        | Initializing Nextcloud service registration...
-        |============================================================
-        """.trimIndent()
-}
+    |============================================================
+    |              REGISTERING NEXTCLOUD SERVICES
+    |============================================================
+    | Initializing Nextcloud service registration...
+    |============================================================
+    """.trimIndent()
 
-fun noAuthConfigsMessage(): String {
-    return """
+fun noAuthConfigsMessage(): String =
+    """
 
-        |============================================================
-        |          NO NEXTCLOUD AUTH CONFIGURATIONS FOUND
-        |============================================================
-        | No Nextcloud authentication configurations were found.
-        | Integration is disabled.
-        |
-        | Configure at least one auth block in `$EXTENSION_NAME`.
-        |============================================================
-        """.trimIndent()
-}
+    |============================================================
+    |          NO NEXTCLOUD AUTH CONFIGURATIONS FOUND
+    |============================================================
+    | No Nextcloud authentication configurations were found.
+    | Integration is disabled.
+    |
+    | Configure at least one auth block in `$EXTENSION_NAME`.
+    |============================================================
+    """.trimIndent()
 
-fun foundationPluginNotFoundException(): String {
-    return """
+fun foundationPluginNotFoundException(): String =
+    """
 
-        |============================================================
-        |                 PLUGIN CONFIGURATION ERROR
-        |============================================================
-        | The Nextcloud plugin requires foundation plugin.
-        |
-        | plugins {
-        |     id("ru.kode.android.build-publish-novo.foundation")
-        |     id("ru.kode.android.build-publish-novo.nextcloud")
-        | }
-        |============================================================
-        """.trimIndent()
-}
+    |============================================================
+    |                 PLUGIN CONFIGURATION ERROR
+    |============================================================
+    | The Nextcloud plugin requires foundation plugin.
+    |
+    | plugins {
+    |     id("ru.kode.android.build-publish-novo.foundation")
+    |     id("ru.kode.android.build-publish-novo.nextcloud")
+    | }
+    |============================================================
+    """.trimIndent()
 
-fun uploadFailedMessage(): String {
-    return """
+fun uploadFailedMessage(): String =
+    """
 
-        |============================================================
-        |              NEXTCLOUD DISTRIBUTION FAILED
-        |============================================================
-        | Upload/share operation failed.
-        |============================================================
-        """.trimIndent()
-}
+    |============================================================
+    |              NEXTCLOUD DISTRIBUTION FAILED
+    |============================================================
+    | Upload/share operation failed.
+    |============================================================
+    """.trimIndent()
 
 fun shareCreatedMessage(
     remoteFilePath: String,
     url: String,
-): String {
-    return """
+): String =
+    """
 
-        |============================================================
-        |                NEXTCLOUD SHARE CREATED
-        |============================================================
-        | Nextcloud public share created for:
-        |  • Path: $remoteFilePath
-        |  • URL: $url
-        |============================================================
-        """.trimIndent()
-}
+    |============================================================
+    |                NEXTCLOUD SHARE CREATED
+    |============================================================
+    | Nextcloud public share created for:
+    |  • Path: $remoteFilePath
+    |  • URL: $url
+    |============================================================
+    """.trimIndent()
 
 fun shareReusedMessage(
     remoteFilePath: String,
     url: String,
-): String {
-    return """
+): String =
+    """
 
-        |============================================================
-        |                NEXTCLOUD SHARE REUSED
-        |============================================================
-        | Nextcloud public share reused for:
-        |  • Path: $remoteFilePath
-        |  • URL: $url
-        |============================================================
-        """.trimIndent()
-}
+    |============================================================
+    |                NEXTCLOUD SHARE REUSED
+    |============================================================
+    | Nextcloud public share reused for:
+    |  • Path: $remoteFilePath
+    |  • URL: $url
+    |============================================================
+    """.trimIndent()
 
 fun internalShareReadyMessage(
     remoteFilePath: String,
     internalUrl: String,
     createdCount: Int,
     reusedCount: Int,
-): String {
-    return """
+): String =
+    """
 
-        |============================================================
-        |             NEXTCLOUD INTERNAL SHARE READY
-        |============================================================
-        | Internal share successfully prepared for:
-        |  • Path: $remoteFilePath
-        |  • URL: $internalUrl
-        |
-        | Statistics:
-        |  • Created: $createdCount
-        |  • Reused: $reusedCount
-        |============================================================
-        """.trimIndent()
-}
+    |============================================================
+    |             NEXTCLOUD INTERNAL SHARE READY
+    |============================================================
+    | Internal share successfully prepared for:
+    |  • Path: $remoteFilePath
+    |  • URL: $internalUrl
+    |
+    | Statistics:
+    |  • Created: $createdCount
+    |  • Reused: $reusedCount
+    |============================================================
+    """.trimIndent()
 
-fun needProvideDistributionConfigMessage(variantName: String): String {
-    return """
+fun needProvideDistributionConfigMessage(variantName: String): String =
+    """
 
-        |============================================================
-        |            MISSING DISTRIBUTION CONFIGURATION
-        |============================================================
-        | No distribution configuration found for variant: $variantName
-        |
-        | Configure `$EXTENSION_NAME { distribution { ... } }` with
-        | `common { ... }` or `buildVariant("$variantName") { ... }`.
-        |============================================================
-        """.trimIndent()
-}
+    |============================================================
+    |            MISSING DISTRIBUTION CONFIGURATION
+    |============================================================
+    | No distribution configuration found for variant: $variantName
+    |
+    | Configure `$EXTENSION_NAME { distribution { ... } }` with
+    | `common { ... }` or `buildVariant("$variantName") { ... }`.
+    |============================================================
+    """.trimIndent()
 
-fun needProvideAuthConfigMessage(variantName: String): String {
-    return """
+fun needProvideAuthConfigMessage(variantName: String): String =
+    """
 
-        |============================================================
-        |            MISSING AUTHENTICATION CONFIGURATION
-        |============================================================
-        | No authentication configuration found for variant: $variantName
-        |
-        | Configure `$EXTENSION_NAME { auth { ... } }` with
-        | `common { ... }` or `buildVariant("$variantName") { ... }`.
-        |============================================================
-        """.trimIndent()
-}
+    |============================================================
+    |            MISSING AUTHENTICATION CONFIGURATION
+    |============================================================
+    | No authentication configuration found for variant: $variantName
+    |
+    | Configure `$EXTENSION_NAME { auth { ... } }` with
+    | `common { ... }` or `buildVariant("$variantName") { ... }`.
+    |============================================================
+    """.trimIndent()

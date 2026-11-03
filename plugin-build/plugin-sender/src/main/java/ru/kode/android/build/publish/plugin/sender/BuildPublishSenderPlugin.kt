@@ -8,6 +8,7 @@ import ru.kode.android.build.publish.plugin.sender.task.clickup.AddClickUpFixVer
 import ru.kode.android.build.publish.plugin.sender.task.clickup.AddClickUpTagTask
 import ru.kode.android.build.publish.plugin.sender.task.confluence.AddConfluenceCommentTask
 import ru.kode.android.build.publish.plugin.sender.task.confluence.UploadToConfluenceTask
+import ru.kode.android.build.publish.plugin.sender.task.firebase.CheckFirebaseRemoteConfigTask
 import ru.kode.android.build.publish.plugin.sender.task.jira.AddJiraFixVersionTask
 import ru.kode.android.build.publish.plugin.sender.task.jira.AddJiraLabelTask
 import ru.kode.android.build.publish.plugin.sender.task.jira.TransitionJiraIssueTask
@@ -16,6 +17,7 @@ import ru.kode.android.build.publish.plugin.sender.task.slack.SendSlackFileTask
 import ru.kode.android.build.publish.plugin.sender.task.slack.SendSlackMessageTask
 import ru.kode.android.build.publish.plugin.sender.task.telegram.SendTelegramFileTask
 import ru.kode.android.build.publish.plugin.sender.task.telegram.SendTelegramMessageTask
+import ru.kode.android.gradle.commons.util.getOrRegisterLoggerService
 
 private const val EXTENSION_NAME = "buildPublishSender"
 
@@ -102,6 +104,23 @@ abstract class BuildPublishSenderPlugin : Plugin<Project> {
             }
             project.tasks.register(TaskNames.ClickUp.ADD_FIX_VERSION, AddClickUpFixVersionTask::class.java) { task ->
                 task.apiTokenFile.set(clickUp.apiTokenFile)
+            }
+        }
+
+        extension.firebaseRemoteConfig?.let { config ->
+            val loggerService = project.getOrRegisterLoggerService()
+            project.tasks.register(
+                TaskNames.Firebase.CHECK_REMOTE_CONFIG_PREFIX,
+                CheckFirebaseRemoteConfigTask::class.java,
+            ) { task ->
+                task.configureFrom(config)
+                task.buildTagPattern.set(config.buildTagPattern)
+                task.appVersion.set(config.appVersion)
+                task.appBuild.set(config.appBuild)
+                task.repositoryDirectory.set(project.rootProject.layout.projectDirectory)
+                task.outputDirectory.set(project.layout.buildDirectory.dir("firebase/remote-config"))
+                task.loggerService.set(loggerService)
+                task.usesService(loggerService)
             }
         }
     }

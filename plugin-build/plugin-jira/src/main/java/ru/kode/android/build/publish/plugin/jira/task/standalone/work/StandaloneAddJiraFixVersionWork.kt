@@ -17,7 +17,8 @@ internal interface StandaloneAddJiraFixVersionParameters : ServiceWorkParameters
 
 internal abstract class StandaloneAddJiraFixVersionWork
     @Inject
-    constructor() : WorkAction<StandaloneAddJiraFixVersionParameters> {
+    constructor() :
+    WorkAction<StandaloneAddJiraFixVersionParameters> {
         override fun execute() {
             val logger = parameters.loggerService.get()
             parameters.service.get().addFixVersionToIssues(

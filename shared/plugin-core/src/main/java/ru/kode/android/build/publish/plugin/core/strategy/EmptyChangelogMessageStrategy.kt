@@ -73,18 +73,14 @@ object NoChangesChangelogMessageStrategy : EmptyChangelogMessageStrategy {
      * @param tag The previous build tag to reference
      * @return A formatted message indicating no changes since the given tag
      */
-    override fun noChangesSincePreviousTagMessage(tag: Tag.Build): String {
-        return noChangesDetectedSinceBuildMessage(tag.name)
-    }
+    override fun noChangesSincePreviousTagMessage(tag: Tag.Build): String = noChangesDetectedSinceBuildMessage(tag.name)
 
     /**
      * Generates a message indicating no changes since the repository start.
      *
      * @return A formatted message for the initial repository state
      */
-    override fun noChangesSinceStartMessage(): String {
-        return noChangedDetectedSinceStartMessage()
-    }
+    override fun noChangesSinceStartMessage(): String = noChangedDetectedSinceStartMessage()
 }
 
 /**
@@ -95,15 +91,14 @@ object NoChangesChangelogMessageStrategy : EmptyChangelogMessageStrategy {
  *
  * @return A formatted string with emoji and markdown formatting indicating the starting point
  */
-fun noChangedDetectedSinceStartMessage(): String {
-    return """
-        🌱 *No changes detected*
-        _Starting point of the repository_
+fun noChangedDetectedSinceStartMessage(): String =
+    """
+    🌱 *No changes detected*
+    _Starting point of the repository_
 
-        There are no commits to include yet.
-        This usually means this is the first build.
-        """.trimIndent()
-}
+    There are no commits to include yet.
+    This usually means this is the first build.
+    """.trimIndent()
 
 /**
  * Default changelog message used when there are no changes since a previous build tag.
@@ -114,11 +109,10 @@ fun noChangedDetectedSinceStartMessage(): String {
  * @param tagName The previous build tag that was used as the comparison point
  * @return A formatted string with emoji and markdown formatting referencing the previous tag
  */
-fun noChangesDetectedSinceBuildMessage(tagName: String): String {
-    return """
-        🔁 *No changes detected*
-        _Since build `$tagName`_
+fun noChangesDetectedSinceBuildMessage(tagName: String): String =
+    """
+    🔁 *No changes detected*
+    _Since build `$tagName`_
 
-        No new commits or configuration updates were found.
-        """.trimIndent()
-}
+    No new commits or configuration updates were found.
+    """.trimIndent()

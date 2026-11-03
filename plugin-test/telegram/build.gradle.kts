@@ -23,7 +23,7 @@ dependencies {
     testImplementation(gradleTestKit())
     testImplementation(platform(libs.junitBom))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("org.junit-pioneer:junit-pioneer:1.9.1")
+    testImplementation(libs.junitPioneer)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -37,7 +37,10 @@ tasks.test {
     systemProperty("TELEGRAM_LOOKUP_CHAT_ID", project.getEnvOrProperty("TELEGRAM_LOOKUP_CHAT_ID"))
     systemProperty("TELEGRAM_LOOKUP_CHANNEL_ID", project.getEnvOrProperty("TELEGRAM_LOOKUP_CHANNEL_ID"))
     systemProperty("TELEGRAM_LOOKUP_CHAT_FORUM_ID", project.getEnvOrProperty("TELEGRAM_LOOKUP_CHAT_FORUM_ID"))
-    systemProperty("TELEGRAM_LOOKUP_CHAT_FORUM_TOPIC_ID", project.getEnvOrProperty("TELEGRAM_LOOKUP_CHAT_FORUM_TOPIC_ID"))
+    systemProperty(
+        "TELEGRAM_LOOKUP_CHAT_FORUM_TOPIC_ID",
+        project.getEnvOrProperty("TELEGRAM_LOOKUP_CHAT_FORUM_TOPIC_ID"),
+    )
     systemProperty("TELEGRAM_CHAT_FORUM_TOPIC_ID", project.getEnvOrProperty("TELEGRAM_CHAT_FORUM_TOPIC_ID"))
     systemProperty("TELEGRAM_BOT_SERVER_BASE_URL", project.getEnvOrProperty("TELEGRAM_BOT_SERVER_BASE_URL"))
     systemProperty("TELEGRAM_BOT_SERVER_USERNAME", project.getEnvOrProperty("TELEGRAM_BOT_SERVER_USERNAME"))

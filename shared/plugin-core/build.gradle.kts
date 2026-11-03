@@ -9,7 +9,7 @@ group = "ru.kode.android"
 version = libs.versions.buildPublishPlugin.get()
 
 dependencies {
-    api("ru.kode.android:gradle-plugin-commons:1.0.0")
+    api(libs.gradlePluginCommons)
 
     implementation(gradleApi())
     implementation(libs.grgitCore)

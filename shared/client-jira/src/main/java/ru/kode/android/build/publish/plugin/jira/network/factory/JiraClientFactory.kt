@@ -27,7 +27,8 @@ internal object JiraClientFactory {
         logger: PluginLogger,
     ): OkHttpClient {
         val loggingInterceptor = buildLoggingInterceptor(logger)
-        return OkHttpClient.Builder()
+        return OkHttpClient
+            .Builder()
             .connectTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -37,8 +38,7 @@ internal object JiraClientFactory {
                     password = password,
                     extraHeaders = mapOf("Content-Type" to "application/json"),
                 ),
-            )
-            .addProxyIfAvailable(logger)
+            ).addProxyIfAvailable(logger)
             .addNetworkInterceptor(loggingInterceptor)
             .build()
     }

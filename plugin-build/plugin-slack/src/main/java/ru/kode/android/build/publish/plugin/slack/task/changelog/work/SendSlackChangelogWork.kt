@@ -79,7 +79,8 @@ internal interface SendSlackChangelogParameters : WorkParameters {
  */
 internal abstract class SendSlackChangelogWork
     @Inject
-    constructor() : WorkAction<SendSlackChangelogParameters> {
+    constructor() :
+    WorkAction<SendSlackChangelogParameters> {
         override fun execute() {
             val service = parameters.service.get()
             val logger = parameters.loggerService.get()
@@ -91,7 +92,10 @@ internal abstract class SendSlackChangelogWork
             service.send(
                 initialComment = initialComment,
                 changelog = parameters.changelog.get(),
-                userMentions = parameters.userMentions.orNull?.toList().orEmpty(),
+                userMentions =
+                    parameters.userMentions.orNull
+                        ?.toList()
+                        .orEmpty(),
                 iconUrl = parameters.iconUrl.get(),
                 attachmentColor = parameters.attachmentColor.get(),
                 issueSources =

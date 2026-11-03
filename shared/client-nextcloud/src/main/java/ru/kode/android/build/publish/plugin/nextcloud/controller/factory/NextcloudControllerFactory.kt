@@ -15,8 +15,8 @@ object NextcloudControllerFactory {
         password: String,
         logger: PluginLogger,
         proxy: () -> NetworkProxy? = { null },
-    ): NextcloudController {
-        return NextcloudControllerImpl(
+    ): NextcloudController =
+        NextcloudControllerImpl(
             baseUrl = if (baseUrl.endsWith('/')) baseUrl else "$baseUrl/",
             username = username,
             api =
@@ -25,7 +25,6 @@ object NextcloudControllerFactory {
                     baseUrl = if (baseUrl.endsWith('/')) baseUrl else "$baseUrl/",
                 ),
         )
-    }
 
     fun build(
         baseUrl: String,

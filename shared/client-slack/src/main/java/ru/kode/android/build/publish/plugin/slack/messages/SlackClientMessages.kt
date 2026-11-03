@@ -7,7 +7,8 @@ import ru.kode.android.gradle.commons.util.SecretRedaction
 fun blockTextHasMoreSymbolsMessage(maxSymbols: Int): String =
     "Message block text exceeds the maximum allowed length of $maxSymbols characters."
 
-fun headerTextHasMoreSymbolsMessage(maxSymbols: Int): String = "Header text exceeds the maximum allowed length of $maxSymbols characters."
+fun headerTextHasMoreSymbolsMessage(maxSymbols: Int): String =
+    "Header text exceeds the maximum allowed length of $maxSymbols characters."
 
 fun failedToSendChangelogMessage(webhookUrl: String): String {
     val redactedUrl = SecretRedaction.redactUrl(webhookUrl)

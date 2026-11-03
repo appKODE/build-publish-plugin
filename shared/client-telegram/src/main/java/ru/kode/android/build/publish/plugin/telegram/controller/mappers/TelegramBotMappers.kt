@@ -6,19 +6,17 @@ import ru.kode.android.build.publish.plugin.telegram.messages.telegramBotFailedE
 import ru.kode.android.build.publish.plugin.telegram.messages.telegramBotJsonParsingFailedMessage
 
 @Suppress("TooGenericExceptionCaught")
-fun TelegramBot.toJson(): String {
-    return try {
+fun TelegramBot.toJson(): String =
+    try {
         Json.encodeToString(this)
     } catch (e: Exception) {
         throw IllegalStateException(telegramBotFailedEncodeToJsonMessage(), e)
     }
-}
 
 @Suppress("TooGenericExceptionCaught")
-fun telegramBotFromJson(json: String): TelegramBot {
-    return try {
+fun telegramBotFromJson(json: String): TelegramBot =
+    try {
         Json.decodeFromString(json)
     } catch (e: Exception) {
         throw IllegalStateException(telegramBotJsonParsingFailedMessage(json), e)
     }
-}

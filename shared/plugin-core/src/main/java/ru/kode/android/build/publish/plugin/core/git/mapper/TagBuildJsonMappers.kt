@@ -6,15 +6,12 @@ import ru.kode.android.build.publish.plugin.core.entity.BuildTagSnapshot
 import ru.kode.android.build.publish.plugin.core.messages.fileCannotBeParsedMessage
 import java.io.File
 
-fun BuildTagSnapshot.toJson(): String {
-    return Json.encodeToString(this)
-}
+fun BuildTagSnapshot.toJson(): String = Json.encodeToString(this)
 
 @Suppress("ThrowsCount", "SwallowedException")
-fun fromJson(file: File): BuildTagSnapshot {
-    return try {
+fun fromJson(file: File): BuildTagSnapshot =
+    try {
         Json.decodeFromString(file.readText())
     } catch (_: Exception) {
         throw GradleException(fileCannotBeParsedMessage(file))
     }
-}

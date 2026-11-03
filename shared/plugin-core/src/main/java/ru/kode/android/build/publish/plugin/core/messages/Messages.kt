@@ -7,8 +7,8 @@ import ru.kode.android.build.publish.plugin.core.util.utcDateTime
 import java.io.File
 import org.ajoberstar.grgit.Tag as GrgitTag
 
-fun buildingChangelogForTagRangeMessage(buildTagSnapshot: BuildTagSnapshot): String {
-    return """
+fun buildingChangelogForTagRangeMessage(buildTagSnapshot: BuildTagSnapshot): String =
+    """
 
         |============================================================
         |                 BUILDING CHANGELOG
@@ -26,8 +26,7 @@ fun buildingChangelogForTagRangeMessage(buildTagSnapshot: BuildTagSnapshot): Str
         |   - Previous: ${buildTagSnapshot.previous?.commitSha ?: "Not found"}
         |
         |============================================================
-        """.trimMargin()
-}
+    """.trimMargin()
 
 fun cannotReturnTagMessage(
     previousTagBuildNumber: Int,
@@ -158,8 +157,8 @@ fun findTagsByRegexBeforeFilterMessage(tags: List<GrgitTag>): String {
         """.trimMargin()
 }
 
-fun fileCannotBeParsedMessage(file: File): String {
-    return """
+fun fileCannotBeParsedMessage(file: File): String =
+    """
 
         |============================================================
         |                    FILE PARSING ERROR
@@ -173,11 +172,10 @@ fun fileCannotBeParsedMessage(file: File): String {
         |   2. Check the file format
         |   3. Ensure the file is correctly formatted
         |============================================================
-        """.trimMargin()
-}
+    """.trimMargin()
 
-fun Tag.noVariantMessage(buildVariant: String): String {
-    return """
+fun Tag.noVariantMessage(buildVariant: String): String =
+    """
 
         |============================================================
         |              ️   BUILD VARIANT NOT FOUND   ️
@@ -197,11 +195,10 @@ fun Tag.noVariantMessage(buildVariant: String): String {
         |   2. Verify your build types and product flavors
         |   3. Ensure the variant exists in your build variants
         |============================================================
-        """.trimMargin()
-}
+    """.trimMargin()
 
-fun invalidRegexMessage(testRegex: String): String {
-    return """
+fun invalidRegexMessage(testRegex: String): String =
+    """
 
         |============================================================
         |                INVALID REGULAR EXPRESSION
@@ -222,11 +219,10 @@ fun invalidRegexMessage(testRegex: String): String {
         |
         | TIP: Use online regex testers to validate your pattern
         |============================================================
-        """.trimMargin()
-}
+    """.trimMargin()
 
-fun tagPatterMustContainVariantNameMessage(group: String): String {
-    return """
+fun tagPatterMustContainVariantNameMessage(group: String): String =
+    """
 
         |============================================================
         |                ️   INVALID TAG PATTERN   ️
@@ -241,11 +237,10 @@ fun tagPatterMustContainVariantNameMessage(group: String): String {
         |
         | Current configuration will not work as expected!
         |============================================================
-        """.trimMargin()
-}
+    """.trimMargin()
 
-fun tagPatternMustContainVersionGroupMessage(regexPart: String): String {
-    return """
+fun tagPatternMustContainVersionGroupMessage(regexPart: String): String =
+    """
 
         |============================================================
         |             ️   INVALID TAG VERSION PATTERN   ️
@@ -263,8 +258,7 @@ fun tagPatternMustContainVersionGroupMessage(regexPart: String): String {
         |
         | Current configuration will not work as expected!
         |============================================================
-        """.trimMargin()
-}
+    """.trimMargin()
 
 fun unresolvedIssueReferenceMessage(token: String): String =
     "Could not resolve issue reference '$token' from any provider; applying the unresolved-issue strategy."

@@ -14,7 +14,9 @@ import ru.kode.android.gradle.commons.util.CommonConfigMergeable
  * override only tweaks the automation patterns for one referenced project. Any unset pattern falls back
  * to the automation-level default. Declaring `project("name") { … }` also selects that project.
  */
-interface JiraProjectConfig : Named, CommonConfigMergeable<JiraProjectConfig> {
+interface JiraProjectConfig :
+    Named,
+    CommonConfigMergeable<JiraProjectConfig> {
     /**
      * Pattern for labels added to Jira issues of this project. Falls back to the automation-level
      * `labelPattern`. Formatted with `buildVersion`, `buildNumber`, `buildVariant`.

@@ -19,6 +19,8 @@ dependencies {
     implementation(libs.client.jira)
     implementation(libs.client.confluence)
     implementation(libs.client.clickup)
+    implementation(libs.client.firebase)
+    implementation(libs.grgitCore)
 }
 
 gradlePlugin {

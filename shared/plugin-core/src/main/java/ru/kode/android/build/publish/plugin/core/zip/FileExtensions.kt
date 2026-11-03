@@ -29,12 +29,11 @@ fun List<File>.zipAllInto(targetZipFile: File): File {
     return targetZipFile
 }
 
+/**
+ * Zips this file next to itself. The source extension stays in the name (`app.apk` → `app-apk.zip`),
+ * so an APK and a bundle of the same build don't end up with identical archive names.
+ */
 fun File.zipped(): File {
-    return listOf(this)
-        .zipAllInto(
-            File(
-                this.toString()
-                    .replace(".${this.extension}", ".zip"),
-            ),
-        )
+    val suffix = extension.takeIf { it.isNotBlank() }?.let { "-$it" }.orEmpty()
+    return listOf(this).zipAllInto(resolveSibling("$nameWithoutExtension$suffix.zip"))
 }

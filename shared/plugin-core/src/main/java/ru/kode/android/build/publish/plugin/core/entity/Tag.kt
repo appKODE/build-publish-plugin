@@ -128,13 +128,12 @@ sealed class Tag {
  * @throws GradleException if the tag name doesn't contain the expected build variant,
  *                         with a descriptive error message.
  */
-private fun Tag.toBuildVariant(buildVariant: String): String {
-    return if (this.name.contains(buildVariant)) {
+private fun Tag.toBuildVariant(buildVariant: String): String =
+    if (this.name.contains(buildVariant)) {
         buildVariant
     } else {
         throw GradleException(noVariantMessage(buildVariant))
     }
-}
 
 /**
  * Extracts the build version from the tag name.
@@ -150,14 +149,13 @@ private fun Tag.toBuildVariant(buildVariant: String): String {
  * @sample
  * "app.1.2.3.42-debug".toBuildVersion() // returns "1.2.3"
  */
-private fun String.toBuildVersion(): String {
-    return NUMBER_REGEX
+private fun String.toBuildVersion(): String =
+    NUMBER_REGEX
         .findAll(substringBefore('-'))
         .map { it.value }
         .toList()
         .dropLast(1)
         .joinToString(".")
-}
 
 /**
  * Extracts the build number from the tag name.
@@ -172,10 +170,9 @@ private fun String.toBuildVersion(): String {
  * @sample
  * "app.1.2.3.42-debug".toBuildNumber() // returns 42
  */
-private fun String.toBuildNumber(): Int {
-    return NUMBER_REGEX
+private fun String.toBuildNumber(): Int =
+    NUMBER_REGEX
         .findAll(substringBefore('-'))
         .last()
         .value
         .toInt()
-}

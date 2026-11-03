@@ -11,7 +11,8 @@ private const val HTTP_CONNECT_TIMEOUT_MINUTES = 3L
 internal object SlackClientFactory {
     fun build(logger: PluginLogger): OkHttpClient {
         val loggingInterceptor = buildLoggingInterceptor(logger)
-        return OkHttpClient.Builder()
+        return OkHttpClient
+            .Builder()
             .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)

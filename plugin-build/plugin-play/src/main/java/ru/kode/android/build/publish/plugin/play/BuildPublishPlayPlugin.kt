@@ -37,7 +37,8 @@ abstract class BuildPublishPlayPlugin : Plugin<Project> {
 
         androidExtension.finalizeDsl {
             val loggerProvider =
-                project.extensions.getByType(LoggerServiceExtension::class.java)
+                project.extensions
+                    .getByType(LoggerServiceExtension::class.java)
                     .service
 
             val services: Provider<Map<String, Provider<PlayNetworkService>>> =

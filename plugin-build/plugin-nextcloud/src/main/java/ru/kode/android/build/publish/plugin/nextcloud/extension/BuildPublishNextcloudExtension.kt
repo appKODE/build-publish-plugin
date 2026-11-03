@@ -33,7 +33,9 @@ import javax.inject.Inject
 @Suppress("UnnecessaryAbstractClass")
 abstract class BuildPublishNextcloudExtension
     @Inject
-    constructor(objectFactory: ObjectFactory) : BuildPublishConfigurableExtension() {
+    constructor(
+        objectFactory: ObjectFactory,
+    ) : BuildPublishConfigurableExtension() {
         /**
          * Container for Nextcloud authentication configurations.
          *

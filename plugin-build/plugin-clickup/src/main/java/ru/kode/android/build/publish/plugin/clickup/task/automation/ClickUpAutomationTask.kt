@@ -133,7 +133,8 @@ abstract class ClickUpAutomationTask
             val currentBuildTag = fromJson(buildTagSnapshotFile.asFile.get()).current
             val changelog = changelogFile.asFile.get().readText()
             val issues =
-                issuePatterns.get()
+                issuePatterns
+                    .get()
                     .flatMapTo(mutableSetOf()) { pattern ->
                         Regex(pattern).findAll(changelog).map { it.value }.asIterable()
                     }
@@ -149,7 +150,12 @@ abstract class ClickUpAutomationTask
             // are applied against every targeted project, mirroring ClickUpIssueResolver's native-id
             // fallback. Without this, native ids (the common case, e.g. "86c72yxu4") would be dropped and
             // no tag/fix-version would ever be applied.
-            val nativeIssues = issuesByPrefix.filterKeys { it !in knownPrefixes }.values.flatten().toSet()
+            val nativeIssues =
+                issuesByPrefix
+                    .filterKeys { it !in knownPrefixes }
+                    .values
+                    .flatten()
+                    .toSet()
             val workQueue: WorkQueue = workerExecutor.noIsolation()
 
             bindings.forEach { binding ->

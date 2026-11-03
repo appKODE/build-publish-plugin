@@ -15,7 +15,8 @@ internal interface StandaloneAddConfluenceCommentParameters : ServiceWorkParamet
 
 internal abstract class StandaloneAddConfluenceCommentWork
     @Inject
-    constructor() : WorkAction<StandaloneAddConfluenceCommentParameters> {
+    constructor() :
+    WorkAction<StandaloneAddConfluenceCommentParameters> {
         override fun execute() {
             val pageId = parameters.pageId.get()
             val fileName = parameters.fileName.get()

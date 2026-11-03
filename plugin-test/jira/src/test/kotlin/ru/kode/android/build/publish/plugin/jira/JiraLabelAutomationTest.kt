@@ -94,7 +94,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: false
 
@@ -183,7 +184,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -294,7 +296,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -398,7 +401,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -509,7 +513,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -613,7 +618,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -724,7 +730,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -828,7 +835,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -939,7 +947,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -1040,7 +1049,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -1147,7 +1157,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -1245,7 +1256,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -1358,7 +1370,8 @@ class JiraLabelAutomationTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 

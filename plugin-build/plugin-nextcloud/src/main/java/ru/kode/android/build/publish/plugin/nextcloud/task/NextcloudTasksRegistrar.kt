@@ -21,32 +21,28 @@ internal object NextcloudTasksRegistrar {
         project: Project,
         distributionConfig: NextcloudDistributionConfig,
         params: NextcloudApkDistributionTaskParams,
-    ): TaskProvider<NextcloudDistributionTask> {
-        return project.registerApkNextcloudDistributionTask(distributionConfig, params)
-    }
+    ): TaskProvider<NextcloudDistributionTask> =
+        project.registerApkNextcloudDistributionTask(distributionConfig, params)
 
     internal fun registerBundleDistributionTask(
         project: Project,
         distributionConfig: NextcloudDistributionConfig,
         params: NextcloudBundleDistributionTaskParams,
-    ): TaskProvider<NextcloudDistributionTask>? {
-        return project.registerBundleNextcloudDistributionTask(distributionConfig, params)
-    }
+    ): TaskProvider<NextcloudDistributionTask>? =
+        project.registerBundleNextcloudDistributionTask(distributionConfig, params)
 
     internal fun registerChangelogTask(
         project: Project,
         distributionConfig: NextcloudDistributionConfig,
         params: NextcloudChangelogTaskParams,
-    ): TaskProvider<NextcloudChangelogTask> {
-        return project.registerNextcloudChangelogTask(distributionConfig, params)
-    }
+    ): TaskProvider<NextcloudChangelogTask> = project.registerNextcloudChangelogTask(distributionConfig, params)
 }
 
 private fun Project.registerApkNextcloudDistributionTask(
     distributionConfig: NextcloudDistributionConfig,
     params: NextcloudApkDistributionTaskParams,
-): TaskProvider<NextcloudDistributionTask> {
-    return tasks.register(
+): TaskProvider<NextcloudDistributionTask> =
+    tasks.register(
         "${TaskNames.Nextcloud.DISTRIBUTION_UPLOAD_PREFIX}${params.buildVariant.capitalizedName()}",
         NextcloudDistributionTask::class.java,
     ) {
@@ -81,13 +77,12 @@ private fun Project.registerApkNextcloudDistributionTask(
         it.usesService(loggerService)
         it.dependsOn(params.buildTagSnapshotProvider)
     }
-}
 
 private fun Project.registerBundleNextcloudDistributionTask(
     distributionConfig: NextcloudDistributionConfig,
     params: NextcloudBundleDistributionTaskParams,
-): TaskProvider<NextcloudDistributionTask>? {
-    return tasks.register(
+): TaskProvider<NextcloudDistributionTask>? =
+    tasks.register(
         "${TaskNames.Nextcloud.DISTRIBUTION_UPLOAD_BUNDLE_PREFIX}${params.buildVariant.capitalizedName()}",
         NextcloudDistributionTask::class.java,
     ) {
@@ -122,13 +117,12 @@ private fun Project.registerBundleNextcloudDistributionTask(
         it.usesService(loggerService)
         it.dependsOn(params.buildTagSnapshotProvider)
     }
-}
 
 private fun Project.registerNextcloudChangelogTask(
     distributionConfig: NextcloudDistributionConfig,
     params: NextcloudChangelogTaskParams,
-): TaskProvider<NextcloudChangelogTask> {
-    return tasks.register(
+): TaskProvider<NextcloudChangelogTask> =
+    tasks.register(
         "${TaskNames.Nextcloud.CHANGELOG_UPLOAD_PREFIX}${params.buildVariant.capitalizedName()}",
         NextcloudChangelogTask::class.java,
     ) {
@@ -162,7 +156,6 @@ private fun Project.registerNextcloudChangelogTask(
         it.usesService(loggerService)
         it.dependsOn(params.buildTagSnapshotProvider, params.changelogFileProvider)
     }
-}
 
 internal data class NextcloudApkDistributionTaskParams(
     val buildVariant: BuildVariant,

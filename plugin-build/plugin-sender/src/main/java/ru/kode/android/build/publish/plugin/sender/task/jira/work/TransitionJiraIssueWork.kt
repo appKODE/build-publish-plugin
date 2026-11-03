@@ -19,16 +19,18 @@ internal interface TransitionJiraIssueParameters : WorkParameters {
 
 internal abstract class TransitionJiraIssueWork
     @Inject
-    constructor() : WorkAction<TransitionJiraIssueParameters> {
+    constructor() :
+    WorkAction<TransitionJiraIssueParameters> {
         override fun execute() {
-            JiraControllerFactory.build(
-                baseUrl = parameters.baseUrl.get(),
-                username = parameters.username.get(),
-                password = parameters.apiToken.get(),
-            ).transitionIssues(
-                projectKey = parameters.projectKey.get(),
-                transitionName = parameters.transitionName.get(),
-                issues = parameters.issues.get(),
-            )
+            JiraControllerFactory
+                .build(
+                    baseUrl = parameters.baseUrl.get(),
+                    username = parameters.username.get(),
+                    password = parameters.apiToken.get(),
+                ).transitionIssues(
+                    projectKey = parameters.projectKey.get(),
+                    transitionName = parameters.transitionName.get(),
+                    issues = parameters.issues.get(),
+                )
         }
     }

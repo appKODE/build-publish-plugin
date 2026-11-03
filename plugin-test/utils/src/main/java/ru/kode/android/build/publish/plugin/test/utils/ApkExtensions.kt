@@ -25,9 +25,7 @@ private val apkAnalyzerPath: String
         }
     }
 
-private fun isWindows(): Boolean {
-    return System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
-}
+private fun isWindows(): Boolean = System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
 
 fun File.extractManifestProperties(): ManifestProperties {
     val manifestOutput =

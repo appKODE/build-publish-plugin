@@ -121,7 +121,8 @@ class SlackDistributionTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -218,7 +219,8 @@ class SlackDistributionTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -318,7 +320,8 @@ class SlackDistributionTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -415,7 +418,8 @@ class SlackDistributionTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.apk")) }
                 ?: false
 
@@ -502,7 +506,8 @@ class SlackDistributionTest {
 
         val bundleDir = projectDir.getFile("app/build/outputs/bundle/debug")
         val givenOutputFile =
-            bundleDir.listFiles()
+            bundleDir
+                .listFiles()
                 ?.find { it.name.matches(Regex("autotest-debug-vc2-\\d{8}\\.aab")) }
 
         assembleResult.outputShouldNotContain("Task :app:getLastTagSnapshotRelease")
@@ -562,7 +567,8 @@ class SlackDistributionTest {
 
         val apkDir = projectDir.getFile("app/build/outputs/apk/debug")
         val givenOutputFileExists =
-            apkDir.listFiles()
+            apkDir
+                .listFiles()
                 ?.any { it.name.matches(Regex("autotest-debug-vc1-\\d{8}\\.apk")) }
                 ?: false
 
@@ -577,9 +583,8 @@ class SlackDistributionTest {
     }
 }
 
-private fun getChangelog(): String {
-    return """
-        [TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
-        [TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
-        """.trimIndent()
-}
+private fun getChangelog(): String =
+    """
+    [TEST-3243] [And] Mickey tried to fix the loader on Goofy’s form after settings got tangled, and navigation went bonkers
+    [TEST-3277] [Android] Donald’s transaction history exploded when he peeked into Daisy’s credit card details
+    """.trimIndent()

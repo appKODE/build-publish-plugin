@@ -77,7 +77,8 @@ internal interface GenerateTagSnapshotParameters : WorkParameters {
  */
 internal abstract class GenerateTagSnapshotWork
     @Inject
-    constructor() : WorkAction<GenerateTagSnapshotParameters> {
+    constructor() :
+    WorkAction<GenerateTagSnapshotParameters> {
         override fun execute() {
             val buildVariant = parameters.buildVariant.get()
             val buildTagPattern = parameters.buildTagPattern.get()
@@ -88,7 +89,8 @@ internal abstract class GenerateTagSnapshotWork
             val ciCommitTag = parameters.ciCommitTag.orNull
 
             val buildTagSnapshot =
-                parameters.gitExecutorService.get()
+                parameters.gitExecutorService
+                    .get()
                     .repository
                     .findTagSnapshot(buildVariant, buildTagPattern, ciCommitTag)
 

@@ -756,10 +756,11 @@ class GetLastTagBuildTypesTest {
             .forEachIndexed { index, tag ->
                 val recreatedCommitSha =
                     commitMap.getOrPut(tag.commitSha) {
-                        git.commitWithDate(
-                            message = "replay commit ${tag.commitSha.take(7)}",
-                            date = tag.createdAt.toInstant(),
-                        ).id
+                        git
+                            .commitWithDate(
+                                message = "replay commit ${tag.commitSha.take(7)}",
+                                date = tag.createdAt.toInstant(),
+                            ).id
                     }
 
                 git.checkoutCommitDetached(recreatedCommitSha)

@@ -35,7 +35,8 @@ internal object TelegramClientFactory {
         json: Json,
     ): OkHttpClient {
         val loggingInterceptor = buildLoggingInterceptor(logger)
-        return OkHttpClient.Builder()
+        return OkHttpClient
+            .Builder()
             .connectTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .readTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
             .writeTimeout(HTTP_CONNECT_TIMEOUT_MINUTES, TimeUnit.MINUTES)
@@ -47,7 +48,9 @@ internal object TelegramClientFactory {
     }
 }
 
-private class DelayInterceptor(private val delayMs: Long) : Interceptor {
+private class DelayInterceptor(
+    private val delayMs: Long,
+) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         Thread.sleep(delayMs)
         return chain.proceed(chain.request())
