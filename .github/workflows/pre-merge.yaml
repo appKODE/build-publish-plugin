@@ -3,7 +3,7 @@ name: Pre Merge Checks
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
       - '*'
@@ -15,6 +15,45 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Cache Gradle Caches
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches/
+          key: cache-gradle-cache
+      - name: Cache Gradle Wrapper
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper/
+          key: cache-gradle-wrapper
+      - name: Setup java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Run Gradle tasks
+        run: ./gradlew preMerge :plugin-test:foundation:test --continue
+      - name: Upload Gradle Reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ matrix.os }}
+          path: |
+            **/build/reports/tests/test/
+            **/build/reports/problems/
+          if-no-files-found: warn
+
+  # One job per service module, so a failing service can be re-run on its own
+  # ("Re-run failed jobs"). Add new plugin-test modules here.
+  integration:
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [agp-versions, clickup, confluence, firebase, jira, nextcloud, play, sender, slack, telegram]
+    runs-on: ubuntu-latest
     environment: verify
     env:
       GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
@@ -77,56 +116,19 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - name: Create Firebase config files
-        shell: bash
+        if: matrix.module == 'firebase'
         run: |
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            pwsh -NoProfile -Command "
-              mkdir -Force plugin-test\firebase
-              \$googleBase64 = [System.Environment]::GetEnvironmentVariable('GOOGLE_SERVICES_BASE64') -replace '\s',''
-              [System.IO.File]::WriteAllBytes('plugin-test\firebase\google-services.json',[System.Convert]::FromBase64String(\$googleBase64))
-              \$serviceBase64 = [System.Environment]::GetEnvironmentVariable('SERVICE_CREDENTIALS_BASE64') -replace '\s',''
-              [System.IO.File]::WriteAllBytes('plugin-test\firebase\service-credentials.json',[System.Convert]::FromBase64String(\$serviceBase64))
-            "
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            mkdir -p plugin-test/firebase
-            echo "$GOOGLE_SERVICES_BASE64" | tr -d '\n' | base64 -D > plugin-test/firebase/google-services.json
-            echo "$SERVICE_CREDENTIALS_BASE64" | tr -d '\n' | base64 -D > plugin-test/firebase/service-credentials.json
-          else
-            # Linux
-            mkdir -p plugin-test/firebase
-            echo "$GOOGLE_SERVICES_BASE64" | tr -d '\n' | base64 --decode > plugin-test/firebase/google-services.json
-            echo "$SERVICE_CREDENTIALS_BASE64" | tr -d '\n' | base64 --decode > plugin-test/firebase/service-credentials.json
-          fi
+          echo "$GOOGLE_SERVICES_BASE64" | tr -d '\n' | base64 --decode > plugin-test/firebase/google-services.json
+          echo "$SERVICE_CREDENTIALS_BASE64" | tr -d '\n' | base64 --decode > plugin-test/firebase/service-credentials.json
         env:
           GOOGLE_SERVICES_BASE64: ${{ secrets.GOOGLE_SERVICES_BASE64 }}
           SERVICE_CREDENTIALS_BASE64: ${{ secrets.SERVICE_CREDENTIALS_BASE64 }}
-      - name: Run Gradle tasks
-        id: gradle_run
-        run: ./gradlew preMerge --continue
-        continue-on-error: true
       - name: Run tests
-        id: gradle_tests
-        shell: bash
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            ./gradlew :plugin-test:test --continue
-          else
-            ./gradlew :plugin-test:foundation:test --continue
-          fi
-        continue-on-error: true
+        run: ./gradlew :plugin-test:${{ matrix.module }}:test
       - name: Upload Gradle Reports
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports-${{ matrix.os }}
-          path: |
-            **/build/reports/tests/test/
-            **/build/reports/problems/
+          name: test-reports-${{ matrix.module }}
+          path: plugin-test/${{ matrix.module }}/build/reports/tests/test/
           if-no-files-found: warn
-      - name: Stop Gradle
-        run: ./gradlew --stop
-      - name: Fail if gradle tasks failed
-        if: steps.gradle_run.outcome != 'success' || steps.gradle_tests.outcome != 'success'
-        run: |
-          echo "❌ Some Gradle tasks failed. Check the uploaded reports for details."
-          exit 1
