@@ -47,6 +47,19 @@ object TaskNames {
         const val CHANGELOG_UPLOAD_PREFIX = "nextcloudChangelogUpload"
     }
 
+    object YandexDisk {
+        const val UPLOAD = "uploadToYandexDisk"
+        const val DISTRIBUTION_UPLOAD_PREFIX = "yandexDiskDistributionUpload"
+        const val DISTRIBUTION_UPLOAD_BUNDLE_PREFIX = "yandexDiskDistributionUploadBundle"
+        const val CHANGELOG_UPLOAD_PREFIX = "yandexDiskChangelogUpload"
+    }
+
+    object Vk {
+        const val UPLOAD = "uploadToVk"
+        const val DISTRIBUTION_UPLOAD_PREFIX = "vkDistributionUpload"
+        const val DISTRIBUTION_UPLOAD_BUNDLE_PREFIX = "vkDistributionUploadBundle"
+    }
+
     object Confluence {
         const val UPLOAD = "uploadToConfluence"
         const val ADD_COMMENT = "addConfluenceComment"

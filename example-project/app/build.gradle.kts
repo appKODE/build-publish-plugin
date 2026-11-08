@@ -12,6 +12,8 @@ plugins {
     id("ru.kode.android.build-publish-novo.firebase")
     id("ru.kode.android.build-publish-novo.slack")
     id("ru.kode.android.build-publish-novo.nextcloud")
+    id("ru.kode.android.build-publish-novo.yandexdisk")
+    id("ru.kode.android.build-publish-novo.vk")
     id("ru.kode.android.build-publish-example.print-tag")
 }
 
@@ -277,6 +279,36 @@ buildPublishNextcloud {
             shareMode.set(NextcloudShareMode.INTERNAL_RECIPIENTS)
             userRecipients("qa-bot", "release-manager")
             groupRecipients("android-team")
+        }
+    }
+}
+
+buildPublishYandexDisk {
+    auth {
+        common {
+            oauthTokenFile.set(File("yandex-disk-token.txt"))
+        }
+    }
+    distribution {
+        common {
+            remotePath.set("builds/example-project/release")
+            compressed.set(false)
+            publicLink.set(true)
+        }
+    }
+}
+
+buildPublishVk {
+    auth {
+        common {
+            accessTokenFile.set(File("vk-token.txt"))
+        }
+    }
+    distribution {
+        common {
+            peerId.set(2000000001L)
+            compressed.set(true)
+            message.set("New Android build")
         }
     }
 }

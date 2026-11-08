@@ -1,4 +1,4 @@
-package ru.kode.android.build.publish.plugin.nextcloud.task
+package ru.kode.android.build.publish.plugin.core.util
 
 import ru.kode.android.build.publish.plugin.core.git.mapper.fromJson
 import java.io.File
@@ -7,15 +7,15 @@ private const val DEFAULT_BUILD_VERSION = "0.0.0"
 private const val DEFAULT_FILE_EXTENSION = "bin"
 private val NON_SAFE_FILE_CHARS_REGEX = Regex("[^A-Za-z0-9._-]+")
 
-internal data class NextcloudRemoteFileNameContext(
+data class RemoteFileNameContext(
     val baseOutputFileName: String,
     val buildVariantName: String,
     val buildVariantDefaultVersionName: String?,
     val buildTagSnapshotFile: File,
 )
 
-internal fun resolveArtifactRemoteFileName(
-    context: NextcloudRemoteFileNameContext,
+fun resolveArtifactRemoteFileName(
+    context: RemoteFileNameContext,
     sourceFile: File,
     compressed: Boolean,
     explicitRemoteFileName: String?,
@@ -42,8 +42,8 @@ internal fun resolveArtifactRemoteFileName(
     }
 }
 
-internal fun resolveChangelogRemoteFileName(
-    context: NextcloudRemoteFileNameContext,
+fun resolveChangelogRemoteFileName(
+    context: RemoteFileNameContext,
     sourceFile: File,
     explicitRemoteFileName: String?,
 ): String {
@@ -63,7 +63,7 @@ internal fun resolveChangelogRemoteFileName(
     ).joinToString("-") + ".${sanitizeSegment(extension, "md")}"
 }
 
-private fun resolveBuildVersion(context: NextcloudRemoteFileNameContext): String {
+private fun resolveBuildVersion(context: RemoteFileNameContext): String {
     val buildVersionFromTag =
         runCatching {
             val snapshotFile = context.buildTagSnapshotFile

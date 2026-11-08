@@ -10,6 +10,8 @@ Each integration's network logic is published as a standalone library on Maven C
 | `ru.kode.android:build-publish-novo-client-slack` | Slack |
 | `ru.kode.android:build-publish-novo-client-telegram` | Telegram |
 | `ru.kode.android:build-publish-novo-client-nextcloud` | Nextcloud |
+| `ru.kode.android:build-publish-novo-client-yandexdisk` | Yandex Disk |
+| `ru.kode.android:build-publish-novo-client-vk` | VK |
 | `ru.kode.android:build-publish-novo-client-jira` | Jira |
 | `ru.kode.android:build-publish-novo-client-confluence` | Confluence |
 | `ru.kode.android:build-publish-novo-client-clickup` | ClickUp |
@@ -27,6 +29,8 @@ the CLI-invokable **standalone tasks** the plugins register. Every input is a `-
 ./gradlew addJiraLabel --label released --issueNumbers PROJ-1,PROJ-2
 ./gradlew transitionJiraIssue --transitionName Done --projectKey PROJ --issueNumbers PROJ-1
 ./gradlew uploadToNextcloud --file build/outputs/app.apk --remotePath builds
+./gradlew uploadToYandexDisk --file build/outputs/app.apk --remotePath builds
+./gradlew uploadToVk --file build/outputs/app.zip --peerId 2000000001 --message "Build is ready"
 ./gradlew sendSlackMessage --message "Build is ready"
 ./gradlew sendSlackFile --file build/outputs/app.apk --channels C123,C456
 ./gradlew sendTelegramMessage --botName ci --chatName releases --message "Build is ready"
@@ -44,5 +48,6 @@ the CLI-invokable **standalone tasks** the plugins register. Every input is a `-
 
 The **`ru.kode.android.build-publish-novo.sender`** plugin (`plugin-sender`) is an Android-free
 aggregator that exposes all of the tasks above from a single `buildPublishSender { … }` extension —
-useful for non-Android or standalone automation projects.
+useful for non-Android or standalone automation projects. Yandex Disk and VK are not part of the
+sender plugin yet; apply their plugins directly to use `uploadToYandexDisk` and `uploadToVk`.
 

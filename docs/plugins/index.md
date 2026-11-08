@@ -17,6 +17,8 @@ integrations you need.
 | **Confluence** | Upload builds/changelogs to a Confluence page | `confluenceDistributionUpload<V>` | [confluence.md](./confluence.md) |
 | **ClickUp** | Tag ClickUp tasks and set fix versions from changelog issues | `clickUpAutomation<V>` | [clickup.md](./clickup.md) |
 | **Nextcloud** | Upload builds/changelogs to a Nextcloud folder with sharing | `nextcloudDistributionUpload<V>`, `nextcloudChangelogUpload<V>` | [nextcloud.md](./nextcloud.md) |
+| **Yandex Disk** | Upload builds/changelogs to a Yandex Disk folder, optionally with a public link | `yandexDiskDistributionUpload<V>`, `yandexDiskChangelogUpload<V>` | [yandexdisk.md](./yandexdisk.md) |
+| **VK** | Send builds as documents to a VK conversation from a community | `vkDistributionUpload<V>` | [vk.md](./vk.md) |
 
 `<V>` is the capitalized build variant (e.g. `generateChangelogRelease`).
 

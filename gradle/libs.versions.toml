@@ -37,6 +37,8 @@ plugin-core = { group = "ru.kode.android", name = "build-publish-novo-core", ver
 client-slack = { group = "ru.kode.android", name = "build-publish-novo-client-slack", version.ref = "buildPublishPlugin" }
 client-telegram = { group = "ru.kode.android", name = "build-publish-novo-client-telegram", version.ref = "buildPublishPlugin" }
 client-nextcloud = { group = "ru.kode.android", name = "build-publish-novo-client-nextcloud", version.ref = "buildPublishPlugin" }
+client-vk = { group = "ru.kode.android", name = "build-publish-novo-client-vk", version.ref = "buildPublishPlugin" }
+client-yandexdisk = { group = "ru.kode.android", name = "build-publish-novo-client-yandexdisk", version.ref = "buildPublishPlugin" }
 client-jira = { group = "ru.kode.android", name = "build-publish-novo-client-jira", version.ref = "buildPublishPlugin" }
 client-confluence = { group = "ru.kode.android", name = "build-publish-novo-client-confluence", version.ref = "buildPublishPlugin" }
 client-clickup = { group = "ru.kode.android", name = "build-publish-novo-client-clickup", version.ref = "buildPublishPlugin" }
@@ -51,6 +53,8 @@ plugin-slack = { group = "ru.kode.android", name = "plugin-slack", version.ref =
 plugin-clickup = { group = "ru.kode.android", name = "plugin-clickup", version.ref = "buildPublishPlugin" }
 plugin-confluence = { group = "ru.kode.android", name = "plugin-confluence", version.ref = "buildPublishPlugin" }
 plugin-nextcloud = { group = "ru.kode.android", name = "plugin-nextcloud", version.ref = "buildPublishPlugin" }
+plugin-vk = { group = "ru.kode.android", name = "plugin-vk", version.ref = "buildPublishPlugin" }
+plugin-yandexdisk = { group = "ru.kode.android", name = "plugin-yandexdisk", version.ref = "buildPublishPlugin" }
 plugin-firebase = { group = "ru.kode.android", name = "plugin-firebase", version.ref = "buildPublishPlugin" }
 plugin-play = { group = "ru.kode.android", name = "plugin-play", version.ref = "buildPublishPlugin" }
 plugin-sender = { group = "ru.kode.android", name = "plugin-sender", version.ref = "buildPublishPlugin" }
