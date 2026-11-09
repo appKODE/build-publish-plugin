@@ -83,6 +83,11 @@ fun File.createAndroidProject(
     val appBuildFile = this.getFile("app/build.gradle")
     val androidManifestFile = this.getFile("app/src/main/AndroidManifest.xml")
 
+    // TestKit reuses one daemon per Gradle version across tests, and each AGP version it loads stays in
+    // Metaspace. Gradle's default (-XX:MaxMetaspaceSize=384m) runs out in agp-versions on CI.
+    val gradleJvmArgs = "org.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8\n"
+    this.getFile("gradle.properties").writeText(gradleJvmArgs)
+
     if (topBuildFileContent != null) {
         val safeTopBuildFileContent = topBuildFileContent.redactScriptSecrets()
         println("--- ${topBuildFile.path} START ---")
