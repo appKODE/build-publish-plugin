@@ -12,6 +12,20 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
+### 2.3.0 (2026-11-09)
+* **Yandex Disk plugin** (`ru.kode.android.build-publish-novo.yandexdisk`): uploads APK/AAB and changelog files
+  to a Yandex Disk folder via the REST API (upload link + `PUT`), creates missing folders, optionally publishes
+  the file and logs its public link (`publicLink`). Standalone `uploadToYandexDisk` task.
+  See [docs](docs/plugins/yandexdisk.md)
+* **VK plugin** (`ru.kode.android.build-publish-novo.vk`): sends APK/AAB as a document to a VK conversation
+  with a community token (`docs.getMessagesUploadServer` → `docs.save` → `messages.send`), with an optional
+  message. Standalone `uploadToVk` task. See [docs](docs/plugins/vk.md)
+* New libraries `ru.kode.android:build-publish-novo-client-yandexdisk` and
+  `ru.kode.android:build-publish-novo-client-vk`
+* Remote file name resolution (`<baseFileName>-<version>-<variant>.<ext>`) moved from the Nextcloud plugin to
+  `build-publish-novo-core` (`ru.kode.android.build.publish.plugin.core.util`) so Nextcloud and Yandex Disk
+  share it
+
 ### 2.2.1
 * Fix Plugin Portal publishing of the Play plugin: its `google play` tag is now `google-play`, so the Play
   and Telegram plugins are published (2.2.0 is missing on the Portal for both)

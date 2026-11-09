@@ -2,7 +2,7 @@
 
 A modular Gradle plugin suite that automates Android build publishing workflows: Git-tag-based
 version management, changelog generation, and distribution/notification integrations (Firebase, Play
-Store, Slack, Telegram, Jira, Confluence, ClickUp, Nextcloud).
+Store, Slack, Telegram, Jira, Confluence, ClickUp, Nextcloud, Yandex Disk, VK).
 
 > **Upgrading?** 2.0 contains breaking DSL changes — see the
 > **[2.0 migration guide](docs/migration/v2.md)**. For the 2.0 → 2.1 changes (Jira multi-instance
@@ -69,7 +69,9 @@ Then see [Installation](docs/installation.md) for repositories, version catalogs
   [Jira](docs/plugins/jira.md) ·
   [Confluence](docs/plugins/confluence.md) ·
   [ClickUp](docs/plugins/clickup.md) ·
-  [Nextcloud](docs/plugins/nextcloud.md)
+  [Nextcloud](docs/plugins/nextcloud.md) ·
+  [Yandex Disk](docs/plugins/yandexdisk.md) ·
+  [VK](docs/plugins/vk.md)
 - **[Reusable client libraries & standalone tasks](docs/standalone-tasks.md)** — the published
   `build-publish-novo-client-*` libraries and CLI-invokable tasks (incl. the Android-free `sender`).
 - **[Custom plugin development](docs/custom-plugins.md)** — extend variant configuration with your own plugin.

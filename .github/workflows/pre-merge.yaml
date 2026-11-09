@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [agp-versions, clickup, confluence, firebase, jira, nextcloud, play, sender, slack, telegram]
+        module: [agp-versions, clickup, confluence, firebase, jira, nextcloud, play, sender, slack, telegram, vk, yandexdisk]
     runs-on: ubuntu-latest
     environment: verify
     env:

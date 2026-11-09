@@ -67,6 +67,8 @@ fun File.createAndroidProject(
     clickUpConfig: ClickUpConfig? = null,
     confluenceConfig: ConfluenceConfig? = null,
     nextcloudConfig: NextcloudConfig? = null,
+    yandexDiskConfig: YandexDiskConfig? = null,
+    vkConfig: VkConfig? = null,
     firebaseConfig: FirebaseConfig? = null,
     jiraConfig: JiraConfig? = null,
     playConfig: PlayConfig? = null,
@@ -80,6 +82,11 @@ fun File.createAndroidProject(
     val topBuildFile = this.getFile("build.gradle")
     val appBuildFile = this.getFile("app/build.gradle")
     val androidManifestFile = this.getFile("app/src/main/AndroidManifest.xml")
+
+    // TestKit reuses one daemon per Gradle version across tests, and each AGP version it loads stays in
+    // Metaspace. Gradle's default (-XX:MaxMetaspaceSize=384m) runs out in agp-versions on CI.
+    val gradleJvmArgs = "org.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8\n"
+    this.getFile("gradle.properties").writeText(gradleJvmArgs)
 
     if (topBuildFileContent != null) {
         val safeTopBuildFileContent = topBuildFileContent.redactScriptSecrets()
@@ -449,6 +456,77 @@ fun File.createAndroidProject(
             """
             }.orEmpty()
 
+    val yandexDiskConfigBlock =
+        yandexDiskConfig
+            ?.let { config ->
+                val auth =
+                    config.auth
+                        ?.let { auth ->
+                            """
+            auth {
+                common {
+                    oauthTokenFile.set(file("${auth.oauthTokenFilePath}"))
+                }
+            }
+                    """
+                        }.orEmpty()
+                val distribution =
+                    config.distribution
+                        ?.let { distribution ->
+                            """
+            distribution {
+                common {
+                    remotePath.set("${distribution.remotePath}")
+                    compressed.set(${distribution.compressed})
+                    publicLink.set(${distribution.publicLink})
+                }
+            }
+                    """
+                        }.orEmpty()
+                """
+        buildPublishYandexDisk {
+            $auth
+
+            $distribution
+        }
+            """
+            }.orEmpty()
+
+    val vkConfigBlock =
+        vkConfig
+            ?.let { config ->
+                val auth =
+                    config.auth
+                        ?.let { auth ->
+                            """
+            auth {
+                common {
+                    accessTokenFile.set(file("${auth.accessTokenFilePath}"))
+                }
+            }
+                    """
+                        }.orEmpty()
+                val distribution =
+                    config.distribution
+                        ?.let { distribution ->
+                            """
+            distribution {
+                common {
+                    peerId.set(${distribution.peerId}L)
+                    compressed.set(${distribution.compressed})
+                }
+            }
+                    """
+                        }.orEmpty()
+                """
+        buildPublishVk {
+            $auth
+
+            $distribution
+        }
+            """
+            }.orEmpty()
+
     val nextcloudConfigBlock =
         nextcloudConfig
             ?.let { config ->
@@ -675,6 +753,8 @@ fun File.createAndroidProject(
             ${clickUpConfig?.let { """id 'ru.kode.android.build-publish-novo.clickup'""" }.orEmpty()}
             ${confluenceConfig?.let { """id 'ru.kode.android.build-publish-novo.confluence'""" }.orEmpty()}
             ${nextcloudConfig?.let { """id 'ru.kode.android.build-publish-novo.nextcloud'""" }.orEmpty()}
+            ${yandexDiskConfig?.let { """id 'ru.kode.android.build-publish-novo.yandexdisk'""" }.orEmpty()}
+            ${vkConfig?.let { """id 'ru.kode.android.build-publish-novo.vk'""" }.orEmpty()}
             ${firebaseConfig?.let { """id 'ru.kode.android.build-publish-novo.firebase'""" }.orEmpty()}
             ${jiraConfig?.let { """id 'ru.kode.android.build-publish-novo.jira'""" }.orEmpty()}
             ${playConfig?.let { """id 'ru.kode.android.build-publish-novo.play'""" }.orEmpty()}
@@ -706,6 +786,10 @@ fun File.createAndroidProject(
         $confluenceConfigBlock
 
         $nextcloudConfigBlock
+
+        $yandexDiskConfigBlock
+
+        $vkConfigBlock
 
         $firebaseConfigBlock
                 
@@ -1486,6 +1570,35 @@ data class NextcloudConfig(
         val userRecipients: List<String> = emptyList(),
         val groupRecipients: List<String> = emptyList(),
         val remoteFileName: String? = null,
+    )
+}
+
+data class YandexDiskConfig(
+    val auth: Auth?,
+    val distribution: Distribution?,
+) {
+    data class Auth(
+        val oauthTokenFilePath: String,
+    )
+
+    data class Distribution(
+        val remotePath: String,
+        val compressed: Boolean = false,
+        val publicLink: Boolean = false,
+    )
+}
+
+data class VkConfig(
+    val auth: Auth?,
+    val distribution: Distribution?,
+) {
+    data class Auth(
+        val accessTokenFilePath: String,
+    )
+
+    data class Distribution(
+        val peerId: Long,
+        val compressed: Boolean = false,
     )
 }
 
