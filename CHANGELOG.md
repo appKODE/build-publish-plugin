@@ -12,7 +12,7 @@ Starting with **build-publish-novo**, this project introduces a **new package na
 
 ## 🚀 build-publish-novo (new lineage)
 
-### Unreleased
+### 2.3.0 (2026-11-09)
 * **Yandex Disk plugin** (`ru.kode.android.build-publish-novo.yandexdisk`): uploads APK/AAB and changelog files
   to a Yandex Disk folder via the REST API (upload link + `PUT`), creates missing folders, optionally publishes
   the file and logs its public link (`publicLink`). Standalone `uploadToYandexDisk` task.
